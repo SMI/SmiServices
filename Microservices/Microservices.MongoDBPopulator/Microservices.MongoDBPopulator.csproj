@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>MongoDBPopulator</AssemblyName>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MongoDBPopulator.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Reusable\Smi.MongoDB.Common\Smi.MongoDB.Common.csproj" />
+    <ProjectReference Include="..\Microservices.Common\Microservices.Common.csproj" />
+  </ItemGroup>
+</Project>
