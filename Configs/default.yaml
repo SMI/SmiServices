@@ -1,0 +1,168 @@
+
+RabbitOptions:
+    RabbitMqHostName: 'localhost'
+    RabbitMqHostPort: 5672
+    RabbitMqVirtualHost: '/'
+    RabbitMqUserName: 'guest'
+    RabbitMqPassword: 'guest'
+    RabbitMqControlExchangeName: 'TEST.ControlExchange'
+    FatalLoggingExchange: 'TEST.FatalLoggingExchange'
+
+FileSystemOptions:
+    FileSystemRoot: 'C:\temp'
+    ExtractRoot: 'C:\temp'
+    ForceSmiLogsRoot: false
+    LogConfigFile: ''
+    DicomSearchPattern: "*.dcm"
+
+RDMPOptions:
+    CatalogueConnectionString: 'server=localhost\sqlexpress;integrated security=true;database=RDMP_Catalogue'
+    DataExportConnectionString: 'server=localhost\sqlexpress;integrated security=true;database=RDMP_DataExport'
+
+MongoDatabases:
+    DicomStoreOptions:
+        HostName: 'localhost'
+        Port: 27017
+        UserName: ''
+        DatabaseName: 'dicom'
+    ExtractionStoreOptions:
+        HostName: 'localhost'
+        Port: 27017
+        UserName: ''
+        DatabaseName: 'extraction'
+    DeadLetterStoreOptions:
+        HostName: 'localhost'
+        Port: 27017
+        UserName: ''
+        DatabaseName: 'deadLetterStorage'
+
+DeadLetterReprocessorOptions:
+    DeadLetterConsumerOptions:
+        QueueName: 'TEST.DLQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    MaxRetryLimit: 5
+    DefaultRetryAfter: 60 # Minutes
+
+DicomRelationalMapperOptions:
+    Guid: '6ff062af-5538-473f-801c-ed2b751c7897'
+    QueueName: 'TEST.AnonymousImageQueue'
+    QoSPrefetchCount: 10000
+    AutoAck: false
+    LoadMetadataId: 1
+    DatabaseNamerType: 'GuidDatabaseNamer'
+    MinimumBatchSize: 10000
+    UseInsertIntoForRAWMigration: true
+    RetryOnFailureCount: 1
+    RetryDelayInSeconds: 60
+    RunChecks: true
+
+CohortExtractorOptions:
+    QueueName: 'TEST.RequestQueue'
+    QoSPrefetchCount: 10000
+    AutoAck: false
+    AllCatalogues: true
+    OnlyCatalogues: [1,2,3]
+    # List of IDs of Catalogues to extract from (in ascending order).
+    # Ignored if "AllCatalogues == true"
+    #    - 2
+    #    - 4
+    #    - 5
+    # also doable on a single line with [2,4,5] :)
+    AuditorType: 'Microservices.CohortExtractor.Audit.NullAuditExtractions'
+    RequestFulfillerType: 'Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller'
+    # Writes (Producer) to this exchange
+    ExtractFilesProducerOptions: 
+        ExchangeName: 'TEST.ExtractFileExchange'
+        MaxConfirmAttempts: 1
+    # And audits this too
+    ExtractFilesInfoProducerOptions: 
+        ExchangeName: 'TEST.FileCollectionInfoExchange'
+        MaxConfirmAttempts: 1
+        
+CohortPackagerOptions:
+    JobWatcherTickrate: 30 # Seconds
+    ExtractRequestInfoOptions: 
+        QueueName: 'TEST.RequestInfoQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    ExtractFilesInfoOptions:
+        QueueName: 'TEST.FileCollectionInfoQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    AnonImageStatusOptions:
+        QueueName: 'TEST.FileStatusQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+
+DicomReprocessorOptions:
+    ProcessingMode: 'ImageReprocessing'
+    ReprocessingProducerOptions: 
+        ExchangeName: 'TEST.IdentifiableImageExchange'
+        MaxConfirmAttempts: 1
+
+DicomTagReaderOptions:
+    QueueName: 'TEST.AccessionDirectoryQueue'
+    QoSPrefetchCount: 1
+    AutoAck: false
+    NackIfAnyFileErrors: true
+    ImageProducerOptions: 
+        ExchangeName: 'TEST.IdentifiableImageExchange'
+        MaxConfirmAttempts: 1
+    SeriesProducerOptions: 
+        ExchangeName: 'TEST.IdentifiableSeriesExchange'
+        MaxConfirmAttempts: 1
+    FileReadOption: 'ReadLargeOnDemand'
+    TagProcessorMode: 'Serial'
+    MaxIoThreads: 1
+
+IdentifierMapperOptions:
+    QueueName: 'TEST.IdentifiableImageQueue'
+    QoSPrefetchCount: 1000
+    AutoAck: false
+    AnonImagesProducerOptions: 
+        ExchangeName: 'TEST.AnonymousImageExchange'
+        MaxConfirmAttempts: 1
+    MappingConnectionString: 'Server=localhost\sqlexpress;Integrated Security=true;Initial Catalog=MappingDatabase;'
+    MappingDatabaseType: 'MicrosoftSQLServer'
+    MappingTableName: 'MappingTable'
+    TimeoutInSeconds: 600
+    SwapColumnName: 'CHI'
+    ReplacementColumnName: 'ECHI'
+    SwapperType: 'Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper'
+    AllowRegexMatching: false
+
+MongoDbPopulatorOptions:
+    SeriesQueueConsumerOptions:
+        QueueName: 'TEST.MongoSeriesQueue'
+        QoSPrefetchCount: 1000
+        AutoAck: false
+    ImageQueueConsumerOptions:
+        QueueName: 'TEST.MongoImageQueue'
+        QoSPrefetchCount: 10000
+        AutoAck: false
+    MongoDbFlushTime: 30 # Seconds
+    FailedWriteLimit: 5
+
+ProcessDirectoryOptions:
+    AccessionDirectoryProducerOptions:
+        ExchangeName: 'TEST.AccessionDirectoryExchange'
+        MaxConfirmAttempts: 1
+
+CTPAnonymiserOptions:
+    ExtractFileConsumerOptions:
+        QueueName: 'TEST.ExtractFileQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    ExtractFileStatusProducerOptions:
+        ExchangeName: 'TEST.FileStatusExchange'
+        MaxConfirmAttempts: 1
+
+ExtractorClOptions:
+    MaxIdentifiersPerMessage: 1000
+    ExtractionRequestProducerOptions:
+        ExchangeName: 'TEST.RequestExchange'
+        MaxConfirmAttempts: 1
+    ExtractionRequestInfoProducerOptions:
+        ExchangeName: 'TEST.RequestInfoExchange'
+        MaxConfirmAttempts: 1
