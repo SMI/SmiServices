@@ -1,0 +1,102 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
+using Microservices.Common.Messages;
+using Microservices.Common.Messages.Extraction;
+using Microservices.Common.MessageSerialization;
+using Microservices.Common.Options;
+using MongoDB.Driver;
+using NUnit.Framework;
+using Smi.MongoDB.Common;
+
+
+namespace Microservices.Tests.CohortPackagerTests
+{
+    public class CohortPackagerTestHelper
+    {
+        public readonly GlobalOptions Options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+
+        public ExtractionRequestInfoMessage TestExtractRequestInfoMessage;
+        public ExtractFileCollectionInfoMessage TestFileCollectionInfoMessage;
+        public ExtractFileStatusMessage TestExtractFileStatusMessage;
+
+        public MockFileSystem MockFileSystem;
+
+        public DateTime DefaultSubmittedDateTime;
+
+        private MongoClient _testClient;
+
+        private readonly Guid _testExtractIdentifier = Guid.NewGuid();
+
+
+        public void SetUpSuite()
+        {
+            SetUpDefaults();
+
+            _testClient = MongoClientHelpers
+                .GetMongoClient(Options.MongoDatabases.ExtractionStoreOptions, "CohortPackagerTests");
+        }
+
+        public void ResetSuite()
+        {
+            SetUpDefaults();
+            _testClient.DropDatabase(Options.MongoDatabases.ExtractionStoreOptions.DatabaseName);
+        }
+
+        private void SetUpDefaults()
+        {
+            DefaultSubmittedDateTime = DateTime.Now;
+            Options.CohortPackagerOptions.JobWatcherTickrate = 9999999;
+
+            TestExtractRequestInfoMessage = new ExtractionRequestInfoMessage
+            {
+                ExtractionJobIdentifier = _testExtractIdentifier,
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = @"1234-5678\testExtraction",
+                JobSubmittedAt = DefaultSubmittedDateTime,
+                KeyTag = "SeriesInstanceUID",
+                KeyValueCount = 1
+            };
+
+            var dispatched = new JsonCompatibleDictionary<MessageHeader, string>
+            {
+                SerializeableKeys = new[] { new MessageHeader() },
+                SerializeableValues = new[] { "AnonymisedTestFile1.dcm" }
+            };
+
+            TestFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
+            {
+                ExtractionJobIdentifier = _testExtractIdentifier,
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = @"1234-5678\testExtraction",
+                JobSubmittedAt = DefaultSubmittedDateTime,
+
+                KeyValue = "1.2.394", // Series id of IM_0001_0013.dcm
+                ExtractFileMessagesDispatched = dispatched,
+            };
+
+            TestExtractFileStatusMessage = new ExtractFileStatusMessage
+            {
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = @"1234-5678\testExtraction",
+                JobSubmittedAt = DefaultSubmittedDateTime,
+
+                AnonymisedFileName = "AnonymisedTestFile1.dcm",
+                Status = 0,
+                StatusMessage = string.Empty
+            };
+
+            string extractRoot = Options.FileSystemOptions.ExtractRoot;
+
+            MockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                {extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile1.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
+                {extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile2.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
+                {extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile3.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)}
+            });
+
+            MockFileSystem.AddDirectory(extractRoot + @"\1234-5678\testExtraction");
+        }
+    }
+}

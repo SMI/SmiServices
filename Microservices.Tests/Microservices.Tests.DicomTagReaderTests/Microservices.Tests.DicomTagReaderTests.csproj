@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Microservices.SMIDicomTagReader.Tests</RootNamespace>
+    <AssemblyName>Microservices.SMIDicomTagReader.Tests</AssemblyName>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyTitle>Microservices.SMIDicomTagReader.Tests</AssemblyTitle>
+    <Product>Microservices.SMIDicomTagReader.Tests</Product>
+    <Copyright>Copyright ©  2018</Copyright>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="NUnit" Version="3.11.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="NunitXml.TestLogger" Version="2.1.36" />
+    <PackageReference Include="System.IO.Abstractions" Version="6.0.15" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="6.0.15" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="TestDicomFiles.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestDicomFiles.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\FileWithLotsOfTags.dcm" />
+    <None Include="TestData\IM-0001-0013.dcm" />
+    <None Include="TestData\IM-0001-0019.dcm" />
+    <None Include="TestData\IM-0001-0024.dcm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Reusable\Tests\Tests.Common.Smi\Tests.Common.Smi.csproj" />
+    <ProjectReference Include="..\..\Microservices.Common\Microservices.Common.csproj" />
+    <ProjectReference Include="..\..\Microservices.DicomTagReader\Microservices.DicomTagReader.csproj" />
+    <ProjectReference Include="..\Microservices.Tests.CommonTests\Microservices.Tests.CommonTests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\NotADicomFile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    
+    
+    
+  </ItemGroup>
+  <ItemGroup>
+    
+    
+    
+    
+    
+  </ItemGroup>
+</Project>
