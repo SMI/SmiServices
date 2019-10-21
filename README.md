@@ -6,8 +6,9 @@ Scottish Medical Imaging plugin is a suite of microservices written in C# and Ja
 1. [Microservices](#microservices)
 	* [Data Load Microservices](#data-load-microservices)
 	* [Image Extraction Microservices](#image-extraction-microservices)
-2. [Testing](#testing)
-
+2. [Solution Overivew](#solution-overview)
+3. [Building](#building)
+4. [Testing](#testing)
 
 ## Microservices
 All microservices [follow the same design pattern](./Microservices/Microservices.Common/README.md).
@@ -15,6 +16,8 @@ All microservices [follow the same design pattern](./Microservices/Microservices
 The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Microservices.Common.Messages.IMessage`.
 
 Microservices can be configured through it's [Configuration](#configuration-file) file.
+
+Microservices can be controlled through RabbitMQ messages. The currently supported commands and instructions can be found [here](./Microservices/Microservices.Common/Messaging/readme.md).
 
 ### Data Load Microservices
 
@@ -53,7 +56,7 @@ Microservices can be configured through it's [Configuration](#configuration-file
 | Quarantine | TODO: Doesn't exist yet.|
 
 
-## Solution Overivew
+## Solution Overview
 Appart from the Microservices (documented above) the following library classes are also included in the solution:
 
 | Project Name | Path | Description|
@@ -62,6 +65,36 @@ Appart from the Microservices (documented above) the following library classes a
 | Dicom Repopulator |/Applications| [See Microservices](#image-extraction-microservices) |
 | Template Builder | /Applications| GUI tool for building modality database schema templates.  Supports viewing and exploring dicom tags in files|
 | Smi.MongoDB.Common | /Reusable | Library containing methods for interacting with MongoDb |
+
+## Building
+
+Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2) and [Ruby/Rake](https://github.com/ruby/rake). This can then be built with:
+
+```bash
+# Non-Windows systems only
+> source scripts/linuxBuildSetup.sh
+
+> rake build
+```
+
+The rake build can be configured by overriding the environment variables specified in `rakeconfig.rb`.
+
+### Building Release Packages
+
+To manually build release packages:
+
+```bash
+# Non-Windows systems only
+> source scripts/linuxBuildSetup.sh
+
+> rake release_local[<os>]
+```
+
+Where `<os>` is the [Runtime Identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) for the target platform, usually `win-x64` or `linux-x64`.
+
+## Developing
+
+Development requires Visual Studio 2017 or later. Simply open the SMIPlugin.sln file.
 
 ## Testing
 SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql).  Tests are split into those that:
@@ -80,7 +113,3 @@ Tests with the respective attributes will only run when these services exist in 
 - RelationalDatabases.yaml
 
 For setting up the RDMP platform databases see https://github.com/HicServices/RDMP/blob/master/Documentation/CodeTutorials/Tests.md
-
-## Building
-
-Building requires MSBuild 15 or later (or Visual Studio 2017 or later).  You will also need to install the DotNetCore 2.2 SDK.
