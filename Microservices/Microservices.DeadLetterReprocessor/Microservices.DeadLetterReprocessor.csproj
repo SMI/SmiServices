@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>DeadLetterReprocessor</AssemblyName>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AssemblyTitle>Microservices.DeadLetterReprocessor</AssemblyTitle>
+    <Product>Microservices.DeadLetterReprocessor</Product>
+    <Copyright>Copyright ©  2018</Copyright>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Reusable\Smi.MongoDB.Common\Smi.MongoDB.Common.csproj" />
+    <ProjectReference Include="..\Microservices.Common\Microservices.Common.csproj" />
+  </ItemGroup>
+</Project>
