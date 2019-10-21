@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyTitle>Smi.MongoDB.Common.Tests</AssemblyTitle>
+    <Product>Smi.MongoDB.Common.Tests</Product>
+    <Copyright>Copyright ©  2019</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="NUnit" Version="3.11.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="NunitXml.TestLogger" Version="2.1.36" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Microservices\Microservices.Common\Microservices.Common.csproj" />
+    <ProjectReference Include="..\..\..\Microservices\Microservices.MongoDBPopulator\Microservices.MongoDBPopulator.csproj" />
+    <ProjectReference Include="..\..\..\Microservices\Tests\Microservices.Tests.CommonTests\Microservices.Tests.CommonTests.csproj" />
+    <ProjectReference Include="..\..\Smi.MongoDB.Common\Smi.MongoDB.Common.csproj" />
+    <ProjectReference Include="..\Tests.Common.Smi\Tests.Common.Smi.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyTitle>Tests.Common.Smi</AssemblyTitle>
+    <Product>Tests.Common.Smi</Product>
+    <Copyright>Copyright ©  2019</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Mongo.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Rabbit.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="RelationalDatabases.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="NUnit" Version="3.11.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="NunitXml.TestLogger" Version="2.1.36" />
+    <PackageReference Include="System.IO.Abstractions" Version="6.0.15" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Microservices\Microservices.Common\Microservices.Common.csproj" />
+  </ItemGroup>
+</Project>

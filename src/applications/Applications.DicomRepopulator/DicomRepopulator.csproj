@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AssemblyTitle>Microservices.DicomRepopulator</AssemblyTitle>
+    <Product>Microservices.DicomRepopulator</Product>
+    <Copyright>Copyright ©  2018</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    
+    
+    
+  </ItemGroup>
+  <ItemGroup>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DicomRepopulator.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microservices\Microservices.Common\Microservices.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    
+    
+    
+    
+  </ItemGroup>
+</Project>
