@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Microservices.ProcessDirectory.Execution.DicomDirectoryFinder" Collapsed="true">
+    <Position X="5.75" Y="3.75" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="Microservices.ProcessDirectory.Execution.DicomDirectoryFinder.TimeLabel">
+        <TypeIdentifier>
+          <NewMemberFileName>Execution\DicomDirectoryFinder.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAQAABAAiAIACAAAAAAQAIAEAAYAAIAAAQCAAAAA=</HashCode>
+      <FileName>Execution\DicomDirectoryFinder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microservices.ProcessDirectory.Execution.ProcessDirectoryHost">
+    <Position X="0.75" Y="2.75" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAIAAAAAAQAAIAAAAAAAAAA=</HashCode>
+      <FileName>Execution\ProcessDirectoryHost.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_cliOptions" />
+      <Field Name="_ddf" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Microservices.ProcessDirectory.Options.ProcessDirectoryCliOptions" Collapsed="true">
+    <Position X="6" Y="2.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAACAAAAAAABAAQAAAAAA=</HashCode>
+      <FileName>Options\ProcessDirectoryCliOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microservices.Common.Options.GlobalOptions" Collapsed="true">
+    <Position X="0.75" Y="0.5" Width="2.5" />
+    <TypeIdentifier />
+    <ShowAsAssociation>
+      <Property Name="FileSystemOptions" />
+      <Property Name="RabbitOptions" />
+      <Property Name="ProcessDirectoryOptions" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Microservices.Common.Options.FileSystemOptions" Collapsed="true">
+    <Position X="6" Y="2" Width="2" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Microservices.Common.Options.RabbitOptions" Collapsed="true">
+    <Position X="6" Y="0.5" Width="2" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Microservices.Common.Options.ProcessDirectoryOptions" Collapsed="true">
+    <Position X="6" Y="1.25" Width="2" />
+    <TypeIdentifier />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
