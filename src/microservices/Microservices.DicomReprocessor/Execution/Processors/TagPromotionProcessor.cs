@@ -1,5 +1,5 @@
-﻿using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+﻿using Smi.Common.Messaging;
+using Smi.Common.Options;
 using MongoDB.Bson;
 using NLog;
 using System;

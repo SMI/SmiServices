@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microservices.Common.Options;
+using Smi.Common.Options;
 using Microservices.DicomReprocessor.Execution.Processors;
 using Microservices.DicomReprocessor.Options;
 using MongoDB.Bson;

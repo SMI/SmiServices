@@ -1,7 +1,7 @@
 ﻿
-using Microservices.Common.Execution;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using Microservices.DicomReprocessor.Execution.Processors;
 using Microservices.DicomReprocessor.Options;
 using System;
