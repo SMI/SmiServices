@@ -1,8 +1,8 @@
 ﻿
 using CommandLine;
 using Microservices.CohortExtractor.Execution;
-using Microservices.Common.Execution;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 
 namespace Microservices.CohortExtractor
 {

@@ -1,6 +1,6 @@
 
 using Microservices.CohortExtractor.Audit;
-using Microservices.Common.Messages.Extraction;
+using Smi.Common.Messages.Extraction;
 using System.Collections.Generic;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers

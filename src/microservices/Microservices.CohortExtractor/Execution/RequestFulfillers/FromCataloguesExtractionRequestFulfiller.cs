@@ -1,5 +1,6 @@
+
 using Microservices.CohortExtractor.Audit;
-using Microservices.Common.Messages.Extraction;
+using Smi.Common.Messages.Extraction;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using System;

@@ -1,16 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>CohortExtractor</AssemblyName>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyTitle>Microservices.CohortExtractor</AssemblyTitle>
-    <Product>Microservices.CohortExtractor</Product>
-    <Copyright>Copyright ©  2018</Copyright>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
     <None Include="CohortExtractor.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microservices.Common\Microservices.Common.csproj" />
-  </ItemGroup>
+    <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
+  </ItemGroup>  
 </Project>

@@ -1,6 +1,7 @@
-﻿using Microservices.CohortExtractor.Execution;
-using Microservices.Common.Messages.Extraction;
+﻿
+using Microservices.CohortExtractor.Execution;
 using Rdmp.Core.Curation.Data;
+using Smi.Common.Messages.Extraction;
 
 namespace Microservices.CohortExtractor.Audit
 {

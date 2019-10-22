@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
-using Microservices.Common.Messages.Extraction;
+using Smi.Common.Messages.Extraction;
 
 namespace Microservices.CohortExtractor.Execution
 {

@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smi.Common.MongoDb", "src\c
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microservices", "Microservices", "{421CCD37-3817-4748-B184-A134E19DD75C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.CohortExtractor", "src\microservices\Microservices.CohortExtractor\Microservices.CohortExtractor.csproj", "{854E26C1-C442-4FAF-9169-2922C4C17A47}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A47D6857-A0E0-4604-9E11-3088F32BD378}"
 	ProjectSection(SolutionItems) = preProject
 		CHANGELOG.md = CHANGELOG.md
@@ -49,6 +51,10 @@ Global
 		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}.Debug|x64.Build.0 = Debug|x64
 		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}.Release|x64.ActiveCfg = Release|x64
 		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}.Release|x64.Build.0 = Release|x64
+		{854E26C1-C442-4FAF-9169-2922C4C17A47}.Debug|x64.ActiveCfg = Debug|x64
+		{854E26C1-C442-4FAF-9169-2922C4C17A47}.Debug|x64.Build.0 = Debug|x64
+		{854E26C1-C442-4FAF-9169-2922C4C17A47}.Release|x64.ActiveCfg = Release|x64
+		{854E26C1-C442-4FAF-9169-2922C4C17A47}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{6C325A63-8471-4CC4-B00B-CDCFCAC501CC} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{EBA0423D-6932-4838-AD79-42330437C158} = {7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}
 		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE} = {7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}
+		{854E26C1-C442-4FAF-9169-2922C4C17A47} = {421CCD37-3817-4748-B184-A134E19DD75C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

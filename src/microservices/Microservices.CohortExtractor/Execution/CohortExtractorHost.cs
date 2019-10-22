@@ -1,18 +1,19 @@
-﻿using Microservices.CohortExtractor.Audit;
+﻿
+using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
-using Microservices.Common.Execution;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
 using NLog;
-using ReusableLibraryCode.Checks;
-using System;
-using System.Linq;
-using Microservices.Common.Messages.Extraction;
+using Rdmp.Core.Curation.Data;
+using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
-using Rdmp.Core.DataExport.Data;
-using Rdmp.Core.Curation.Data;
+using ReusableLibraryCode.Checks;
+using Smi.Common.Execution;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
+using System;
+using System.Linq;
 
 namespace Microservices.CohortExtractor.Execution
 {
@@ -59,7 +60,7 @@ namespace Microservices.CohortExtractor.Execution
         {
             IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
 
-            var startup = new Startup(new EnvironmentInfo("netcoreapp2.2"),repositoryLocator);
+            var startup = new Startup(new EnvironmentInfo("netcoreapp2.2"), repositoryLocator);
 
             var toMemory = new ToMemoryCheckNotifier();
             startup.DoStartup(toMemory);
@@ -103,7 +104,7 @@ namespace Microservices.CohortExtractor.Execution
 
             if (_fulfiller == null)
                 _fulfiller = ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType,
-                    typeof(IExtractionRequestFulfiller).Assembly, new object[] {catalogues});
+                    typeof(IExtractionRequestFulfiller).Assembly, new object[] { catalogues });
 
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
