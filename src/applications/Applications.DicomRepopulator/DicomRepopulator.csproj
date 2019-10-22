@@ -2,37 +2,17 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyTitle>Microservices.DicomRepopulator</AssemblyTitle>
-    <Product>Microservices.DicomRepopulator</Product>
-    <Copyright>Copyright ©  2018</Copyright>
-  </PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>  
   <ItemGroup>
-    
-    
-    
+    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
     <None Include="DicomRepopulator.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Microservices\Microservices.Common\Microservices.Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    
-    
-    
-    
+    <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
 </Project>

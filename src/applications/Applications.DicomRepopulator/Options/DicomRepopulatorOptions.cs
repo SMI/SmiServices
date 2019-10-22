@@ -2,7 +2,7 @@
 using CommandLine;
 using CommandLine.Text;
 using Dicom;
-using Microservices.Common.Options;
+using Smi.Common.Options;
 using ReusableLibraryCode.Annotations;
 using System;
 using System.Collections.Generic;
