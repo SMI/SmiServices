@@ -8,6 +8,7 @@
 		<groupId>com.smi.microservices</groupId>
 		<artifactId>parent</artifactId>
 		<version>1.0</version>
+		<relativePath>../../common/com.smi.microservices.parent/pom.xml</relativePath>
 	</parent>
 
 	<name>SMI ExtractorCL</name>
