@@ -1,11 +1,14 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{8B943F2C-835B-484A-86D2-3F1462970605}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smi.Common", "src\common\Smi.Common\Smi.Common.csproj", "{EBA0423D-6932-4838-AD79-42330437C158}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smi.Common.MongoDb", "src\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj", "{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microservices", "Microservices", "{421CCD37-3817-4748-B184-A134E19DD75C}"
 EndProject
@@ -19,26 +22,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		data\logging\Smi.NLog.config = data\logging\Smi.NLog.config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smi.Common", "src\common\Smi.Common\Smi.Common.csproj", "{EBA0423D-6932-4838-AD79-42330437C158}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EBA0423D-6932-4838-AD79-42330437C158}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{EBA0423D-6932-4838-AD79-42330437C158}.Debug|x64.ActiveCfg = Debug|x64
 		{EBA0423D-6932-4838-AD79-42330437C158}.Debug|x64.Build.0 = Debug|x64
-		{EBA0423D-6932-4838-AD79-42330437C158}.Release|Any CPU.ActiveCfg = Release|x64
 		{EBA0423D-6932-4838-AD79-42330437C158}.Release|x64.ActiveCfg = Release|x64
 		{EBA0423D-6932-4838-AD79-42330437C158}.Release|x64.Build.0 = Release|x64
+		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}.Debug|x64.ActiveCfg = Debug|x64
+		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}.Debug|x64.Build.0 = Debug|x64
+		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}.Release|x64.ActiveCfg = Release|x64
+		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EBA0423D-6932-4838-AD79-42330437C158} = {7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}
+		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE} = {7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

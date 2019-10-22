@@ -1,7 +1,6 @@
 ﻿
 using System.Reflection;
 
-[assembly: AssemblyProduct("SmiServices")]
 [assembly: AssemblyCompany("Universities of Dundee and Edinburgh")]
 [assembly: AssemblyCopyright("Copyright © SMI Project 2019")]
 [assembly: AssemblyTrademark("")]

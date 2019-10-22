@@ -1,6 +1,6 @@
 ﻿
 using System;
-using Microservices.Common.Messages;
+using Smi.Common.Messages;
 using MongoDB.Bson;
 
 
