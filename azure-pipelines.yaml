@@ -48,7 +48,7 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - bash: |
-        ./installDAT.sh
+        bash ./installDat.sh
       workingDirectory: ./lib/java
     - task: Maven@3
       displayName: Maven Package
