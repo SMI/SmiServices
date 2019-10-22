@@ -2,8 +2,8 @@
 // ReSharper disable InconsistentlySynchronizedField
 
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.Common.Messages.Extraction;
-using Microservices.Common.Options;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Options;
 using NLog;
 using System;
 using System.Collections.Generic;

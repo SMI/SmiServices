@@ -1,6 +1,6 @@
 ﻿
-using Microservices.Common.Messages;
-using Microservices.Common.Messages.Extraction;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
 

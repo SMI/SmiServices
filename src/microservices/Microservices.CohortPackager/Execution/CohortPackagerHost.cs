@@ -1,8 +1,8 @@
 ﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
-using Microservices.Common.Execution;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 using System;
 using System.IO.Abstractions;
 

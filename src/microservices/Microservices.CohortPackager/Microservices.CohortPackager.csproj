@@ -1,18 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>CohortPackager</AssemblyName>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyTitle>Microservices.CohortPackager</AssemblyTitle>
-    <Product>Microservices.CohortPackager</Product>
-    <Copyright>Copyright ©  2018</Copyright>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.IO.Abstractions" Version="6.0.15" />
+    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Reusable\Smi.MongoDB.Common\Smi.MongoDB.Common.csproj" />
-    <ProjectReference Include="..\Microservices.Common\Microservices.Common.csproj" />
+    <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
+    <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
 </Project>

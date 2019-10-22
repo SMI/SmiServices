@@ -1,6 +1,6 @@
 ﻿
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.Common.Options;
+using Smi.Common.Options;
 using NLog;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing

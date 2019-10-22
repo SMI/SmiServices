@@ -1,7 +1,8 @@
-﻿using CommandLine;
+﻿
+using CommandLine;
 using Microservices.CohortPackager.Execution;
-using Microservices.Common.Execution;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 
 namespace Microservices.CohortPackager
 {
