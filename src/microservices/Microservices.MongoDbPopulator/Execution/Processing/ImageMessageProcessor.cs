@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
+using Smi.Common.Messages;
+using Smi.Common.Options;
 using MongoDB.Bson;
 using NLog;
-using Smi.MongoDB.Common;
+using Smi.Common.MongoDB;
 
 
 namespace Microservices.MongoDBPopulator.Execution.Processing
