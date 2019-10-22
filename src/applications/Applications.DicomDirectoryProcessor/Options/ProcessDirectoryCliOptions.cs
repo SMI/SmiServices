@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using CommandLine;
 using CommandLine.Text;
-using Microservices.Common.Options;
+using Smi.Common.Options;
 using ReusableLibraryCode.Annotations;
 
 namespace Microservices.ProcessDirectory.Options

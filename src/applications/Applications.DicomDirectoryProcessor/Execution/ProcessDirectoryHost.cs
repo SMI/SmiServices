@@ -2,8 +2,8 @@
 using System;
 using System.Globalization;
 using System.IO;
-using Microservices.Common.Execution;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 using Microservices.ProcessDirectory.Execution.DirectoryFinders;
 using Microservices.ProcessDirectory.Options;
 

@@ -1,5 +1,5 @@
 ﻿
-using Microservices.Common.Messages;
+using Smi.Common.Messages;
 
 namespace Microservices.ProcessDirectory.Execution.DirectoryFinders
 {

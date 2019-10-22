@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
-using Microservices.Common.Messaging;
+using Smi.Common.Messaging;
 
 namespace Microservices.ProcessDirectory.Execution.DirectoryFinders
 {

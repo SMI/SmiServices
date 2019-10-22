@@ -6,8 +6,8 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using NLog;
 
 namespace Microservices.ProcessDirectory.Execution.DirectoryFinders

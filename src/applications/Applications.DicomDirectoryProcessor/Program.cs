@@ -1,7 +1,7 @@
 ﻿
 using CommandLine;
-using Microservices.Common.Execution;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 using Microservices.ProcessDirectory.Execution;
 using Microservices.ProcessDirectory.Options;
 
