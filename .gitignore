@@ -296,3 +296,6 @@ Visual Studio 2013/
 .packages/
 Visual Studio 2017/
 test-result.xml
+
+# Java output
+[Tt]arget/
