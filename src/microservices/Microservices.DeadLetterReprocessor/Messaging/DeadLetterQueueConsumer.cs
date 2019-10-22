@@ -1,7 +1,7 @@
 ﻿
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage;
 using RabbitMQ.Client.Events;
 using System;

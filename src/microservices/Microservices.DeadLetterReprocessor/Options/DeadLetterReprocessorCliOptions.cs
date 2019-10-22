@@ -1,6 +1,6 @@
 ﻿
 using CommandLine;
-using Microservices.Common.Options;
+using Smi.Common.Options;
 
 namespace Microservices.DeadLetterReprocessor.Options
 {

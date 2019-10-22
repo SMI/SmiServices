@@ -1,5 +1,5 @@
 ﻿
-using Microservices.Common.Messages;
+using Smi.Common.Messages;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;

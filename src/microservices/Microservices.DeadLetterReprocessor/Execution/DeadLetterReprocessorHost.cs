@@ -1,6 +1,6 @@
 
-using Microservices.Common.Execution;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 using Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing;
 using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage;
 using Microservices.DeadLetterReprocessor.Messaging;

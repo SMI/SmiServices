@@ -1,5 +1,5 @@
 ﻿
-using Microservices.Common.Messages;
+using Smi.Common.Messages;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using RabbitMQ.Client;

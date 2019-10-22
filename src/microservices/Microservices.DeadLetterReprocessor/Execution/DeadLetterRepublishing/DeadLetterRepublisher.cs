@@ -1,6 +1,6 @@
 ﻿
 using System.Reflection;
-using Microservices.Common.Messages;
+using Smi.Common.Messages;
 using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage;
 using NLog;
 using RabbitMQ.Client;
