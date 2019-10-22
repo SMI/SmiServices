@@ -1,11 +1,11 @@
 ﻿
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
-using Microservices.Common.Messages.Extraction;
 using NUnit.Framework;
+using Smi.Common.Messages.Extraction;
 using System.Collections.Generic;
 
-namespace Microservices.Tests.RDMPTests.CohortExtractorTests
+namespace Microservices.CohortExtractor.Tests
 {
     [TestFixture]
     public class PathResolverTests

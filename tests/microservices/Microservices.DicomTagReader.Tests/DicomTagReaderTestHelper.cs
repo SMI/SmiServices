@@ -1,17 +1,18 @@
 ﻿
-using System.IO;
-using System.IO.Abstractions.TestingHelpers;
-using Microservices.Common.Execution;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
 using Moq;
 using NLog;
 using NUnit.Framework;
 using RabbitMQ.Client;
+using Smi.Common.Execution;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
+using Smi.Common.Tests;
+using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 
-namespace Microservices.SMIDicomTagReader.Tests
+
+namespace Microservices.DicomTagReader.Tests
 {
     public class DicomTagReaderTestHelper
     {
@@ -87,7 +88,7 @@ namespace Microservices.SMIDicomTagReader.Tests
 
             TestSeriesModel = new Mock<IProducerModel>();
             TestImageModel = new Mock<IProducerModel>();
-            
+
             MockFileSystem = new MockFileSystem();
             MockFileSystem.AddDirectory(@"C:\Temp");
 
@@ -98,7 +99,7 @@ namespace Microservices.SMIDicomTagReader.Tests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(TestDir.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
         }
 
         public bool CheckQueues(int nInSeriesQueue, int nInImageQueue)

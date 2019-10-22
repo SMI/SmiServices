@@ -1,12 +1,12 @@
 ﻿
-using System.Collections.Generic;
 using Microservices.MongoDBPopulator.Execution;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
-using Tests.Common.Smi;
+using Smi.Common.Tests;
+using System.Collections.Generic;
 
-namespace Microservices.Tests.MongoDBPopulatorTests.Execution
+namespace Microservices.MongoDBPopulator.Tests.Execution
 {
     [TestFixture, RequiresMongoDb]
     public class MongoDbAdapterTests

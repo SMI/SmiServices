@@ -1,8 +1,9 @@
 ﻿
-using Microservices.Common.Options;
 using Microservices.IdentifierMapper.Execution.Swappers;
+using Smi.Common.Options;
 
-namespace Microservices.Tests.RDMPTests.IdentifierMapperTests
+
+namespace Microservices.IdentifierMapper.Tests
 {
     internal class SwapForFixedValueTester : ISwapIdentifiers
     {

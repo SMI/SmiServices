@@ -12,9 +12,9 @@ namespace Applications.DicomDirectoryProcessor.Execution
     /// <summary>
     /// Processes directories to find those that contain DICOM files
     /// </summary>
-    public class ProcessDirectoryHost : MicroserviceHost
+    public class DicomDirectoryProcessorHost : MicroserviceHost
     {
-        private readonly ProcessDirectoryCliOptions _cliOptions;
+        private readonly DicomDirectoryProcessorCliOptions _cliOptions;
         private readonly IDicomDirectoryFinder _ddf;
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace Applications.DicomDirectoryProcessor.Execution
         /// </summary>
         /// <param name="cliOptions">Common microservices options.  Must contain details for an message exchange labelled as "accessionDirectories"</param>
         /// <param name="globals">Configuration settings for the program</param>
-        public ProcessDirectoryHost(GlobalOptions globals, ProcessDirectoryCliOptions cliOptions, bool loadSmiLogConfig = true)
+        public DicomDirectoryProcessorHost(GlobalOptions globals, DicomDirectoryProcessorCliOptions cliOptions, bool loadSmiLogConfig = true)
             : base(globals, loadSmiLogConfig)
         {
             _cliOptions = cliOptions;

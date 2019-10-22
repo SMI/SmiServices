@@ -1,9 +1,9 @@
 ﻿
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
-using Microservices.Common.Tests;
 using Moq;
 using NUnit.Framework;
+using Smi.Common.Tests;
 using System;
 
 namespace Microservices.Tests.CohortPackagerTests.Messaging
@@ -26,7 +26,7 @@ namespace Microservices.Tests.CohortPackagerTests.Messaging
             var consumer = new CohortPackagerControlMessageHandler(mockedWatcher.Object);
             consumer.ControlMessageHandler("processjobs", message);
 
-            mockedWatcher.Verify(x => x.ProcessJobs( parsed));
+            mockedWatcher.Verify(x => x.ProcessJobs(parsed));
         }
     }
 }

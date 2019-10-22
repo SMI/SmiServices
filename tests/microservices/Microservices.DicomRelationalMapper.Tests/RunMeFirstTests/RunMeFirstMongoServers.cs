@@ -1,10 +1,10 @@
-﻿using System;
-using Microservices.Common;
-using Microservices.Common.Options;
-using NUnit.Framework;
-using Tests.Common.Smi;
+﻿using NUnit.Framework;
+using Smi.Common;
+using Smi.Common.Options;
+using Smi.Common.Tests;
+using System;
 
-namespace Microservices.Tests.RDMPTests.RunMeFirstTests
+namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
 {
     [Category("RunMeFirst")]
     public class RunMeFirstMongoServers
@@ -15,8 +15,8 @@ namespace Microservices.Tests.RDMPTests.RunMeFirstTests
             Assert.Pass();
         }
 
-        
-        [Test,RequiresRabbit]
+
+        [Test, RequiresRabbit]
         public void RabbitAvailable()
         {
             var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
@@ -31,7 +31,7 @@ namespace Microservices.Tests.RDMPTests.RunMeFirstTests
             {
                 Assert.Fail("Could not access Rabbit MQ Server");
             }
-            
+
             Assert.Pass();
         }
     }

@@ -1,26 +1,26 @@
-﻿using Dicom;
+﻿
+using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
+using FAnsi.Discovery;
+using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.IdentifierMapper.Execution;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.IdentifierMapper.Messaging;
-using Microservices.Tests.RDMPTests.TestTagData;
+using Moq;
 using NUnit.Framework;
-using FAnsi.Discovery;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
+using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Tests.Common.Smi;
-using DatabaseType = FAnsi.DatabaseType;
 using Tests.Common;
-using Moq;
+using DatabaseType = FAnsi.DatabaseType;
 
-namespace Microservices.Tests.RDMPTests.IdentifierMapperTests
+namespace Microservices.IdentifierMapper.Tests
 {
     [TestFixture]
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
@@ -174,7 +174,7 @@ namespace Microservices.Tests.RDMPTests.IdentifierMapperTests
 
             using (var tester = new MicroserviceTester(options.RabbitOptions, options.IdentifierMapperOptions))
             {
-                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName,null);
+                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, null);
 
                 Console.WriteLine("Pushing good messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, goodChis, true);
@@ -311,7 +311,7 @@ namespace Microservices.Tests.RDMPTests.IdentifierMapperTests
             var guidAllocated = newDs.GetValue<string>(DicomTag.PatientID, 0);
 
             var dt = mapTbl.GetDataTable();
-            Assert.AreEqual(1,dt.Rows.Count);
+            Assert.AreEqual(1, dt.Rows.Count);
 
             //e.g. '841A2E3E-B7C9-410C-A5D1-816B95C0E806'
             Assert.AreEqual(36, guidAllocated.Length);
@@ -380,10 +380,10 @@ namespace Microservices.Tests.RDMPTests.IdentifierMapperTests
 
             var swapper2 = new ForGuidIdentifierSwapper();
             swapper2.Setup(options);
-                        
+
             var answer1 = swapper1.GetSubstitutionFor("01010101", out _);
             var answer2 = swapper2.GetSubstitutionFor("01010101", out _);
-            
+
             Assert.AreEqual(answer1, answer2);
 
             Assert.IsNotNull(answer1);
@@ -527,13 +527,13 @@ namespace Microservices.Tests.RDMPTests.IdentifierMapperTests
             TestLogger.Setup();
 
             var mockSwapper = new Mock<ISwapIdentifiers>();
-            
+
 
             var controlConsumer = new IdentifierMapperControlMessageHandler(mockSwapper.Object);
 
             controlConsumer.ControlMessageHandler("refresh");
-            
-            mockSwapper.Verify(x => x.ClearCache(),Times.Once);
+
+            mockSwapper.Verify(x => x.ClearCache(), Times.Once);
         }
 
         [Test]

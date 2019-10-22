@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Text;
-using Microservices.Common.Messages;
+
 using Microservices.DicomTagReader.Execution;
 using Microservices.DicomTagReader.Messaging;
 using Moq;
@@ -11,9 +7,15 @@ using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Framing;
-using Tests.Common.Smi;
+using Smi.Common.Messages;
+using Smi.Common.Tests;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Text;
 
-namespace Microservices.SMIDicomTagReader.Tests.Messaging
+
+namespace Microservices.DicomTagReader.Tests.Messaging
 {
     [TestFixture, RequiresRabbit]
     public class DicomTagReaderConsumerTests

@@ -1,19 +1,18 @@
-﻿
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
-using Microservices.MongoDBPopulator.Execution;
+﻿using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
 using MongoDB.Bson;
 using Moq;
 using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.Options;
+using Smi.Common.Tests;
 using System;
 using System.Threading;
-using Tests.Common.Smi;
 
-namespace Microservices.Tests.MongoDBPopulatorTests.Execution.Processing
+
+namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 {
-    [TestFixture,RequiresMongoDb]
+    [TestFixture, RequiresMongoDb]
     public class MessageProcessorTests
     {
         private MongoDbPopulatorTestHelper _helper;
@@ -32,7 +31,7 @@ namespace Microservices.Tests.MongoDBPopulatorTests.Execution.Processing
         {
             _helper.Dispose();
         }
-        
+
         /// <summary>
         /// Tests that the exception callback is used if an exception is thrown in ProcessMessage
         /// </summary>
@@ -50,7 +49,7 @@ namespace Microservices.Tests.MongoDBPopulatorTests.Execution.Processing
 
             Assert.True(processor.IsProcessing);
 
-            Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime*1000) + 100);
+            Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) + 100);
 
             Assert.True(callbackUsed);
             Assert.False(processor.IsProcessing);

@@ -1,16 +1,16 @@
 
+using NUnit.Framework;
 using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Microservices.Common.Messages;
 using Microservices.DicomTagReader.Execution;
 using Moq;
-using NUnit.Framework;
-using Tests.Common.Smi;
+using Smi.Common.Messages;
+using Smi.Common.Tests;
 
 
-namespace Microservices.SMIDicomTagReader.Tests.Execution
+namespace Microservices.DicomTagReader.Tests.Execution
 {
     //TODO Some of these can be tested without RabbitMQ
     [TestFixture, RequiresRabbit]
@@ -73,7 +73,7 @@ namespace Microservices.SMIDicomTagReader.Tests.Execution
                 .Callback(() => ++messagesSent);
 
             var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
-            
+
             if (nackIfAnyFileErrors)
             {
                 Assert.Throws<ApplicationException>(() => tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage));
@@ -136,7 +136,7 @@ namespace Microservices.SMIDicomTagReader.Tests.Execution
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Returns(new MessageHeader());
-            
+
             _helper.TestSeriesModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback<IMessage, IMessageHeader, string>((m, h, s) => message = m)

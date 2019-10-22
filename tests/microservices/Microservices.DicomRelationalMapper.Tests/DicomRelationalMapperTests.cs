@@ -1,25 +1,24 @@
 ﻿
-using System.Linq;
 using Dicom;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
-using Microservices.DicomRelationalMapper.Execution;
-using Microservices.Tests.RDMPTests.TestTagData;
-using NUnit.Framework;
-using ReusableLibraryCode.Checks;
 using FAnsi.Implementations.MicrosoftSQL;
-using System.IO;
-using Tests.Common.Smi;
-using Tests.Common;
-using Rdmp.Dicom.TagPromotionSchema;
+using Microservices.DicomRelationalMapper.Execution;
+using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
+using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
+using Rdmp.Dicom.TagPromotionSchema;
+using ReusableLibraryCode.Checks;
+using Smi.Common.Options;
+using Smi.Common.Tests;
 using System;
+using System.IO;
+using System.Linq;
+using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
 namespace Microservices.Tests.RDMPTests
 {
-    [RequiresRabbit,RequiresRelationalDb(FAnsi.DatabaseType.MicrosoftSQLServer)]
+    [RequiresRabbit, RequiresRelationalDb(FAnsi.DatabaseType.MicrosoftSQLServer)]
     public class DicomRelationalMapperTests : DatabaseTests
     {
         private DicomRelationalMapperTestHelper _helper;
@@ -43,11 +42,11 @@ namespace Microservices.Tests.RDMPTests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory,"DicomRelationalMapperTests"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomRelationalMapperTests"));
             d.Create();
 
             var fi = new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
 
             if (mixInATextFile)
             {
@@ -84,7 +83,7 @@ namespace Microservices.Tests.RDMPTests
 
                 host.Stop("Test end");
             }
-            
+
             tester.Shutdown();
         }
 
@@ -93,7 +92,7 @@ namespace Microservices.Tests.RDMPTests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory,"DicomFileGeneratorTest"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomFileGeneratorTest"));
             d.Create();
 
             foreach (var oldFile in d.EnumerateFiles())
@@ -102,7 +101,7 @@ namespace Microservices.Tests.RDMPTests
             var seedDir = d.CreateSubdirectory("Seed");
 
             var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
 
             var existingColumns = _helper.ImageTable.DiscoverColumns();
 
@@ -122,15 +121,15 @@ namespace Microservices.Tests.RDMPTests
                     //todo: this is still not working correctly, not sure why
                     if (dataType == "smallint")
                         continue;
-                    
+
                     //if we already have the column in our table
-                    var colName = DicomTypeTranslation.DicomTypeTranslaterReader.GetColumnNameForTag(tag,false);
-                    
+                    var colName = DicomTypeTranslation.DicomTypeTranslaterReader.GetColumnNameForTag(tag, false);
+
                     //don't add it
-                    if(existingColumns.Any(c=>c.GetRuntimeName().Equals(colName,StringComparison.CurrentCultureIgnoreCase)))
+                    if (existingColumns.Any(c => c.GetRuntimeName().Equals(colName, StringComparison.CurrentCultureIgnoreCase)))
                         continue;
 
-                    
+
 
                     var adder = new TagColumnAdder(tag.DictionaryEntry.Keyword, dataType, _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
                     adder.SkipChecksAndSynchronization = true;
@@ -166,7 +165,7 @@ namespace Microservices.Tests.RDMPTests
 
                     host.Stop("Test end");
                 }
-                
+
                 tester.Shutdown();
             }
         }
@@ -177,7 +176,7 @@ namespace Microservices.Tests.RDMPTests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory,"DicomFileGeneratorTest"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomFileGeneratorTest"));
             d.Create();
 
             foreach (var oldFile in d.EnumerateFiles())
@@ -186,7 +185,7 @@ namespace Microservices.Tests.RDMPTests
             var seedDir = d.CreateSubdirectory("Seed");
 
             var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
 
             using (DicomGenerator g = new DicomGenerator(d.FullName, "Seed", 1000))
             {
@@ -220,7 +219,7 @@ namespace Microservices.Tests.RDMPTests
 
                     host.Stop("Test end");
                 }
-                
+
                 tester.Shutdown();
             }
         }
@@ -232,7 +231,7 @@ namespace Microservices.Tests.RDMPTests
         public void IdenticalDatasetsTest()
         {
             _helper.TruncateTablesIfExists();
-            
+
             var ds = new DicomDataset();
             ds.AddOrUpdate(DicomTag.SeriesInstanceUID, "123");
             ds.AddOrUpdate(DicomTag.SOPInstanceUID, "123");
@@ -252,7 +251,7 @@ namespace Microservices.Tests.RDMPTests
 
                 _globals.DicomRelationalMapperOptions.RunChecks = true;
 
-                using(var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals))
                 {
                     host.Start();
 

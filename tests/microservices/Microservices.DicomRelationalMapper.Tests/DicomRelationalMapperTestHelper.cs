@@ -1,20 +1,21 @@
-﻿using Dicom;
+﻿
+using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
-using NUnit.Framework;
+using DicomTypeTranslation.TableCreation;
 using FAnsi.Discovery;
+using MapsDirectlyToDatabaseTable;
+using NUnit.Framework;
+using Rdmp.Core.Curation.Data;
+using Rdmp.Core.Curation.Data.DataLoad;
+using Rdmp.Core.Curation.Data.Pipelines;
+using Rdmp.Core.Repositories;
+using Rdmp.Dicom.CommandExecution;
+using Rdmp.Dicom.PipelineComponents.DicomSources;
+using Smi.Common.Messages;
+using Smi.Common.Options;
 using System;
 using System.IO;
 using System.Linq;
-using MapsDirectlyToDatabaseTable;
-using DicomTypeTranslation.TableCreation;
-using Rdmp.Dicom.CommandExecution;
-using Rdmp.Core.Curation.Data;
-using Rdmp.Core.Repositories;
-using Rdmp.Core.Curation.Data.DataLoad;
-using Rdmp.Core.Curation.Data.Pipelines;
-using Rdmp.Dicom.PipelineComponents.DicomSources;
 
 namespace Microservices.Tests.RDMPTests
 {
@@ -30,7 +31,7 @@ namespace Microservices.Tests.RDMPTests
         public TableInfo StudyTableInfo { get; private set; }
 
         public PipelineComponent DicomSourcePipelineComponent { get; private set; }
-        
+
         public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string root = null, ImageTableTemplateCollection template = null, bool persistentRaw = false, string modalityPrefix = null)
         {
             ImageTable = databaseToCreateInto.ExpectTable(modalityPrefix + "ImageTable");
@@ -39,17 +40,18 @@ namespace Microservices.Tests.RDMPTests
 
             try
             {
-                File.Copy(typeof(InvalidDataHandling).Assembly.Location, Path.Combine(TestContext.CurrentContext.TestDirectory,"Rdmp.Dicom.dll"),true);
-            }catch(System.IO.IOException)
+                File.Copy(typeof(InvalidDataHandling).Assembly.Location, Path.Combine(TestContext.CurrentContext.TestDirectory, "Rdmp.Dicom.dll"), true);
+            }
+            catch (System.IO.IOException)
             {
                 //nevermind, it's probably locked
             }
-            
+
 
             //The Rdmp.Dicom assembly should be loaded as a plugin, this simulates it.
-            foreach(var type in typeof(InvalidDataHandling).Assembly.GetTypes())
+            foreach (var type in typeof(InvalidDataHandling).Assembly.GetTypes())
                 repositoryLocator.CatalogueRepository.MEF.AddTypeToCatalogForTesting(type);
-            
+
 
             ICatalogueRepository catalogueRepository = repositoryLocator.CatalogueRepository;
             IDataExportRepository dataExportRepository = repositoryLocator.DataExportRepository;
@@ -59,7 +61,7 @@ namespace Microservices.Tests.RDMPTests
                     t.Drop();
 
             var suite = new ExecuteCommandCreateNewImagingDatasetSuite(repositoryLocator, databaseToCreateInto, new DirectoryInfo(TestContext.CurrentContext.TestDirectory));
-            
+
             suite.Template = template ?? GetDefaultTemplate(databaseToCreateInto.Server.DatabaseType);
 
             suite.PersistentRaw = persistentRaw;
@@ -67,7 +69,7 @@ namespace Microservices.Tests.RDMPTests
 
             suite.DicomSourceType = pipelineDicomSourceType;
             suite.CreateCoalescer = true;
-            
+
             suite.Execute();
             DicomSourcePipelineComponent = suite.DicomSourcePipelineComponent; //store the component created so we can inject/adjust the arguments e.g. adding ElevationRequests to it
 
@@ -84,8 +86,8 @@ namespace Microservices.Tests.RDMPTests
             globalOptions.FileSystemOptions.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
 
             globalOptions.RDMPOptions.CatalogueConnectionString = ((TableRepository)catalogueRepository).DiscoveredServer.Builder.ConnectionString;
-            globalOptions.RDMPOptions.DataExportConnectionString =((TableRepository)dataExportRepository).DiscoveredServer.Builder.ConnectionString;
-            
+            globalOptions.RDMPOptions.DataExportConnectionString = ((TableRepository)dataExportRepository).DiscoveredServer.Builder.ConnectionString;
+
             globalOptions.DicomRelationalMapperOptions.LoadMetadataId = LoadMetadata.ID;
             globalOptions.DicomRelationalMapperOptions.MinimumBatchSize = 1;
             globalOptions.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
@@ -121,7 +123,7 @@ namespace Microservices.Tests.RDMPTests
 
             return toReturn;
         }
-        public DicomFileMessage GetDicomFileMessage(DicomDataset ds,string fileSystemRoot, string file)
+        public DicomFileMessage GetDicomFileMessage(DicomDataset ds, string fileSystemRoot, string file)
         {
             var toReturn = new DicomFileMessage(fileSystemRoot, file);
 
@@ -137,7 +139,7 @@ namespace Microservices.Tests.RDMPTests
             return toReturn;
         }
 
-        const string DefaultTemplateYaml  = 
+        const string DefaultTemplateYaml =
             @"Tables:
 - TableName: StudyTable
   Columns:

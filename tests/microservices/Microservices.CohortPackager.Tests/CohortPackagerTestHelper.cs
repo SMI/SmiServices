@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
-using Microservices.Common.Messages;
-using Microservices.Common.Messages.Extraction;
-using Microservices.Common.MessageSerialization;
-using Microservices.Common.Options;
+﻿
 using MongoDB.Driver;
 using NUnit.Framework;
-using Smi.MongoDB.Common;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.MessageSerialization;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 
 
 namespace Microservices.Tests.CohortPackagerTests
@@ -91,9 +92,9 @@ namespace Microservices.Tests.CohortPackagerTests
 
             MockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                {extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile1.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
-                {extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile2.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
-                {extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile3.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)}
+                //{extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile1.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
+                //{extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile2.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
+                //{extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile3.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)}
             });
 
             MockFileSystem.AddDirectory(extractRoot + @"\1234-5678\testExtraction");

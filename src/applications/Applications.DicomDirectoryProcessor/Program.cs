@@ -23,12 +23,12 @@ namespace Applications.DicomDirectoryProcessor
         /// </param>
         private static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<ProcessDirectoryCliOptions>(args).MapResult(
+            return Parser.Default.ParseArguments<DicomDirectoryProcessorCliOptions>(args).MapResult(
                 processDirectoryOptions =>
                 {
                     GlobalOptions globalOptions = GlobalOptions.Load(processDirectoryOptions);
 
-                    var bootStrapper = new MicroserviceHostBootstrapper(() => new ProcessDirectoryHost(globalOptions, processDirectoryOptions));
+                    var bootStrapper = new MicroserviceHostBootstrapper(() => new DicomDirectoryProcessorHost(globalOptions, processDirectoryOptions));
                     return bootStrapper.Main();
                 },
                 errs => -100);

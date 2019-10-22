@@ -1,26 +1,16 @@
 ﻿
-using System;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
+using Applications.DicomDirectoryProcessor.Execution;
+using Applications.DicomDirectoryProcessor.Options;
 using Dicom;
 using FAnsi.Discovery;
 using MapsDirectlyToDatabaseTable;
 using Microservices.CohortExtractor.Execution;
-using Microservices.Common.Messages.Extraction;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
+using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.DicomTagReader.Execution;
 using Microservices.IdentifierMapper.Execution;
 using Microservices.MongoDBPopulator.Execution;
-using Microservices.ProcessDirectory.Execution;
-using Microservices.ProcessDirectory.Options;
-using Microservices.Tests.RDMPTests.IdentifierMapperTests;
-using Microservices.Tests.RDMPTests.TestTagData;
 using MongoDB.Driver;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
@@ -33,8 +23,16 @@ using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Dicom.PipelineComponents;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using ReusableLibraryCode.Checks;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
+using Smi.Common.Tests;
+using System;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Tests.Common;
-using Tests.Common.Smi;
 using DatabaseType = FAnsi.DatabaseType;
 
 namespace Microservices.Tests.RDMPTests
@@ -115,7 +113,7 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
 
             RunTest(dir, 1);
         }
@@ -153,7 +151,7 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "Mr.010101")); //this is legit a dicom file
-            File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
 
             try
             {
@@ -233,7 +231,7 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
 
             var ds1 = new DicomDataset();
             ds1.Add(DicomTag.StudyInstanceUID, "1.2.3");
@@ -324,7 +322,7 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
 
             RunTest(dir, 1);
 
@@ -362,7 +360,7 @@ namespace Microservices.Tests.RDMPTests
             var seedDir = dir.CreateSubdirectory("Seed");
 
             var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
 
             int numberOfImagesToGenerate = 40;
 
@@ -389,7 +387,7 @@ namespace Microservices.Tests.RDMPTests
             };
 
             ///////////////////////////////////// Directory //////////////////////////
-            var processDirectoryOptions = new ProcessDirectoryCliOptions();
+            var processDirectoryOptions = new DicomDirectoryProcessorCliOptions();
             processDirectoryOptions.ToProcessDir = dir;
             processDirectoryOptions.DirectoryFormat = "Default";
 
@@ -426,7 +424,7 @@ namespace Microservices.Tests.RDMPTests
 
                 #region Running Microservices
 
-                var processDirectory = new ProcessDirectoryHost(_globals, processDirectoryOptions);
+                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions);
                 processDirectory.Start();
                 tester.StopOnDispose.Add(processDirectory);
 
@@ -438,7 +436,9 @@ namespace Microservices.Tests.RDMPTests
                 mongoDbPopulatorHost.Start();
                 tester.StopOnDispose.Add(mongoDbPopulatorHost);
 
-                var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"));
+                //FIXME
+                //var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"));
+                var identifierMapperHost = new IdentifierMapperHost(_globals);
                 identifierMapperHost.Start();
                 tester.StopOnDispose.Add(identifierMapperHost);
 

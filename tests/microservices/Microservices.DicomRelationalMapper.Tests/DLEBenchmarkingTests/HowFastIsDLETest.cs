@@ -1,40 +1,40 @@
 ﻿
-using System.Data;
 using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
+using DicomTypeTranslation.TableCreation;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
-using Microservices.Tests.RDMPTests.TestTagData;
+using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
+using Microservices.Tests.RDMPTests;
+using Moq;
 using NUnit.Framework;
+using Rdmp.Core.Curation;
+using Rdmp.Core.Curation.Data;
+using Rdmp.Core.Curation.Data.Defaults;
+using Rdmp.Core.Curation.Data.EntityNaming;
+using Rdmp.Core.Curation.Data.Pipelines;
+using Rdmp.Core.DataFlowPipeline;
+using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
+using Rdmp.Core.DataLoad.Engine.Job;
+using Rdmp.Core.Logging;
+using Rdmp.Dicom.Attachers.Routing;
+using Rdmp.Dicom.PipelineComponents.DicomSources;
+using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 using ReusableLibraryCode.DataAccess;
 using ReusableLibraryCode.Progress;
+using Smi.Common.Messages;
+using Smi.Common.Options;
+using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Tests.Common.Smi;
-using DatabaseType = FAnsi.DatabaseType;
 using Tests.Common;
-using Rdmp.Core.Logging;
-using Rdmp.Core.Curation.Data.Pipelines;
-using Rdmp.Dicom.PipelineComponents.DicomSources;
-using Rdmp.Core.Curation.Data.EntityNaming;
-using Rdmp.Core.Curation.Data;
-using Rdmp.Core.DataLoad.Engine.Job;
-using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
-using Rdmp.Dicom.Attachers.Routing;
-using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
-using Rdmp.Core.DataFlowPipeline;
-using DicomTypeTranslation.TableCreation;
-using Rdmp.Core.Curation.Data.Defaults;
-using Rdmp.Core.Curation;
-using Moq;
+using DatabaseType = FAnsi.DatabaseType;
 
-namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
+namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class HowFastIsDLETest : DatabaseTests
@@ -43,7 +43,7 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
         private DicomRelationalMapperTestHelper _helper;
         private IDataLoadInfo _dli;
 
-        string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory,@"DLEBenchmarkingTests\CT.it"));
+        string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"DLEBenchmarkingTests\CT.it"));
 
         [OneTimeSetUp]
         public void SetupLogging()
@@ -67,7 +67,7 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
             var d = CatalogueRepository.GetServerDefaults();
             d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory,"MicroservicesTest.NLog.config"), false);
+            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesTest.NLog.config"), false);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
@@ -136,7 +136,7 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
 
             List<DicomDataset> allImages = new List<DicomDataset>();
 
-            for (int i = 0; i < numberOfImages; )
+            for (int i = 0; i < numberOfImages;)
             {
                 int numberInSeries = r.Next(500);
 
@@ -162,7 +162,7 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
             Console.WriteLine("GetChunk took " + sw.ElapsedMilliseconds);
 
             Assert.AreEqual(numberOfImages, dt.Rows.Count);
-            Assert.AreEqual(numberOfImages, dt.Rows.Cast<DataRow>().Select(w=>w["SOPInstanceUID"]).Distinct().Count());
+            Assert.AreEqual(numberOfImages, dt.Rows.Cast<DataRow>().Select(w => w["SOPInstanceUID"]).Distinct().Count());
         }
 
         [TestCase(DatabaseType.MySql, 50000)]
@@ -174,7 +174,7 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
 
             var db = GetCleanedServer(databaseType);
 
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory,"MicroservicesTest.NLog.config"), false);
+            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesTest.NLog.config"), false);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
@@ -222,11 +222,11 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
             var tables = _helper.LoadMetadata.GetDistinctTableInfoList(false);
 
             var config = new HICDatabaseConfiguration(_helper.LoadMetadata, new SuffixBasedNamer());
-            
+
             var job = Mock.Of<IDataLoadJob>(
-                j => j.RegularTablesToLoad==tables.Cast<ITableInfo>().ToList()&&
-                j.DataLoadInfo==_dli && 
-                j.Configuration == config);            
+                j => j.RegularTablesToLoad == tables.Cast<ITableInfo>().ToList() &&
+                j.DataLoadInfo == _dli &&
+                j.Configuration == config);
 
             var attacher = new AutoRoutingAttacher();
             attacher.Job = job;
@@ -250,7 +250,7 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
                 cmd.ExecuteNonQuery();
             }
 
-            attacher.Initialize(LoadDirectory.CreateDirectoryStructure(new DirectoryInfo(TestContext.CurrentContext.TestDirectory), "IgnoreMe",true), db);
+            attacher.Initialize(LoadDirectory.CreateDirectoryStructure(new DirectoryInfo(TestContext.CurrentContext.TestDirectory), "IgnoreMe", true), db);
             try
             {
                 attacher.ProcessPipelineData(dt, new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
@@ -277,7 +277,7 @@ namespace Microservices.Tests.RDMPTests.DLEBenchmarkingTests
             var root = TestContext.CurrentContext.TestDirectory;
 
             var f = Path.GetRandomFileName();
-            var msg = new DicomFileMessage(root,Path.Combine(root,f + ".dcm"));
+            var msg = new DicomFileMessage(root, Path.Combine(root, f + ".dcm"));
             msg.NationalPACSAccessionNumber = "ABC";
             msg.SeriesInstanceUID = dicomDataset.GetString(DicomTag.SeriesInstanceUID);
             msg.StudyInstanceUID = dicomDataset.GetString(DicomTag.StudyInstanceUID);

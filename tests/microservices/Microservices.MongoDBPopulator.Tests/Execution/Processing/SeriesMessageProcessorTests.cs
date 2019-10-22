@@ -1,13 +1,6 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
 using MongoDB.Bson;
@@ -15,9 +8,16 @@ using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using Tests.Common.Smi;
+using Smi.Common.Messages;
+using Smi.Common.Options;
+using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
-namespace Microservices.Tests.MongoDBPopulatorTests.Execution.Processing
+
+namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 {
     [TestFixture, RequiresMongoDb]
     public class SeriesMessageProcessorTests

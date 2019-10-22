@@ -1,28 +1,29 @@
-﻿using Microservices.CohortExtractor.Audit;
+﻿
+using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
-using Microservices.Common.Options;
 using NUnit.Framework;
-using System;
-using Microservices.Common.Helpers;
-using Tests.Common;
 using Rdmp.Core.Curation.Data;
+using Smi.Common.Helpers;
+using Smi.Common.Options;
+using System;
+using Tests.Common;
 
-namespace Microservices.Tests.RDMPTests.CohortExtractorTests
+namespace Microservices.CohortExtractor.Tests
 {
-    class CohortExtractorTests:UnitTests
+    class CohortExtractorTests : UnitTests
     {
         /// <summary>
         /// Tests creating auditors and fulfillers under various conditions including the config containing only short name instead of full name.
         /// </summary>
         /// <param name="testCase"></param>
         /// <param name="fullName"></param>
-        [TestCase(Test.Normal,true)]
-        [TestCase(Test.Normal,false)]
-        [TestCase(Test.NoAuditor,true)]
-        [TestCase(Test.NoAuditor,false)]
-        [TestCase(Test.NoFulfiller,true)]
-        [TestCase(Test.NoFulfiller,false)]
-        public void UnitTest_Reflection_AuditorAndFulfillerTypeNames(Test testCase,bool fullName)
+        [TestCase(Test.Normal, true)]
+        [TestCase(Test.Normal, false)]
+        [TestCase(Test.NoAuditor, true)]
+        [TestCase(Test.NoAuditor, false)]
+        [TestCase(Test.NoFulfiller, true)]
+        [TestCase(Test.NoFulfiller, false)]
+        public void UnitTest_Reflection_AuditorAndFulfillerTypeNames(Test testCase, bool fullName)
         {
             CohortExtractorOptions opts = new CohortExtractorOptions();
 
@@ -30,25 +31,25 @@ namespace Microservices.Tests.RDMPTests.CohortExtractorTests
             switch (testCase)
             {
                 case Test.Normal:
-                    opts.AuditorType = fullName ? typeof(NullAuditExtractions).FullName:typeof(NullAuditExtractions).Name;
-                    opts.RequestFulfillerType = fullName ? typeof(FromCataloguesExtractionRequestFulfiller).FullName:typeof(FromCataloguesExtractionRequestFulfiller).Name;
+                    opts.AuditorType = fullName ? typeof(NullAuditExtractions).FullName : typeof(NullAuditExtractions).Name;
+                    opts.RequestFulfillerType = fullName ? typeof(FromCataloguesExtractionRequestFulfiller).FullName : typeof(FromCataloguesExtractionRequestFulfiller).Name;
                     opts.Validate();
                     break;
 
                 case Test.NoAuditor:
-                    
+
                     //no auditor is not a problem because it will just return NullAuditExtractions anyway
                     opts.AuditorType = "";
-                    opts.RequestFulfillerType = fullName ? typeof(FromCataloguesExtractionRequestFulfiller).FullName:typeof(FromCataloguesExtractionRequestFulfiller).Name;
+                    opts.RequestFulfillerType = fullName ? typeof(FromCataloguesExtractionRequestFulfiller).FullName : typeof(FromCataloguesExtractionRequestFulfiller).Name;
                     opts.Validate();
                     break;
                 case Test.NoFulfiller:
-                    opts.AuditorType = fullName ? typeof(NullAuditExtractions).FullName:typeof(NullAuditExtractions).Name;
+                    opts.AuditorType = fullName ? typeof(NullAuditExtractions).FullName : typeof(NullAuditExtractions).Name;
                     opts.RequestFulfillerType = null; //lets use null here just to cover both "" and null
-                    
+
                     //no fulfiller is a problem!
-                    var ex = Assert.Throws<Exception>(()=>opts.Validate());
-                    StringAssert.Contains("No RequestFulfillerType set on CohortExtractorOptions",ex.Message);
+                    var ex = Assert.Throws<Exception>(() => opts.Validate());
+                    StringAssert.Contains("No RequestFulfillerType set on CohortExtractorOptions", ex.Message);
 
                     break;
                 default:
@@ -59,7 +60,7 @@ namespace Microservices.Tests.RDMPTests.CohortExtractorTests
             if (!fullName)
             {
                 //if no auditor is provided
-                if(testCase == Test.NoAuditor)
+                if (testCase == Test.NoAuditor)
                     Assert.IsInstanceOf<NullAuditExtractions>(CreateAuditor(opts)); //this one gets created
                 else
                     Assert.Throws<TypeLoadException>(() => CreateAuditor(opts)); //if an invalid auditor (not full name, we expect TypeLoadException)
@@ -89,17 +90,17 @@ namespace Microservices.Tests.RDMPTests.CohortExtractorTests
 
             var f = new MicroserviceObjectFactory();
 
-            var catas = new[]{ei.CatalogueItem.Catalogue};
+            var catas = new[] { ei.CatalogueItem.Catalogue };
             return f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType,
                 typeof(IExtractionRequestFulfiller).Assembly,
-                new object[] {catas});
+                new object[] { catas });
 
         }
 
         private IAuditExtractions CreateAuditor(CohortExtractorOptions opts)
         {
             var f = new MicroserviceObjectFactory();
-            return f.CreateInstance<IAuditExtractions>(opts.AuditorType,typeof(IAuditExtractions).Assembly);
+            return f.CreateInstance<IAuditExtractions>(opts.AuditorType, typeof(IAuditExtractions).Assembly);
         }
 
         internal enum Test
@@ -109,5 +110,5 @@ namespace Microservices.Tests.RDMPTests.CohortExtractorTests
             NoFulfiller,
         }
     }
-    
+
 }

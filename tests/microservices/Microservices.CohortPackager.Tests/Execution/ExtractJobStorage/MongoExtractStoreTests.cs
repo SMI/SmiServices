@@ -1,18 +1,17 @@
 ﻿
-using System;
-using System.Collections.Generic;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments;
-using Microservices.Common.Messages;
-using Microservices.Common.Messages.Extraction;
-using Microservices.Common.MessageSerialization;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
 using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
-using Smi.MongoDB.Common;
-using Tests.Common.Smi;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.MessageSerialization;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
+using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
 
 namespace Microservices.Tests.CohortPackagerTests.Execution.ExtractJobStorage
 {

@@ -1,14 +1,14 @@
 ﻿
-using Microservices.Common.Messages;
-using Microservices.Common.Tests;
-using Microservices.Common.Tests.DeadLetterMessagingTests;
 using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.Tests;
+using Smi.Common.Tests.DeadLetterMessagingTests;
 using System.Threading;
-using Tests.Common.Smi;
+
 
 namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
 {
-    [TestFixture,RequiresRabbit]
+    [TestFixture, RequiresRabbit]
     public class DeadLetterQueueHelpers
     {
         private readonly DeadLetterTestHelper _testHelper = new DeadLetterTestHelper();

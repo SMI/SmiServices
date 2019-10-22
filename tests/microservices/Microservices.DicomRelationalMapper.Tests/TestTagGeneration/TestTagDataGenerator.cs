@@ -1,16 +1,15 @@
 ﻿
 using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Tests;
-using FAnsi.Discovery.TypeTranslation;
+using Rdmp.Dicom.TagPromotionSchema;
+using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Rdmp.Dicom.TagPromotionSchema;
 using TypeGuesser;
 
-namespace Microservices.Tests.RDMPTests.TestTagData
+namespace Microservices.DicomRelationalMapper.Tests.TestTagGeneration
 {
     public class TestTagDataGenerator : ITagRandomiser
     {

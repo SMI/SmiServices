@@ -1,14 +1,14 @@
 ﻿
-using System.Collections.Generic;
-using System.IO;
 using CommandLine;
 using CommandLine.Text;
-using Smi.Common.Options;
 using ReusableLibraryCode.Annotations;
+using Smi.Common.Options;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Applications.DicomDirectoryProcessor.Options
 {
-    public class ProcessDirectoryCliOptions : CliOptions
+    public class DicomDirectoryProcessorCliOptions : CliOptions
     {
         [UsedImplicitly]
         [Option('d', "to-process", Required = true, HelpText = "The directory to process")]
@@ -43,11 +43,11 @@ namespace Applications.DicomDirectoryProcessor.Options
             get
             {
                 yield return
-                    new Example("Normal Scenario", new ProcessDirectoryCliOptions { ToProcess = @"c:\temp\bob" });
+                    new Example("Normal Scenario", new DicomDirectoryProcessorCliOptions { ToProcess = @"c:\temp\bob" });
                 yield return
-                    new Example("Override Yaml File", new ProcessDirectoryCliOptions { ToProcess = @"c:\temp\bob", YamlFile = "myconfig.yaml" });
+                    new Example("Override Yaml File", new DicomDirectoryProcessorCliOptions { ToProcess = @"c:\temp\bob", YamlFile = "myconfig.yaml" });
                 yield return
-                    new Example("Search using the PACS directory structure", new ProcessDirectoryCliOptions { ToProcess = @"c:\temp\bob", DirectoryFormat = "PACS" });
+                    new Example("Search using the PACS directory structure", new DicomDirectoryProcessorCliOptions { ToProcess = @"c:\temp\bob", DirectoryFormat = "PACS" });
             }
         }
 

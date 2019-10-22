@@ -1,18 +1,19 @@
-﻿using Dicom;
+﻿
+using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Messaging;
 using MongoDB.Bson;
 using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.Options;
+using Smi.Common.Tests;
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Microservices.Common.Tests;
-using Tests.Common.Smi;
 
-namespace Microservices.Tests.MongoDBPopulatorTests.Execution
+
+namespace Microservices.MongoDBPopulator.Tests.Execution
 {
     [TestFixture, RequiresMongoDb]
     public class MongoDbPopulatorHostTests

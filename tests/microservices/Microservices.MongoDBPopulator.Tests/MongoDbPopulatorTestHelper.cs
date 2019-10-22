@@ -1,16 +1,17 @@
-﻿using System;
+﻿
 using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
 using MongoDB.Driver;
 using Moq;
-using NLog;
 using NUnit.Framework;
-using Smi.MongoDB.Common;
+using NUnit.Framework.Internal;
+using Smi.Common.Messages;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
+using System;
 
 
-namespace Microservices.Tests.MongoDBPopulatorTests
+namespace Microservices.MongoDBPopulator.Tests
 {
     public class MongoDbPopulatorTestHelper
     {

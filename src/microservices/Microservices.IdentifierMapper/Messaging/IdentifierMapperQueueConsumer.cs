@@ -1,10 +1,10 @@
 ﻿
 using Dicom;
 using DicomTypeTranslation;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using RabbitMQ.Client.Events;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using System;
 using System.Text.RegularExpressions;
 
@@ -91,7 +91,7 @@ namespace Microservices.IdentifierMapper.Messaging
             return true;
         }
 
-        internal bool SwapIdentifier(DicomFileMessage msg, out string reason)
+        public bool SwapIdentifier(DicomFileMessage msg, out string reason)
         {
             DicomDataset ds;
             try

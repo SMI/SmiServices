@@ -1,21 +1,21 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Dicom;
 using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
 using MongoDB.Bson;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
+using Smi.Common.Messages;
+using Smi.Common.Options;
+using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
-namespace Microservices.Tests.MongoDBPopulatorTests.Execution.Processing
+namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 {
     [TestFixture]
     public class ImageMessageProcessorTests_NoMongo
@@ -66,7 +66,7 @@ namespace Microservices.Tests.MongoDBPopulatorTests.Execution.Processing
                 string modality = testModalities[i];
                 ds.AddOrUpdate(DicomTag.Modality, modality);
                 msg.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
-                processor.AddToWriteQueue(msg, null,(ulong)i);
+                processor.AddToWriteQueue(msg, null, (ulong)i);
             }
 
             ds.AddOrUpdate(DicomTag.Modality, "CT");

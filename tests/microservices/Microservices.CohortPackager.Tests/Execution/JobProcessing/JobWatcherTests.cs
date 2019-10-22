@@ -1,10 +1,10 @@
 ﻿
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
 using Moq;
 using NUnit.Framework;
+using Smi.Common.Options;
+using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
@@ -52,7 +52,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution.JobProcessing
 
         [SetUp]
         public void SetUp() { }
-        
+
         [TearDown]
         public void TearDown() { }
 

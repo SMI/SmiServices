@@ -1,14 +1,15 @@
 ﻿
-using Microservices.Common.Messages;
-using Microservices.Common.Tests;
+
 using Microservices.DicomTagReader.Execution;
 using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.Tests;
 using System.Threading;
-using Tests.Common.Smi;
 
-namespace Microservices.SMIDicomTagReader.Tests.Execution
+
+namespace Microservices.DicomTagReader.Tests.Execution
 {
-    [TestFixture,RequiresRabbit]
+    [TestFixture, RequiresRabbit]
     public class DicomTagReaderHostTests
     {
         private readonly DicomTagReaderTestHelper _helper = new DicomTagReaderTestHelper();

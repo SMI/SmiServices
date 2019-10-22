@@ -1,18 +1,18 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microservices.Common.Messages;
-using Microservices.Common.Tests;
-using Microservices.Common.Tests.DeadLetterMessagingTests;
 using Microservices.DeadLetterReprocessor.Execution;
 using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage;
 using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoDocuments;
+using Microservices.DeadLetterReprocessor.Options;
 using MongoDB.Driver;
 using NUnit.Framework;
 using RabbitMQ.Client.Events;
-using Smi.MongoDB.Common;
-using Tests.Common.Smi;
+using Smi.Common.Messages;
+using Smi.Common.MongoDB;
+using Smi.Common.Tests;
+using Smi.Common.Tests.DeadLetterMessagingTests;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
 {
@@ -20,6 +20,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
     public class DeadLetterReprocessorHostTests
     {
         private readonly DeadLetterTestHelper _testHelper = new DeadLetterTestHelper();
+        private readonly DeadLetterReprocessorCliOptions _cliOptions = new DeadLetterReprocessorCliOptions();
 
         private IMongoDatabase _database;
         private IMongoCollection<MongoDeadLetterDocument> _deadLetterCollection;
@@ -103,7 +104,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             Assert.AreEqual(1, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
             // Start the host and check message has been read from DLQ into store
-            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _testHelper.DeadLetterReprocessorCliOptions);
+            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
@@ -111,8 +112,8 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             Assert.AreEqual(0, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
             // Now run the host again with the FlushMessages option set
-            _testHelper.DeadLetterReprocessorCliOptions.FlushMessages = true;
-            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _testHelper.DeadLetterReprocessorCliOptions);
+            _cliOptions.FlushMessages = true;
+            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             // Check the message has been sent back to the exchange and received by the consumer
@@ -178,7 +179,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             };
 
             // Set so the host just pushes the message through each time
-            _testHelper.DeadLetterReprocessorCliOptions.FlushMessages = true;
+            _cliOptions.FlushMessages = true;
 
             // Send the message
             IMessageHeader originalHeader = _testHelper.TestProducer.SendMessage(testMessage, null, DeadLetterTestHelper.TestRoutingKey);
@@ -194,7 +195,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
                 Assert.AreEqual(1, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
                 // Start the host and check message has been read from DLQ into store
-                var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _testHelper.DeadLetterReprocessorCliOptions);
+                var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
                 host.Start();
 
                 Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 0);
@@ -242,10 +243,10 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             // Check 1 message on the DLQ
             Assert.AreEqual(1, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
-            _testHelper.DeadLetterReprocessorCliOptions.FlushMessages = false;
+            _cliOptions.FlushMessages = false;
 
             // Start the host and check message has been read from DLQ into store
-            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _testHelper.DeadLetterReprocessorCliOptions);
+            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
@@ -254,10 +255,10 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
 
             host.Stop("Test over 1");
 
-            _testHelper.DeadLetterReprocessorCliOptions.FlushMessages = true;
-            _testHelper.DeadLetterReprocessorCliOptions.ReprocessFromQueue = "FakeQueueName";
+            _cliOptions.FlushMessages = true;
+            _cliOptions.ReprocessFromQueue = "FakeQueueName";
 
-            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _testHelper.DeadLetterReprocessorCliOptions);
+            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
@@ -266,9 +267,9 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
 
             host.Stop("Test over 2");
 
-            _testHelper.DeadLetterReprocessorCliOptions.ReprocessFromQueue = DeadLetterTestHelper.RejectQueueName;
+            _cliOptions.ReprocessFromQueue = DeadLetterTestHelper.RejectQueueName;
 
-            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _testHelper.DeadLetterReprocessorCliOptions);
+            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             // Check the message has been sent back to the exchange and received by the consumer

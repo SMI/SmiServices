@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using BadMedicine;
 using Dicom;
 using DicomTypeTranslation;
@@ -8,8 +6,11 @@ using DicomTypeTranslation.TableCreation;
 using FAnsi.Discovery;
 using FAnsi.Implementations.MicrosoftSQL;
 using Rdmp.Dicom.TagPromotionSchema;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Microservices.Tests.RDMPTests.TestTagData
+namespace Microservices.DicomRelationalMapper.Tests.TestTagGeneration
 {
     /// <summary>
     /// Creates more representative data given the set of tags in the specified Template
@@ -17,7 +18,7 @@ namespace Microservices.Tests.RDMPTests.TestTagData
     class MeaningfulTestTagDataGenerator
     {
         private Dictionary<DatabaseColumnRequest, DicomDictionaryEntry> _columns = new Dictionary<DatabaseColumnRequest, DicomDictionaryEntry>();
-        
+
         Random r;
 
         TestTagDataGenerator _basicTags = new TestTagDataGenerator();
@@ -31,8 +32,8 @@ namespace Microservices.Tests.RDMPTests.TestTagData
             {
                 var tag = TagColumnAdder.GetTag(col);
 
-                if(tag != null)
-                    _columns.Add(itc.GetColumnDefinition(col),tag);
+                if (tag != null)
+                    _columns.Add(itc.GetColumnDefinition(col), tag);
             }
 
         }
@@ -47,30 +48,30 @@ namespace Microservices.Tests.RDMPTests.TestTagData
             var ae = "abc" + r.Next(100000);
 
             List<DicomDataset> toReturn = new List<DicomDataset>();
-            
+
             for (int i = 0; i < numberInSeries; i++)
             {
                 DicomDataset ds = new DicomDataset();
-                
+
                 foreach (var kvp in _columns)
                 {
-                    object val = GetValueForColumn(studyid, seriesid,studyDate, numberInSeries, p, kvp.Key, kvp.Value, ae);
-                    
-                    if(val != null)
+                    object val = GetValueForColumn(studyid, seriesid, studyDate, numberInSeries, p, kvp.Key, kvp.Value, ae);
+
+                    if (val != null)
                         DicomTypeTranslaterWriter.SetDicomTag(ds, kvp.Value, val);
                 }
                 toReturn.Add(ds);
             }
-            
+
             return toReturn.ToArray();
         }
-        
+
         private object GetValueForColumn(object studyid, object seriesid, DateTime studyDate, int numberInSeries, Person p, DatabaseColumnRequest c, DicomDictionaryEntry entry, object ae)
         {
             switch (c.ColumnName)
             {
                 //Study
-                case "PatientID":return p.CHI;
+                case "PatientID": return p.CHI;
                 case "StudyInstanceUID": return studyid;
                 case "SeriesInstanceUID": return seriesid;
                 case "StudyTime": return null;
@@ -78,7 +79,7 @@ namespace Microservices.Tests.RDMPTests.TestTagData
                 case "StudyDescription": return "Imaginary made up study";
                 case "AccessionNumber": return null;
                 case "PatientSex": return p.Gender.ToString();
-                case "PatientAge": return ((int)(DateTime.Now.Subtract(p.DateOfBirth).TotalDays/365)) + "Y";
+                case "PatientAge": return ((int)(DateTime.Now.Subtract(p.DateOfBirth).TotalDays / 365)) + "Y";
                 case "StudyDate": return studyDate;
                 case "NumberOfStudyRelatedInstances": return numberInSeries;
 
@@ -100,7 +101,7 @@ namespace Microservices.Tests.RDMPTests.TestTagData
                 case "SOPInstanceUID": return Guid.NewGuid().ToString();
                 case "SeriesDate": return p.GetRandomDateDuringLifetime(r);
                 case "SeriesTime": return null;
-                case "BurnedInAnnotation": return r.Next(2)==1?"YES":"NO";
+                case "BurnedInAnnotation": return r.Next(2) == 1 ? "YES" : "NO";
                 case "SliceLocation": return null;
                 case "SliceThickness": return null;
                 case "SpacingBetweenSlices": return null;
@@ -128,10 +129,10 @@ namespace Microservices.Tests.RDMPTests.TestTagData
                 case "LossyImageCompressionMethod": return null;
                 case "LossyImageCompressionRatio": return null;
                 case "LossyImageCompressionRetired": return null;
-                case "ScanOptions"         :return null;              
+                case "ScanOptions": return null;
 
                 default:
-                    return _basicTags.GetRandomValue(entry,r);
+                    return _basicTags.GetRandomValue(entry, r);
             }
         }
     }

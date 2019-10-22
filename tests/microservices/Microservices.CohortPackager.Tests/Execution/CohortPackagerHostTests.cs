@@ -1,15 +1,15 @@
 ﻿
 using Microservices.CohortPackager.Execution;
-using Microservices.Common.Messages;
-using Microservices.Common.MessageSerialization;
-using Microservices.Common.Tests;
 using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.MessageSerialization;
+using Smi.Common.Tests;
 using System.Threading;
-using Tests.Common.Smi;
+
 
 namespace Microservices.Tests.CohortPackagerTests.Execution
 {
-    [TestFixture,RequiresMongoDb]
+    [TestFixture, RequiresMongoDb]
     public class CohortPackagerHostTests
     {
         private readonly CohortPackagerTestHelper _helper = new CohortPackagerTestHelper();
@@ -70,7 +70,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution
                 host.Stop("Test end");
                 tester.Shutdown();
             }
-            
+
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution
                 host.Stop("Test end");
                 tester.Shutdown();
             }
-            
+
         }
 
         #endregion

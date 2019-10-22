@@ -1,10 +1,11 @@
 ﻿
 using NUnit.Framework;
-using Tests.Common.Smi;
+using Smi.Common.Tests;
 
-namespace Microservices.Tests.MongoDBPopulatorTests.Messaging
+
+namespace Microservices.MongoDBPopulator.Tests.Messaging
 {
-    [TestFixture,RequiresMongoDb]
+    [TestFixture, RequiresMongoDb]
     public class MongoDbPopulatorMessageConsumerTests
     {
         private MongoDbPopulatorTestHelper _helper;
