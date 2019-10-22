@@ -1,14 +1,13 @@
 ﻿
-using Microservices.Common.Messages;
+using Smi.Common.Messages;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Tests.Common.Smi;
 
-namespace Microservices.Common.Tests.DeadLetterMessagingTests
+namespace Smi.Common.Tests.DeadLetterMessagingTests
 {
     [TestFixture,RequiresRabbit]
     public class RabbitMqXDeathHeaderTests

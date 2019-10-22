@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>Smi.Common.Tests</AssemblyName>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyTitle>Tests.Common.Smi</AssemblyTitle>
-    <Product>Tests.Common.Smi</Product>
-    <Copyright>Copyright ©  2019</Copyright>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <None Include="Mongo.yaml">
@@ -18,12 +19,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="Moq" Version="4.11.0" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
     <PackageReference Include="NunitXml.TestLogger" Version="2.1.36" />
     <PackageReference Include="System.IO.Abstractions" Version="6.0.15" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Microservices\Microservices.Common\Microservices.Common.csproj" />
+    <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
 </Project>

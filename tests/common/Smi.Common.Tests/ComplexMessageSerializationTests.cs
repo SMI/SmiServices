@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microservices.Common.Messages;
-using Microservices.Common.Messages.Extraction;
-using Microservices.Common.MessageSerialization;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.MessageSerialization;
 using NUnit.Framework;
-using JsonConvert = Microservices.Common.MessageSerialization.JsonConvert;
+using JsonConvert = Smi.Common.MessageSerialization.JsonConvert;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public class ComplexMessageSerializationTests
     {

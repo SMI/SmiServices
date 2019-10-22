@@ -6,7 +6,7 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using YamlDotNet.Serialization;
 
-namespace Tests.Common.Smi
+namespace Smi.Common.Tests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
                     AttributeTargets.Assembly, AllowMultiple = true)]

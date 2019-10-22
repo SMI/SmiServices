@@ -1,18 +1,18 @@
-﻿using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+﻿
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Tests.Common.Smi;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
-    [TestFixture,RequiresRabbit]
+    [TestFixture, RequiresRabbit]
     public class RabbitMqAdapterTests
     {
         private RabbitMqAdapter _testAdapter;

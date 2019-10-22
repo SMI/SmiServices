@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
+    <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
+    <ProjectReference Include="..\Smi.Common.Tests\Smi.Common.Tests.csproj" />
+  </ItemGroup>
+</Project>

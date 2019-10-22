@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     /// <summary>
     /// helper for asynchronous tests, awaits for certain conditions to be true within a given timeout (or infinite timeout if debugger is attached)

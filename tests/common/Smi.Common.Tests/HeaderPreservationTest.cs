@@ -1,12 +1,12 @@
-﻿using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+﻿
 using NUnit.Framework;
 using RabbitMQ.Client.Events;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using System;
-using Tests.Common.Smi;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     [RequiresRabbit]
     public class HeaderPreservationTest

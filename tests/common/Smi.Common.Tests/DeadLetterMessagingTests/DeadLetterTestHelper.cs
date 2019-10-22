@@ -1,13 +1,14 @@
 ﻿
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
-using Microservices.DeadLetterReprocessor.Options;
+//using Microservices.DeadLetterReprocessor.Options;
 using NUnit.Framework;
 using RabbitMQ.Client;
+using Smi.Common;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 
-namespace Microservices.Common.Tests.DeadLetterMessagingTests
+namespace Smi.Common.Tests.DeadLetterMessagingTests
 {
     public class DeadLetterTestHelper : IDisposable
     {
@@ -18,7 +19,7 @@ namespace Microservices.Common.Tests.DeadLetterMessagingTests
         public const string TestRoutingKey = "test.routing.key";
 
         public GlobalOptions GlobalOptions;
-        public readonly DeadLetterReprocessorCliOptions DeadLetterReprocessorCliOptions = new DeadLetterReprocessorCliOptions();
+        //public readonly DeadLetterReprocessorCliOptions DeadLetterReprocessorCliOptions = new DeadLetterReprocessorCliOptions();
 
         private RabbitMqAdapter _testAdapter;
 

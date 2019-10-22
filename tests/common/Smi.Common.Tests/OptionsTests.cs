@@ -1,17 +1,14 @@
 ﻿
-using Microservices.Common.Options;
 using NUnit.Framework;
+using Smi.Common.Options;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
+    //TODO: Rework these tests. We should assert that every option in GlobalOptions has an entry in default.yaml. Non-required options should be present with a comment
     [TestFixture]
     public class OptionsTests
     {
-        //FIXME These can be removed
         [TestCase("default.yaml")]
-        [TestCase("dev_test.yaml")]
-        [TestCase("development.yaml")]
-        [TestCase("test.yaml")]
         public void GlobalOptions_Test(string template)
         {
             GlobalOptions globals = GlobalOptions.Load(template, TestContext.CurrentContext.TestDirectory);

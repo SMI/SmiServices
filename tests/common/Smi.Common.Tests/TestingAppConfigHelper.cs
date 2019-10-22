@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public class TestingAppConfigHelper
     {

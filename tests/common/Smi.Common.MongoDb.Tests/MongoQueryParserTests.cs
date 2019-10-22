@@ -1,14 +1,13 @@
 ﻿
-using System.Threading.Tasks;
-using Microservices.Common.Options;
-using Microservices.Common.Tests;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
 using NUnit.Framework;
-using Tests.Common.Smi;
+using Smi.Common.Options;
+using Smi.Common.Tests;
+using System.Threading.Tasks;
 
-namespace Smi.MongoDB.Common.Tests
+namespace Smi.Common.MongoDB.Tests
 {
     [TestFixture, RequiresMongoDb]
     public class MongoQueryParserTests

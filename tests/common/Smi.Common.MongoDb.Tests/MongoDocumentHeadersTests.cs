@@ -1,12 +1,11 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using Microservices.Common.Messages;
 using MongoDB.Bson;
 using NUnit.Framework;
+using Smi.Common.Messages;
+using System;
+using System.Collections.Generic;
 
-
-namespace Smi.MongoDB.Common.Tests
+namespace Smi.Common.MongoDB.Tests
 {
     [TestFixture]
     public class MongoDocumentHeadersTests

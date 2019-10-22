@@ -1,8 +1,8 @@
-﻿using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
+﻿using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using RabbitMQ.Client.Events;
 
-namespace Microservices.Common.Tests.DeadLetterMessagingTests
+namespace Smi.Common.Tests.DeadLetterMessagingTests
 {
     /// <summary>
     /// Angry consumer that rejects any messages sent to it!

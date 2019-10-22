@@ -2,7 +2,7 @@
 using DicomTypeTranslation.Helpers;
 using NUnit.Framework;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public class ArrayHelperTests
     {

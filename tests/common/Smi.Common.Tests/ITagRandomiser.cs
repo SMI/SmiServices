@@ -1,7 +1,7 @@
 ﻿using System;
 using Dicom;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public interface ITagRandomiser
     {

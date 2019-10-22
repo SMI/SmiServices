@@ -5,8 +5,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 
-
-namespace Tests.Common.Smi
+namespace Smi.Common.Tests
 {
     public class TestIOManager : Dicom.IO.IOManager
     {

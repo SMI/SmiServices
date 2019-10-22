@@ -1,13 +1,14 @@
 ﻿
-using Microservices.Common.Execution;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
 using RabbitMQ.Client;
+using Smi.Common;
+using Smi.Common.Execution;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
-using Microservices.Common.Messaging;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public class MicroserviceTester : IDisposable
     {
@@ -33,7 +34,7 @@ namespace Microservices.Common.Tests
         /// are thrown in test (provided the MicroserviceTester is in a using statement).
         /// </summary>
         public HashSet<MicroserviceHost> StopOnDispose = new HashSet<MicroserviceHost>();
-        
+
         public MicroserviceTester(RabbitOptions rabbitOptions, params ConsumerOptions[] peopleYouWantToSendMessagesTo)
         {
             CleanUpAfterTest = true;
@@ -82,7 +83,7 @@ namespace Microservices.Common.Tests
                         ExchangeName = exchangeName
                     };
 
-                    _sendToConsumers.Add(consumer, _adapter.SetupProducer(producerOptions,true));
+                    _sendToConsumers.Add(consumer, _adapter.SetupProducer(producerOptions, true));
                 }
             }
         }
@@ -109,7 +110,7 @@ namespace Microservices.Common.Tests
         public void SendMessages(ConsumerOptions toConsumer, IEnumerable<IMessage> messages, bool generateIMessageHeaders)
         {
             foreach (IMessage msg in messages)
-                _sendToConsumers[toConsumer].SendMessage(msg,generateIMessageHeaders?new MessageHeader() : null);
+                _sendToConsumers[toConsumer].SendMessage(msg, generateIMessageHeaders ? new MessageHeader() : null);
 
             _sendToConsumers[toConsumer].WaitForConfirms();
         }

@@ -1,7 +1,7 @@
 ﻿
 using NUnit.Framework;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     /// <summary>
     /// Template for test fixtures

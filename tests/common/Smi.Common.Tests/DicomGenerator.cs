@@ -7,7 +7,7 @@ using System.IO;
 using DicomTypeTranslation;
 using System.IO.Abstractions;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public class DicomGenerator : IDisposable
     {

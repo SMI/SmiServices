@@ -3,7 +3,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public static class TestLogger
     {

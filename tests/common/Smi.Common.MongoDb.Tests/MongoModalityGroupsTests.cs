@@ -1,12 +1,11 @@
 ﻿
+using MongoDB.Bson;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Bson;
-using NUnit.Framework;
 
-
-namespace Smi.MongoDB.Common.Tests
+namespace Smi.Common.MongoDB.Tests
 {
     [TestFixture]
     public class MongoModalityGroupsTests

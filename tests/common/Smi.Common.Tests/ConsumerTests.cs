@@ -1,18 +1,18 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Framing;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     [TestFixture]
     public class ConsumerTests

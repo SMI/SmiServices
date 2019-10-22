@@ -1,26 +1,26 @@
 ﻿
-using Microservices.Common.Messages;
 using NUnit.Framework;
+using Smi.Common.Messages;
 using System;
 using System.Linq;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public class MessageEqualityTests
     {
         [Test]
         public void TestEqualityMembersExistForAllIMessages()
         {
-            var allClassesImplementingIMessage = typeof (IMessage).Assembly.GetTypes().Where(t => typeof (IMessage).IsAssignableFrom(t));
+            var allClassesImplementingIMessage = typeof(IMessage).Assembly.GetTypes().Where(t => typeof(IMessage).IsAssignableFrom(t));
 
             foreach (Type type in allClassesImplementingIMessage)
             {
-                if(type.IsInterface || type.IsAbstract)
+                if (type.IsInterface || type.IsAbstract)
                     continue;
 
                 var equalsMethods = type.GetMethods().Where(m => m.Name.Equals("Equals") && m.DeclaringType == type).ToArray();
-                
-                Assert.IsTrue(equalsMethods.Any(),"Type '" + type + "' does not have Equality members");
+
+                Assert.IsTrue(equalsMethods.Any(), "Type '" + type + "' does not have Equality members");
             }
         }
 
@@ -29,14 +29,14 @@ namespace Microservices.Common.Tests
         {
             var msg1 = new AccessionDirectoryMessage();
             var msg2 = new AccessionDirectoryMessage();
-            
-            Assert.AreEqual(msg1,msg2);
-            Assert.AreEqual(msg1.GetHashCode(),msg2.GetHashCode());
+
+            Assert.AreEqual(msg1, msg2);
+            Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
 
             msg1.NationalPACSAccessionNumber = "500";
             msg2.NationalPACSAccessionNumber = "500";
 
-            Assert.AreEqual(msg1,msg2);
+            Assert.AreEqual(msg1, msg2);
             Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
 
             msg1.NationalPACSAccessionNumber = "999";
@@ -48,8 +48,8 @@ namespace Microservices.Common.Tests
             msg1.DirectoryPath = @"c:\temp";
             msg2.DirectoryPath = @"c:\temp";
 
-            Assert.AreEqual(msg1,msg2);
-            Assert.AreEqual(msg1.GetHashCode(),msg2.GetHashCode());
+            Assert.AreEqual(msg1, msg2);
+            Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
 
             msg2.DirectoryPath = @"C:\Temp"; //caps is relevant
 
@@ -84,7 +84,7 @@ namespace Microservices.Common.Tests
             Assert.AreEqual(msg1, msg2);
             Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
         }
-        
+
         [Test]
         public void TestEquals_SeriesMessage()
         {

@@ -1,17 +1,18 @@
-﻿using System;
+﻿
+using Smi.Common.Messages;
+using Smi.Common.Options;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
 
-namespace Microservices.Common.Tests
+namespace Smi.Common.Tests
 {
     public class TestTimeline
     {
         private readonly MicroserviceTester _tester;
         Queue<Action> Operations = new Queue<Action>();
-        
+
         /// <summary>
         /// The exact time the TestTimeline was last started
         /// </summary>
@@ -28,9 +29,9 @@ namespace Microservices.Common.Tests
             return this;
         }
 
-        public TestTimeline SendMessage(ConsumerOptions toConsumer,IMessage message)
+        public TestTimeline SendMessage(ConsumerOptions toConsumer, IMessage message)
         {
-            Operations.Enqueue(()=>_tester.SendMessage(toConsumer,message));
+            Operations.Enqueue(() => _tester.SendMessage(toConsumer, message));
             return this;
         }
 
