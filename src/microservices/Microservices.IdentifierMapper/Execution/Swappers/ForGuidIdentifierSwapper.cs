@@ -1,5 +1,5 @@
 ﻿
-using Microservices.Common.Options;
+using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;
 using FAnsi.Discovery.TypeTranslation;

@@ -1,5 +1,5 @@
 ﻿
-using Microservices.Common.Options;
+using Smi.Common.Options;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
 {

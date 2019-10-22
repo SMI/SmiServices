@@ -1,7 +1,7 @@
 ﻿
-using Microservices.Common.Execution;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.IdentifierMapper.Messaging;
 using System;
