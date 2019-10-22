@@ -1,4 +1,10 @@
+
+TODO:
+
+- Version defined in SharedAssemblyInfo.cs
+
 # SMIPlugin
+
 Scottish Medical Imaging plugin is a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp).  The software loads Dicom Tag data (extracted from clinical images) into MongoDB and Relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
 ## Contents
@@ -11,13 +17,13 @@ Scottish Medical Imaging plugin is a suite of microservices written in C# and Ja
 4. [Testing](#testing)
 
 ## Microservices
-All microservices [follow the same design pattern](./Microservices/Microservices.Common/README.md).
+All microservices [follow the same design pattern](./Microservices/Smi.Common/README.md).
 
-The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Microservices.Common.Messages.IMessage`.
+The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
 
 Microservices can be configured through it's [Configuration](#configuration-file) file.
 
-Microservices can be controlled through RabbitMQ messages. The currently supported commands and instructions can be found [here](./Microservices/Microservices.Common/Messaging/readme.md).
+Microservices can be controlled through RabbitMQ messages. The currently supported commands and instructions can be found [here](./Microservices/Smi.Common/Messaging/readme.md).
 
 ### Data Load Microservices
 
@@ -48,7 +54,7 @@ Microservices can be controlled through RabbitMQ messages. The currently support
 | Audit System | Description|
 | ------------- | ------------- |
 | [NLog](http://nlog-project.org/) | All Microservices log all activity to NLog, the manifestation of these logs can be to file/console/server etc as configured in the app.config file.|
-| [Message Audit](./Microservices/Microservices.Common/README.md#logging) | Every message sent by a microservice has a unique Guid associated with it.  When a message is issued in response to an input message (all but the first message in a chain) the list of legacy message Guids is maintained.  This list is output as part of NLog logging.|
+| [Message Audit](./Microservices/Smi.Common/README.md#logging) | Every message sent by a microservice has a unique Guid associated with it.  When a message is issued in response to an input message (all but the first message in a chain) the list of legacy message Guids is maintained.  This list is output as part of NLog logging.|
 |[Data Load Audit](./Microservices/Microservices.DicomRelationalMapper/Readme.md#7-audit)|The final Message Guid of every file identified for loading is recorded in the relational database image table.  In addition a valid from / data load ID field is recorded and any UPDATEs that take place (e.g. due to reprocessing a file) results in a persistence record being created in a shadow archive table.|
 | [Extraction Audit (MongoDB)](./Microservices/Microservices.CohortPackager/README.md) | CohortPackager is responsible for auditing extraction Info messages from all extraction services, recording which images have been requested and when image anonymisation has been completed.  This is currently implemented through `IExtractJobStore`.|
 | CohortExtractor Audit | Obsolete interface `IAuditExtractions` previously existed to record the linkage results and patient release identifiers.|
