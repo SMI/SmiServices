@@ -1,5 +1,5 @@
-﻿using Microservices.Common.Execution;
-using Microservices.Common.Options;
+﻿using Smi.Common.Execution;
+using Smi.Common.Options;
 using Microservices.DicomRelationalMapper.Messaging;
 using NLog;
 using Rdmp.Core.Curation.Data.DataLoad;
