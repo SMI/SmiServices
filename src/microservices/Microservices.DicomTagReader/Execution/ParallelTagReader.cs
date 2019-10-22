@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 
 
 namespace Microservices.DicomTagReader.Execution

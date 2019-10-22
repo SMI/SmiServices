@@ -1,7 +1,7 @@
 ﻿
 using System;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using Microservices.DicomTagReader.Execution;
 using RabbitMQ.Client.Events;
 

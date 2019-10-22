@@ -2,9 +2,9 @@
 using System;
 using System.IO;
 using System.IO.Abstractions;
-using Microservices.Common.Execution;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
+using Smi.Common.Execution;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 using Microservices.DicomTagReader.Messaging;
 
 namespace Microservices.DicomTagReader.Execution
