@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.ProcessDirectory.Execution.DirectoryFinders;
+﻿
+using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
 using NLog;
 using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 
-namespace Microservices.ProcessDirectory.Tests
+namespace Applications.DicomDirectoryProcessor.Tests
 {
     /// <summary>
     /// Unit tests for BasicDicomDirectoryFinder.

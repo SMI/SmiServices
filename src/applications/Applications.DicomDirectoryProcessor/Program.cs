@@ -1,11 +1,11 @@
 ﻿
+using Applications.DicomDirectoryProcessor.Execution;
+using Applications.DicomDirectoryProcessor.Options;
 using CommandLine;
 using Smi.Common.Execution;
 using Smi.Common.Options;
-using Microservices.ProcessDirectory.Execution;
-using Microservices.ProcessDirectory.Options;
 
-namespace Microservices.ProcessDirectory
+namespace Applications.DicomDirectoryProcessor
 {
     /// <summary>
     /// Command line program to process a directory and write an Accession

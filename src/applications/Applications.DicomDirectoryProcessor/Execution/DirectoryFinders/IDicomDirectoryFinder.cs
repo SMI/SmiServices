@@ -1,7 +1,7 @@
 ﻿
 using Smi.Common.Messages;
 
-namespace Microservices.ProcessDirectory.Execution.DirectoryFinders
+namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 {
     /// <summary>
     /// Interface for classes which scan a directory for dicom files

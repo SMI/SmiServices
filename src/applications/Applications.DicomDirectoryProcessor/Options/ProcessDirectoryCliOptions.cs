@@ -6,7 +6,7 @@ using CommandLine.Text;
 using Smi.Common.Options;
 using ReusableLibraryCode.Annotations;
 
-namespace Microservices.ProcessDirectory.Options
+namespace Applications.DicomDirectoryProcessor.Options
 {
     public class ProcessDirectoryCliOptions : CliOptions
     {

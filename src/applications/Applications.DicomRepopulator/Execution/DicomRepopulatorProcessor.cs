@@ -1,4 +1,10 @@
 ﻿
+using Applications.DicomRepopulator.Options;
+using CsvHelper;
+using CsvHelper.Configuration;
+using Dicom;
+using DicomTypeTranslation.Helpers;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,14 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CsvHelper;
-using CsvHelper.Configuration;
-using Dicom;
-using DicomRepopulator.Options;
-using DicomTypeTranslation.Helpers;
-using NLog;
 
-namespace DicomRepopulator.Execution
+namespace Applications.DicomRepopulator.Execution
 {
     public class DicomRepopulatorProcessor
     {

@@ -10,7 +10,7 @@ using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using NLog;
 
-namespace Microservices.ProcessDirectory.Execution.DirectoryFinders
+namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 {
     /// <summary>
     /// Finds directories that contain DICOM files and outputs one AccessionDirectoryMessage for each directory it finds

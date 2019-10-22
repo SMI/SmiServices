@@ -1,9 +1,9 @@
 ﻿
+using Applications.DicomRepopulator.Execution;
+using Applications.DicomRepopulator.Options;
 using Dicom;
-using DicomRepopulator.Execution;
-using DicomRepopulator.Options;
-using Microservices.Common.Tests;
 using NUnit.Framework;
+using Smi.Common.Tests;
 using System.Collections.Generic;
 using System.IO;
 
@@ -16,6 +16,7 @@ namespace DicomRepopulatorTests
         private readonly string _outputFileBase = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestOutput");
         private readonly string _seriesFilesBase = Path.Combine(TestContext.CurrentContext.TestDirectory, "MultipleSeriesTest");
 
+        //FIXME: Test file paths
         private const string IM_0001_0013_NAME = "IM_0001_0013.dcm";
         private const string IM_0001_0019_NAME = "IM_0001_0019.dcm";
 
@@ -37,7 +38,6 @@ namespace DicomRepopulatorTests
             if (Directory.Exists(_seriesFilesBase)) Directory.Delete(_seriesFilesBase, true);
         }
 
-
         [Test]
         public void SingleFileBasicOperationTest()
         {
@@ -45,7 +45,7 @@ namespace DicomRepopulatorTests
             const string testFileName = IM_0001_0013_NAME;
 
             Directory.CreateDirectory(inputDirPath);
-            File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
 
             string outputDirPath = Path.Combine(_outputFileBase, "SingleFileBasicOperationTest");
             string expectedFile = Path.Combine(outputDirPath, testFileName);
@@ -76,7 +76,7 @@ namespace DicomRepopulatorTests
             const string testFileName = IM_0001_0013_NAME;
 
             Directory.CreateDirectory(inputDirPath);
-            File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
 
             string outputDirPath = Path.Combine(_outputFileBase, "KeyNotFirstColumn");
             string expectedFile = Path.Combine(outputDirPath, testFileName);
@@ -107,7 +107,7 @@ namespace DicomRepopulatorTests
             const string testFileName = IM_0001_0013_NAME;
 
             Directory.CreateDirectory(inputDirPath);
-            File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
 
             string outputDirPath = Path.Combine(_outputFileBase, "DateRepopulation");
             string expectedFile = Path.Combine(outputDirPath, testFileName);
@@ -140,7 +140,7 @@ namespace DicomRepopulatorTests
             const string testFileName = IM_0001_0013_NAME;
 
             Directory.CreateDirectory(inputDirPath);
-            File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
 
             string outputDirPath = Path.Combine(_outputFileBase, "OneCsvColumnToMultipleDicomTags");
             string expectedFile = Path.Combine(outputDirPath, testFileName);
@@ -173,7 +173,7 @@ namespace DicomRepopulatorTests
             const string testFileName = IM_0001_0013_NAME;
 
             Directory.CreateDirectory(inputDirPath);
-            File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, testFileName), TestDicomFiles.IM_0001_0013);
 
             string outputDirPath = Path.Combine(_outputFileBase, "SpacesInCsvHeaderTest");
             string expectedFile = Path.Combine(outputDirPath, testFileName);
@@ -205,8 +205,8 @@ namespace DicomRepopulatorTests
             const string testFileName2 = IM_0001_0019_NAME;
 
             Directory.CreateDirectory(inputDirPath);
-            File.WriteAllBytes(Path.Combine(inputDirPath, testFileName1), TestDicomFiles.IM_0001_0013);
-            File.WriteAllBytes(Path.Combine(inputDirPath, testFileName2), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, testFileName1), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, testFileName2), TestDicomFiles.IM_0001_0013);
 
             string outputDirPath = Path.Combine(_outputFileBase, "MultipleFilesSameSeriesTest");
             string expectedFile1 = Path.Combine(outputDirPath, testFileName1);
@@ -244,10 +244,10 @@ namespace DicomRepopulatorTests
 
             Directory.CreateDirectory(Path.Combine(inputDirPath, "Series1"));
             Directory.CreateDirectory(Path.Combine(inputDirPath, "Series2"));
-            File.WriteAllBytes(Path.Combine(inputDirPath, "Series1", testFileName1), TestDicomFiles.IM_0001_0013);
-            File.WriteAllBytes(Path.Combine(inputDirPath, "Series1", testFileName2), TestDicomFiles.IM_0001_0013);
-            File.WriteAllBytes(Path.Combine(inputDirPath, "Series2", testFileName1), TestDicomFiles.IM_0001_0019);
-            File.WriteAllBytes(Path.Combine(inputDirPath, "Series2", testFileName2), TestDicomFiles.IM_0001_0019);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, "Series1", testFileName1), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, "Series1", testFileName2), TestDicomFiles.IM_0001_0013);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, "Series2", testFileName1), TestDicomFiles.IM_0001_0019);
+            //File.WriteAllBytes(Path.Combine(inputDirPath, "Series2", testFileName2), TestDicomFiles.IM_0001_0019);
 
             string outputDirPath = Path.Combine(_seriesFilesBase, "TestOutput");
             string expectedFile1 = Path.Combine(outputDirPath, "Series1", testFileName1);

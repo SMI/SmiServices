@@ -7,7 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Application
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomDirectoryProcessor", "src\applications\Applications.DicomDirectoryProcessor\Applications.DicomDirectoryProcessor.csproj", "{72414E5A-13A0-4370-88DA-547900204740}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomDirectoryProcessor.Tests", "tests\applications\Applications.DicomDirectoryProcessor.Tests\Applications.DicomDirectoryProcessor.Tests.csproj", "{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomRepopulator", "src\applications\Applications.DicomRepopulator\Applications.DicomRepopulator.csproj", "{6C325A63-8471-4CC4-B00B-CDCFCAC501CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.DicomRepopulator.Tests", "tests\applications\Applications.DicomRepopulator.Tests\Applications.DicomRepopulator.Tests.csproj", "{27F58A98-6FFD-4193-9C04-18B8B58F63C1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}"
 EndProject
@@ -109,6 +113,14 @@ Global
 		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Debug|x64.Build.0 = Debug|x64
 		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.ActiveCfg = Release|x64
 		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.Build.0 = Release|x64
+		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}.Debug|x64.ActiveCfg = Debug|x64
+		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}.Debug|x64.Build.0 = Debug|x64
+		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}.Release|x64.ActiveCfg = Release|x64
+		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}.Release|x64.Build.0 = Release|x64
+		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Debug|x64.ActiveCfg = Debug|x64
+		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Debug|x64.Build.0 = Debug|x64
+		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Release|x64.ActiveCfg = Release|x64
+		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,6 +140,8 @@ Global
 		{C65D529B-62F3-4713-BDB9-C7752260EDFD} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{12A9A968-9724-4770-9FD9-809BD1AF7431} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{27F58A98-6FFD-4193-9C04-18B8B58F63C1} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

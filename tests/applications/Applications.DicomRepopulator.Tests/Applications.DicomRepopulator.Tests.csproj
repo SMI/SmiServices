@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ApplicationName>Smi.Common.MongoDb.Tests</ApplicationName>
+    <AssemblyName>Applications.DicomRepopulator.Tests</AssemblyName>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
@@ -13,8 +13,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
+    <Folder Include="TestData\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\applications\Applications.DicomRepopulator\Applications.DicomRepopulator.csproj" />
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
-    <ProjectReference Include="..\Smi.Common.Tests\Smi.Common.Tests.csproj" />
+    <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
   </ItemGroup>
 </Project>

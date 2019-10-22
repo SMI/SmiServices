@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Smi.Common.Messaging;
 
-namespace Microservices.ProcessDirectory.Execution.DirectoryFinders
+namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 {
     public class PacsDirectoryFinder : DicomDirectoryFinder
     {

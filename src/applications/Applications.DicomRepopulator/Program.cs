@@ -1,10 +1,10 @@
 ﻿
+using Applications.DicomRepopulator.Execution;
+using Applications.DicomRepopulator.Options;
 using CommandLine;
 using System;
-using DicomRepopulator.Execution;
-using DicomRepopulator.Options;
 
-namespace Microservices.DicomRepopulator
+namespace Applications.DicomRepopulator
 {
     internal static class Program
     {

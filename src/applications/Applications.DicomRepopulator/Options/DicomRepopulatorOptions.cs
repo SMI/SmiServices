@@ -2,15 +2,15 @@
 using CommandLine;
 using CommandLine.Text;
 using Dicom;
-using Smi.Common.Options;
 using ReusableLibraryCode.Annotations;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace DicomRepopulator.Options
+namespace Applications.DicomRepopulator.Options
 {
     /// <summary>
     /// Options class for Dicom Repopulator

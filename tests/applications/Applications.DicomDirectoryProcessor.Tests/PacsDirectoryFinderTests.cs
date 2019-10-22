@@ -1,13 +1,14 @@
-﻿using Microservices.Common.Messages;
-using Microservices.Common.Tests;
-using Microservices.ProcessDirectory.Execution.DirectoryFinders;
-using NUnit.Framework;
-using System.Collections.Generic;
-using Microservices.Common.Messaging;
-using System.IO.Abstractions.TestingHelpers;
+﻿
+using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
+using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Tests;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 
-namespace Microservices.ProcessDirectory.Tests
+namespace Applications.DicomDirectoryProcessor.Tests
 {
     [TestFixture]
     public class PacsDirectoryFinderTests
@@ -42,12 +43,12 @@ namespace Microservices.ProcessDirectory.Tests
 
             var mockProducerModel = new Mock<IProducerModel>();
             mockProducerModel
-                .Setup(x => x.SendMessage(  It.IsAny<IMessage>(),
+                .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
                                             null,
                                             ""))
-                .Callback(()=> ++totalSent);
+                .Callback(() => ++totalSent);
 
-            var pacsFinder = new PacsDirectoryFinder(@"C:\PACS\", mockFs,"*.dcm", mockProducerModel.Object);
+            var pacsFinder = new PacsDirectoryFinder(@"C:\PACS\", mockFs, "*.dcm", mockProducerModel.Object);
 
             foreach (KeyValuePair<string, int> item in testCases)
             {
