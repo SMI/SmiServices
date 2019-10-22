@@ -13,9 +13,9 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>Microservices.Common</module>
-		<module>Microservices.CTPAnonymiser</module>
-		<module>Microservices.ExtractorCL</module>
+		<module>../com.smi.microservices.common</module>
+		<module>../../microservices/com.smi.microservices.ctpanonymiser</module>
+		<module>../../applications/com.smi.applications.extractorcli</module>
 	</modules>
 
 	<properties>
