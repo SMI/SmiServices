@@ -7,7 +7,7 @@ using MongoDB.Driver;
 using NLog;
 
 
-namespace Smi.MongoDB.Common
+namespace Smi.Common.MongoDB
 {
     public static class MongoClientHelpers
     {

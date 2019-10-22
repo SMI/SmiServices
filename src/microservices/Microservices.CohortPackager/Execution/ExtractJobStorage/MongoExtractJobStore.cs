@@ -1,16 +1,16 @@
 ﻿
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using NLog;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Options;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using NLog;
-using Smi.MongoDB.Common;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage

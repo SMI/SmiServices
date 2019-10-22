@@ -1,11 +1,4 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Smi.Common.Messages;
-using Smi.Common.Options;
 using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoDocuments;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -14,7 +7,15 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using NLog;
 using RabbitMQ.Client.Events;
-using Smi.MongoDB.Common;
+using Smi.Common.Messages;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
 
 
 namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage

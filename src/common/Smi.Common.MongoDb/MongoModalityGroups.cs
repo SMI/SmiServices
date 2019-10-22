@@ -5,7 +5,7 @@ using System.Linq;
 using MongoDB.Bson;
 
 
-namespace Smi.MongoDB.Common
+namespace Smi.Common.MongoDB
 {
     public static class MongoModalityGroups
     {

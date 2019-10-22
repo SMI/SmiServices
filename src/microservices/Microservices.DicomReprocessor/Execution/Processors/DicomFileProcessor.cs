@@ -1,15 +1,15 @@
 ﻿
+using Dicom;
+using DicomTypeTranslation;
+using MongoDB.Bson;
+using NLog;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Dicom;
-using DicomTypeTranslation;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
-using MongoDB.Bson;
-using NLog;
-using Smi.MongoDB.Common;
 
 
 namespace Microservices.DicomReprocessor.Execution.Processors

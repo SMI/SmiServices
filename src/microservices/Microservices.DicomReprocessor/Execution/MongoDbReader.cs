@@ -1,15 +1,16 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Smi.Common.Options;
 using Microservices.DicomReprocessor.Execution.Processors;
 using Microservices.DicomReprocessor.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
-using Smi.MongoDB.Common;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
 
 namespace Microservices.DicomReprocessor.Execution
 {
