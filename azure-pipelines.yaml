@@ -1,4 +1,7 @@
 
+# SMI Services Build Pipeline Configuration
+
+# Triggers setup
 trigger:
   batch: true
   branches:
@@ -22,5 +25,44 @@ strategy:
 pool:
   vmImage: $(imageName)
 
-steps:
-- script: echo Hello, world!
+stages:
+
+# TODO:
+# - Pull & setup containers
+# - Fix & enable the tests
+# - "dotnet publish" after dotnet tests pass
+# - "mvn assembly:single@create-deployable" after Java tests pass
+
+- stage: Build
+  displayName: Build all projects
+  jobs:
+  - job: BuildDotnet
+    displayName: Build - .NET Core Projects
+    steps:
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'build'
+          projects: './SmiServices.sln'
+  - job: BuildJava
+    displayName: Build - Java Projects
+    steps:
+    - bash: |
+        ./installDAT.sh
+      condition: eq( variables['Agent.OS'], 'Linux' )
+      workingDirectory: ./lib/java
+    - powershell: |
+        ./installDAT.bat
+      condition: eq( variables['Agent.OS'], 'Windows_NT' )
+      workingDirectory: ./lib/java
+    - task: Maven@3
+      displayName: Maven Package
+      inputs:
+        mavenPomFile: './src/common/com.smi.microservices.parent/pom.xml'
+        options: '-DskipTests'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+
