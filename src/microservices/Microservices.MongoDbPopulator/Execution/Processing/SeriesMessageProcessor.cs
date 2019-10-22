@@ -1,13 +1,13 @@
 
+using Dicom;
+using DicomTypeTranslation;
+using MongoDB.Bson;
+using Smi.Common.Messages;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dicom;
-using DicomTypeTranslation;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
-using MongoDB.Bson;
-using Smi.MongoDB.Common;
 
 
 namespace Microservices.MongoDBPopulator.Execution.Processing

@@ -1,12 +1,12 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microservices.Common.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
-using Smi.MongoDB.Common;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Microservices.MongoDBPopulator.Execution

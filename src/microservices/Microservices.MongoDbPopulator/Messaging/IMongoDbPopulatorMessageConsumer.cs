@@ -1,7 +1,7 @@
 ﻿
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
 using Microservices.MongoDBPopulator.Execution.Processing;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 
 namespace Microservices.MongoDBPopulator.Messaging
 {

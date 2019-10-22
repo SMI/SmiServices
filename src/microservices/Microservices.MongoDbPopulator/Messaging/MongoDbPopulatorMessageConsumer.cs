@@ -1,10 +1,10 @@
-﻿using System;
-using Microservices.Common.Messages;
-using Microservices.Common.Messaging;
-using Microservices.Common.Options;
-using Microservices.MongoDBPopulator.Execution;
+﻿using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
 using RabbitMQ.Client.Events;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
+using System;
 
 namespace Microservices.MongoDBPopulator.Messaging
 {

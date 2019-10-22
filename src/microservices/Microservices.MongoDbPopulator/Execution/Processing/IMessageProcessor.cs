@@ -1,5 +1,5 @@
 ﻿
-using Microservices.Common.Messages;
+using Smi.Common.Messages;
 using RabbitMQ.Client;
 
 namespace Microservices.MongoDBPopulator.Execution.Processing

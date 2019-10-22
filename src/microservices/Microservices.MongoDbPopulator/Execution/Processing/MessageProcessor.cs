@@ -1,8 +1,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microservices.Common.Messages;
-using Microservices.Common.Options;
+using Smi.Common.Messages;
+using Smi.Common.Options;
 using MongoDB.Bson;
 using NLog;
 using RabbitMQ.Client;

@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomTagReade
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IdentifierMapper", "src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj", "{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.MongoDbPopulator", "src\microservices\Microservices.MongoDbPopulator\Microservices.MongoDbPopulator.csproj", "{12A9A968-9724-4770-9FD9-809BD1AF7431}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A47D6857-A0E0-4604-9E11-3088F32BD378}"
 	ProjectSection(SolutionItems) = preProject
 		CHANGELOG.md = CHANGELOG.md
@@ -91,6 +93,10 @@ Global
 		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Debug|x64.Build.0 = Debug|x64
 		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Release|x64.ActiveCfg = Release|x64
 		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Release|x64.Build.0 = Release|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Debug|x64.ActiveCfg = Debug|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Debug|x64.Build.0 = Debug|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.ActiveCfg = Release|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,6 +113,7 @@ Global
 		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{C65D529B-62F3-4713-BDB9-C7752260EDFD} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{12A9A968-9724-4770-9FD9-809BD1AF7431} = {421CCD37-3817-4748-B184-A134E19DD75C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}
