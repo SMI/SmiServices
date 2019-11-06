@@ -86,6 +86,7 @@ stages:
       inputs:
         mavenPomFile: '$(parentPom)'
         goals: 'test'
+        options: '-PunitTests'
         publishJUnitResults: true
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         javaHomeOption: 'JDKVersion'
