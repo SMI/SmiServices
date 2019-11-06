@@ -2,10 +2,10 @@
 # SMI Services Build Pipeline Configuration
 
 # TODO:
-# - Pull & setup containers
-# - Fix & enable the tests
+# - Pull & setup containers for integration tests
 # - "dotnet publish" after dotnet tests pass
 # - "mvn assembly:single@create-deployable" after Java tests pass
+# - Remove redundancy between stages
 
 trigger:
   batch: true
@@ -24,7 +24,6 @@ variables:
   parentPom: './src/common/com.smi.microservices.parent/pom.xml'
 
 stages:
-
 - stage: Build
   displayName: Build all projects
   jobs:
@@ -45,7 +44,7 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - bash: |
-        bash ./installDat.sh
+        ./installDat.sh
       displayName: Maven - Install CTP/DAT Dependencies
       workingDirectory: ./lib/java
     - bash: |
@@ -82,6 +81,13 @@ stages:
       name: 'Azure Pipelines'
       vmImage: 'ubuntu-latest'
     steps:
+    - bash: |
+        ./installDat.sh
+      displayName: Maven - Install CTP/DAT Dependencies
+      workingDirectory: ./lib/java
+    - bash: |
+        mvn -f $(parentPom) test-compile dependency:resolve > /dev/null
+      displayName: Maven - Resolve Dependencies
     - task: Maven@3
       inputs:
         mavenPomFile: '$(parentPom)'
