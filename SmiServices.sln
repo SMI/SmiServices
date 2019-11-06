@@ -9,10 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomDirectory
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomDirectoryProcessor.Tests", "tests\applications\Applications.DicomDirectoryProcessor.Tests\Applications.DicomDirectoryProcessor.Tests.csproj", "{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomRepopulator", "src\applications\Applications.DicomRepopulator\Applications.DicomRepopulator.csproj", "{6C325A63-8471-4CC4-B00B-CDCFCAC501CC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomRepopulator.Tests", "tests\applications\Applications.DicomRepopulator.Tests\Applications.DicomRepopulator.Tests.csproj", "{27F58A98-6FFD-4193-9C04-18B8B58F63C1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smi.Common", "src\common\Smi.Common\Smi.Common.csproj", "{EBA0423D-6932-4838-AD79-42330437C158}"
@@ -43,19 +39,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomRelation
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomReprocessor", "src\microservices\Microservices.DicomReprocessor\Microservices.DicomReprocessor.csproj", "{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.DicomReprocessor.Tests", "tests\microservices\Microservices.DicomReprocessor.Tests\Microservices.DicomReprocessor.Tests.csproj", "{5BDA8F2D-E8DE-48D8-9060-77EC4CF415AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomReprocessor.Tests", "tests\microservices\Microservices.DicomReprocessor.Tests\Microservices.DicomReprocessor.Tests.csproj", "{5BDA8F2D-E8DE-48D8-9060-77EC4CF415AD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomTagReader", "src\microservices\Microservices.DicomTagReader\Microservices.DicomTagReader.csproj", "{C65D529B-62F3-4713-BDB9-C7752260EDFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.DicomTagReader.Tests", "tests\microservices\Microservices.DicomTagReader.Tests\Microservices.DicomTagReader.Tests.csproj", "{B37D7021-7F7A-4ADF-B594-428E17B2D7B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomTagReader.Tests", "tests\microservices\Microservices.DicomTagReader.Tests\Microservices.DicomTagReader.Tests.csproj", "{B37D7021-7F7A-4ADF-B594-428E17B2D7B8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IdentifierMapper", "src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj", "{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.IdentifierMapper.Tests", "tests\microservices\Microservices.IdentifierMapper.Tests\Microservices.IdentifierMapper.Tests.csproj", "{9AD4D861-F925-47A5-A827-B89409B7DD6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IdentifierMapper.Tests", "tests\microservices\Microservices.IdentifierMapper.Tests\Microservices.IdentifierMapper.Tests.csproj", "{9AD4D861-F925-47A5-A827-B89409B7DD6E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.MongoDbPopulator", "src\microservices\Microservices.MongoDbPopulator\Microservices.MongoDbPopulator.csproj", "{12A9A968-9724-4770-9FD9-809BD1AF7431}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.MongoDBPopulator.Tests", "tests\microservices\Microservices.MongoDBPopulator.Tests\Microservices.MongoDBPopulator.Tests.csproj", "{9CC69AAC-2F7C-4F36-B35E-5007FC075155}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.MongoDBPopulator.Tests", "tests\microservices\Microservices.MongoDBPopulator.Tests\Microservices.MongoDBPopulator.Tests.csproj", "{9CC69AAC-2F7C-4F36-B35E-5007FC075155}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A47D6857-A0E0-4604-9E11-3088F32BD378}"
 	ProjectSection(SolutionItems) = preProject
@@ -81,14 +77,6 @@ Global
 		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}.Debug|x64.Build.0 = Debug|x64
 		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}.Release|x64.ActiveCfg = Release|x64
 		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175}.Release|x64.Build.0 = Release|x64
-		{6C325A63-8471-4CC4-B00B-CDCFCAC501CC}.Debug|x64.ActiveCfg = Debug|x64
-		{6C325A63-8471-4CC4-B00B-CDCFCAC501CC}.Debug|x64.Build.0 = Debug|x64
-		{6C325A63-8471-4CC4-B00B-CDCFCAC501CC}.Release|x64.ActiveCfg = Release|x64
-		{6C325A63-8471-4CC4-B00B-CDCFCAC501CC}.Release|x64.Build.0 = Release|x64
-		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Debug|x64.ActiveCfg = Debug|x64
-		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Debug|x64.Build.0 = Debug|x64
-		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Release|x64.ActiveCfg = Release|x64
-		{27F58A98-6FFD-4193-9C04-18B8B58F63C1}.Release|x64.Build.0 = Release|x64
 		{EBA0423D-6932-4838-AD79-42330437C158}.Debug|x64.ActiveCfg = Debug|x64
 		{EBA0423D-6932-4838-AD79-42330437C158}.Debug|x64.Build.0 = Debug|x64
 		{EBA0423D-6932-4838-AD79-42330437C158}.Release|x64.ActiveCfg = Release|x64
@@ -133,38 +121,38 @@ Global
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D}.Debug|x64.Build.0 = Debug|x64
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D}.Release|x64.ActiveCfg = Release|x64
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D}.Release|x64.Build.0 = Release|x64
-		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Debug|x64.ActiveCfg = Debug|x64
-		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Debug|x64.Build.0 = Debug|x64
-		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Release|x64.ActiveCfg = Release|x64
-		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Release|x64.Build.0 = Release|x64
-		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Debug|x64.ActiveCfg = Debug|x64
-		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Debug|x64.Build.0 = Debug|x64
-		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Release|x64.ActiveCfg = Release|x64
-		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Release|x64.Build.0 = Release|x64
-		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Debug|x64.ActiveCfg = Debug|x64
-		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Debug|x64.Build.0 = Debug|x64
-		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Release|x64.ActiveCfg = Release|x64
-		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Release|x64.Build.0 = Release|x64
-		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Debug|x64.ActiveCfg = Debug|x64
-		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Debug|x64.Build.0 = Debug|x64
-		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.ActiveCfg = Release|x64
-		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.Build.0 = Release|x64
 		{137CE1D0-29DF-4155-887F-CD1B313AC984}.Debug|x64.ActiveCfg = Debug|x64
 		{137CE1D0-29DF-4155-887F-CD1B313AC984}.Debug|x64.Build.0 = Debug|x64
 		{137CE1D0-29DF-4155-887F-CD1B313AC984}.Release|x64.ActiveCfg = Release|x64
 		{137CE1D0-29DF-4155-887F-CD1B313AC984}.Release|x64.Build.0 = Release|x64
+		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Debug|x64.ActiveCfg = Debug|x64
+		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Debug|x64.Build.0 = Debug|x64
+		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Release|x64.ActiveCfg = Release|x64
+		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4}.Release|x64.Build.0 = Release|x64
 		{5BDA8F2D-E8DE-48D8-9060-77EC4CF415AD}.Debug|x64.ActiveCfg = Debug|x64
 		{5BDA8F2D-E8DE-48D8-9060-77EC4CF415AD}.Debug|x64.Build.0 = Debug|x64
 		{5BDA8F2D-E8DE-48D8-9060-77EC4CF415AD}.Release|x64.ActiveCfg = Release|x64
 		{5BDA8F2D-E8DE-48D8-9060-77EC4CF415AD}.Release|x64.Build.0 = Release|x64
+		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Debug|x64.ActiveCfg = Debug|x64
+		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Debug|x64.Build.0 = Debug|x64
+		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Release|x64.ActiveCfg = Release|x64
+		{C65D529B-62F3-4713-BDB9-C7752260EDFD}.Release|x64.Build.0 = Release|x64
 		{B37D7021-7F7A-4ADF-B594-428E17B2D7B8}.Debug|x64.ActiveCfg = Debug|x64
 		{B37D7021-7F7A-4ADF-B594-428E17B2D7B8}.Debug|x64.Build.0 = Debug|x64
 		{B37D7021-7F7A-4ADF-B594-428E17B2D7B8}.Release|x64.ActiveCfg = Release|x64
 		{B37D7021-7F7A-4ADF-B594-428E17B2D7B8}.Release|x64.Build.0 = Release|x64
+		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Debug|x64.ActiveCfg = Debug|x64
+		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Debug|x64.Build.0 = Debug|x64
+		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Release|x64.ActiveCfg = Release|x64
+		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D}.Release|x64.Build.0 = Release|x64
 		{9AD4D861-F925-47A5-A827-B89409B7DD6E}.Debug|x64.ActiveCfg = Debug|x64
 		{9AD4D861-F925-47A5-A827-B89409B7DD6E}.Debug|x64.Build.0 = Debug|x64
 		{9AD4D861-F925-47A5-A827-B89409B7DD6E}.Release|x64.ActiveCfg = Release|x64
 		{9AD4D861-F925-47A5-A827-B89409B7DD6E}.Release|x64.Build.0 = Release|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Debug|x64.ActiveCfg = Debug|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Debug|x64.Build.0 = Debug|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.ActiveCfg = Release|x64
+		{12A9A968-9724-4770-9FD9-809BD1AF7431}.Release|x64.Build.0 = Release|x64
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155}.Debug|x64.ActiveCfg = Debug|x64
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155}.Debug|x64.Build.0 = Debug|x64
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155}.Release|x64.ActiveCfg = Release|x64
@@ -176,8 +164,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{72414E5A-13A0-4370-88DA-547900204740} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{5B2B61FF-9D2E-4E8F-9B5C-71CDD3862175} = {8B943F2C-835B-484A-86D2-3F1462970605}
-		{6C325A63-8471-4CC4-B00B-CDCFCAC501CC} = {8B943F2C-835B-484A-86D2-3F1462970605}
-		{27F58A98-6FFD-4193-9C04-18B8B58F63C1} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{EBA0423D-6932-4838-AD79-42330437C158} = {7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}
 		{776B1C44-643F-4B27-9008-A5C6EA3E3FAE} = {7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}
 		{1422B52C-ED76-4FC8-BC7F-633AAA649221} = {7229B8CF-27D5-4B9B-900D-DE12F92FF6A5}
@@ -189,14 +175,14 @@ Global
 		{A4CAAE37-A5A3-4FB1-A935-1046772BB1C4} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{78BFB9FE-58B0-42D5-8849-B2B54F838FCE} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D} = {421CCD37-3817-4748-B184-A134E19DD75C}
-		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4} = {421CCD37-3817-4748-B184-A134E19DD75C}
-		{C65D529B-62F3-4713-BDB9-C7752260EDFD} = {421CCD37-3817-4748-B184-A134E19DD75C}
-		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D} = {421CCD37-3817-4748-B184-A134E19DD75C}
-		{12A9A968-9724-4770-9FD9-809BD1AF7431} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{137CE1D0-29DF-4155-887F-CD1B313AC984} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{5BDA8F2D-E8DE-48D8-9060-77EC4CF415AD} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{C65D529B-62F3-4713-BDB9-C7752260EDFD} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{B37D7021-7F7A-4ADF-B594-428E17B2D7B8} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{1B77AC25-68F0-425B-BDA6-AD5F0DC91E9D} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{9AD4D861-F925-47A5-A827-B89409B7DD6E} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{12A9A968-9724-4770-9FD9-809BD1AF7431} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155} = {421CCD37-3817-4748-B184-A134E19DD75C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
