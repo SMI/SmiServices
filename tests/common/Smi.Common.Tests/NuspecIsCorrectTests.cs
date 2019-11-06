@@ -1,13 +1,8 @@
-﻿// Copyright (c) The University of Dundee 2018-2019
-// This file is part of the Research Data Management Platform (RDMP).
-// RDMP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-// RDMP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-// You should have received a copy of the GNU General Public License along with RDMP. If not, see <https://www.gnu.org/licenses/>.
-
+﻿
+using NUnit.Framework;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NUnit.Framework;
 
 
 namespace Smi.Common.Tests
@@ -18,40 +13,38 @@ namespace Smi.Common.Tests
     /// </summary>
     class NuspecIsCorrectTests
     {
-        static string[] Analyzers = new string[] { "SecurityCodeScan" };
+        private const string RelativePackagesRoot = "../../../../../../../Packages.md";
+        private static readonly string[] _analyzers = { "SecurityCodeScan" };
 
+        // Applications
+        [TestCase("../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj", null, null)]
 
-        [TestCase("../../../../../../Microservices/Microservices.Common/Microservices.Common.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.CohortExtractor/Microservices.CohortExtractor.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.DeadLetterReprocessor/Microservices.DeadLetterReprocessor.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.MongoDBPopulator/Microservices.MongoDBPopulator.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Microservices/Microservices.ProcessDirectory/Microservices.ProcessDirectory.csproj", null, "../../../../../../Packages.md")]
+        // Common
+        [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null, null)]
+        [TestCase("../../../../../../../src/common/Smi.Common.MongoDb/Smi.Common.MongoDb.csproj", null, null)]
 
-        [TestCase("../../../../../../Applications/DicomFileTester/DicomFileTester.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Applications/DicomRepopulator/DicomRepopulator.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Applications/TemplateBuilder/TemplateBuilder.csproj", null, "../../../../../../Packages.md")]
-
-        [TestCase("../../../../../../Benchmarks/MongoDb/MongoDbReadBenchmark/MongoDbReadBenchmark.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Benchmarks/RabbitMq/RabbitMqProducerBenchmark/RabbitMqProducerBenchmark.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Benchmarks/RabbitMq/RabbitMqPublishBenchmark/RabbitMqPublishBenchmark.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Benchmarks/DicomReprocessorBenchmarks/DicomReprocessorBenchmarks.csproj", null, "../../../../../../Packages.md")]
-        [TestCase("../../../../../../Benchmarks/DicomTagReaderBenchmarks/DicomTagReaderBenchmarks.csproj", null, "../../../../../../Packages.md")]
-
-        [TestCase("../../../../../../Reusable/Smi.MongoDB.Common/Smi.MongoDB.Common.csproj", null, "../../../../../../Packages.md")]
+        // Microservices
+        [TestCase("../../../../../../../src/microservices/Microservices.CohortExtractor/Microservices.CohortExtractor.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DeadLetterReprocessor/Microservices.DeadLetterReprocessor.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.MongoDBPopulator/Microservices.MongoDBPopulator.csproj", null, null)]
 
         public void TestDependencyCorrect(string csproj, string nuspec, string packagesMarkdown)
         {
             if (csproj != null && !Path.IsPathRooted(csproj))
                 csproj = Path.Combine(TestContext.CurrentContext.TestDirectory, csproj);
+
             if (nuspec != null && !Path.IsPathRooted(nuspec))
                 nuspec = Path.Combine(TestContext.CurrentContext.TestDirectory, nuspec);
+
             if (packagesMarkdown != null && !Path.IsPathRooted(packagesMarkdown))
                 packagesMarkdown = Path.Combine(TestContext.CurrentContext.TestDirectory, packagesMarkdown);
+            else
+                packagesMarkdown = RelativePackagesRoot;
 
             if (!File.Exists(csproj))
                 Assert.Fail("Could not find file {0}", csproj);
@@ -76,7 +69,7 @@ namespace Smi.Common.Tests
                 bool found = false;
 
                 //analyzers do not have to be listed as a dependency in nuspec (but we should document them in packages.md)
-                if (!Analyzers.Contains(package) && nuspec != null)
+                if (!_analyzers.Contains(package) && nuspec != null)
                 {
                     //make sure it appears in the nuspec
                     foreach (Match d in rDependencyRef.Matches(File.ReadAllText(nuspec)))
