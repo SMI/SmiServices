@@ -71,7 +71,7 @@ stages:
     displayName: Unit tests - .NET Core projects
     pool:
       name: 'Azure Pipelines'
-      vmImage: $(imageName)
+      vmImage: 'ubuntu-latest'
     steps:
     - task: DotNetCoreCLI@2
       inputs:
@@ -80,7 +80,7 @@ stages:
     displayName: Unit tests - Java projects
     pool:
       name: 'Azure Pipelines'
-      vmImage: $(imageName)
+      vmImage: 'ubuntu-latest'
     steps:
     - task: Maven@3
       inputs:
