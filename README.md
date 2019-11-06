@@ -1,8 +1,4 @@
 
-TODO:
-
-- Version defined in SharedAssemblyInfo.cs
-
 # SMIPlugin
 
 Scottish Medical Imaging plugin is a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp).  The software loads Dicom Tag data (extracted from clinical images) into MongoDB and Relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
