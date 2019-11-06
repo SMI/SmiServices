@@ -19,6 +19,7 @@ pr:
   branches:
     include:
     - master
+	- develop
 
 stages:
 
