@@ -12,7 +12,6 @@ trigger:
   branches:
     include:
     - master
-    - develop
 
 pr:
   autoCancel: true
