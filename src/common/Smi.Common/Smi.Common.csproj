@@ -8,7 +8,10 @@
   <ItemGroup>
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">    
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <None Include="..\..\..\data/microserviceConfigs/default.yaml" Link="default.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Options\RabbitMqConfigOptions.md" />
     <None Include="Messages\Extraction\ExtractMessagesDiagram.cd" />
     <None Include="Messages\Messages.cd" />
