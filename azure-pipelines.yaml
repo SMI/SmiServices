@@ -19,7 +19,7 @@ pr:
   branches:
     include:
     - master
-	- develop
+    - develop
 
 stages:
 
@@ -47,14 +47,20 @@ stages:
     pool:
       name: 'Azure Pipelines'
       vmImage: 'ubuntu-latest'
+    variables:
+      parentPom: './src/common/com.smi.microservices.parent/pom.xml'
     steps:
     - bash: |
         bash ./installDat.sh
+      displayName: Maven - Install CTP/DAT Dependencies
       workingDirectory: ./lib/java
+    - bash: |
+        mvn -f $(parentPom) test-compile dependency:resolve > /dev/null
+      displayName: Maven - Resolve Dependencies
     - task: Maven@3
-      displayName: Maven Package
+      displayName: Maven - Compile
       inputs:
-        mavenPomFile: './src/common/com.smi.microservices.parent/pom.xml'
+        mavenPomFile: $(parentPom)
         options: '-DskipTests'
         publishJUnitResults: false
         javaHomeOption: 'JDKVersion'
