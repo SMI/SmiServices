@@ -13,7 +13,7 @@ namespace Smi.Common.Tests
     /// </summary>
     class NuspecIsCorrectTests
     {
-        private const string RelativePackagesRoot = "../../../../../../../Packages.md";
+        private const string RelativePackagesRoot = "../../../../../../../PACKAGES.md";
         private static readonly string[] _analyzers = { "SecurityCodeScan" };
 
         // Applications
