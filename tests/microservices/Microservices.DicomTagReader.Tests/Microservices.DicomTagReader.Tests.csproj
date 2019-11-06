@@ -8,7 +8,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="6.0.15" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="7.0.7" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.12.0" />
