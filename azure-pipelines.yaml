@@ -20,6 +20,9 @@ pr:
     - master
     - develop
 
+variables:
+  parentPom: './src/common/com.smi.microservices.parent/pom.xml'
+
 stages:
 
 - stage: Build
@@ -27,15 +30,9 @@ stages:
   jobs:
   - job: BuildDotnet
     displayName: Build - .NET Core Projects
-    strategy:
-      matrix:
-        Linux:
-          imageName: 'ubuntu-latest'
-        Windows:
-          imageName: 'windows-latest'
     pool:
       name: 'Azure Pipelines'
-      vmImage: $(imageName)
+      vmImage: 'ubuntu-latest'
     steps:
       - task: DotNetCoreCLI@2
         inputs:
@@ -46,8 +43,6 @@ stages:
     pool:
       name: 'Azure Pipelines'
       vmImage: 'ubuntu-latest'
-    variables:
-      parentPom: './src/common/com.smi.microservices.parent/pom.xml'
     steps:
     - bash: |
         bash ./installDat.sh
@@ -59,9 +54,40 @@ stages:
     - task: Maven@3
       displayName: Maven - Compile
       inputs:
-        mavenPomFile: $(parentPom)
-        options: '-DskipTests'
+        mavenPomFile: '$(parentPom)'
+        goals: 'compile'
         publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+
+- stage: Test
+  dependsOn: Build
+  displayName: Run unit tests
+  jobs:
+  - job: TestDotnet
+    displayName: Unit tests - .NET Core projects
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: $(imageName)
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+  - job: TestJava
+    displayName: Unit tests - Java projects
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: $(imageName)
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: '$(parentPom)'
+        goals: 'test'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
         javaHomeOption: 'JDKVersion'
         mavenVersionOption: 'Default'
         mavenAuthenticateFeed: false
