@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.smi.common.logging.SmiLogging;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messaging.CTPAnonymiserConsumer;
 
@@ -25,6 +26,8 @@ public class ExtractFileMessageTest extends TestCase {
 
 		super.setUp();
 
+		SmiLogging.Setup(0);
+		
 		_exMessage = new ExtractFileMessage();
 
 		_exMessage.ExtractionJobIdentifier = UUID.randomUUID();
