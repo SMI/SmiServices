@@ -13,16 +13,20 @@ using System.IO.Abstractions.TestingHelpers;
 namespace Applications.DicomDirectoryProcessor.Tests
 {
     /// <summary>
-    /// Unit tests for BasicDicomDirectoryFinder.
+    /// Unit tests for BasicDicomDirectoryFinder
     /// </summary>
     [TestFixture]
     public class DicomDirectoryFinderTest
     {
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            TestLogger.Setup();
+        }
+
         [Test]
         public void FindingAccessionDirectory()
         {
-            TestLogger.Setup();
-
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
                 { Path.GetFullPath("/PACS/2019/01/01/foo/01/a.dcm"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
