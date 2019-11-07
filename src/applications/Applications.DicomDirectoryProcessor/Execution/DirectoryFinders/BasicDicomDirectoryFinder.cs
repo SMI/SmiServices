@@ -1,10 +1,11 @@
-﻿using System;
+﻿
+using Smi.Common.Messaging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
-using Smi.Common.Messaging;
 
 namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 {
@@ -24,7 +25,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             TotalSent = 0;
 
             if (!FileSystem.Directory.Exists(topLevelDirectory))
-                throw new DirectoryNotFoundException("Could not find the top level directory at the start of the scan");
+                throw new DirectoryNotFoundException("Could not find the top level directory at the start of the scan\"" + topLevelDirectory + "\"");
 
             Times = new List<List<long>>();
             for (var i = 0; i < 6; ++i)

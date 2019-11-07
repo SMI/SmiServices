@@ -1,12 +1,14 @@
 ﻿
 using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
-using NLog;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
+using Smi.Common.Tests;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+
 
 namespace Applications.DicomDirectoryProcessor.Tests
 {
@@ -19,36 +21,34 @@ namespace Applications.DicomDirectoryProcessor.Tests
         [Test]
         public void FindingAccessionDirectory()
         {
+            TestLogger.Setup();
+
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { @"c:\root\foo\01\123.dcm", new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
-                { @"c:\root\foo\02\456.dcm", new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) }
+                { Path.GetFullPath("/PACS/2019/01/01/foo/01/a.dcm"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
+                { Path.GetFullPath("/PACS/2019/01/02/foo/02/a.dcm"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
             });
-
-            var rootDir = @"c:\root";
-
-            var mockProducerModel = new Mock<IProducerModel>();
 
             var m1 = new AccessionDirectoryMessage
             {
                 NationalPACSAccessionNumber = "01",
-                DirectoryPath = @"foo\01"
+                //NOTE: These can't be rooted, so can't easily use Path.GetFullPath
+                DirectoryPath = "2019/01/01/foo/01".Replace('/', Path.DirectorySeparatorChar)
             };
 
             var m2 = new AccessionDirectoryMessage
             {
                 NationalPACSAccessionNumber = "02",
-                DirectoryPath = @"foo\02"
+                DirectoryPath = "2019/01/02/foo/02".Replace('/', Path.DirectorySeparatorChar)
             };
 
-
-            LogManager.Configuration = new NLog.Config.LoggingConfiguration();
-
+            string rootDir = Path.GetFullPath("/PACS");
+            var mockProducerModel = new Mock<IProducerModel>();
             var ddf = new BasicDicomDirectoryFinder(rootDir, fileSystem, "*.dcm", mockProducerModel.Object);
             ddf.SearchForDicomDirectories(rootDir);
 
-            mockProducerModel.Verify(pm => pm.SendMessage(m1, It.IsAny<MessageHeader>(), It.IsAny<string>()));
-            mockProducerModel.Verify(pm => pm.SendMessage(m2, It.IsAny<MessageHeader>(), It.IsAny<string>()));
+            mockProducerModel.Verify(pm => pm.SendMessage(m1, null, It.IsAny<string>()));
+            mockProducerModel.Verify(pm => pm.SendMessage(m2, null, It.IsAny<string>()));
         }
     }
 }
