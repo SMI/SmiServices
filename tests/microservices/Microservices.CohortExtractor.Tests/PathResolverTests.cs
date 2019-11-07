@@ -2,8 +2,9 @@
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using NUnit.Framework;
-using Smi.Common.Messages.Extraction;
 using System.Collections.Generic;
+using System.IO;
+
 
 namespace Microservices.CohortExtractor.Tests
 {
@@ -26,7 +27,9 @@ namespace Microservices.CohortExtractor.Tests
         {
             var collection = new ExtractImageCollection(SeriesId, SeriesId, new HashSet<string>(new[] { FilePath }));
 
-            Assert.AreEqual("1.2.3.4/testDicom-an.dcm", new SeriesKeyPathResolver().GetOutputPath(FilePath, collection));
+            Assert.AreEqual(
+                "1.2.3.4/testDicom-an.dcm".Replace('/', Path.DirectorySeparatorChar),
+                new SeriesKeyPathResolver().GetOutputPath(FilePath, collection));
         }
     }
 }
