@@ -18,4 +18,10 @@
     <ProjectReference Include="..\..\..\src\microservices\Microservices.CohortExtractor\Microservices.CohortExtractor.csproj" />
     <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="TestDatabases.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
+

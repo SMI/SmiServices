@@ -1,10 +1,10 @@
 
+using Smi.Common.Messaging;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Smi.Common.Messaging;
 
 namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 {
@@ -30,7 +30,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             TotalSent = 0;
 
             if (!FileSystem.Directory.Exists(rootDir))
-                throw new DirectoryNotFoundException("Could not find the root directory at the start of the scan");
+                throw new DirectoryNotFoundException("Could not find the root directory at the start of the scan \"" + rootDir + "\"");
 
             // Check if we were given an accession directory
             if (_accDirectoryRegex.IsMatch(rootDir))
