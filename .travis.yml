@@ -8,6 +8,7 @@ addons:
     packages:
     - postgresql-10
     - postgresql-client-10
+    - rabbitmq-server
 
 services:
   - postgresql
