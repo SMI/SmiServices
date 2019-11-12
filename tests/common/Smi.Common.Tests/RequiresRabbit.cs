@@ -35,6 +35,12 @@ namespace Smi.Common.Tests
             }
             catch (Exception e)
             {
+                TestContext.WriteLine("Rabbit Uri:" + factory.Uri);
+                TestContext.WriteLine("Rabbit Host:" + factory.HostName);
+                TestContext.WriteLine("Rabbit VirtualHost:" + factory.VirtualHost);
+                TestContext.WriteLine("Rabbit UserName:" + factory.UserName);
+                TestContext.WriteLine("Rabbit Port:" + factory.Port);
+
                 Assert.Ignore($"Could not connect to RabbitMQ: {e.Message}");
             }
         }

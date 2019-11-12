@@ -451,7 +451,7 @@ namespace Microservices.IdentifierMapper.Tests
             string reason;
 
             Assert.False(consumer.SwapIdentifier(msg, out reason));
-            Assert.AreEqual("Swapper Microservices.Tests.RDMPTests.IdentifierMapperTests.SwapForFixedValueTester returned null", reason);
+            Assert.AreEqual("Swapper Microservices.IdentifierMapper.Tests.SwapForFixedValueTester returned null", reason);
         }
 
         private void AssertDicomFileMessageHasPatientID(DicomFileMessage msg, string patientId)
