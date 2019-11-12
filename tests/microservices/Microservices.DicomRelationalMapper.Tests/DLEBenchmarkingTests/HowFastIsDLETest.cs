@@ -67,7 +67,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             var d = CatalogueRepository.GetServerDefaults();
             d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesTest.NLog.config"), false);
+            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "SmiTest.NLog.config"), false);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
@@ -174,7 +174,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var db = GetCleanedServer(databaseType);
 
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesTest.NLog.config"), false);
+            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "SmiTest.NLog.config"), false);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
