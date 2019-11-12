@@ -1,2 +1,2 @@
-﻿MySql: 'Server=localhost;Uid=root;Pwd=zombie;SSL-Mode=None'
-SqlServer: 'Data Source=localhost\sqlexpress;Integrated Security=True'
+﻿MySql: 'server=127.0.0.1;Uid=root;Pwd=;Ssl-Mode=None'
+SqlServer: 'Server=localhost;User Id=sa;Password=YourStrong!Passw0rd;'
