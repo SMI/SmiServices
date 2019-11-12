@@ -1,0 +1,29 @@
+language: csharp
+mono: none
+dotnet: 2.2.100
+
+addons:
+  postgresql: "10"
+  apt:
+    packages:
+    - postgresql-10
+    - postgresql-client-10
+
+services:
+  - postgresql
+  - mysql
+  - mongodb
+  - rabbitmq
+
+before_script:
+- sudo docker run --name=mssql-server-linux-latest -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d microsoft/mssql-server-linux:2017-latest
+
+script:
+- dotnet build
+- wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
+- unzip -d rdmp-cli rdmp-cli-linux-x64.zip || true # Ignore exit code since unzip returns 1 for a warning we don't care about
+- cd rdmp-cli
+- chmod +x rdmp
+- ./rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
+- cd ..
+- dotnet test
