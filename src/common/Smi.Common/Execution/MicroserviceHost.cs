@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using DicomTypeTranslation;
 using DicomTypeTranslation.Helpers;
@@ -51,14 +52,12 @@ namespace Smi.Common.Execution
             // We may not want to do this during tests, however this should always be true otherwise
             if (loadSmiLogConfig)
             {
-                string logConfigPath = !string.IsNullOrWhiteSpace(globals.FileSystemOptions.LogConfigFile)
-                    ? globals.FileSystemOptions.LogConfigFile
-                    : Path.Combine(globals.CurrentDirectory, "Smi.NLog.config");
+                FileInfo logConfigPath = GetNLogConfigFile(globals);
 
-                if (!File.Exists(logConfigPath))
+                if (logConfigPath.Exists)
                     throw new FileNotFoundException("Could not find the logging configuration in the current directory (Smi.NLog.config), or at the path specified by FileSystemOptions.LogConfigFile");
 
-                LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath, false);
+                LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath.FullName, false);
 
                 if (globals.FileSystemOptions.ForceSmiLogsRoot)
                 {
@@ -112,6 +111,29 @@ namespace Smi.Common.Execution
 
             ObjectFactory = new MicroserviceObjectFactory();
             ObjectFactory.FatalHandler = (s, e) => Fatal(e.Message, e.Exception);
+        }
+
+        private FileInfo GetNLogConfigFile(GlobalOptions globals)
+        {
+            if(!string.IsNullOrWhiteSpace(globals.FileSystemOptions.LogConfigFile))
+                return new FileInfo(globals.FileSystemOptions.LogConfigFile);
+
+            var defaultConfig = new FileInfo(Path.Combine(globals.CurrentDirectory, "Smi.NLog.config"));
+
+            if (defaultConfig.Exists)
+                return defaultConfig;
+
+            var testConfig = new FileInfo(Path.Combine(globals.CurrentDirectory, "SmiTest.NLog.config"));
+
+            if (testConfig.Exists)
+                return testConfig;
+
+            var configs = Directory.GetFiles(globals.CurrentDirectory, "*.NLog.config").ToArray();
+
+            if (configs.Length == 1)
+                return new FileInfo(configs[0]);
+
+            throw new FileNotFoundException($"No log file specified in GlobalOptions and no suitably named NLog.config files were found in the current directory ({globals.CurrentDirectory})");
         }
 
         /// <summary>
