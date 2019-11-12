@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.IO;
+using System.Text;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -35,13 +36,15 @@ namespace Smi.Common.Tests
             }
             catch (Exception e)
             {
-                TestContext.WriteLine("Rabbit Uri:" + factory.Uri);
-                TestContext.WriteLine("Rabbit Host:" + factory.HostName);
-                TestContext.WriteLine("Rabbit VirtualHost:" + factory.VirtualHost);
-                TestContext.WriteLine("Rabbit UserName:" + factory.UserName);
-                TestContext.WriteLine("Rabbit Port:" + factory.Port);
+                StringBuilder sb = new StringBuilder();
+                
+                sb.AppendLine("Rabbit Uri:" + factory.Uri);
+                sb.AppendLine("Rabbit Host:" + factory.HostName);
+                sb.AppendLine("Rabbit VirtualHost:" + factory.VirtualHost);
+                sb.AppendLine("Rabbit UserName:" + factory.UserName);
+                sb.AppendLine("Rabbit Port:" + factory.Port);
 
-                Assert.Ignore($"Could not connect to RabbitMQ: {e.Message}");
+                Assert.Ignore($"Could not connect to RabbitMQ {Environment.NewLine + sb + Environment.NewLine} : {e.Message}");
             }
         }
 
