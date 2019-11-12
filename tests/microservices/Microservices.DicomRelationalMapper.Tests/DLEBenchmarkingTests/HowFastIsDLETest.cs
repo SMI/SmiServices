@@ -43,7 +43,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         private DicomRelationalMapperTestHelper _helper;
         private IDataLoadInfo _dli;
 
-        string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"DLEBenchmarkingTests\CT.it"));
+        string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"DLEBenchmarkingTests/CT.it"));
 
         [OneTimeSetUp]
         public void SetupLogging()
