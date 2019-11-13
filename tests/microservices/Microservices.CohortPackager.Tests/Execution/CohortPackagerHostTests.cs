@@ -82,7 +82,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution
                     _helper.Options.CohortPackagerOptions.ExtractFilesInfoOptions,
                     _helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions))
             {
-                var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem);
+                var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem,loadSmiLogConfig:false);
                 tester.StopOnDispose.Add(host);
 
                 _helper.TestFileCollectionInfoMessage.ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>

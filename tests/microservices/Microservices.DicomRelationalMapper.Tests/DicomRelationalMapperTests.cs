@@ -230,6 +230,8 @@ namespace Microservices.Tests.RDMPTests
         [Test]
         public void IdenticalDatasetsTest()
         {
+            TestLogger.Setup();
+
             _helper.TruncateTablesIfExists();
 
             var ds = new DicomDataset();

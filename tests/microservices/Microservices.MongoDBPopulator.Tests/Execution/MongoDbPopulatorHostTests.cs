@@ -82,7 +82,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
             _helper.Globals.MongoDbPopulatorOptions.SeriesCollection = currentCollectionName;
 
             var tester = new MicroserviceTester(_helper.Globals.RabbitOptions, _helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions);
-            var host = new MongoDbPopulatorHost(_helper.Globals);
+            var host = new MongoDbPopulatorHost(_helper.Globals,loadSmiLogConfig:false);
 
             host.Start();
 

@@ -202,7 +202,7 @@ namespace Microservices.IdentifierMapper.Tests
                 Console.WriteLine("Pushing bad messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, badChis, true);
 
-                var host = new IdentifierMapperHost(options, swapper);
+                var host = new IdentifierMapperHost(options, swapper,loadSmiLogConfig:false);
                 tester.StopOnDispose.Add(host);
 
                 Console.WriteLine("Starting host");
