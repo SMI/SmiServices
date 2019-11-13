@@ -7,6 +7,7 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
@@ -19,7 +20,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
         private readonly List<ExtractJobInfo> _mockJobInfos = new List<ExtractJobInfo>();
 
         private const string TestProjectNumber = "1234-5678";
-        private const string TestExtractionDirectory = "/temp/extract/1234-5678/testExtract";
+        private const string TestExtractionDirectory = "1234-5678/testExtract";
         private const string ExpectedAnonFileName = "anonFile.dcm";
 
         #region Fixture Methods
@@ -30,6 +31,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             TestLogger.Setup();
 
             _globalOptions = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globalOptions.FileSystemOptions.ExtractRoot = Path.GetFullPath("smi/extraction");
 
             var jobFileCollectionInfo = new List<ExtractFileCollectionInfo>
             {
@@ -69,7 +71,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             Action<Exception> exceptionCallback = exception => callbackUsed = true;
 
             var fileSystem = new MockFileSystem();
-            fileSystem.AddDirectory(TestExtractionDirectory);
+            fileSystem.AddDirectory($"{_globalOptions.FileSystemOptions.ExtractRoot}/{TestExtractionDirectory}");
 
             var jobWatcher = new ExtractJobWatcher(_globalOptions.CohortPackagerOptions,
                 _globalOptions.FileSystemOptions, mockedJobStore, exceptionCallback, fileSystem);
@@ -89,8 +91,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             Action<Exception> exceptionCallback = exception => callbackUsed = true;
 
             var fileSystem = new MockFileSystem();
-            fileSystem.AddDirectory(TestExtractionDirectory);
-            fileSystem.AddFile($"{TestExtractionDirectory}/{ExpectedAnonFileName}", new MockFileData(""));
+            fileSystem.AddDirectory($"{_globalOptions.FileSystemOptions.ExtractRoot}/{TestExtractionDirectory}");
+            fileSystem.AddFile($"{_globalOptions.FileSystemOptions.ExtractRoot}/{TestExtractionDirectory}/{ExpectedAnonFileName}", MockFileData.NullObject);
 
             var jobWatcher = new ExtractJobWatcher(_globalOptions.CohortPackagerOptions,
                 _globalOptions.FileSystemOptions, mockedJobStore, exceptionCallback, fileSystem);
