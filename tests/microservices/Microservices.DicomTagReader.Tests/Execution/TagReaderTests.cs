@@ -57,7 +57,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var fi = new FileInfo(Path.Combine(_helper.TestDir.FullName, "InvalidFile.dcm"));
             File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
 
-            Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
+            Assert.AreEqual(2,_helper.TestDir.EnumerateFiles("*.dcm").Count());
 
             _helper.Options.DicomTagReaderOptions.NackIfAnyFileErrors = nackIfAnyFileErrors;
             _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
@@ -166,7 +166,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
 
             // One valid, one invalid
-            Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
+            Assert.AreEqual(2,_helper.TestDir.EnumerateFiles("*.dcm").Count());
 
             var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
 

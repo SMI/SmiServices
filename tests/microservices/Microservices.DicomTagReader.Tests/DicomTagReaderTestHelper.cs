@@ -99,7 +99,10 @@ namespace Microservices.DicomTagReader.Tests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(TestDir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+
+            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
+
+            File.Copy(from,fi.FullName);
         }
 
         public bool CheckQueues(int nInSeriesQueue, int nInImageQueue)
