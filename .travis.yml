@@ -1,4 +1,10 @@
 
+branches:
+  only:
+  - master
+  - /^release\/.*$/
+  - /^hotfix\/.*$/
+
 language: csharp
 mono: none
 dotnet: 2.2.100
