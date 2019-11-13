@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 
 
-namespace Microservices.Tests.CohortPackagerTests
+namespace Microservices.CohortPackager.Tests
 {
     public class CohortPackagerTestHelper
     {
@@ -53,7 +53,7 @@ namespace Microservices.Tests.CohortPackagerTests
             {
                 ExtractionJobIdentifier = _testExtractIdentifier,
                 ProjectNumber = "1234-5678",
-                ExtractionDirectory = @"1234-5678\testExtraction",
+                ExtractionDirectory = "1234-5678/testExtraction",
                 JobSubmittedAt = DefaultSubmittedDateTime,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 1
@@ -69,7 +69,7 @@ namespace Microservices.Tests.CohortPackagerTests
             {
                 ExtractionJobIdentifier = _testExtractIdentifier,
                 ProjectNumber = "1234-5678",
-                ExtractionDirectory = @"1234-5678\testExtraction",
+                ExtractionDirectory = "1234-5678/testExtraction",
                 JobSubmittedAt = DefaultSubmittedDateTime,
 
                 KeyValue = "1.2.394", // Series id of IM_0001_0013.dcm
@@ -80,7 +80,7 @@ namespace Microservices.Tests.CohortPackagerTests
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 ProjectNumber = "1234-5678",
-                ExtractionDirectory = @"1234-5678\testExtraction",
+                ExtractionDirectory = "1234-5678/testExtraction",
                 JobSubmittedAt = DefaultSubmittedDateTime,
 
                 AnonymisedFileName = "AnonymisedTestFile1.dcm",
@@ -92,12 +92,12 @@ namespace Microservices.Tests.CohortPackagerTests
 
             MockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                //{extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile1.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
-                //{extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile2.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)},
-                //{extractRoot + @"\1234-5678\testExtraction\AnonymisedTestFile3.dcm", new MockFileData(TestDicomFiles.IM_0001_0013)}
+                {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile1.dcm", MockFileData.NullObject},
+                {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile2.dcm", MockFileData.NullObject},
+                {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile3.dcm", MockFileData.NullObject}
             });
 
-            MockFileSystem.AddDirectory(extractRoot + @"\1234-5678\testExtraction");
+            MockFileSystem.AddDirectory($"{extractRoot}/1234-5678/testExtraction");
         }
     }
 }
