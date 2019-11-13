@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace Microservices.Tests.CohortPackagerTests.Execution.JobProcessing
+namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
 {
     [TestFixture]
     public class JobWatcherTests

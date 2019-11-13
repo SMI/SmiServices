@@ -6,10 +6,9 @@ using Smi.Common.MessageSerialization;
 using Smi.Common.Tests;
 using System.Threading;
 
-
-namespace Microservices.Tests.CohortPackagerTests.Execution
+namespace Microservices.CohortPackager.Tests.Execution
 {
-    [TestFixture, RequiresMongoDb]
+    [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class CohortPackagerHostTests
     {
         private readonly CohortPackagerTestHelper _helper = new CohortPackagerTestHelper();
@@ -54,7 +53,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution
                     _helper.Options.CohortPackagerOptions.ExtractFilesInfoOptions,
                     _helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions))
             {
-                var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem,loadSmiLogConfig:false);
+                var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem, loadSmiLogConfig: false);
                 tester.StopOnDispose.Add(host);
 
                 tester.SendMessage(_helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions, _helper.TestExtractRequestInfoMessage);
@@ -82,7 +81,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution
                     _helper.Options.CohortPackagerOptions.ExtractFilesInfoOptions,
                     _helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions))
             {
-                var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem,loadSmiLogConfig:false);
+                var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem, loadSmiLogConfig: false);
                 tester.StopOnDispose.Add(host);
 
                 _helper.TestFileCollectionInfoMessage.ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>

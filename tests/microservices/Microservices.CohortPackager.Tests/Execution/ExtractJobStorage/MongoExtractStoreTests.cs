@@ -13,7 +13,7 @@ using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 
-namespace Microservices.Tests.CohortPackagerTests.Execution.ExtractJobStorage
+namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 {
     [TestFixture, RequiresMongoDb]
     public class MongoExtractStoreTests
@@ -43,7 +43,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution.ExtractJobStorage
         private ExtractFileStatusMessage _testStatusMessageWontRetry;
         private IMessageHeader _testStatusMessageHeader;
 
-        private ExtractJobInfo _expectedBasicJobinfo;
+        private ExtractJobInfo _expectedBasicJobInfo;
 
         #region Fixture Methods 
 
@@ -163,7 +163,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution.ExtractJobStorage
             var fileStatusInfoErrorWillRetry = new ExtractFileStatusInfo("ErrorWillRetry", null, "Not giving up!");
             var fileStatusInfoErrorWontRetry = new ExtractFileStatusInfo("ErrorWontRetry", null, "Oh fish :(");
 
-            _expectedBasicJobinfo = new ExtractJobInfo(_extractionIdentifier, "1234-5678", _testTime, ExtractJobStatus.WaitingForFiles, @"1234-5678\testExtract", 1, "SeriesInstanceUID", extractFileCollectionInfos, new List<ExtractFileStatusInfo> { fileStatusInfoOk, fileStatusInfoErrorWillRetry, fileStatusInfoErrorWontRetry });
+            _expectedBasicJobInfo = new ExtractJobInfo(_extractionIdentifier, "1234-5678", _testTime, ExtractJobStatus.WaitingForFiles, @"1234-5678\testExtract", 1, "SeriesInstanceUID", extractFileCollectionInfos, new List<ExtractFileStatusInfo> { fileStatusInfoOk, fileStatusInfoErrorWillRetry, fileStatusInfoErrorWontRetry });
         }
 
         /// <summary> 
@@ -214,7 +214,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution.ExtractJobStorage
             List<ExtractJobInfo> toProcess = store.GetLatestJobInfo();
 
             Assert.AreEqual(toProcess.Count, 1);
-            Assert.AreEqual(toProcess[0], _expectedBasicJobinfo);
+            Assert.AreEqual(toProcess[0], _expectedBasicJobInfo);
         }
 
         [Test]
@@ -228,7 +228,7 @@ namespace Microservices.Tests.CohortPackagerTests.Execution.ExtractJobStorage
             List<ExtractJobInfo> jobs = store.GetLatestJobInfo();
 
             Assert.AreEqual(1, jobs.Count);
-            Assert.AreEqual(jobs[0], _expectedBasicJobinfo);
+            Assert.AreEqual(jobs[0], _expectedBasicJobInfo);
         }
 
         [Test]

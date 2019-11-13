@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 
 
-namespace Microservices.Tests.CohortPackagerTests
+namespace Microservices.CohortPackager.Tests
 {
     public class CohortPackagerTestHelper
     {
