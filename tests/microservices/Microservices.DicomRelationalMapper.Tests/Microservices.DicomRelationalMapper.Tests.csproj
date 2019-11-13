@@ -8,7 +8,13 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="DLEBenchmarkingTests\CT.it" />
     <None Remove="TestDatabases.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DLEBenchmarkingTests\CT.it">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.0.1-rc1" />
