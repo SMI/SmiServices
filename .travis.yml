@@ -37,7 +37,7 @@ before_script:
 
 script:
 - docker ps
-- dotnet build --verbosity minimal
+- dotnet build --verbosity quiet
 - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
 - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
 - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
