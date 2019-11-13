@@ -93,8 +93,8 @@ namespace Microservices.CohortPackager.Tests
             MockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
                 {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile1.dcm", MockFileData.NullObject},
-                {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile1.dcm", MockFileData.NullObject},
-                {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile1.dcm", MockFileData.NullObject}
+                {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile2.dcm", MockFileData.NullObject},
+                {$"{extractRoot}/1234-5678/testExtraction/AnonymisedTestFile3.dcm", MockFileData.NullObject}
             });
 
             MockFileSystem.AddDirectory($"{extractRoot}/1234-5678/testExtraction");
