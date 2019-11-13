@@ -23,7 +23,8 @@ services:
   - mongodb
 
 before_install:
-- docker run --name=mssql-server-linux-latest -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d microsoft/mssql-server-linux:2017-latest
+- docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
+- sleep 10 # TODO: Add a better check for the SQL server being available after starting the container
 
 install:
 - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
@@ -35,9 +36,10 @@ before_script:
 - docker run -d -p 5672:5672 rabbitmq:3
 
 script:
-- pwd
 - docker ps
 - dotnet build --verbosity minimal
+- dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
+- dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
 - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
 - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
 - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
@@ -46,7 +48,4 @@ script:
 - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
 - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
 - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
-
-notifications:
-  webhooks:
-    - secure: "DTvaekGKXu7RRtL6mQSztfTfb1eb75KpcmLDzb0tVM6ZQfFqJ22VC77Z3rofh/mcAidwACjtl/KYO3vaxdwocAjs2VLxT2rU+aHxO4q460rfCI/Iyaywx6Bytzil3dL5UkLDsA1GMs4WBcS08TBmxKYaJb1P4jNhbRtBLusihhyXFlLYalBWreZe/1+Hc2TafJVD/pugUwmNseQ2TFwksx2zpyDrTYfUJZbGFx7CSQ/zqCm50RO/AnrV4IBCRPPZoS2wxh8MaUFR89T/7mL2jOzP+OY2IiIYYSlJjNA+CooaWccakIGIPU1Ul5wRFW9dxIZE6B5dUUUYtkMp8Rcw6H2pPGpiEZP5Y0OWi+76bW+dROsEtrDU6jRbC7P+IFTjLpCjEhbKYT+X2iK6beEp6gDORbcapEev3K7R/r5xyPSBI8HenkZ1lGvhuRpfPGFoLsDJAA0uP/B7cbZUY83jBA0iotQv/QW8UiyYcNrBgZWpLCxJY4VZ/zhlPZB55aoDl8KzGPp5AUfp8OK29WTZGS//2eSIYM65iXK4gkgRuUbMmv/fDsGgnRQPwe3lHwTdxC62EGQ1KjqBvdca5d8boGd1BghEKUPwkM4WPB0crTFvla6ukMjhicDi0VBtoXnvuuQ/WIM7Hs+/npCNB4Lz2ODK0JqWBiC0779XxrJdVHA="
+- dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
