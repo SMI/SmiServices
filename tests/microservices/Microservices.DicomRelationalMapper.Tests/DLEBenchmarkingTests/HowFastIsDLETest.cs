@@ -66,7 +66,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var d = CatalogueRepository.GetServerDefaults();
             d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
-            
+
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
@@ -104,7 +104,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
             {
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
 

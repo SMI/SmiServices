@@ -58,7 +58,7 @@ namespace Microservices.Tests.RDMPTests
             var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
             tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-            using (var host = new DicomRelationalMapperHost(_globals))
+            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
                 host.Start();
 
@@ -142,7 +142,7 @@ namespace Microservices.Tests.RDMPTests
                 var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
                 tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     host.Start();
 
@@ -195,7 +195,7 @@ namespace Microservices.Tests.RDMPTests
                 var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
                 tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     host.Start();
 
@@ -251,7 +251,7 @@ namespace Microservices.Tests.RDMPTests
 
                 _globals.DicomRelationalMapperOptions.RunChecks = true;
 
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     host.Start();
 

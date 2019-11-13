@@ -421,28 +421,28 @@ namespace Microservices.Tests.RDMPTests
 
                 #region Running Microservices
 
-                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions);
+                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions, loadSmiLogConfig: false);
                 processDirectory.Start();
                 tester.StopOnDispose.Add(processDirectory);
 
-                var dicomTagReaderHost = new DicomTagReaderHost(_globals);
+                var dicomTagReaderHost = new DicomTagReaderHost(_globals, loadSmiLogConfig: false);
                 dicomTagReaderHost.Start();
                 tester.StopOnDispose.Add(dicomTagReaderHost);
 
-                var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals);
+                var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals, loadSmiLogConfig: false);
                 mongoDbPopulatorHost.Start();
                 tester.StopOnDispose.Add(mongoDbPopulatorHost);
 
                 //FIXME
-                //var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"));
-                var identifierMapperHost = new IdentifierMapperHost(_globals);
+                //var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"), loadSmiLogConfig: false);
+                var identifierMapperHost = new IdentifierMapperHost(_globals, loadSmiLogConfig: false);
                 identifierMapperHost.Start();
                 tester.StopOnDispose.Add(identifierMapperHost);
 
                 new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
                 new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
 
-                using (var relationalMapperHost = new DicomRelationalMapperHost(_globals))
+                using (var relationalMapperHost = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     relationalMapperHost.Start();
                     tester.StopOnDispose.Add(relationalMapperHost);
@@ -482,7 +482,7 @@ namespace Microservices.Tests.RDMPTests
                 }
 
                 //Now do extraction
-                var extractorHost = new CohortExtractorHost(_globals, null, null);
+                var extractorHost = new CohortExtractorHost(_globals, null, null, loadSmiLogConfig: false);
 
                 extractorHost.Start();
 
