@@ -47,7 +47,7 @@ namespace Microservices.Tests.RDMPTests
 
             using (new MicroserviceTester(globals.RabbitOptions, globals.DicomRelationalMapperOptions))
             {
-                using (var host = new DicomRelationalMapperHost(globals))
+                using (var host = new DicomRelationalMapperHost(globals,loadSmiLogConfig:false))
                 {
                     host.Start();
 

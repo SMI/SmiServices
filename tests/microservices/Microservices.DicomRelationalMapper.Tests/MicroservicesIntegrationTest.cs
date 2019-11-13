@@ -110,7 +110,8 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
+            File.Copy(from,fi.FullName);
 
             RunTest(dir, 1);
         }
@@ -148,7 +149,8 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "Mr.010101")); //this is legit a dicom file
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
+            File.Copy(from,fi.FullName);
 
             try
             {
@@ -228,7 +230,8 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
+            File.Copy(from,fi.FullName);
 
             var ds1 = new DicomDataset();
             ds1.Add(DicomTag.StudyInstanceUID, "1.2.3");
@@ -319,7 +322,8 @@ namespace Microservices.Tests.RDMPTests
                 f.Delete();
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
+            File.Copy(from,fi.FullName);
 
             RunTest(dir, 1);
 
