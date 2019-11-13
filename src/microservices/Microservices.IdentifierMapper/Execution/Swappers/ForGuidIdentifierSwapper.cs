@@ -142,6 +142,11 @@ where not exists(select *
         {
             try
             {
+                //create the database if it doesn't exist
+                if(!_table.Database.Exists())
+                    _table.Database.Create();
+
+                //create the table if it doesn't exist
                 if (!_table.Exists())
                 {
                     _logger.Info("Guid mapping table does not exist, creating it now");
