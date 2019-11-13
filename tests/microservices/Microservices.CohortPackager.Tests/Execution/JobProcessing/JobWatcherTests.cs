@@ -19,7 +19,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
         private readonly List<ExtractJobInfo> _mockJobInfos = new List<ExtractJobInfo>();
 
         private const string TestProjectNumber = "1234-5678";
-        private const string TestExtractionDirectory = @"C:\temp\extract\1234-5678\testExtract\";
+        private const string TestExtractionDirectory = "/temp/extract/1234-5678/testExtract";
         private const string ExpectedAnonFileName = "anonFile.dcm";
 
         #region Fixture Methods
@@ -90,7 +90,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
 
             var fileSystem = new MockFileSystem();
             fileSystem.AddDirectory(TestExtractionDirectory);
-            fileSystem.AddFile(TestExtractionDirectory + @"\" + ExpectedAnonFileName, new MockFileData(""));
+            fileSystem.AddFile($"{TestExtractionDirectory}/{ExpectedAnonFileName}", new MockFileData(""));
 
             var jobWatcher = new ExtractJobWatcher(_globalOptions.CohortPackagerOptions,
                 _globalOptions.FileSystemOptions, mockedJobStore, exceptionCallback, fileSystem);
