@@ -4,6 +4,7 @@ branches:
   - master
   - /^release\/.*$/
   - /^hotfix\/.*$/
+  - feature/travisci
 
 language: csharp
 mono: none
