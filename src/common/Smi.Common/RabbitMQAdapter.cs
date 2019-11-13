@@ -397,13 +397,7 @@ namespace Smi.Common
             }
             catch (BrokerUnreachableException e)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("Rabbit Host:" + _factory.HostName);
-                sb.AppendLine("Rabbit VirtualHost:" + _factory.VirtualHost);
-                sb.AppendLine("Rabbit UserName:" + _factory.UserName);
-                sb.AppendLine("Rabbit Port:" + _factory.Port);
-
-                throw new ArgumentException($"Could not create a connection to RabbitMQ on startup. {Environment.NewLine + sb + Environment.NewLine}", e);
+                throw new ArgumentException("Could not create a connection to RabbitMQ on startup", e);
             }
         }
 

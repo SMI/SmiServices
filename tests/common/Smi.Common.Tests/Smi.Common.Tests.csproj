@@ -8,13 +8,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="SmiTest.NLog.config" />
     <None Remove="TestDatabases.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SmiTest.NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="TestDatabases.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -42,6 +38,9 @@
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="SmiTest.NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\FileWithLotsOfTags.dcm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
