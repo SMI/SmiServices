@@ -48,9 +48,6 @@ namespace Microservices.Tests.RDMPTests
 
         public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
         {
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "SmiTest.NLog.config"), false);
-
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(server, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), null, null, persistentRaw, modalityPrefix);

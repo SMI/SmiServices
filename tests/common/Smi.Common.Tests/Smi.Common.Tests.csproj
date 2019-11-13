@@ -38,9 +38,6 @@
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="SmiTest.NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="TestData\FileWithLotsOfTags.dcm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
