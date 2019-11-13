@@ -102,7 +102,7 @@ namespace Microservices.DicomTagReader.Tests
 
             var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
 
-            File.Copy(from,fi.FullName);
+            File.Copy(from,fi.FullName,true);
         }
 
         public bool CheckQueues(int nInSeriesQueue, int nInImageQueue)

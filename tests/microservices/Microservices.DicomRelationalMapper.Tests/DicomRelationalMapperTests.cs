@@ -47,7 +47,7 @@ namespace Microservices.Tests.RDMPTests
 
             var fi = new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm"));
             var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName);
+            File.Copy(from,fi.FullName,true);
 
             if (mixInATextFile)
             {

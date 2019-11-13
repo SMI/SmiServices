@@ -111,7 +111,7 @@ namespace Microservices.Tests.RDMPTests
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
             var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName);
+            File.Copy(from,fi.FullName,true);
 
             RunTest(dir, 1);
         }
@@ -150,7 +150,7 @@ namespace Microservices.Tests.RDMPTests
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "Mr.010101")); //this is legit a dicom file
             var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName);
+            File.Copy(from,fi.FullName,true);
 
             try
             {
@@ -231,7 +231,7 @@ namespace Microservices.Tests.RDMPTests
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
             var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName);
+            File.Copy(from,fi.FullName,true);
 
             var ds1 = new DicomDataset();
             ds1.Add(DicomTag.StudyInstanceUID, "1.2.3");
@@ -323,7 +323,7 @@ namespace Microservices.Tests.RDMPTests
 
             var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
             var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName);
+            File.Copy(from,fi.FullName,true);
 
             RunTest(dir, 1);
 
