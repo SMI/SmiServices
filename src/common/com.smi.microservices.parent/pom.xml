@@ -36,7 +36,7 @@
 	<build>
 		<testResources>
 			<testResource>
-				<directory>${project.basedir}/../../../Microservices/Configs</directory>
+				<directory>${project.basedir}/../../../data/microserviceConfigs</directory>
 				<includes>
 					<include>default.yaml</include>
 				</includes>
