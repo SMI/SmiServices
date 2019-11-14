@@ -1,4 +1,4 @@
-﻿
+
 using Dicom;
 using DicomTypeTranslation;
 using Microservices.MongoDBPopulator.Execution;
@@ -14,7 +14,6 @@ using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 
 namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
@@ -41,82 +40,63 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             _helper.Dispose();
         }
 
-        private bool Validate(DicomFileMessage message, BsonDocument document)
+        private void Validate(DicomFileMessage message, MessageHeader header, BsonDocument document)
         {
-            if (message == null || document == null)
-                throw new ArgumentException("Either message or document was null");
-
-            if (message.DicomDataset == null)
-                throw new ArgumentException("Dataset in message was null");
-
-            if (document.ElementCount == 0)
-                throw new ArgumentException("Document did not contain any elements");
+            Assert.False(message == null || document == null);
 
             BsonElement element;
-            if (!document.TryGetElement("header", out element))
-                throw new ArgumentException("Document did not contain a header element");
+            Assert.True(document.TryGetElement("header", out element));
 
-            if (!(element.Value is BsonDocument))
-                throw new ArgumentException("Documents header value was not a sub-document");
+            var docHeader = (BsonDocument)element.Value;
+            Assert.AreEqual(_imageMessageProps.Count - 3, docHeader.ElementCount);
+            ValidateHeader(message, header, docHeader);
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);
-
-            if (dataset == null)
-                throw new ArgumentException("Deserialized dataset was null");
+            Assert.NotNull(dataset);
 
             BsonDocument datasetDocument = DicomTypeTranslaterReader.BuildBsonDocument(dataset);
             document.Remove("_id");
             document.Remove("header");
 
-            bool headerOk = ValidateHeader(message, (BsonDocument)element.Value);
-            bool bodyOk = datasetDocument.Equals(document);
-
-            return headerOk && bodyOk;
+            Assert.AreEqual(datasetDocument, document);
         }
 
-        private bool ValidateHeader(DicomFileMessage message, BsonDocument header)
+        private static void ValidateHeader(DicomFileMessage message, MessageHeader header, BsonDocument docHeader)
         {
-            if (!header.All(x => _imageMessageProps.Contains(x.Name)))
-                throw new ArgumentException("document header did not contain all the required elements");
+            Assert.AreEqual(message.DicomFilePath, docHeader["DicomFilePath"].AsString);
+            Assert.AreEqual(message.NationalPACSAccessionNumber, docHeader["NationalPACSAccessionNumber"].AsString);
 
-            var isOk = true;
+            BsonElement element;
+            Assert.True(docHeader.TryGetElement("MessageHeader", out element));
 
-            isOk &= message.NationalPACSAccessionNumber == header["NationalPACSAccessionNumber"];
-            isOk &= message.DicomFilePath == header["DicomFilePath"];
-            isOk &= message.StudyInstanceUID == header["StudyInstanceUID"];
-            isOk &= message.SeriesInstanceUID == header["SeriesInstanceUID"];
-            isOk &= message.SOPInstanceUID == header["SOPInstanceUID"];
+            var messageHeaderDoc = (BsonDocument)element.Value;
+            Assert.NotNull(messageHeaderDoc);
 
-            return isOk;
+            Assert.AreEqual(header.ProducerProcessID, messageHeaderDoc["ProducerProcessID"].AsInt32);
+            Assert.AreEqual(header.ProducerExecutableName, messageHeaderDoc["ProducerExecutableName"].AsString);
+            Assert.AreEqual(header.OriginalPublishTimestamp, messageHeaderDoc["OriginalPublishTimestamp"].AsInt64);
+
+            Assert.True(messageHeaderDoc.TryGetElement("Parents", out element));
+
+            string parentsString = element.Value.AsString;
+
+            Assert.False(string.IsNullOrWhiteSpace(parentsString));
+            Assert.AreEqual(Guid.NewGuid().ToString().Length, parentsString.Length);
         }
 
-        /// <summary>
-        /// Tests that we timeout and throw an exception if we lose MongoDb connection after startup
-        /// </summary>
         [Test]
-        public void TestLossOfMongoConnection()
+        public void TestErrorHandling()
         {
-            Assert.Fail("Need to test this in some other way");
-
-            _helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime = 1;
             _helper.Globals.MongoDbPopulatorOptions.FailedWriteLimit = 1;
 
             var mockAdapter = new Mock<IMongoDbAdapter>();
-            //mockAdapter.SetupSequence(x => x.Ping(It.IsAny<int>()))
-            //    .Pass()
-            //    .Throws(new ApplicationException("Mocked loss of connection"));
+            mockAdapter
+                .Setup(x => x.WriteMany(It.IsAny<IList<BsonDocument>>(), It.IsAny<string>()))
+                .Returns(WriteResult.Failure);
 
-            var callbackUsed = false;
-            Action<Exception> ExceptionCallback = (exception) => { callbackUsed = true; };
+            var processor = new ImageMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { }) { Model = Mock.Of<IModel>() };
 
-            var processor = new SeriesMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, ExceptionCallback);
-
-            Assert.True(processor.IsProcessing);
-
-            Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) * _helper.Globals.MongoDbPopulatorOptions.FailedWriteLimit + 2000);
-
-            Assert.False(processor.IsProcessing);
-            Assert.True(callbackUsed);
+            Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(_helper.TestImageMessage, new MessageHeader(), 1));
         }
 
         /// <summary>
@@ -125,22 +105,24 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [Test]
         public void TestImageDocumentFormat()
         {
-            GlobalOptions options = _helper.GetNewMongoDbPopulatorOptions();
+            GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
-            string collectionName = _helper.GetCollectionNameForTest("TestImageDocumentFormat");
+            string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestImageDocumentFormat");
             var testAdapter = new MongoDbAdapter("TestImageDocumentFormat", options.MongoDatabases.DicomStoreOptions, collectionName);
 
             var callbackUsed = false;
-            Action<Exception> ExceptionCallback = (exception) => { callbackUsed = true; };
+            Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
 
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, ExceptionCallback)
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback)
             {
                 Model = Mock.Of<IModel>()
             };
 
+            var header = new MessageHeader();
+
             // Max queue size set to 1 so will immediately process this
-            processor.AddToWriteQueue(_helper.TestImageMessage, new MessageHeader(), 1);
+            processor.AddToWriteQueue(_helper.TestImageMessage, header, 1);
 
             Assert.False(callbackUsed);
             Assert.True(processor.AckCount == 1);
@@ -148,13 +130,16 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             IMongoCollection<BsonDocument> imageCollection = _helper.TestDatabase.GetCollection<BsonDocument>(collectionName + "_SR");
 
             Assert.True(imageCollection.CountDocuments(new BsonDocument()) == 1);
+
+            BsonDocument doc = imageCollection.FindAsync(FilterDefinition<BsonDocument>.Empty).Result.Single();
+            Validate(_helper.TestImageMessage, header, doc);
         }
 
 
         [Test]
         public void TestLargeMessageNack()
         {
-            GlobalOptions options = _helper.GetNewMongoDbPopulatorOptions();
+            GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions, "largeDocumentTest");
@@ -197,7 +182,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [Test]
         public void TestLargeDocumentSplitOk()
         {
-            GlobalOptions options = _helper.GetNewMongoDbPopulatorOptions();
+            GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions, "largeDocumentTest");

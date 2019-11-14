@@ -14,7 +14,6 @@ using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 
 namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
@@ -23,8 +22,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     public class SeriesMessageProcessorTests
     {
         private MongoDbPopulatorTestHelper _helper;
-
-
 
         private readonly List<string> _seriesMessageProps = typeof(SeriesMessage).GetProperties().Select(x => x.Name).ToList();
 
@@ -43,79 +40,42 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             _helper.Dispose();
         }
 
-        private bool Validate(SeriesMessage message, BsonDocument document)
+        private void Validate(SeriesMessage message, BsonDocument document)
         {
-            if (message == null || document == null)
-                throw new ArgumentException("Either message or document was null");
-
-            if (message.DicomDataset == null)
-                throw new ArgumentException("Dataset in message was null");
-
-            if (document.ElementCount == 0)
-                throw new ArgumentException("Document did not contain any elements");
+            Assert.False(message == null || document == null);
 
             BsonElement element;
-            if (!document.TryGetElement("header", out element))
-                throw new ArgumentException("Document did not contain a header element");
+            Assert.True(document.TryGetElement("header", out element));
 
-            if (!(element.Value is BsonDocument))
-                throw new ArgumentException("Documents header value was not a sub-document");
+            var docHeader = (BsonDocument)element.Value;
+            Assert.AreEqual(_seriesMessageProps.Count - 3, docHeader.ElementCount);
+            Assert.AreEqual(message.DirectoryPath, docHeader["DirectoryPath"].AsString);
+            Assert.AreEqual(message.NationalPACSAccessionNumber, docHeader["NationalPACSAccessionNumber"].AsString);
+            Assert.AreEqual(message.ImagesInSeries, docHeader["ImagesInSeries"].AsInt32);
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);
-
-            if (dataset == null)
-                throw new ArgumentException("Deserialized dataset was null");
+            Assert.NotNull(dataset);
 
             BsonDocument datasetDocument = DicomTypeTranslaterReader.BuildBsonDocument(dataset);
             document.Remove("_id");
             document.Remove("header");
 
-            bool headerOk = ValidateHeader(message, (BsonDocument)element.Value);
-            bool bodyOk = datasetDocument.Equals(document);
-
-            return headerOk && bodyOk;
+            Assert.AreEqual(datasetDocument, document);
         }
 
-        private bool ValidateHeader(SeriesMessage message, BsonDocument header)
-        {
-            if (!header.All(x => _seriesMessageProps.Contains(x.Name)))
-                throw new ArgumentException("document header did not contain all the required elements");
-
-            var isOk = true;
-
-            isOk &= message.NationalPACSAccessionNumber == header["NationalPACSAccessionNumber"];
-            isOk &= message.DirectoryPath == header["DirectoryPath"];
-            isOk &= message.ImagesInSeries == header["ImagesInSeries"];
-
-            return isOk;
-        }
-
-        /// <summary>
-        /// Tests that we timeout and throw an exception if we lose MongoDb connection after startup
-        /// </summary>
         [Test]
-        public void TestLossOfMongoConnection()
+        public void TestErrorHandling()
         {
-            Assert.Fail("Need to test this in some other way");
-
             _helper.Globals.MongoDbPopulatorOptions.FailedWriteLimit = 1;
 
             var mockAdapter = new Mock<IMongoDbAdapter>();
-            //mockAdapter.SetupSequence(x => x.Ping(It.IsAny<int>()))
-            //    .Pass()
-            //    .Throws(new ApplicationException("Mocked loss of connection"));
+            mockAdapter
+                .Setup(x => x.WriteMany(It.IsAny<IList<BsonDocument>>(), It.IsAny<string>()))
+                .Returns(WriteResult.Failure);
 
-            var callbackUsed = false;
-            Action<Exception> ExceptionCallback = (exception) => { callbackUsed = true; };
+            var processor = new SeriesMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { }) { Model = Mock.Of<IModel>() };
 
-            var processor = new SeriesMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, ExceptionCallback);
-
-            Assert.True(processor.IsProcessing);
-
-            Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) * _helper.Globals.MongoDbPopulatorOptions.FailedWriteLimit + 2000);
-
-            Assert.False(processor.IsProcessing);
-            Assert.True(callbackUsed);
+            Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(_helper.TestSeriesMessage, new MessageHeader(), 1));
         }
 
         /// <summary>
@@ -124,16 +84,16 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [Test]
         public void TestSeriesDocumentFormat()
         {
-            GlobalOptions options = _helper.GetNewMongoDbPopulatorOptions();
+            GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue;
 
-            string collectionName = _helper.GetCollectionNameForTest("TestSeriesDocumentFormat");
+            string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestSeriesDocumentFormat");
             var testAdapter = new MongoDbAdapter("TestSeriesDocumentFormat", options.MongoDatabases.DicomStoreOptions, collectionName);
 
             var callbackUsed = false;
-            Action<Exception> ExceptionCallback = (exception) => { callbackUsed = true; };
+            Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
 
-            var processor = new SeriesMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, ExceptionCallback)
+            var processor = new SeriesMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback)
             {
                 Model = Mock.Of<IModel>()
             };
@@ -150,16 +110,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             BsonDocument document = collection.Find(_ => true).ToList()[0];
 
-            Assert.True(Validate(_helper.TestSeriesMessage, document));
-        }
-
-        /// <summary>
-        /// Tests a variety of invalid messages to ensure they are all rejected
-        /// </summary>
-        [Test]
-        public void TestInvalidMethodIsHandled()
-        {
-            Assert.Inconclusive("Not implemented");
+            Validate(_helper.TestSeriesMessage, document);
         }
     }
 }

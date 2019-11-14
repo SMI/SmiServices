@@ -1,4 +1,5 @@
-﻿using Microservices.MongoDBPopulator.Execution;
+﻿
+using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
 using MongoDB.Bson;
 using Moq;
@@ -8,7 +9,6 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Threading;
-
 
 namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 {
@@ -47,12 +47,12 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             var processor = new TestMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter, 1, exceptionCallback);
 
-            Assert.True(processor.IsProcessing);
+            Assert.False(processor.IsStopping);
 
             Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) + 100);
 
             Assert.True(callbackUsed);
-            Assert.False(processor.IsProcessing);
+            Assert.True(processor.IsStopping);
         }
 
         // Implementation of MessageProcessor for testing
