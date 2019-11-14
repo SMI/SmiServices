@@ -90,7 +90,7 @@
                         <configuration>
                             <skipAssembly>false</skipAssembly>
                             <descriptors>
-                                <descriptor>../res/deployDescriptor.xml</descriptor>
+                                <descriptor>../../common/com.smi.microservices.parent/res/deployDescriptor.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
