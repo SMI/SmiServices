@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace Microservices.MongoDBPopulator.Tests.Execution
 {
-    [TestFixture, RequiresMongoDb]
+    [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class MongoDbPopulatorHostTests
     {
         private MongoDbPopulatorTestHelper _helper;
@@ -40,29 +40,11 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
         [Test]
         public void TestMissingMongoConnectionOnStartup()
         {
-            GlobalOptions options = _helper.GetNewMongoDbPopulatorOptions();
+            GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
             options.MongoDatabases.DicomStoreOptions.Port = 12345;
 
             // ReSharper disable once ObjectCreationAsStatement
             Assert.Throws<ArgumentException>(() => new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, null));
-        }
-
-        /// <summary>
-        /// Tests that both consumers are created from the given options
-        /// </summary>
-        [Test]
-        public void TestBothConsumersCreated()
-        {
-            Assert.Inconclusive("Not implemented");
-        }
-
-        /// <summary>
-        /// Assert that we throw an exception if no ConsumerOptions are passed in, or if neither of the options has the correct label 
-        /// </summary>
-        [Test]
-        public void TestNoConsumersThrows()
-        {
-            Assert.Inconclusive("Not implemented");
         }
 
         /// <summary>
@@ -77,12 +59,12 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
         {
             // Arrange
 
-            string currentCollectionName = _helper.GetCollectionNameForTest(string.Format("TestPopulatorBasic({0})", nMessages));
+            string currentCollectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest(string.Format("TestPopulatorBasic({0})", nMessages));
 
             _helper.Globals.MongoDbPopulatorOptions.SeriesCollection = currentCollectionName;
 
             var tester = new MicroserviceTester(_helper.Globals.RabbitOptions, _helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions);
-            var host = new MongoDbPopulatorHost(_helper.Globals,loadSmiLogConfig:false);
+            var host = new MongoDbPopulatorHost(_helper.Globals, loadSmiLogConfig: false);
 
             host.Start();
 

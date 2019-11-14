@@ -2,9 +2,7 @@
 using Dicom;
 using DicomTypeTranslation;
 using MongoDB.Driver;
-using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
@@ -15,11 +13,10 @@ namespace Microservices.MongoDBPopulator.Tests
 {
     public class MongoDbPopulatorTestHelper
     {
-        public const string TestDbName = "nUnitTests";
+        private const string TestDbName = "nUnitTests";
 
         private MongoClient _mongoTestClient;
 
-        public readonly ILogger MockLogger = Mock.Of<ILogger>();
         public IMongoDatabase TestDatabase;
 
         public GlobalOptions Globals;
@@ -56,11 +53,11 @@ namespace Microservices.MongoDBPopulator.Tests
                 new DicomCodeString(DicomTag.Modality, "SR")
             };
 
-            var serialized = DicomTypeTranslater.SerializeDatasetToJson(dataset);
+            string serialized = DicomTypeTranslater.SerializeDatasetToJson(dataset);
 
             TestImageMessage = new DicomFileMessage
             {
-                DicomFilePath = @"Path/To/File",
+                DicomFilePath = "Path/To/File",
                 NationalPACSAccessionNumber = "123",
                 SeriesInstanceUID = "TestSeriesInstanceUID",
                 StudyInstanceUID = "TestStudyInstanceUID",
@@ -70,23 +67,18 @@ namespace Microservices.MongoDBPopulator.Tests
 
             TestSeriesMessage = new SeriesMessage
             {
-                DirectoryPath = @"Path/To/Series",
+                DirectoryPath = "Path/To/Series",
                 ImagesInSeries = 123,
                 NationalPACSAccessionNumber = "123",
                 SeriesInstanceUID = "TestSeriesInstanceUID",
                 StudyInstanceUID = "TestStudyInstanceUID",
                 DicomDataset = serialized
             };
-
-            new ProducerOptions()
-            {
-                ExchangeName = "TEST.FataLoggingExchange"
-            };
         }
 
-        public GlobalOptions GetNewMongoDbPopulatorOptions()
+        public static GlobalOptions GetNewMongoDbPopulatorOptions()
         {
-            var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             options.MongoDatabases.DicomStoreOptions.DatabaseName = TestDbName;
             options.MongoDbPopulatorOptions.MongoDbFlushTime = 1; //1 second
@@ -94,14 +86,11 @@ namespace Microservices.MongoDBPopulator.Tests
             return options;
         }
 
+        public static string GetCollectionNameForTest(string testName) => testName + "-" + Guid.NewGuid();
+
         public void Dispose()
         {
             _mongoTestClient.DropDatabase(TestDbName);
-        }
-
-        public string GetCollectionNameForTest(string testName)
-        {
-            return testName + "-" + Guid.NewGuid();
         }
     }
 }
