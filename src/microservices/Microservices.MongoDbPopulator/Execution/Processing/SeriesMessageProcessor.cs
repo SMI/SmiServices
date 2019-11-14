@@ -30,7 +30,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         public override void AddToWriteQueue(SeriesMessage message, IMessageHeader header, ulong deliveryTag)
         {
             // Only time we are not processing is if we are shutting down anyway
-            if (!IsProcessing)
+            if (IsStopping)
                 return;
 
             if (Model == null)
@@ -46,7 +46,6 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
             catch (Exception e)
             {
                 throw new ApplicationException("Could not deserialize json to dataset", e);
-
             }
 
             BsonDocument datasetDoc;
@@ -124,7 +123,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
                 }
                 else
                 {
-                    Logger.Warn("SeriesMessageProcessor: Failed to write, " + (FailedWriteAttempts + 1) + "time(s) in a row.");
+                    Logger.Warn($"SeriesMessageProcessor: Failed to write {FailedWriteAttempts + 1} time(s) in a row");
 
                     if (++FailedWriteAttempts < FailedWriteLimit)
                         return;

@@ -1,11 +1,11 @@
 
-using System;
-using System.Collections.Generic;
-using Smi.Common.Messages;
-using Smi.Common.Options;
 using MongoDB.Bson;
 using NLog;
 using RabbitMQ.Client;
+using Smi.Common.Messages;
+using Smi.Common.Options;
+using System;
+using System.Collections.Generic;
 using SysTimers = System.Timers;
 
 namespace Microservices.MongoDBPopulator.Execution.Processing
@@ -45,7 +45,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         /// <summary>
         /// Indicates if the object is actively processing messages
         /// </summary>
-        public bool IsProcessing { get; private set; }
+        public bool IsStopping { get; private set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -94,7 +94,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
             _processTimer.Elapsed += TimerElapsedEvent;
             _processTimer.Start();
 
-            IsProcessing = true;
+            IsStopping = false;
         }
 
         private void TimerElapsedEvent(object source, SysTimers.ElapsedEventArgs e)
@@ -114,13 +114,11 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         {
             // Ensures no more messages are added to the queue
             _processTimer.Stop();
-            IsProcessing = false;
+            IsStopping = true;
 
             // Forces process to wait until any current processing is finished
             lock (LockObj)
-            {
                 Logger.Debug("Lock released, no more messages will be processed");
-            }
         }
 
         #endregion
