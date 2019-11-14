@@ -42,7 +42,7 @@
 				</includes>
 			</testResource>
 			<testResource>
-				<directory>${project.basedir}/../res</directory>
+				<directory>${project.basedir}/../../../src/common/com.smi.microservices.parent/res</directory>
 				<includes>
 					<include>SmiLogbackConfig.xml</include>
 				</includes>
