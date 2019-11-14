@@ -27,8 +27,8 @@ public class CTPAnonymiserHostTest extends TestCase {
 
 	private static Logger _logger;
 
-	private static final String _fsRoot = System.getProperty("user.dir") + "\\src\\test\\resources";
-	private static final String _extractRoot = System.getProperty("user.dir") + "\\src\\test\\resources";
+	private static final String _fsRoot = System.getProperty("user.dir") + "/src/test/resources";
+	private static final String _extractRoot = System.getProperty("user.dir") + "/src/test/resources";
 
 	private static final String _testFile = "image-000001.dcm";
 
@@ -115,7 +115,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 		_testAdapter.StartConsumer(_extractFileStatusConsumerOptions, _anonFileStatusMessageConsumer);
 
 		// Create the host for testing
-		String[] args = new String[]{"-a", _fsRoot + "\\dicom-anonymizer.script"};
+		String[] args = new String[]{"-a", _fsRoot + "/dicom-anonymizer.script"};
 		_ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(args));
 
 		File inFile = new File(Paths.get(_fsRoot, _testFile).toString());
