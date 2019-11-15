@@ -414,9 +414,9 @@ namespace Smi.Common.Options
         public string UserName { get; set; }
         public string DatabaseName { get; set; }
 
-        public bool AreValid()
+        public bool AreValid(bool skipAuthentication)
         {
-            return UserName != null
+            return (skipAuthentication || UserName != null)
                    && Port > 0
                    && !string.IsNullOrWhiteSpace(HostName)
                    && !string.IsNullOrWhiteSpace(DatabaseName);

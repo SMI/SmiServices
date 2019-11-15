@@ -25,7 +25,7 @@ namespace Smi.Common.MongoDB
         /// <returns></returns>
         public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName, bool skipAuthentication = false)
         {
-            if (!options.AreValid())
+            if (!options.AreValid(skipAuthentication))
                 throw new ApplicationException($"Invalid MongoDB options: {options}");
 
             if (skipAuthentication || options.UserName == string.Empty)
