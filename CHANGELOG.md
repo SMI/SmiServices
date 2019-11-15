@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.0.0] - 2019-11-15
+
+First stable release after importing the repository from the private [SMIPlugin](https://github.com/HicServices/SMIPlugin) repo.
+
 ## Removed
 
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`).  Previously skipping database portion was supported.
@@ -20,4 +24,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - ForGuidIdentifierSwapper automatically creates it's mapping database if it does not exist on the server referenced (previously only table was automatically created)
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/1.0.0...develop
+[1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
