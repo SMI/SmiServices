@@ -130,7 +130,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         }
 
 
-        [TestCase(50000)]
+        [TestCase(500)]
         public void TestGetChunktOnly(int numberOfImages)
         {
             Random r = new Random(123);
@@ -169,8 +169,8 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             Assert.AreEqual(numberOfImages, dt.Rows.Cast<DataRow>().Select(w => w["SOPInstanceUID"]).Distinct().Count());
         }
 
-        [TestCase(DatabaseType.MySql, 50000)]
-        [TestCase(DatabaseType.MicrosoftSQLServer, 50000)]
+        [TestCase(DatabaseType.MySql, 500)]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 500)]
         public void TestBulkInsertOnly(DatabaseType databaseType, int numberOfImages)
         {
             foreach (Pipeline p in CatalogueRepository.GetAllObjects<Pipeline>())

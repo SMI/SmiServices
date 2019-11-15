@@ -54,6 +54,17 @@ namespace Smi.Common.Tests
             g.IdentifierMapperOptions.MappingDatabaseType = mappingDb?.Server?.DatabaseType ?? DatabaseType.MicrosoftSQLServer;
             g.IdentifierMapperOptions.MappingTableName = mappingDb?.ExpectTable("MappingTable").GetFullyQualifiedName();
 
+
+            g.DeadLetterReprocessorOptions.DeadLetterConsumerOptions.QoSPrefetchCount = 1;
+            g.DicomRelationalMapperOptions.QoSPrefetchCount = 1;
+            g.CohortExtractorOptions.QoSPrefetchCount = 1;
+            g.CohortPackagerOptions.ExtractRequestInfoOptions.QoSPrefetchCount = 1;
+            g.CohortPackagerOptions.ExtractFilesInfoOptions.QoSPrefetchCount = 1;
+            g.CohortPackagerOptions.AnonImageStatusOptions.QoSPrefetchCount = 1;
+            g.DicomTagReaderOptions.QoSPrefetchCount = 1;
+            g.IdentifierMapperOptions.QoSPrefetchCount = 1;
+            g.MongoDbPopulatorOptions.SeriesQueueConsumerOptions.QoSPrefetchCount = 1;
+            g.MongoDbPopulatorOptions.ImageQueueConsumerOptions.QoSPrefetchCount = 1;
         }
     }
 }

@@ -49,6 +49,8 @@ namespace Microservices.Tests.RDMPTests
 
         public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
         {
+            TestLogger.Setup();
+
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             
             _globals.UseTestValues(
