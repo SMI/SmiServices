@@ -74,7 +74,9 @@ Appart from the Microservices (documented above) the following library classes a
 | Template Builder | /Applications| GUI tool for building modality database schema templates.  Supports viewing and exploring dicom tags in files|
 | Smi.MongoDB.Common | /Reusable | Library containing methods for interacting with MongoDb |
 
-## Building the C# Projects
+## Building
+
+### Building the C# Projects
 
 Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2) and [Ruby/Rake](https://github.com/ruby/rake). This can then be built with:
 
@@ -87,7 +89,7 @@ Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/
 
 The rake build can be configured by overriding the environment variables specified in `rakeconfig.rb`.
 
-## Building the Java Projects
+### Building the Java Projects
 
 Building the Java projects requires Maven. The CTP dependency first needs to be manually installed:
 
