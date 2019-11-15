@@ -1,4 +1,9 @@
-﻿
+﻿using System;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using Applications.DicomDirectoryProcessor.Execution;
 using Applications.DicomDirectoryProcessor.Options;
 using Dicom;
@@ -10,8 +15,11 @@ using Microservices.DicomRelationalMapper.Execution.Namers;
 using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.DicomTagReader.Execution;
 using Microservices.IdentifierMapper.Execution;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.MongoDBPopulator.Execution;
+using Microservices.Tests.RDMPTests;
 using MongoDB.Driver;
+using NLog;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
@@ -27,21 +35,17 @@ using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
-using System;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
-namespace Microservices.Tests.RDMPTests
+namespace Microservices.DicomRelationalMapper.Tests
 {
     [RequiresRabbit, RequiresMongoDb, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class MicroservicesIntegrationTest : DatabaseTests
     {
         public const string ScratchDatabaseName = "RDMPTests_ScratchArea";
+
+        private readonly ILogger _logger = LogManager.GetLogger("MicroservicesIntegrationTest");
 
         private DicomRelationalMapperTestHelper _helper;
         private GlobalOptions _globals;
@@ -52,14 +56,14 @@ namespace Microservices.Tests.RDMPTests
             TestLogger.Setup();
 
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
-            
+
             _globals.UseTestValues(
                 RequiresRabbit.GetConnectionFactory(),
                 RequiresMongoDb.GetMongoClientSettings(),
                 RequiresRelationalDb.GetRelationalDatabaseConnectionStrings(),
-                ((TableRepository) RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,
-                ((TableRepository) RepositoryLocator.DataExportRepository).ConnectionStringBuilder);
-                
+                ((TableRepository)RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,
+                ((TableRepository)RepositoryLocator.DataExportRepository).ConnectionStringBuilder);
+
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(server, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), null, null, persistentRaw, modalityPrefix);
 
@@ -444,7 +448,11 @@ namespace Microservices.Tests.RDMPTests
                 tester.StopOnDispose.Add(identifierMapperHost);
 
                 new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
+                _logger.Info("\n### DicomTagReader has processed its messages ###\n");
+
+                // FIXME: This isn't exactly how the pipeline runs
                 new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
+                _logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
                 using (var relationalMapperHost = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
@@ -454,18 +462,19 @@ namespace Microservices.Tests.RDMPTests
                     Assert.True(mongoDbPopulatorHost.Consumers.Count == 2);
                     new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[0].Processor.AckCount >= 1);
                     new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
-                    Console.WriteLine("MongoDBPopulator has processed its messages");
+                    _logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
 
                     new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
-                    Console.WriteLine("IdentifierMapper has processed its messages");
+                    _logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
                     Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
                     Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[0]).NackCount);
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[1]).NackCount);
 
-                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows,null,30000,()=>relationalMapperHost.Consumer.DleErrors); //number of image files 
-                    Console.WriteLine("DicomRelationalMapper has processed its messages");
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
+                    _logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
 
                     Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
                     Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
