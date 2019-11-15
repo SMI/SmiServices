@@ -32,6 +32,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -436,9 +437,7 @@ namespace Microservices.Tests.RDMPTests
                 mongoDbPopulatorHost.Start();
                 tester.StopOnDispose.Add(mongoDbPopulatorHost);
 
-                //FIXME
-                //var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"), loadSmiLogConfig: false);
-                var identifierMapperHost = new IdentifierMapperHost(_globals, loadSmiLogConfig: false);
+                var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"), loadSmiLogConfig: false);
                 identifierMapperHost.Start();
                 tester.StopOnDispose.Add(identifierMapperHost);
 
@@ -522,6 +521,28 @@ namespace Microservices.Tests.RDMPTests
         private void DropMongoTestDb(string mongoDbHostName, int mongoDbHostPort)
         {
             new MongoClient(new MongoClientSettings { Server = new MongoServerAddress(mongoDbHostName, mongoDbHostPort) }).DropDatabase(MongoTestDbName);
+        }
+
+        private class SwapForFixedValueTester : ISwapIdentifiers
+        {
+            private readonly string _swapForString;
+
+
+            public SwapForFixedValueTester(string swapForString)
+            {
+                _swapForString = swapForString;
+            }
+
+
+            public void Setup(IMappingTableOptions mappingTableOptions) { }
+
+            public string GetSubstitutionFor(string toSwap, out string reason)
+            {
+                reason = null;
+                return _swapForString;
+            }
+
+            public void ClearCache() { }
         }
     }
 }

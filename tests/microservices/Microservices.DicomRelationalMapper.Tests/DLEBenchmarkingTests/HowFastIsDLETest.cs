@@ -54,9 +54,15 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             _dli = lm.CreateDataLoadInfo("aaa", "HowFastIsDLETest", "Test", "", true);
         }
 
+        [Test]
+        public void Test_NullRoot()
+        {
+            var s = new DicomDatasetCollectionSource();
+            s.ArchiveRoot = null;
+        }
 
-        [TestCase(DatabaseType.MySql, 60000), RequiresRabbit]
-        [TestCase(DatabaseType.MicrosoftSQLServer, 60000), RequiresRabbit]
+        [TestCase(DatabaseType.MySql, 600), RequiresRabbit]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 600), RequiresRabbit]
         public void TestLargeImageDatasets(DatabaseType databaseType, int numberOfImages)
         {
             foreach (Pipeline p in CatalogueRepository.GetAllObjects<Pipeline>())
@@ -112,7 +118,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
                     host.Start();
 
                     Stopwatch sw = Stopwatch.StartNew();
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 1000); //10 minutes
+                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
 
                     Console.Write("Time For DLE:" + sw.Elapsed.TotalSeconds + "s");
                     host.Stop("Test finished");
