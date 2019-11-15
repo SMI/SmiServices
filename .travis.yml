@@ -66,6 +66,7 @@ jobs:
     - docker ps
     - mvn -f $PARENT_POM -ntp test
     deploy:
+      all_branches: true
       skip_cleanup: true
       provider: script
       script:
