@@ -45,9 +45,7 @@ namespace Microservices.Tests.RDMPTests
             DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomRelationalMapperTests"));
             d.Create();
 
-            var fi = new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm"));
-            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName,true);
+            var fi = TestData.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
 
             if (mixInATextFile)
             {
@@ -100,9 +98,8 @@ namespace Microservices.Tests.RDMPTests
                 oldFile.Delete();
 
             var seedDir = d.CreateSubdirectory("Seed");
-
-            var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            
+            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
 
             var existingColumns = _helper.ImageTable.DiscoverColumns();
 
@@ -185,8 +182,7 @@ namespace Microservices.Tests.RDMPTests
 
             var seedDir = d.CreateSubdirectory("Seed");
 
-            var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
 
             using (DicomGenerator g = new DicomGenerator(d.FullName, "Seed", 1000))
             {

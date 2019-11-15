@@ -109,9 +109,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName,true);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             RunTest(dir, 1);
         }
@@ -148,9 +146,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "Mr.010101")); //this is legit a dicom file
-            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName,true);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
 
             try
             {
@@ -229,9 +225,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName,true);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             var ds1 = new DicomDataset();
             ds1.Add(DicomTag.StudyInstanceUID, "1.2.3");
@@ -321,9 +315,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "IM-0001-0013.dcm");
-            File.Copy(from,fi.FullName,true);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             RunTest(dir, 1);
 
@@ -360,8 +352,7 @@ namespace Microservices.Tests.RDMPTests
 
             var seedDir = dir.CreateSubdirectory("Seed");
 
-            var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
 
             int numberOfImagesToGenerate = 40;
 
