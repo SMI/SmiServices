@@ -71,7 +71,7 @@ Appart from the Microservices (documented above) the following library classes a
 
 ## Building
 
-Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2) and [Ruby/Rake](https://github.com/ruby/rake). This can then be built with:
+Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2) and [Ruby/Rake](https://github.com/ruby/rake). The Java projects require `mvn >= 3.6.1`. This can then be built with:
 
 ```bash
 # Non-Windows systems only
