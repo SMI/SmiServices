@@ -7,7 +7,7 @@
 
 	<groupId>dat</groupId>
 	<artifactId>dat</artifactId>
-	<version>1.0</version>
+	<version>1.0.0</version>
 	<description>POM was created from install:install-file, and a little manual hacking</description>
 
 	<dependencies>

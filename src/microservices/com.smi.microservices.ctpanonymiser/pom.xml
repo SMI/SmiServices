@@ -8,14 +8,14 @@
     <parent>
         <groupId>com.smi.microservices</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0</version>
+        <version>1.0.0</version>
         <relativePath>../../common/com.smi.microservices.parent/pom.xml</relativePath>
     </parent>
 
     <name>SMI CTP Anonymiser</name>
 
     <artifactId>ctpanonymiser</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
 
     <packaging>jar</packaging>
 
@@ -38,14 +38,14 @@
         <dependency>
             <groupId>com.smi.microservices</groupId>
             <artifactId>common</artifactId>
-            <version>1.0</version>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- Our bundled version of CTP/DAT and their dependencies -->
         <dependency>
             <groupId>dat</groupId>
             <artifactId>dat</artifactId>
-            <version>1.0</version>
+            <version>1.0.0</version>
         </dependency>
 
     </dependencies>

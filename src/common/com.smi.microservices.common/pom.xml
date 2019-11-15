@@ -7,14 +7,14 @@
 	<parent>
 		<groupId>com.smi.microservices</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0</version>
+		<version>1.0.0</version>
                 <relativePath>../com.smi.microservices.parent/pom.xml</relativePath>
 	</parent>
 
 	<name>SMI Microservices Common</name>
 
 	<artifactId>common</artifactId>
-	<version>1.0</version>
+	<version>1.0.0</version>
 
 	<packaging>jar</packaging>
 
