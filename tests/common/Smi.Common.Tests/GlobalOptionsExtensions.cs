@@ -48,8 +48,11 @@ namespace Smi.Common.Tests
             g.MongoDatabases.DeadLetterStoreOptions.UserName = mongo?.Credential?.Username;
 
             //Relational Databases
-            g.IdentifierMapperOptions.MappingConnectionString = relational?.SqlServer;
-            g.IdentifierMapperOptions.MappingDatabaseType = DatabaseType.MicrosoftSQLServer;
+            var mappingDb = relational?.GetServer(DatabaseType.MicrosoftSQLServer)?.ExpectDatabase("TEST_MappingDatabase");
+
+            g.IdentifierMapperOptions.MappingConnectionString = mappingDb?.Server?.Builder?.ConnectionString;
+            g.IdentifierMapperOptions.MappingDatabaseType = mappingDb?.Server?.DatabaseType ?? DatabaseType.MicrosoftSQLServer;
+            g.IdentifierMapperOptions.MappingTableName = mappingDb?.ExpectTable("MappingTable").GetFullyQualifiedName();
 
         }
     }

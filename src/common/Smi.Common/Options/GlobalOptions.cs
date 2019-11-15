@@ -183,23 +183,16 @@ namespace Smi.Common.Options
             var idx = MappingTableName.LastIndexOf('.');
             var tableNameUnqualified = MappingTableName.Substring(idx +1);
             
-            if (MappingDatabaseType == DatabaseType.Oracle)
-            {
-                idx = MappingTableName.IndexOf('.');
-                if (idx == -1)
-                    throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
+            idx = MappingTableName.IndexOf('.');
+            if (idx == -1)
+                throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
 
-                var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName.Substring(0, idx));
-                if (string.IsNullOrWhiteSpace(databaseName))
-                    throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
+            var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName.Substring(0, idx));
+            if (string.IsNullOrWhiteSpace(databaseName))
+                throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
 
-                return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
-            }
-
-            return server.GetCurrentDatabase().ExpectTable(tableNameUnqualified);
+            return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
         }
-
-
     }
 
     public interface IMappingTableOptions
