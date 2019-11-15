@@ -3,13 +3,15 @@
 
 # SMIPlugin
 
+Version: `1.0.0`
+
 Scottish Medical Imaging plugin is a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp).  The software loads Dicom Tag data (extracted from clinical images) into MongoDB and Relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
 ## Contents
 
 1. [Microservices](#microservices)
-	* [Data Load Microservices](#data-load-microservices)
-	* [Image Extraction Microservices](#image-extraction-microservices)
+  * [Data Load Microservices](#data-load-microservices)
+  * [Image Extraction Microservices](#image-extraction-microservices)
 2. [Solution Overivew](#solution-overview)
 3. [Building](#building)
 4. [Testing](#testing)
@@ -61,7 +63,6 @@ Microservices can be controlled through RabbitMQ messages. The currently support
 | CohortExtractor Audit | Obsolete interface `IAuditExtractions` previously existed to record the linkage results and patient release identifiers.|
 | Fatal Error Logging | All Microservices that crash or log a fatal error are shut down and log a message to the Fatal Error Logging Exchange.  TODO: Nobody listens to this currently.|
 | Quarantine | TODO: Doesn't exist yet.|
-
 
 ## Solution Overview
 
@@ -152,6 +153,10 @@ Tests with the respective attributes will only run when these services exist in 
 - RelationalDatabases.yaml
 
 For setting up the RDMP platform databases see https://github.com/HicServices/RDMP/blob/master/Documentation/CodeTutorials/Tests.md
+
+## Note On Versioning
+
+The C# projects share the same release version, which is controlled by the [SharedAssemblyInfo.cs](src/SharedAssemblyInfo.cs) file. The Java projects are versioned independently, set in their pom files, however in practice they follow the release version of the repo overall.
 
 ## Package Hierarchy
 
