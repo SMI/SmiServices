@@ -27,6 +27,8 @@ namespace Microservices.Tests.RDMPTests
         [OneTimeSetUp]
         public void Setup()
         {
+            TestLogger.Setup();
+
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
             _helper = new DicomRelationalMapperTestHelper();
@@ -34,7 +36,6 @@ namespace Microservices.Tests.RDMPTests
         }
 
 
-        [Test]
         [TestCase(1, false)]
         [TestCase(1, true)]
         [TestCase(10, false)]
@@ -227,8 +228,6 @@ namespace Microservices.Tests.RDMPTests
         [Test]
         public void IdenticalDatasetsTest()
         {
-            TestLogger.Setup();
-
             _helper.TruncateTablesIfExists();
 
             var ds = new DicomDataset();
