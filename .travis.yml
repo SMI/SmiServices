@@ -47,6 +47,9 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
+    deploy:
+    - echo "TODO"
+
   - language: java
     env:
     - PARENT_POM=src/common/com.smi.microservices.parent/pom.xml
