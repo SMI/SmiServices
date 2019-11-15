@@ -36,17 +36,17 @@ jobs:
     script:
     - docker ps
     - dotnet build --verbosity quiet
-    - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
-    - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
+    # - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
+    # - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
+    # - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
+    # - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
+    # - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.DicomRelationalMapper.Tests/Microservices.DicomRelationalMapper.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomReprocessor.Tests/Microservices.DicomReprocessor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
-    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
+    # - dotnet test ./tests/microservices/Microservices.DicomReprocessor.Tests/Microservices.DicomReprocessor.Tests.csproj
+    # - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
+    # - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
+    # - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
+    # - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
     deploy:
     - echo "TODO"
 
