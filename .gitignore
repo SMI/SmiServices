@@ -299,3 +299,6 @@ test-result.xml
 
 # Java output
 [Tt]arget/
+
+# Build output
+dist/
