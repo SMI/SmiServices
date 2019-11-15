@@ -16,6 +16,7 @@ using Rdmp.Core.Repositories;
 using ReusableLibraryCode.Checks;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,13 @@ namespace Microservices.DicomRelationalMapper.Messaging
         public INameDatabasesAndTablesDuringLoads DatabaseNamer { get; private set; }
 
         public int MessagesProcessed { get { return NackCount + AckCount; } }
-
+        
+        /// <summary>
+        /// Collection of all DLE crash messages (including those where successful restart runs were performed).
+        /// </summary>
+        public IReadOnlyCollection<Exception> DleErrors => new ReadOnlyCollection<Exception>(_dleExceptions);
+        
+        private List<Exception> _dleExceptions = new List<Exception>();
 
         private readonly LoadMetadata _lmd;
         private readonly IRDMPPlatformRepositoryServiceLocator _repositoryLocator;
@@ -141,6 +148,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         // Handles any exceptions not caused by the DLE returning an error code
                         _stopTokenSource.Cancel();
                         faultCause = e;
+                        _dleExceptions.Add(e);
                     }
                 }
 

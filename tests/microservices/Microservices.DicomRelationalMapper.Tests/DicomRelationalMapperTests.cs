@@ -74,7 +74,7 @@ namespace Microservices.Tests.RDMPTests
                 //start the timeline
                 timeline.StartTimeline();
 
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend);
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend,null,30000,()=>host.Consumer.DleErrors);
 
                 Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                 Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
@@ -155,7 +155,7 @@ namespace Microservices.Tests.RDMPTests
                     //start the timeline
                     timeline.StartTimeline();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1);
+                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1 ,null,30000,()=>host.Consumer.DleErrors);
 
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
@@ -208,8 +208,8 @@ namespace Microservices.Tests.RDMPTests
                     //start the timeline
                     timeline.StartTimeline();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == numberOfImges);
 
+                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == numberOfImges,null,30000,()=>host.Consumer.DleErrors);
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
                     Assert.AreEqual(numberOfImges, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
@@ -254,7 +254,7 @@ namespace Microservices.Tests.RDMPTests
                 {
                     host.Start();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 2);
+                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 2,null,30000,()=>host.Consumer.DleErrors);
 
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");

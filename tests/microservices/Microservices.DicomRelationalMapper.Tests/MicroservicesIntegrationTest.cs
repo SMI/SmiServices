@@ -462,7 +462,7 @@ namespace Microservices.Tests.RDMPTests
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[0]).NackCount);
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[1]).NackCount);
 
-                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows); //number of image files 
+                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows,null,30000,()=>relationalMapperHost.Consumer.DleErrors); //number of image files 
                     Console.WriteLine("DicomRelationalMapper has processed its messages");
 
                     Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");

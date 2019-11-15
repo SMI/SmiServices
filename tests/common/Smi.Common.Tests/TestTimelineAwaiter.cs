@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 
@@ -10,7 +13,17 @@ namespace Smi.Common.Tests
     /// </summary>
     public class TestTimelineAwaiter
     {
-        public void Await(Func<bool> condition,string timeoutMessage= null,int timeout = 30000)
+        /// <summary>
+        /// Blocks until <paramref name="condition"/> is met or the <paramref name="timeout"/> is reached.  Polls <paramref name="throwIfAnyFunc"/>
+        /// (if provided) to check for Exceptions (which will break the wait).
+        ///
+        /// <para>During debugging <paramref name="timeout"/> is ignored </para>
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="timeoutMessage"></param>
+        /// <param name="timeout"></param>
+        /// <param name="throwIfAnyFunc"></param>
+        public void Await(Func<bool> condition,string timeoutMessage= null,int timeout = 30000, Func<IEnumerable<Exception>> throwIfAnyFunc = null)
         {
             if (Debugger.IsAttached)
                 timeout = int.MaxValue;
@@ -19,6 +32,13 @@ namespace Smi.Common.Tests
             {
                 Thread.Sleep(100);
                 timeout -= 100;
+
+                var exceptions = throwIfAnyFunc?.Invoke()?.ToArray();
+
+                if (exceptions != null && exceptions.Any())
+                    throw exceptions.Length == 1
+                        ? exceptions.Single()
+                        : new AggregateException(exceptions);
             }
 
             if (timeout <= 0)
