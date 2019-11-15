@@ -1,0 +1,5 @@
+
+# Space indentation for yaml files
+[*.{yml,yaml}]
+indent_size = 2
+indent_style = space

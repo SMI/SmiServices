@@ -55,14 +55,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.MongoDBPopula
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A47D6857-A0E0-4604-9E11-3088F32BD378}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.travis.yml = .travis.yml
 		azure-pipelines.yaml = azure-pipelines.yaml
 		CHANGELOG.md = CHANGELOG.md
-		data\logging\Smi.NLog.config = data\logging\Smi.NLog.config
 		data\microserviceConfigs\default.yaml = data\microserviceConfigs\default.yaml
 		PACKAGES.md = PACKAGES.md
 		README.md = README.md
 		src\SharedAssemblyInfo.cs = src\SharedAssemblyInfo.cs
+		data\logging\Smi.NLog.config = data\logging\Smi.NLog.config
 		Tests.md = Tests.md
 	EndProjectSection
 EndProject
