@@ -65,8 +65,8 @@ jobs:
     script:
     - docker ps
     - mvn -f $PARENT_POM -ntp test
-	deploy:
-	  skip_cleanup: true
-	  provider: script
+    deploy:
+      skip_cleanup: true
+      provider: script
       script:
-	  - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
+      - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
