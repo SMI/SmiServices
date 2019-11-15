@@ -1,6 +1,15 @@
 ﻿
+using Microservices.MongoDBPopulator.Messaging;
+using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Framing;
+using Smi.Common.Messages;
 using Smi.Common.Tests;
+using System.Collections.Generic;
+using System.Text;
 
 
 namespace Microservices.MongoDBPopulator.Tests.Messaging
@@ -29,11 +38,26 @@ namespace Microservices.MongoDBPopulator.Tests.Messaging
         [Test]
         public void TestInvalidMessagesNack()
         {
-            // Empty message
-            // Invalid uids etc.
-            // Empty or null dataset
+            //TODO: Refactor this to a helper function in Smi.Common.Tests
+            var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>();
+            mockDeliverArgs.DeliveryTag = 1;
+            mockDeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
+            var header = new MessageHeader();
+            header.Populate(mockDeliverArgs.BasicProperties.Headers);
+            mockDeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
+            mockDeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
+            mockDeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
 
-            Assert.Inconclusive("Not implemented");
+            var consumer = new MongoDbPopulatorMessageConsumer<DicomFileMessage>(_helper.Globals.MongoDatabases.DicomStoreOptions, _helper.Globals.MongoDbPopulatorOptions, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions);
+
+            var nackCount = 0;
+            var mockModel = new Mock<IModel>();
+            mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>())).Callback(() => ++nackCount);
+            consumer.SetModel(mockModel.Object);
+
+            mockDeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(null));
+            consumer.ProcessMessage(mockDeliverArgs);
+            Assert.AreEqual(1, nackCount);
         }
     }
 }

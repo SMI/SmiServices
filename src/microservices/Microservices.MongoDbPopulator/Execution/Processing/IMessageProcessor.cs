@@ -1,6 +1,6 @@
 ﻿
-using Smi.Common.Messages;
 using RabbitMQ.Client;
+using Smi.Common.Messages;
 
 namespace Microservices.MongoDBPopulator.Execution.Processing
 {
@@ -8,7 +8,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
     /// Interface for classes which process <see cref="IMessage"/>(s) into MongoDb
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IMessageProcessor<T> : IMessageProcessor where T : IMessage
+    public interface IMessageProcessor<in T> : IMessageProcessor where T : IMessage
     {
         /// <summary>
         /// Add a message to the write queue
@@ -22,9 +22,9 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
     public interface IMessageProcessor
     {
         /// <summary>
-        /// Status of the processor
+        /// Indicates if the processor is stopping and no more messages should be queued for processing
         /// </summary>
-        bool IsProcessing { get; }
+        bool IsStopping { get; }
 
         /// <summary>
         /// Model to acknowledge messages on

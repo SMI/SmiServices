@@ -2,12 +2,11 @@
 // ReSharper disable InconsistentlySynchronizedField
 
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using NLog;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
-using NLog;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using SysTimers = System.Timers;
@@ -161,7 +160,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
                     if (string.IsNullOrWhiteSpace(filePath))
                         throw new ApplicationException("Expected filePath was null");
 
-                    string absFilePath = Path.GetFullPath(Path.Combine(_fileSystemOptions.ExtractRoot, jobInfo.ExtractionDirectory, filePath)).Replace('\\', '/');
+                    string absFilePath = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(_fileSystemOptions.ExtractRoot, jobInfo.ExtractionDirectory, filePath));
                     _logger.Debug("Scanning for job file  " + absFilePath);
 
                     // If file exists, continue. Otherwise have to investigate the status messages

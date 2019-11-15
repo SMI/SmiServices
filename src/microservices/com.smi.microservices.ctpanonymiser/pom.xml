@@ -1,88 +1,101 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.smi.microservices</groupId>
-		<artifactId>parent</artifactId>
-		<version>1.0</version>
-		<relativePath>../../common/com.smi.microservices.parent/pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>com.smi.microservices</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0</version>
+        <relativePath>../../common/com.smi.microservices.parent/pom.xml</relativePath>
+    </parent>
 
-	<name>SMI CTP Anonymiser</name>
-	
-	<artifactId>ctpanonymiser</artifactId>	
-	<version>1.0</version>
-	
-	<packaging>jar</packaging>
+    <name>SMI CTP Anonymiser</name>
 
-	<dependencies>
+    <artifactId>ctpanonymiser</artifactId>
+    <version>1.0</version>
 
-		<!-- Depends on our common code -->
-		<dependency>
-			<groupId>com.smi.microservices</groupId>
-			<artifactId>common</artifactId>
-			<version>1.0</version>
-		</dependency>
+    <packaging>jar</packaging>
 
-		<!-- Our bundled version of CTP/DAT and their dependencies -->
-		<dependency>
-			<groupId>dat</groupId>
-			<artifactId>dat</artifactId>
-			<version>1.0</version>
-		</dependency>
+    <properties>
+        <exclude.tests>nothing-to-exclude</exclude.tests>
+    </properties>
 
-	</dependencies>
+    <profiles>
+        <profile>
+            <id>unitTests</id>
+            <properties>
+                <exclude.tests>**/CTPAnonymiserHostTest.java</exclude.tests>
+            </properties>
+        </profile>
+    </profiles>
 
-	<build>
-		<plugins>
-			<!-- Create packaged assemblies -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<attach>false</attach>
-					<archive>
-						<manifest>
-							<mainClass>org.smi.ctpanonymiser.Program</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-				<executions>
-					<execution>
-						<!-- Execution to package everything together in a portable jar -->
-						<id>make-portable-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-							<finalName>CTPAnonymiser-portable-${project.version}</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-						</configuration>
-					</execution>
-					<execution>
-						<!-- Execution to create a deployable archive -->
-						<id>create-deployable</id>
-						<phase>none</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<skipAssembly>false</skipAssembly>
-							<descriptors>
-								<descriptor>../res/deployDescriptor.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    <dependencies>
+
+        <!-- Depends on our common code -->
+        <dependency>
+            <groupId>com.smi.microservices</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <!-- Our bundled version of CTP/DAT and their dependencies -->
+        <dependency>
+            <groupId>dat</groupId>
+            <artifactId>dat</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Create packaged assemblies -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <attach>false</attach>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.smi.ctpanonymiser.Program</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- Execution to package everything together in a portable jar -->
+                        <id>make-portable-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>CTPAnonymiser-portable-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Execution to create a deployable archive -->
+                        <id>create-deployable</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>false</skipAssembly>
+                            <descriptors>
+                                <descriptor>../../common/com.smi.microservices.parent/res/deployDescriptor.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

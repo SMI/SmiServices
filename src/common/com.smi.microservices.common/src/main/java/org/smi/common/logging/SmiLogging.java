@@ -1,8 +1,8 @@
 
 package org.smi.common.logging;
 
-import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -28,16 +28,11 @@ public final class SmiLogging {
 		Path logConfigPath;
 
 		if (env == -1) {
-
 			logConfigPath = Paths.get(ConfigFileName);
-			
 		} else {
-
 			try {
-				logConfigPath = Paths.get(SmiLogging.class.getClass().getResource("/" + ConfigFileName).toURI());
-
-			} catch (URISyntaxException e) {
-
+				logConfigPath = Paths.get("./target", ConfigFileName);
+			} catch (InvalidPathException e) {
 				throw new SmiLoggingException("", e);
 			}
 		}

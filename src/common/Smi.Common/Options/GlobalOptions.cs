@@ -183,23 +183,16 @@ namespace Smi.Common.Options
             var idx = MappingTableName.LastIndexOf('.');
             var tableNameUnqualified = MappingTableName.Substring(idx +1);
             
-            if (MappingDatabaseType == DatabaseType.Oracle)
-            {
-                idx = MappingTableName.IndexOf('.');
-                if (idx == -1)
-                    throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
+            idx = MappingTableName.IndexOf('.');
+            if (idx == -1)
+                throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
 
-                var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName.Substring(0, idx));
-                if (string.IsNullOrWhiteSpace(databaseName))
-                    throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
+            var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName.Substring(0, idx));
+            if (string.IsNullOrWhiteSpace(databaseName))
+                throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
 
-                return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
-            }
-
-            return server.GetCurrentDatabase().ExpectTable(tableNameUnqualified);
+            return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
         }
-
-
     }
 
     public interface IMappingTableOptions
@@ -321,7 +314,7 @@ namespace Smi.Common.Options
         public string AuditorType
         {
             get => string.IsNullOrWhiteSpace(_auditorType)
-                ? "Smi.CohortExtractor.Audit.NullAuditExtractions"
+                ? "Microservices.CohortExtractor.Audit.NullAuditExtractions"
                 : _auditorType;
             set => _auditorType = value;
         }
@@ -421,9 +414,9 @@ namespace Smi.Common.Options
         public string UserName { get; set; }
         public string DatabaseName { get; set; }
 
-        public bool AreValid()
+        public bool AreValid(bool skipAuthentication)
         {
-            return UserName != null
+            return (skipAuthentication || UserName != null)
                    && Port > 0
                    && !string.IsNullOrWhiteSpace(HostName)
                    && !string.IsNullOrWhiteSpace(DatabaseName);

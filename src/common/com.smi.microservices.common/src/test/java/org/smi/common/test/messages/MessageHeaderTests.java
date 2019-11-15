@@ -76,7 +76,7 @@ public class MessageHeaderTests extends TestCase {
 	}
 
 	@Ignore
-	public void testgetHeaderNoParents() {
+	public void testGetHeaderNoParents() {
 
 		MessageHeader header = _factory.getHeader(null);
 

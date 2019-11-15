@@ -33,11 +33,8 @@ public class GlobalOptions {
 
 		try {
 			if (testing) {
-
-				yamlConfigPath = Paths.get(GlobalOptions.class.getClass().getResource("/" + environment + ".yaml").toURI());
-
+				yamlConfigPath = Paths.get("./target", environment + ".yaml");
 			} else {
-
 				yamlConfigPath = Paths.get(environment + ".yaml");
 			}
 		} catch (Exception e) {

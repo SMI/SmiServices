@@ -57,7 +57,7 @@ namespace Microservices.MongoDBPopulator.Messaging
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
         {
             // We are shutting down anyway
-            if (!Processor.IsProcessing)
+            if (Processor.IsStopping)
                 return;
 
             if (Processor.Model == null)

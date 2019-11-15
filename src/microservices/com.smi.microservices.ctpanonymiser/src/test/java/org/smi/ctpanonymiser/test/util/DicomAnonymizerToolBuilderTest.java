@@ -27,7 +27,7 @@ public class DicomAnonymizerToolBuilderTest extends TestCase {
 
 		super.setUp();
 
-		_fileSystemRoot = System.getProperty("user.dir") + "\\src\\test\\resources\\";
+		_fileSystemRoot = System.getProperty("user.dir") + "/src/test/resources/";
 
 		_anonScript = new File(_fileSystemRoot + "dicom-anonymizer.script");
 		_identifiableDcm = new File(_fileSystemRoot + "image-000001.dcm");

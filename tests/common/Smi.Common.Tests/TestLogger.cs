@@ -13,7 +13,7 @@ namespace Smi.Common.Tests
 
             var consoleTarget = new ConsoleTarget("TestConsole")
             {
-                Layout = @"${level}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}"
+                Layout = @"${longdate}|${level}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}"
             };
             
             logConfig.AddTarget(consoleTarget);

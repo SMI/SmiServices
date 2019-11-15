@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.IO;
+using System.Text;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -15,11 +16,8 @@ namespace Smi.Common.Tests
     {
         public void ApplyToContext(TestExecutionContext context)
         {
-            IDeserializer deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
-
-            var factory = deserializer.Deserialize<ConnectionFactory>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
+            
+            var factory = GetConnectionFactory();
 
             try
             {
@@ -35,8 +33,25 @@ namespace Smi.Common.Tests
             }
             catch (Exception e)
             {
-                Assert.Ignore($"Could not connect to RabbitMQ: {e.Message}");
+                StringBuilder sb = new StringBuilder();
+                
+                sb.AppendLine("Rabbit Uri:" + factory.Uri);
+                sb.AppendLine("Rabbit Host:" + factory.HostName);
+                sb.AppendLine("Rabbit VirtualHost:" + factory.VirtualHost);
+                sb.AppendLine("Rabbit UserName:" + factory.UserName);
+                sb.AppendLine("Rabbit Port:" + factory.Port);
+
+                Assert.Ignore($"Could not connect to RabbitMQ {Environment.NewLine + sb + Environment.NewLine} : {e.Message}");
             }
+        }
+
+        public static ConnectionFactory GetConnectionFactory()
+        {
+            IDeserializer deserializer = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
+
+            return deserializer.Deserialize<ConnectionFactory>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
         }
 
     }

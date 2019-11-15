@@ -35,10 +35,6 @@
 						<id>copy-logging-properties</id>
 						<phase>none</phase>
 					</execution>
-					<execution>
-						<id>copy-yaml-configs</id>
-						<phase>none</phase>
-					</execution>
 				</executions>
 			</plugin>
 		</plugins>

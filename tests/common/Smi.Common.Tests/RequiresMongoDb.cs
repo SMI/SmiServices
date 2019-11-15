@@ -1,40 +1,46 @@
-﻿using System;
-using System.IO;
+﻿
+using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
+using System;
+using System.IO;
 using YamlDotNet.Serialization;
 
 namespace Smi.Common.Tests
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
-                    AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresMongoDb : CategoryAttribute,IApplyToContext
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Assembly, AllowMultiple = true)]
+    public class RequiresMongoDb : CategoryAttribute, IApplyToContext
     {
         public void ApplyToContext(TestExecutionContext context)
         {
-            IDeserializer deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
+            var address = GetMongoClientSettings();
             
-            var address = deserializer.Deserialize<A>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Mongo.yaml")));
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
-            
+
             var client = new MongoClient(address);
 
             try
             {
-                var dbs = client.ListDatabases();
+                IAsyncCursor<BsonDocument> dbs = client.ListDatabases();
             }
             catch (Exception)
             {
                 Assert.Ignore("MongoDb is not running");
             }
         }
-        
 
-        class A :MongoClientSettings
+        public static MongoClientSettings GetMongoClientSettings()
+        {
+            IDeserializer deserializer = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
+
+            return deserializer.Deserialize<A>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Mongo.yaml")));
+        }
+
+        class A : MongoClientSettings
         {
             private string _host;
             private int _port;
@@ -54,7 +60,7 @@ namespace Smi.Common.Tests
                 get => _port;
                 set
                 {
-                    _port = value; 
+                    _port = value;
                     Server = new MongoServerAddress(_host, _port);
                 }
             }

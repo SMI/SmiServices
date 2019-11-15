@@ -8,15 +8,23 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Mongo.yaml">
+    <None Remove="TestDatabases.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestDatabases.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Rabbit.yaml">
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Mongo.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="RelationalDatabases.yaml">
+    </Content>
+    <Content Include="Rabbit.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="RelationalDatabases.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
@@ -30,9 +38,6 @@
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="SmiTest.NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="TestData\FileWithLotsOfTags.dcm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

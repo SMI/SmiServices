@@ -79,8 +79,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
     public class MongoTestAdapter : IMongoDbAdapter
     {
-        public void Ping(int timeout = 1000) { }
-
         public WriteResult WriteMany(IList<BsonDocument> toWrite, string collectionNamePostfix = null)
         {
             Assert.NotZero(toWrite.Count);

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Text;
 using TypeGuesser;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
@@ -142,6 +143,11 @@ where not exists(select *
         {
             try
             {
+                //create the database if it doesn't exist
+                if(!_table.Database.Exists())
+                    _table.Database.Create();
+
+                //create the table if it doesn't exist
                 if (!_table.Exists())
                 {
                     _logger.Info("Guid mapping table does not exist, creating it now");
@@ -167,7 +173,17 @@ where not exists(select *
             }
             catch (Exception e)
             {
-                throw new Exception("Error creating/checking Guid substitution table", e);
+                var sb = new StringBuilder();
+
+                if (_table != null)
+                {
+                    sb.AppendLine("Server:" + _table.Database.Server.Name);
+                    sb.AppendLine("Database:" + _table.Database.GetRuntimeName());
+                    sb.AppendLine("Username:" + _table.Database.Server.ExplicitUsernameIfAny);
+                    sb.AppendLine("Table:" + _table.GetFullyQualifiedName());
+                }
+
+                throw new Exception("Error creating/checking Guid substitution table on:" + Environment.NewLine + sb, e);
             }
         }
     }

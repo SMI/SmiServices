@@ -43,7 +43,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         private DicomRelationalMapperTestHelper _helper;
         private IDataLoadInfo _dli;
 
-        string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"DLEBenchmarkingTests\CT.it"));
+        string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"DLEBenchmarkingTests/CT.it"));
 
         [OneTimeSetUp]
         public void SetupLogging()
@@ -54,9 +54,15 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             _dli = lm.CreateDataLoadInfo("aaa", "HowFastIsDLETest", "Test", "", true);
         }
 
+        [Test]
+        public void Test_NullRoot()
+        {
+            var s = new DicomDatasetCollectionSource();
+            s.ArchiveRoot = null;
+        }
 
-        [TestCase(DatabaseType.MySql, 60000), RequiresRabbit]
-        [TestCase(DatabaseType.MicrosoftSQLServer, 60000), RequiresRabbit]
+        [TestCase(DatabaseType.MySql, 600), RequiresRabbit]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 600), RequiresRabbit]
         public void TestLargeImageDatasets(DatabaseType databaseType, int numberOfImages)
         {
             foreach (Pipeline p in CatalogueRepository.GetAllObjects<Pipeline>())
@@ -66,8 +72,6 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var d = CatalogueRepository.GetServerDefaults();
             d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
-
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesTest.NLog.config"), false);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
@@ -106,7 +110,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
             {
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
 
@@ -114,7 +118,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
                     host.Start();
 
                     Stopwatch sw = Stopwatch.StartNew();
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 1000); //10 minutes
+                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
 
                     Console.Write("Time For DLE:" + sw.Elapsed.TotalSeconds + "s");
                     host.Stop("Test finished");
@@ -126,7 +130,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         }
 
 
-        [TestCase(50000)]
+        [TestCase(500)]
         public void TestGetChunktOnly(int numberOfImages)
         {
             Random r = new Random(123);
@@ -165,16 +169,14 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             Assert.AreEqual(numberOfImages, dt.Rows.Cast<DataRow>().Select(w => w["SOPInstanceUID"]).Distinct().Count());
         }
 
-        [TestCase(DatabaseType.MySql, 50000)]
-        [TestCase(DatabaseType.MicrosoftSQLServer, 50000)]
+        [TestCase(DatabaseType.MySql, 500)]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 500)]
         public void TestBulkInsertOnly(DatabaseType databaseType, int numberOfImages)
         {
             foreach (Pipeline p in CatalogueRepository.GetAllObjects<Pipeline>())
                 p.DeleteInDatabase();
 
             var db = GetCleanedServer(databaseType);
-
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesTest.NLog.config"), false);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 

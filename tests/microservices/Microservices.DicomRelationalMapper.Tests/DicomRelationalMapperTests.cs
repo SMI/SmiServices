@@ -1,8 +1,12 @@
-﻿
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using Dicom;
 using FAnsi.Implementations.MicrosoftSQL;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
+using Microservices.Tests.RDMPTests;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
@@ -10,15 +14,12 @@ using Rdmp.Dicom.TagPromotionSchema;
 using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using Smi.Common.Tests;
-using System;
-using System.IO;
-using System.Linq;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
-namespace Microservices.Tests.RDMPTests
+namespace Microservices.DicomRelationalMapper.Tests
 {
-    [RequiresRabbit, RequiresRelationalDb(FAnsi.DatabaseType.MicrosoftSQLServer)]
+    [RequiresRabbit, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class DicomRelationalMapperTests : DatabaseTests
     {
         private DicomRelationalMapperTestHelper _helper;
@@ -27,6 +28,8 @@ namespace Microservices.Tests.RDMPTests
         [OneTimeSetUp]
         public void Setup()
         {
+            TestLogger.Setup();
+
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
             _helper = new DicomRelationalMapperTestHelper();
@@ -34,7 +37,6 @@ namespace Microservices.Tests.RDMPTests
         }
 
 
-        [Test]
         [TestCase(1, false)]
         [TestCase(1, true)]
         [TestCase(10, false)]
@@ -45,8 +47,7 @@ namespace Microservices.Tests.RDMPTests
             DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomRelationalMapperTests"));
             d.Create();
 
-            var fi = new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            var fi = TestData.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
 
             if (mixInATextFile)
             {
@@ -58,7 +59,7 @@ namespace Microservices.Tests.RDMPTests
             var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
             tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-            using (var host = new DicomRelationalMapperHost(_globals))
+            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
                 host.Start();
 
@@ -75,7 +76,8 @@ namespace Microservices.Tests.RDMPTests
                 //start the timeline
                 timeline.StartTimeline();
 
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend);
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
 
                 Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                 Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
@@ -100,8 +102,7 @@ namespace Microservices.Tests.RDMPTests
 
             var seedDir = d.CreateSubdirectory("Seed");
 
-            var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
 
             var existingColumns = _helper.ImageTable.DiscoverColumns();
 
@@ -142,7 +143,7 @@ namespace Microservices.Tests.RDMPTests
                 var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
                 tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     host.Start();
 
@@ -157,7 +158,7 @@ namespace Microservices.Tests.RDMPTests
                     //start the timeline
                     timeline.StartTimeline();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1);
+                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1, null, 30000, () => host.Consumer.DleErrors);
 
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
@@ -184,8 +185,7 @@ namespace Microservices.Tests.RDMPTests
 
             var seedDir = d.CreateSubdirectory("Seed");
 
-            var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
 
             using (DicomGenerator g = new DicomGenerator(d.FullName, "Seed", 1000))
             {
@@ -195,7 +195,7 @@ namespace Microservices.Tests.RDMPTests
                 var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
                 tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     host.Start();
 
@@ -211,8 +211,8 @@ namespace Microservices.Tests.RDMPTests
                     //start the timeline
                     timeline.StartTimeline();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == numberOfImges);
 
+                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == numberOfImges, null, 30000, () => host.Consumer.DleErrors);
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
                     Assert.AreEqual(numberOfImges, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
@@ -251,11 +251,11 @@ namespace Microservices.Tests.RDMPTests
 
                 _globals.DicomRelationalMapperOptions.RunChecks = true;
 
-                using (var host = new DicomRelationalMapperHost(_globals))
+                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     host.Start();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 2);
+                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 2, null, 30000, () => host.Consumer.DleErrors);
 
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");

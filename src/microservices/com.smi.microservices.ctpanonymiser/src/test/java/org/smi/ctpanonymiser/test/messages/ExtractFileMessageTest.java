@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.smi.common.logging.SmiLogging;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messaging.CTPAnonymiserConsumer;
 
@@ -25,13 +26,15 @@ public class ExtractFileMessageTest extends TestCase {
 
 		super.setUp();
 
+		SmiLogging.Setup(0);
+		
 		_exMessage = new ExtractFileMessage();
 
 		_exMessage.ExtractionJobIdentifier = UUID.randomUUID();
 		_exMessage.JobSubmittedAt = "";
-		_exMessage.ExtractionDirectory = "dummyProjectDir\\dummyExtractionDir";
-		_exMessage.DicomFilePath = "2018\\01\\01\\ABCD\\image-000001.dcm";
-		_exMessage.OutputPath = "dummySeries\\image-000001-an.dcm";
+		_exMessage.ExtractionDirectory = "dummyProjectDir/dummyExtractionDir";
+		_exMessage.DicomFilePath = "2018/01/01/ABCD/image-000001.dcm";
+		_exMessage.OutputPath = "dummySeries/image-000001-an.dcm";
 		_exMessage.ProjectNumber = "1234-5678";
 
 	}

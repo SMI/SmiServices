@@ -1,8 +1,7 @@
 ﻿
+using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
 
 namespace Smi.Common.Messages
 {
@@ -35,37 +34,12 @@ namespace Smi.Common.Messages
             DirectoryPath = directory.FullName.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar);
         }
 
-        public string GetAbsolutePath(string rootPath)
-        {
-            return Path.Combine(rootPath, DirectoryPath);
-        }
-        /// <summary>
-        /// Confirms that the directory referenced by this message exists and has files/subdirectories in it.
-        /// </summary>
-        /// <param name="rootPath">The absolute root path to which DirectoryPath property is relative</param>
-        /// <returns>true if the directory exists (relative to the rootPath) or false if it doesn't exist, is empty, contains illegal characters etc</returns>
-        public bool Validate(string rootPath)
-        {
-            var absolutePath = GetAbsolutePath(rootPath);
+        public string GetAbsolutePath(string rootPath) => Path.Combine(rootPath, DirectoryPath);
 
-            if (string.IsNullOrWhiteSpace(absolutePath))
-                return false;
-
-            try
-            {
-                var dir = new DirectoryInfo(absolutePath);
-
-                //There directory referenced must exist 
-                return dir.Exists && (dir.EnumerateFiles().Any() || dir.EnumerateDirectories().Any());
-
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+        public override string ToString() => $"AccessionDirectoryMessage[NationalPACSAccessionNumber={NationalPACSAccessionNumber},DirectoryPath={DirectoryPath}]";
 
         #region Equality Members
+
         private bool Equals(AccessionDirectoryMessage other)
         {
             return string.Equals(NationalPACSAccessionNumber, other.NationalPACSAccessionNumber) && string.Equals(DirectoryPath, other.DirectoryPath);
@@ -95,6 +69,7 @@ namespace Smi.Common.Messages
         {
             return !Equals(left, right);
         }
+
         #endregion
     }
 }

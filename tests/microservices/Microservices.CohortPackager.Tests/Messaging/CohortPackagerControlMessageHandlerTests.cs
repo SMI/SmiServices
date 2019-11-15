@@ -6,7 +6,8 @@ using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
 
-namespace Microservices.Tests.CohortPackagerTests.Messaging
+
+namespace Microservices.CohortPackager.Tests.Messaging
 {
     public class CohortPackagerControlMessageHandlerTests
     {

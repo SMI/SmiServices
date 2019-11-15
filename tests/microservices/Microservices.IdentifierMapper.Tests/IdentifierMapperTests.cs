@@ -39,14 +39,12 @@ namespace Microservices.IdentifierMapper.Tests
 
             var options = new IdentifierMapperOptions();
             options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = "IdMap";
+            options.MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName();
             options.SwapColumnName = "priv";
             options.ReplacementColumnName = "pub";
             options.MappingDatabaseType = type;
             options.TimeoutInSeconds = 500;
-
-            db.CreateTable("IdMap", mappingDataTable);
-
+            
             var swapper = new PreloadTableSwapper();
             swapper.Setup(options);
 
@@ -76,14 +74,12 @@ namespace Microservices.IdentifierMapper.Tests
 
             var options = new IdentifierMapperOptions();
             options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = "IdMap";
+            options.MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName();
             options.SwapColumnName = "priv";
             options.ReplacementColumnName = "pub";
             options.MappingDatabaseType = type;
             options.TimeoutInSeconds = 500;
-
-            db.CreateTable("IdMap", mappingDataTable);
-
+            
             var swapper = new TableLookupSwapper();
             swapper.Setup(options);
 
@@ -121,15 +117,13 @@ namespace Microservices.IdentifierMapper.Tests
             var db = GetCleanedServer(type);
 
             options.IdentifierMapperOptions.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.IdentifierMapperOptions.MappingTableName = "IdMap";
+            options.IdentifierMapperOptions.MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName();
             options.IdentifierMapperOptions.SwapColumnName = "priv";
             options.IdentifierMapperOptions.ReplacementColumnName = "pub";
             options.IdentifierMapperOptions.MappingDatabaseType = type;
             options.IdentifierMapperOptions.TimeoutInSeconds = 500;
 
-
-            db.CreateTable("IdMap", mappingDataTable);
-
+            
             var swapper = new PreloadTableSwapper();
             swapper.Setup(options.IdentifierMapperOptions);
 
@@ -202,7 +196,7 @@ namespace Microservices.IdentifierMapper.Tests
                 Console.WriteLine("Pushing bad messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, badChis, true);
 
-                var host = new IdentifierMapperHost(options, swapper);
+                var host = new IdentifierMapperHost(options, swapper,loadSmiLogConfig:false);
                 tester.StopOnDispose.Add(host);
 
                 Console.WriteLine("Starting host");
@@ -231,17 +225,18 @@ namespace Microservices.IdentifierMapper.Tests
             mappingDataTable.Rows.Add("abclkjlkjdefghijiklaskdf", Guid.NewGuid().ToString());
             var db = GetCleanedServer(type);
 
+            DiscoveredTable tbl;
+
             var options = new IdentifierMapperOptions();
             options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = "IdMap";
+            options.MappingTableName = (tbl = db.CreateTable("IdMap", mappingDataTable)).GetFullyQualifiedName();
             options.SwapColumnName = "priv";
             options.ReplacementColumnName = "pub";
             options.MappingDatabaseType = type;
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var tbl = db.CreateTable("IdMap", mappingDataTable);
-
+            
             mappingDataTable.Rows.Clear();
             using (var blk = tbl.BeginBulkInsert())
                 for (int i = 0; i < 9999999; i++) //9 million
@@ -451,7 +446,7 @@ namespace Microservices.IdentifierMapper.Tests
             string reason;
 
             Assert.False(consumer.SwapIdentifier(msg, out reason));
-            Assert.AreEqual("Swapper Microservices.Tests.RDMPTests.IdentifierMapperTests.SwapForFixedValueTester returned null", reason);
+            Assert.AreEqual("Swapper Microservices.IdentifierMapper.Tests.SwapForFixedValueTester returned null", reason);
         }
 
         private void AssertDicomFileMessageHasPatientID(DicomFileMessage msg, string patientId)
@@ -552,14 +547,12 @@ namespace Microservices.IdentifierMapper.Tests
             options.IdentifierMapperOptions = new IdentifierMapperOptions
             {
                 MappingConnectionString = db.Server.Builder.ConnectionString,
-                MappingTableName = "IdMap",
+                MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName(),
                 SwapColumnName = "priv",
                 ReplacementColumnName = "pub",
                 MappingDatabaseType = DatabaseType.MicrosoftSQLServer,
                 TimeoutInSeconds = 500
             };
-
-            db.CreateTable("IdMap", mappingDataTable);
 
             var swapper = new TableLookupSwapper();
             swapper.Setup(options.IdentifierMapperOptions);

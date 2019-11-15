@@ -1,12 +1,13 @@
-﻿
-using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
+﻿using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Tests;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+
 
 namespace Applications.DicomDirectoryProcessor.Tests
 {
@@ -22,21 +23,22 @@ namespace Applications.DicomDirectoryProcessor.Tests
         [Test]
         public void TestRegexMatches()
         {
-            const string rootDir = @"C:\PACS\";
+            string rootDir = Path.GetFullPath("/PACS");
+            string testFile = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/testDicom.dcm"));
             var mockFs = new MockFileSystem();
-            mockFs.AddFile(rootDir + @"2018\01\01\ABC123\testDicom.dcm", MockFileData.NullObject);
+            mockFs.AddFile(testFile, MockFileData.NullObject);
 
             // Test case, expected messages
             var testCases = new Dictionary<string, int>
             {
-                { @"2018",                  1 },
-                { @"2018\",                 1 },
-                { @"2018\01",               1 },
-                { @"2018\01\",              1 },
-                { @"2018\01\01",            1 },
-                { @"2018\01\01\",           1 },
-                { @"2018\01\01\ABC123",     1 },
-                { @"2018\01\01\ABC123\",    1 }
+                { "2018",               1 },
+                { "2018/",              1 },
+                { "2018/01",            1 },
+                { "2018/01/",           1 },
+                { "2018/01/01",         1 },
+                { "2018/01/01/",        1 },
+                { "2018/01/01/AAA",     1 },
+                { "2018/01/01/AAA/",    1 }
             };
 
             var totalSent = 0;
@@ -48,12 +50,12 @@ namespace Applications.DicomDirectoryProcessor.Tests
                                             ""))
                 .Callback(() => ++totalSent);
 
-            var pacsFinder = new PacsDirectoryFinder(@"C:\PACS\", mockFs, "*.dcm", mockProducerModel.Object);
+            var pacsFinder = new PacsDirectoryFinder(rootDir, mockFs, "*.dcm", mockProducerModel.Object);
 
             foreach (KeyValuePair<string, int> item in testCases)
             {
                 totalSent = 0;
-                pacsFinder.SearchForDicomDirectories(rootDir + item.Key);
+                pacsFinder.SearchForDicomDirectories(Path.GetFullPath(Path.Combine(rootDir, item.Key)));
 
                 Assert.AreEqual(item.Value, totalSent);
             }

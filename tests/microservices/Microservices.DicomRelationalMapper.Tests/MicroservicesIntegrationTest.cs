@@ -1,4 +1,9 @@
-﻿
+﻿using System;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using Applications.DicomDirectoryProcessor.Execution;
 using Applications.DicomDirectoryProcessor.Options;
 using Dicom;
@@ -10,8 +15,11 @@ using Microservices.DicomRelationalMapper.Execution.Namers;
 using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.DicomTagReader.Execution;
 using Microservices.IdentifierMapper.Execution;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.MongoDBPopulator.Execution;
+using Microservices.Tests.RDMPTests;
 using MongoDB.Driver;
+using NLog;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
@@ -27,20 +35,17 @@ using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
-using System;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
-namespace Microservices.Tests.RDMPTests
+namespace Microservices.DicomRelationalMapper.Tests
 {
     [RequiresRabbit, RequiresMongoDb, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class MicroservicesIntegrationTest : DatabaseTests
     {
         public const string ScratchDatabaseName = "RDMPTests_ScratchArea";
+
+        private readonly ILogger _logger = LogManager.GetLogger("MicroservicesIntegrationTest");
 
         private DicomRelationalMapperTestHelper _helper;
         private GlobalOptions _globals;
@@ -48,10 +53,17 @@ namespace Microservices.Tests.RDMPTests
 
         public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
         {
-            NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesTest.NLog.config"), false);
+            TestLogger.Setup();
 
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+
+            _globals.UseTestValues(
+                RequiresRabbit.GetConnectionFactory(),
+                RequiresMongoDb.GetMongoClientSettings(),
+                RequiresRelationalDb.GetRelationalDatabaseConnectionStrings(),
+                ((TableRepository)RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,
+                ((TableRepository)RepositoryLocator.DataExportRepository).ConnectionStringBuilder);
+
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(server, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), null, null, persistentRaw, modalityPrefix);
 
@@ -112,8 +124,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             RunTest(dir, 1);
         }
@@ -150,8 +161,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "Mr.010101")); //this is legit a dicom file
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
 
             try
             {
@@ -230,8 +240,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             var ds1 = new DicomDataset();
             ds1.Add(DicomTag.StudyInstanceUID, "1.2.3");
@@ -321,8 +330,7 @@ namespace Microservices.Tests.RDMPTests
             foreach (FileInfo f in dir.GetFiles())
                 f.Delete();
 
-            var fi = new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(fi.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             RunTest(dir, 1);
 
@@ -359,8 +367,7 @@ namespace Microservices.Tests.RDMPTests
 
             var seedDir = dir.CreateSubdirectory("Seed");
 
-            var seedFile = new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm"));
-            //File.WriteAllBytes(seedFile.FullName, TestDicomFiles.IM_0001_0013);
+            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
 
             int numberOfImagesToGenerate = 40;
 
@@ -424,28 +431,30 @@ namespace Microservices.Tests.RDMPTests
 
                 #region Running Microservices
 
-                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions);
+                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions, loadSmiLogConfig: false);
                 processDirectory.Start();
                 tester.StopOnDispose.Add(processDirectory);
 
-                var dicomTagReaderHost = new DicomTagReaderHost(_globals);
+                var dicomTagReaderHost = new DicomTagReaderHost(_globals, loadSmiLogConfig: false);
                 dicomTagReaderHost.Start();
                 tester.StopOnDispose.Add(dicomTagReaderHost);
 
-                var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals);
+                var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals, loadSmiLogConfig: false);
                 mongoDbPopulatorHost.Start();
                 tester.StopOnDispose.Add(mongoDbPopulatorHost);
 
-                //FIXME
-                //var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"));
-                var identifierMapperHost = new IdentifierMapperHost(_globals);
+                var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"), loadSmiLogConfig: false);
                 identifierMapperHost.Start();
                 tester.StopOnDispose.Add(identifierMapperHost);
 
                 new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
-                new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
+                _logger.Info("\n### DicomTagReader has processed its messages ###\n");
 
-                using (var relationalMapperHost = new DicomRelationalMapperHost(_globals))
+                // FIXME: This isn't exactly how the pipeline runs
+                new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
+                _logger.Info("\n### IdentifierMapper has processed its messages ###\n");
+
+                using (var relationalMapperHost = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
                     relationalMapperHost.Start();
                     tester.StopOnDispose.Add(relationalMapperHost);
@@ -453,18 +462,19 @@ namespace Microservices.Tests.RDMPTests
                     Assert.True(mongoDbPopulatorHost.Consumers.Count == 2);
                     new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[0].Processor.AckCount >= 1);
                     new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
-                    Console.WriteLine("MongoDBPopulator has processed its messages");
+                    _logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
 
                     new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
-                    Console.WriteLine("IdentifierMapper has processed its messages");
+                    _logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
                     Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
                     Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[0]).NackCount);
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[1]).NackCount);
 
-                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows); //number of image files 
-                    Console.WriteLine("DicomRelationalMapper has processed its messages");
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
+                    _logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
 
                     Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
                     Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
@@ -485,7 +495,7 @@ namespace Microservices.Tests.RDMPTests
                 }
 
                 //Now do extraction
-                var extractorHost = new CohortExtractorHost(_globals, null, null);
+                var extractorHost = new CohortExtractorHost(_globals, null, null, loadSmiLogConfig: false);
 
                 extractorHost.Start();
 
@@ -522,6 +532,28 @@ namespace Microservices.Tests.RDMPTests
         private void DropMongoTestDb(string mongoDbHostName, int mongoDbHostPort)
         {
             new MongoClient(new MongoClientSettings { Server = new MongoServerAddress(mongoDbHostName, mongoDbHostPort) }).DropDatabase(MongoTestDbName);
+        }
+
+        private class SwapForFixedValueTester : ISwapIdentifiers
+        {
+            private readonly string _swapForString;
+
+
+            public SwapForFixedValueTester(string swapForString)
+            {
+                _swapForString = swapForString;
+            }
+
+
+            public void Setup(IMappingTableOptions mappingTableOptions) { }
+
+            public string GetSubstitutionFor(string toSwap, out string reason)
+            {
+                reason = null;
+                return _swapForString;
+            }
+
+            public void ClearCache() { }
         }
     }
 }

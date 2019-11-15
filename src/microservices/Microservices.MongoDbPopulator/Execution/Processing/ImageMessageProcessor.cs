@@ -1,14 +1,14 @@
 ﻿
+using Dicom;
+using DicomTypeTranslation;
+using MongoDB.Bson;
+using NLog;
+using Smi.Common.Messages;
+using Smi.Common.MongoDB;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dicom;
-using DicomTypeTranslation;
-using Smi.Common.Messages;
-using Smi.Common.Options;
-using MongoDB.Bson;
-using NLog;
-using Smi.Common.MongoDB;
 
 
 namespace Microservices.MongoDBPopulator.Execution.Processing
@@ -34,7 +34,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         public override void AddToWriteQueue(DicomFileMessage message, IMessageHeader header, ulong deliveryTag)
         {
             // Only time we are not processing is if we are shutting down anyway
-            if (!IsProcessing)
+            if (IsStopping)
                 return;
 
             if (Model == null)
@@ -136,7 +136,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
                             break;
                         }
 
-                        Logger.Warn($"Failed to write, {(FailedWriteAttempts + 1)} time(s) in a row");
+                        Logger.Warn($"Failed to write {FailedWriteAttempts + 1} time(s) in a row");
 
                         if (++FailedWriteAttempts < FailedWriteLimit)
                             continue;

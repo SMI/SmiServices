@@ -21,18 +21,28 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipTests>false</skipTests> <!-- Set to true to disable tests by default -->
+		<exclude.tests>nothing-to-exclude</exclude.tests>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>unitTests</id>
+			<properties>
+				<exclude.tests>**/MessageHeaderTests.java,**/RabbitMQAdapterTest.java</exclude.tests>
+			</properties>
+		</profile>
+	</profiles>
 
 	<build>
 		<testResources>
 			<testResource>
-				<directory>${project.basedir}/../../../Microservices/Configs</directory>
+				<directory>${project.basedir}/../../../data/microserviceConfigs</directory>
 				<includes>
 					<include>default.yaml</include>
 				</includes>
 			</testResource>
 			<testResource>
-				<directory>${project.basedir}/../res</directory>
+				<directory>${project.basedir}/../../../src/common/com.smi.microservices.parent/res</directory>
 				<includes>
 					<include>SmiLogbackConfig.xml</include>
 				</includes>
@@ -54,9 +64,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.21.0</version>
+					<version>2.22.2</version>
 					<configuration>
 						<skipTests>${skipTests}</skipTests>
+						<excludes>
+							<exclude>${exclude.tests}</exclude>
+						</excludes>
 					</configuration>
 				</plugin>
 
@@ -104,10 +117,10 @@
 								<goal>copy-resources</goal>
 							</goals>
 							<configuration>
-								<outputDirectory>${basedir}/target/Configs</outputDirectory>
+								<outputDirectory>${basedir}/target</outputDirectory>
 								<resources>
 									<resource>
-										<directory>${basedir}/../../../Microservices/Configs/</directory>
+										<directory>${basedir}/../../../data/microserviceConfigs</directory>
 										<includes>
 											<include>**/*.yaml</include>
 										</includes>
@@ -122,7 +135,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.2.0</version>
 					<executions>
 						<execution>
 							<id>create-deployable</id>
@@ -153,7 +166,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-configuration2</artifactId>
-			<version>2.2</version>
+			<version>2.6</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -193,19 +206,19 @@
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
-			<version>1.9.3</version>
+			<version>1.9.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.fusesource.jansi</groupId>
 			<artifactId>jansi</artifactId>
-			<version>1.8</version>
+			<version>1.11</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>
-			<version>2.10.0</version>
+			<version>2.10.1</version>
 		</dependency>
 		
 		<dependency>
