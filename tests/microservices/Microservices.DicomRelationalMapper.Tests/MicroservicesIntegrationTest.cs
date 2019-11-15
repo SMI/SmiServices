@@ -49,6 +49,14 @@ namespace Microservices.Tests.RDMPTests
         public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
         {
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            
+            _globals.UseTestValues(
+                RequiresRabbit.GetConnectionFactory(),
+                RequiresMongoDb.GetMongoClientSettings(),
+                RequiresRelationalDb.GetRelationalDatabaseConnectionStrings(),
+                ((TableRepository) RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,
+                ((TableRepository) RepositoryLocator.DataExportRepository).ConnectionStringBuilder);
+                
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(server, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), null, null, persistentRaw, modalityPrefix);
 

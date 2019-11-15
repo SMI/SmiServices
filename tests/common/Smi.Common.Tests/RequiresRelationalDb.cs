@@ -2,6 +2,11 @@
 using System.IO;
 using FAnsi;
 using FAnsi.Discovery;
+using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
+using FAnsi.Implementations.MySql;
+using FAnsi.Implementations.Oracle;
+using FAnsi.Implementations.PostgreSql;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -14,6 +19,7 @@ namespace Smi.Common.Tests
     public class RequiresRelationalDb : CategoryAttribute, IApplyToContext
     {
         private readonly DatabaseType _type;
+        private const string Filename = "RelationalDatabases.yaml";
 
         public RequiresRelationalDb(DatabaseType type)
         {
@@ -22,50 +28,56 @@ namespace Smi.Common.Tests
 
         public void ApplyToContext(TestExecutionContext context)
         {
-            IDeserializer deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
+            ImplementationManager.Load<MySqlImplementation>();
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+            ImplementationManager.Load<OracleImplementation>();
+            ImplementationManager.Load<PostgreSqlImplementation>();
 
-            string filename = "RelationalDatabases.yaml";
-
-            var connectionStrings = deserializer.Deserialize<ConStrs>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, filename)));
-            
-            FAnsi.Implementation.ImplementationManager.Load(
-                typeof(FAnsi.Implementations.MySql.MySqlImplementation).Assembly,
-                typeof(FAnsi.Implementations.MicrosoftSQL.MicrosoftSQLImplementation).Assembly,
-                typeof(FAnsi.Implementations.Oracle.OracleImplementation).Assembly
-                );
-
-            string str;
-            switch (_type)
-            {
-                case DatabaseType.MicrosoftSQLServer:
-                    str = connectionStrings.SqlServer;
-                    break;
-                case DatabaseType.MySql:
-                    str = connectionStrings.MySql;
-                    break;
-                case DatabaseType.Oracle:
-                    str = connectionStrings.Oracle;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            if(string.IsNullOrEmpty(str))
-                Assert.Ignore("No connection string configured in "+filename +" for DatabaseType " + _type);
-
-            var server = new DiscoveredServer(str, _type);
+            var connectionStrings = GetRelationalDatabaseConnectionStrings();
+            var server = connectionStrings.GetServer(_type);
 
             if(!server.Exists())
                 Assert.Ignore(_type + " is not running at '" + server.Name +"'");
         }
 
-        class ConStrs
+        public static ConStrs GetRelationalDatabaseConnectionStrings()
+        {
+            IDeserializer deserializer = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
+
+            return deserializer.Deserialize<ConStrs>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, Filename)));
+        }
+
+        public class ConStrs
         {
             public string MySql { get; set; }
             public string SqlServer { get; set; }
             public string Oracle { get; set; }
+
+            public DiscoveredServer GetServer(DatabaseType dbType)
+            {
+                string str;
+                switch (dbType)
+                {
+                    case DatabaseType.MicrosoftSQLServer:
+                        str = SqlServer;
+                        break;
+                    case DatabaseType.MySql:
+                        str = MySql;
+                        break;
+                    case DatabaseType.Oracle:
+                        str = Oracle;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                if(string.IsNullOrEmpty(str))
+                    Assert.Ignore("No connection string configured in "+ Filename +" for DatabaseType " + dbType);
+
+                return new DiscoveredServer(str, dbType);
+            }
         }
     }
 }

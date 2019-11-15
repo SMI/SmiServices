@@ -15,11 +15,8 @@ namespace Smi.Common.Tests
     {
         public void ApplyToContext(TestExecutionContext context)
         {
-            IDeserializer deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
-
-            var address = deserializer.Deserialize<A>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Mongo.yaml")));
+            var address = GetMongoClientSettings();
+            
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
 
             var client = new MongoClient(address);
@@ -34,6 +31,14 @@ namespace Smi.Common.Tests
             }
         }
 
+        public static MongoClientSettings GetMongoClientSettings()
+        {
+            IDeserializer deserializer = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
+
+            return deserializer.Deserialize<A>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Mongo.yaml")));
+        }
 
         class A : MongoClientSettings
         {

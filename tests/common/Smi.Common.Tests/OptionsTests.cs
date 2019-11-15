@@ -1,4 +1,5 @@
 ﻿
+using System.Resources;
 using NUnit.Framework;
 using Smi.Common.Options;
 
@@ -40,6 +41,16 @@ namespace Smi.Common.Tests
 
             consumerOptions.QoSPrefetchCount = 1234;
             Assert.True(consumerOptions.VerifyPopulated());
+        }
+
+        [Test]
+        public void Test_GlobalOptionsUseTestValues_Nulls()
+        {
+            var g = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+
+            Assert.IsNotNull(g.RabbitOptions.RabbitMqHostName);
+            g.UseTestValues(null,null,null,null,null);
+            Assert.IsNull(g.RabbitOptions.RabbitMqHostName);
         }
     }
 }

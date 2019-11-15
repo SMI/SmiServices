@@ -16,11 +16,8 @@ namespace Smi.Common.Tests
     {
         public void ApplyToContext(TestExecutionContext context)
         {
-            IDeserializer deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
-
-            var factory = deserializer.Deserialize<ConnectionFactory>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
+            
+            var factory = GetConnectionFactory();
 
             try
             {
@@ -46,6 +43,15 @@ namespace Smi.Common.Tests
 
                 Assert.Ignore($"Could not connect to RabbitMQ {Environment.NewLine + sb + Environment.NewLine} : {e.Message}");
             }
+        }
+
+        public static ConnectionFactory GetConnectionFactory()
+        {
+            IDeserializer deserializer = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
+
+            return deserializer.Deserialize<ConnectionFactory>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
         }
 
     }
