@@ -6,6 +6,7 @@ using System.Data;
 using System.IO;
 using DicomTypeTranslation;
 using System.IO.Abstractions;
+using System.Threading;
 
 namespace Smi.Common.Tests
 {
@@ -140,7 +141,7 @@ namespace Smi.Common.Tests
             _patientIDs = new List<string>();
 
             for (var i = 0; i < nPatients; i++)
-                _patientIDs.Add(_random.Next(100000, 1000000).ToString("D6"));
+                _patientIDs.Add((100000 + i).ToString("D6"));
         }
         
         private DataTable GenerateSeedSet(List<DicomFile> seedFiles, int nImages)
@@ -205,10 +206,20 @@ namespace Smi.Common.Tests
             return seedSet;
         }
 
-
+        static int _currentPatientId = 0;
         private string getNextPatientID()
         {
-            return _patientIDs[_random.Next(0, _patientIDs.Count)];
+            try
+            {
+                if (_currentPatientId > _patientIDs.Count)
+                    throw new ArgumentException("Ran out of patients");
+
+                return _patientIDs[_currentPatientId];
+            }
+            finally
+            {
+                Interlocked.Increment(ref _currentPatientId);
+            }
         }
 
 

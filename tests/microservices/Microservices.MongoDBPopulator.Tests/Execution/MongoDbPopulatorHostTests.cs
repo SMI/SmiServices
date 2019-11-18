@@ -68,53 +68,54 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
 
             host.Start();
 
-            var timeline = new TestTimeline(tester);
-
-            var ds = new DicomDataset
+            using (var timeline = new TestTimeline(tester))
             {
-                new DicomUniqueIdentifier(DicomTag.SOPInstanceUID, "1.2.3.4")
-            };
+                var ds = new DicomDataset
+                {
+                    new DicomUniqueIdentifier(DicomTag.SOPInstanceUID, "1.2.3.4")
+                };
 
-            var message = new SeriesMessage
-            {
-                NationalPACSAccessionNumber = "NationalPACSAccessionNumber-test",
-                DirectoryPath = "DirectoryPath-test",
-                StudyInstanceUID = "StudyInstanceUID-test",
-                SeriesInstanceUID = "SeriesInstanceUID-test",
-                ImagesInSeries = 123,
-                DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds)
-            };
+                var message = new SeriesMessage
+                {
+                    NationalPACSAccessionNumber = "NationalPACSAccessionNumber-test",
+                    DirectoryPath = "DirectoryPath-test",
+                    StudyInstanceUID = "StudyInstanceUID-test",
+                    SeriesInstanceUID = "SeriesInstanceUID-test",
+                    ImagesInSeries = 123,
+                    DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds)
+                };
 
-            // Act
+                // Act
 
-            for (var i = 0; i < nMessages; i++)
-                timeline.SendMessage(_helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions, message);
+                for (var i = 0; i < nMessages; i++)
+                    timeline.SendMessage(_helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions, message);
 
-            timeline.StartTimeline();
+                timeline.StartTimeline();
 
-            var timeout = 30000;
-            const int stepSize = 500;
+                var timeout = 30000;
+                const int stepSize = 500;
 
-            if (Debugger.IsAttached)
-                timeout = int.MaxValue;
+                if (Debugger.IsAttached)
+                    timeout = int.MaxValue;
 
-            var nWritten = 0L;
+                var nWritten = 0L;
 
-            while (nWritten < nMessages && timeout > 0)
-            {
-                nWritten = _helper.TestDatabase.GetCollection<BsonDocument>(currentCollectionName).CountDocuments(new BsonDocument());
+                while (nWritten < nMessages && timeout > 0)
+                {
+                    nWritten = _helper.TestDatabase.GetCollection<BsonDocument>(currentCollectionName).CountDocuments(new BsonDocument());
 
-                Thread.Sleep(stepSize);
-                timeout -= stepSize;
+                    Thread.Sleep(stepSize);
+                    timeout -= stepSize;
+                }
+
+                // Assert
+
+                if (timeout <= 0)
+                    Assert.Fail("Failed to process expected number of messages within the timeout");
+
+                host.Stop("Test end");
+                tester.Shutdown();
             }
-
-            // Assert
-
-            if (timeout <= 0)
-                Assert.Fail("Failed to process expected number of messages within the timeout");
-
-            host.Stop("Test end");
-            tester.Shutdown();
         }
     }
 }
