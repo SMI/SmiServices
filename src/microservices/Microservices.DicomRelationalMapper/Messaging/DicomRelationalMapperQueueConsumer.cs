@@ -149,6 +149,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         _stopTokenSource.Cancel();
                         faultCause = e;
                         _dleExceptions.Add(e);
+                        Logger.Log(LogLevel.Error,e,"DLE crashed during RunDleIfRequired");
                     }
                 }
 
@@ -226,7 +227,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 }
                 catch (Exception e)
                 {
-                    Logger.Debug("ParallelDLEHost threw exception of type " + e.GetType());
+                    Logger.Debug(e,"ParallelDLEHost threw exception of type " + e.GetType());
 
                     exitCode = ExitCodeType.Error;
 

@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace Smi.Common.Tests
 {
-    public class TestTimeline
+    public class TestTimeline : IDisposable
     {
         private readonly MicroserviceTester _tester;
         Queue<Action> Operations = new Queue<Action>();
+
+        public CancellationTokenSource cts = new CancellationTokenSource();
 
         /// <summary>
         /// The exact time the TestTimeline was last started
@@ -25,7 +27,7 @@ namespace Smi.Common.Tests
 
         public TestTimeline Wait(int milliseconds)
         {
-            Operations.Enqueue(() => Thread.Sleep(milliseconds));
+            Operations.Enqueue(() =>Task.Delay(milliseconds, cts.Token));
             return this;
         }
 
@@ -42,8 +44,18 @@ namespace Smi.Common.Tests
                 StartTime = DateTime.Now;
 
                 foreach (Action a in Operations)
-                    a();
+                    if (cts.IsCancellationRequested)
+                        break;
+                    else    
+                        a();
             }).Start();
+        }
+
+        public void Dispose()
+        {
+            _tester?.Dispose();
+            cts.Cancel();
+            cts.Dispose();
         }
     }
 }

@@ -113,7 +113,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.TruncateTablesIfExists();
 
             //Create test directory with a single image
-            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesIntegrationTestTestDir"));
+            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_HappyPath)));
             dir.Create();
 
             var arg = _helper.LoadMetadata.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
@@ -150,7 +150,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.TruncateTablesIfExists();
 
             //Create test directory with a single image
-            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesIntegrationTestTestDir"));
+            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_NoFileExtensions)));
             dir.Create();
 
             var arg = _helper.LoadMetadata.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
@@ -196,7 +196,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.TruncateTablesIfExists();
 
             //Create test directory with a single image
-            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesIntegrationTestTestDir"));
+            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_HappyPath_WithIsolation)));
             dir.Create();
 
 
@@ -323,7 +323,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             arg.SaveToDatabase();
 
             //Create test directory with a single image
-            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesIntegrationTestTestDir"));
+            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_HappyPath_WithElevation)));
             dir.Create();
 
             //clean up the directory
@@ -358,7 +358,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.TruncateTablesIfExists();
 
             //Create test directory
-            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "MicroservicesIntegrationTestTestDirBumpy"));
+            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_BumpyRide)));
             dir.Create();
 
             //clean up the directory
