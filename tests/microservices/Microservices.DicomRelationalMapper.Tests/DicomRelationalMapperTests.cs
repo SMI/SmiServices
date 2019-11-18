@@ -28,12 +28,12 @@ namespace Microservices.DicomRelationalMapper.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            TestLogger.Setup();
-
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource));
+
+            TestLogger.Setup();
         }
 
 
@@ -175,7 +175,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             }
         }
 
-
+        /*
         [TestCase(10, 1000)]
         public void DicomFileGeneratorTest(int numberOfImges, int intervalInMilliseconds)
         {
@@ -230,6 +230,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 tester.Shutdown();
             }
         }
+        */
 
         /// <summary>
         /// Tests the abilities of the DLE to not load identical FileMessage
