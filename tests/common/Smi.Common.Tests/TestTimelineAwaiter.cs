@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Dicom;
 using NLog;
 using NUnit.Framework;
 
@@ -39,9 +40,13 @@ namespace Smi.Common.Tests
 
                 if (exceptions != null && exceptions.Any())
                 {
-                    foreach (Exception ex in exceptions)
-                        LogManager.GetCurrentClassLogger().Error(ex);
+                    var logger = LogManager.GetCurrentClassLogger();
 
+                    foreach (Exception ex in exceptions)
+                        logger.Error(ex);
+
+                    LogManager.Flush();
+                    
                     throw exceptions.Length == 1
                         ? exceptions.Single()
                         : new AggregateException(exceptions);
