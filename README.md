@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.org/SMI/SmiServices.svg?branch=master)](https://travis-ci.org/SMI/SmiServices)
+[![Build Status](https://travis-ci.org/SMI/SmiServices.svg?branch=master)](https://travis-ci.org/SMI/SmiServices) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/TypeGuesser.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/TypeGuesser/alerts/)
 
 # SMIPlugin
 
