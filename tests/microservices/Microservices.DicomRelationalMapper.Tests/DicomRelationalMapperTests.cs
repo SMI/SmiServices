@@ -44,7 +44,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomRelationalMapperTests"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_SingleFileMessage)));
             d.Create();
 
             var fi = TestData.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
@@ -96,7 +96,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomFileGeneratorTest"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_MileWideTest)));
             d.Create();
 
             foreach (var oldFile in d.EnumerateFiles())
@@ -181,7 +181,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "DicomFileGeneratorTest"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileGeneratorTest)));
             d.Create();
 
             foreach (var oldFile in d.EnumerateFiles())

@@ -182,9 +182,8 @@ namespace Smi.Common.Tests
                         curPatientID = getNextPatientID();
 
                         dFile.Dataset.AddOrUpdate(DicomTag.PatientID, "Patient" + curPatientID);
-                        dFile.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, "Study" + curPatientID);
-                        dFile.Dataset.AddOrUpdate(DicomTag.SeriesInstanceUID, "GeneratedInstanceUID-" + curPatientID);
-                        dFile.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, "GeneratedInstanceUID-" + curPatientID);
+                        dFile.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID());
+                        dFile.Dataset.AddOrUpdate(DicomTag.SeriesInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID());
 
                         //TODO What else do we want to update?
                         //dFile.Dataset.AddOrUpdate(DicomTag.SeriesInstanceUID, ...);
@@ -246,7 +245,7 @@ namespace Smi.Common.Tests
                     var newFile = seedFile.Clone();
 
                     //change tags
-                    newFile.Dataset.AddOrUpdate(DicomTag.SOPInstanceUID, "GeneratedInstanceUID-" + _totalGenerated.ToString("D6"));
+                    newFile.Dataset.AddOrUpdate(DicomTag.SOPInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID());
                     
                     for (int j = 0; j < numberOfRandomTagsPerFile; j++)
                     {
