@@ -28,6 +28,7 @@ using Rdmp.Core.Curation.Data.Defaults;
 using Rdmp.Core.Curation.Data.Pipelines;
 using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
+using Rdmp.Core.Logging.PastEvents;
 using Rdmp.Dicom.PipelineComponents;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using ReusableLibraryCode.Checks;
@@ -44,8 +45,6 @@ namespace Microservices.DicomRelationalMapper.Tests
     public class MicroservicesIntegrationTest : DatabaseTests
     {
         public const string ScratchDatabaseName = "RDMPTests_ScratchArea";
-
-        private readonly ILogger _logger = LogManager.GetLogger("MicroservicesIntegrationTest");
 
         private DicomRelationalMapperTestHelper _helper;
         private GlobalOptions _globals;
@@ -385,7 +384,10 @@ namespace Microservices.DicomRelationalMapper.Tests
             RunTest(dir, numberOfExpectedRows, null);
         }
         private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions)
-        {
+        { 
+            TestLogger.Setup();
+            var logger = LogManager.GetLogger("MicroservicesIntegrationTest");
+
             _globals.FileSystemOptions.FileSystemRoot = TestContext.CurrentContext.TestDirectory;
 
             var readFromFatalErrors = new ConsumerOptions
@@ -448,34 +450,51 @@ namespace Microservices.DicomRelationalMapper.Tests
                 tester.StopOnDispose.Add(identifierMapperHost);
 
                 new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
-                _logger.Info("\n### DicomTagReader has processed its messages ###\n");
+                logger.Info("\n### DicomTagReader has processed its messages ###\n");
 
                 // FIXME: This isn't exactly how the pipeline runs
                 new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
-                _logger.Info("\n### IdentifierMapper has processed its messages ###\n");
+                logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
                 using (var relationalMapperHost = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
+                    var start = DateTime.Now;
+
                     relationalMapperHost.Start();
                     tester.StopOnDispose.Add(relationalMapperHost);
 
                     Assert.True(mongoDbPopulatorHost.Consumers.Count == 2);
                     new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[0].Processor.AckCount >= 1);
                     new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
-                    _logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
+                    logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
 
                     new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
-                    _logger.Info("\n### IdentifierMapper has processed its messages ###\n");
+                    logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
                     Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
                     Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[0]).NackCount);
                     Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[1]).NackCount);
 
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
-                    _logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
-
+                    
+                    try
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(10));
+                        new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
+                        logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
+                    }
+                    finally
+                    {
+                        //find out what happens from the logging database
+                        var rdmpLogging = new Rdmp.Core.Logging.LogManager(_helper.LoadMetadata.GetDistinctLoggingDatabase());
+                        
+                        //if error was reported during the dicom relational mapper run
+                        foreach (var dli in rdmpLogging.GetArchivalDataLoadInfos(_helper.LoadMetadata.GetDistinctLoggingTask(), null, null))
+                            if(dli.StartTime > start)
+                                foreach (ArchivalFatalError e in dli.Errors)
+                                    logger.Error(e.Date.TimeOfDay + ":" + e.Source + ":" + e.Description);
+                    }
+                    
                     Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
                     Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
                     Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
