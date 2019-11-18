@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <None Include="..\..\..\data/microserviceConfigs/default.yaml" Link="default.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Options\RabbitMqConfigOptions.md" />
+    <None Include="Messages\Extraction\ExtractMessagesDiagram.cd" />
+    <None Include="Messages\Messages.cd" />
+    <None Include="MicroservicesLogging.cd" />
+    <None Include="Options\Smi.Common.Options.cd" />
+    <None Include="RabbitMQAdapter.cd" />
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="HIC.DicomTypeTranslation" Version="2.1.1" />
+    <PackageReference Include="HIC.RDMP.Plugin" Version="4.0.1-rc1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />    
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
+    <PackageReference Include="System.IO.Abstractions" Version="7.0.7" />
+    <PackageReference Include="YamlDotNet" Version="6.0.0" />
+  </ItemGroup>
+</Project>

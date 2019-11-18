@@ -1,0 +1,122 @@
+Tables:
+- TableName: StudyTable
+  Columns:
+  - ColumnName: PatientID
+  - ColumnName: StudyInstanceUID
+    IsPrimaryKey: true
+  - ColumnName: StudyDate
+    AllowNulls: true
+  - ColumnName: StudyTime
+    AllowNulls: true
+  - ColumnName: ModalitiesInStudy
+    AllowNulls: true
+  - ColumnName: StudyDescription
+    AllowNulls: true
+  - ColumnName: AccessionNumber
+    AllowNulls: true
+  - ColumnName: PatientSex
+    AllowNulls: true
+  - ColumnName: PatientAge
+    AllowNulls: true
+  - ColumnName: NumberOfStudyRelatedInstances
+    AllowNulls: true
+- TableName: SeriesTable
+  Columns:
+  - ColumnName: StudyInstanceUID
+  - ColumnName: SeriesInstanceUID
+    IsPrimaryKey: true
+  - ColumnName: Modality
+    AllowNulls: true
+  - ColumnName: SourceApplicationEntityTitle
+    AllowNulls: true
+  - ColumnName: InstitutionName
+    AllowNulls: true
+  - ColumnName: ProcedureCodeSequence
+    AllowNulls: true
+  - ColumnName: ProtocolName
+    AllowNulls: true
+  - ColumnName: PerformedProcedureStepID
+    AllowNulls: true
+  - ColumnName: PerformedProcedureStepDescription
+    AllowNulls: true
+  - ColumnName: SeriesDescription
+    AllowNulls: true
+  - ColumnName: BodyPartExamined
+    AllowNulls: true
+  - ColumnName: DeviceSerialNumber
+    AllowNulls: true
+  - ColumnName: NumberOfSeriesRelatedInstances
+    AllowNulls: true
+  - ColumnName: SeriesNumber
+    AllowNulls: true
+- TableName: ImageTable
+  Columns:
+  - ColumnName: SeriesInstanceUID
+  - ColumnName: SOPInstanceUID
+    IsPrimaryKey: true
+  - ColumnName: SeriesDate
+    AllowNulls: true
+  - ColumnName: SeriesTime
+    AllowNulls: true
+  - ColumnName: BurnedInAnnotation
+    AllowNulls: true
+  - ColumnName: RelativeFileArchiveURI
+    AllowNulls: true
+  - ColumnName: MessageGuid
+    AllowNulls: true
+  - ColumnName: SliceLocation
+    AllowNulls: true
+  - ColumnName: SliceThickness
+    AllowNulls: true
+  - ColumnName: SpacingBetweenSlices
+    AllowNulls: true
+  - ColumnName: SpiralPitchFactor
+    AllowNulls: true
+  - ColumnName: KVP
+    AllowNulls: true
+  - ColumnName: ExposureTime
+    AllowNulls: true
+  - ColumnName: Exposure
+    AllowNulls: true
+  - ColumnName: ImageType
+    AllowNulls: true
+  - ColumnName: ManufacturerModelName
+    AllowNulls: true
+  - ColumnName: Manufacturer
+    AllowNulls: true
+  - ColumnName: XRayTubeCurrent
+    AllowNulls: true
+  - ColumnName: PhotometricInterpretation
+    AllowNulls: true
+  - ColumnName: ContrastBolusRoute
+    AllowNulls: true
+  - ColumnName: ContrastBolusAgent
+    AllowNulls: true
+  - ColumnName: AcquisitionNumber
+    AllowNulls: true
+  - ColumnName: AcquisitionDate
+    AllowNulls: true
+  - ColumnName: AcquisitionTime
+    AllowNulls: true
+  - ColumnName: ImagePositionPatient
+    AllowNulls: true
+  - ColumnName: PixelSpacing
+    AllowNulls: true
+  - ColumnName: FieldOfViewDimensions
+    AllowNulls: true
+  - ColumnName: FieldOfViewDimensionsInFloat
+    AllowNulls: true
+  - ColumnName: DerivationDescription
+    AllowNulls: true
+  - ColumnName: TransferSyntaxUID
+    AllowNulls: true
+  - ColumnName: LossyImageCompression
+    AllowNulls: true
+  - ColumnName: LossyImageCompressionMethod
+    AllowNulls: true
+  - ColumnName: LossyImageCompressionRatio
+    AllowNulls: true
+  - ColumnName: LossyImageCompressionRetired
+    AllowNulls: true
+  - ColumnName: ScanOptions
+    AllowNulls: true

@@ -1,0 +1,102 @@
+
+# SMI Services Build Pipeline Configuration
+
+# TODO:
+# - Pull & setup containers for integration tests
+# - "dotnet publish" after dotnet tests pass
+# - "mvn assembly:single@create-deployable" after Java tests pass
+# - Remove redundancy between stages
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - master
+    - develop
+
+variables:
+  parentPom: './src/common/com.smi.microservices.parent/pom.xml'
+
+stages:
+- stage: Build
+  displayName: Build all projects
+  jobs:
+  - job: BuildDotnet
+    displayName: Build - .NET Core Projects
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'build'
+          projects: './SmiServices.sln'
+  - job: BuildJava
+    displayName: Build - Java Projects
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: 'ubuntu-latest'
+    steps:
+    - bash: |
+        ./installDat.sh
+      displayName: Maven - Install CTP/DAT Dependencies
+      workingDirectory: ./lib/java
+    - bash: |
+        mvn -f $(parentPom) test-compile dependency:resolve > /dev/null
+      displayName: Maven - Resolve Dependencies
+    - task: Maven@3
+      displayName: Maven - Compile
+      inputs:
+        mavenPomFile: '$(parentPom)'
+        goals: 'compile'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+
+- stage: Test
+  dependsOn: Build
+  displayName: Run unit tests
+  jobs:
+  - job: TestDotnet
+    displayName: Unit tests - .NET Core projects
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+  - job: TestJava
+    displayName: Unit tests - Java projects
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: 'ubuntu-latest'
+    steps:
+    - bash: |
+        ./installDat.sh
+      displayName: Maven - Install CTP/DAT Dependencies
+      workingDirectory: ./lib/java
+    - bash: |
+        mvn -f $(parentPom) test-compile dependency:resolve > /dev/null
+      displayName: Maven - Resolve Dependencies
+    - task: Maven@3
+      inputs:
+        mavenPomFile: '$(parentPom)'
+        goals: 'test'
+        options: '-PunitTests'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false

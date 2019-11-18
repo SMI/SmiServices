@@ -1,24 +1,31 @@
+
+[![Build Status](https://travis-ci.org/SMI/SmiServices.svg?branch=master)](https://travis-ci.org/SMI/SmiServices)
+
 # SMIPlugin
+
+Version: `1.0.0`
+
 Scottish Medical Imaging plugin is a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp).  The software loads Dicom Tag data (extracted from clinical images) into MongoDB and Relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
 ## Contents
 
 1. [Microservices](#microservices)
-	* [Data Load Microservices](#data-load-microservices)
-	* [Image Extraction Microservices](#image-extraction-microservices)
+  * [Data Load Microservices](#data-load-microservices)
+  * [Image Extraction Microservices](#image-extraction-microservices)
 2. [Solution Overivew](#solution-overview)
 3. [Building](#building)
 4. [Testing](#testing)
 5. [Package Hierarchy](#package-hierarchy)
 
 ## Microservices
-All microservices [follow the same design pattern](./Microservices/Microservices.Common/README.md).
 
-The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Microservices.Common.Messages.IMessage`.
+All microservices [follow the same design pattern](./Microservices/Smi.Common/README.md).
+
+The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
 
 Microservices can be configured through it's [Configuration](#configuration-file) file.
 
-Microservices can be controlled through RabbitMQ messages. The currently supported commands and instructions can be found [here](./Microservices/Microservices.Common/Messaging/readme.md).
+Microservices can be controlled through RabbitMQ messages. The currently supported commands and instructions can be found [here](./Microservices/Smi.Common/Messaging/readme.md).
 
 ### Data Load Microservices
 
@@ -46,18 +53,19 @@ Microservices can be controlled through RabbitMQ messages. The currently support
 |[DicomRepopulator](./Microservices/Microservices.DicomRepopulator/Readme.md) | Inserts Dicom Tags recorded in a CSV back into (anonymised) images.  This allows Dicom Tag data to be anonymised like regular relational data but still appear in final images given to researchers.|
 
 ### Audit and Logging Systems
+
 | Audit System | Description|
 | ------------- | ------------- |
 | [NLog](http://nlog-project.org/) | All Microservices log all activity to NLog, the manifestation of these logs can be to file/console/server etc as configured in the app.config file.|
-| [Message Audit](./Microservices/Microservices.Common/README.md#logging) | Every message sent by a microservice has a unique Guid associated with it.  When a message is issued in response to an input message (all but the first message in a chain) the list of legacy message Guids is maintained.  This list is output as part of NLog logging.|
+| [Message Audit](./Microservices/Smi.Common/README.md#logging) | Every message sent by a microservice has a unique Guid associated with it.  When a message is issued in response to an input message (all but the first message in a chain) the list of legacy message Guids is maintained.  This list is output as part of NLog logging.|
 |[Data Load Audit](./Microservices/Microservices.DicomRelationalMapper/Readme.md#7-audit)|The final Message Guid of every file identified for loading is recorded in the relational database image table.  In addition a valid from / data load ID field is recorded and any UPDATEs that take place (e.g. due to reprocessing a file) results in a persistence record being created in a shadow archive table.|
 | [Extraction Audit (MongoDB)](./Microservices/Microservices.CohortPackager/README.md) | CohortPackager is responsible for auditing extraction Info messages from all extraction services, recording which images have been requested and when image anonymisation has been completed.  This is currently implemented through `IExtractJobStore`.|
 | CohortExtractor Audit | Obsolete interface `IAuditExtractions` previously existed to record the linkage results and patient release identifiers.|
 | Fatal Error Logging | All Microservices that crash or log a fatal error are shut down and log a message to the Fatal Error Logging Exchange.  TODO: Nobody listens to this currently.|
 | Quarantine | TODO: Doesn't exist yet.|
 
-
 ## Solution Overview
+
 Appart from the Microservices (documented above) the following library classes are also included in the solution:
 
 | Project Name | Path | Description|
@@ -69,6 +77,8 @@ Appart from the Microservices (documented above) the following library classes a
 
 ## Building
 
+### Building the C# Projects
+
 Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2) and [Ruby/Rake](https://github.com/ruby/rake). This can then be built with:
 
 ```bash
@@ -79,6 +89,34 @@ Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/
 ```
 
 The rake build can be configured by overriding the environment variables specified in `rakeconfig.rb`.
+
+### Building the Java Projects
+
+Building the Java projects requires Maven. The CTP dependency first needs to be manually installed:
+
+- Linux
+
+```shell
+> cd lib/java/
+> ./installDat.sh
+```
+
+- Windows
+
+```shell
+> cd lib\java\
+> .\installDat.bat
+```
+
+The projects can then be built by returning to the top level directory and running:
+
+```shell
+> mvn -f src/common/com.smi.microservices.parent/pom.xml clean install
+```
+
+This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test sutie can be skipped by passing `-DskipTests`.
+
+Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
 
 ### Building Release Packages
 
@@ -98,6 +136,7 @@ Where `<os>` is the [Runtime Identifier](https://docs.microsoft.com/en-us/dotnet
 Development requires Visual Studio 2017 or later. Simply open the SMIPlugin.sln file.
 
 ## Testing
+
 SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql).  Tests are split into those that:
 
 - RequiresRelationalDb (Microsoft Sql Server / MySql)
@@ -114,6 +153,10 @@ Tests with the respective attributes will only run when these services exist in 
 - RelationalDatabases.yaml
 
 For setting up the RDMP platform databases see https://github.com/HicServices/RDMP/blob/master/Documentation/CodeTutorials/Tests.md
+
+## Note On Versioning
+
+The C# projects share the same release version, which is controlled by the [SharedAssemblyInfo.cs](src/SharedAssemblyInfo.cs) file. The Java projects are versioned independently, set in their pom files, however in practice they follow the release version of the repo overall.
 
 ## Package Hierarchy
 

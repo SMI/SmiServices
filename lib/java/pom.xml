@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>dat</groupId>
+	<artifactId>dat</artifactId>
+	<version>1.0.0</version>
+	<description>POM was created from install:install-file, and a little manual hacking</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>dcm4che</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>CTP</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>util</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>pixelmed_codec</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>dcm4che-imageio-rle-2.0.25</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>clibwrapper_jiio</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>dat</groupId>
+			<artifactId>jai_imageio</artifactId>
+			<version>1.1</version>
+		</dependency>
+	</dependencies>
+</project>
