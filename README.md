@@ -23,9 +23,9 @@ All microservices [follow the same design pattern](./src/common/Smi.Common/READM
 
 The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
 
-Microservices can be configured through it's [Configuration](#configuration-file) file.
+Microservices can be configured through [the configuration file](./data/microserviceConfigs/default.yaml).
 
-Microservices can be controlled through RabbitMQ messages. The currently supported commands and instructions can be found [here](./Microservices/Smi.Common/Messaging/readme.md).
+A control queue is provided for controlling Microservices during runtime.  It supports a [limited number of commands](./src/common/Smi.Common/Messaging/readme.md)..
 
 ### Data Load Microservices
 

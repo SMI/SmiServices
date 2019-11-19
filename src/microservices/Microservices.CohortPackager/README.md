@@ -37,4 +37,4 @@ Collects all information regarding an extraction job, and monitors the filesyste
 
 ### 5. Expectations
 
-Errors are [logged as normal for a MicroserviceHost](../Microservices.Common/README.md#logging)
+Errors are [logged as normal for a MicroserviceHost](../../common/Smi.Common/README.md#logging)

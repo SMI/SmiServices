@@ -40,7 +40,7 @@ In future, this will have the ability to both take a query to run on MongoDB, an
 |CliOptions | Allows overriding of which yaml file is loaded. |
 
 ### 5. Expectations
-Errors are [logged as normal for a MicroserviceHost](../Microservices.Common/README.md#logging)
+Errors are [logged as normal for a MicroserviceHost](../../common/Smi.Common/README.md#logging)
 
 ### 6. Class Diagram
 ![Class Diagram](./Images/ClassDiagram.png)

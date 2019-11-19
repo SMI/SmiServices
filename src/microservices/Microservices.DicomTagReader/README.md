@@ -36,7 +36,7 @@ Opens dicom files found in `AccessionDirectoryMessage` directories and converts 
 |CliOptions | -y, --yaml-file| Allows overriding of which yaml file is loaded. |
 
 ### 5. Expectations
-Errors are [logged as normal for a MicroserviceHost](../Microservices.Common/README.md#logging)
+Errors are [logged as normal for a MicroserviceHost](../../common/Smi.Common/README.md#logging)
 
 ### 6. Class Diagram
 ![Class Diagram](./Images/ClassDiagram.png)

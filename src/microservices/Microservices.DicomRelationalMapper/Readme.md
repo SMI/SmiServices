@@ -46,7 +46,7 @@ Runs an RDMP data load configuration (`LoadMetadata`) with a batch of `DicomFile
 ### 5. Expectations
 DicomRelationalMapper is expected to be robust and able to load all Dicom files it is given as input (The input is anonymised images from another service so we know the images are processable).  The load logic relies on the LoadMetadata configuration which is customisable through the RDMP application.
 
-Errors are [logged as normal for a MicroserviceHost](../Microservices.Common/README.md#logging)
+Errors are [logged as normal for a MicroserviceHost](../../common/Smi.Common/README.md#logging)
 
 #### Data Failure States
 - Dicom file that is not a valid .dcm file (`TestLoadingOneImage_SingleFileMessage`)
