@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [1.0.0] - 2019-11-15
+## [1.0.0] - 2019-11-18
 
 First stable release after importing the repository from the private [SMIPlugin](https://github.com/HicServices/SMIPlugin) repo.
 
