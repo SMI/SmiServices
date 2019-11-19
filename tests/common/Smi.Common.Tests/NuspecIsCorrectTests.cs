@@ -17,21 +17,21 @@ namespace Smi.Common.Tests
         private static readonly string[] _analyzers = { "SecurityCodeScan" };
 
         // Applications
-        [TestCase("../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj", null, null)]
+        [TestCase("../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj", null, "../../../../../../../PACKAGES.md")]
 
         // Common
-        [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null, null)]
-        [TestCase("../../../../../../../src/common/Smi.Common.MongoDb/Smi.Common.MongoDb.csproj", null, null)]
+        [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/common/Smi.Common.MongoDb/Smi.Common.MongoDb.csproj", null, "../../../../../../../PACKAGES.md")]
 
         // Microservices
-        [TestCase("../../../../../../../src/microservices/Microservices.CohortExtractor/Microservices.CohortExtractor.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DeadLetterReprocessor/Microservices.DeadLetterReprocessor.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.CohortExtractor/Microservices.CohortExtractor.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/microservices/Microservices.DeadLetterReprocessor/Microservices.DeadLetterReprocessor.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj", null, "../../../../../../../PACKAGES.md")]
+        [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj", null, "../../../../../../../PACKAGES.md")]
 
         public void TestDependencyCorrect(string csproj, string nuspec, string packagesMarkdown)
         {
@@ -100,7 +100,7 @@ namespace Smi.Common.Tests
                         {
                             int count = new Regex(Regex.Escape(version)).Matches(line).Count;
 
-                            Assert.GreaterOrEqual(2, count, "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}", packagesMarkdown, version, package, csproj);
+                            Assert.GreaterOrEqual(count,2, "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}", packagesMarkdown, version, package, csproj);
                             found = true;
                         }
                     }
