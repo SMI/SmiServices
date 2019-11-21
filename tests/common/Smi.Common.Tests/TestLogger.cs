@@ -13,12 +13,13 @@ namespace Smi.Common.Tests
 
             var consoleTarget = new ConsoleTarget("TestConsole")
             {
-                Layout = @"${longdate}|${level}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}"
+                Layout = @"${longdate}|${level}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}",
+                AutoFlush = true
             };
             
             logConfig.AddTarget(consoleTarget);
             logConfig.AddRuleForAllLevels(consoleTarget);
-
+            
             LogManager.GlobalThreshold = LogLevel.Trace;
             LogManager.Configuration = logConfig;
             LogManager.GetCurrentClassLogger().Info("TestLogger setup, previous configuration replaced");

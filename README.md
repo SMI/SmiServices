@@ -1,7 +1,8 @@
 
+
 [![Build Status](https://travis-ci.org/SMI/SmiServices.svg?branch=master)](https://travis-ci.org/SMI/SmiServices)
-![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/SMI/SmiServices)
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
 # SMIPlugin
 
@@ -12,8 +13,8 @@ Scottish Medical Imaging plugin is a suite of microservices written in C# and Ja
 ## Contents
 
 1. [Microservices](#microservices)
-  * [Data Load Microservices](#data-load-microservices)
-  * [Image Extraction Microservices](#image-extraction-microservices)
+   1. [Data Load Microservices](#data-load-microservices)
+   1. [Image Extraction Microservices](#image-extraction-microservices)
 2. [Solution Overivew](#solution-overview)
 3. [Building](#building)
 4. [Testing](#testing)
@@ -21,47 +22,46 @@ Scottish Medical Imaging plugin is a suite of microservices written in C# and Ja
 
 ## Microservices
 
-All microservices [follow the same design pattern](./Microservices/Smi.Common/README.md).
+All microservices [follow the same design pattern](./src/common/Smi.Common/README.md).
 
 The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
 
-Microservices can be configured through it's [Configuration](#configuration-file) file.
+Microservices can be configured through [the configuration file](./data/microserviceConfigs/default.yaml).
 
-Microservices can be controlled through RabbitMQ messages. The currently supported commands and instructions can be found [here](./Microservices/Smi.Common/Messaging/readme.md).
+A control queue is provided for controlling Microservices during runtime.  It supports a [limited number of commands](./src/common/Smi.Common/Messaging/readme.md)..
 
 ### Data Load Microservices
 
-![loaddiagram](/Documentation/Images/LoadMicroservices.png)
+![loaddiagram](./docs/Images/LoadMicroservices.png)
 
 | Microservice / Console App| Description |
 | ------------- | ------------- |
-| [ProcessDirectory](./Microservices/Microservices.ProcessDirectory/Readme.md)  | Enumerates directories and generates `AccessionDirectoryMessage` for those that contain dicom files.|
-| [DicomTagReader](./Microservices/Microservices.DicomTagReader/Readme.md)  | Opens dicom files found in `AccessionDirectoryMessage` directories and converts to JSON as a `DicomFileMessage`.  Also creates a summary record of the whole series as a `SeriesMessage`.|
-| [IdentifierMapper](./Microservices/Microservices.IdentifierMapper/Readme.md)  | Replaces the `PatientID` Dicom Tag in a `DicomFileMessage` using a specified mapping table.|
-| [MongoDBPopulator](./Microservices/Microservices.MongoDBPopulator/Readme.md)  | Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a MongoDB database document store. |
-| [DicomRelationalMapper](./Microservices/Microservices.DicomRelationalMapper/Readme.md)  | Runs an RDMP data load configuration with a batch of `DicomFileMessage` to load Dicom Tag data into a relational database (MySql or Microsoft Sql Server).|
-| [DicomReprocessor](./Microservices/Microservices.DicomReprocessor/Readme.md)  | Runs a MongoDB query on the database populated by `MongoDBPopulator` and converts the results back into `DicomFileMessage` for (re)loading by `DicomRelationalMapper`.|
+| [ProcessDirectory](./src/applications/Applications.DicomDirectoryProcessor/Readme.md)  | Enumerates directories and generates `AccessionDirectoryMessage` for those that contain dicom files.|
+| [DicomTagReader](./src/microservices/Microservices.DicomTagReader/Readme.md)  | Opens dicom files found in `AccessionDirectoryMessage` directories and converts to JSON as a `DicomFileMessage`.  Also creates a summary record of the whole series as a `SeriesMessage`.|
+| [IdentifierMapper](./src/microservices/Microservices.IdentifierMapper/Readme.md)  | Replaces the `PatientID` Dicom Tag in a `DicomFileMessage` using a specified mapping table.|
+| [MongoDBPopulator](./src/microservices/Microservices.MongoDBPopulator/Readme.md)  | Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a MongoDB database document store. |
+| [DicomRelationalMapper](./src/microservices/Microservices.DicomRelationalMapper/Readme.md)  | Runs an RDMP data load configuration with a batch of `DicomFileMessage` to load Dicom Tag data into a relational database (MySql or Microsoft Sql Server).|
+| [DicomReprocessor](./src/microservices/Microservices.DicomReprocessor/Readme.md)  | Runs a MongoDB query on the database populated by `MongoDBPopulator` and converts the results back into `DicomFileMessage` for (re)loading by `DicomRelationalMapper`.|
 
 ### Image Extraction Microservices
 
-![extractiondiagram](/Documentation/Images/ExtractionMicroservices.png)
+![extractiondiagram](./docs/Images/ExtractionMicroservices.png)
 
 | Microservice / Console App| Description |
 | ------------- | ------------- |
-| [ExtractorCL](./java/Microservices/Microservices.ExtractorCL/README.md)  | Reads SeriesInstanceUIDs from a CSV file and generates `ExtractionRequestMessage` and audit message `ExtractionRequestInfoMessage`.|
-| [CohortExtractor](./Microservices/Microservices.CohortExtractor/Readme.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
-| [CTPAnonymiser](./java/Microservices/Microservices.CTPAnonymiser/README.md)  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  `ExtractFileMessage` and copies to specified output directory.  Generates audit message `ExtractFileStatusMessage`.|
-|[CohortPackager](./Microservices/Microservices.CohortPackager/README.md)  | Records all audit messages and determines when jobs are complete.|
-|[DicomRepopulator](./Microservices/Microservices.DicomRepopulator/Readme.md) | Inserts Dicom Tags recorded in a CSV back into (anonymised) images.  This allows Dicom Tag data to be anonymised like regular relational data but still appear in final images given to researchers.|
+| [ExtractorCL](./src/applications/com.smi.applications.extractorcli/README.md)  | Reads SeriesInstanceUIDs from a CSV file and generates `ExtractionRequestMessage` and audit message `ExtractionRequestInfoMessage`.|
+| [CohortExtractor](./src/microservices/Microservices.CohortExtractor/Readme.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
+| [CTPAnonymiser](./src/microservices/com.smi.microservices.ctpanonymiser/README.md)  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  `ExtractFileMessage` and copies to specified output directory.  Generates audit message `ExtractFileStatusMessage`.|
+| [CohortPackager](./src/microservices/Microservices.CohortPackager/README.md)  | Records all audit messages and determines when jobs are complete.|
 
 ### Audit and Logging Systems
 
 | Audit System | Description|
 | ------------- | ------------- |
 | [NLog](http://nlog-project.org/) | All Microservices log all activity to NLog, the manifestation of these logs can be to file/console/server etc as configured in the app.config file.|
-| [Message Audit](./Microservices/Smi.Common/README.md#logging) | Every message sent by a microservice has a unique Guid associated with it.  When a message is issued in response to an input message (all but the first message in a chain) the list of legacy message Guids is maintained.  This list is output as part of NLog logging.|
-|[Data Load Audit](./Microservices/Microservices.DicomRelationalMapper/Readme.md#7-audit)|The final Message Guid of every file identified for loading is recorded in the relational database image table.  In addition a valid from / data load ID field is recorded and any UPDATEs that take place (e.g. due to reprocessing a file) results in a persistence record being created in a shadow archive table.|
-| [Extraction Audit (MongoDB)](./Microservices/Microservices.CohortPackager/README.md) | CohortPackager is responsible for auditing extraction Info messages from all extraction services, recording which images have been requested and when image anonymisation has been completed.  This is currently implemented through `IExtractJobStore`.|
+| [Message Audit](./src/common/Smi.Common/README.md#logging) | Every message sent by a microservice has a unique Guid associated with it.  When a message is issued in response to an input message (all but the first message in a chain) the list of legacy message Guids is maintained.  This list is output as part of NLog logging.|
+| [Data Load Audit](./src/microservices/Microservices.DicomRelationalMapper/Readme.md#7-audit)|The final Message Guid of every file identified for loading is recorded in the relational database image table.  In addition a valid from / data load ID field is recorded and any UPDATEs that take place (e.g. due to reprocessing a file) results in a persistence record being created in a shadow archive table.|
+| [Extraction Audit (MongoDB)](./src/microservices/Microservices.CohortPackager/README.md) | CohortPackager is responsible for auditing extraction Info messages from all extraction services, recording which images have been requested and when image anonymisation has been completed.  This is currently implemented through `IExtractJobStore`.|
 | CohortExtractor Audit | Obsolete interface `IAuditExtractions` previously existed to record the linkage results and patient release identifiers.|
 | Fatal Error Logging | All Microservices that crash or log a fatal error are shut down and log a message to the Fatal Error Logging Exchange.  TODO: Nobody listens to this currently.|
 | Quarantine | TODO: Doesn't exist yet.|
