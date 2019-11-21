@@ -8,7 +8,7 @@ update_configs:
     - rkm
     - tznind
   - package_manager: "java:maven"
-    directory: "/"
+    directory: "/src/common/com.smi.microservices.parent/"
     update_schedule: "daily"
     target_branch: "develop"
     default_reviewers:
