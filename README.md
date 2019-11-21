@@ -4,11 +4,13 @@
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-# SMIPlugin
+# SMI Services
 
 Version: `1.0.0`
 
-Scottish Medical Imaging plugin is a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp).  The software loads Dicom Tag data (extracted from clinical images) into MongoDB and Relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
+This repo contains a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp), which together form the Scottish Medical Imaging platform.
+
+The platform allows DICOM tag metadata (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
 ## Contents
 
