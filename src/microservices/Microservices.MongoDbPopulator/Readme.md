@@ -40,7 +40,7 @@ Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a Mo
 |CliOptions | Allows overriding of which yaml file is loaded. |
 
 ### 5. Expectations
-Errors are [logged as normal for a MicroserviceHost](../Microservices.Common/README.md#logging)
+Errors are [logged as normal for a MicroserviceHost](../../common/Smi.Common/README.md#logging)
 
 #### Data Failure States
 - Operation on receiving corrupt message.

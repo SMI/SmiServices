@@ -37,7 +37,7 @@ The ProcessDirectory app is a console app that runs and terminates rather than a
 |-f| Directory search format |(Optional) The directory scan mode to use. See [] |
 
 ### 5. Expectations
-Errors are [logged as normal for a MicroserviceHost](../Microservices.Common/README.md#logging)
+Errors are [logged as normal for a MicroserviceHost](../../common/Smi.Common/README.md#logging)
 
 ### 6. Class Diagram
 ![Class Diagram](./Images/ClassDiagram.png)

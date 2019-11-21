@@ -1,13 +1,13 @@
-# Contents
-[Implementing a Host](#implementing-a-host)<br />
-[Implementing a Consumer](#implementing-a-consumer)<br />
-[Logging](#logging)<br />
-[Rules of Microservice Club](#rules-of-microservice-club)<br />
+# Microservice Hosts
 
-## Class Diagram
-![Class Diagram](Images/ClassDiagram.png)
-
-<a name="implementing-a-host" />
+## Contents
+- [Implementing a Host](#implementing-a-host)
+- [Implementing a Consumer](#implementing-a-consumer)
+- [Logging](#logging)
+- [Rules of Microservice Club](#rules-of-microservice-club)
+  - [The First Rule](#the-first-rule)
+  - [The Second Rule](#the-second-rule)
+- [Class Diagram](#class-diagram)
 
 ## Implementing a Host
 First load an instance of `GlobalOptions` in your `Program.cs`. 
@@ -44,41 +44,41 @@ public class Program
 }
 ```
 
-For this to work you will need to update the `default.yaml`
+For this to work you will need to update [default.yaml](../../../data/microserviceConfigs/default.yaml)
 
 ```yaml
-    # ... other stuff above
+# ... other stuff above
 
-    MyHostOptions: #you can also put this the following into a subclass to avoid cramming too many things at the root level
-        QueueName: 'MyQueueName'
-        ConsumerTag: 'MyQueueTag'
-        QoSPrefetchCount: 1
-        AutoAck: false
-        # other options you may need
+MyHostOptions: #you can also put this the following into a subclass to avoid cramming too many things at the root level
+    QueueName: 'MyQueueName'
+    ConsumerTag: 'MyQueueTag'
+    QoSPrefetchCount: 1
+    AutoAck: false
+    # other options you may need
 
-    # ... other stuff below
+# ... other stuff below
 ```
 
 If this is a brand new Host, also add the relevant bit into the `GlobalOptions`:
 
 ```csharp
-    public class GlobalOptions
-    {
-        // SNIP LOTS OF CODE
+public class GlobalOptions
+{
+    // SNIP LOTS OF CODE
         
-        #region AllOptions
+    #region AllOptions
 
-        // ... other stuff above
-        public MyHostOptions MyHostOptions { get; set; }
+    // ... other stuff above
+    public MyHostOptions MyHostOptions { get; set; }
 
-        #endregion
-    }    
+    #endregion
+}    
     
-    // new class for the new options
-    public class MyHostOptions : ConsumerOptions
-    {
-        // other options go here. ConsumerOPtions are inherited.
-    }
+// new class for the new options
+public class MyHostOptions : ConsumerOptions
+{
+    // other options go here. ConsumerOPtions are inherited.
+}
 ```
 
 Next create a derrived class of `MicroserviceHost` this class should take all options needed to do it's job
@@ -127,8 +127,6 @@ You can now explore how to change (in the yaml file) / create these yourself.
 When you have resolved the exchanges/queues you should get an error relating to `consumer` being null (we commented it out remember). 
 Proceed to the next section to see how to implement an `IConsumer`
 
-<a name="implementing-a-consumer" />
-
 ## Implementing a Consumer
 
 A consumer is a class which listens to a RabbitMQ queue and does something based on the messages that appear. 
@@ -166,8 +164,6 @@ The `ProcessMessageImpl` method is where you will do your processing and must ei
 The `IMessageHeader` contains provenance information about the message being dequeued.  You can use it for logging (see below) 
 and must also supply it when producing new messages (this ensures the message audit chain is kept in tact).
 
-<a name="logging" />
-
 ## Logging
 
 All microservices should be derived from the `MicroserviceHost` class, which ensures that a standard logging config is applied. The logging configuration is loaded from the NLog configuration file
@@ -204,15 +200,13 @@ Logging through a header means that the Guid of the message (and the Guid all pr
 Logging through the header is recommended whenever the audited fact relates specifically to the content of the message (e.g. couldn't open a file referenced in a `DicomFileMessage`).  Logging through the header automatically happens when sending and acknowledging messages, this results in a view of every message the system sent and the relationship tree of knock on messages (see image above).
 
 
-<a name="rules-of-microservice-club" />
-
 ## Rules of Microservice Club
 
 ### The First Rule
 
 The first rule of Microservice Club is that `LogLevel.Fatal` means game over. Do not log to this level, instead you should call the `Fatal` method:
 
-```
+```csharp
 protected override void ProcessMessageImpl(IMessageHeader header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
 {
     var logger = LogManager.GetCurrentClassLogger();
@@ -240,3 +234,8 @@ protected override void ProcessMessageImpl(IMessageHeader header, IModel model, 
     ErrorAndNack(header,model,basicDeliverEventArgs,"Something went wrong", new Exception("What went wrong"));
 }
 ```
+
+
+## Class Diagram
+
+![Class Diagram](Images/ClassDiagram.png)

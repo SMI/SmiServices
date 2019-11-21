@@ -1,4 +1,5 @@
-﻿using FAnsi.Discovery;
+﻿using System;
+using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using ReusableLibraryCode;
 
 namespace Microservices.DicomRelationalMapper.Execution
 {
@@ -57,14 +59,24 @@ namespace Microservices.DicomRelationalMapper.Execution
 
                     job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "About to send SQL:" + sql));
 
-
                     DbCommand cmd = server.GetCommand(sql, con);
                     running.Add(cmd.ExecuteNonQueryAsync());
                 }
 
                 sw.Stop();
-                Task.WaitAll(running.ToArray());
 
+                try
+                {
+                    Task.WaitAll(running.ToArray());
+                }
+                catch (AggregateException e)
+                {
+                    foreach(Exception ex in e.InnerExceptions)
+                        job.OnNotify(this,new NotifyEventArgs(ProgressEventType.Error,"Failed to migrate rows",ex));
+
+                    throw;
+                }
+                
                 job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "Migrated all rows using INSERT INTO in " + sw.ElapsedMilliseconds + "ms"));
             }
             return ExitCodeType.Success;

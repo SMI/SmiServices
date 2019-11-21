@@ -1,5 +1,5 @@
 ﻿
-using System.Resources;
+using System;
 using NUnit.Framework;
 using Smi.Common.Options;
 
@@ -46,11 +46,20 @@ namespace Smi.Common.Tests
         [Test]
         public void Test_GlobalOptionsUseTestValues_Nulls()
         {
-            var g = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions g = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             Assert.IsNotNull(g.RabbitOptions.RabbitMqHostName);
-            g.UseTestValues(null,null,null,null,null);
+            g.UseTestValues(null, null, null, null, null);
             Assert.IsNull(g.RabbitOptions.RabbitMqHostName);
+        }
+
+        [Test]
+        public void Test_GlobalOptions_FileReadOption_ThrowsException()
+        {
+            GlobalOptions g = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            g.DicomTagReaderOptions.FileReadOption = "SkipLargeTags";
+
+            Assert.Throws<ApplicationException>(() => g.DicomTagReaderOptions.GetReadOption());
         }
     }
 }

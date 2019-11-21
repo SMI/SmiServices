@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Dicom;
+using NLog;
 using NUnit.Framework;
 
 namespace Smi.Common.Tests
@@ -28,6 +30,7 @@ namespace Smi.Common.Tests
             if (Debugger.IsAttached)
                 timeout = int.MaxValue;
 
+            
             while (!condition() && timeout > 0)
             {
                 Thread.Sleep(100);
@@ -36,9 +39,19 @@ namespace Smi.Common.Tests
                 var exceptions = throwIfAnyFunc?.Invoke()?.ToArray();
 
                 if (exceptions != null && exceptions.Any())
+                {
+                    var logger = LogManager.GetCurrentClassLogger();
+
+                    foreach (Exception ex in exceptions)
+                        logger.Error(ex);
+
+                    LogManager.Flush();
+                    
                     throw exceptions.Length == 1
                         ? exceptions.Single()
                         : new AggregateException(exceptions);
+                }
+                    
             }
 
             if (timeout <= 0)
