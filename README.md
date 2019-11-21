@@ -1,5 +1,7 @@
 
 [![Build Status](https://travis-ci.org/SMI/SmiServices.svg?branch=master)](https://travis-ci.org/SMI/SmiServices)
+![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/SMI/SmiServices)
+![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 
 # SMIPlugin
 
