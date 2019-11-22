@@ -16,7 +16,7 @@ The platform allows DICOM tag metadata (extracted from clinical images) to be lo
 
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
-   1. [Image Extraction Microservices](#image-extraction-microservices)
+   2. [Image Extraction Microservices](#image-extraction-microservices)
 2. [Solution Overivew](#solution-overview)
 3. [Building](#building)
 4. [Testing](#testing)
