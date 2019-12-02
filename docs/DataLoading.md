@@ -4,14 +4,16 @@
 
 - [Background](#background)
 - [Preparation](#preparation)
-- [DicomDirectoryProcessor](#dicomdirectoryprocessor)
-- [DicomTagReader](#dicomtagreader)
+  - [Publish Binaries](#publish-binaries)
+- [Microservices](#microservices)
+  - [DicomDirectoryProcessor](#dicomdirectoryprocessor)
+  - [DicomTagReader](#dicomtagreader)
 
 ## Background
 
 This document describes all the steps required to setup data load microservices and use them to load a collection of Dicom images.
 
-### Preparation
+## Preparation
 
 Download [Bad Dicom](https://github.com/HicServices/BadMedicine.Dicom/releases) and use it to generate some test images on disk:
 
@@ -47,7 +49,7 @@ http://127.0.0.1:15672/#/queues
 
 Follow instructions listed in https://stackoverflow.com/a/52002145/4824531
 
-### Build / Publish
+### Publish Binaries
 
 For each microservice run `dotnet publish -r win-x64` e.g.
 
@@ -55,6 +57,8 @@ For each microservice run `dotnet publish -r win-x64` e.g.
 E:\SmiServices\src\applications\Applications.DicomDirectoryProcessor> dotnet publish -r win-x64
 ```
 
+
+## Microservices
 
 ### DicomDirectoryProcessor
 
@@ -83,7 +87,11 @@ System.ApplicationException: The given control exchange was not found on the ser
 
 Create the exchange:
 
+---
+
 ![Create Exchange](./Images/DataLoading/TEST.ControlExchange.png)
+
+---
 
 This is the exchange by which you can send runtime messages (e.g. shutdown) to the service
 
@@ -102,12 +110,18 @@ Now when running you should see an error:
 
 This is because there is no queue associated with the output exchange.  Create a queue `TEST.AccessionDirectoryQueue`
 
+---
+
 ![Create Exchange](./Images/DataLoading/TEST.AccessionDirectoryQueue.png)
 
+---
 Bind the `TEST.AccessionDirectoryExchange` exchange with the queue `TEST.AccessionDirectoryQueue`:
+
+---
 
 ![Bind Exchange To Queue](./Images/DataLoading/BindExchange.png)
 
+---
 
 Once you have done this you should see output from the program like:
 
@@ -139,16 +153,24 @@ Bootstrapper -> Exiting main
 
 There should be 1 message per folder in the your test dicoms directory:
 
+---
+
 ![10 messages queued](./Images/DataLoading/AfterAccessionDirectory.png)
+
+---
 
 If you use GetMessages in the rabbit MQ interface you can see what was the messages contain:
 
+---
+
 ![Example message from output queue](./Images/DataLoading/PeekAccessionDirectory.png)
+
+---
 
 Thats right, all this work was just to get a __directory listing__ into RabbitMQ! But now that you have the basics of creating exchanges / queues down it should be much easier to get the rest of the services running (see below).
 
 To change the exchange/queue names you should edit `default.yaml` (ensuring your RabbitMQ server has the correct entries)
 
-## DicomTagReader
+### DicomTagReader
 
 todo
