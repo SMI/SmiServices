@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Dicom;
+using DicomTypeTranslation;
 using FAnsi.Implementations.MicrosoftSQL;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
@@ -15,6 +16,7 @@ using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using Tests.Common;
+using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
 
 namespace Microservices.DicomRelationalMapper.Tests
@@ -34,6 +36,66 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource));
 
             TestLogger.Setup();
+        }
+
+        [Test]
+        public void Test_DodgyTagNames()
+        {
+            _helper.TruncateTablesIfExists();
+
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(Test_DodgyTagNames)));
+            d.Create();
+
+            var fi = TestData.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
+            var fi2 = TestData.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile2.dcm")));
+            
+            DicomFile dcm;
+
+            using (var stream = File.OpenRead(fi.FullName))
+            {    
+                dcm = DicomFile.Open(stream);
+                dcm.Dataset.AddOrUpdate(DicomTag.PrintRETIRED, "fish");
+                dcm.Dataset.AddOrUpdate(DicomTag.Date, new DateTime(2001,01,01));
+                dcm.Save(fi2.FullName);
+            }
+            
+            var adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.Date,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
+            adder.Execute();
+
+            adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.PrintRETIRED,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
+            adder.Execute();
+            
+            fi.Delete();
+            File.Move(fi2.FullName,fi.FullName);
+            
+            //creates the queues, exchanges and bindings
+            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
+
+            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+            {
+                host.Start();
+
+                using (var timeline = new TestTimeline(tester))
+                {
+                    timeline.SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi));
+
+                    //start the timeline
+                    timeline.StartTimeline();
+
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= 1, null, 30000, () => host.Consumer.DleErrors);
+
+                    Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
+
+                    host.Stop("Test end");
+                }
+                
+            }
+
+            tester.Shutdown();
         }
 
 
