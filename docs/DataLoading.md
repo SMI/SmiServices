@@ -75,7 +75,7 @@ Failed to construct host:
 System.IO.FileNotFoundException: Could not find the logging configuration in the current directory (Smi.NLog.config),
 ```
 
-Copy and modify (if needed) [Smi.NLog.config](../data/logging/Smi.NLog.config) to the binary directory
+Copy and modify (if needed) [Smi.NLog.config] to the binary directory
 
 
 Run the application again, this time you should see:
@@ -173,4 +173,24 @@ To change the exchange/queue names you should edit `default.yaml` (ensuring your
 
 ### DicomTagReader
 
-todo
+Publish and run DicomTagReader (copy across [Smi.NLog.config] if needed) e.g.:
+
+```
+E:\SmiServices\src\microservices\Microservices.DicomTagReader\bin\AnyCPU\Debug\netcoreapp2.2\win-x64> ./DicomTagReader.exe
+```
+
+This should result in an error about `TEST.IdentifiableSeriesExchange`.  Create the following exchanges:
+
+- TEST.IdentifiableSeriesExchange
+- TEST.IdentifiableImageExchange
+
+This should cause our old friend:
+
+```
+Could not confirm message published after timeout
+```
+
+
+
+
+[Smi.NLog.config]: ../data/logging/Smi.NLog.config
