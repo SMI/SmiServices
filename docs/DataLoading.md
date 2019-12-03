@@ -8,6 +8,8 @@
 - [Microservices](#microservices)
   - [DicomDirectoryProcessor](#dicomdirectoryprocessor)
   - [DicomTagReader](#dicomtagreader)
+    - [Dead Letter Exchange](#dead-letter-exchange)
+  - [DicomTagReader Continued](#dicomtagreader-continued)
 
 ## Background
 
@@ -15,7 +17,7 @@ This document describes all the steps required to setup data load microservices 
 
 ## Preparation
 
-Download [Bad Dicom](https://github.com/HicServices/BadMedicine.Dicom/releases) and use it to generate some test images on disk:
+Download [BadDicom] and use it to generate some test images on disk:
 
 ```
 BadDicom.exe c:\temp\testdicoms
@@ -190,7 +192,111 @@ This should cause our old friend:
 Could not confirm message published after timeout
 ```
 
+Notice also that a queue message has still been consumed and we have 1 less message in the `TEST.AccessionDirectoryQueue`
+
+---
+
+![One message has been consumed](./Images/DataLoading/LostMessages.png)
+_RabbitMQ queue graph are 1 less message available for processing_
+
+---
+
+Messages that cannot be processed are 'nacked' and not returned to the processing queue.  This prevents 'bad' messages getting served up repeatedly to consumers and degrading system performance.  To prevent message loss we can set up a dead letter exchange.
 
 
+#### Dead Letter Exchange
+
+Create an internal exchange and queue for the dead letters:
+
+- DeadLetterExchange
+  - DeadLetterQueue
+
+Now create a policy for all queues to send nacked messages to this exchange:
+
+---
+
+![Configuring a dead letter exchange policy](./Images/DataLoading/DeadLetterExchange.png)
+
+---
+
+Run DicomTagReader again to force another failure (because we still have no bound output queue for our succesfully processed messages)
+
+This should result in the 'lost' message being sent to the dead letter queue:
+
+---
+
+![Dead letter queue now shows 1 message waiting (the failing message) and the input queue has the remaining 3 messages](./Images/DataLoading/DeadLetterExchangeAfterError.png)
+_The unprocessed message now resides in the dead letter queue_
+
+---
+
+### DicomTagReader Continued
+
+Create the output queues for the tag reader exchanges (make sure to bind them to the correct exchanges):
+
+- TEST.IdentifiableSeriesExchange
+  - TEST.IdentifiableSeriesQueue
+- TEST.IdentifiableImageExchange
+  - TEST.IdentifiableImageQueue
+
+This should produce the following output:
+
+```
+Bootstrapper -> Main called, constructing host
+2019-12-03 09:09:42.1992| INFO|DicomTagReaderHost|Host logger created with SMI logging config|||
+2019-12-03 09:09:42.2524| INFO|DicomTagReaderHost|Started DicomTagReader:17464|||
+Bootstrapper -> Host constructed, starting aux connections
+2019-12-03 09:09:42.5133| INFO|SerialTagReader|Stopwatch implementation - IsHighResolution: True. Frequency: 10000000 ticks/s|||
+Bootstrapper -> Host aux connections started, calling Start()
+Bootstrapper -> Host started
+Bootstrapper -> Exiting main
+2019-12-03 09:09:43.2117| INFO|SerialTagReader|Sending 8 DicomFileMessage(s)|||
+2019-12-03 09:09:43.2553| INFO|SerialTagReader|Sending 2 SeriesMessage(s)|||
+2019-12-03 09:09:43.3095| INFO|SerialTagReader|Sending 8 DicomFileMessage(s)|||
+2019-12-03 09:09:43.3353| INFO|SerialTagReader|Sending 2 SeriesMessage(s)|||
+2019-12-03 09:09:43.4184| INFO|SerialTagReader|Sending 8 DicomFileMessage(s)|||
+2019-12-03 09:09:43.4330| INFO|SerialTagReader|Sending 2 SeriesMessage(s)|||
+```
+
+The binary will not exit by default (it will wait for more messages).  Use Ctrl+C to trigger shutdown of the binary.
+
+```
+2019-12-03 09:10:59.0453| INFO|SerialTagReader|Lock released, no more messages will be processed|||
+2019-12-03 09:10:59.0453| INFO|SerialTagReader|Average rates - enumerate dir (per acc. message): 0.001034s, file process: 0.002731s, send messages: 0.003534s, overall: 0.211906s|||
+2019-12-03 09:10:59.0453| INFO|DicomTagReaderHost|Host Stop called: Ctrl+C pressed|||
+2019-12-03 09:10:59.5284| INFO|DicomTagReaderHost|Host stop completed|||
+```
+
+After execution the queues should look like:
+
+---
+
+![Output queues with 1 message per image + 1 message per series](./Images/DataLoading/AfterDicomTagReader.png)
+_Output queues from a succesful run of DicomTagReader_
+
+---
+
+If you peek at the messages in the `TEST.IdentifiableImageExchange`.  You should see the JSON representation of a dicom image (tags only):
+
+```
+Exchange 	TEST.IdentifiableImageExchange
+timestamp:	1575364183
+delivery_mode:	2
+headers:	
+MessageGuid:	a5f2ad28-6f87-49b6-b417-e87c425d74c1
+OriginalPublishTimestamp:	1575293146
+Parents:	90429bb7-5650-4ea0-922e-082cfc7befcc
+ProducerExecutableName:	DicomTagReader
+ProducerProcessID:	17464
+content_encoding:	UTF-8
+content_type:	application/json
+Payload
+2802 bytes
+Encoding: string
+	
+{"NationalPACSAccessionNumber":"6","DicomFilePath":"testdicoms\\1987\\12\\6\\2.25.176347174691273338913144606255096043339.dcm","StudyInstanceUID":"2.25.124865355268738178415667314856224778478","SeriesInstanceUID":"2.25.268908360241165259234396963267293474168","SOPInstanceUID":"2.25.176347174691273338913144606255096043339","DicomDataset":"{\"00080008\":{\"vr\":\"CS\",\"val\":\"ORIGINAL\\\\PRIMARY\\\\AXIAL\"},\"00080016\":{\"vr\":\"UI\",\"val\":\"1.2.840.10008.5.1.4.1.1.7\"},\"00080018\":{\"vr\":\"UI\",\"val\":\"2.25.176347174691273338913144606255096043339\"},\"00080020\":{\"vr\":\"DA\",\"val\":\"19871206\"},\"00080021\":{\"vr\":\"DA\",\"val\":\"19871206\"},\"00080022\":{\"vr\":\"DA\",\"val\":\"19871206\"},\"00080030\":{\"vr\":\"TM\",\"val\":\"180631\"},\"00080031\":{\"vr\":\"TM\",\"val\":\"180631\"},\"00080032\":{\"vr\":\"TM\",\"val\":\"180631\"},\"00080060\":{\"vr\":\"CS\",\"val\":\"CT\"},\"00080061\":{\"vr\":\"CS\",\"val\":\"CT\"},\"00081030\":{\"vr\":\"LO\",\"val\":\"CT Thorax & abdo & pel\"},\"00100010\":{\"vr\":\"PN\",\"val\":\"LUCA Price\"},\"00100020\":{\"vr\":\"LO\",\"val\":\"3003863640\"},\"00100030\":{\"vr\":\"DA\",\"val\":\"19860330\"},\"00101010\":{\"vr\":\"AS\",\"val\":\"001Y\"},\"00101040\":{\"vr\":\"LO\",\"val\":\"76 Foggyley Place Brechin and Edzell Angus DD9 6ES\"},\"00180050\":{\"vr\":\"DS\"},\"00180060\":{\"vr\":\"DS\",\"val\":\"0\"},\"00180088\":{\"vr\":\"DS\"},\"00181149\":{\"vr\":\"IS\",\"val\":\"0\"},\"00181150\":{\"vr\":\"IS\",\"val\":\"0\"},\"00181151\":{\"vr\":\"IS\",\"val\":\"0\"},\"00181152\":{\"vr\":\"IS\",\"val\":\"0\"},\"00189311\":{\"vr\":\"FD\",\"val\":[0.0]},\"00189461\":{\"vr\":\"FL\",\"val\":[0.0]},\"0020000D\":{\"vr\":\"UI\",\"val\":\"2.25.124865355268738178415667314856224778478\"},\"0020000E\":{\"vr\":\"UI\",\"val\":\"2.25.268908360241165259234396963267293474168\"},\"00200011\":{\"vr\":\"IS\",\"val\":\"0\"},\"00200012\":{\"vr\":\"IS\",\"val\":\"0\"},\"00200032\":{\"vr\":\"DS\",\"val\":\"0\\\\0\\\\0\"},\"00201041\":{\"vr\":\"DS\"},\"00201208\":{\"vr\":\"IS\",\"val\":\"2\"},\"00201209\":{\"vr\":\"IS\",\"val\":\"4\"},\"00280002\":{\"vr\":\"US\",\"val\":[3]},\"00280004\":{\"vr\":\"CS\"},\"00280006\":{\"vr\":\"US\",\"val\":[0]},\"00280008\":{\"vr\":\"IS\",\"val\":\"1\"},\"00280010\":{\"vr\":\"US\",\"val\":[500]},\"00280011\":{\"vr\":\"US\",\"val\":[500]},\"00280030\":{\"vr\":\"DS\",\"val\":\"0.3\\\\0.25\"},\"00280100\":{\"vr\":\"US\",\"val\":[8]},\"00280101\":{\"vr\":\"US\",\"val\":[8]},\"00280102\":{\"vr\":\"US\",\"val\":[7]},\"00280103\":{\"vr\":\"US\",\"val\":[0]},\"00280301\":{\"vr\":\"CS\",\"val\":\"NO\"},\"00282110\":{\"vr\":\"CS\",\"val\":\"00\"},\"00282112\":{\"vr\":\"DS\",\"val\":\"1\"},\"00282114\":{\"vr\":\"CS\",\"val\":\"ISO_10918_1\"},\"00400253\":{\"vr\":\"SH\",\"val\":\"0\"},\"7FE00010\":{\"vr\":\"OB\"}}"}
+```
+_A JSON serialized dicom dataset in RabbitMQ (this is __synthetic test data__ made up by the [BadDicom] tool)_
 
 [Smi.NLog.config]: ../data/logging/Smi.NLog.config
+[BadDicom]: https://github.com/HicServices/BadMedicine.Dicom/releases
