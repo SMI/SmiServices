@@ -3,16 +3,18 @@
 ## Contents
 
 - [Background](#background)
-  - [MongoDb](#mongodb)
-  - [RelationalDb](#relationaldb)
+  - [MongoDb]
+  - [RelationalDb]
 - [Preparation](#preparation)
   - [Publish Binaries](#publish-binaries)
-- [Microservices](#microservices)
+- [MongoDb Loading Microservices](#mongodb-loading-microservices)
   - [DicomDirectoryProcessor](#dicomdirectoryprocessor)
   - [DicomTagReader](#dicomtagreader)
     - [Dead Letter Exchange](#dead-letter-exchange)
   - [DicomTagReader Continued](#dicomtagreader-continued)
   - [MongoDbPopulator](#mongodbpopulator)
+- [RelationalDb Loading Microservices](#relationaldb-loading-microservices)
+  - [DicomReprocessor](#dicomreprocessor)
   
  
 ## Background
@@ -84,7 +86,9 @@ E:\SmiServices\src\applications\Applications.DicomDirectoryProcessor> dotnet pub
 ```
 
 
-## Microservices
+## MongoDb Loading Microservices
+
+The following process are responsible for loading the [MongoDb] with
 
 ### DicomDirectoryProcessor
 
@@ -392,6 +396,37 @@ Your MongoDb instance should now have 2 new collections `image_CT` and `series`.
 
 _Mongo Db after MongoDbPopulator has run_
 
+## RelationalDb Loading Microservices
+
+The following microservices are responsible for loading the [RelationalDb] with anonymised tag data (and file paths) for downstream cohort creation, linkage and extraction processes.
+
+### DicomReprocessor
+
+This application is responsible for fetching records from [MongoDb] collections and queuing them for processing in RabbitMQ.
+
+Publish and run `DicomReprocessor` (making sure to copy accross [Smi.NLog.config] if required)
+
+```
+E:\SmiServices\src\microservices\Microservices.DicomReprocessor\bin\AnyCPU\Debug\netcoreapp2.2\win-x64> .\DicomReprocessor.exe
+```
+
+This should display the following helpful prompt:
+
+```
+ERROR(S):
+  Required option 'c, collection-name' is missing.
+USAGE:
+Normal Scenario:
+  DicomReprocessor --batch-size 123 --collection-name image
+```
+
+Add the missing parameters e.g.
+
+```
+todo
+```
 
 [Smi.NLog.config]: ../data/logging/Smi.NLog.config
 [BadDicom]: https://github.com/HicServices/BadMedicine.Dicom/releases
+[MongoDb]: #mongodb
+[RelationalDb]: #relationaldb
