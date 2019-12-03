@@ -370,7 +370,7 @@ namespace Smi.Common
                 reason = "cancellation was requested";
             else if(ShutdownCalled)
                 reason = "shutdown was called";
-            else if(cancellationToken.IsCancellationRequested)
+            else if(!m.IsOpen)
                 reason = "channel is closed";
 
             _logger.Debug("Consumer for {0} exiting ({1})", subscription.QueueName, reason);
