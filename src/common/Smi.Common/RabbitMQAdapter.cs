@@ -356,7 +356,7 @@ namespace Smi.Common
             IModel m = subscription.Model;
             consumer.SetModel(m);
 
-            while (m.IsOpen && !cancellationToken.IsCancellationRequested)
+            while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
                 BasicDeliverEventArgs e;
 
@@ -364,7 +364,15 @@ namespace Smi.Common
                     consumer.ProcessMessage(e);
             }
 
-            string reason = cancellationToken.IsCancellationRequested ? "cancellation was requested" : "channel is closed";
+            string reason = "unknown";
+                
+            if(cancellationToken.IsCancellationRequested)
+                reason = "cancellation was requested";
+            else if(ShutdownCalled)
+                reason = "shutdown was called";
+            else if(!m.IsOpen)
+                reason = "channel is closed";
+
             _logger.Debug("Consumer for {0} exiting ({1})", subscription.QueueName, reason);
         }
 
@@ -423,8 +431,11 @@ namespace Smi.Common
             {
                 lock (OResourceLock)
                 {
-                    Model.Close(200, "Disposed");
-                    Connection.Close(200, "Disposed");
+                    if(Model.IsOpen)
+                        Model.Close(200, "Disposed");
+                    
+                    if(Connection.IsOpen)
+                        Connection.Close(200, "Disposed",10000);
                 }
             }
         }

@@ -8,7 +8,12 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
+using NLog;
+using NLog.Targets;
 
 namespace Smi.Common.Tests
 {
@@ -221,6 +226,44 @@ namespace Smi.Common.Tests
 
             Assert.True(model.IsClosed);
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
+        }
+
+        [TestCase(typeof(SelfClosingConsumer))]
+        [TestCase(typeof(DoNothingConsumer))]
+        public void Test_Shutdown(Type consumerType)
+        {
+            MemoryTarget target = new MemoryTarget();                                                  
+            target.Layout = "${message}";                                                              
+                                                                                           
+            NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);          
+
+            var o = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+
+            var consumer = (IConsumer)Activator.CreateInstance(consumerType);
+
+            //connect to rabbit with a new consumer
+            using (var tester = new MicroserviceTester(o.RabbitOptions, new []{_testConsumerOptions}))
+            {
+                _testAdapter.StartConsumer(_testConsumerOptions, consumer, true);
+                
+                //send a message to trigger consumer behaviour
+                tester.SendMessage(_testConsumerOptions,new TestMessage());
+
+                //give the message time to get picked up
+                Thread.Sleep(3000);
+                
+                //now attempt to shut down adapter
+                _testAdapter.Shutdown();
+
+                string expectedErrorMessage = "nothing to see here";
+
+                if (consumer is SelfClosingConsumer)
+                    expectedErrorMessage = "exiting (channel is closed)";
+                if (consumer is DoNothingConsumer)
+                    expectedErrorMessage = "exiting (cancellation was requested)";
+
+                Assert.IsTrue(target.Logs.Any(s=>s.Contains(expectedErrorMessage)),"Expected message was not found, messages were:" + string.Join(Environment.NewLine,target.Logs));
+            }
         }
 
         [Test]
