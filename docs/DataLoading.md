@@ -15,7 +15,7 @@
   - [MongoDbPopulator](#mongodbpopulator)
 - [RelationalDb Loading Microservices](#relationaldb-loading-microservices)
   - [DicomReprocessor](#dicomreprocessor)
-  
+  - [IdentifierMapper](#identifiermapper)
  
 ## Background
 
@@ -36,7 +36,7 @@ MongoDb is used because it is designed to store wide (many columns) and tree str
 
 ### RelationalDb
 
-The Relational Db (e.g. Sql Server, MySql, Oracle or Postgres) stores only the tags required for cohort creation and image extraction (e.g. StudyDate, PatientID, Modality, StudyDescription etc).  The RelationalDb should only be loaded with images that are fit for release (can be anonymised) and only anonymised tags should be loaded (this includes performing identifier substitution e.g. for PatientID).
+The Relational Db (e.g. Sql Server, MySql, Oracle or Postgres) stores only the tags required for cohort creation and image extraction (e.g. StudyDate, [PatientID], Modality, StudyDescription etc).  The RelationalDb should only be loaded with images that are fit for release (can be anonymised) and only anonymised tags should be loaded (this includes performing identifier substitution e.g. for PatientID).
 
 A relational database is used because it allows easier linking with other traditional EHR data (e.g. prescribing, biochemistry etc) held by a safehaven.
 
@@ -417,16 +417,80 @@ ERROR(S):
   Required option 'c, collection-name' is missing.
 USAGE:
 Normal Scenario:
-  DicomReprocessor --batch-size 123 --collection-name image
+  DicomReprocessor --collection-name image_CT
 ```
 
-Add the missing parameters e.g.
+Add the missing parameter, this should be the name of the collection loaded by [MongoDbPopulator] e.g. `image_CT`
 
 ```
-todo
+DicomReprocessor.exe -c image_CT --auto-run
+```
+
+This should give us the error:
+
+```
+BasicReturn for Exchange 'TEST.IdentifiableImageExchange' Routing Key 'reprocessed' ReplyCode '312' (NO_ROUTE)
+````
+
+This is because `DicomReprocessor` is designed to feed images identified in MongoDb to any number of downstream processes of which loading the [RelationalDb] is only one.  To this end it requires a RabbitMQ exchange that can handle routing keys (i.e. to different destination queues).
+
+Since we only want to send the messages on to one queue we can create a `fanout` exchange as the destination.  Create a new `fanout` exchange with a destination queue:
+
+- TEST.DicomReprocessorExchange `(fanout)`
+  - TEST.DicomReprocessorQueue
+
+Edit `default.yaml` and set the `DicomReprocessorOptions` to use the new exchange.
+
+```yaml
+DicomReprocessorOptions:
+    ProcessingMode: 'ImageReprocessing'
+    ReprocessingProducerOptions: 
+        ExchangeName: 'TEST.DicomReprocessorExchange'
+        MaxConfirmAttempts: 1
+```
+
+This should give the following succesful output (see below) and there should be image messages in the `TEST.DicomReprocessorQueue`
+
+```
+Bootstrapper -> Main called, constructing host
+2019-12-04 09:09:47.6406| INFO|DicomReprocessorHost|Host logger created with SMI logging config|||
+2019-12-04 09:09:47.6793| INFO|DicomReprocessorHost|Started DicomReprocessor:34748|||
+2019-12-04 09:09:47.8743| INFO|DicomReprocessorHost|Documents will be reprocessed to TEST.DicomReprocessorExchange on vhost / with routing key "reprocessed"|||
+Bootstrapper -> Host constructed, starting aux connections
+Bootstrapper -> Host aux connections started, calling Start()
+2019-12-04 09:09:48.1199| INFO|Smi.Common.MongoDB.MongoQueryParser|No query specified, fetching all records in collection|||
+2019-12-04 09:09:48.3837| INFO|MongoDbReader|Using MaxDegreeOfParallelism: 4|||
+2019-12-04 09:09:48.3837| INFO|MongoDbReader|Batch size is: unspecified|||
+2019-12-04 09:09:48.3837| INFO|MongoDbReader|Sleeping for 0ms between batches|||
+2019-12-04 09:09:48.3837| INFO|MongoDbReader|Starting reprocess operation|||
+2019-12-04 09:09:48.9120| INFO|MongoDbReader|Reprocessing finished or cancelled, time elapsed: 0:00:00.529213|||
+2019-12-04 09:09:48.9120| INFO|DicomReprocessorHost|Total messages sent: 24|||
+2019-12-04 09:09:48.9120| INFO|DicomReprocessorHost|Total failed to reprocess : 0|||
+2019-12-04 09:09:48.9120| INFO|DicomReprocessorHost|Average documents processed per second: 45|||
+2019-12-04 09:09:48.9120| INFO|MongoDbReader|Cancelling the running query|||
+2019-12-04 09:09:48.9120| INFO|DicomReprocessorHost|Host Stop called: Reprocessing completed|||
+2019-12-04 09:09:49.1352| INFO|DicomReprocessorHost|Host stop completed|||
+Bootstrapper -> Host started
+Bootstrapper -> Exiting main
+```
+
+## IdentifierMapper
+
+The next component in the load is the `IdentifierMapper`.  It's job is to anonymise the [PatientID] tag in the JSON extraced by [DicomReprocessor].  This change only occurs in the messages in the rabbit (as they are written to the output queue).  This prepares them for loading into the [RelationalDb].  
+
+At no point are the original Dicom files on disk opened or changed.
+
+
+Publish and run `IdentifierMapper` (making sure to copy accross [Smi.NLog.config] if required)
+
+```
+E:\SmiServices\src\microservices\Microservices.IdentifierMapper\bin\AnyCPU\Debug\netcoreapp2.2\win-x64> .\IdentifierMapper.exe
 ```
 
 [Smi.NLog.config]: ../data/logging/Smi.NLog.config
 [BadDicom]: https://github.com/HicServices/BadMedicine.Dicom/releases
 [MongoDb]: #mongodb
 [RelationalDb]: #relationaldb
+[MongoDbPopulator]: #MongoDbPopulator
+[DicomReprocessor]: #DicomReprocessor
+[PatientID]: https://dicom.innolitics.com/ciods/rt-plan/patient/00100020
