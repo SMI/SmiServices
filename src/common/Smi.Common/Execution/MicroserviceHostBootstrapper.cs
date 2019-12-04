@@ -38,37 +38,27 @@ namespace Smi.Common.Execution
 
             Console.WriteLine("Bootstrapper -> Host constructed, starting aux connections");
 
+            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            {
+                e.Cancel = true;
+                host.Stop("Ctrl+C pressed");
+            };
+
             try
             {
-                Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
-                {
-                    e.Cancel = true;
-                    host.Stop("Ctrl+C pressed");
-                };
+                host.StartAuxConnections();
+                Console.WriteLine("Bootstrapper -> Host aux connections started, calling Start()");
 
-                try
-                {
-                    host.StartAuxConnections();
-                    Console.WriteLine("Bootstrapper -> Host aux connections started, calling Start()");
-
-                    host.Start();
-                    Console.WriteLine("Bootstrapper -> Host started");
-                }
-                catch (Exception e)
-                {
-                    host.Fatal("Failed to start host", e);
-                    return -2;
-                }
-
-                Console.WriteLine("Bootstrapper -> Exiting main");
+                host.Start();
+                Console.WriteLine("Bootstrapper -> Host started");
             }
-            finally
+            catch (Exception e)
             {
-                var disposable = host as IDisposable;
-
-                if (disposable != null)
-                    disposable.Dispose();
+                host.Fatal("Failed to start host", e);
+                return -2;
             }
+
+            Console.WriteLine("Bootstrapper -> Exiting main");
 
             // Only thing keeping process from exiting after this point are any
             // running tasks (i.e. RabbitMQ consumer tasks)
