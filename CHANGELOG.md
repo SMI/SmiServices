@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Fixed freeze condition when exchanges are not mapped to queues
+- IdentifierMapper now loads all FAnsi database implementations up front on startup
 
 ### Added
 
