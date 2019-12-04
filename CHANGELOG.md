@@ -15,6 +15,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fixed freeze condition when exchanges are not mapped to queues
 
+### Added
+
+- Added better CLI argument descriptions for DicomReprocessor
+- Added error logging for RabbitMQ bad Ack responses 
+  - Previously: `BasicReturn for TEST.IdentifiableImageExchange`
+  - Now : `BasicReturn for Exchange 'TEST.IdentifiableImageExchange' Routing Key 'reprocessed' ReplyCode '312' (NO_ROUTE)`
+
 ## [1.1.0] - 2019-11-22
 
 ## Added

@@ -76,14 +76,19 @@ namespace Microservices.DicomReprocessor.Execution
                 {
                     LogManager.Flush();
 
-                    Console.Write("Confirm you want to reprocess documents using the above query in " + _collNamespace + ": ");
+                    Console.Write("Confirm you want to reprocess documents using the above query in " + _collNamespace + " (Y/n):");
 
                     string key = Console.ReadLine();
-                    if (key == null || key.ToLower() != "y")
+                    if (!(
+                        string.IsNullOrWhiteSpace(key)  || //enter means carry on
+                        key.Equals("y",StringComparison.CurrentCultureIgnoreCase)) // y/Y means carry on
+                        )
                     {
-                        _logger.Warn("Reprocessing cancelled, exiting");
+                        _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");
                         return default;
                     }
+
+                    _logger.Info("User chose to continue with query execution");
                 }
 
                 _logger.Info("Starting reprocess operation");
