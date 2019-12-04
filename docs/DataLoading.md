@@ -632,11 +632,59 @@ This confirms that both [RDMP] and the [Rdmp.Dicom] plugin are correctly install
 
 The [RelationalDb] can have any schema you want and of any [DBMS] supported by [RDMP].  `DicomRelationalMapper` will load all tables configured and populate any columns which are named after dicom tags (e.g. [PatientID], StudyDate, SeriesDate etc).  You can define a single large table or tables at different levels of granularity (e.g. Study / Series / Image).  Only unique records will be loaded (i.e. a study table would contain 1 entry per study not 1 per image with rampant duplication).
 
-todo
+Schemas are defined in yaml.  There are a number of [existing templates](https://github.com/HicServices/DicomTypeTranslation/tree/master/Templates) you can pick from.  Alternatively you can build your own using the [Dicom Template Builder].
+
+Download the [CT.it](https://raw.githubusercontent.com/HicServices/DicomTypeTranslation/master/Templates/CT.it) template.  Copy the contents into a [yaml validator](http://www.yamllint.com/) to ensure there were no problems with leading/trailing whitespace etc when you downloaded it.
 
 #### Building the load
   
-todo
+Once you have picked a schema you will need to run the `CreateNewImagingDatasetSuite` command in RDMP.  This can be [done through the windows client](https://github.com/HicServices/RdmpDicom/blob/develop/Documentation/DataLoad.md).
+
+Alternatively you can run it from the rdmp console gui:
+
+```
+./rdmp gui
+```
+
+Press `F9` to access the menu and select `R` (Run).  Locate the `CreateNewImagingDatasetSuite` command and run it:
+
+![Create suite command listed in rdmp gui](./Images/DataLoading/RdmpGuiCreateSuite.png)
+
+Enter the server/database name you want the tables created into.  __Make sure to select Create Database__ (if the database does not already exist).
+
+![Create the target database in rdmp gui](./Images/DataLoading/RdmpGuiCreateDatabase.png)
+
+- Select a 'project directory' this should be a directory on disk (that must exist) in which load scripts can be added later (all [RDMP] loads require a load folder regardless of whether they actually use it)
+- Select DicomDatasetCollectionSource for the `dicomSourceType`
+- Enter `CT_` when prompted for table prefix
+- Select the `CT.it` template file when prompted
+
+![Pick the template file in rdmp gui](./Images/DataLoading/RdmpGuiTemplateFile.png) 
+
+- Enter Yes for `persistentRAW` (this allows parallel loading)
+- Enter Yes for `createLoad`
+
+Run Refresh (`F9` Refresh `f`)
+
+Now open the tree (`F9` Tree `t`) and search for "loadmetadata"
+
+![The load created in rdmp gui](./Images/DataLoading/RdmpGuiOpenTree.png) 
+
+Select "SMI Image Loading CT", this will show all the operations created in the load
+
+![The load created in rdmp gui detail](./Images/DataLoading/RdmpGuiLoadCreated.png) 
+
+Take note of the ID of the load (in this case `1`).  You can see this in the search or by opening the load.
+
+You can check the load by exiting (`F9` Quit `Q`) and running the command line checks
+
+```
+ ./rdmp dle -l 1 --command check
+```
+
+In Sql Server you should see tables (and archive tables) that match your template
+
+![The imaging tables and archive tables](./Images/DataLoading/RdmpAllDatabases.png) 
 
 ### DicomRelationalMapper Continued
 
@@ -656,3 +704,4 @@ todo
 [Rdmp.Dicom]: https://github.com/HicServices/RdmpDicom
 [RDMP User Manual]: https://github.com/HicServices/RDMP#research-data-management-platform
 [DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#dbms
+[Dicom Template Builder]: https://github.com/HicServices/DicomTemplateBuilder
