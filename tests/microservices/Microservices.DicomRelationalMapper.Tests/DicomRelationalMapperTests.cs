@@ -38,7 +38,6 @@ namespace Microservices.DicomRelationalMapper.Tests
             TestLogger.Setup();
         }
 
-        [Ignore("This should be working with RDMP 4.0.1 (fails with rc3)")]
         [Test]
         public void Test_DodgyTagNames()
         {

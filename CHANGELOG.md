@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Updated to latest RDMP API (4.0.1)
+
 ### Fixed
 
 - Fixed freeze condition when exchanges are not mapped to queues
