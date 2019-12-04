@@ -6,6 +6,7 @@
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <Platforms>x64</Platforms>
     <IsPackable>false</IsPackable>
+	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="DLEBenchmarkingTests\CT.it" />

@@ -83,16 +83,13 @@ Appart from the Microservices (documented above) the following library classes a
 
 ### Building the C# Projects
 
-Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2) and [Ruby/Rake](https://github.com/ruby/rake). This can then be built with:
+Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
 
 ```bash
-# Non-Windows systems only
-> source scripts/linuxBuildSetup.sh
-
-> rake build
+dotnet publish -r win-x64
 ```
+__To build linux substitute the runtime identifier linux-x64__
 
-The rake build can be configured by overriding the environment variables specified in `rakeconfig.rb`.
 
 ### Building the Java Projects
 
