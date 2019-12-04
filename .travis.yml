@@ -48,8 +48,19 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
-    # deploy:
-    # - echo "TODO"
+     
+     - dotnet publish releasesolution/SmiServicesRelease.sln -r win-x64 -c release -o releasesolution/bin/win
+     - dotnet publish releasesolution/SmiServicesRelease.sln -r linux-x64 -c release -o releasesolution/bin/linux
+     
+    deploy:
+        provider: releases
+        github-token: #GITHUB_TOKEN
+        file_glob: true
+        file: releasesolution/bin/**/*
+        skip-cleanup: true
+        on: 
+            branch: master
+            tags: true
 
   - language: java
     env:
