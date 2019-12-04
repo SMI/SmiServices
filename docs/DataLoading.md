@@ -17,6 +17,10 @@
   - [DicomReprocessor](#dicomreprocessor)
   - [IdentifierMapper](#identifiermapper)
   - [DicomRelationalMapper](#dicomrelationalmapper)
+    - [Installing RDMP](#installing-rdmp)
+    - [Picking the Schema](#picking-the-schema)
+    - [Building the load](#building-the-load)
+  - [DicomRelationalMapper Continued](#dicomrelationalmapper-continued)
 
 ## Background
 
@@ -579,6 +583,63 @@ The critical section in this JSON is `\"00100020\":{\"vr\":\"LO\",\"val\":\"8f77
 
 ### DicomRelationalMapper
 
+`DicomRelationalMapper` is responsible for loading the [RelationalDb] with the JSON serialized dicom images in it's RabbitMQ input queue.  
+
+Loading research ready relational databases without introducing duplication is complicated and highly dependant on user requirements (e.g. desired table schema, any aggregate/computed columns etc).
+
+To ensure maximum flexibility `DicomRelationalMapper` wraps the [RDMP] Data Load Engine (using the [Rdmp.Dicom] plugin)
+
+#### Installing RDMP
+    
+In order to set up the data load (but not run it) you will need to install [RDMP].  This can be done through the windows client by following the instructions in the [RDMP User Manual].
+
+Alternatively you can use the [command line client](https://github.com/HicServices/RDMP/releases).  Download and unzip the latest CLI package for your operating system (e.g. `rdmp-cli-win-x64.zip`)
+
+Run the install command (if you need to use sql authentication use the -u and -p flags too)
+
+```
+./rdmp.exe install localhost\sqlexpress TEST_
+```
+
+This will create all the databases required for [RDMP] to run (including running data loads)
+
+![RDMP platform databases installed on localhost sql server](./Images/DataLoading/RdmpPlatformDatabases.png)
+
+Edit `Databases.yaml` in the RDMP CLI directory so that the connection strings are correct for your server e.g.
+
+```yaml
+CatalogueConnectionString: Server=localhost\sqlexpress;Database=TEST_Catalogue;Trusted_Connection=True;
+DataExportConnectionString: Server=localhost\sqlexpress;Database=TEST_DataExport;Trusted_Connection=True;
+```
+
+Next download the latest [Rdmp.Dicom] plugin version compatible with your RDMP binary (See the release notes of the plugin for version compatibility).  For example [Rdmp.Dicom.2.0.4.nupkg](https://github.com/HicServices/RdmpDicom/releases/tag/v2.0.4)
+
+Add the plugin to RDMP with the CLI pack command (or through the [windows client](https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Images/AddPluginContextMenu.png))
+
+```
+./rdmp pack --file C:\Users\tznind\Downloads\Rdmp.Dicom.2.0.4.nupkg
+``` 
+
+You should now find the command `CreateNewImagingDatasetSuite` is listed when you run
+
+```
+./rdmp cmd ListSupportedCommands
+```
+
+This confirms that both [RDMP] and the [Rdmp.Dicom] plugin are correctly installed.  If you don't see the command, try running with `--logstartup` to see any errors.
+
+#### Picking the Schema
+
+The [RelationalDb] can have any schema you want and of any [DBMS] supported by [RDMP].  `DicomRelationalMapper` will load all tables configured and populate any columns which are named after dicom tags (e.g. [PatientID], StudyDate, SeriesDate etc).  You can define a single large table or tables at different levels of granularity (e.g. Study / Series / Image).  Only unique records will be loaded (i.e. a study table would contain 1 entry per study not 1 per image with rampant duplication).
+
+todo
+
+#### Building the load
+  
+todo
+
+### DicomRelationalMapper Continued
+
 todo
 
 [Smi.NLog.config]: ../data/logging/Smi.NLog.config
@@ -591,3 +652,7 @@ todo
 [strategy pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
 [ForGuidIdentifierSwapper]: ../src/microservices/Microservices.IdentifierMapper/Execution/Swappers/ForGuidIdentifierSwapper.cs 
 [TableLookupSwapper]: ../src/microservices/Microservices.IdentifierMapper/Execution/Swappers/TableLookupSwapper.cs 
+[RDMP]: https://github.com/HicServices/RDMP
+[Rdmp.Dicom]: https://github.com/HicServices/RdmpDicom
+[RDMP User Manual]: https://github.com/HicServices/RDMP#research-data-management-platform
+[DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#dbms
