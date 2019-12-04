@@ -88,7 +88,7 @@ Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/
 ```bash
 dotnet publish -r win-x64
 ```
-__To build linux substitute the runtime identifier linux-x64__
+_To build other OS substitute the respective [runtime identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) e.g. linux-x64_
 
 
 ### Building the Java Projects
@@ -118,19 +118,6 @@ The projects can then be built by returning to the top level directory and runni
 This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test sutie can be skipped by passing `-DskipTests`.
 
 Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
-
-### Building Release Packages
-
-To manually build release packages:
-
-```bash
-# Non-Windows systems only
-> source scripts/linuxBuildSetup.sh
-
-> rake release_local[<os>]
-```
-
-Where `<os>` is the [Runtime Identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) for the target platform, usually `win-x64` or `linux-x64`.
 
 ## Developing
 
