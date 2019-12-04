@@ -16,7 +16,8 @@
 - [RelationalDb Loading Microservices](#relationaldb-loading-microservices)
   - [DicomReprocessor](#dicomreprocessor)
   - [IdentifierMapper](#identifiermapper)
- 
+  - [DicomRelationalMapper](#dicomrelationalmapper)
+
 ## Background
 
 This document describes all the steps required to setup data load microservices and use them to load a collection of Dicom images.
@@ -487,6 +488,99 @@ Publish and run `IdentifierMapper` (making sure to copy accross [Smi.NLog.config
 E:\SmiServices\src\microservices\Microservices.IdentifierMapper\bin\AnyCPU\Debug\netcoreapp2.2\win-x64> .\IdentifierMapper.exe
 ```
 
+Amongst the error messages should be the following interesting bits:
+
+```
+2019-12-04 09:27:51.3405| INFO|Smi.Common.Helpers.MicroserviceObjectFactory|Successfully constructed Type 'Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper'|||
+2019-12-04 09:27:51.3405| INFO|IdentifierMapperHost|Calling Setup on swapper|||
+Failed to construct host:
+System.ArgumentException: MappingTableName did not contain the database/user section:'MappingTable'
+```
+
+`IdentifierMapper` uses a [strategy pattern] to determine how identifiers are substituted.  The following implementations are provided out of the box:
+
+  - [ForGuidIdentifierSwapper]
+  - [TableLookupSwapper]
+
+We will use the [ForGuidIdentifierSwapper] because it doesn't require us to create an identiifer mapping up front.  Open `default.yaml` and edit the `IdentifierMapperOptions` settings e.g.:
+
+```yaml
+IdentifierMapperOptions:
+    QueueName: 'TEST.DicomReprocessorQueue'
+    QoSPrefetchCount: 1000
+    AutoAck: false
+    AnonImagesProducerOptions: 
+        ExchangeName: 'TEST.AnonymousImageExchange'
+        MaxConfirmAttempts: 1
+    MappingConnectionString: 'Server=localhost\sqlexpress;Integrated Security=true;Initial Catalog=MappingDatabase;'
+    MappingDatabaseType: 'MicrosoftSQLServer'
+    MappingTableName: 'MappingDatabase.MappingTable'
+    TimeoutInSeconds: 600
+    SwapColumnName: 'PatientID'
+    ReplacementColumnName: 'GuidPatientID'
+    SwapperType: 'Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper'
+    AllowRegexMatching: false
+```
+
+Make sure the `QueueName` is set to the output queue of [DicomReprocessor] (e.g. `TEST.DicomReprocessorQueue`) and that the `MappingConnectionString` is correct for your Sql Server instance.
+
+Create the output exchange and queue
+
+- TEST.AnonymousImageExchange
+  - TEST.AnonymousImageQueue
+
+Run `IdentifierMapper` again with the new yaml settings.  It should complete and have written all messages to the output queue `TEST.AnonymousImageQueue`:
+
+```
+Bootstrapper -> Main called, constructing host
+2019-12-04 09:49:34.1412| INFO|IdentifierMapperHost|Host logger created with SMI logging config|||
+2019-12-04 09:49:34.1909| INFO|IdentifierMapperHost|Started IdentifierMapper:26312|||
+2019-12-04 09:49:34.4561| INFO|IdentifierMapperHost|Not passed a swapper, creating one of type Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper|||
+2019-12-04 09:49:34.4561| INFO|Smi.Common.Helpers.MicroserviceObjectFactory|Successfully constructed Type 'Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper'|||
+2019-12-04 09:49:34.4561| INFO|IdentifierMapperHost|Calling Setup on swapper|||
+2019-12-04 09:49:35.5203| INFO|Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper|Guid mapping table does not exist, creating it now|||
+2019-12-04 09:49:35.5574| INFO|Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper|Guid mapping table exist (MappingTable)|||
+2019-12-04 09:49:35.5574| INFO|Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper|Checking for column PatientID|||
+2019-12-04 09:49:35.6333| INFO|Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper|Checking for column GuidPatientID|||
+Bootstrapper -> Host constructed, starting aux connections
+Bootstrapper -> Host aux connections started, calling Start()
+Bootstrapper -> Host started
+Bootstrapper -> Exiting main
+```
+
+If you look in your Sql Server database you should see a persistent record of the anonmised mapping.  This ensures that patients have consistent identifiers over time and no aliases are generated.
+
+![Sql server table containing mapped identifiers](./Images/DataLoading/SqlServerIdentifierMapperMappingTable.png)
+
+Notice that the PatientID is a primary key column to prevent aliases ever forming.  Multiple swappers can execute in parallel without risking aliases (e.g. due to race conditions) because lookup is performed in a single atomic transaction (SELECT if not exists INSERT).
+
+If you peek at the messages in the `TEST.AnonymousImageQueue` you can see the new PatientID tag value:
+
+```
+Exchange 	TEST.AnonymousImageExchange
+timestamp:	1575452976
+delivery_mode:	2
+headers:	
+MessageGuid:	c1b441fe-eb20-4060-a1db-3d7a6b9cb5ec
+OriginalPublishTimestamp:	1575293146
+Parents:	91775bf2-196d-499f-b07a-26fa098d142a->68a6435d-33ac-4895-88e9-2e18d03671f9->13a78be9-8cbf-40a2-9e28-d7745561159f->204e1e39-c408-44c9-b484-edddf4e0b2a6
+ProducerExecutableName:	IdentifierMapper
+ProducerProcessID:	26312
+content_encoding:	UTF-8
+content_type:	application/json
+Payload
+2813 bytes
+Encoding: string
+	
+{"NationalPACSAccessionNumber":"9","DicomFilePath":"testdicoms\\1958\\6\\9\\2.25.24425987081552946032369646390860332875.dcm","StudyInstanceUID":"2.25.39490047024894726575859340458560242419","SeriesInstanceUID":"2.25.200404735591937354156655516808405291743","SOPInstanceUID":"2.25.24425987081552946032369646390860332875","DicomDataset":"{\"00080008\":{\"vr\":\"CS\",\"val\":\"ORIGINAL\\\\PRIMARY\\\\AXIAL\"},\"00080016\":{\"vr\":\"UI\",\"val\":\"1.2.840.10008.5.1.4.1.1.7\"},\"00080018\":{\"vr\":\"UI\",\"val\":\"2.25.24425987081552946032369646390860332875\"},\"00080020\":{\"vr\":\"DA\",\"val\":\"19580609\"},\"00080021\":{\"vr\":\"DA\",\"val\":\"19580609\"},\"00080022\":{\"vr\":\"DA\",\"val\":\"19580609\"},\"00080030\":{\"vr\":\"TM\",\"val\":\"085353\"},\"00080031\":{\"vr\":\"TM\",\"val\":\"085353\"},\"00080032\":{\"vr\":\"TM\",\"val\":\"085353\"},\"00080060\":{\"vr\":\"CS\",\"val\":\"CT\"},\"00080061\":{\"vr\":\"CS\",\"val\":\"CT\"},\"00081030\":{\"vr\":\"LO\",\"val\":\"CT Head\"},\"00100010\":{\"vr\":\"PN\",\"val\":\"TOMMY Moore\"},\"00100020\":{\"vr\":\"LO\",\"val\":\"8f774005-6fe6-4a31-96d7-c454fbf7e323\"},\"00100030\":{\"vr\":\"DA\",\"val\":\"19560904\"},\"00101010\":{\"vr\":\"AS\",\"val\":\"001Y\"},\"00101040\":{\"vr\":\"LO\",\"val\":\"0 Tulloch Court Arbroath East and Lunan Angus  DD11 4RU\"},\"00180050\":{\"vr\":\"DS\"},\"00180060\":{\"vr\":\"DS\",\"val\":\"0\"},\"00180088\":{\"vr\":\"DS\"},\"00181149\":{\"vr\":\"IS\",\"val\":\"0\"},\"00181150\":{\"vr\":\"IS\",\"val\":\"0\"},\"00181151\":{\"vr\":\"IS\",\"val\":\"0\"},\"00181152\":{\"vr\":\"IS\",\"val\":\"0\"},\"00189311\":{\"vr\":\"FD\",\"val\":[0.0]},\"00189461\":{\"vr\":\"FL\",\"val\":[0.0]},\"0020000D\":{\"vr\":\"UI\",\"val\":\"2.25.39490047024894726575859340458560242419\"},\"0020000E\":{\"vr\":\"UI\",\"val\":\"2.25.200404735591937354156655516808405291743\"},\"00200011\":{\"vr\":\"IS\",\"val\":\"0\"},\"00200012\":{\"vr\":\"IS\",\"val\":\"0\"},\"00200032\":{\"vr\":\"DS\",\"val\":\"0\\\\0\\\\0\"},\"00201041\":{\"vr\":\"DS\"},\"00201208\":{\"vr\":\"IS\",\"val\":\"2\"},\"00201209\":{\"vr\":\"IS\",\"val\":\"4\"},\"00280002\":{\"vr\":\"US\",\"val\":[3]},\"00280004\":{\"vr\":\"CS\"},\"00280006\":{\"vr\":\"US\",\"val\":[0]},\"00280008\":{\"vr\":\"IS\",\"val\":\"1\"},\"00280010\":{\"vr\":\"US\",\"val\":[500]},\"00280011\":{\"vr\":\"US\",\"val\":[500]},\"00280030\":{\"vr\":\"DS\",\"val\":\"0.3\\\\0.25\"},\"00280100\":{\"vr\":\"US\",\"val\":[8]},\"00280101\":{\"vr\":\"US\",\"val\":[8]},\"00280102\":{\"vr\":\"US\",\"val\":[7]},\"00280103\":{\"vr\":\"US\",\"val\":[0]},\"00280301\":{\"vr\":\"CS\",\"val\":\"NO\"},\"00282110\":{\"vr\":\"CS\",\"val\":\"00\"},\"00282112\":{\"vr\":\"DS\",\"val\":\"1\"},\"00282114\":{\"vr\":\"CS\",\"val\":\"ISO_10918_1\"},\"00400253\":{\"vr\":\"SH\",\"val\":\"0\"},\"7FE00010\":{\"vr\":\"OB\"}}"}
+```
+
+The critical section in this JSON is `\"00100020\":{\"vr\":\"LO\",\"val\":\"8f774005-6fe6-4a31-96d7-c454fbf7e323\"}`.  The [PatientID] tag in dicom is `00100020` and we can see the that the value is the guid assigned by the swapper.
+
+### DicomRelationalMapper
+
+todo
+
 [Smi.NLog.config]: ../data/logging/Smi.NLog.config
 [BadDicom]: https://github.com/HicServices/BadMedicine.Dicom/releases
 [MongoDb]: #mongodb
@@ -494,3 +588,6 @@ E:\SmiServices\src\microservices\Microservices.IdentifierMapper\bin\AnyCPU\Debug
 [MongoDbPopulator]: #MongoDbPopulator
 [DicomReprocessor]: #DicomReprocessor
 [PatientID]: https://dicom.innolitics.com/ciods/rt-plan/patient/00100020
+[strategy pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
+[ForGuidIdentifierSwapper]: ../src/microservices/Microservices.IdentifierMapper/Execution/Swappers/ForGuidIdentifierSwapper.cs 
+[TableLookupSwapper]: ../src/microservices/Microservices.IdentifierMapper/Execution/Swappers/TableLookupSwapper.cs 
