@@ -1,35 +1,33 @@
-
 branches:
   only:
   - master
   - develop
-  - /^release\/.*$/
-  - /^hotfix\/.*$/
-  - /^feature\/.*$/
-
-dist: "bionic"
-
+  - "/^release\\/.*$/"
+  - "/^hotfix\\/.*$/"
+  - "/^feature\\/.*$/"
+dist: bionic
 jobs:
   include:
   - language: csharp
     mono: none
     dotnet: 2.2.100
     addons:
-      postgresql: "10"
+      postgresql: '10'
       apt:
         packages:
         - postgresql-10
         - postgresql-client-10
     services:
-      - postgresql
-      - mysql
-      - mongodb
+    - postgresql
+    - mysql
+    - mongodb
     before_install:
-    - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
-    - sleep 10 # TODO: Add a better check for the SQL server being available after starting the container
+    - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd'
+      -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
+    - sleep 10
     install:
     - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
-    - unzip -d rdmp-cli rdmp-cli-linux-x64.zip || true # Ignore exit code since unzip returns 1 for a warning we don't care about
+    - unzip -d rdmp-cli rdmp-cli-linux-x64.zip || true
     - chmod +x rdmp-cli/rdmp
     - rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
     before_script:
@@ -48,24 +46,22 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
-    
-    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r win-x64 -c release -o /home/travis/build/SMI/SmiServices/releasesolution/bin/win
-    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r linux-x64 -c release -o /home/travis/build/SMI/SmiServices/releasesolution/bin/linux
-    
+    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r win-x64 -c release
+      -o /home/travis/build/SMI/SmiServices/releasesolution/bin/win
+    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r linux-x64 -c release
+      -o /home/travis/build/SMI/SmiServices/releasesolution/bin/linux
     - tar -zcf ./releasesolution/bin/win-x64.zip ./releasesolution/bin/win
     - tar -zcf ./releasesolution/bin/linux-x64.tar.gz ./releasesolution/bin/linux
     - rm -rf ./releasesolution/bin/linux
     - rm -rf ./releasesolution/bin/win
-    
     deploy:
-        provider: releases
-        github-token: #GITHUB_TOKEN
-        file_glob: true
-        file: releasesolution/bin/*.*
-        skip-cleanup: true
-        on: 
-            tags: true
-
+      provider: releases
+      github-token: 
+      file_glob: true
+      file: releasesolution/bin/*.*
+      skip-cleanup: true
+      on:
+        tags: true
   - language: java
     env:
     - PARENT_POM=src/common/com.smi.microservices.parent/pom.xml
@@ -77,7 +73,7 @@ jobs:
     - mvn -v
     install:
     - cd ./lib/java
-    - ./installDat.sh
+    - "./installDat.sh"
     - cd ../..
     before_script:
     - docker run -d -p 5672:5672 rabbitmq:3
@@ -91,3 +87,10 @@ jobs:
       provider: script
       script:
       - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
+deploy:
+  provider: releases
+  api_key:
+    secure: DdirbOkYUePnKisYPlqYOpyti2HQFWmSIwY5spWflTUglzEZbnp+Q3sEltTebdlWo18i9skz6P5seAAXbX2ye1c3EZhqEyirWMxz1lvGdlNoQGHhWK6x+suM1DrG6Uun5dmcG/CEpWhDpcEbF8xQ/revtyCHEJj4xK9TXUHyFFG/KrzKSLGtsiBG1BOPkHJr4CoHjcpLzpmDB2hn+pYENtl3Nk0EeKmJgWdY/BWctEmUmRAXgfwsO/ejm9IbC5mIy5KBxbIUco/mf2JEKQB1drwdbINMxJXkbx+mWZYiDJBo5CWuWIzNOxv0Z3+Kg+N2cSwPX833v+W5YRTHyef/7Dum1yUrD3T7LMLY+3EIeCoGvARfRnQbi+BM9n1rFobPy/PWHWYxYRDnhDEfXrMcAyH/66InlQIhUh7XD01oZLEbsdZAbGnEsv5Ttz3F9LaEpk3EfoGqLxOWkL50OCxw6Jk6TfxsNtMoLpK1g7Jp8sI/EkjxYISer7S5myzLhKtgbtBwI0RcKh/sUo2m69QX++1JYy6CeN7/EwRmV4zJLk0WgalJuxgNFYrdzPLvg09okgxr1stHZQ7a5RkLH+r8KzA/Lmj6vTQG9HB44lHvX1hMiD0v8aCii+/wfr9AZZlNHjYq8RuHsP5uQ5U5F8G9uMqfiVb75MOPKY7qdYCZZZg=
+  file: releasesolution/bin/*.*
+  on:
+    repo: SMI/SmiServices
