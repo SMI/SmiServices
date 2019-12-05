@@ -49,17 +49,21 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
     
-    - dotnet publish releasesolution/SmiServicesRelease.sln -r win-x64 -c release -o releasesolution/bin/win
-    - dotnet publish releasesolution/SmiServicesRelease.sln -r linux-x64 -c release -o releasesolution/bin/linux
-     
+    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r win-x64 -c release -o /home/travis/build/SMI/SmiServices/releasesolution/bin/win
+    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r linux-x64 -c release -o /home/travis/build/SMI/SmiServices/releasesolution/bin/linux
+    
+    - tar -zcf ./releasesolution/bin/win-x64.zip ./releasesolution/bin/win
+    - tar -zcf ./releasesolution/bin/linux-x64.tar.gz ./releasesolution/bin/linux
+    - rm -rf ./releasesolution/bin/linux
+    - rm -rf ./releasesolution/bin/win
+    
     deploy:
         provider: releases
         github-token: #GITHUB_TOKEN
         file_glob: true
-        file: releasesolution/bin/**/*
+        file: releasesolution/bin/*.*
         skip-cleanup: true
         on: 
-            branch: master
             tags: true
 
   - language: java
