@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Updated to latest RDMP API (4.0.1)
+- `TableLookupSwapper` now throws consistent error if the provided table does not exist during `Setup` (previously it would error with DBMS specific error message at lookup time)
 
 ### Fixed
 
@@ -22,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added error logging for RabbitMQ bad Ack responses 
   - Previously: `BasicReturn for TEST.IdentifiableImageExchange`
   - Now : `BasicReturn for Exchange 'TEST.IdentifiableImageExchange' Routing Key 'reprocessed' ReplyCode '312' (NO_ROUTE)`
+- Added new swapper `TableLookupWithGuidFallbackSwapper` which performs lookup substitutions but allocates guids for lookup misses
 
 ## [1.1.0] - 2019-11-22
 
