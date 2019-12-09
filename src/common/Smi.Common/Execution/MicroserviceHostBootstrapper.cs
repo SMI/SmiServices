@@ -59,8 +59,6 @@ namespace Smi.Common.Execution
                     host.Fatal("Failed to start host", e);
                     return -2;
                 }
-
-                Console.WriteLine("Bootstrapper -> Exiting main");
             }
             finally
             {
@@ -72,6 +70,8 @@ namespace Smi.Common.Execution
 
             // Only thing keeping process from exiting after this point are any
             // running tasks (i.e. RabbitMQ consumer tasks)
+
+            Console.WriteLine("MicroserviceHostBootstrapper exiting. Service will exit when consumer threads are joined");
             return 0;
         }
     }
