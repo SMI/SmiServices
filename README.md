@@ -6,7 +6,7 @@
 
 # SMI Services
 
-Version: `1.0.0`
+Version: `1.2.0-rc1`
 
 This repo contains a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp), which together form the Scottish Medical Imaging platform.
 

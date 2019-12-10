@@ -185,7 +185,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     dataType = TagColumnAdder.GetDataTypeForTag(tag, new MicrosoftSQLTypeTranslater());
                     
                 }
-                catch (ArgumentOutOfRangeException)
+                catch (Exception)
                 {
                     continue;
                 }
