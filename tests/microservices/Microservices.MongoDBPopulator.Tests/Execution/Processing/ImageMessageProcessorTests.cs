@@ -149,7 +149,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             var dataset = new DicomDataset
             {
-                {DicomTag.SelectorLOValue, new string('x', 16*1024*1024)}
+                new DicomUnlimitedText(DicomTag.SelectorUTValue,new string('x', 16*1024*1024))
             };
 
             string json = DicomTypeTranslater.SerializeDatasetToJson(dataset);
@@ -169,7 +169,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             dataset = new DicomDataset
             { 
                 // Should be ok, getting close to the threshold
-                {DicomTag.SelectorLOValue, new string('x', 15*1024*1024 + 512)}
+                new DicomUnlimitedText(DicomTag.SelectorUTValue,new string('x', 15*1024*1024 + 512))
             };
 
             json = DicomTypeTranslater.SerializeDatasetToJson(dataset);
@@ -192,7 +192,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             var dataset = new DicomDataset
             {
-                {DicomTag.SelectorLOValue, new string('x', 10*1024*1024)}
+                new DicomUnlimitedText(DicomTag.SelectorUTValue,new string('x', 15*1024*1024))
             };
 
             var largeMessage = new DicomFileMessage

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using BadMedicine;
+using BadMedicine.Dicom;
 using Dicom;
 using DicomTypeTranslation;
 using FAnsi.Implementations.MicrosoftSQL;
 using Microservices.DicomRelationalMapper.Execution;
-using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.Tests.RDMPTests;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
@@ -27,9 +29,11 @@ namespace Microservices.DicomRelationalMapper.Tests
         private DicomRelationalMapperTestHelper _helper;
         private GlobalOptions _globals;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void Setup()
         {
+            BlitzMainDataTables();
+
             _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
             _helper = new DicomRelationalMapperTestHelper();
@@ -54,7 +58,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             using (var stream = File.OpenRead(fi.FullName))
             {    
                 dcm = DicomFile.Open(stream);
-                dcm.Dataset.AddOrUpdate(DicomTag.PrintRETIRED, "fish");
+                dcm.Dataset.AddOrUpdate(DicomTag.PrintRETIRED, "FISH");
                 dcm.Dataset.AddOrUpdate(DicomTag.Date, new DateTime(2001,01,01));
                 dcm.Save(fi2.FullName);
             }
@@ -161,80 +165,70 @@ namespace Microservices.DicomRelationalMapper.Tests
             DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_MileWideTest)));
             d.Create();
 
-            foreach (var oldFile in d.EnumerateFiles())
-                oldFile.Delete();
+            var r = new Random(5000);
+            FileInfo[] files;
 
-            var seedDir = d.CreateSubdirectory("Seed");
+            using (var g = new DicomDataGenerator(r, d, "CT")) 
+                files = g.GenerateImageFiles(1, r).ToArray();
 
-            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
+            Assert.AreEqual(1,files.Length);
 
             var existingColumns = _helper.ImageTable.DiscoverColumns();
 
-            using (DicomGenerator g = new DicomGenerator(d.FullName, "Seed", 1000))
+            //Add 200 random tags
+            foreach (string tag in TagColumnAdder.GetAvailableTags().OrderBy(a => r.Next()).Take(200))
             {
-                g.GenerateTestSet(1, 100, new TestTagDataGenerator(), 300, false);
+                string dataType;
 
-                //Add all the tags generated to the dataset
-                foreach (DicomTag tag in g.RandomTagsAdded)
+                try
                 {
-                    //don't generate unique identifiers
-                    if (tag.DictionaryEntry.ValueRepresentations.Contains(DicomVR.UI))
-                        continue;
-
-                    var dataType = TagColumnAdder.GetDataTypeForTag(tag.DictionaryEntry.Keyword, new MicrosoftSQLTypeTranslater());
-
-                    //todo: this is still not working correctly, not sure why
-                    if (dataType == "smallint")
-                        continue;
-
-                    //if we already have the column in our table
-                    var colName = DicomTypeTranslation.DicomTypeTranslaterReader.GetColumnNameForTag(tag, false);
-
-                    //don't add it
-                    if (existingColumns.Any(c => c.GetRuntimeName().Equals(colName, StringComparison.CurrentCultureIgnoreCase)))
-                        continue;
-
-
-
-                    var adder = new TagColumnAdder(tag.DictionaryEntry.Keyword, dataType, _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
-                    adder.SkipChecksAndSynchronization = true;
-                    adder.Execute();
+                    dataType = TagColumnAdder.GetDataTypeForTag(tag, new MicrosoftSQLTypeTranslater());
+                    
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    continue;
                 }
 
-                new TableInfoSynchronizer(_helper.ImageTableInfo).Synchronize(new AcceptAllCheckNotifier());
+                if (existingColumns.Any(c => c.GetRuntimeName().Equals(tag)))
+                    continue;
 
-                //creates the queues, exchanges and bindings
-                var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-                tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
-
-                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
-                {
-                    host.Start();
-
-                    using (var timeline = new TestTimeline(tester))
-                    {
-                        foreach (var f in g.FilesCreated)
-                        {
-
-                            timeline
-                                .SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, f));
-                        }
-
-                        //start the timeline
-                        timeline.StartTimeline();
-
-                        new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1, null, 30000, () => host.Consumer.DleErrors);
-
-                        Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                        Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                        Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                        host.Stop("Test end");
-                    }
-                }
-
-                tester.Shutdown();
+                var adder = new TagColumnAdder(tag, dataType, _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
+                adder.SkipChecksAndSynchronization = true;
+                adder.Execute();
             }
+
+            new TableInfoSynchronizer(_helper.ImageTableInfo).Synchronize(new AcceptAllCheckNotifier());
+
+            //creates the queues, exchanges and bindings
+            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
+
+            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+            {
+                host.Start();
+
+                using (var timeline = new TestTimeline(tester))
+                {
+                    foreach (var f in files)
+                        timeline.SendMessage(_globals.DicomRelationalMapperOptions,
+                            _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, f));
+
+                    //start the timeline
+                    timeline.StartTimeline();
+
+                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1, null, 30000, () => host.Consumer.DleErrors);
+
+                    Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
+
+                    host.Stop("Test end");
+                }
+            }
+
+            tester.Shutdown();
+            
         }
 
         /*
