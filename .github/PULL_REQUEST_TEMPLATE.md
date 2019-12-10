@@ -1,7 +1,7 @@
 
 ## Proposed Changes
 
-Summarise your changes, and include a link to the [CHANGELOG](CHANGELOG.md).
+Summarise your changes, and include a link to the [CHANGELOG](https://github.com/SMI/SmiServices/blob/master/CHANGELOG.md) diff.
 
 ## Types of changes
 
@@ -17,9 +17,9 @@ What types of changes does your code introduce? Tick all that apply.
 
 By opening this PR, I confirm that I have:
 
-- [ ] Reviewed the [contributing](CONTRIBUTING.md) guidelines for this repository
+- [ ] Reviewed the [contributing](https://github.com/SMI/SmiServices/blob/master/CONTRIBUTING.md) guidelines for this repository
 - [ ] Ensured that the PR branch is in sync with the target branch (i.e. it is automatically merge-able)
 - [ ] Updated any relevant API documentation
 - [ ] Created or updated any tests if relevant
-- [ ] Accurately updated the [CHANGELOG](CHANGELOG.md)
-- [ ] Listed myself in the [CONTRIBUTORS](CONTRIBUTORS.md) file 🚀
+- [ ] Accurately updated the [CHANGELOG](https://github.com/SMI/SmiServices/blob/master/CHANGELOG.md)
+- [ ] Listed myself in the [CONTRIBUTORS](https://github.com/SMI/SmiServices/blob/master/CONTRIBUTORS.md) file 🚀
