@@ -24,8 +24,8 @@ jobs:
     before_install:
     - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd'
       -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
-    - apt install libc6-dev 
-    - apt install libgdiplus
+    - sudo apt install libc6-dev 
+    - sudo apt install libgdiplus
     - sleep 10
     install:
     - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
