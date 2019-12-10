@@ -22,4 +22,5 @@ By opening this PR, I confirm that I have:
 - [ ] Updated any relevant API documentation
 - [ ] Created or updated any tests if relevant
 - [ ] Accurately updated the [CHANGELOG](https://github.com/SMI/SmiServices/blob/master/CHANGELOG.md)
+  - NOTE: This ***must*** include any changes to any of the following files: default.yaml, any of the RabbitMQ server configurations, GlobalOptions.cs
 - [ ] Listed myself in the [CONTRIBUTORS](https://github.com/SMI/SmiServices/blob/master/CONTRIBUTORS.md) file 🚀
