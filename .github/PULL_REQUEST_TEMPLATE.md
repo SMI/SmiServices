@@ -24,3 +24,10 @@ By opening this PR, I confirm that I have:
 - [ ] Accurately updated the [CHANGELOG](https://github.com/SMI/SmiServices/blob/master/CHANGELOG.md)
   - NOTE: This ***must*** include any changes to any of the following files: default.yaml, any of the RabbitMQ server configurations, GlobalOptions.cs
 - [ ] Listed myself in the [CONTRIBUTORS](https://github.com/SMI/SmiServices/blob/master/CONTRIBUTORS.md) file 🚀
+
+## Issues
+
+If relevant, tag any issues that are *expected* to be resolved with this PR. E.g.:
+
+- Closes #\<issue-number>
+- ...
