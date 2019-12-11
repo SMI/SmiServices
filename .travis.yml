@@ -82,9 +82,14 @@ jobs:
     - mvn -f $PARENT_POM -ntp install    
     after_success:
 #    - if [ -n "$TRAVIS_TAG" ]; then travis_terminate 0; fi
-      - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
-      # TMP
-      - find . -type f -name "*.zip"
+    - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
+    - |
+      for filename in $(find ./src -name "*deploy-distribution.zip" -printf "%f\n")
+      do
+        base=$(ls $filename | awk -F'-' '{print $1}')
+        mv $filename dist/$base-${TRAVIS_TAG}.zip
+      done
+    - ls ./dist
     # deploy:
     #   provider: releases
     #   api_key:
