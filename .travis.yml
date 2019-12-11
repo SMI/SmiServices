@@ -42,6 +42,7 @@ jobs:
 #    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
 #    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
     after_success:
+#    - if [ -n "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - |
       for platform in linux windows
       do
@@ -79,7 +80,8 @@ jobs:
     script:
     - docker ps
     - mvn -f $PARENT_POM -ntp install    
-    after_success: # TODO: Only run this on tagged builds
+    after_success:
+#    - if [ -n "$TRAVIS_TAG" ]; then travis_terminate 0; fi
       - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
       # TMP
       - find . -type f -name "*.zip"
