@@ -12,6 +12,8 @@ This repo contains a suite of microservices written in C# and Java (communicatin
 
 The platform allows DICOM tag metadata (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
+The latest release packages can be downloaded [here](https://github.com/SMI/SmiServices/releases/latest).
+
 ## Contents
 
 1. [Microservices](#microservices)
@@ -86,14 +88,16 @@ Appart from the Microservices (documented above) the following library classes a
 Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
 
 ```bash
-dotnet publish -r win-x64
+dotnet build [-r RID]
 ```
-_To build other OS substitute the respective [runtime identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) e.g. linux-x64_
 
+_To build other OS substitute the respective [runtime identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) e.g. linux-x64_
 
 ### Building the Java Projects
 
-Building the Java projects requires Maven. The CTP dependency first needs to be manually installed:
+Building the Java projects requires Java JDK `>= 1.7` (OpenJDK recommended 🙂), and Maven.
+
+The CTP dependency first needs to be manually installed:
 
 - Linux
 
@@ -121,11 +125,17 @@ Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above 
 
 ## Developing
 
-Development requires Visual Studio 2017 or later. Simply open the SMIPlugin.sln file.
+### C# Projects
+
+Development requires Visual Studio 2017 or later. Simply open the SmiServices.sln file.
+
+### Java Projects
+
+Development requires Java JDK `>= 1.7`, and Maven.
 
 ## Testing
 
-SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql).  Tests are split into those that:
+SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql). Tests are split into those that:
 
 - RequiresRelationalDb (Microsoft Sql Server / MySql)
 - RequiresMongoDb (MongoDb)
