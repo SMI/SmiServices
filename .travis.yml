@@ -84,9 +84,9 @@ jobs:
 #    - if [ -n "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
     - |
-      for filename in $(find ./src -name "*deploy-distribution.zip" -printf "%f\n")
+      for filename in $(find ./src -name "*deploy-distribution.zip")
       do
-        base=$(ls $filename | awk -F'-' '{print $1}')
+        base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
         mv $filename dist/$base-${TRAVIS_TAG}.zip
       done
     - ls ./dist
