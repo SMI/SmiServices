@@ -79,6 +79,7 @@ jobs:
     - export TRAVIS_TAG=test # Testing only!
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
+    - mkdir ./dist
     - |
       for filename in $(find ./src -name "*deploy-distribution.zip")
       do
