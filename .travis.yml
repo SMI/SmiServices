@@ -44,7 +44,7 @@ jobs:
     after_success:
 #    - if [ -n "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - |
-      for platform in linux windows
+      for platform in linux win
       do
         dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo
       done
