@@ -44,7 +44,6 @@ jobs:
 #    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
 #    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
     after_success:
-    - export TRAVIS_TAG=test # Testing only!
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - |
       for platform in linux win
@@ -55,9 +54,6 @@ jobs:
     - zip -r win-x64-$TRAVIS_TAG.zip ./win-x64
     - tar czf linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64
     - cd ..
-    # TMP
-    - ls -l ./dist/
-    - du -sh ./dist/*
 
   - language: java
     env:
@@ -78,7 +74,6 @@ jobs:
     - docker ps
     - mvn -f $PARENT_POM -ntp install    
     after_success:
-    - export TRAVIS_TAG=test # Testing only!
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
     - mkdir ./dist
@@ -88,9 +83,6 @@ jobs:
         base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
         mv $filename dist/$base-${TRAVIS_TAG}.zip
       done
-    # TMP
-    - ls -l ./dist
-    - du -sh ./dist/*
 
 # NOTE: This is inherited by both jobs, so actually runs twice
 deploy:
