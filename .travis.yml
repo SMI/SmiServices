@@ -51,8 +51,9 @@ jobs:
       do
         dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo
       done
-    - zip -r ./dist/win-x64-$TRAVIS_TAG.zip ./dist/win-x64
-    - tar zcf ./dist/linux-x64-$TRAVIS_TAG.tar.gz ./dist/linux-x64
+    - cd dist
+    - zip -r win-x64-$TRAVIS_TAG.zip ./win-x64
+    - tar czf linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64
     # TMP
     - ls -l ./dist/
     - du -sh ./dist/*
