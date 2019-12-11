@@ -75,11 +75,17 @@ jobs:
     - docker run -d -p 5672:5672 rabbitmq:3
     script:
     - docker ps
-    - mvn -f $PARENT_POM -ntp install
-    deploy:
-      on:
-        all_branches: true
-      skip_cleanup: true
-      provider: script
-      script:
+    - mvn -f $PARENT_POM -ntp install    
+    after_script: # TODO: Only run this on tagged builds
       - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
+      # TMP
+      - find . -type f -name "*.zip"
+    # deploy:
+    #   provider: releases
+    #   api_key:
+    #     secure: DdirbOkYUePnKisYPlqYOpyti2HQFWmSIwY5spWflTUglzEZbnp+Q3sEltTebdlWo18i9skz6P5seAAXbX2ye1c3EZhqEyirWMxz1lvGdlNoQGHhWK6x+suM1DrG6Uun5dmcG/CEpWhDpcEbF8xQ/revtyCHEJj4xK9TXUHyFFG/KrzKSLGtsiBG1BOPkHJr4CoHjcpLzpmDB2hn+pYENtl3Nk0EeKmJgWdY/BWctEmUmRAXgfwsO/ejm9IbC5mIy5KBxbIUco/mf2JEKQB1drwdbINMxJXkbx+mWZYiDJBo5CWuWIzNOxv0Z3+Kg+N2cSwPX833v+W5YRTHyef/7Dum1yUrD3T7LMLY+3EIeCoGvARfRnQbi+BM9n1rFobPy/PWHWYxYRDnhDEfXrMcAyH/66InlQIhUh7XD01oZLEbsdZAbGnEsv5Ttz3F9LaEpk3EfoGqLxOWkL50OCxw6Jk6TfxsNtMoLpK1g7Jp8sI/EkjxYISer7S5myzLhKtgbtBwI0RcKh/sUo2m69QX++1JYy6CeN7/EwRmV4zJLk0WgalJuxgNFYrdzPLvg09okgxr1stHZQ7a5RkLH+r8KzA/Lmj6vTQG9HB44lHvX1hMiD0v8aCii+/wfr9AZZlNHjYq8RuHsP5uQ5U5F8G9uMqfiVb75MOPKY7qdYCZZZg=
+    #   file_glob: true
+    #   file: releasesolution/bin/*.*
+    #   skip-cleanup: true
+    #   on:
+    #     tags: true
