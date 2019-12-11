@@ -30,25 +30,28 @@ jobs:
     script:
     - docker ps
     - dotnet build --verbosity quiet
-    - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
-    - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomRelationalMapper.Tests/Microservices.DicomRelationalMapper.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomReprocessor.Tests/Microservices.DicomReprocessor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
-    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
-    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r win-x64 -c release
-      -o /home/travis/build/SMI/SmiServices/releasesolution/bin/win
-    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r linux-x64 -c release
-      -o /home/travis/build/SMI/SmiServices/releasesolution/bin/linux
-    - tar -zcf ./releasesolution/bin/win-x64.zip ./releasesolution/bin/win
-    - tar -zcf ./releasesolution/bin/linux-x64.tar.gz ./releasesolution/bin/linux
-    - rm -rf ./releasesolution/bin/linux
-    - rm -rf ./releasesolution/bin/win
+#    - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
+#    - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.DicomRelationalMapper.Tests/Microservices.DicomRelationalMapper.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.DicomReprocessor.Tests/Microservices.DicomReprocessor.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
+#    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
+#    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
+    after_script:
+    - |
+      for platform in linux windows
+      do
+        dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo
+      done
+    # - zip ./releasesolution/bin/win-x64.zip ./releasesolution/bin/win
+    # - tar -zcf ./releasesolution/bin/linux-x64.tar.gz ./releasesolution/bin/linux
+    # TMP
+    - ls -l ./dist/
+    - du -sh ./dist/*
     deploy:
       provider: releases
       api_key:
