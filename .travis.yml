@@ -32,17 +32,17 @@ jobs:
     script:
     - docker ps
     - dotnet build --verbosity quiet
-#    - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
-#    - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.DicomRelationalMapper.Tests/Microservices.DicomRelationalMapper.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.DicomReprocessor.Tests/Microservices.DicomReprocessor.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
-#    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
-#    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
+    - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
+    - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.DicomRelationalMapper.Tests/Microservices.DicomRelationalMapper.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.DicomReprocessor.Tests/Microservices.DicomReprocessor.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
+    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
+    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - |
@@ -50,10 +50,7 @@ jobs:
       do
         dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo
       done
-    - cd dist
-    - zip -r win-x64-$TRAVIS_TAG.zip ./win-x64
-    - tar czf linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64
-    - cd ..
+    - ( cd dist && zip -r win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
 
   - language: java
     env:
@@ -65,9 +62,7 @@ jobs:
     - export PATH=`pwd`/apache-maven-$MVN_VERSION/bin:$PATH
     - mvn -v
     install:
-    - cd ./lib/java
-    - ./installDat.sh
-    - cd ../..
+    - ( cd ./lib/java && ./installDat.sh && cd - )
     before_script:
     - docker run -d -p 5672:5672 rabbitmq:3
     script:
