@@ -87,7 +87,7 @@ jobs:
       for filename in $(find ./src -name "*deploy-distribution.zip")
       do
         base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
-        mv $filename dist/$base-${TRAVIS_TAG}.zip
+        mv -p $filename dist/$base-${TRAVIS_TAG}.zip
       done
     - ls ./dist
     # deploy:
