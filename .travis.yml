@@ -5,7 +5,7 @@ jobs:
     mono: none
     dotnet: 2.2.100
     addons:
-      postgresql: '10'
+      postgresql: 10
       apt:
         packages:
         - postgresql-10
@@ -15,13 +15,13 @@ jobs:
     - mysql
     - mongodb
     before_install:
-    - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd'
-      -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
+    - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
     - sudo apt install libc6-dev 
     - sudo apt install libgdiplus
-    - sleep 10
+    - sleep 10 # NOTE: This helps to ensure that the SQL server inside the Docker container has started
     install:
     - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
+    # NOTE: unzip should run successfully, but returns a non-zero exit code since the zip was packaged from Windows using the '\' directory separator. We therefore need to ignore the exit code with "|| true"
     - unzip -d rdmp-cli rdmp-cli-linux-x64.zip || true
     - chmod +x rdmp-cli/rdmp
     - rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
@@ -69,7 +69,7 @@ jobs:
     - mvn -v
     install:
     - cd ./lib/java
-    - "./installDat.sh"
+    - ./installDat.sh
     - cd ../..
     before_script:
     - docker run -d -p 5672:5672 rabbitmq:3
