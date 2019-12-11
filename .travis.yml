@@ -54,6 +54,7 @@ jobs:
     - cd dist
     - zip -r win-x64-$TRAVIS_TAG.zip ./win-x64
     - tar czf linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64
+    - cd ..
     # TMP
     - ls -l ./dist/
     - du -sh ./dist/*
