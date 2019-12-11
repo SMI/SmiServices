@@ -1,11 +1,6 @@
 
 dist: bionic
 
-# Testing only!
-env:
-  - TRAVIS_TAG=test
-
-
 jobs:
   include:
   - language: csharp
@@ -49,6 +44,7 @@ jobs:
 #    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
 #    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
     after_success:
+    - export TRAVIS_TAG=test # Testing only!
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - |
       for platform in linux win
@@ -80,6 +76,7 @@ jobs:
     - docker ps
     - mvn -f $PARENT_POM -ntp install    
     after_success:
+    - export TRAVIS_TAG=test # Testing only!
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
     - |
@@ -92,6 +89,7 @@ jobs:
     - ls -l ./dist
     - du -sh ./dist/*
 
+# NOTE: This is inherited by both jobs, so actually runs twice
 deploy:
       provider: releases
       api_key:
