@@ -1,11 +1,13 @@
+
 dist: bionic
+
 jobs:
   include:
   - language: csharp
     mono: none
     dotnet: 2.2.100
     addons:
-      postgresql: '10'
+      postgresql: 10
       apt:
         packages:
         - postgresql-10
@@ -15,13 +17,13 @@ jobs:
     - mysql
     - mongodb
     before_install:
-    - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd'
-      -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
+    - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
     - sudo apt install libc6-dev 
     - sudo apt install libgdiplus
-    - sleep 10
+    - sleep 10 # NOTE: This helps to ensure that the SQL server inside the Docker container has started
     install:
     - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
+    # NOTE: unzip should run successfully, but returns a non-zero exit code since the zip was packaged from Windows using the '\' directory separator. We therefore need to ignore the exit code with "|| true"
     - unzip -d rdmp-cli rdmp-cli-linux-x64.zip || true
     - chmod +x rdmp-cli/rdmp
     - rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
@@ -41,23 +43,15 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
-    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r win-x64 -c release
-      -o /home/travis/build/SMI/SmiServices/releasesolution/bin/win
-    - dotnet publish ./releasesolution/SmiServicesRelease.sln -r linux-x64 -c release
-      -o /home/travis/build/SMI/SmiServices/releasesolution/bin/linux
-    - tar -zcf ./releasesolution/bin/win-x64.zip ./releasesolution/bin/win
-    - tar -zcf ./releasesolution/bin/linux-x64.tar.gz ./releasesolution/bin/linux
-    - rm -rf ./releasesolution/bin/linux
-    - rm -rf ./releasesolution/bin/win
-    deploy:
-      provider: releases
-      api_key:
-        secure: DdirbOkYUePnKisYPlqYOpyti2HQFWmSIwY5spWflTUglzEZbnp+Q3sEltTebdlWo18i9skz6P5seAAXbX2ye1c3EZhqEyirWMxz1lvGdlNoQGHhWK6x+suM1DrG6Uun5dmcG/CEpWhDpcEbF8xQ/revtyCHEJj4xK9TXUHyFFG/KrzKSLGtsiBG1BOPkHJr4CoHjcpLzpmDB2hn+pYENtl3Nk0EeKmJgWdY/BWctEmUmRAXgfwsO/ejm9IbC5mIy5KBxbIUco/mf2JEKQB1drwdbINMxJXkbx+mWZYiDJBo5CWuWIzNOxv0Z3+Kg+N2cSwPX833v+W5YRTHyef/7Dum1yUrD3T7LMLY+3EIeCoGvARfRnQbi+BM9n1rFobPy/PWHWYxYRDnhDEfXrMcAyH/66InlQIhUh7XD01oZLEbsdZAbGnEsv5Ttz3F9LaEpk3EfoGqLxOWkL50OCxw6Jk6TfxsNtMoLpK1g7Jp8sI/EkjxYISer7S5myzLhKtgbtBwI0RcKh/sUo2m69QX++1JYy6CeN7/EwRmV4zJLk0WgalJuxgNFYrdzPLvg09okgxr1stHZQ7a5RkLH+r8KzA/Lmj6vTQG9HB44lHvX1hMiD0v8aCii+/wfr9AZZlNHjYq8RuHsP5uQ5U5F8G9uMqfiVb75MOPKY7qdYCZZZg=
-      file_glob: true
-      file: releasesolution/bin/*.*
-      skip-cleanup: true
-      on:
-        tags: true
+    after_success:
+    - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
+    - |
+      for platform in linux win
+      do
+        dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
+      done
+    - ( cd dist && zip -r win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
+
   - language: java
     env:
     - PARENT_POM=src/common/com.smi.microservices.parent/pom.xml
@@ -68,18 +62,30 @@ jobs:
     - export PATH=`pwd`/apache-maven-$MVN_VERSION/bin:$PATH
     - mvn -v
     install:
-    - cd ./lib/java
-    - "./installDat.sh"
-    - cd ../..
+    - ( cd ./lib/java && ./installDat.sh && cd - )
     before_script:
     - docker run -d -p 5672:5672 rabbitmq:3
     script:
     - docker ps
-    - mvn -f $PARENT_POM -ntp install
-    deploy:
+    - mvn -f $PARENT_POM -ntp install    
+    after_success:
+    - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
+    - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
+    - mkdir ./dist
+    - |
+      for filename in $(find ./src -name "*deploy-distribution.zip")
+      do
+        base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
+        mv $filename dist/$base-${TRAVIS_TAG}.zip
+      done
+
+# NOTE: This is inherited by both jobs, so actually runs twice
+deploy:
+      provider: releases
+      api_key:
+        secure: DdirbOkYUePnKisYPlqYOpyti2HQFWmSIwY5spWflTUglzEZbnp+Q3sEltTebdlWo18i9skz6P5seAAXbX2ye1c3EZhqEyirWMxz1lvGdlNoQGHhWK6x+suM1DrG6Uun5dmcG/CEpWhDpcEbF8xQ/revtyCHEJj4xK9TXUHyFFG/KrzKSLGtsiBG1BOPkHJr4CoHjcpLzpmDB2hn+pYENtl3Nk0EeKmJgWdY/BWctEmUmRAXgfwsO/ejm9IbC5mIy5KBxbIUco/mf2JEKQB1drwdbINMxJXkbx+mWZYiDJBo5CWuWIzNOxv0Z3+Kg+N2cSwPX833v+W5YRTHyef/7Dum1yUrD3T7LMLY+3EIeCoGvARfRnQbi+BM9n1rFobPy/PWHWYxYRDnhDEfXrMcAyH/66InlQIhUh7XD01oZLEbsdZAbGnEsv5Ttz3F9LaEpk3EfoGqLxOWkL50OCxw6Jk6TfxsNtMoLpK1g7Jp8sI/EkjxYISer7S5myzLhKtgbtBwI0RcKh/sUo2m69QX++1JYy6CeN7/EwRmV4zJLk0WgalJuxgNFYrdzPLvg09okgxr1stHZQ7a5RkLH+r8KzA/Lmj6vTQG9HB44lHvX1hMiD0v8aCii+/wfr9AZZlNHjYq8RuHsP5uQ5U5F8G9uMqfiVb75MOPKY7qdYCZZZg=
+      file_glob: true
+      file: dist/*.*
+      skip-cleanup: true
       on:
-        all_branches: true
-      skip_cleanup: true
-      provider: script
-      script:
-      - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
+        tags: true
