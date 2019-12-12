@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Improved travis deployment
+- (Re-)added Smi.NLog.config in builds
+
+### Changed
+
+- Make exceptions on startup clearer
 
 ## [1.2.0-rc1] - 2019-12-10
 
