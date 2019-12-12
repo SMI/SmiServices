@@ -1,4 +1,8 @@
 ﻿
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microservices.DicomReprocessor.Execution.Processors;
 using Microservices.DicomReprocessor.Options;
 using MongoDB.Bson;
@@ -6,10 +10,6 @@ using MongoDB.Driver;
 using NLog;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 
 namespace Microservices.DicomReprocessor.Execution
@@ -76,13 +76,11 @@ namespace Microservices.DicomReprocessor.Execution
                 {
                     LogManager.Flush();
 
-                    Console.Write("Confirm you want to reprocess documents using the above query in " + _collNamespace + " (Y/n):");
+                    Console.Write($"Confirm you want to reprocess documents using the above query in {_collNamespace} [y/N]: ");
 
+                    // Anything other than y/Y cancels the operation
                     string key = Console.ReadLine();
-                    if (!(
-                        string.IsNullOrWhiteSpace(key)  || //enter means carry on
-                        key.Equals("y",StringComparison.CurrentCultureIgnoreCase)) // y/Y means carry on
-                        )
+                    if (key == null || !key.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");
                         return default;
