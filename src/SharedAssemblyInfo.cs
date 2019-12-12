@@ -9,4 +9,4 @@ using System.Reflection;
 // These should be overwritten by release builds
 [assembly: AssemblyVersion("1.2.0")]
 [assembly: AssemblyFileVersion("1.2.0")]
-[assembly: AssemblyInformationalVersion("1.2.0-rc1")] // This one can have the extra build info after it
+[assembly: AssemblyInformationalVersion("1.2.0")] // This one can have the extra build info after it
