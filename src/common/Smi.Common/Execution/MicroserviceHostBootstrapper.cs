@@ -32,7 +32,8 @@ namespace Smi.Common.Execution
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine("Failed to construct host:\n" + e);
+                string nl = Environment.NewLine;
+                Console.Error.WriteLine($"{e}{nl}{nl}Failed to construct host:{nl}{e.Message}");
                 return -1;
             }
 
