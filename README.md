@@ -4,15 +4,17 @@
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-# SMI Services
-
 Version: `1.2.0`
 
-This repo contains a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp), which together form the Scottish Medical Imaging platform.
+# SMI Services
 
-The platform allows DICOM tag metadata (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
+![loaddiagram](./SmiFlow.svg)
 
-The latest release packages can be downloaded [here](https://github.com/SMI/SmiServices/releases/latest).
+A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scaleability) of [dicom] medical images to support medical research.
+
+The platform allows [dicom tags] (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
+
+The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest).
 
 ## Contents
 
@@ -23,12 +25,13 @@ The latest release packages can be downloaded [here](https://github.com/SMI/SmiS
 3. [Building](#building)
 4. [Testing](#testing)
 5. [Package Hierarchy](#package-hierarchy)
+6. [Scaleability](#scaleability)
 
 ## Microservices
 
 All microservices [follow the same design pattern](./src/common/Smi.Common/README.md).
 
-The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
+The following  microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
 
 Microservices can be configured through [the configuration file](./data/microserviceConfigs/default.yaml).
 
@@ -156,6 +159,12 @@ For setting up the RDMP platform databases see https://github.com/HicServices/RD
 
 The C# projects share the same release version, which is controlled by the [SharedAssemblyInfo.cs](src/SharedAssemblyInfo.cs) file. The Java projects are versioned independently, set in their pom files, however in practice they follow the release version of the repo overall.
 
+## Scaleability
+
+The services in this repository have been sucessfully used to load all medical imaging data captured in Scotland's National PACS archive.
+
+Scaleability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
+
 ## Package Hierarchy
 
 [HicServices/TypeGuesser](https://github.com/HicServices/TypeGuesser)
@@ -177,3 +186,8 @@ The C# projects share the same release version, which is controlled by the [Shar
 [HicServices/Rdmp.Dicom](https://github.com/HicServices/RdmpDicom)
 
 [![Build Status](https://travis-ci.org/HicServices/RdmpDicom.svg?branch=master)](https://travis-ci.org/HicServices/RdmpDicom) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom)
+
+[RabbitMQ]: https://www.rabbitmq.com/
+[DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
+[Dicom]: ./Glossary.md#dicom
+[Dicom tags]: ./Glossary.md#dicom-tags
