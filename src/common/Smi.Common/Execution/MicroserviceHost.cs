@@ -5,12 +5,12 @@ using System.IO;
 using System.Reflection;
 using DicomTypeTranslation;
 using DicomTypeTranslation.Helpers;
+using NLog;
 using Smi.Common.Events;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using NLog;
 
 namespace Smi.Common.Execution
 {

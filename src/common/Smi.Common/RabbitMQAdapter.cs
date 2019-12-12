@@ -1,4 +1,10 @@
 ﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using NLog;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -7,12 +13,6 @@ using RabbitMQ.Client.MessagePatterns;
 using Smi.Common.Events;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Smi.Common
 {
@@ -365,12 +365,12 @@ namespace Smi.Common
             }
 
             string reason = "unknown";
-                
-            if(cancellationToken.IsCancellationRequested)
+
+            if (cancellationToken.IsCancellationRequested)
                 reason = "cancellation was requested";
-            else if(ShutdownCalled)
+            else if (ShutdownCalled)
                 reason = "shutdown was called";
-            else if(!m.IsOpen)
+            else if (!m.IsOpen)
                 reason = "channel is closed";
 
             _logger.Debug("Consumer for {0} exiting ({1})", subscription.QueueName, reason);
@@ -406,12 +406,12 @@ namespace Smi.Common
             catch (BrokerUnreachableException e)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("Rabbit Host:" + _factory.HostName);
-                sb.AppendLine("Rabbit VirtualHost:" + _factory.VirtualHost);
-                sb.AppendLine("Rabbit UserName:" + _factory.UserName);
-                sb.AppendLine("Rabbit Port:" + _factory.Port);
-
-                throw new ArgumentException($"Could not create a connection to RabbitMQ on startup. {Environment.NewLine + sb + Environment.NewLine}", e);
+                sb.AppendLine($"    HostName:                       {_factory.HostName}");
+                sb.AppendLine($"    Port:                           {_factory.Port}");
+                sb.AppendLine($"    UserName:                       {_factory.UserName}");
+                sb.AppendLine($"    VirtualHost:                    {_factory.VirtualHost}");
+                sb.AppendLine($"    HandshakeContinuationTimeout:   {_factory.HandshakeContinuationTimeout}");
+                throw new ArgumentException($"Could not create a connection to RabbitMQ on startup:{Environment.NewLine}{sb}", e);
             }
         }
 
@@ -431,11 +431,11 @@ namespace Smi.Common
             {
                 lock (OResourceLock)
                 {
-                    if(Model.IsOpen)
+                    if (Model.IsOpen)
                         Model.Close(200, "Disposed");
-                    
-                    if(Connection.IsOpen)
-                        Connection.Close(200, "Disposed",10000);
+
+                    if (Connection.IsOpen)
+                        Connection.Close(200, "Disposed", 10000);
                 }
             }
         }
