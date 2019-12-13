@@ -88,4 +88,5 @@ deploy:
       file: dist/*.*
       skip-cleanup: true
       on:
+        all_branches: true
         tags: true
