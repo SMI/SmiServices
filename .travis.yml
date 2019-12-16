@@ -56,7 +56,8 @@ jobs:
     env:
     - PARENT_POM=src/common/com.smi.microservices.parent/pom.xml
     before_install:
-    - export MVN_VERSION=3.6.2
+    # TODO(RKM 2019-12-16) This will break when a new Maven version is released. We will need to grab the latest version instead
+    - export MVN_VERSION=3.6.3
     - wget http://apache.mirror.gtcomm.net/maven/maven-3/$MVN_VERSION/binaries/apache-maven-$MVN_VERSION-bin.tar.gz
     - tar xzf apache-maven-$MVN_VERSION-bin.tar.gz
     - export PATH=`pwd`/apache-maven-$MVN_VERSION/bin:$PATH
