@@ -302,3 +302,5 @@ test-result.xml
 
 # Build output
 dist/
+
+global.json

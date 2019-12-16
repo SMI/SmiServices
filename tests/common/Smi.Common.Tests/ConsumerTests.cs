@@ -51,4 +51,20 @@ namespace Smi.Common.Tests
         }
     }
 
+    public class DoNothingConsumer : Consumer
+    {
+        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+        {
+            
+        }
+    }
+
+    public class SelfClosingConsumer : Consumer
+    {
+        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+        {
+            Model.Close();
+        }
+    }
+
 }

@@ -4,13 +4,17 @@
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
+Version: `1.2.0`
+
 # SMI Services
 
-Version: `1.0.0`
+![loaddiagram](./SmiFlow.svg)
 
-This repo contains a suite of microservices written in C# and Java (communicating through [RabbitMQ](https://www.rabbitmq.com/)) and a plugin for [RDMP](https://github.com/HicServices/rdmp), which together form the Scottish Medical Imaging platform.
+A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scaleability) of [dicom] medical images to support medical research.
 
-The platform allows DICOM tag metadata (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
+The platform allows [dicom tags] (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
+
+The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest).
 
 ## Contents
 
@@ -21,12 +25,13 @@ The platform allows DICOM tag metadata (extracted from clinical images) to be lo
 3. [Building](#building)
 4. [Testing](#testing)
 5. [Package Hierarchy](#package-hierarchy)
+6. [Scaleability](#scaleability)
 
 ## Microservices
 
 All microservices [follow the same design pattern](./src/common/Smi.Common/README.md).
 
-The following RabbitMQ microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
+The following  microservices have been written.  Microservices are loosely coupled, usually reading and writing only a single kind of message.  Each Queue and Exchange as implemented supports only one Type of `Smi.Common.Messages.IMessage`.
 
 Microservices can be configured through [the configuration file](./data/microserviceConfigs/default.yaml).
 
@@ -83,20 +88,19 @@ Appart from the Microservices (documented above) the following library classes a
 
 ### Building the C# Projects
 
-Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2) and [Ruby/Rake](https://github.com/ruby/rake). This can then be built with:
+Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
 
 ```bash
-# Non-Windows systems only
-> source scripts/linuxBuildSetup.sh
-
-> rake build
+dotnet build [-r RID]
 ```
 
-The rake build can be configured by overriding the environment variables specified in `rakeconfig.rb`.
+_To build other OS substitute the respective [runtime identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) e.g. linux-x64_
 
 ### Building the Java Projects
 
-Building the Java projects requires Maven. The CTP dependency first needs to be manually installed:
+Building the Java projects requires Java JDK `>= 1.7` (OpenJDK recommended 🙂), and Maven.
+
+The CTP dependency first needs to be manually installed:
 
 - Linux
 
@@ -122,26 +126,19 @@ This will compile and run the tests for the projects. The full test suite requir
 
 Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
 
-### Building Release Packages
-
-To manually build release packages:
-
-```bash
-# Non-Windows systems only
-> source scripts/linuxBuildSetup.sh
-
-> rake release_local[<os>]
-```
-
-Where `<os>` is the [Runtime Identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) for the target platform, usually `win-x64` or `linux-x64`.
-
 ## Developing
 
-Development requires Visual Studio 2017 or later. Simply open the SMIPlugin.sln file.
+### C# Projects
+
+Development requires Visual Studio 2017 or later. Simply open the SmiServices.sln file.
+
+### Java Projects
+
+Development requires Java JDK `>= 1.7`, and Maven.
 
 ## Testing
 
-SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql).  Tests are split into those that:
+SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql). Tests are split into those that:
 
 - RequiresRelationalDb (Microsoft Sql Server / MySql)
 - RequiresMongoDb (MongoDb)
@@ -161,6 +158,12 @@ For setting up the RDMP platform databases see https://github.com/HicServices/RD
 ## Note On Versioning
 
 The C# projects share the same release version, which is controlled by the [SharedAssemblyInfo.cs](src/SharedAssemblyInfo.cs) file. The Java projects are versioned independently, set in their pom files, however in practice they follow the release version of the repo overall.
+
+## Scaleability
+
+The services in this repository have been sucessfully used to load all medical imaging data captured in Scotland's National PACS archive.
+
+Scaleability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
 
 ## Package Hierarchy
 
@@ -183,3 +186,8 @@ The C# projects share the same release version, which is controlled by the [Shar
 [HicServices/Rdmp.Dicom](https://github.com/HicServices/RdmpDicom)
 
 [![Build Status](https://travis-ci.org/HicServices/RdmpDicom.svg?branch=master)](https://travis-ci.org/HicServices/RdmpDicom) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom)
+
+[RabbitMQ]: https://www.rabbitmq.com/
+[DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
+[Dicom]: ./Glossary.md#dicom
+[Dicom tags]: ./Glossary.md#dicom-tags

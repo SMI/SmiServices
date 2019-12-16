@@ -88,7 +88,15 @@ namespace Microservices.DicomReprocessor.Execution
         public override void Stop(string reason)
         {
             _mongoReader.Stop();
-            _processorTask.Wait();
+
+            try
+            {
+                _processorTask.Wait();
+            }
+            catch (AggregateException e)
+            {
+                Logger.Error(e, "Exceptions thrown by ProcessorTask during Stop (Stop Reason Was {0})", reason);
+            }
 
             base.Stop(reason);
         }

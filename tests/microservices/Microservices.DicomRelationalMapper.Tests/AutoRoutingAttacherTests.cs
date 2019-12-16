@@ -19,8 +19,8 @@ namespace Microservices.Tests.RDMPTests
             string filename = Path.Combine(TestContext.CurrentContext.TestDirectory, "test.dcm");
 
             var dataset = new DicomDataset();
-            dataset.Add(new DicomAgeString(DicomTag.SOPInstanceUID, "123.123.123"));
-            dataset.Add(new DicomAgeString(DicomTag.SOPClassUID, "123.123.123"));
+            dataset.Add(DicomTag.SOPInstanceUID, "123.123.123");
+            dataset.Add(DicomTag.SOPClassUID, "123.123.123");
             dataset.Add(new DicomAgeString(DicomTag.PatientAge, "009Y"));
 
             var cSharpValue = DicomTypeTranslaterReader.GetCSharpValue(dataset, DicomTag.PatientAge);

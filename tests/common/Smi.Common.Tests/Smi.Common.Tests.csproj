@@ -6,6 +6,8 @@
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <Platforms>x64</Platforms>
     <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="TestDatabases.txt" />
@@ -27,6 +29,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="HIC.BadMedicine.Dicom" Version="0.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="NUnit" Version="3.11.0" />

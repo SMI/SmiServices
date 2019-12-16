@@ -7,6 +7,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+...
+
+## [1.2.0] - 2019-12-12
+
+### Added
+
+- Improved travis deployment
+- (Re-)added Smi.NLog.config in builds
+
+### Changed
+
+- Make exceptions on startup clearer
+
+## [1.2.0-rc1] - 2019-12-10
+
+### Changed
+
+- Updated to latest RDMP API (4.0.1)
+- `TableLookupSwapper` now throws consistent error if the provided table does not exist during `Setup` (previously it would error with DBMS specific error message at lookup time)
+
+### Fixed
+
+- Fixed freeze condition when exchanges are not mapped to queues
+- IdentifierMapper now loads all FAnsi database implementations up front on startup
+
+### Added
+
+- Added better CLI argument descriptions for DicomReprocessor
+- Added error logging for RabbitMQ bad Ack responses 
+  - Previously: `BasicReturn for TEST.IdentifiableImageExchange`
+  - Now : `BasicReturn for Exchange 'TEST.IdentifiableImageExchange' Routing Key 'reprocessed' ReplyCode '312' (NO_ROUTE)`
+- Added new swapper `TableLookupWithGuidFallbackSwapper` which performs lookup substitutions but allocates guids for lookup misses
+- Added Travis CI build & deploy for all services
 
 ## [1.1.0] - 2019-11-22
 
@@ -51,6 +84,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`).  Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/1.1.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/1.2.0...develop
+[1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0-rc1...1.2.0
+[1.2.0-rc1]:  https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0-rc1
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0

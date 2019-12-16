@@ -1,35 +1,76 @@
 ﻿
-using CommandLine;
-using CommandLine.Text;
-using Smi.Common.Options;
-using ReusableLibraryCode.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using CommandLine;
+using CommandLine.Text;
+using JetBrains.Annotations;
+using Smi.Common.Options;
 
 namespace Microservices.DicomReprocessor.Options
 {
     public class DicomReprocessorCliOptions : CliOptions
     {
-        [Option('c', "collection-name", Required = true, HelpText = "The collection to reprocess documents from")]
-        public string SourceCollection { get; set; }
+        private string _sourceCollection;
+        [Option(
+            'c',
+            "collection-name",
+            Required = true,
+            HelpText = "The collection to reprocess documents from. This is the collection (table) only not the database which is determined by \"MongoDatabases.DicomStoreOptions\" in the YAML config"
+        )]
+        public string SourceCollection
+        {
+            get => _sourceCollection;
+            set
+            {
+                if (value.Contains("."))
+                    throw new ArgumentException(nameof(value));
+                _sourceCollection = value;
+            }
+        }
 
-        [Option('q', "query-file", Required = false, HelpText = "The file to build the reprocessing query from")]
+        [Option(
+            'q',
+            "query-file",
+            Required = false,
+            HelpText = "[Optional] The file to build the reprocessing query from (if you only want a subset of the collection)"
+        )]
         public string QueryFile { get; set; }
 
-        [Option("batch-size", Required = false, HelpText = "The batch size to query MongoDB with, if specified", Default = 0)]
+        [Option(
+            "batch-size",
+            Default = 0,
+            Required = false,
+            HelpText = "[Optional] The batch size to set for queries executed on MongoDB. If not set, MongoDB will adjust the batch size automatically"
+        )]
         public int MongoDbBatchSize { get; set; }
 
-        [Option("sleep-time", Required = false, HelpText = "TEMP: Sleep this number of ms between batches", Default = 0)]
+        [Option(
+            "sleep-time",
+            Default = 0,
+            Required = false,
+            HelpText = "[Optional] Sleep this number of ms between batches"
+        )]
         public int SleepTime { get; set; }
 
         /// <summary>
         /// Routing key to republish messages with. Must not be null, otherwise the messages will end up back in MongoDB.
         /// Must match the routing key of the binding to the queue you wish the messages to end up in.
         /// </summary>
-        [Option("reprocessing-key", Required = false, HelpText = "Routing key to reprocess messages with. Do not change from default for most cases", Default = "reprocessed")]
+        [Option(
+            "reprocessing-key",
+            Default = "reprocessed",
+            Required = false,
+            HelpText = "[Optional] Routing key for output messages sent to the RabbitMQ exchange, which may depend on your RabbitMQ configuration. The exchange must have a valid route mapped for this routing key"
+        )]
         public string ReprocessingRoutingKey { get; set; }
 
-        [Option("auto-run", Required = false, HelpText = "Automatically run the query without asking for confirmation", Default = false)]
+        [Option(
+            "auto-run",
+            Default = false,
+            Required = false,
+            HelpText = "[Optional] False (default) waits for user confirmation that the query is correct before continuing"
+        )]
         public bool AutoRun { get; set; }
 
 
@@ -40,9 +81,17 @@ namespace Microservices.DicomReprocessor.Options
             get
             {
                 yield return
-                    new Example("Normal Scenario", new DicomReprocessorCliOptions { SourceCollection = "image", MongoDbBatchSize = 123 });
+                    new Example("Normal Scenario", new DicomReprocessorCliOptions { SourceCollection = "image_CT" });
                 yield return
-                    new Example("Normal Scenario", new DicomReprocessorCliOptions { SourceCollection = "image", MongoDbBatchSize = 123, ReprocessingRoutingKey = "test", AutoRun = true });
+                    new Example("Unattended with non-default parameters", new DicomReprocessorCliOptions
+                    {
+                        SourceCollection = "image_CT",
+                        QueryFile = "test",
+                        MongoDbBatchSize = 123,
+                        SleepTime = 1000,
+                        ReprocessingRoutingKey = "test",
+                        AutoRun = true
+                    });
             }
         }
 
