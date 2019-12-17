@@ -33,7 +33,7 @@ namespace Smi.Common.Execution
             catch (Exception e)
             {
                 string nl = Environment.NewLine;
-                Console.Error.WriteLine($"{e}{nl}{nl}Failed to construct host:{nl}{e.Message}");
+                Console.Error.WriteLine($"{e}{nl}{nl}Host constructor threw an exception:{nl}{e.Message}");
                 return -1;
             }
 
@@ -51,16 +51,14 @@ namespace Smi.Common.Execution
                 Console.WriteLine("Bootstrapper -> Host aux connections started, calling Start()");
 
                 host.Start();
-                Console.WriteLine("Bootstrapper -> Host started");
+                Console.WriteLine("Bootstrapper -> Host created and started...");
             }
             catch (Exception e)
             {
                 host.Fatal("Failed to start host", e);
                 return -2;
             }
-
-            Console.WriteLine("Bootstrapper -> Exiting main");
-
+            
             // Only thing keeping process from exiting after this point are any
             // running tasks (i.e. RabbitMQ consumer tasks)
             return 0;
