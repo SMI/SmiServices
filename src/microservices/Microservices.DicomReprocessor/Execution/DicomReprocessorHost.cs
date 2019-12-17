@@ -1,32 +1,32 @@
 ﻿
-using Smi.Common.Execution;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
-using Microservices.DicomReprocessor.Execution.Processors;
-using Microservices.DicomReprocessor.Options;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microservices.DicomReprocessor.Execution.Processors;
+using Microservices.DicomReprocessor.Options;
+using Smi.Common.Execution;
+using Smi.Common.Messaging;
+using Smi.Common.Options;
 
 namespace Microservices.DicomReprocessor.Execution
 {
     public class DicomReprocessorHost : MicroserviceHost
     {
+        private readonly DicomReprocessorCliOptions _cliOptions;
+
         private readonly MongoDbReader _mongoReader;
         private readonly IDocumentProcessor _processor;
         private Task<TimeSpan> _processorTask;
 
         private readonly string _queryString;
-        private readonly bool _autoRun;
-        private readonly int _sleepDuration;
 
 
-        public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions dicomReprocessorCliOptions, bool loadSmiLogConfig = true)
+        public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions, bool loadSmiLogConfig = true)
             : base(options, loadSmiLogConfig)
         {
-            string key = dicomReprocessorCliOptions.ReprocessingRoutingKey;
+            _cliOptions = cliOptions;
 
-            _sleepDuration = dicomReprocessorCliOptions.SleepTime;
+            string key = _cliOptions.ReprocessingRoutingKey;
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");
@@ -37,8 +37,8 @@ namespace Microservices.DicomReprocessor.Execution
                         options.DicomReprocessorOptions.ReprocessingProducerOptions.ExchangeName + " on vhost " +
                         options.RabbitOptions.RabbitMqVirtualHost + " with routing key \"" + key + "\"");
 
-            if (!string.IsNullOrWhiteSpace(dicomReprocessorCliOptions.QueryFile))
-                _queryString = File.ReadAllText(dicomReprocessorCliOptions.QueryFile);
+            if (!string.IsNullOrWhiteSpace(_cliOptions.QueryFile))
+                _queryString = File.ReadAllText(_cliOptions.QueryFile);
 
             //TODO Make this into a CreateInstance<> call
             switch (options.DicomReprocessorOptions.ProcessingMode)
@@ -56,17 +56,14 @@ namespace Microservices.DicomReprocessor.Execution
                     throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode + " not supported");
             }
 
-            _autoRun = dicomReprocessorCliOptions.AutoRun;
+            _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions, _cliOptions, HostProcessName + "-" + HostProcessID);
 
-            _mongoReader = new MongoDbReader(
-                options.MongoDatabases.DicomStoreOptions,
-                dicomReprocessorCliOptions,
-                HostProcessName + "-" + HostProcessID);
+            AddControlHandler(new DicomReprocessorControlMessageHandler(_cliOptions).ControlMessageHandler);
         }
 
         public override void Start()
         {
-            _processorTask = _mongoReader.RunQuery(_queryString, _processor, _sleepDuration, _autoRun);
+            _processorTask = _mongoReader.RunQuery(_queryString, _processor, _cliOptions);
             TimeSpan queryTime = _processorTask.Result;
 
             if (_processor.TotalProcessed == 0)
