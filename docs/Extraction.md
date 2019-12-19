@@ -2,11 +2,15 @@
 
 Describes the build-install-test procedure, not the deployment into production.
 
+Main docs:
+https://github.com/SMI/SmiServices/tree/master/src/microservices/com.smi.microservices.ctpanonymiser
+
 https://github.com/SMI/SmiServices/tree/release/1.2.0#image-extraction-microservices
 
 See also: the extraction-refactoring branch
 https://github.com/SMI/SmiServices/tree/feature/extraction-refactoring/docs/extraction
 
+Other docs:
 https://uoe.sharepoint.com/sites/SMI/Shared%20Documents/Forms/AllItems.aspx
 https://git.ecdf.ed.ac.uk/SMI/SmiServiceOps/blob/master/Planning/ExtractionFlags
 https://github.com/HicServices/SMIPlugin/blob/master/Documentation/Images/ExtractionMicroservices.png
@@ -15,7 +19,7 @@ https://github.com/HicServices/SMIPlugin/blob/master/Documentation/Images/Extrac
 
 See elsewhere the documents for building the Java programs.
 
-# Testing Prerequisites
+# Prerequisites for testing
 
 A RabbitMQ instance is required - you can run a test version inside a Docker container:
 
@@ -34,14 +38,17 @@ SeriesInstanceUID,foo
 _EOF
 
 Edit default.yaml (RabbitOptions and FileSystemOptions)
+You could do this programmatically with
+`yq_linux_amd64 write --inplace d FileSystemOptions.FileSystemRoot /tmp`
+although the current version of yq loses comments and unnecessary quotes.
 
 Login to rabbit (localhost:15672) and create exchanges:
 TEST.RequestExchange
 TEST.RequestInfoExchange
-Add bindings from those exchanges to any queue (TEST.abrooks)
+Add bindings from those exchanges to any queue (TEST.xxx)
 
 ProjectNum=001
-rmdir /tmp/${ProjectNum}/tmp
+rmdir /tmp/${ProjectNum}/tmp  # program gives error if dir already exists
 
 java -jar ExtractorCL-portable-1.0.0.jar -y default.yaml -c 0 -e tmp -p ${ProjectNum} extractme.csv 
 (interactive - answer y to create messages)
@@ -86,25 +93,37 @@ Haven't yet determined which one is correct.
 Edit `default.yaml` (RabbitOptions and FileSystemOptions)
 
 Login to rabbit (http://localhost:15672/) and create exchanges:
-`TEST.ControlExchange` and `TEST.FatalLoggingExchange`
-and queue: `TEST.ExtractFileQueue`
+TEST.ControlExchange
+TEST.FatalLoggingExchange
+TEST.FileStatusExchange
+and queue: TEST.ExtractFileQueue
 Check: do we need to add bindings from those exchanges to the queue?
 
-Run:
-`java -jar CTPAnonymiser-portable-1.0.0.jar -a dicom-whitelist.script.new -y default.yaml`
+Copy an input file into the directory relative to the root in default.yaml:
+```
+cp src/SmiServices/src/microservices/com.smi.microservices.ctpanonymiser/src/test/resources/image-000001.dcm /tmp
+```
 
-Create a fake message and send to ControlExchange:
+Create a fake message and send to TEST.ControlExchange:
 ```
 python3 -m pip install pika
-python3
-msg_json = '{ "DicomFilePath": "/home/arb/src/SmiServices/src/microservices/com.smi.microservices.ctpanonymiser/src/test/resources/image-000001.dcm", "ExtractionDirectory": "001/tmp/extractiond
-ir", "OutputPath": "output.dcm", "ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81", "ProjectNumber":"001", "ExtractionDirectory":"001/tmp", "JobSubmittedAt":"2019-12-19T10:49Z" }
-'
+#!/usr/bin/env python3
+msg_json = '{ "DicomFilePath": "image-000001.dcm", "ExtractionDirectory": "001/tmp/extractiondir", "OutputPath": "output.dcm", "ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81", 
+"ProjectNumber":"001", "ExtractionDirectory":"001/tmp", "JobSubmittedAt":"2019-12-19T10:49Z" }'
 import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
-channel.basic_publish(exchange='TEST.ControlExchange', routing_key='TEST.ExtractFileQueue', body=msg_json)
+# exchange='TEST.ControlExchange', '' to make binding straight to routing_key queue
+channel.basic_publish(exchange='', routing_key='TEST.ExtractFileQueue', body=msg_json, properties=pika.BasicProperties(content_type='application/json', headers={}) )
 ```
+
+Run:
+```
+java -jar CTPAnonymiser-portable-1.0.0.jar -a dicom-whitelist.script.new -y default.yaml
+```
+
+The output is written to `/tmp/001/tmp/output.dcm` in this example and the log file is in `logs/YYYY-MM-DD-hhmmss.log`
+
 
 # IsIdentifiable
 
