@@ -56,9 +56,13 @@ java -jar ExtractorCL-portable-1.0.0.jar -y default.yaml -c 0 -e tmp -p ${Projec
 
 Two messages are created:
 
-`{"KeyTag":"SeriesInstanceUID","ExtractionIdentifiers":["1.2.826.0.1.3680043.2.1125.1.78969117856457473538394301521877227"],"ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81","ProjectNumber":"001","ExtractionDirectory":"001/tmp","JobSubmittedAt":"2019-12-19T10:49Z"}`
+```
+{"KeyTag":"SeriesInstanceUID","ExtractionIdentifiers":["1.2.826.0.1.3680043.2.1125.1.78969117856457473538394301521877227"],"ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81","ProjectNumber":"001","ExtractionDirectory":"001/tmp","JobSubmittedAt":"2019-12-19T10:49Z"}
+```
 and
-`{"KeyTag":"SeriesInstanceUID","KeyValueCount":1,"ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81","ProjectNumber":"001","ExtractionDirectory":"001/tmp","JobSubmittedAt":"2019-12-19T10:49Z"}`
+```
+{"KeyTag":"SeriesInstanceUID","KeyValueCount":1,"ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81","ProjectNumber":"001","ExtractionDirectory":"001/tmp","JobSubmittedAt":"2019-12-19T10:49Z"}
+```
 
 # CohortExtractor
 
@@ -108,13 +112,14 @@ Create a fake message and send to TEST.ControlExchange:
 ```
 python3 -m pip install pika
 #!/usr/bin/env python3
-msg_json = '{ "DicomFilePath": "image-000001.dcm", "ExtractionDirectory": "001/tmp/extractiondir", "OutputPath": "output.dcm", "ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81", 
+msg_json = '{ "DicomFilePath": "image-000001.dcm", "ExtractionDirectory": "001/tmp/extractiondir/", "OutputPath": "output.dcm", "ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81", 
 "ProjectNumber":"001", "ExtractionDirectory":"001/tmp", "JobSubmittedAt":"2019-12-19T10:49Z" }'
+hdr={'MessageGuid':'', 'OriginalPublishTimestamp':'', 'ProducerExacutableName':'test.py', 'ProducerProcessID': '0'}
 import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 # exchange='TEST.ControlExchange', '' to make binding straight to routing_key queue
-channel.basic_publish(exchange='', routing_key='TEST.ExtractFileQueue', body=msg_json, properties=pika.BasicProperties(content_type='application/json', headers={}) )
+channel.basic_publish(exchange='', routing_key='TEST.ExtractFileQueue', body=msg_json, properties=pika.BasicProperties(content_type='application/json', headers=hdr) )
 ```
 
 Run:
@@ -124,6 +129,10 @@ java -jar CTPAnonymiser-portable-1.0.0.jar -a dicom-whitelist.script.new -y defa
 
 The output is written to `/tmp/001/tmp/output.dcm` in this example and the log file is in `logs/YYYY-MM-DD-hhmmss.log`
 
+A 'success' message is published to TEST.FileStatusExchange containing:
+```
+{"DicomFilePath":"image-000001.dcm","AnonymisedFileName":"output.dcm","Status":0,"ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81","ProjectNumber":"001","ExtractionDirectory":"001/tmp","JobSubmittedAt":"2019-12-19T10:49Z"}
+```
 
 # IsIdentifiable
 
