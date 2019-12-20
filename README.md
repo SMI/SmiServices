@@ -8,7 +8,7 @@ Version: `1.2.0`
 
 # SMI Services
 
-![loaddiagram](./SmiFlow.svg)
+![loaddiagram](./docs/Images/SmiFlow.svg)
 
 A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scaleability) of [dicom] medical images to support medical research.
 
@@ -191,3 +191,4 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
 [Dicom]: ./Glossary.md#dicom
 [Dicom tags]: ./Glossary.md#dicom-tags
+
