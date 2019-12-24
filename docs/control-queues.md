@@ -1,56 +1,81 @@
 
 # Microservice Control Queues
 
+This describes how the services can be controlled via RabbitMQ messages.
+
 ### Contents
 
 - [Commands](#control-commands)
+- [Sending a message](#sending-a-message)
 - [Implementing a new control command handler](#implementing-a-new-control-command-handler)
 - [Control Queues and Cleanup](#control-queues-and-cleanup)
 
 ## Commands
 
-Commands are sent by publishing a blank message to the SMI.ControlExchange, with a specific routing key. This allows you to easily send them from the RabbitMQ web management page. Currently the supported format for routing keys is `smi.control.<who>.<what>`, can expand on this later if needed.
+Commands are sent by publishing a message to the ControlExchange (specified in your config by `RabbitOptions.RabbitMqControlExchangeName`) with a specific routing key. This allows you to easily send them from the RabbitMQ web management page, or via a CLI.
 
-Currently we have 1 general command (`stop`), which you can send by setting the following routing keys:
+RabbitMQ message routing keys are used to control which services recieve the message. The current format for routing keys is `smi.control.<who>.<what>`. Where `<who>` is the name of the service, and `<what>` is some defined action. The currently defined actions are:
 
-- `smi.control.all.stop` -- Stop & shutdown all microservices
-- `smi.control.dicomtagreader.stop` --  Stop all DicomTagReader microservices
-- `smi.control.dicomtagreader.stop1234` -- Stop the DicomTagReader service with ID `1234`
+### General - any service
 
-We also have 1 command specific to the Identifier Mapper microservice, `refresh`:
+- `stop` - Stops the service
+- `ping` - Logs a `pong` message. Useful for debugging
 
-- `smi.control.identifiermapper.refresh` - Refreshes all IdentifierMapper microservices
-- `smi.control.identifiermapper.refresh1234` -- Refresh the IdentifierMapper service with ID `1234`
+### DicomReprocessor
 
-Example:
+- `set-sleep-time-ms` - Sets the sleep time between batches. This also requires the new value to be set in the message body
 
-![test](docs/images/control-queue-publish.PNG)
+### IdentifierMapper
 
-Notes:
-The name for the microservice (e.g. `identifiermapper`) must match the name of the microservice process.
-All routing keys should be lowercase.
+- `refresh` - Refreshes any caches in use
+
+
+## Sending a message
+
+Messages can be sent either via the Web UI or via a CLI (see below for details). In either case, the following applies:
+
+- The `<who>` field must exactly match the name of the microservice process (e.g. `identifiermapper`)
+- All routing keys should be lowercase
+- `all` can be used as the `<who>` keyword to control all services
+- A specific service can be messaged by including its `PID` at the end of the routing key. This is currently the only way to control a specific service instance rather than all services of a certain type
+
+Examples of some routing keys:
+
+```text
+smi.control.all.stop # Stop all services
+smi.control.dicomtagreader.stop # Stop all DicomTagReader services
+smi.control.identifiermapper.refresh1234 # Refresh the IdentifierMapper service with PID `1234`
+```
+
+Note that some services may take some time to finish their current operation and exit after receiveing a `shutdown` command.
+
+
+### Via the Web UI
+
+On your RabbitMQ Management interface (`<rabbit host>:15672`), click `Exchanges` then `Control Exchange`. Expand the `Publish message` box then enter the message info. Any required content should be entered into the `Payload` box in plain text. Example:
+
+![test](Images/control-queue-publish.PNG)
+
+### Via the CLI
+
+`TODO`
 
 ## Implementing A New Control Command Handler
 
-Firstly, add this to your App.config to indicate you wish to be passed control events:
-
-```xml
-<add key="UsesControlEvents" value="true"/>
-```
-
-Next, implement a class & method where you wish to handle the events. The method must have the signature:
+Implement a class which contains a method with the following signature:
 
 ```c#
-void MyControlHandler(string routingKey)
+void MyControlHandler(string action, string message)
 ```
 
-Lastly, add this to your host class:
+Then, instantiate your class and register its event in your host (must be a subclass of `MicroserviceHost`):
+
 ```c#
 var controlClass = new MyControlClass(...);
 AddControlHandler(controlClass.MyControlHandler);
 ```
 
-That's it! Now you will be passed the full routing key for any control message addressed to your specific microservice type (i.e. where the `<who>` part of the routing key matches your microservice name).
+That's it! Now you will be passed the full routing key for any control message addressed to your specific microservice type (i.e. where the `<who>` part of the routing key matches your microservice name), and any message content.
 
 ## Control Queues and Cleanup
 
