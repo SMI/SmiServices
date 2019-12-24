@@ -1,20 +1,13 @@
+
 # Microservice Control Queues
 
-## Contents
+### Contents
 
-1. [Background](#background)
-2. [Commands](#control-commands)
-3. [Implementing a new control command handler](#implementing-a-new-control-command-handler)
-4. [Control Queues and Cleanup](#control-queues-and-cleanup)
+- [Commands](#control-commands)
+- [Implementing a new control command handler](#implementing-a-new-control-command-handler)
+- [Control Queues and Cleanup](#control-queues-and-cleanup)
 
-### Background
-
-We had two requirements driving this:
-
-- The IdentifierMapper service needed to have its cached swapping dictionary refreshed occasionally, without needing to be restarted
-- Generally, we wished to be able to shutdown all/some/a specific microservice easily from RabbitMQ
-
-### Commands
+## Commands
 
 Commands are sent by publishing a blank message to the SMI.ControlExchange, with a specific routing key. This allows you to easily send them from the RabbitMQ web management page. Currently the supported format for routing keys is `smi.control.<who>.<what>`, can expand on this later if needed.
 
@@ -31,13 +24,13 @@ We also have 1 command specific to the Identifier Mapper microservice, `refresh`
 
 Example:
 
-![test](../../../../docs/images/control-queue-publish.PNG)
+![test](docs/images/control-queue-publish.PNG)
 
 Notes:
 The name for the microservice (e.g. `identifiermapper`) must match the name of the microservice process.
 All routing keys should be lowercase.
 
-### Implementing A New Control Command Handler
+## Implementing A New Control Command Handler
 
 Firstly, add this to your App.config to indicate you wish to be passed control events:
 
@@ -59,7 +52,7 @@ AddControlHandler(controlClass.MyControlHandler);
 
 That's it! Now you will be passed the full routing key for any control message addressed to your specific microservice type (i.e. where the `<who>` part of the routing key matches your microservice name).
 
-### Control Queues and Cleanup
+## Control Queues and Cleanup
 
 The actual implementation of the control queues works as follows:
 
