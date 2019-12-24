@@ -14,7 +14,7 @@ The platform is currently deployed in the National Safe Haven, so some documenta
 
 ## Controlling the services
 
-The services can be controlled by sending messages to the RabbitMQ control exchange with specific routing keys. See the [main doc](docs/control-queues.md)
+The services can be controlled by sending messages to the RabbitMQ control exchange with specific routing keys. See the [main doc](control-queues.md)
 
 
 ## TODO
