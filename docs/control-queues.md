@@ -52,7 +52,7 @@ Note that some services may take some time to finish their current operation and
 
 ### Via the Web UI
 
-On your RabbitMQ Management interface (`<rabbit host>:15672`), click `Exchanges` then `Control Exchange`. Expand the `Publish message` box then enter the message info. Any required content should be entered into the `Payload` box in plain text. Example:
+On your RabbitMQ Management interface (`http://<rabbit host>:15672`), click `Exchanges` then `Control Exchange`. Expand the `Publish message` box then enter the message info. Any required content should be entered into the `Payload` box in plain text. Example:
 
 ![test](Images/control-queue-publish.PNG)
 
