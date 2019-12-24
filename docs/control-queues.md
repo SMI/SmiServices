@@ -5,7 +5,7 @@ This describes how the services can be controlled via RabbitMQ messages.
 
 ### Contents
 
-- [Commands](#control-commands)
+- [Commands](#commands)
 - [Sending a message](#sending-a-message)
 - [Implementing a new control command handler](#implementing-a-new-control-command-handler)
 - [Control Queues and Cleanup](#control-queues-and-cleanup)
