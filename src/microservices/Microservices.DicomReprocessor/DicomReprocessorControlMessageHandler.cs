@@ -1,6 +1,8 @@
 ﻿
-using Microservices.DicomReprocessor.Options;
+using System;
+using JetBrains.Annotations;
 using NLog;
+using Smi.Common.Options;
 
 
 namespace Microservices.DicomReprocessor
@@ -9,36 +11,37 @@ namespace Microservices.DicomReprocessor
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly DicomReprocessorCliOptions _options;
+        private readonly DicomReprocessorOptions _options;
 
-        private const string Key = "set-sleep-time";
+        private const string Key = "set-sleep-time-ms";
 
 
-        public DicomReprocessorControlMessageHandler(DicomReprocessorCliOptions options)
+        public DicomReprocessorControlMessageHandler(DicomReprocessorOptions options)
         {
             _options = options;
         }
 
 
+        [UsedImplicitly]
         public void ControlMessageHandler(string action, string message = null)
         {
-            //NOTE (RKM 2019-12-16) Expecting action to be "set-sleep-time-<int>". Can we use message instead?
-
-            _logger.Info("Received control event with action " + action);
+            _logger.Info($"Received control event with action \"{action}\" and message \"{message}\"");
 
             if (!action.StartsWith(Key))
-                return;
-
-            // Debug
-            _logger.Info($"SUBSTRING: {action.Substring(Key.Length)}");
-
-            if (!int.TryParse(action.Substring(Key.Length), out int newTime) || newTime < 0)
             {
-                _logger.Error($"Couldn't parse a valid time from \"action\"");
+                _logger.Info("Ignoring unknown action");
                 return;
             }
 
-            _logger.Info($"Setting batch sleep time to {newTime}");
+            if (!int.TryParse(message, out int intTimeMs))
+            {
+                _logger.Error($"Couldn't parse a valid int from \"{message}\"");
+                return;
+            }
+
+            TimeSpan newTime = TimeSpan.FromMilliseconds(intTimeMs);
+
+            _logger.Info($"Setting batch sleep time to {newTime.TotalMilliseconds}ms");
             _options.SleepTime = newTime;
         }
     }

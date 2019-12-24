@@ -60,7 +60,7 @@ namespace Microservices.DicomReprocessor.Execution
         }
 
 
-        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorCliOptions cliOptions, bool autoRun = false)
+        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorOptions options, bool autoRun = false)
         {
             DateTime start;
 
@@ -70,7 +70,7 @@ namespace Microservices.DicomReprocessor.Execution
             {
                 _logger.Info($"Using MaxDegreeOfParallelism: {_parallelOptions.MaxDegreeOfParallelism}");
                 _logger.Info($"Batch size is: {(_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified")}");
-                _logger.Info($"Sleeping for {cliOptions.SleepTime}ms between batches");
+                _logger.Info($"Sleeping for {options.SleepTime.TotalMilliseconds}ms between batches");
 
                 if (!autoRun)
                 {
@@ -111,8 +111,8 @@ namespace Microservices.DicomReprocessor.Execution
 
                     processor.SendMessages();
 
-                    _logger.Debug("Batch processed, sleeping for " + cliOptions.SleepTime + "ms");
-                    Thread.Sleep(cliOptions.SleepTime);
+                    _logger.Debug($"Batch processed, sleeping for {options.SleepTime.TotalMilliseconds}ms");
+                    Thread.Sleep(options.SleepTime);
                 }
             }
 

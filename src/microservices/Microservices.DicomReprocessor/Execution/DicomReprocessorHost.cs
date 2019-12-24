@@ -12,8 +12,6 @@ namespace Microservices.DicomReprocessor.Execution
 {
     public class DicomReprocessorHost : MicroserviceHost
     {
-        private readonly DicomReprocessorCliOptions _cliOptions;
-
         private readonly MongoDbReader _mongoReader;
         private readonly IDocumentProcessor _processor;
         private Task<TimeSpan> _processorTask;
@@ -24,12 +22,13 @@ namespace Microservices.DicomReprocessor.Execution
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions, bool loadSmiLogConfig = true)
             : base(options, loadSmiLogConfig)
         {
-            _cliOptions = cliOptions;
-
-            string key = _cliOptions.ReprocessingRoutingKey;
+            string key = cliOptions.ReprocessingRoutingKey;
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");
+
+            // Set the initial sleep time
+            Globals.DicomReprocessorOptions.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
             IProducerModel reprocessingProducerModel = RabbitMqAdapter.SetupProducer(options.DicomReprocessorOptions.ReprocessingProducerOptions, true);
 
@@ -37,8 +36,8 @@ namespace Microservices.DicomReprocessor.Execution
                         options.DicomReprocessorOptions.ReprocessingProducerOptions.ExchangeName + " on vhost " +
                         options.RabbitOptions.RabbitMqVirtualHost + " with routing key \"" + key + "\"");
 
-            if (!string.IsNullOrWhiteSpace(_cliOptions.QueryFile))
-                _queryString = File.ReadAllText(_cliOptions.QueryFile);
+            if (!string.IsNullOrWhiteSpace(cliOptions.QueryFile))
+                _queryString = File.ReadAllText(cliOptions.QueryFile);
 
             //TODO Make this into a CreateInstance<> call
             switch (options.DicomReprocessorOptions.ProcessingMode)
@@ -51,19 +50,18 @@ namespace Microservices.DicomReprocessor.Execution
                     _processor = new DicomFileProcessor(options.DicomReprocessorOptions, reprocessingProducerModel, key);
                     break;
 
-                case ProcessingMode.Unknown:
                 default:
                     throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode + " not supported");
             }
 
-            _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions, _cliOptions, HostProcessName + "-" + HostProcessID);
+            _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions, cliOptions, HostProcessName + "-" + HostProcessID);
 
-            AddControlHandler(new DicomReprocessorControlMessageHandler(_cliOptions).ControlMessageHandler);
+            AddControlHandler(new DicomReprocessorControlMessageHandler(Globals.DicomReprocessorOptions).ControlMessageHandler);
         }
 
         public override void Start()
         {
-            _processorTask = _mongoReader.RunQuery(_queryString, _processor, _cliOptions);
+            _processorTask = _mongoReader.RunQuery(_queryString, _processor, Globals.DicomReprocessorOptions);
             TimeSpan queryTime = _processorTask.Result;
 
             if (_processor.TotalProcessed == 0)
@@ -72,7 +70,7 @@ namespace Microservices.DicomReprocessor.Execution
             Logger.Info("Total messages sent: " + _processor.TotalProcessed);
             Logger.Info("Total failed to reprocess : " + _processor.TotalFailed);
 
-            if (queryTime != default(TimeSpan))
+            if (queryTime != default)
                 Logger.Info("Average documents processed per second: " + Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds));
 
             // Only call stop if we exited normally
