@@ -228,7 +228,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 catch (Exception e)
                 {
                     Logger.Debug(e,"ParallelDLEHost threw exception of type " + e.GetType());
-
+                    _dleExceptions.Add(e);
                     exitCode = ExitCodeType.Error;
 
                     if (remainingRetries > 0)

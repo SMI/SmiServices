@@ -5,7 +5,13 @@ using Smi.Common.Options;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.IdentifierMapper.Messaging;
 using System;
+using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
+using FAnsi.Implementations.MySql;
+using FAnsi.Implementations.Oracle;
+using FAnsi.Implementations.PostgreSql;
 using RabbitMQ.Client.Exceptions;
+
 
 namespace Microservices.IdentifierMapper.Execution
 {
@@ -26,6 +32,12 @@ namespace Microservices.IdentifierMapper.Execution
             : base(options, loadSmiLogConfig)
         {
             _consumerOptions = options.IdentifierMapperOptions;
+
+            //load all supported implementations
+            ImplementationManager.Load<MySqlImplementation>();
+            ImplementationManager.Load<OracleImplementation>();
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+            ImplementationManager.Load<PostgreSqlImplementation>();
 
             if (swapper == null)
             {
@@ -60,7 +72,7 @@ namespace Microservices.IdentifierMapper.Execution
             };
 
             // Add our event handler for control messages
-            AddControlHandler(new IdentifierMapperControlMessageHandler(_swapper).ControlMessageHandler);
+            AddControlHandler(new IdentifierMapperControlMessageHandler(_swapper));
         }
 
         public override void Start()

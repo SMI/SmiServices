@@ -11,6 +11,11 @@ using Rdmp.Core.Startup.Events;
 using ReusableLibraryCode;
 using ReusableLibraryCode.Checks;
 using System;
+using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
+using FAnsi.Implementations.MySql;
+using FAnsi.Implementations.Oracle;
+using FAnsi.Implementations.PostgreSql;
 
 namespace Microservices.DicomRelationalMapper.Execution
 {
@@ -25,6 +30,13 @@ namespace Microservices.DicomRelationalMapper.Execution
         //TODO Should most of this not be in the constructor?
         public override void Start()
         {
+            
+            //load all supported implementations
+            ImplementationManager.Load<MySqlImplementation>();
+            ImplementationManager.Load<OracleImplementation>();
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+            ImplementationManager.Load<PostgreSqlImplementation>();
+
             IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
 
             Logger.Info("About to run Startup");

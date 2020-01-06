@@ -6,13 +6,14 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Applications.DicomDirectoryProcessor.Execution;
 using Applications.DicomDirectoryProcessor.Options;
+using BadMedicine;
+using BadMedicine.Dicom;
 using Dicom;
 using FAnsi.Discovery;
 using MapsDirectlyToDatabaseTable;
 using Microservices.CohortExtractor.Execution;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
-using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.DicomTagReader.Execution;
 using Microservices.IdentifierMapper.Execution;
 using Microservices.IdentifierMapper.Execution.Swappers;
@@ -358,25 +359,14 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             //Create test directory
             var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_BumpyRide)));
-            dir.Create();
+            
+            var r = new Random(500);
 
-            //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
-                f.Delete();
-
-            var seedDir = dir.CreateSubdirectory("Seed");
-
-            TestData.Create(new FileInfo(Path.Combine(seedDir.FullName, "MyTestFile.dcm")));
-
-            int numberOfImagesToGenerate = 40;
-
-            using (DicomGenerator g = new DicomGenerator(dir.FullName, "Seed", 500))
+            //create a generator 
+            using (var generator = new DicomDataGenerator(r, dir, "CT"))
             {
-                g.GenerateTestSet(numberOfImagesToGenerate, 100, new TestTagDataGenerator(), numberOfImagesToGenerate, false);
-
-                seedDir.Delete(true);
-
-                RunTest(dir, numberOfImagesToGenerate);
+                generator.GenerateImageFiles(40,r);
+                RunTest(dir, 40);
             }
         }
         private void RunTest(DirectoryInfo dir, int numberOfExpectedRows)
@@ -399,7 +389,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var processDirectoryOptions = new DicomDirectoryProcessorCliOptions();
             processDirectoryOptions.ToProcessDir = dir;
             processDirectoryOptions.DirectoryFormat = "Default";
-
+            
             adjustFileSystemOptions?.Invoke(_globals.FileSystemOptions);
 
             //////////////////////////////////////////////// Mongo Db Populator ////////////////////////

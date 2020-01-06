@@ -32,42 +32,33 @@ namespace Smi.Common.Execution
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine("Failed to construct host:\n" + e);
+                string nl = Environment.NewLine;
+                Console.Error.WriteLine($"{e}{nl}{nl}Host constructor threw an exception:{nl}{e.Message}");
                 return -1;
             }
 
             Console.WriteLine("Bootstrapper -> Host constructed, starting aux connections");
 
+            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            {
+                e.Cancel = true;
+                host.Stop("Ctrl+C pressed");
+            };
+
             try
             {
-                Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
-                {
-                    e.Cancel = true;
-                    host.Stop("Ctrl+C pressed");
-                };
+                host.StartAuxConnections();
+                Console.WriteLine("Bootstrapper -> Host aux connections started, calling Start()");
 
-                try
-                {
-                    host.StartAuxConnections();
-                    Console.WriteLine("Bootstrapper -> Host aux connections started, calling Start()");
-
-                    host.Start();
-                    Console.WriteLine("Bootstrapper -> Host started");
-                }
-                catch (Exception e)
-                {
-                    host.Fatal("Failed to start host", e);
-                    return -2;
-                }
+                host.Start();
+                Console.WriteLine("Bootstrapper -> Host created and started...");
             }
-            finally
+            catch (Exception e)
             {
-                var disposable = host as IDisposable;
-
-                if (disposable != null)
-                    disposable.Dispose();
+                host.Fatal("Failed to start host", e);
+                return -2;
             }
-
+            
             // Only thing keeping process from exiting after this point are any
             // running tasks (i.e. RabbitMQ consumer tasks)
 

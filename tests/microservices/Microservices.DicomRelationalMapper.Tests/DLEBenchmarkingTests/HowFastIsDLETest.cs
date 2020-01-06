@@ -4,7 +4,6 @@ using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
-using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.Tests.RDMPTests;
 using Moq;
 using NUnit.Framework;
@@ -31,6 +30,8 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using BadMedicine;
+using BadMedicine.Dicom;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -90,22 +91,11 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             Random r = new Random(123);
 
-            MeaningfulTestTagDataGenerator generator = new MeaningfulTestTagDataGenerator(template, r);
+            List<DicomDataset> allImages;
 
-            List<DicomDataset> allImages = new List<DicomDataset>();
-
-            for (int i = 0; i < numberOfImages;)
-            {
-                int numberInSeries = r.Next(500);
-
-                //don't generate more than we were told to
-                numberInSeries = Math.Min(numberInSeries, numberOfImages - i);
-                allImages.AddRange(generator.GenerateDatasets(numberInSeries));
-
-                i += numberInSeries;
-                Console.WriteLine("Created " + i + " Datasets So Far");
-            }
-
+            using (var generator = new DicomDataGenerator(r, null, "CT"))
+                allImages = generator.GenerateImages(numberOfImages, r);
+            
             Assert.AreEqual(numberOfImages, allImages.Count);
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
@@ -134,24 +124,12 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         public void TestGetChunktOnly(int numberOfImages)
         {
             Random r = new Random(123);
-            var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
+            
+            List<DicomDataset> allImages;
 
-            MeaningfulTestTagDataGenerator generator = new MeaningfulTestTagDataGenerator(template, r);
-
-            List<DicomDataset> allImages = new List<DicomDataset>();
-
-            for (int i = 0; i < numberOfImages;)
-            {
-                int numberInSeries = r.Next(500);
-
-                //don't generate more than we were told to
-                numberInSeries = Math.Min(numberInSeries, numberOfImages - i);
-                allImages.AddRange(generator.GenerateDatasets(numberInSeries));
-
-                i += numberInSeries;
-                Console.WriteLine("Created " + i + " Datasets So Far");
-            }
-
+            using (DicomDataGenerator g = new DicomDataGenerator(r, null, "CT", "MR"))
+                allImages =g.GenerateImages(numberOfImages,r);
+            
             DicomDatasetCollectionSource source = new DicomDatasetCollectionSource();
             source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string>() { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
             source.FilenameField = "gggg";
@@ -194,22 +172,11 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             CatalogueRepository.GetServerDefaults().ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
             Random r = new Random(123);
+            
+            List<DicomDataset> allImages;
 
-            MeaningfulTestTagDataGenerator generator = new MeaningfulTestTagDataGenerator(template, r);
-
-            List<DicomDataset> allImages = new List<DicomDataset>();
-
-            for (int i = 0; i < numberOfImages;)
-            {
-                int numberInSeries = r.Next(500);
-
-                //don't generate more than we were told to
-                numberInSeries = Math.Min(numberInSeries, numberOfImages - i);
-                allImages.AddRange(generator.GenerateDatasets(numberInSeries));
-
-                i += numberInSeries;
-                Console.WriteLine("Created " + i + " Datasets So Far");
-            }
+            using (var generator = new DicomDataGenerator(r, null, "CT"))
+                allImages = generator.GenerateImages(numberOfImages, r);
 
             DicomDatasetCollectionSource source = new DicomDatasetCollectionSource();
             source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string>() { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;

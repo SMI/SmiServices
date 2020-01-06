@@ -1,4 +1,8 @@
 ﻿
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microservices.DicomReprocessor.Execution.Processors;
 using Microservices.DicomReprocessor.Options;
 using MongoDB.Bson;
@@ -6,10 +10,6 @@ using MongoDB.Driver;
 using NLog;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 
 namespace Microservices.DicomReprocessor.Execution
@@ -60,7 +60,7 @@ namespace Microservices.DicomReprocessor.Execution
         }
 
 
-        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, int sleepDuration, bool autoRun = false)
+        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorOptions options, bool autoRun = false)
         {
             DateTime start;
 
@@ -68,22 +68,25 @@ namespace Microservices.DicomReprocessor.Execution
 
             using (IAsyncCursor<BsonDocument> cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, query))
             {
-                _logger.Info("Using MaxDegreeOfParallelism: " + _parallelOptions.MaxDegreeOfParallelism);
-                _logger.Info("Batch size is: " + (_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified"));
-                _logger.Info("Sleeping for " + sleepDuration + "ms between batches");
+                _logger.Info($"Using MaxDegreeOfParallelism: {_parallelOptions.MaxDegreeOfParallelism}");
+                _logger.Info($"Batch size is: {(_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified")}");
+                _logger.Info($"Sleeping for {options.SleepTime.TotalMilliseconds}ms between batches");
 
                 if (!autoRun)
                 {
                     LogManager.Flush();
 
-                    Console.Write("Confirm you want to reprocess documents using the above query in " + _collNamespace + ": ");
+                    Console.Write($"Confirm you want to reprocess documents using the above query in {_collNamespace} [y/N]: ");
 
+                    // Anything other than y/Y cancels the operation
                     string key = Console.ReadLine();
-                    if (key == null || key.ToLower() != "y")
+                    if (key == null || !key.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        _logger.Warn("Reprocessing cancelled, exiting");
+                        _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");
                         return default;
                     }
+
+                    _logger.Info("User chose to continue with query execution");
                 }
 
                 _logger.Info("Starting reprocess operation");
@@ -108,8 +111,8 @@ namespace Microservices.DicomReprocessor.Execution
 
                     processor.SendMessages();
 
-                    _logger.Debug("Batch processed, sleeping for " + sleepDuration + "ms");
-                    Thread.Sleep(sleepDuration);
+                    _logger.Debug($"Batch processed, sleeping for {options.SleepTime.TotalMilliseconds}ms");
+                    Thread.Sleep(options.SleepTime);
                 }
             }
 

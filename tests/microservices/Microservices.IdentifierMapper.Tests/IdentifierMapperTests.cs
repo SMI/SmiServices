@@ -2,7 +2,6 @@
 using Dicom;
 using DicomTypeTranslation;
 using FAnsi.Discovery;
-using Microservices.DicomRelationalMapper.Tests.TestTagGeneration;
 using Microservices.IdentifierMapper.Execution;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.IdentifierMapper.Messaging;
@@ -17,6 +16,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using BadMedicine;
+using BadMedicine.Dicom;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -466,35 +467,26 @@ namespace Microservices.IdentifierMapper.Tests
                 StudyInstanceUID = "1.2.3.4",
             };
 
-            var ds = new DicomDataset();
+            DicomDataset ds;
 
             Random r = new Random(123);
-            ITagRandomiser randomiser = new TestTagDataGenerator();
 
-            for (int j = 0; j < numberOfRandomTagsPerDicom; j++)
-            {
-                var tag = randomiser.GetRandomTag(r);
-                var value = randomiser.GetRandomValue(tag, r);
-
-                if (value == null)
-                    continue;
-
-                if (!ds.Contains(tag.Tag))
-                    DicomTypeTranslaterWriter.SetDicomTag(ds, tag, value);
-            }
+            
+            using (var generator = new DicomDataGenerator(r, null, "CT"))
+                ds = generator.GenerateTestDataset(new Person(r), r);
 
             ds.AddOrUpdate(DicomTag.AccessionNumber, "1234");
             ds.AddOrUpdate(DicomTag.SOPInstanceUID, "1.2.3.4");
             ds.AddOrUpdate(DicomTag.SeriesInstanceUID, "1.2.3.4");
             ds.AddOrUpdate(DicomTag.StudyInstanceUID, "1.2.3.4");
-
-
+            
             switch (testCase)
             {
                 case Test.Normal:
                     ds.AddOrUpdate(DicomTag.PatientID, "010101");
                     break;
                 case Test.NoPatientTag:
+                    ds.Remove(DicomTag.PatientID);
                     break;
                 case Test.EmptyInPatientTag:
                     ds.AddOrUpdate(DicomTag.PatientID, string.Empty);

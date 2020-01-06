@@ -7,11 +7,11 @@ using System.Reflection;
 using System.Text;
 using Dicom;
 using FAnsi.Discovery;
-using Smi.Common.Messages;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
 using ReusableLibraryCode.Annotations;
+using Smi.Common.Messages;
 using YamlDotNet.Serialization;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -169,6 +169,11 @@ namespace Smi.Common.Options
         public string SwapColumnName { get; set; }
         public string ReplacementColumnName { get; set; }
         public string SwapperType { get; set; }
+
+        /// <summary>
+        /// True - Changes behaviour of swapper host to pick up the PatientID tag using regex from the JSON string directly
+        /// rather than deserializing it to <see cref="DicomDataset"/> first.
+        /// </summary>
         public bool AllowRegexMatching { get; set; }
 
         public override string ToString()
@@ -181,8 +186,8 @@ namespace Smi.Common.Options
             var server = new DiscoveredServer(MappingConnectionString, MappingDatabaseType);
 
             var idx = MappingTableName.LastIndexOf('.');
-            var tableNameUnqualified = MappingTableName.Substring(idx +1);
-            
+            var tableNameUnqualified = MappingTableName.Substring(idx + 1);
+
             idx = MappingTableName.IndexOf('.');
             if (idx == -1)
                 throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
@@ -193,18 +198,24 @@ namespace Smi.Common.Options
 
             return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
         }
+
+        public IMappingTableOptions Clone()
+        {
+            return (IMappingTableOptions)this.MemberwiseClone();
+        }
     }
 
     public interface IMappingTableOptions
     {
         string MappingConnectionString { get; }
-        string MappingTableName { get; }
-        string SwapColumnName { get; }
-        string ReplacementColumnName { get; }
+        string MappingTableName { get; set; }
+        string SwapColumnName { get; set; }
+        string ReplacementColumnName { get; set; }
         DatabaseType MappingDatabaseType { get; }
         int TimeoutInSeconds { get; }
 
         DiscoveredTable Discover();
+        IMappingTableOptions Clone();
     }
 
     /// <summary>
@@ -262,10 +273,9 @@ namespace Smi.Common.Options
 
         public ProducerOptions ReprocessingProducerOptions { get; set; }
 
-        public override string ToString()
-        {
-            return GlobalOptions.GenerateToString(this);
-        }
+        public TimeSpan SleepTime { get; set; }
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
     /// <summary>
@@ -484,7 +494,7 @@ namespace Smi.Common.Options
             [UsedImplicitly]
             set { _extractRoot = value.TrimEnd('/', '\\'); }
         }
-        
+
         public override string ToString()
         {
             return GlobalOptions.GenerateToString(this);

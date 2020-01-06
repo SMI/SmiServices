@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Dicom;
+using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
@@ -18,6 +20,12 @@ namespace Microservices.Tests.RDMPTests
 {
     public class DicomDatasetCollectionSourceTests
     {
+        [OneTimeSetUp]
+        public void InitializeFansi()
+        {
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+        }
+
         /// <summary>
         /// Demonstrates the basic scenario in which a dicom datset is turned into a data table by the DicomDatasetCollectionSource
         /// </summary>
@@ -27,7 +35,7 @@ namespace Microservices.Tests.RDMPTests
             var source = new DicomDatasetCollectionSource();
            
             var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "0123Y");
+            ds.Add(DicomTag.PatientAge, "123Y");
 
             var worklist = new ExplicitListDicomDatasetWorklist(new []{ds},"fish.dcm");
             
@@ -35,7 +43,7 @@ namespace Microservices.Tests.RDMPTests
             source.FilenameField = "RelFileName";
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-            Assert.AreEqual("0123Y", dt.Rows[0]["PatientAge"]);
+            Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
         }
 
@@ -47,6 +55,8 @@ namespace Microservices.Tests.RDMPTests
         public void TestStringTooLong(DataTooWideHandling strategy)
         {
             var ds = new DicomDataset();
+            
+            ds.AutoValidate = false;
 
             ds.AddOrUpdate(DicomTag.AccessionNumber, "1342340123129473279427572495349757459347839479375974");
             ds.GetValues<string>(DicomTag.AccessionNumber);
@@ -94,7 +104,7 @@ namespace Microservices.Tests.RDMPTests
             source.InvalidDataHandlingStrategy = dataHandlingStrategy;
 
             var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "0123Y");
+            ds.Add(DicomTag.PatientAge, "123Y");
             ds.Add(DicomTag.WedgeAngleFloat, "3.40282347e+038");
             
             var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm",new Dictionary<string, string> { {"MessageGuid", "123x321" } });
@@ -129,7 +139,7 @@ namespace Microservices.Tests.RDMPTests
                     throw new ArgumentOutOfRangeException("dataHandlingStrategy");
             }
             
-            Assert.AreEqual("0123Y", dt.Rows[0]["PatientAge"]);
+            Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
         }
 
@@ -144,7 +154,7 @@ namespace Microservices.Tests.RDMPTests
 
             //when we have a dicom file with an invalid Float number
             var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "0123Y");
+            ds.Add(DicomTag.PatientAge, "123Y");
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset()
@@ -176,7 +186,7 @@ namespace Microservices.Tests.RDMPTests
                 case InvalidDataHandling.ConvertToNullAndWarn:
                     dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
                     
-                    Assert.AreEqual("0123Y", dt.Rows[0]["PatientAge"]);
+                    Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
                     Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
                     Assert.AreEqual(DBNull.Value,dt.Rows[0]["AcquisitionContextSequence"]);
                     Assert.AreEqual(0,worklist.CorruptMessages.Count);
@@ -226,7 +236,7 @@ namespace Microservices.Tests.RDMPTests
              
             //The dataset we are trying to load
             var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "0123Y");
+            ds.Add(DicomTag.PatientAge, "123Y");
             
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset()
@@ -267,7 +277,7 @@ namespace Microservices.Tests.RDMPTests
                     throw new ArgumentOutOfRangeException("dataHandlingStrategy");
             }
 
-            Assert.AreEqual("0123Y", dt.Rows[0]["PatientAge"]);
+            Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
         }
 
@@ -284,7 +294,7 @@ namespace Microservices.Tests.RDMPTests
             source.InvalidDataHandlingStrategy = InvalidDataHandling.ThrowException;
 
             var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "0123Y");
+            ds.Add(DicomTag.PatientAge, "123Y");
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset()
@@ -301,7 +311,7 @@ namespace Microservices.Tests.RDMPTests
             source.FieldMapTableIfAny = ti;
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-            Assert.AreEqual("0123Y", dt.Rows[0]["PatientAge"]);
+            Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
             Assert.AreEqual(2,dt.Columns.Count);
         }
@@ -335,7 +345,7 @@ namespace Microservices.Tests.RDMPTests
             source.InvalidDataHandlingStrategy = InvalidDataHandling.ThrowException;
 
             var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "0123Y");
+            ds.Add(DicomTag.PatientAge, "123Y");
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset()
@@ -352,7 +362,7 @@ namespace Microservices.Tests.RDMPTests
             source.UseAllTableInfoInLoadAsFieldMap = lmd;
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-            Assert.AreEqual("0123Y", dt.Rows[0]["PatientAge"]);
+            Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
             Assert.AreEqual(2, dt.Columns.Count);
         }

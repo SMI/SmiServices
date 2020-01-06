@@ -32,6 +32,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _options = options;
             _swapTable =  options.Discover();
             _server = _swapTable.Database.Server;
+
+            if(!_swapTable.Exists())
+                throw new ArgumentException($"Swap table '{_swapTable.GetFullyQualifiedName()}' did not exist on server '{_server}'");
         }
 
         public string GetSubstitutionFor(string toSwap, out string reason)

@@ -18,7 +18,7 @@ namespace Smi.Common.MongoDB
         {
             if (string.IsNullOrWhiteSpace(jsonQuery))
             {
-                _logger.Warn("Not passed a jsonQuery, running an empty find query");
+                _logger.Info("No query specified, fetching all records in collection");
                 return await coll.FindAsync(FilterDefinition<BsonDocument>.Empty, findOptions);
             }
 

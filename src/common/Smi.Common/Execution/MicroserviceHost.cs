@@ -5,12 +5,12 @@ using System.IO;
 using System.Reflection;
 using DicomTypeTranslation;
 using DicomTypeTranslation.Helpers;
+using NLog;
 using Smi.Common.Events;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using NLog;
 
 namespace Smi.Common.Execution
 {
@@ -118,10 +118,10 @@ namespace Smi.Common.Execution
         /// Add an event handler to the control message consumer
         /// </summary>
         /// <param name="handler">Method to call when invoked. Parameters are the action to perform, and the message body</param>
-        protected void AddControlHandler(Action<string, string> handler)
+        protected void AddControlHandler(IControlMessageHandler handler)
         {
             //(a, m) => action, message content
-            _controlMessageConsumer.ControlEvent += (a, m) => handler(a, m);
+            _controlMessageConsumer.ControlEvent += handler.ControlMessageHandler;
         }
 
         /// <summary>
