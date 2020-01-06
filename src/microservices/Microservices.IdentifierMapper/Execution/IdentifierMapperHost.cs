@@ -72,7 +72,7 @@ namespace Microservices.IdentifierMapper.Execution
             };
 
             // Add our event handler for control messages
-            AddControlHandler(new IdentifierMapperControlMessageHandler(_swapper).ControlMessageHandler);
+            AddControlHandler(new IdentifierMapperControlMessageHandler(_swapper));
         }
 
         public override void Start()

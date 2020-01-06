@@ -2,12 +2,13 @@
 using System;
 using JetBrains.Annotations;
 using NLog;
+using Smi.Common.Messaging;
 using Smi.Common.Options;
 
 
 namespace Microservices.DicomReprocessor
 {
-    public class DicomReprocessorControlMessageHandler
+    public class DicomReprocessorControlMessageHandler : IControlMessageHandler
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 

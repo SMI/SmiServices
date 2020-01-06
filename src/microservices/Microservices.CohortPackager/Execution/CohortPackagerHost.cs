@@ -37,7 +37,7 @@ namespace Microservices.CohortPackager.Execution
             // Setup the watcher for completed jobs
             JobWatcher = new ExtractJobWatcher(globals.CohortPackagerOptions, globals.FileSystemOptions, jobStore, ExceptionCallback, overrideFileSystem ?? new FileSystem());
 
-            AddControlHandler(new CohortPackagerControlMessageHandler(JobWatcher).ControlMessageHandler);
+            AddControlHandler(new CohortPackagerControlMessageHandler(JobWatcher));
 
             // Setup our consumers
             _requestInfoMessageConsumer = new ExtractionRequestInfoMessageConsumer(jobStore);

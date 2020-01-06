@@ -56,7 +56,7 @@ namespace Microservices.DicomReprocessor.Execution
 
             _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions, cliOptions, HostProcessName + "-" + HostProcessID);
 
-            AddControlHandler(new DicomReprocessorControlMessageHandler(Globals.DicomReprocessorOptions).ControlMessageHandler);
+            AddControlHandler(new DicomReprocessorControlMessageHandler(Globals.DicomReprocessorOptions));
         }
 
         public override void Start()
