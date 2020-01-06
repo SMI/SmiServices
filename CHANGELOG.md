@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ...
 
+### Changed
+
+- Updated Rdmp.Dicom nuget package to 2.0.6
+
 ## [1.2.0] - 2019-12-12
 
 ### Added
