@@ -60,7 +60,7 @@ namespace Microservices.DicomReprocessor.Execution
         }
 
 
-        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, int sleepDuration, bool autoRun = false)
+        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorOptions options, bool autoRun = false)
         {
             DateTime start;
 
@@ -68,9 +68,9 @@ namespace Microservices.DicomReprocessor.Execution
 
             using (IAsyncCursor<BsonDocument> cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, query))
             {
-                _logger.Info("Using MaxDegreeOfParallelism: " + _parallelOptions.MaxDegreeOfParallelism);
-                _logger.Info("Batch size is: " + (_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified"));
-                _logger.Info("Sleeping for " + sleepDuration + "ms between batches");
+                _logger.Info($"Using MaxDegreeOfParallelism: {_parallelOptions.MaxDegreeOfParallelism}");
+                _logger.Info($"Batch size is: {(_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified")}");
+                _logger.Info($"Sleeping for {options.SleepTime.TotalMilliseconds}ms between batches");
 
                 if (!autoRun)
                 {
@@ -111,8 +111,8 @@ namespace Microservices.DicomReprocessor.Execution
 
                     processor.SendMessages();
 
-                    _logger.Debug("Batch processed, sleeping for " + sleepDuration + "ms");
-                    Thread.Sleep(sleepDuration);
+                    _logger.Debug($"Batch processed, sleeping for {options.SleepTime.TotalMilliseconds}ms");
+                    Thread.Sleep(options.SleepTime);
                 }
             }
 

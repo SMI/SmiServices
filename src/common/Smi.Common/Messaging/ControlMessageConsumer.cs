@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 using Smi.Common.Events;
 using Smi.Common.Execution;
 using Smi.Common.Messages;
 using Smi.Common.Options;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Exceptions;
 
 namespace Smi.Common.Messaging
 {
@@ -109,16 +109,20 @@ namespace Smi.Common.Messaging
             string actor = string.Join(".", split.Skip(2).Take(split.Length - 3));
             string action = split[split.Length - 1];
 
-            // Shouldn't get any messages not meant for us, but good to check
+            // If action contains a numeric and it's not our PID, then ignore
+            if (action.Any(char.IsDigit) && !action.EndsWith(_processId))
+                return;
+
+            // Ignore any messages not meant for us
             if (!actor.Equals("all") && !actor.Equals(_processName))
             {
                 Logger.Debug("Control command did not match this service");
                 return;
             }
+            
+            // Handle any general actions - just stop and ping for now
 
-            // Try and handle any general actions we want for any microservice - just stop and ping for now
-
-            if (action.Equals("stop") || (action.StartsWith("stop") && action.Substring(4).Equals(_processId)))
+            if (action.StartsWith("stop"))
             {
                 if (StopHost == null)
                 {
@@ -133,7 +137,7 @@ namespace Smi.Common.Messaging
                 return;
             }
 
-            if (action.Equals("ping") || (action.StartsWith("ping") && action.Substring(4).Equals(_processId)))
+            if (action.StartsWith("ping"))
             {
                 Logger.Info("Pong!");
                 return;

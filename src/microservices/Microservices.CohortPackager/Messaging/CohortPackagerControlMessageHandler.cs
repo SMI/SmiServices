@@ -2,10 +2,11 @@
 using Microservices.CohortPackager.Execution.JobProcessing;
 using NLog;
 using System;
+using Smi.Common.Messaging;
 
 namespace Microservices.CohortPackager.Messaging
 {
-    public class CohortPackagerControlMessageHandler
+    public class CohortPackagerControlMessageHandler : IControlMessageHandler
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
