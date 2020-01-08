@@ -125,7 +125,7 @@ namespace Microservices.IdentifierMapper.Tests
                 db.CreateTable("Map_guid",new DatabaseColumnRequest[]
                 {
                     new DatabaseColumnRequest("CHI",new DatabaseTypeRequest(typeof(string),30,null)), 
-                    new DatabaseColumnRequest("Guid",new DatabaseTypeRequest(typeof(string),30,null)), 
+                    new DatabaseColumnRequest("Guid",new DatabaseTypeRequest(typeof(string),36,null)), 
                 });
 
 
