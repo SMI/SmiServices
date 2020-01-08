@@ -1,4 +1,5 @@
 ﻿
+using NLog;
 using Smi.Common.Options;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
@@ -23,5 +24,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// Clear the mapping cache (if exists) and reload
         /// </summary>
         void ClearCache();
+
+        /// <summary>
+        /// Report on the current number of swapped identifiers
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="level"></param>
+        void LogProgress(ILogger logger, LogLevel level);
     }
 }

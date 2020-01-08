@@ -4,17 +4,15 @@ using NLog;
 using FAnsi.Discovery;
 using System;
 using System.Data.Common;
+using Smi.Common;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
 {
     /// <summary>
     /// Connects to a database containing values to swap identifiers with. Keeps a single cache of the last seen value
     /// </summary>
-    public class TableLookupSwapper : ISwapIdentifiers
+    public class TableLookupSwapper : SwapIdentifiers
     {
-        public int TotalSwapCount { get; private set; }
-        public int TotalCachedSwapCount { get; private set; }
-
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -27,7 +25,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         private string _lastVal;
         
 
-        public void Setup(IMappingTableOptions options)
+        public override void Setup(IMappingTableOptions options)
         {
             _options = options;
             _swapTable =  options.Discover();
@@ -37,7 +35,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 throw new ArgumentException($"Swap table '{_swapTable.GetFullyQualifiedName()}' did not exist on server '{_server}'");
         }
 
-        public string GetSubstitutionFor(string toSwap, out string reason)
+        public override string GetSubstitutionFor(string toSwap, out string reason)
         {
             reason = null;
 
@@ -46,43 +44,47 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             {
                 _logger.Debug("Using cached swap value");
 
-                ++TotalCachedSwapCount;
-                ++TotalSwapCount;
+                CacheHit++;
+                Success++;
 
                 return _lastVal;
             }
+
+            CacheMiss++;
 
             // Else fall through to the database lookup
-            using (DbConnection con = _server.GetConnection())
-            {
-                con.Open();
-
-                string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@val",
-                    _options.ReplacementColumnName,
-                    _swapTable.GetFullyQualifiedName(),
-                    _options.SwapColumnName);
-
-                DbCommand cmd = _server.GetCommand(sql, con);
-                _server.AddParameterWithValueToCommand("@val", cmd, toSwap);
-
-                object result = cmd.ExecuteScalar();
-
-                if (result == DBNull.Value || result == null)
+            using(new TimeTracker(DatabaseStopwatch))
+                using (DbConnection con = _server.GetConnection())
                 {
-                    reason = "No match found for '" + toSwap + "'";
-                    return null;
+                    con.Open();
+
+                    string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@val",
+                        _options.ReplacementColumnName,
+                        _swapTable.GetFullyQualifiedName(),
+                        _options.SwapColumnName);
+
+                    DbCommand cmd = _server.GetCommand(sql, con);
+                    _server.AddParameterWithValueToCommand("@val", cmd, toSwap);
+
+                    object result = cmd.ExecuteScalar();
+
+                    if (result == DBNull.Value || result == null)
+                    {
+                        reason = "No match found for '" + toSwap + "'";
+                        Fail++;
+                        return null;
+                    }
+
+                    _lastKey = toSwap;
+                    _lastVal = result.ToString();
+
+                    ++Success;
+
+                    return _lastVal;
                 }
-
-                _lastKey = toSwap;
-                _lastVal = result.ToString();
-
-                ++TotalSwapCount;
-
-                return _lastVal;
-            }
         }
 
-        public void ClearCache()
+        public override void ClearCache()
         {
             _lastVal = null;
             _logger.Debug("ClearCache called, single value cache cleared");
