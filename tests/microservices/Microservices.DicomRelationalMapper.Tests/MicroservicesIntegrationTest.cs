@@ -543,7 +543,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             new MongoClient(new MongoClientSettings { Server = new MongoServerAddress(mongoDbHostName, mongoDbHostPort) }).DropDatabase(MongoTestDbName);
         }
 
-        private class SwapForFixedValueTester : ISwapIdentifiers
+        private class SwapForFixedValueTester : SwapIdentifiers
         {
             private readonly string _swapForString;
 
@@ -554,15 +554,17 @@ namespace Microservices.DicomRelationalMapper.Tests
             }
 
 
-            public void Setup(IMappingTableOptions mappingTableOptions) { }
+            public override void Setup(IMappingTableOptions mappingTableOptions) { }
 
-            public string GetSubstitutionFor(string toSwap, out string reason)
+            public override string GetSubstitutionFor(string toSwap, out string reason)
             {
                 reason = null;
+                Success++;
+                CacheHit++;
                 return _swapForString;
             }
 
-            public void ClearCache() { }
+            public override void ClearCache() { }
         }
     }
 }

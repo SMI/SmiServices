@@ -1,0 +1,30 @@
+﻿using System.Linq;
+using NLog;
+using NLog.Targets;
+using NUnit.Framework;
+
+namespace Microservices.IdentifierMapper.Tests
+{
+    public class IdentifierMapperUnitTests
+    {
+        [Test]
+        public void Test_IdentifierMapper_LoggingCounts()
+        {
+            MemoryTarget target = new MemoryTarget();                                                  
+            target.Layout = "${message}";
+            
+            var mapper = new SwapForFixedValueTester("fish");
+            StringAssert.AreEqualIgnoringCase("fish",mapper.GetSubstitutionFor("heyyy", out _));
+
+            Assert.AreEqual(1,mapper.Success);
+
+            NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);
+
+            Logger logger = LogManager.GetLogger("Example");
+
+            mapper.LogProgress(logger);
+
+            StringAssert.StartsWith("SwapForFixedValueTester: CacheRatio=1:0 SuccessRatio=1:0:0",target.Logs.Single());
+        }
+    }
+}

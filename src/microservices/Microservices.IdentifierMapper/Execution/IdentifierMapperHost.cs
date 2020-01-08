@@ -93,11 +93,8 @@ namespace Microservices.IdentifierMapper.Execution
             {
                 
             }
-            
 
-            var asLookup = _swapper as TableLookupSwapper;
-            if (asLookup != null)
-                Logger.Debug("TableLookupSwapper: TotalSwapCount={0} TotalCachedSwapCount={1}", asLookup.TotalSwapCount, asLookup.TotalCachedSwapCount);
+            _swapper?.LogProgress(Logger);
 
             base.Stop(reason);
         }

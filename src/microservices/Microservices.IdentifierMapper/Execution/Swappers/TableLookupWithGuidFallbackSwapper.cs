@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using FAnsi.Discovery;
+using NLog;
 using Smi.Common.Options;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
@@ -13,7 +14,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     ///
     /// <para>The Guid mapping table will be the mapping table name with the suffix <see cref="GuidTableSuffix"/> (i.e. <see cref="IMappingTableOptions.MappingTableName"/> + suffix)</para>
     /// </summary>
-    public class TableLookupWithGuidFallbackSwapper : ISwapIdentifiers
+    public class TableLookupWithGuidFallbackSwapper : SwapIdentifiers
     {
         /// <summary>
         /// Determines the name to give/expect for the substitution table when the lookup misses.  The name will be
@@ -37,7 +38,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         }
 
         /// <inheritdoc/>
-        public void Setup(IMappingTableOptions mappingTableOptions)
+        public override void Setup(IMappingTableOptions mappingTableOptions)
         {
             _tableSwapper.Setup(mappingTableOptions);
 
@@ -68,7 +69,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <param name="toSwap"></param>
         /// <param name="reason"></param>
         /// <returns></returns>
-        public string GetSubstitutionFor(string toSwap, out string reason)
+        public override string GetSubstitutionFor(string toSwap, out string reason)
         {
             //get answer from lookup table
             var answer = _tableSwapper.GetSubstitutionFor(toSwap, out reason);
@@ -83,10 +84,16 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <summary>
         /// Calls <see cref="ISwapIdentifiers.ClearCache"/> on both wrapped swappers (guid and lookup)
         /// </summary>
-        public void ClearCache()
+        public override void ClearCache()
         {
             _tableSwapper.ClearCache();
             _guidSwapper.ClearCache();
+        }
+
+        public override void LogProgress(ILogger logger)
+        {
+            _tableSwapper.LogProgress(logger);
+            _guidSwapper.LogProgress(logger);
         }
     }
 }
