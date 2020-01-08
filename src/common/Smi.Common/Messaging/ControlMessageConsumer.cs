@@ -64,8 +64,6 @@ namespace Smi.Common.Messaging
         /// <param name="e"></param>
         public override void ProcessMessage(BasicDeliverEventArgs e)
         {
-            Logger.Info("Control message received");
-
             try
             {
                 ProcessMessageImpl(null, e);
@@ -119,7 +117,7 @@ namespace Smi.Common.Messaging
                 Logger.Debug("Control command did not match this service");
                 return;
             }
-            
+
             // Handle any general actions - just stop and ping for now
 
             if (action.StartsWith("stop"))
