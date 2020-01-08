@@ -54,6 +54,8 @@ namespace Smi.Common
         private const int MinRabbitServerVersionMinor = 7;
         private const int MinRabbitServerVersionPatch = 0;
 
+        private const int MaxSubscriptionAttempts = 5;
+
 
         /// <summary>
         /// 
@@ -135,19 +137,41 @@ namespace Smi.Common
                 throw new ApplicationException("Already a consumer on queue " + consumerOptions.QueueName + " and solo consumer was specified");
             }
 
-            Subscription subscription;
+            Subscription subscription = null;
+            var connected = false;
+            var failed = 0;
 
-            try
+            while (!connected)
             {
-                subscription = new Subscription(model, consumerOptions.QueueName, consumerOptions.AutoAck, label);
-            }
-            catch (Exception e)
-            {
-                model.Close(200, "StartConsumer - Couldn't create subscription");
-                connection.Close(200, "StartConsumer - Couldn't create subscription");
+                try
+                {
+                    subscription = new Subscription(model, consumerOptions.QueueName, consumerOptions.AutoAck, label);
+                    connected = true;
+                }
+                catch (TimeoutException)
+                {
+                    if (++failed >= MaxSubscriptionAttempts)
+                    {
+                        _logger.Warn("Retries exceeded, throwing exception");
+                        throw;
+                    }
 
-                throw new ApplicationException(
-                    "Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
+                    _logger.Warn($"Timeout when creating Subscription, retrying in 5s...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+                catch (OperationInterruptedException e)
+                {
+                    throw new ApplicationException(
+                        "Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
+                }
+                finally
+                {
+                    if (!connected)
+                    {
+                        model.Close(200, "StartConsumer - Couldn't create subscription");
+                        connection.Close(200, "StartConsumer - Couldn't create subscription");
+                    }
+                }
             }
 
             Guid taskId = Guid.NewGuid();
