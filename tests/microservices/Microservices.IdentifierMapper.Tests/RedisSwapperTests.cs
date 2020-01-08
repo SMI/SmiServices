@@ -9,6 +9,7 @@ using Microservices.IdentifierMapper.Execution.Swappers;
 using NUnit.Framework;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using StackExchange.Redis;
 using Tests.Common;
 
 namespace Microservices.IdentifierMapper.Tests
@@ -43,10 +44,20 @@ namespace Microservices.IdentifierMapper.Tests
                 MappingDatabaseType = db.Server.DatabaseType
             };
 
-            var swapper = new RedisSwapper();
-            swapper.Setup(options);
-            swapper.ClearCache();
+            RedisSwapper swapper;
 
+            try
+            {
+                swapper = new RedisSwapper();
+                swapper.Setup(options);
+                swapper.ClearCache();
+            }
+            catch (RedisConnectionException  )
+            {
+                Assert.Inconclusive();
+                throw new Exception("To keep static analysis happy, btw Redis was unavailable");
+            }
+            
             //hit on the lookup table
             string answer = swapper.GetSubstitutionFor("0101010101",out string reason);
             Assert.AreEqual("0A0A0A0A0A",answer);

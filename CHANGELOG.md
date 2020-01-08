@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Improved logging in IdentifierSwappers
-
+- Added `RedisSwapper` which wraps `TableLookupWithGuidFallbackSwapper` and caches hits in a Redis database (on localhost)
 
 ## [1.2.2] - 2020-01-08
 
