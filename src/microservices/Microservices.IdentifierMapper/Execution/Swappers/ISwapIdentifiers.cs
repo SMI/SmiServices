@@ -29,6 +29,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// Report on the current number of swapped identifiers
         /// </summary>
         /// <param name="logger"></param>
-        void LogProgress(ILogger logger);
+        /// <param name="level"></param>
+        void LogProgress(ILogger logger, LogLevel level);
     }
 }

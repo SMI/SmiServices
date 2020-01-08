@@ -21,9 +21,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public abstract void ClearCache();
 
-        public virtual void LogProgress(ILogger logger)
+        public virtual void LogProgress(ILogger logger, LogLevel level)
         {
-            logger.Debug($"{GetType().Name}: CacheRatio={CacheHit}:{CacheMiss} SuccessRatio={Success}:{Fail}:{Invalid} DatabaseTime:{DatabaseStopwatch.Elapsed}");
+            logger.Log(level,$"{GetType().Name}: CacheRatio={CacheHit}:{CacheMiss} SuccessRatio={Success}:{Fail}:{Invalid} DatabaseTime:{DatabaseStopwatch.Elapsed}");
         }
     }
 }

@@ -10,6 +10,7 @@ using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
+using NLog;
 using RabbitMQ.Client.Exceptions;
 
 
@@ -94,7 +95,7 @@ namespace Microservices.IdentifierMapper.Execution
                 
             }
 
-            _swapper?.LogProgress(Logger);
+            _swapper?.LogProgress(Logger, LogLevel.Info);
 
             base.Stop(reason);
         }

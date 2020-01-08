@@ -22,7 +22,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             Logger logger = LogManager.GetLogger("Example");
 
-            mapper.LogProgress(logger);
+            mapper.LogProgress(logger, LogLevel.Info);
 
             StringAssert.StartsWith("SwapForFixedValueTester: CacheRatio=1:0 SuccessRatio=1:0:0",target.Logs.Single());
         }

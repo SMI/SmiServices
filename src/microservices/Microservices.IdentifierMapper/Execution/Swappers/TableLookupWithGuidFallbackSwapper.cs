@@ -90,10 +90,10 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _guidSwapper.ClearCache();
         }
 
-        public override void LogProgress(ILogger logger)
+        public override void LogProgress(ILogger logger, LogLevel level)
         {
-            _tableSwapper.LogProgress(logger);
-            _guidSwapper.LogProgress(logger);
+            _tableSwapper.LogProgress(logger, level);
+            _guidSwapper.LogProgress(logger, level);
         }
     }
 }
