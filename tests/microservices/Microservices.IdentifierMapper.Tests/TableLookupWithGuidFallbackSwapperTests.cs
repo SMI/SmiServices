@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using Tests.Common;
+using TypeGuesser;
 
 namespace Microservices.IdentifierMapper.Tests
 {
@@ -92,6 +93,62 @@ namespace Microservices.IdentifierMapper.Tests
             //now that we have a cache hit we can lookup the good value
             Assert.AreEqual("0B0B0B0B0B",swapper.GetSubstitutionFor("0202020202",out reason));
 
+        }
+
+        [TestCase(DatabaseType.MySql,true)]
+        [TestCase(DatabaseType.MySql,false)]
+        [TestCase(DatabaseType.MicrosoftSQLServer,true)]
+        [TestCase(DatabaseType.MicrosoftSQLServer,false)]
+        public void Test_SwapValueTooLong(DatabaseType dbType, bool createGuidTableUpFront)
+        {
+            var db = GetCleanedServer(dbType);
+
+            DiscoveredTable map;
+            
+            using (var dt = new DataTable())
+            {
+                dt.Columns.Add("CHI");
+                dt.Columns.Add("ECHI");
+
+                dt.Rows.Add("0101010101", "0A0A0A0A0A");
+                map = db.CreateTable("Map",dt);
+            }
+            
+            using (var dt = new DataTable())
+            {
+                dt.Columns.Add("CHI");
+                dt.Columns.Add("guid");
+
+            }
+
+            if(createGuidTableUpFront)
+                db.CreateTable("Map_guid",new DatabaseColumnRequest[]
+                {
+                    new DatabaseColumnRequest("CHI",new DatabaseTypeRequest(typeof(string),30,null)), 
+                    new DatabaseColumnRequest("Guid",new DatabaseTypeRequest(typeof(string),30,null)), 
+                });
+
+
+            var options = new IdentifierMapperOptions()
+            {
+                MappingTableName = map.GetFullyQualifiedName(),
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                SwapColumnName = "CHI",
+                ReplacementColumnName = "ECHI",
+                MappingDatabaseType = db.Server.DatabaseType
+            };
+
+            var swapper = new TableLookupWithGuidFallbackSwapper();
+            swapper.Setup(options);
+
+            //cache hit
+            string answer = swapper.GetSubstitutionFor("010101010031002300020320402054240204022433040301",out string reason);
+            Assert.IsNull(answer);
+            
+            if(createGuidTableUpFront)
+                StringAssert.AreEqualIgnoringCase("Supplied value was too long (48) - max allowed is (30)",reason);
+            else
+                StringAssert.AreEqualIgnoringCase("Supplied value was too long (48) - max allowed is (10)",reason);
         }
     }
 }
