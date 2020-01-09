@@ -555,24 +555,24 @@ namespace Microservices.IdentifierMapper.Tests
             swapped = swapper.GetSubstitutionFor("CHI-1", out _);
             Assert.AreEqual("REP-1", swapped);
 
-            Assert.AreEqual(2, swapper.TotalSwapCount);
-            Assert.AreEqual(1, swapper.TotalCachedSwapCount);
+            Assert.AreEqual(2, swapper.Success);
+            Assert.AreEqual(1, swapper.CacheHit);
 
             swapped = swapper.GetSubstitutionFor("CHI-2", out _);
             Assert.AreEqual("REP-2", swapped);
             swapped = swapper.GetSubstitutionFor("CHI-2", out _);
             Assert.AreEqual("REP-2", swapped);
 
-            Assert.AreEqual(4, swapper.TotalSwapCount);
-            Assert.AreEqual(2, swapper.TotalCachedSwapCount);
+            Assert.AreEqual(4, swapper.Success);
+            Assert.AreEqual(2, swapper.CacheHit);
 
             // Just to make sure...
 
             swapped = swapper.GetSubstitutionFor("CHI-1", out _);
             Assert.AreEqual("REP-1", swapped);
 
-            Assert.AreEqual(5, swapper.TotalSwapCount);
-            Assert.AreEqual(2, swapper.TotalCachedSwapCount);
+            Assert.AreEqual(5, swapper.Success);
+            Assert.AreEqual(2, swapper.CacheHit);
         }
     }
 }

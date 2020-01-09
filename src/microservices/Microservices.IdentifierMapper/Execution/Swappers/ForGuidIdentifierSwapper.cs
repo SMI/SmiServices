@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Text;
+using Smi.Common;
 using TypeGuesser;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
@@ -16,7 +17,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     /// Connects to a (possibly empty) database containing values to swap identifiers with. If no valid replacement found for a value,
     /// we create a new <see cref="Guid"/>, insert it into the database, and return it as the swapped value. Keeps a cache of swap values
     /// </summary>
-    public class ForGuidIdentifierSwapper : ISwapIdentifiers
+    public class ForGuidIdentifierSwapper : SwapIdentifiers
     {
         private readonly ILogger _logger;
 
@@ -27,6 +28,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         private readonly Dictionary<string, string> _cachedAnswers = new Dictionary<string, string>();
         private readonly object _oCacheLock = new object();
 
+        private int _swapColumnLength;
 
         public ForGuidIdentifierSwapper()
         {
@@ -37,21 +39,23 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// Connects to the specified swapping table if it exists, or creates it
         /// </summary>
         /// <param name="mappingTableOptions"></param>
-        public void Setup(IMappingTableOptions mappingTableOptions)
+        public override void Setup(IMappingTableOptions mappingTableOptions)
         {
             _options = mappingTableOptions;
             _table = _options.Discover();
 
-            CreateTableIfNotExists();
+            using(new TimeTracker(DatabaseStopwatch))
+                CreateTableIfNotExists();
         }
 
-        public string GetSubstitutionFor(string toSwap, out string reason)
+        public override string GetSubstitutionFor(string toSwap, out string reason)
         {
             reason = null;
 
-            if (toSwap.Length > 10)
+            if (_swapColumnLength >0 && toSwap.Length > _swapColumnLength)
             {
-                reason = "Supplied value was too long (" + toSwap.Length + ")";
+                reason = $"Supplied value was too long ({toSwap.Length}) - max allowed is ({_swapColumnLength})";
+                Invalid++;
                 return null;
             }
 
@@ -59,7 +63,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             lock (_oCacheLock)
             {
                 if (_cachedAnswers.ContainsKey(toSwap))
+                {
+                    CacheHit++;
+                    Success++;
                     return _cachedAnswers[toSwap];
+                }
+                    
                                 
                 var guid = Guid.NewGuid().ToString();
 
@@ -100,37 +109,41 @@ where not exists(select *
                     
                 }
                 
-                using (var con = _table.Database.Server.BeginNewTransactedConnection())
-                {
-                    DbCommand cmd = _table.Database.Server.GetCommand(insertSql, con);
-
-                    try
+                using(new TimeTracker(DatabaseStopwatch))
+                    using (var con = _table.Database.Server.BeginNewTransactedConnection())
                     {
-                        cmd.ExecuteNonQuery();
+                        DbCommand cmd = _table.Database.Server.GetCommand(insertSql, con);
+
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception e)
+                        {
+                            Invalid++;
+                            throw new Exception("Failed to perform lookup of toSwap with SQL:" + insertSql, e);
+                        }
+
+                        //guid may not have been inserted.  Just because we don't have it in our cache doesn't mean that other poeple might
+                        //not have allocated that one at the same time.
+
+                        DbCommand cmd2 = _table.Database.Server.GetCommand($"SELECT {_options.ReplacementColumnName} FROM {_table.GetFullyQualifiedName()} WHERE {_options.SwapColumnName} = '{toSwap}'  ",con);
+                        var syncAnswer = (string)cmd2.ExecuteScalar();
+
+                        _cachedAnswers.Add(toSwap, syncAnswer);
+
+                        con.ManagedTransaction.CommitAndCloseConnection();
+                        Success++;
+                        CacheMiss++;
+                        return syncAnswer;
                     }
-                    catch (Exception e)
-                    {
-                        throw new Exception("Failed to perform lookup of toSwap with SQL:" + insertSql, e);
-                    }
-
-                    //guid may not have been inserted.  Just because we don't have it in our cache doesn't mean that other poeple might
-                    //not have allocated that one at the same time.
-
-                    DbCommand cmd2 = _table.Database.Server.GetCommand($"SELECT {_options.ReplacementColumnName} FROM {_table.GetFullyQualifiedName()} WHERE {_options.SwapColumnName} = '{toSwap}'  ",con);
-                    var syncAnswer = (string)cmd2.ExecuteScalar();
-
-                    _cachedAnswers.Add(toSwap, syncAnswer);
-
-                    con.ManagedTransaction.CommitAndCloseConnection();
-                    return syncAnswer;
-                }
             }
         }
 
         /// <summary>
         /// Clears the in-memory cache of swap pairs
         /// </summary>
-        public void ClearCache()
+        public override void ClearCache()
         {
             lock (_oCacheLock)
             {
@@ -138,6 +151,7 @@ where not exists(select *
                 _logger.Info("Cache cleared");
             }
         }
+
 
         private void CreateTableIfNotExists()
         {
@@ -158,18 +172,18 @@ where not exists(select *
                             new DatabaseColumnRequest(_options.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
                             new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)}
                         );
-
-                    if (_table.Exists())
-                        _logger.Info("Guid mapping table exist (" + _table + ")");
-                    else
-                        throw new Exception("Table creation did not result in table existing!");
-
-                    _logger.Info("Checking for column " + _options.SwapColumnName);
-                    _table.DiscoverColumn(_options.SwapColumnName);
-
-                    _logger.Info("Checking for column " + _options.ReplacementColumnName);
-                    _table.DiscoverColumn(_options.ReplacementColumnName);
                 }
+
+                if (_table.Exists())
+                    _logger.Info("Guid mapping table exist (" + _table + ")");
+                else
+                    throw new Exception("Table creation did not result in table existing!");
+
+                _logger.Info("Checking for column " + _options.SwapColumnName);
+                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType.GetLengthIfString();
+
+                _logger.Info("Checking for column " + _options.ReplacementColumnName);
+                _table.DiscoverColumn(_options.ReplacementColumnName);
             }
             catch (Exception e)
             {
