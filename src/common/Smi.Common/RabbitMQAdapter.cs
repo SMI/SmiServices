@@ -141,12 +141,13 @@ namespace Smi.Common
             {
                 subscription = new Subscription(model, consumerOptions.QueueName, consumerOptions.AutoAck, label);
             }
-            catch (OperationInterruptedException e)
+            catch (Exception e)
             {
                 model.Close(200, "StartConsumer - Couldn't create subscription");
                 connection.Close(200, "StartConsumer - Couldn't create subscription");
 
-                throw new ApplicationException("Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
+                throw new ApplicationException(
+                    "Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
             }
 
             Guid taskId = Guid.NewGuid();

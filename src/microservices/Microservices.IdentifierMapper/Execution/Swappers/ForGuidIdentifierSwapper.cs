@@ -28,6 +28,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         private readonly Dictionary<string, string> _cachedAnswers = new Dictionary<string, string>();
         private readonly object _oCacheLock = new object();
 
+        private int _swapColumnLength;
 
         public ForGuidIdentifierSwapper()
         {
@@ -51,9 +52,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         {
             reason = null;
 
-            if (toSwap.Length > 10)
+            if (_swapColumnLength >0 && toSwap.Length > _swapColumnLength)
             {
-                reason = "Supplied value was too long (" + toSwap.Length + ")";
+                reason = $"Supplied value was too long ({toSwap.Length}) - max allowed is ({_swapColumnLength})";
                 Invalid++;
                 return null;
             }
@@ -171,18 +172,18 @@ where not exists(select *
                             new DatabaseColumnRequest(_options.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
                             new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)}
                         );
-
-                    if (_table.Exists())
-                        _logger.Info("Guid mapping table exist (" + _table + ")");
-                    else
-                        throw new Exception("Table creation did not result in table existing!");
-
-                    _logger.Info("Checking for column " + _options.SwapColumnName);
-                    _table.DiscoverColumn(_options.SwapColumnName);
-
-                    _logger.Info("Checking for column " + _options.ReplacementColumnName);
-                    _table.DiscoverColumn(_options.ReplacementColumnName);
                 }
+
+                if (_table.Exists())
+                    _logger.Info("Guid mapping table exist (" + _table + ")");
+                else
+                    throw new Exception("Table creation did not result in table existing!");
+
+                _logger.Info("Checking for column " + _options.SwapColumnName);
+                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType.GetLengthIfString();
+
+                _logger.Info("Checking for column " + _options.ReplacementColumnName);
+                _table.DiscoverColumn(_options.ReplacementColumnName);
             }
             catch (Exception e)
             {
