@@ -29,12 +29,32 @@ namespace Microservices.DicomRelationalMapper.Execution
             var configuration = job.Configuration;
             var namer = configuration.DatabaseNamer;
 
-            // To be on the safe side, we will create/destroy the staging tables on a per-load basis
-            var cloner = new DatabaseCloner(configuration);
-            job.CreateTablesInStage(cloner, LoadBubble.Staging);
-
             DiscoveredServer server = job.LoadMetadata.GetDistinctLiveDatabaseServer();
             server.EnableAsync();
+
+            //Drop any STAGING tables that already exist
+            foreach (var table in job.RegularTablesToLoad)
+            {
+                string stagingDbName = table.GetDatabaseRuntimeName(LoadStage.AdjustStaging, namer);
+                string stagingTableName = table.GetRuntimeName(LoadStage.AdjustStaging, namer);
+                
+                var stagingDb = server.ExpectDatabase(stagingDbName);
+                var stagingTable = stagingDb.ExpectTable(stagingTableName);
+
+                if (stagingDb.Exists())
+                {
+                    if (stagingTable.Exists())
+                    {
+                        job.OnNotify(this,new NotifyEventArgs(ProgressEventType.Information,$"Dropping existing STAGING table remnant {stagingTable.GetFullyQualifiedName()}"));
+                        stagingTable.Drop();
+                    }   
+                }
+            }
+
+            //Now create STAGING tables (empty)
+            var cloner = new DatabaseCloner(configuration);
+            job.CreateTablesInStage(cloner, LoadBubble.Staging);
+            
 
             using (DbConnection con = server.GetConnection())
             {

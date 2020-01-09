@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Guid swapper no longer limits input identifiers to a maximum of 10 characters
 
+### Fixed
+
+- Fixed DicomRelationalMapper not cleaning up STAGING table remnants from previously failed loads (leading to crash)
+
 ## [1.2.2] - 2020-01-08
 
 ### Fixed
