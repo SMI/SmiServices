@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NLog;
 using Smi.Common.Options;
 using StackExchange.Redis;
 
@@ -14,14 +15,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     public class RedisSwapper : SwapIdentifiers,IDisposable
     {
         private readonly ConnectionMultiplexer _redis;
-        private TableLookupWithGuidFallbackSwapper _hostedSwapper;
+        private ISwapIdentifiers _hostedSwapper;
 
-        public const string RedistServer = "localhost";
-
-        public RedisSwapper()
+        public RedisSwapper(string redisHost, ISwapIdentifiers wrappedSwapper)
         {
-            _redis = ConnectionMultiplexer.Connect(RedistServer);
-            _hostedSwapper = new TableLookupWithGuidFallbackSwapper();
+            _redis = ConnectionMultiplexer.Connect(redisHost);
+            _hostedSwapper = wrappedSwapper;
         }
         public override void Setup(IMappingTableOptions mappingTableOptions)
         {
@@ -54,16 +53,21 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public override void ClearCache()
         {
-            using(var admin = ConnectionMultiplexer.Connect(RedistServer +",allowAdmin=true"))
-                foreach (var server in admin.GetEndPoints().Select(e=> admin.GetServer(e)))
-                    server.FlushAllDatabases();
-            
             _hostedSwapper.ClearCache();
         }
 
         public void Dispose()
         {
             _redis?.Dispose();
+        }
+
+        public override void LogProgress(ILogger logger, LogLevel level)
+        {
+            //output the Redis stats
+            base.LogProgress(logger,level);
+
+            //output the hosted mapper stats
+            _hostedSwapper.LogProgress(logger,level);
         }
     }
 }

@@ -18,6 +18,8 @@ namespace Microservices.IdentifierMapper.Tests
     [RequiresRelationalDb(DatabaseType.MySql)]
     class RedisSwapperTests : DatabaseTests
     {
+        private const string TestRedisServer = "localhost";
+        
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void Test_Redist_CacheUsage(DatabaseType dbType)
@@ -48,9 +50,10 @@ namespace Microservices.IdentifierMapper.Tests
 
             try
             {
-                swapper = new RedisSwapper();
+                swapper = new RedisSwapper(TestRedisServer,new TableLookupWithGuidFallbackSwapper());
                 swapper.Setup(options);
-                swapper.ClearCache();
+
+                ClearRedisServer();
             }
             catch (RedisConnectionException  )
             {
@@ -78,6 +81,13 @@ namespace Microservices.IdentifierMapper.Tests
             Assert.AreEqual(2,swapper.Success);
 
 
+        }
+
+        private void ClearRedisServer()
+        {
+            using(var admin = ConnectionMultiplexer.Connect(TestRedisServer +",allowAdmin=true"))
+                foreach (var server in admin.GetEndPoints().Select(e=> admin.GetServer(e)))
+                    server.FlushAllDatabases();
         }
     }
 }
