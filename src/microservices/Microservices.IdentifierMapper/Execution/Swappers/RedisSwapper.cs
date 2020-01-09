@@ -17,6 +17,8 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         private readonly ConnectionMultiplexer _redis;
         private ISwapIdentifiers _hostedSwapper;
 
+        private const string NullString = "NO MATCH";
+
         public RedisSwapper(string redisHost, ISwapIdentifiers wrappedSwapper)
         {
             _redis = ConnectionMultiplexer.Connect(redisHost);
@@ -29,24 +31,44 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public override string GetSubstitutionFor(string toSwap, out string reason)
         {
+            string output;
+            reason = null;
+
             IDatabase db = _redis.GetDatabase();
             
+            //look up Redis for a cached answer
             var val = db.StringGet(toSwap);
 
+            //we have a cached answer (which might be null)
             if (val.HasValue)
             {
-                reason = null;
+                output = val.ToString();
                 CacheHit++;
-                Success++;
-                return val.ToString();
+            }
+            else
+            { 
+
+                //we have no cached answer from Redis
+                CacheMiss++;
+            
+                //Go to the hosted swapper
+                output = _hostedSwapper.GetSubstitutionFor(toSwap, out reason);
+
+                //and cache the result (even if it is null - no lookup match found)
+                db.StringSet(toSwap, output ?? NullString, null, When.NotExists);
             }
 
-            CacheMiss++;
-            
-            var output = _hostedSwapper.GetSubstitutionFor(toSwap, out reason);
-            db.StringSet(toSwap, output, null, When.NotExists);
+            if (string.Equals(NullString, output))
+            {
+                output = null;
+                reason = $"Value '{toSwap}' was cached in Redis as missing (i.e. no mapping was found)";
+            }
+                
+            if (output == null)
+                Fail++;
+            else
+                Success++;
 
-            Success++;
             return output;
         }
 

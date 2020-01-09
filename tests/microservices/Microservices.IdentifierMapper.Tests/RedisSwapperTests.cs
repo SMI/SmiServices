@@ -79,8 +79,69 @@ namespace Microservices.IdentifierMapper.Tests
             //hit must come from Redis
             Assert.AreEqual(1,swapper.CacheHit);
             Assert.AreEqual(2,swapper.Success);
+        }
 
 
+
+        
+        [TestCase(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        public void Test_Redist_CacheMisses(DatabaseType dbType)
+        {
+            var db = GetCleanedServer(dbType);
+
+            DiscoveredTable map;
+            
+            using (var dt = new DataTable())
+            {
+                dt.Columns.Add("CHI");
+                dt.Columns.Add("ECHI");
+
+                dt.Rows.Add("0101010101", "0A0A0A0A0A");
+                map = db.CreateTable("Map",dt);
+            }
+
+            var options = new IdentifierMapperOptions()
+            {
+                MappingTableName = map.GetFullyQualifiedName(),
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                SwapColumnName = "CHI",
+                ReplacementColumnName = "ECHI",
+                MappingDatabaseType = db.Server.DatabaseType
+            };
+
+            RedisSwapper swapper;
+
+            try
+            {
+                swapper = new RedisSwapper(TestRedisServer,new TableLookupSwapper());
+                swapper.Setup(options);
+
+                ClearRedisServer();
+            }
+            catch (RedisConnectionException  )
+            {
+                Assert.Inconclusive();
+                throw new Exception("To keep static analysis happy, btw Redis was unavailable");
+            }
+            
+            //hit on the lookup table
+            string answer = swapper.GetSubstitutionFor("GOGOGO",out string reason);
+            Assert.IsNull(answer);
+            Assert.AreEqual("No match found for 'GOGOGO'",reason);
+
+            //hit didn't come from Redis
+            Assert.AreEqual(0,swapper.CacheHit);
+            Assert.AreEqual(1,swapper.Fail);
+            
+            //hit from Redis
+            string answer2 = swapper.GetSubstitutionFor("GOGOGO",out string reason2);
+            Assert.IsNull(answer2);
+            Assert.AreEqual("Value 'GOGOGO' was cached in Redis as missing (i.e. no mapping was found)",reason2);
+            
+            //hit must come from Redis
+            Assert.AreEqual(1,swapper.CacheHit);
+            Assert.AreEqual(2,swapper.Fail);
         }
 
         private void ClearRedisServer()
