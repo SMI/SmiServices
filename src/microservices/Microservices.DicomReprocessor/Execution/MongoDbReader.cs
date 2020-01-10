@@ -40,6 +40,7 @@ namespace Microservices.DicomReprocessor.Execution
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private bool _stopping;
 
+        private readonly bool _autoRun;
 
         public MongoDbReader(MongoDbOptions mongoOptions, DicomReprocessorCliOptions reprocessorOptions, string appId)
         {
@@ -57,10 +58,12 @@ namespace Microservices.DicomReprocessor.Execution
             // https://docs.mongodb.com/manual/reference/method/cursor.batchSize/
             if (reprocessorOptions.MongoDbBatchSize > 1)
                 _findOptionsBase.BatchSize = reprocessorOptions.MongoDbBatchSize;
+
+            _autoRun = reprocessorOptions.AutoRun;
         }
 
 
-        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorOptions options, bool autoRun = false)
+        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorOptions options)
         {
             DateTime start;
 
@@ -72,7 +75,7 @@ namespace Microservices.DicomReprocessor.Execution
                 _logger.Info($"Batch size is: {(_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified")}");
                 _logger.Info($"Sleeping for {options.SleepTime.TotalMilliseconds}ms between batches");
 
-                if (!autoRun)
+                if (!_autoRun)
                 {
                     LogManager.Flush();
 

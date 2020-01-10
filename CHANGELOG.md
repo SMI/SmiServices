@@ -7,6 +7,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.2.3] - 2020-01-09
+
+### Changed
+
+- RabbitMQAdapter: Improve handling of timeouts on connection startup
+
+### Added
+
+- Improved logging in IdentifierSwappers
+
+### Changed
+
+- Guid swapper no longer limits input identifiers to a maximum of 10 characters
+
+### Fixed
+
+- Fixed DicomRelationalMapper not cleaning up STAGING table remnants from previously failed loads (leading to crash)
+
+## [1.2.2] - 2020-01-08
+
+### Fixed
+
+- RAW to STAGING migration now lists columns explicitly (previously used `SELECT *` which could cause problems if RAW and STAGING column orders somehow differed)
+
 ## [1.2.1] - 2020-01-06
 
 ### Added
@@ -92,7 +116,9 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`).  Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.2.1...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.2.3...develop
+[1.2.3]:  https://github.com/SMI/SmiServices/compare/v1.2.2...v1.2.3
+[1.2.2]:  https://github.com/SMI/SmiServices/compare/v1.2.1...v1.2.2
 [1.2.1]:  https://github.com/SMI/SmiServices/compare/1.2.0...v1.2.1
 [1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0-rc1...1.2.0
 [1.2.0-rc1]:  https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0-rc1

@@ -54,6 +54,8 @@ namespace Smi.Common
         private const int MinRabbitServerVersionMinor = 7;
         private const int MinRabbitServerVersionPatch = 0;
 
+        private const int MaxSubscriptionAttempts = 5;
+
 
         /// <summary>
         /// 
@@ -135,18 +137,41 @@ namespace Smi.Common
                 throw new ApplicationException("Already a consumer on queue " + consumerOptions.QueueName + " and solo consumer was specified");
             }
 
-            Subscription subscription;
+            Subscription subscription = null;
+            var connected = false;
+            var failed = 0;
 
-            try
+            while (!connected)
             {
-                subscription = new Subscription(model, consumerOptions.QueueName, consumerOptions.AutoAck, label);
-            }
-            catch (OperationInterruptedException e)
-            {
-                model.Close(200, "StartConsumer - Couldn't create subscription");
-                connection.Close(200, "StartConsumer - Couldn't create subscription");
+                try
+                {
+                    subscription = new Subscription(model, consumerOptions.QueueName, consumerOptions.AutoAck, label);
+                    connected = true;
+                }
+                catch (TimeoutException)
+                {
+                    if (++failed >= MaxSubscriptionAttempts)
+                    {
+                        _logger.Warn("Retries exceeded, throwing exception");
+                        throw;
+                    }
 
-                throw new ApplicationException("Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
+                    _logger.Warn($"Timeout when creating Subscription, retrying in 5s...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+                catch (OperationInterruptedException e)
+                {
+                    throw new ApplicationException(
+                        "Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
+                }
+                finally
+                {
+                    if (!connected)
+                    {
+                        model.Close(200, "StartConsumer - Couldn't create subscription");
+                        connection.Close(200, "StartConsumer - Couldn't create subscription");
+                    }
+                }
             }
 
             Guid taskId = Guid.NewGuid();
@@ -175,6 +200,7 @@ namespace Smi.Common
             };
 
             consumerTask.Start();
+            _logger.Debug($"Consumer task started [ID={consumerTask.Id}]");
 
             return taskId;
         }
@@ -426,6 +452,13 @@ namespace Smi.Common
 
             protected readonly object OResourceLock = new object();
 
+            protected readonly ILogger Logger;
+
+            public RabbitResources()
+            {
+                Logger = LogManager.GetLogger(GetType().Name);
+            }
+
 
             public void Dispose()
             {
@@ -456,19 +489,22 @@ namespace Smi.Common
 
             public bool Shutdown(int timeout = 5000)
             {
+                bool exitOk;
                 lock (OResourceLock)
                 {
                     TokenSource.Cancel();
 
                     // Consumer task can't directly shut itself down, as it will block here
-                    bool exitOk = ConsumerTask.Wait(timeout);
+                    exitOk = ConsumerTask.Wait(timeout);
 
                     Subscription.Close();
 
                     Dispose();
-
-                    return exitOk;
                 }
+
+                Logger.Debug($"Consumer task shutdown [ID={ConsumerTask.Id}]");
+
+                return exitOk;
             }
         }
 

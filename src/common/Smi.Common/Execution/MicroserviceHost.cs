@@ -48,10 +48,12 @@ namespace Smi.Common.Execution
         {
             HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
 
+            string logConfigPath = null;
+
             // We may not want to do this during tests, however this should always be true otherwise
             if (loadSmiLogConfig)
             {
-                string logConfigPath = !string.IsNullOrWhiteSpace(globals.FileSystemOptions.LogConfigFile)
+                logConfigPath = !string.IsNullOrWhiteSpace(globals.FileSystemOptions.LogConfigFile)
                     ? globals.FileSystemOptions.LogConfigFile
                     : Path.Combine(globals.CurrentDirectory, "Smi.NLog.config");
 
@@ -74,6 +76,9 @@ namespace Smi.Common.Execution
 
             Logger = LogManager.GetLogger(GetType().Name);
             Logger.Info("Host logger created with " + (loadSmiLogConfig ? "SMI" : "existing") + " logging config");
+
+            if (!string.IsNullOrWhiteSpace(logConfigPath))
+                Logger.Debug($"Logging config loaded from {logConfigPath}");
 
             if (!globals.MicroserviceOptions.TraceLogging)
                 LogManager.GlobalThreshold = LogLevel.Debug;
@@ -159,6 +164,8 @@ namespace Smi.Common.Execution
                 Logger.Warn("Host stop called twice");
 
             _stopCalled = true;
+
+            Logger.Debug("Shutting down RabbitMQ connections");
 
             // Attempt to destroy the control queue
 
