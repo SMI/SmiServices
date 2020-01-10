@@ -61,21 +61,11 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             {
                 ExtractionInformation keyTagColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(message.KeyTag, StringComparison.CurrentCultureIgnoreCase));
                 ExtractionInformation filePathColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(ImagePathColumnName, StringComparison.CurrentCultureIgnoreCase));
+                ExtractionInformation seriesTagColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SeriesIdColumnName));
 
-                if (message.KeyTag != SeriesIdColumnName)
-                {
-                    ExtractionInformation seriesTagColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SeriesIdColumnName));
-
-                    if (seriesTagColumn == null)
-                        continue;
-
+                if (filePathColumn != null && keyTagColumn != null && seriesTagColumn != null)
                     queries.Add(new QueryToExecute(eis.Key, keyTagColumn, filePathColumn, seriesTagColumn));
-                }
-                else if (filePathColumn != null && keyTagColumn != null)
-                {
-                    queries.Add(new QueryToExecute(eis.Key, keyTagColumn, filePathColumn, null));
-                }
-
+                
                 auditor.AuditCatalogueUse(message, eis.Key);
             }
 
