@@ -8,7 +8,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public readonly string StudyTagValue;
         public readonly string SeriesTagValue;
         public readonly string InstanceTagValue;
-
+        
+        #region Equality
         public QueryToExecuteResult(string filePathValue, string studyTagValue, string seriesTagValue, string instanceTagValue)
         {
             FilePathValue = filePathValue;
@@ -17,7 +18,6 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             InstanceTagValue = instanceTagValue;
         }
 
-        #region Equality
         public bool Equals(QueryToExecuteResult other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -37,13 +37,15 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             unchecked
             {
-                var hashCode = FilePathValue.GetHashCode();
-                hashCode = (hashCode * 397) ^ StudyTagValue.GetHashCode();
-                hashCode = (hashCode * 397) ^ SeriesTagValue.GetHashCode();
-                hashCode = (hashCode * 397) ^ InstanceTagValue.GetHashCode();
+                var hashCode = (FilePathValue != null ? FilePathValue.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (StudyTagValue != null ? StudyTagValue.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (SeriesTagValue != null ? SeriesTagValue.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (InstanceTagValue != null ? InstanceTagValue.GetHashCode() : 0);
                 return hashCode;
             }
         }
+
+        
         #endregion
     }
 }

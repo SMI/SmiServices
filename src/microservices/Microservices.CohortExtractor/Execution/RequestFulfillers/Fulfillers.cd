@@ -4,7 +4,7 @@
     <Position X="0.594" Y="3.615" Height="0.291" Width="2.085" />
   </Comment>
   <Comment CommentText="Fulfiller knows about multiple tables it can get results from e.g. CT_ExtractionTable, MR_ExtractionTable etc">
-    <Position X="4.302" Y="5.135" Height="0.677" Width="2.908" />
+    <Position X="4.25" Y="5.427" Height="0.677" Width="2.908" />
   </Comment>
   <Comment CommentText="Each executed query returns multiple of these per WHERE lookup (e.g. Study = X).">
     <Position X="5.062" Y="6.833" Height="0.677" Width="2.908" />
@@ -15,7 +15,7 @@
   <Class Name="Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller">
     <Position X="4.25" Y="3" Width="3" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAEAAICAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAEAAICAAAAAAAAAAAAABAAAAAAAAQAAAAAAAA=</HashCode>
       <FileName>Execution\RequestFulfillers\FromCataloguesExtractionRequestFulfiller.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>

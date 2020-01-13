@@ -42,6 +42,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         public readonly ReadOnlyCollection<ExtractionInformation> AllColumns;
 
+        public bool HasAllUIDs => StudyTagColumn != null && SeriesTagColumn != null && InstanceTagColumn != null;
+
         public QueryToExecuteColumnSet(ICatalogue catalogue,
             ExtractionInformation filePathColumn,
             ExtractionInformation studyTagColumn,
@@ -53,9 +55,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             AllColumns = new ReadOnlyCollection<ExtractionInformation>(Catalogue.GetAllExtractionInformation(ExtractionCategory.Any));Catalogue.GetAllExtractionInformation(ExtractionCategory.Any);
 
             FilePathColumn = filePathColumn ?? throw new ArgumentNullException(nameof(filePathColumn));
-            StudyTagColumn = studyTagColumn ?? throw new ArgumentNullException(nameof(studyTagColumn));
-            SeriesTagColumn = seriesTagColumn ?? throw new ArgumentNullException(nameof(seriesTagColumn));
-            InstanceTagColumn = instanceTagColumn ?? throw new ArgumentNullException(nameof(instanceTagColumn));
+            StudyTagColumn = studyTagColumn;
+            SeriesTagColumn = seriesTagColumn;
+            InstanceTagColumn = instanceTagColumn;
         }
 
         
@@ -78,13 +80,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             var seriesTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultSeriesIdColumnName, StringComparison.CurrentCultureIgnoreCase));
             var instanceTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultInstanceIdColumnName, StringComparison.CurrentCultureIgnoreCase));
 
-            if(filePathColumn != null &&
-                studyTagColumn != null &&
-                seriesTagColumn != null &&
-                instanceTagColumn != null)
-                return new QueryToExecuteColumnSet(catalogue,filePathColumn,studyTagColumn,seriesTagColumn,instanceTagColumn);
-
-            return null;
+            return filePathColumn != null ? new QueryToExecuteColumnSet(catalogue,filePathColumn,studyTagColumn,seriesTagColumn,instanceTagColumn) : null;
         }
 
         /// <summary>

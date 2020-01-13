@@ -111,9 +111,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 }
             
             var path = Columns.FilePathColumn.GetRuntimeName();
-            var study = Columns.StudyTagColumn.GetRuntimeName();
-            var series = Columns.SeriesTagColumn.GetRuntimeName();
-            var instance = Columns.InstanceTagColumn.GetRuntimeName();
+            var study = Columns.StudyTagColumn?.GetRuntimeName();
+            var series = Columns.SeriesTagColumn?.GetRuntimeName();
+            var instance = Columns.InstanceTagColumn?.GetRuntimeName();
 
             using (DbConnection con = Server.GetConnection())
             {
@@ -127,7 +127,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     if (imagePath == DBNull.Value)
                         continue;
 
-                    yield return new QueryToExecuteResult((string)imagePath, (string)r[study], (string)r[series], (string)r[instance]);
+                    yield return new QueryToExecuteResult((string) imagePath,
+                        study == null ? null : (string)r[study],
+                        series == null ? null : (string)(string) r[series],
+                        instance == null ? null : (string)(string) r[instance]);
                 }
             }
         }
