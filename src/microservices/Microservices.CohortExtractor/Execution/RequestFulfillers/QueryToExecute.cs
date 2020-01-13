@@ -14,25 +14,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
     public class QueryToExecute
     {
+        protected QueryToExecuteColumnSet Columns { get; }
+        
         /// <summary>
-        /// The dataset to query
+        /// The column to search for in the WHERE logic
         /// </summary>
-        protected readonly ICatalogue Catalogue;
-
-        /// <summary>
-        /// The value to look up in the <see cref="Catalogue"/>
-        /// </summary>
-        protected readonly ExtractionInformation KeyTagColumn;
-
-        /// <summary>
-        /// The column in the <see cref="Catalogue"/> that stores the location on disk of the image
-        /// </summary>
-        protected readonly ExtractionInformation FilePathColumn;
-
-        /// <summary>
-        /// The column in the <see cref="Catalogue"/> that stores the Series UID
-        /// </summary>
-        protected readonly ExtractionInformation SeriesTagColumn;
+        public string KeyTag { get; }
 
         public DiscoveredServer Server { get; set; }
         private string _sql;
@@ -43,48 +30,29 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         readonly object _oLockExecute = new object();
 
-        public QueryToExecute(ICatalogue catalogue, ExtractionInformation keyTagColumn, ExtractionInformation filePathColumn, ExtractionInformation seriesTagColumn)
+        public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag)
         {
-            Catalogue = catalogue;
-            KeyTagColumn = keyTagColumn;
-            FilePathColumn = filePathColumn;
-            SeriesTagColumn = seriesTagColumn;
-            
-            Server = catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, false);
+            Columns = columns;
+            KeyTag = keyTag;
+            Server = columns.Catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, false);
         }
 
         /// <summary>
         /// Creates a query builder with all the columns required to match rows on the
-        /// <see cref="KeyTagColumn"/>
         /// </summary>
         /// <returns></returns>
         protected virtual QueryBuilder GetQueryBuilder()
         {
             var qb = new QueryBuilder("distinct", null);
             
-            foreach (var col in GetColumns()) 
+            foreach (var col in Columns.AllColumns) 
                 qb.AddColumn(col);
 
             qb.RootFilterContainer = GetWhereLogic();
 
             return qb;
         }
-
-        /// <summary>
-        /// Override to change what columns are brought back from the <see cref="Catalogue"/>.  Defaults to
-        /// <see cref="FilePathColumn"/>, <see cref="KeyTagColumn"/> and <see cref="SeriesTagColumn"/> (unless
-        /// it is the  <see cref="KeyTagColumn"/>).
-        /// </summary>
-        /// <returns></returns>
-        protected virtual IEnumerable<IColumn> GetColumns()
-        {
-            yield return FilePathColumn;
-            yield return KeyTagColumn;
-
-            if(!Equals(KeyTagColumn,SeriesTagColumn))
-                yield return SeriesTagColumn;
-        }
-
+        
         /// <summary>
         /// Generates the WHERE logic for the query.  Adds a single root container with AND operation and then adds
         /// all filters in <see cref="GetFilters"/>.  It is better to override <see cref="GetFilters"/> unless you want
@@ -106,17 +74,17 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         /// <summary>
         /// Override to change what filters are included in the WHERE Sql of your query.  Default behaviour is to match on the
-        /// <see cref="KeyTagColumn"/> and AND with all <see cref="ICatalogue.GetAllMandatoryFilters"/> listed on the <see cref="Catalogue"/>
+        /// <see cref="KeyTag"/> and AND with all <see cref="ICatalogue.GetAllMandatoryFilters"/> listed on the <see cref="Catalogue"/>
         /// </summary>
         /// <param name="memoryRepo"></param>
         /// <param name="rootContainer"></param>
         /// <returns></returns>
         protected virtual IEnumerable<IFilter> GetFilters(MemoryCatalogueRepository memoryRepo,IContainer rootContainer)
         {
-            yield return new SpontaneouslyInventedFilter(memoryRepo, rootContainer, KeyTagColumn + "= '{0}'",
+            yield return new SpontaneouslyInventedFilter(memoryRepo, rootContainer, KeyTag + "= '{0}'",
                 "Filter Series", "Filters by series UID", null);
 
-            foreach(var filter in Catalogue.GetAllMandatoryFilters())
+            foreach(var filter in Columns.Catalogue.GetAllMandatoryFilters())
                 yield return filter;
         }
 
@@ -130,7 +98,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         /// <param name="valueToLookup"></param>
         /// <returns></returns>
-        public Tuple<string, HashSet<string>> Execute(string valueToLookup)
+        public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup)
         {
             if(_sql == null)
                 lock (_oLockExecute)
@@ -142,8 +110,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     }        
                 }
             
-            var found = new HashSet<string>();
-            string seriesId = null;
+            var path = Columns.FilePathColumn.GetRuntimeName();
+            var study = Columns.StudyTagColumn.GetRuntimeName();
+            var series = Columns.SeriesTagColumn.GetRuntimeName();
+            var instance = Columns.InstanceTagColumn.GetRuntimeName();
 
             using (DbConnection con = Server.GetConnection())
             {
@@ -152,21 +122,14 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 while (r.Read())
                 {
-                    object imagePath = r[FilePathColumn.GetRuntimeName()];
+                    object imagePath = r[path];
 
                     if (imagePath == DBNull.Value)
                         continue;
 
-                    seriesId = r[SeriesTagColumn.GetRuntimeName()].ToString();
-
-                    found.Add(imagePath.ToString());
+                    yield return new QueryToExecuteResult((string)imagePath, (string)r[study], (string)r[series], (string)r[instance]);
                 }
             }
-
-            if (seriesId == null)
-                throw new Exception("seriesID not set");
-
-            return new Tuple<string, HashSet<string>>(seriesId, found);
         }
     }
 }

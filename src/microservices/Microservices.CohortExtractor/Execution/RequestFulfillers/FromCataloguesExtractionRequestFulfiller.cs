@@ -11,91 +11,74 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
     public class FromCataloguesExtractionRequestFulfiller : IExtractionRequestFulfiller
     {
-        public const string ImagePathColumnName = "RelativeFileArchiveURI";
-        public const string SeriesIdColumnName = "SeriesInstanceUID";
-
-
-        private readonly Dictionary<ICatalogue, ExtractionInformation[]> _catalogues;
-        private readonly Logger _logger;
-
-
+        protected readonly QueryToExecuteColumnSet[] Catalogues;
+        protected readonly Logger Logger;
+        
         public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
         {
-            _logger = LogManager.GetCurrentClassLogger();
+            Logger = LogManager.GetCurrentClassLogger();
 
-            _logger.Debug("Preparing to filter " + cataloguesToUseForImageLookup.Length + " Catalogues to look for compatible ones");
+            Logger.Debug("Preparing to filter " + cataloguesToUseForImageLookup.Length + " Catalogues to look for compatible ones");
 
-            _catalogues = FilterCatalogues(cataloguesToUseForImageLookup);
+            Catalogues = FilterCatalogues(cataloguesToUseForImageLookup);
 
-            _logger.Debug("Found " + _catalogues.Count + " Catalogues containing an extractable field '" + ImagePathColumnName + "'");
+            Logger.Debug("Found " + Catalogues.Length + " Catalogues matching filter criteria");
 
-            if (!_catalogues.Any())
-                throw new Exception("There are no compatible Catalogues in the repository, there must be at least one Catalogue with an extractable column called '" + ImagePathColumnName + "' (ExtractionInformation)");
+            if (!Catalogues.Any())
+                throw new Exception("There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns)");
         }
 
 
-        private Dictionary<ICatalogue, ExtractionInformation[]> FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
+        protected QueryToExecuteColumnSet[] FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
         {
-            var toReturn = new Dictionary<ICatalogue, ExtractionInformation[]>();
-
-            foreach (ICatalogue cata in cataloguesToUseForImageLookup.OrderBy(c => c.ID))
-            {
-                ExtractionInformation[] eis = cata.GetAllExtractionInformation(ExtractionCategory.Any);
-
-                // If the Catalogue does not expose the image path ignore it
-                if (!eis.Any(e => e.GetRuntimeName().Equals(ImagePathColumnName, StringComparison.CurrentCultureIgnoreCase)))
-                    continue;
-
-                // It does expose the image path
-                toReturn.Add(cata, eis);
-            }
-
-            return toReturn;
+            return cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray();
         }
 
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
         {
             var queries = new List<QueryToExecute>();
-
-            foreach (KeyValuePair<ICatalogue, ExtractionInformation[]> eis in _catalogues)
+            
+            foreach (var c in GetCataloguesFor(message))
             {
-                ExtractionInformation keyTagColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(message.KeyTag, StringComparison.CurrentCultureIgnoreCase));
-                ExtractionInformation filePathColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(ImagePathColumnName, StringComparison.CurrentCultureIgnoreCase));
-                ExtractionInformation seriesTagColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SeriesIdColumnName));
-
-                if (filePathColumn != null && keyTagColumn != null && seriesTagColumn != null)
-                    queries.Add(new QueryToExecute(eis.Key, keyTagColumn, filePathColumn, seriesTagColumn));
-                
-                auditor.AuditCatalogueUse(message, eis.Key);
+                queries.Add(GetQueryToExecute(c,message));
+                auditor.AuditCatalogueUse(message, c.Catalogue);
             }
 
-            _logger.Debug("Found " + queries.Count + " Catalogues with columns called '" + ImagePathColumnName + "' and '" + message.KeyTag + "'");
+            Logger.Debug("Found " + queries.Count + " Catalogues which support extracting based on '" + message.KeyTag + "'");
 
             if (queries.Count == 0)
                 throw new Exception("Couldn't find any compatible Catalogues to run extraction queries against");
 
+            
+
             foreach (string valueToLookup in message.ExtractionIdentifiers)
             {
-                var current = new HashSet<string>();
-                string seriesInstanceUid = null;
-
-                if (message.KeyTag == SeriesIdColumnName)
-                    seriesInstanceUid = valueToLookup;
+                Dictionary<string, HashSet<QueryToExecuteResult>> results = new Dictionary<string, HashSet<QueryToExecuteResult>>();
 
                 foreach (QueryToExecute query in queries)
                 {
-                    // If extracting by SopId, the HashSet should only contain 1 value?
-                    Tuple<string, HashSet<string>> results = query.Execute(valueToLookup);
+                    foreach (var result in query.Execute(valueToLookup))
+                    {
+                        if(!results.ContainsKey(result.SeriesTagValue))
+                            results.Add(result.SeriesTagValue,new HashSet<QueryToExecuteResult>());
 
-                    if(seriesInstanceUid == null)
-                        seriesInstanceUid = results.Item1;
-
-                    foreach (string s in results.Item2)
-                        current.Add(s);
+                        results[result.SeriesTagValue].Add(result);
+                    }
                 }
 
-                yield return new ExtractImageCollection(valueToLookup, seriesInstanceUid, current);
+                foreach(var kvp in results)
+                    yield return new ExtractImageCollection(valueToLookup,kvp.Key,new HashSet<string>(kvp.Value.Select(v=>v.FilePathValue)));
             }
+        }
+
+        protected virtual QueryToExecute GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
+        {
+            return new QueryToExecute(columnSet, message.KeyTag);
+        }
+
+        protected virtual IEnumerable<QueryToExecuteColumnSet> GetCataloguesFor(ExtractionRequestMessage message)
+        {
+            return Catalogues.Where(c => c.Contains(message.KeyTag));
         }
     }
 }

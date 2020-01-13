@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,10 +8,14 @@ using BadMedicine;
 using BadMedicine.Dicom;
 using Dicom;
 using FAnsi.Discovery;
+using FAnsi.Discovery.QuerySyntax.Update;
+using Microservices.CohortExtractor.Audit;
+using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using Rdmp.Core.DataLoad.Triggers;
+using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
 using Tests.Common;
 using TypeGuesser;
@@ -89,9 +94,81 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(100,tbl.GetRowCount());
 
+            var cata = Import(tbl);
 
+            var fufiller = new FromCataloguesExtractionRequestFulfiller(new[] {cata});
 
-            //IExtractionRequestFulfiller fulfiller = new FromCataloguesExtractionRequestFulfiller();
+            List<string> studies;
+
+            using(var dt = tbl.GetDataTable())
+                studies = dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct().ToList();
+
+            var msgIn = new ExtractionRequestMessage();
+            msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
+            msgIn.ExtractionIdentifiers = studies;
+
+            int matches = 0;
+
+            foreach (ExtractImageCollection msgOut in fufiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            {
+                matches += msgOut.MatchingFiles.Count;
+                Assert.IsEmpty(msgOut.Rejections);
+            }
+
+            //currently all images are extractable
+            Assert.AreEqual(100,matches);
+
+            //now make 10 not extractable
+            using (var con = tbl.Database.Server.GetConnection())
+            {
+                con.Open();
+
+                string sql = GetUpdateTopXSql(tbl,10, "Set IsExtractableToDisk=0, IsExtractableToDisk_Reason = 'We decided NO!'");
+
+                //make the top 10 not extractable
+                using (var cmd = tbl.Database.Server.GetCommand(sql,con))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            matches = 0;
+            int rejections = 0;
+
+            foreach (ExtractImageCollection msgOut in fufiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            {
+                matches += msgOut.MatchingFiles.Count;
+                rejections += msgOut.Rejections.Count;
+
+                Assert.IsTrue(msgOut.Rejections.All(v=>v.Value.Equals("We decided NO!")));
+            }
+
+            Assert.AreEqual(90,matches);
+            Assert.AreEqual(10, rejections);
+
+        }
+
+        /// <summary>
+        /// Returns SQL to update the <paramref name="topXRows"/> with the provided SET string
+        /// </summary>
+        /// <param name="tbl">Table to update</param>
+        /// <param name="topXRows">Number of rows to change</param>
+        /// <param name="setSql">Set SQL e.g. "Set Col1='fish'"</param>
+        /// <returns></returns>
+        private string GetUpdateTopXSql(DiscoveredTable tbl, int topXRows, string setSql)
+        {
+            switch (tbl.Database.Server.DatabaseType)
+            {
+                case DatabaseType.MicrosoftSQLServer:
+                    return
+                        $"UPDATE TOP ({topXRows}) {tbl.GetFullyQualifiedName()} {setSql}";
+                case DatabaseType.MySql:
+                    return
+                        $"UPDATE {tbl.GetFullyQualifiedName()} {setSql} LIMIT {topXRows}";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
         }
     }
 }

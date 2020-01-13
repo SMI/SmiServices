@@ -29,7 +29,7 @@ namespace Microservices.CohortExtractor.Tests
             var dt = new DataTable();
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("Extractable");
-            dt.Columns.Add(FromCataloguesExtractionRequestFulfiller.ImagePathColumnName);
+            dt.Columns.Add(QueryToExecuteColumnSet.DefaultImagePathColumnName);
 
             dt.Rows.Add("123", true, "/images/1.dcm");
             dt.Rows.Add("123", false, "/images/2.dcm");
@@ -61,7 +61,7 @@ namespace Microservices.CohortExtractor.Tests
             var dt = new DataTable();
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("Extractable");
-            dt.Columns.Add(FromCataloguesExtractionRequestFulfiller.ImagePathColumnName);
+            dt.Columns.Add(QueryToExecuteColumnSet.DefaultImagePathColumnName);
 
 
             dt.Rows.Add("123", true, "/images/1.dcm");
