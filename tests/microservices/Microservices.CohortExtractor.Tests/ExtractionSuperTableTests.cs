@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -93,26 +94,33 @@ namespace Microservices.CohortExtractor.Tests
         {
             var db = GetCleanedServer(dbType);
 
+            //create table with 100 rows
             var tbl = BuildExampleExtractionTable(db, "CT", 100,true);
 
             Assert.AreEqual(100,tbl.GetRowCount());
 
             var cata = Import(tbl);
-
-            var fufiller = new FromCataloguesExtractionRequestFulfillerWithReason(new[] {cata});
             
             List<string> studies;
 
+            //fetch all unique studies from the database
             using(var dt = tbl.GetDataTable())
                 studies = dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct().ToList();
 
+            Assert.GreaterOrEqual(studies.Count,2,"Expected at least 2 studies to be randomly generated in database");
+
+            //Create message to extract all the series by SeriesInstanceUID
             var msgIn = new ExtractionRequestMessage();
             msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
             msgIn.ExtractionIdentifiers = studies;
 
             int matches = 0;
+            
+            //The strategy pattern implementation that goes to the database but also considers reason
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cata});
+            fulfiller.Rejector = new TestRejector();
 
-            foreach (ExtractImageCollection msgOut in fufiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
                 matches += msgOut.Accepted.Count();
                 Assert.IsEmpty(msgOut.Rejected);
@@ -138,7 +146,7 @@ namespace Microservices.CohortExtractor.Tests
             matches = 0;
             int rejections = 0;
 
-            foreach (ExtractImageCollection msgOut in fufiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
                 matches += msgOut.Accepted.Count;
                 rejections += msgOut.Rejected.Count;
@@ -147,9 +155,7 @@ namespace Microservices.CohortExtractor.Tests
             }
 
             Assert.AreEqual(90,matches);
-            
-            //TODO: we need to capture this
-            //Assert.AreEqual(10, rejections);
+            Assert.AreEqual(10, rejections);
 
         }
 
@@ -177,31 +183,20 @@ namespace Microservices.CohortExtractor.Tests
         }
     }
 
-    internal class FromCataloguesExtractionRequestFulfillerWithReason : FromCataloguesExtractionRequestFulfiller
+    internal class TestRejector : IRejector
     {
-        public FromCataloguesExtractionRequestFulfillerWithReason(Catalogue[] catalogues):base(catalogues)
+        public bool Reject(DbDataReader row, out string reason)
         {
-            
-        }
+            //if the image is not extractable
+            if (!Convert.ToBoolean(row["IsExtractableToDisk"]))
+            {
+                //tell them why and reject it
+                reason = row["IsExtractableToDisk_Reason"] as string;
+                return true;
+            }
 
-        protected override QueryToExecute GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
-        {
-            return new QueryToExecuteWithReason(columnSet, message);
-        }
-    }
-
-    internal class QueryToExecuteWithReason : QueryToExecute
-    {
-        public QueryToExecuteWithReason(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message):base(columnSet,message.KeyTag)
-        {
-            
-        }
-
-        protected override IEnumerable<IFilter> GetFilters(MemoryCatalogueRepository memoryRepo, IContainer rootContainer)
-        {
-            return base.GetFilters(memoryRepo, rootContainer).Union(
-            
-            new []{new SpontaneouslyInventedFilter(memoryRepo,rootContainer,"IsExtractableToDisk = 1","ExtractableOnly","",null)});
+            reason = null;
+            return false;
         }
     }
 }

@@ -97,8 +97,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// Returns the SeriesInstanceUID and a set of any file paths matching the query
         /// </summary>
         /// <param name="valueToLookup"></param>
+        /// <param name="rejector">Required, determines whether records are returned as good or bad</param>
         /// <returns></returns>
-        public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup)
+        public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup, IRejector rejector)
         {
             if(_sql == null)
                 lock (_oLockExecute)
@@ -130,7 +131,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     yield return new QueryToExecuteResult((string) imagePath,
                         study == null ? null : (string)r[study],
                         series == null ? null : (string)(string) r[series],
-                        instance == null ? null : (string)(string) r[instance],false,null);
+                        instance == null ? null : (string)(string) r[instance],
+
+                        //Ask the rejector how good this record is
+                        rejector.Reject(r,out string reason),reason);
                 }
             }
         }

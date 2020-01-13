@@ -13,6 +13,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
     {
         protected readonly QueryToExecuteColumnSet[] Catalogues;
         protected readonly Logger Logger;
+
+        public IRejector Rejector { get; set; } = new RejectNone();
         
         public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
         {
@@ -57,7 +59,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 foreach (QueryToExecute query in queries)
                 {
-                    foreach (var result in query.Execute(valueToLookup))
+                    foreach (var result in query.Execute(valueToLookup,Rejector))
                     {
                         if(!results.ContainsKey(result.SeriesTagValue))
                             results.Add(result.SeriesTagValue,new HashSet<QueryToExecuteResult>());

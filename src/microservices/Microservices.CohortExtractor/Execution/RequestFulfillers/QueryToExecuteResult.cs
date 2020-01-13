@@ -14,12 +14,17 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         public QueryToExecuteResult(string filePathValue, string studyTagValue, string seriesTagValue, string instanceTagValue, bool rejection, string rejectionReason)
         {
-            FilePathValue = filePathValue;
+            FilePathValue = filePathValue ?? throw new ArgumentNullException(nameof(filePathValue));
             StudyTagValue = studyTagValue;
             SeriesTagValue = seriesTagValue;
             InstanceTagValue = instanceTagValue;
             Reject = rejection;
             RejectReason = rejectionReason;
+        }
+
+        public override string ToString()
+        {
+            return $"{FilePathValue}(Reject={Reject})";
         }
 
         #region Equality
