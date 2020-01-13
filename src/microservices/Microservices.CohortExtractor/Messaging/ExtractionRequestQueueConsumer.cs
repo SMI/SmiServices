@@ -74,6 +74,15 @@ namespace Microservices.CohortExtractor.Messaging
                     infoMessage.ExtractFileMessagesDispatched.Add(sentHeader, extractFileMessage.OutputPath);
                 }
 
+                //for all the rejected messages log why (in the info message)
+                foreach (var rejectedResults in answers.Rejected)
+                {
+                    if(!infoMessage.RejectionReasons.ContainsKey(rejectedResults.RejectReason))
+                        infoMessage.RejectionReasons.Add(rejectedResults.RejectReason,0);
+
+                    infoMessage.RejectionReasons[rejectedResults.RejectReason]++;
+                }
+
                 _auditor.AuditExtractFiles(request, answers);
 
                 infoMessage.KeyValue = answers.KeyValue;

@@ -2,6 +2,7 @@
 using Smi.Common.MessageSerialization;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace Smi.Common.Messages.Extraction
 {
@@ -29,6 +30,12 @@ namespace Smi.Common.Messages.Extraction
         {
             ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
         }
+        
+        /// <summary>
+        /// All the reasons for message rejection and count of occurrences
+        /// </summary>
+        [JsonProperty(Required = Required.Default)]
+        public Dictionary<string,int> RejectionReasons  { get; set; } = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
 
         public ExtractFileCollectionInfoMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
             : base(extractionJobIdentifier, projectNumber, extractionDirectory, jobSubmittedAt) { }
