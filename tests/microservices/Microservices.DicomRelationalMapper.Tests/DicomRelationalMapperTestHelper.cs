@@ -16,6 +16,11 @@ using Smi.Common.Options;
 using System;
 using System.IO;
 using System.Linq;
+using Rdmp.Core.Curation;
+using Rdmp.Dicom.TagPromotionSchema;
+using ReusableLibraryCode.Checks;
+using ReusableLibraryCode.DataAccess;
+using TypeGuesser;
 
 namespace Microservices.Tests.RDMPTests
 {
@@ -91,6 +96,10 @@ namespace Microservices.Tests.RDMPTests
             globalOptions.DicomRelationalMapperOptions.LoadMetadataId = LoadMetadata.ID;
             globalOptions.DicomRelationalMapperOptions.MinimumBatchSize = 1;
             globalOptions.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
+
+            //Image table now needs all the UIDs in order to be extractable
+            var adder = new TagColumnAdder("StudyInstanceUID", "varchar(100)", ImageTableInfo, new AcceptAllCheckNotifier(), false);
+            adder.Execute();
         }
 
         private ImageTableTemplateCollection GetDefaultTemplate(FAnsi.DatabaseType databaseType)
