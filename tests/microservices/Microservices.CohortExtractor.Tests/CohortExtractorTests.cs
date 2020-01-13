@@ -125,8 +125,8 @@ namespace Microservices.CohortExtractor.Tests
                 typeof(IExtractionRequestFulfiller).Assembly,
                 new object[] {new[] {c}});
             
-            fulfiller.Rejector = f.CreateInstance<IRejector>(opts.RejectorType,
-                typeof(TestRejector).Assembly) ?? new RejectNone();
+            if(fulfiller != null)
+                fulfiller.Rejector = f.CreateInstance<IRejector>(opts.RejectorType,typeof(TestRejector).Assembly) ?? new RejectNone();
 
             return fulfiller;
 
