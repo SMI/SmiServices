@@ -13,6 +13,7 @@ using FAnsi.Discovery.QuerySyntax.Update;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.CohortExtractor.Execution.RequestFulfillers.Epcc;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using Rdmp.Core.Curation.Data;
@@ -109,7 +110,7 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.GreaterOrEqual(studies.Count,2,"Expected at least 2 studies to be randomly generated in database");
 
-            //Create message to extract all the series by SeriesInstanceUID
+            //Create message to extract all the studies by StudyInstanceUID
             var msgIn = new ExtractionRequestMessage();
             msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
             msgIn.ExtractionIdentifiers = studies;
@@ -156,6 +157,77 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(90,matches);
             Assert.AreEqual(10, rejections);
+
+        }
+
+
+        [TestCase(DatabaseType.MicrosoftSQLServer), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql), RequiresRelationalDb(DatabaseType.MySql)]
+        public void Test_OnlyListedModalities(DatabaseType dbType)
+        {
+            var db = GetCleanedServer(dbType);
+
+            //create table with 100 rows
+            var tblCT = BuildExampleExtractionTable(db, "CT", 70,true);
+            var tblMR = BuildExampleExtractionTable(db, "MR", 30,true);
+            
+            var cataCT = Import(tblCT);
+            var cataMR = Import(tblMR);
+            
+            List<string> studies = new List<string>();
+
+            //fetch all unique studies from the database
+            using(var dt = tblCT.GetDataTable())
+                studies.AddRange(dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct());
+            using(var dt = tblMR.GetDataTable())
+                studies.AddRange(dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct());
+            
+            //Create message to extract all the series by StudyInstanceUID
+            var msgIn = new ExtractionRequestMessage();
+            msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
+            
+            //extract only MR (this is what we are actually testing).
+            msgIn.Modality = "MR";
+            msgIn.ExtractionIdentifiers = studies;
+
+            int matches = 0;
+            
+            //The strategy pattern implementation that goes to the database but also considers reason
+            var fulfiller = new EpccExtractionRequestFulfiller(new[] {cataCT,cataMR});
+            
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            {
+                matches += msgOut.Accepted.Count();
+                Assert.IsEmpty(msgOut.Rejected);
+            }
+
+            //expect only the MR images to be returned
+            Assert.AreEqual(30,matches);
+
+
+            // Ask for something that doesn't exist
+            msgIn.Modality = "Hello";
+            var ex = Assert.Throws<Exception>(()=>fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
+            StringAssert.Contains("Modality=Hello",ex.Message);
+
+            // Ask for all modalities at once by not specifying any
+            msgIn.Modality = null;
+            Assert.AreEqual(100,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
+            
+            // Ask for both modalities specifically
+            msgIn.Modality = "CT,Hello";
+            Assert.AreEqual(70,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
+
+            // Ask for both modalities specifically
+            msgIn.Modality = "CT,MR";
+            Assert.AreEqual(100,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
+
+            //when we don't have that flag anymore the error should tell us that
+            tblCT.DropColumn(tblCT.DiscoverColumn("IsOriginal"));
+            msgIn.Modality = "CT,MR";
+
+            ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
+            StringAssert.Contains("IsOriginal",ex.Message);
 
         }
 

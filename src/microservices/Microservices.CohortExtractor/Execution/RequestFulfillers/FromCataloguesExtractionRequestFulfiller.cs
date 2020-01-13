@@ -42,14 +42,19 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             
             foreach (var c in GetCataloguesFor(message))
             {
-                queries.Add(GetQueryToExecute(c,message));
-                auditor.AuditCatalogueUse(message, c.Catalogue);
+                var query = GetQueryToExecute(c, message);
+
+                if (query != null)
+                {
+                    queries.Add(query);
+                    auditor.AuditCatalogueUse(message, c.Catalogue);
+                }
             }
 
             Logger.Debug("Found " + queries.Count + " Catalogues which support extracting based on '" + message.KeyTag + "'");
 
             if (queries.Count == 0)
-                throw new Exception("Couldn't find any compatible Catalogues to run extraction queries against");
+                throw new Exception($"Couldn't find any compatible Catalogues to run extraction queries against for query {message}");
 
             
 
