@@ -52,9 +52,9 @@ namespace Microservices.CohortExtractor.Tests
             }, new NullAuditExtractions()).ToArray();
 
             Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(2, matching[0].MatchingFiles.Count);
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count(f => f.Equals("/images/1.dcm")));
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count(f => f.Equals("/images/2.dcm")));
+            Assert.AreEqual(2, matching[0].Accepted.Count());
+            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
+            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")));
         }
         
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -92,8 +92,8 @@ namespace Microservices.CohortExtractor.Tests
             }, new NullAuditExtractions()).ToArray();
 
             Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count);
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count(f => f.Equals("/images/1.dcm")));
+            Assert.AreEqual(1, matching[0].Accepted.Count);
+            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
         }
     
 
@@ -129,9 +129,9 @@ namespace Microservices.CohortExtractor.Tests
             }, new NullAuditExtractions()).ToArray();
 
             Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(2, matching[0].MatchingFiles.Count);
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count(f => f.Equals("/images/1.dcm")));
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count(f => f.Equals("/images/2.dcm")));
+            Assert.AreEqual(2, matching[0].Accepted.Count);
+            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
+            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")));
         }
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
@@ -170,8 +170,8 @@ namespace Microservices.CohortExtractor.Tests
             }, new NullAuditExtractions()).ToArray();
 
             Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count);
-            Assert.AreEqual(1, matching[0].MatchingFiles.Count(f => f.Equals("/images/1.dcm")));
+            Assert.AreEqual(1, matching[0].Accepted.Count);
+            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
         }
     }
 }

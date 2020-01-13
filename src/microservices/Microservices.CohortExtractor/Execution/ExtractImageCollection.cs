@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Smi.Common.Messages.Extraction;
 
@@ -7,29 +8,41 @@ namespace Microservices.CohortExtractor.Execution
     /// <summary>
     /// Results object produced by an <see cref="IExtractionRequestFulfiller"/>.
     /// </summary>
-    public class ExtractImageCollection
+    public class ExtractImageCollection : Dictionary<string,HashSet<QueryToExecuteResult>>
     {
         /// <summary>
         /// The value of a single <see cref="ExtractionRequestMessage.ExtractionIdentifiers"/> for which we have
-        /// identified the available <see cref="MatchingFiles"/>.
+        /// identified results
         /// </summary>
         public string KeyValue { get; set; }
-        
-        public string SeriesInstanceUID { get; set; }
-
-        public HashSet<string> MatchingFiles { get; set; }
 
         /// <summary>
-        /// List of SOPInstanceUID that would be part of the <see cref="MatchingFiles"/> but which were for some reason
-        /// not extracted.  The Key is the SOPInstanceUID and the Value is the reason for rejection
+        /// Unique SeriesInstanceUIDs amongst all results stored
         /// </summary>
-        public Dictionary<string,string> Rejections { get; set; } = new Dictionary<string, string>();
-        
-        public ExtractImageCollection(string keyValue, string seriesInstanceUid, HashSet<string> matchingFiles)
+        public string SeriesInstanceUID => Values.SelectMany(v => v.Select(e=>e.SeriesTagValue)).Distinct().Single(); //TODO: could be multiple series under a study
+
+        public HashSet<QueryToExecuteResult> Accepted => GetWhereRejected(false);
+        public HashSet<QueryToExecuteResult> Rejected => GetWhereRejected(true);
+
+        private HashSet<QueryToExecuteResult> GetWhereRejected(bool isRejected)
+        {
+            
+            HashSet<QueryToExecuteResult> result = new HashSet<QueryToExecuteResult>();
+
+            foreach (HashSet<QueryToExecuteResult> v in Values)
+            {
+                foreach (QueryToExecuteResult queryToExecuteResult in v)
+                {
+                    if (queryToExecuteResult.Reject == isRejected)
+                        result.Add(queryToExecuteResult);
+                }
+            }
+            return result;
+        }
+
+        public ExtractImageCollection(string keyValue)
         {
             KeyValue = keyValue;
-            SeriesInstanceUID = seriesInstanceUid;
-            MatchingFiles = matchingFiles;
         }
     }
 }

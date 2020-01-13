@@ -114,8 +114,8 @@ namespace Microservices.CohortExtractor.Tests
 
             foreach (ExtractImageCollection msgOut in fufiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
-                matches += msgOut.MatchingFiles.Count;
-                Assert.IsEmpty(msgOut.Rejections);
+                matches += msgOut.Accepted.Count();
+                Assert.IsEmpty(msgOut.Rejected);
             }
 
             //currently all images are extractable
@@ -140,10 +140,10 @@ namespace Microservices.CohortExtractor.Tests
 
             foreach (ExtractImageCollection msgOut in fufiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
-                matches += msgOut.MatchingFiles.Count;
-                rejections += msgOut.Rejections.Count;
+                matches += msgOut.Accepted.Count;
+                rejections += msgOut.Rejected.Count;
 
-                Assert.IsTrue(msgOut.Rejections.All(v=>v.Value.Equals("We decided NO!")));
+                Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason.Equals("We decided NO!")));
             }
 
             Assert.AreEqual(90,matches);

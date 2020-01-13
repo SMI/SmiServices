@@ -53,7 +53,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
             foreach (string valueToLookup in message.ExtractionIdentifiers)
             {
-                Dictionary<string, HashSet<QueryToExecuteResult>> results = new Dictionary<string, HashSet<QueryToExecuteResult>>();
+                var results = new ExtractImageCollection(valueToLookup);
 
                 foreach (QueryToExecute query in queries)
                 {
@@ -66,8 +66,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     }
                 }
 
-                foreach(var kvp in results)
-                    yield return new ExtractImageCollection(valueToLookup,kvp.Key,new HashSet<string>(kvp.Value.Select(v=>v.FilePathValue)));
+                yield return results;
             }
         }
 

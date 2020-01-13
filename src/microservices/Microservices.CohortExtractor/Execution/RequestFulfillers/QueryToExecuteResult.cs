@@ -8,21 +8,27 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public readonly string StudyTagValue;
         public readonly string SeriesTagValue;
         public readonly string InstanceTagValue;
-        
-        #region Equality
-        public QueryToExecuteResult(string filePathValue, string studyTagValue, string seriesTagValue, string instanceTagValue)
+
+        public readonly bool Reject;
+        public readonly string RejectReason;
+
+        public QueryToExecuteResult(string filePathValue, string studyTagValue, string seriesTagValue, string instanceTagValue, bool rejection, string rejectionReason)
         {
             FilePathValue = filePathValue;
             StudyTagValue = studyTagValue;
             SeriesTagValue = seriesTagValue;
             InstanceTagValue = instanceTagValue;
+            Reject = rejection;
+            RejectReason = rejectionReason;
         }
+
+        #region Equality
 
         public bool Equals(QueryToExecuteResult other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return FilePathValue == other.FilePathValue && StudyTagValue == other.StudyTagValue && SeriesTagValue == other.SeriesTagValue && InstanceTagValue == other.InstanceTagValue;
+            return FilePathValue == other.FilePathValue && StudyTagValue == other.StudyTagValue && SeriesTagValue == other.SeriesTagValue && InstanceTagValue == other.InstanceTagValue && Reject == other.Reject && RejectReason == other.RejectReason;
         }
 
         public override bool Equals(object obj)
@@ -41,11 +47,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 hashCode = (hashCode * 397) ^ (StudyTagValue != null ? StudyTagValue.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (SeriesTagValue != null ? SeriesTagValue.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (InstanceTagValue != null ? InstanceTagValue.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Reject.GetHashCode();
+                hashCode = (hashCode * 397) ^ (RejectReason != null ? RejectReason.GetHashCode() : 0);
                 return hashCode;
             }
         }
 
-        
         #endregion
     }
 }

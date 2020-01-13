@@ -130,7 +130,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     yield return new QueryToExecuteResult((string) imagePath,
                         study == null ? null : (string)r[study],
                         series == null ? null : (string)(string) r[series],
-                        instance == null ? null : (string)(string) r[instance]);
+                        instance == null ? null : (string)(string) r[instance],false,null);
                 }
             }
         }

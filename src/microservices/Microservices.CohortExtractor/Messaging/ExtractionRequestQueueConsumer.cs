@@ -9,6 +9,7 @@ using Smi.Common.Messaging;
 using RabbitMQ.Client.Events;
 using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Microservices.CohortExtractor.Messaging
 {
@@ -50,7 +51,7 @@ namespace Microservices.CohortExtractor.Messaging
             {
                 var infoMessage = new ExtractFileCollectionInfoMessage(request);
 
-                foreach (string filePath in answers.MatchingFiles)
+                foreach (string filePath in answers.Accepted.Select(a=>a.FilePathValue))
                 {
                     var extractFileMessage = new ExtractFileMessage(request)
                     {
