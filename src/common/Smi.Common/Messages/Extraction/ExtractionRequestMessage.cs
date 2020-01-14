@@ -45,7 +45,7 @@ namespace Smi.Common.Messages.Extraction
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && KeyTag == other.KeyTag && Modality == other.Modality && Equals(ExtractionIdentifiers, other.ExtractionIdentifiers);
+            return base.Equals(other) && KeyTag == other.KeyTag && Modality == other.Modality && ExtractionIdentifiers.SequenceEqual(other.ExtractionIdentifiers);
         }
 
         public override bool Equals(object obj)
