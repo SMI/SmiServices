@@ -132,6 +132,13 @@ Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above 
 
 Development requires Visual Studio 2017 or later. Simply open the SmiServices.sln file.
 
+To run the tests for IsIdentifiable, the Stanford NER classifier is required. This can be downloaded with the included script:
+
+```bash
+$ cd data/stanford-ner
+$ ./download.sh
+```
+
 ### Java Projects
 
 Development requires Java JDK `>= 1.7`, and Maven.

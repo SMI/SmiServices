@@ -44,11 +44,7 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
 
-    - mkdir stanford-ner
-    - cd stanford-ner
-    - wget http://nlp.stanford.edu/software/stanford-ner-2016-10-31.zip
-    - unzip stanford-ner-2016-10-31.zip
-    - cd ..
+    - ( cd data/stanford-ner && ./download.sh && cd - )
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
 
     after_success:
