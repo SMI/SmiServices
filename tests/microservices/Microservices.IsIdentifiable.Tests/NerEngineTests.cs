@@ -8,7 +8,7 @@ namespace Microservices.IsIdentifiable.Tests
 {
     class NerEngineTests
     {
-        public const string ClassifierPath = @"../../../../../../../stanford-ner/stanford-ner-2016-10-31/classifiers/english.all.3class.distsim.crf.ser.gz";
+        public const string ClassifierPath = @"../../../../../../../data/stanford-ner/stanford-ner-2016-10-31/classifiers/english.all.3class.distsim.crf.ser.gz";
 
         [Test]
         public void NerEngine_TestWhitelist()
