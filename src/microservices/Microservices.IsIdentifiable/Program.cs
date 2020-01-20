@@ -41,7 +41,7 @@ namespace Microservices.IsIdentifiable
                 if (assemblyFolder == null)
                     throw new Exception("Could not get the assemblyFolder");
 
-                string location = Path.Combine(assemblyFolder, "NLog.config");
+                string location = Path.Combine(assemblyFolder, "Smi.NLog.config");
 
                 if (!File.Exists(location))
                 {

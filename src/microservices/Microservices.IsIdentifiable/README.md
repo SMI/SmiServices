@@ -15,7 +15,23 @@ This service evaluates 'data' for personally identifiable values (e.g. names).  
 
 ### 2. Setup / Installation
 
-> TODO 
+To run IsIdentifiable you must first build the microservice.  Then download the Stanford NER classifier:
+
+```bash
+dotnet publish -r win-x64
+cd ./bin/AnyCPU/Debug/netcoreapp2.2/win-x64/publish
+
+#Download a classifier e.g. http://nlp.stanford.edu/software/stanford-ner-2016-10-31.zip
+
+```
+
+Once built you can find help on running under each mode e.g.:
+
+```
+./IsIdentifiable.exe --help
+./IsIdentifiable.exe db --help
+./IsIdentifiable.exe dir --help
+```
 
 ### 3. Exchange and Queue Settings
 

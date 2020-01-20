@@ -8,7 +8,12 @@
     <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
+    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\..\data\logging\Smi.NLog.config" Link="Smi.NLog.config" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.5.0" />
