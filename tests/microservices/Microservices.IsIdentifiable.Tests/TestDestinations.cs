@@ -73,8 +73,8 @@ cell1 with some new lines and tabs,cell2
             string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
             fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
-            Assert.AreEqual(@"col1\tcol2
-cell1 with some new lines and tabs\tcell2
+            Assert.AreEqual(@"col1	col2
+cell1 with some new lines and tabs	cell2
 ", fileCreatedContents);
         }
     }
