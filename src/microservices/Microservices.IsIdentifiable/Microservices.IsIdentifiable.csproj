@@ -13,7 +13,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\data\logging\Smi.NLog.config" Link="Smi.NLog.config" />
+    <Content Include="..\..\..\data\logging\Smi.NLog.config" Link="Smi.NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.5.0" />
