@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.IO;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Destinations;
@@ -22,6 +23,7 @@ namespace Microservices.IsIdentifiable.Tests
             report.CloseReport();
 
             string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
             Assert.AreEqual(@"col1,col2
 ""cell1 with some new 
@@ -42,6 +44,7 @@ namespace Microservices.IsIdentifiable.Tests
             report.CloseReport();
 
             var fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
             Assert.AreEqual(@"col1,col2
 cell1 with some new lines and tabs,cell2
@@ -68,6 +71,7 @@ cell1 with some new lines and tabs,cell2
             report.CloseReport();
 
             string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
             Assert.AreEqual("col1\tcol2\r\ncell1 with some new lines and tabs\tcell2\r\n", fileCreatedContents);
         }

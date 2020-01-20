@@ -37,10 +37,11 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
 
             // TODO Pull out common parts of test setup/teardown into separate class that all runner tests can use
 
-            const string pathToNerClassifier = @"C:\Temp\stanford-ner-2017-06-09\classifiers\english.all.3class.distsim.crf.ser.gz";
+            
+            var f = new FileInfo(NerEngineTests.ClassifierPath);
 
-            if (!File.Exists(pathToNerClassifier))
-                Assert.Fail("Could not find the NER classifier");
+            if (!f.Exists)
+                Assert.Inconclusive("File did not exist " + f);
 
             _options = new IsIdentifiableMongoOptions()
             {
@@ -48,7 +49,7 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
                 Port = DEFAULT_PORT,
                 DatabaseName = "IsIdentifiableTests",
 
-                PathToNerClassifier = pathToNerClassifier,
+                PathToNerClassifier = f.FullName,
 
                 StoreReport = true,
                 TreeReport = true,
