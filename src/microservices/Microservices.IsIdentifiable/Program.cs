@@ -6,6 +6,10 @@ using System.Reflection;
 using CommandLine;
 using DicomTypeTranslation.Helpers;
 using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
+using FAnsi.Implementations.MySql;
+using FAnsi.Implementations.Oracle;
+using FAnsi.Implementations.PostgreSql;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Runners;
 using NLog;
@@ -26,12 +30,10 @@ namespace Microservices.IsIdentifiable
                 return 1;
             }
 
-            ImplementationManager.Load(
-                typeof(FAnsi.Implementations.MicrosoftSQL.MicrosoftSQLImplementation).Assembly,
-                typeof(FAnsi.Implementations.MySql.MySqlImplementation).Assembly,
-                typeof(FAnsi.Implementations.Oracle.OracleImplementation).Assembly
-                );
-
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+            ImplementationManager.Load<MySqlImplementation>();
+            ImplementationManager.Load<OracleImplementation>();
+            ImplementationManager.Load<PostgreSqlImplementation>();
             try
             {
                 string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

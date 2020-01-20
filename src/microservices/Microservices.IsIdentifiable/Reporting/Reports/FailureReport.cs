@@ -9,7 +9,7 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
     {
         private readonly string _reportName;
 
-        protected readonly List<IReportDestination> Destinations = new List<IReportDestination>();
+        public List<IReportDestination> Destinations = new List<IReportDestination>();
 
 
         /// <summary>
