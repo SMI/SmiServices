@@ -15,8 +15,7 @@ This service evaluates 'data' for personally identifiable values (e.g. names).  
 
 ### 2. Setup / Installation
 
-To run IsIdentifiable you must first build the microservice.  Then download the Stanford NER classifier:
-
+To run IsIdentifiable you must first build the microservice then download the required data models for NER and OCR.
 
 #### Downloads
 
