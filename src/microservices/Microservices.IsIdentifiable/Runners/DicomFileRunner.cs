@@ -211,22 +211,25 @@ namespace Microservices.IsIdentifiable.Runners
             float meanConfidence;
             string text;
 
-            var ms = new MemoryStream();
-            targetBmp.Save(ms,ImageFormat.Bmp);
-            var bytes = ms.ToArray();
-
-            // targetBmp is now in the desired format.
-            // XXX abrooks added PixConverter.ToPix (which requires Tesseract 3.0.2, not 3.3.0, or 4) for dotnet netcoreapp2.2
-            //targetBmp.Save("tesseract_input_debug.png", System.Drawing.Imaging.ImageFormat.Png);
-            //tnind changed to LoadFromMemory
-            using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
+            using (var ms = new MemoryStream())
             {
-                text = page.GetText();
-                //_logger.Warn("Tesseract returned " + text);   // XXX abrooks added for debugging
-                text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
-                text = text.Trim();
-                meanConfidence = page.GetMeanConfidence();
+                targetBmp.Save(ms,ImageFormat.Bmp);
+                var bytes = ms.ToArray();
+
+                // targetBmp is now in the desired format.
+                // XXX abrooks added PixConverter.ToPix (which requires Tesseract 3.0.2, not 3.3.0, or 4) for dotnet netcoreapp2.2
+                //targetBmp.Save("tesseract_input_debug.png", System.Drawing.Imaging.ImageFormat.Png);
+                //tnind changed to LoadFromMemory
+                using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
+                {
+                    text = page.GetText();
+                    //_logger.Warn("Tesseract returned " + text);   // XXX abrooks added for debugging
+                    text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
+                    text = text.Trim();
+                    meanConfidence = page.GetMeanConfidence();
+                }
             }
+            
 
             //if we find some text
             if (!string.IsNullOrWhiteSpace(text))

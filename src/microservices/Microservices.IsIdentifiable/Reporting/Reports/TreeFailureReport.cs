@@ -54,24 +54,28 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
 
         protected override void CloseReportBase()
         {
-            var dt = new DataTable();
+            using(var dt = new DataTable())
+            {
+                foreach (string col in _headerRow)
+                    dt.Columns.Add(col);
 
-            foreach (string col in _headerRow)
-                dt.Columns.Add(col);
+                if (_reportAggregateCounts)
+                    GenerateAggregateCounts();
 
-            if (_reportAggregateCounts)
-                GenerateAggregateCounts();
+                lock (_nodeFailuresLock)
+                    foreach (KeyValuePair<string, int[]> item in _nodeFailures.Where(f => f.Value[TOTAL_SEEN_IDX] != 0))
+                    {
+                        int seen = item.Value[TOTAL_SEEN_IDX];
+                        int failed = item.Value[TOTAL_FAILED_IDX];
 
-            lock (_nodeFailuresLock)
-                foreach (KeyValuePair<string, int[]> item in _nodeFailures.Where(f => f.Value[TOTAL_SEEN_IDX] != 0))
-                {
-                    int seen = item.Value[TOTAL_SEEN_IDX];
-                    int failed = item.Value[TOTAL_FAILED_IDX];
+                        dt.Rows.Add(item.Key, seen, failed, 100.0 * failed / seen);
+                    }
 
-                    dt.Rows.Add(item.Key, seen, failed, 100.0 * failed / seen);
-                }
+                foreach(var d in Destinations)
+                    d.WriteItems(dt);
+            }
 
-            Destinations.ForEach(d => d.WriteItems(dt));
+            
         }
 
         private void IncrementCounts(string key, int index, int count = 1)

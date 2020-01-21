@@ -192,11 +192,8 @@ namespace Microservices.IsIdentifiable.Runners
             var nodeCounts = new Dictionary<string, int>();
             var failures = new List<Reporting.Failure>();
 
-            var modality = "";
-            var imageTypeArr = new string[] { };
-
-            ds.TryGetString(DicomTag.Modality, out modality);
-            bool hasImageType = ds.TryGetValues(DicomTag.ImageType, out imageTypeArr);
+            ds.TryGetString(DicomTag.Modality, out string modality);
+            bool hasImageType = ds.TryGetValues(DicomTag.ImageType, out string[] imageTypeArr);
 
             var imageTypeStr = "";
 

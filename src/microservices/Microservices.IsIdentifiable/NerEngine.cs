@@ -51,9 +51,9 @@ namespace Microservices.IsIdentifiable
                     if (string.IsNullOrWhiteSpace(pathToStanfordNerClassifier))
                         throw new Exception("PathToStanfordNERClassifier is null, set it to the path to a classifier e.g. english.all.3class.distsim.crf.ser.gz. See https://stanfordnlp.github.io/CoreNLP/index.html#download for classifiers.");
                     
-                    var stream = new GZIPInputStream(new ByteArrayInputStream(File.ReadAllBytes(pathToStanfordNerClassifier)));
-                        
-                    _classifier = CRFClassifier.getClassifier(stream);
+                    using(var byteStream = new ByteArrayInputStream(File.ReadAllBytes(pathToStanfordNerClassifier)))
+                        using(var gzipStream =  new GZIPInputStream(byteStream))
+                            _classifier = CRFClassifier.getClassifier(gzipStream);
 
                 }
 

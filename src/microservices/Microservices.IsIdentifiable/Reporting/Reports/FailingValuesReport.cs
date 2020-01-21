@@ -25,17 +25,21 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
 
         protected override void CloseReportBase()
         {
-            var dt = new DataTable();
-            dt.Columns.Add("Field");
-            dt.Columns.Add("Value");
+            using (var dt = new DataTable())
+            {
+                dt.Columns.Add("Field");
+                dt.Columns.Add("Value");
 
 
-            lock (_oFailuresLock)
-                foreach (KeyValuePair<string, HashSet<string>> kvp in _failures)
+                lock (_oFailuresLock)
+                    foreach (KeyValuePair<string, HashSet<string>> kvp in _failures)
                     foreach (string v in kvp.Value)
                         dt.Rows.Add(kvp.Key, v);
 
-            Destinations.ForEach(d => d.WriteItems(dt));
+                foreach (var d in Destinations)
+                    d.WriteItems(dt);
+            }
+            
         }
     }
 }

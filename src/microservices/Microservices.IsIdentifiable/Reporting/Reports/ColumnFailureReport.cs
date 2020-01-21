@@ -37,20 +37,22 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
             if (_rowsProcessed == 0)
                 throw new Exception("No rows were processed");
 
-            var dt = new DataTable();
-
-            lock (_oFailureCountLock)
+            using (var dt = new DataTable())
             {
-                foreach (string col in _failureCounts.Keys)
-                    dt.Columns.Add(col);
+                lock (_oFailureCountLock)
+                {
+                    foreach (string col in _failureCounts.Keys)
+                        dt.Columns.Add(col);
 
-                DataRow r = dt.Rows.Add();
+                    DataRow r = dt.Rows.Add();
 
-                foreach (KeyValuePair<string, int> kvp in _failureCounts)
-                    r[kvp.Key] = ((double)kvp.Value) / _rowsProcessed;
+                    foreach (KeyValuePair<string, int> kvp in _failureCounts)
+                        r[kvp.Key] = ((double)kvp.Value) / _rowsProcessed;
+                }
+
+                foreach (var d in Destinations) 
+                    d.WriteItems(dt);
             }
-
-            Destinations.ForEach(d => d.WriteItems(dt));
         }
     }
 }
