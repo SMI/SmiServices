@@ -28,4 +28,7 @@
     <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
+  </ItemGroup>
 </Project>

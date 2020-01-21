@@ -13,6 +13,8 @@ using Microservices.IsIdentifiable.Reporting.Reports;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
+using Smi.Common.MongoDB;
+
 
 namespace Microservices.IsIdentifiable.Runners
 {

@@ -8,6 +8,6 @@ NER_VER="2016-10-31"
 
 [ -d "stanford-ner-$NER_VER" ] && exit 0
 
-wget http://nlp.stanford.edu/software/stanford-ner-$NER_VER.zip
-unzip stanford-ner-$NER_VER.zip
+wget -q http://nlp.stanford.edu/software/stanford-ner-$NER_VER.zip
+unzip -q stanford-ner-$NER_VER.zip
 rm stanford-ner-$NER_VER.zip
