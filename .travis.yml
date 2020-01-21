@@ -43,6 +43,10 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
+
+    - ( cd data/stanford-ner && ./download.sh && cd - )
+    - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
+
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - |
