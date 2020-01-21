@@ -1,6 +1,6 @@
 # DicomTagReader
 
-Primary Author: [Ruairidh MacLeod](https://github.com/Ruairidh)
+Primary Author: [Ruairidh MacLeod](https://github.com/rkm)
 
 ## Contents
  1. [Overview](#1-overview)

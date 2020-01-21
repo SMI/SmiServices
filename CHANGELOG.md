@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+
+### Added
+
+- Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
+
 ## [1.2.3] - 2020-01-09
 
 ### Changed
