@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Microservices.IsIdentifiable.Reporting;
+using NLog;
 using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -33,8 +35,18 @@ namespace Microservices.IsIdentifiable.Service
                 throw new FileNotFoundException();
 
             var result = _classifier.Classify(toProcess);
+
+            bool isClean = true;
+            foreach (Failure f in result)
+            {
+                Logger.Log(LogLevel.Info,$"Validation failed for {f.Resource} Problem Value:{f.ProblemValue}");
+                isClean = false;
+            }
             
-            _producer.SendMessage(new IsIdentifiableMessage {IsIdentifiable = result.Any()}, header);
+            _producer.SendMessage(new IsIdentifiableMessage(message)
+            {
+                IsIdentifiable = isClean 
+            }, header);
 
             Ack(header, basicDeliverEventArgs);
         }
