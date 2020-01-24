@@ -113,6 +113,7 @@ namespace Smi.Common.Options
 
     public class IsIdentifiableOptions : ConsumerOptions
     {
+        public string ClassifierType { get; set; }
         public ProducerOptions IsIdentifiableProducerOptions {get; set;}
     }
 

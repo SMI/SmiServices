@@ -9,11 +9,15 @@ namespace Microservices.IsIdentifiable.Service
 {
     public class IsIdentifiableQueueConsumer : Consumer
     {
+        private readonly IProducerModel _producer;
         private readonly string _fileSystemRoot;
+        private readonly IClassifier _classifier;
 
-        public IsIdentifiableQueueConsumer(string fileSystemRoot)
+        public IsIdentifiableQueueConsumer(IProducerModel producer, string fileSystemRoot, IClassifier classifier)
         {
+            _producer = producer;
             _fileSystemRoot = fileSystemRoot;
+            _classifier = classifier;
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
@@ -27,10 +31,13 @@ namespace Microservices.IsIdentifiable.Service
 
             if(!toProcess.Exists)
                 throw new FileNotFoundException();
-            
-            Ack(header, basicDeliverEventArgs);
 
-            throw new NotImplementedException();
+            var result = _classifier.Classify(toProcess);
+            
+            _producer.SendMessage(new IsIdentifiableMessage {IsIdentifiable = result != null}, header);
+
+            if(result == null)
+                Ack(header, basicDeliverEventArgs);
         }
     }
 }
