@@ -50,12 +50,14 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 Assert.IsNotNull(host);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions ,new ExtractFileMessage(new ExtractionRequestMessage())
+                tester.SendMessage(options.IsIdentifiableOptions ,new ExtractFileStatusMessage()
                 {
-                    DicomFilePath = testDcm.FullName,
-                    OutputPath = TestContext.CurrentContext.WorkDirectory,
+                    DicomFilePath = "yay.dcm",
+                    AnonymisedFileName = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
+                    StatusMessage = "yay!",
+                    Status = ExtractFileStatus.Anonymised
                 });
 
                 var awaiter = new TestTimelineAwaiter();

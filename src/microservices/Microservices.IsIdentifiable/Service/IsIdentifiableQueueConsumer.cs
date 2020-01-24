@@ -24,11 +24,10 @@ namespace Microservices.IsIdentifiable.Service
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
         {
             // Deserialize the message from the delivery arguments
-            ExtractFileMessage message;
-            if (!SafeDeserializeToMessage(header, basicDeliverEventArgs, out message))
+            if (!SafeDeserializeToMessage(header, basicDeliverEventArgs, out ExtractFileStatusMessage message))
                 return;
 
-            var toProcess = new FileInfo(Path.Combine(_fileSystemRoot, message.DicomFilePath));
+            var toProcess = new FileInfo( message.AnonymisedFileName);
 
             if(!toProcess.Exists)
                 throw new FileNotFoundException();
