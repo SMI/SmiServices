@@ -45,6 +45,9 @@ jobs:
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
 
     - ( cd data/stanford-ner && ./download.sh && cd - )
+    - ( cd data/tessdata && ./download.sh && cd - )
+    - sudo apt install tesseract-ocr
+    - sudo apt install libtesseract-dev
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
 
     after_success:
