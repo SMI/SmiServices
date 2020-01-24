@@ -12,7 +12,10 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Runners;
+using Microservices.IsIdentifiable.Service;
 using NLog;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 
 namespace Microservices.IsIdentifiable
 {
@@ -34,6 +37,17 @@ namespace Microservices.IsIdentifiable
             ImplementationManager.Load<MySqlImplementation>();
             ImplementationManager.Load<OracleImplementation>();
             ImplementationManager.Load<PostgreSqlImplementation>();
+
+            //If running as a self contained micro service (getting messages from RabbitMQ)
+            if (args.Length == 1 && string.Equals(args[0], "--service", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var options = GlobalOptions.Load();
+                
+                var bootstrapper = new MicroserviceHostBootstrapper(
+                    () => new IsIdentifiableHost(options));
+                return bootstrapper.Main();
+            }
+
             try
             {
                 string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

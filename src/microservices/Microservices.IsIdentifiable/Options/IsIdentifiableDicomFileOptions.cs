@@ -7,7 +7,7 @@ using CommandLine.Text;
 namespace Microservices.IsIdentifiable.Options
 {
     [Verb("dir")]
-    class IsIdentifiableDicomFileOptions : IsIdentifiableAbstractOptions
+    public class IsIdentifiableDicomFileOptions : IsIdentifiableAbstractOptions
     {
         [Option('d', HelpText = "Directory in which to recursively search for dicom files", Required = true)]
         public string Directory { get; set; }

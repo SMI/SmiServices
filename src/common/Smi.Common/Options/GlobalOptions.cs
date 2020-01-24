@@ -88,6 +88,8 @@ namespace Smi.Common.Options
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
         public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
 
+        public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
+
         #endregion
 
         public static string GenerateToString(object o)
@@ -107,6 +109,11 @@ namespace Smi.Common.Options
         {
             return GenerateToString(this);
         }
+    }
+
+    public class IsIdentifiableOptions : ConsumerOptions
+    {
+        public ProducerOptions IsIdentifiableProducerOptions {get; set;}
     }
 
     [UsedImplicitly]
