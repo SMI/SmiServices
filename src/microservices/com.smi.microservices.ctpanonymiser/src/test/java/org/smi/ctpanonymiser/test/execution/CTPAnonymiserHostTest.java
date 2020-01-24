@@ -195,7 +195,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 		// TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
 		testBasicAnonymise_Success();
 		
-		_logger.info("Starting basic anonymise test - failure hadling");
+		_logger.info("Starting basic anonymise test - failure handling");
 
 		// Send an invalid message - should fail
 		ExtractFileMessage exMessage = new ExtractFileMessage();
