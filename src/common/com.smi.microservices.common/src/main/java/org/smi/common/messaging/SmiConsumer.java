@@ -116,26 +116,18 @@ public abstract class SmiConsumer implements Consumer {
 	public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
 			throws IOException {
 
-		try {
+		MessageHeader header = null;
+		Charset enc = StandardCharsets.UTF_8;
 
-			MessageHeader header = null;
-			Charset enc = StandardCharsets.UTF_8;
+		if (properties.getHeaders().size() != 0) {
 
-			if (properties.getHeaders().size() != 0) {
+			if (properties.getContentEncoding() != null)
+				enc = Charset.forName(properties.getContentEncoding());
 
-				if (properties.getContentEncoding() != null)
-					enc = Charset.forName(properties.getContentEncoding());
-
-				header = new MessageHeader(properties.getHeaders(), enc);
-			}
-
-			handleDeliveryImpl(consumerTag, envelope, properties, body, header);
-		} catch (Exception e) {
-
-			// TODO Log and fatal
-
-			throw e;
+			header = new MessageHeader(properties.getHeaders(), enc);
 		}
+
+		handleDeliveryImpl(consumerTag, envelope, properties, body, header);
 	}
 
 	public abstract void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties,
@@ -163,23 +155,13 @@ public abstract class SmiConsumer implements Consumer {
 
 		T message = null;
 
-		try {
+		final Gson gson = new GsonBuilder().registerTypeAdapter(expectedClass, new JsonDeserializerWithOptions<T>())
+				.create();
 
-			final Gson gson = new GsonBuilder().registerTypeAdapter(expectedClass, new JsonDeserializerWithOptions<T>())
-					.create();
-			
-			JsonObject jObj = new JsonParser().parse(new String(body, "UTF-8")).getAsJsonObject();
-			
-			message = gson.fromJson(jObj, expectedClass);
-			
-		} catch (JsonSyntaxException e) {
-			
-			throw e;
-		} catch (UnsupportedEncodingException e) {
-			
-			throw e;
-		}
-		
+		JsonObject jObj = new JsonParser().parse(new String(body, "UTF-8")).getAsJsonObject();
+
+		message = gson.fromJson(jObj, expectedClass);
+
 		return message;
 	}
 
