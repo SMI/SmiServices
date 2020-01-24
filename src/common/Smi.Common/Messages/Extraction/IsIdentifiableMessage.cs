@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
 {
-    public class IsIdentifiableMessage : ExtractMessage,IFileReferenceMessage,IMessage>,IEquatable<IsIdentifiableMessage>
+    public class IsIdentifiableMessage : ExtractMessage,IFileReferenceMessage,IEquatable<IsIdentifiableMessage>
     {
         public bool IsIdentifiable { get; set; }
 
