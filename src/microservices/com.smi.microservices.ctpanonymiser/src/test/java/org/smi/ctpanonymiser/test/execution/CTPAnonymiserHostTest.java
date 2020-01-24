@@ -140,16 +140,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 		_conn.close();
 	}
 
-	public void testBasicAnonymise_Success() throws InterruptedException
-	{
-		// Start the host
-		Thread hostThread = new Thread(_ctpHost);
-		hostThread.start();
-
-		doTestBasicAnonymise_Success();
-	}
-
-	private void doTestBasicAnonymise_Success() throws InterruptedException {
+	private void testBasicAnonymise_Success() throws InterruptedException {
 
 		_logger.info("Starting basic anonymise test - should succeed");
 
@@ -200,16 +191,9 @@ public class CTPAnonymiserHostTest extends TestCase {
 		}
 	}
 
-	public void testBasicAnonymise_Failure() throws InterruptedException {
+	private void testBasicAnonymise_Failure() throws InterruptedException {
 
 		_logger.info("Starting basic anonymise test - failure hadling");
-
-		// Start the host
-		Thread hostThread = new Thread(_ctpHost);
-		hostThread.start();
-
-		doTestBasicAnonymise_Success();
-		_logger.info("First message processed successfully");
 
 		// Send an invalid message - should fail
 		ExtractFileMessage exMessage = new ExtractFileMessage();
