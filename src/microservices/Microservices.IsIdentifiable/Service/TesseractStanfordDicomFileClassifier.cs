@@ -24,6 +24,9 @@ namespace Microservices.IsIdentifiable.Service
             var nerFile = FindOneFile(StanfordNerClassifierFilePattern, nerDir);
 
             var fileOptions = new IsIdentifiableDicomFileOptions();
+            
+            //need to pass this so that the runner doesn't get unhappy about there being no reports (even though we clear it below)
+            fileOptions.ColumnReport = true;
             fileOptions.PathToNerClassifier = nerFile.FullName;
             fileOptions.TessDirectory = GetSubdirectory(TessDir).FullName;
 

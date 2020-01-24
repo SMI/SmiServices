@@ -59,7 +59,7 @@ namespace Microservices.IsIdentifiable.Options
 
         public override string GetTargetName()
         {
-            return new DirectoryInfo(Directory).Name;
+            return Directory == null ?"No Directory Specified":new DirectoryInfo(Directory).Name;
         }
 
         public override void ValidateOptions()

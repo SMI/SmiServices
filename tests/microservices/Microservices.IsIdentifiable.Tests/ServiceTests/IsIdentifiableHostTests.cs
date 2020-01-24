@@ -13,7 +13,13 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
 {
     [TestFixture, RequiresRabbit]
     class IsIdentifiableHostTests
-    {[Test]
+    {
+        /// <summary>
+        /// The relative path to /data/ from the test bin directory
+        /// </summary>
+        public const string DataDirectory = @"../../../../../../../data/";
+
+        [Test]
         public void TestClassifierName_NoClassifier()
         {
             var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
@@ -64,5 +70,40 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 awaiter.Await(()=>host.Consumer.AckCount == 1);
             }
         }
+        
+        [Test]
+        public void TestIsIdentifiable_TesseractStanfordDicomFileClassifier()
+        {
+            var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+
+            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier),"f1.dcm"));Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier),"f1.dcm");
+            TestData.Create(testDcm);
+
+            using(var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
+            {
+                options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
+                options.IsIdentifiableOptions.DataDirectory = DataDirectory;
+
+                var host = new IsIdentifiableHost(options, false);
+                Assert.IsNotNull(host);
+                host.Start();
+
+                tester.SendMessage(options.IsIdentifiableOptions ,new ExtractFileStatusMessage()
+                {
+                    DicomFilePath = "yay.dcm",
+                    AnonymisedFileName = testDcm.FullName,
+                    ProjectNumber = "100",
+                    ExtractionDirectory = "./fish",
+                    StatusMessage = "yay!",
+                    Status = ExtractFileStatus.Anonymised
+                });
+
+                var awaiter = new TestTimelineAwaiter();
+                awaiter.Await(()=>host.Consumer.AckCount == 1);
+            }
+        }
+
+
+
     }
 }
