@@ -113,7 +113,17 @@ namespace Smi.Common.Options
 
     public class IsIdentifiableOptions : ConsumerOptions
     {
+        /// <summary>
+        /// The full name of the classifier you want to run
+        /// </summary>
         public string ClassifierType { get; set; }
+
+        /// <summary>
+        /// The root location in which subfolders must exist containing all data files required by any classifiers
+        /// (typically 1 sub-directory per classifier)
+        /// </summary>
+        public string DataDirectory { get; set; }
+
         public ProducerOptions IsIdentifiableProducerOptions {get; set;}
     }
 

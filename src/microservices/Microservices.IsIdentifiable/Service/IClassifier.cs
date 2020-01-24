@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microservices.IsIdentifiable.Failure;
 using Microservices.IsIdentifiable.Reporting.Reports;
 
 namespace Microservices.IsIdentifiable.Service
 {
     public interface IClassifier
     {
-        IFailureReport Classify(FileInfo dcm);
+        /// <summary>
+        /// The location in which you can get your required data files
+        /// </summary>
+        DirectoryInfo DataDirectory { get; set; }
+
+        IEnumerable<FailurePart> Classify(FileInfo dcm);
     }
 }

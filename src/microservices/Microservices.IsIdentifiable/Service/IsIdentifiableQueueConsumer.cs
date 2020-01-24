@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -34,10 +35,9 @@ namespace Microservices.IsIdentifiable.Service
 
             var result = _classifier.Classify(toProcess);
             
-            _producer.SendMessage(new IsIdentifiableMessage {IsIdentifiable = result != null}, header);
+            _producer.SendMessage(new IsIdentifiableMessage {IsIdentifiable = result.Any()}, header);
 
-            if(result == null)
-                Ack(header, basicDeliverEventArgs);
+            Ack(header, basicDeliverEventArgs);
         }
     }
 }
