@@ -140,7 +140,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 		_conn.close();
 	}
 
-	private void testBasicAnonymise_Success() throws InterruptedException {
+	public void testBasicAnonymise_Success() throws InterruptedException {
 
 		_logger.info("Starting basic anonymise test - should succeed");
 
@@ -191,7 +191,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 		}
 	}
 
-	private void testBasicAnonymise_Failure() throws InterruptedException {
+	public void testBasicAnonymise_Failure() throws InterruptedException {
 
 		_logger.info("Starting basic anonymise test - failure hadling");
 
