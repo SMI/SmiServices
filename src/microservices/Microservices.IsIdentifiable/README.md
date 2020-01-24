@@ -25,7 +25,7 @@ The following downloads are required to run the software:
 |----------|-------------|-------- |------|
 |  [Stanford NER Classifiers](http://nlp.stanford.edu/software/stanford-ner-2016-10-31.zip)    |  `./data/stanford-ner`     | [download.ps1](../../../data/stanford-ner/download.ps1)  | [download.sh](../../../data/stanford-ner/download.sh) |
 |  [Dotnet Core compatible IKVM binaries](https://codeload.github.com/ams-ts-ikvm/ikvm-bin/zip/net_core_compat)    |  bin directory*     |   |  |
-| [Tesseract Data files (pixel OCR models)](https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata) | `./data/tessdata` |  [download.ps1](../../../data/tessdata/download.ps1)|
+| [Tesseract Data files (pixel OCR models)](https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata) | `./data/tessdata` |  [download.ps1](../../../data/tessdata/download.ps1)|  [download.sh](../../../data/tessdata/download.sh)|
 
  *e.g. `./src/microservices/Microservices.IsIdentifiable/bin/AnyCPU/Debug/netcoreapp2.2`
  
@@ -78,11 +78,18 @@ dotnet IsIdentifiable.dll dir -c E:\SmiServices\data\stanford-ner\stanford-ner-2
 
 ### 3. Exchange and Queue Settings
 
-> TODO: Not yet implemented
+In order to run as a microservice you should call it with the `--service` flag
+
+| Read/Write | Type | Config setting |
+| ------------- | ------------- |------------- |
+| Read | ExtractFileMessage | IsIdentifiableOptions.QueueName |
 
 ### 4. Config
 
-> TODO: 
+| YAML Section  | Purpose |
+| ------------- | ------------- |
+| RabbitOptions | Describes the location of the rabbit server for sending messages to |
+| IsIdentifiableOptions | Describes what `IClassifier` to run and where the classifier models are stored |
 
 ### 5. Expectations
 
