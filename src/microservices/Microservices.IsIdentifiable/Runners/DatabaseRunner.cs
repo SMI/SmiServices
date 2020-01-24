@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting;
 using NLog;

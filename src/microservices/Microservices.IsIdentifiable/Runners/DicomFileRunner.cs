@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using Dicom;
 using Dicom.Imaging;
 using DicomTypeTranslation;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Reports;
@@ -108,7 +108,7 @@ namespace Microservices.IsIdentifiable.Runners
         }
 
 
-        private void ValidateDicomFile(FileInfo fi)
+        public void ValidateDicomFile(FileInfo fi)
         {
             _logger.Debug("Opening File: " + fi.Name);
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
+using Microservices.IsIdentifiable.Reporting;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -10,9 +11,9 @@ namespace Microservices.IsIdentifiable.Service
         {
         }
 
-        public override IEnumerable<FailurePart> Classify(FileInfo dcm)
+        public override IEnumerable<Failure> Classify(FileInfo dcm)
         {
-            yield return new FailurePart("Reject All classifier rejected all content",FailureClassification.Person);
+            yield return new Failure(new []{new FailurePart("Reject All classifier rejected all content",FailureClassification.Person)});
         }
     }
 }

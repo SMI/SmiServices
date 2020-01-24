@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Microservices.IsIdentifiable.Failure;
 using Microservices.IsIdentifiable.Reporting.Reports;
 
 namespace Microservices.IsIdentifiable.Service
@@ -14,6 +13,6 @@ namespace Microservices.IsIdentifiable.Service
         /// </summary>
         DirectoryInfo DataDirectory { get; set; }
 
-        IEnumerable<FailurePart> Classify(FileInfo dcm);
+        IEnumerable<Reporting.Failure> Classify(FileInfo dcm);
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using FAnsi;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using Microservices.IsIdentifiable.Whitelists;
@@ -22,7 +22,7 @@ namespace Microservices.IsIdentifiable.Runners
         private readonly NerEngine _nerEngine;
         private readonly string[] _classifications = { "PERSON", "LOCATION", "ORGANIZATION" };
 
-        protected readonly List<IFailureReport> Reports = new List<IFailureReport>();
+        public readonly List<IFailureReport> Reports = new List<IFailureReport>();
 
         // DDMMYY + 4 digits 
         // \b bounded i.e. not more than 10 digits

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microservices.IsIdentifiable.Failure;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using Microservices.IsIdentifiable.Runners;
@@ -34,9 +33,14 @@ namespace Microservices.IsIdentifiable.Service
 
         
 
-        public override IEnumerable<FailurePart> Classify(FileInfo dcm)
+        public override IEnumerable<Reporting.Failure> Classify(FileInfo dcm)
         {
-            throw new NotImplementedException();
+            _runner.Reports.Clear();
+            var toMemory = new ToMemoryFailureReport();
+            _runner.Reports.Add(toMemory);
+            _runner.ValidateDicomFile(dcm);
+
+            return toMemory.Failures;
         }
 
     }

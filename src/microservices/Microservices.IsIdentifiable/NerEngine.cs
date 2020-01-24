@@ -6,7 +6,7 @@ using edu.stanford.nlp.ie.crf;
 using edu.stanford.nlp.ling;
 using java.io;
 using java.util.zip;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Whitelists;
 using ArrayList = java.util.ArrayList;
 using File = System.IO.File;

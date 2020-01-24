@@ -1,4 +1,4 @@
-﻿namespace Microservices.IsIdentifiable.Failure
+﻿namespace Microservices.IsIdentifiable.Failures
 {
     public enum FailureClassification
     {
