@@ -83,6 +83,7 @@ In order to run as a microservice you should call it with the `--service` flag
 | Read/Write | Type | Config setting |
 | ------------- | ------------- |------------- |
 | Read | ExtractFileMessage | IsIdentifiableOptions.QueueName |
+| Write | IsIdentifiableMessage | IsIdentifiableOptions.IsIdentifiableProducerOptions.ExchangeName |
 
 ### 4. Config
 

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
+- IsIdentifiable runs standalone or as a service in the extraction pipeline (where it validates anonymised files)
 
 ## [1.2.3] - 2020-01-09
 
