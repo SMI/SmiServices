@@ -56,7 +56,7 @@ namespace Microservices.IsIdentifiable.Runners
         /// <summary>
         /// Custom rules you want to apply e.g. always ignore column X if value is Y
         /// </summary>
-        public List<ICustomRule> CustomRules = new List<ICustomRule>();
+        public List<ICustomRule> CustomRules { get; set; } = new List<ICustomRule>();
 
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
@@ -95,6 +95,11 @@ namespace Microservices.IsIdentifiable.Runners
                 _logger.Info("No Rules Yaml file found (thats ok)");
         }
 
+        /// <summary>
+        /// Deserializes the given <paramref name="yaml"/> into a collection of <see cref="IsIdentifiableRule"/>
+        /// which are added to <see cref="CustomRules"/>
+        /// </summary>
+        /// <param name="yaml"></param>
         public void LoadRules(string yaml)
         {
             _logger.Info("Loading Rules Yaml:" + Environment.NewLine + yaml);

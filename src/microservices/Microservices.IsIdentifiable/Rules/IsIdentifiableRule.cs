@@ -5,17 +5,34 @@ using System.Text.RegularExpressions;
 
 namespace Microservices.IsIdentifiable.Rules
 {
+    /// <summary>
+    /// A simple Regex based rule that allows flexible white listing or blacklisting of values
+    /// either in all columns or only a single column
+    /// </summary>
     public class IsIdentifiableRule : ICustomRule
     {
         private Regex _ifPattern;
+
+        /// <summary>
+        /// What to do if the rule is found to match the values being examined (e.g.
+        /// whitelist the value or report the value as a validation failure)
+        /// </summary>
         public RuleAction Action { get; set; }
+
+        /// <summary>
+        /// The column/tag in which to apply the rule.  If empty then the rule applies to all columns
+        /// </summary>
         public string IfColumn { get; set; }
 
+        /// <summary>
+        /// The Regex pattern which should be used to match values with
+        /// </summary>
         public string IfPattern
         {
             get => _ifPattern?.ToString();
             set => _ifPattern = value == null ? null : new Regex(value);
         }
+
 
         public RuleAction Apply(string fieldName, string fieldValue)
         {
