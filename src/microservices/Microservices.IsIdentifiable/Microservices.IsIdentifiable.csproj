@@ -18,6 +18,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\..\lib\liblept.so.5.0.3" Link="x64\liblept.so.5.0.3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.5.0" />
     <PackageReference Include="CsvHelper" Version="12.1.2" />
     <PackageReference Include="fo-Dicom.Drawing" Version="4.0.3" />
@@ -30,5 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="x64\" />
   </ItemGroup>
 </Project>
