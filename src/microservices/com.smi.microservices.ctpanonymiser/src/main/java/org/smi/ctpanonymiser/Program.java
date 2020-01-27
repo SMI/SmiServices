@@ -2,7 +2,9 @@
 package org.smi.ctpanonymiser;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -24,7 +26,7 @@ import org.yaml.snakeyaml.error.YAMLException;
  */
 public class Program {
 
-	public static void main(String[] args) throws ParseException, FileNotFoundException, YAMLException, URISyntaxException {
+	public static void main(String[] args) throws ParseException, YAMLException, URISyntaxException, IOException, TimeoutException {
 		
 		SmiLogging.Setup();
 		Logger logger = LoggerFactory.getLogger(Program.class);

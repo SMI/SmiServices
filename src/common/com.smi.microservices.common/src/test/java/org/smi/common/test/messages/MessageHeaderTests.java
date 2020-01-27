@@ -1,13 +1,13 @@
 
 package org.smi.common.test.messages;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Ignore;
 import org.smi.common.messages.MessageHeader;
@@ -134,7 +134,7 @@ public class MessageHeaderTests extends TestCase {
 		//MessageHeader header = _factory.getHeader(headerMap, StandardCharsets.UTF_8);
 	}
 
-	public void testHeaderRoundTrip() throws InterruptedException, FileNotFoundException, URISyntaxException {
+	public void testHeaderRoundTrip() throws InterruptedException, URISyntaxException, IOException, TimeoutException {
 
 		GlobalOptions options = GlobalOptions.Load(true);
 

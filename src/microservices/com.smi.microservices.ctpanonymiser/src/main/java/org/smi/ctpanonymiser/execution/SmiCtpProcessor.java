@@ -69,6 +69,7 @@ public class SmiCtpProcessor {
 		return _lastStatus;
 	}
 
+	@SuppressWarnings("unused")
 	public CtpAnonymisationStatus anonymize(File inFile, File outFile) {
 
 		// This breaks when running under sudo. We need to run as sudo for now since the lustre permissions are
@@ -229,16 +230,13 @@ public class SmiCtpProcessor {
 					for (int k = 0; k < numberOfFrames; k++)
 						frame = dObj.getBufferedImage(k, false);
 
-				} else {
+				} else  if (_check.equals("") || _check.equals("last")) {
 
-					if (_check.equals("") || _check.equals("last")) {
+					frame = dObj.getBufferedImage(numberOfFrames - 1, false);
 
-						frame = dObj.getBufferedImage(numberOfFrames - 1, false);
+				} else if (_check.equals("first")) {
 
-					} else if (_check.equals("first")) {
-
-						frame = dObj.getBufferedImage(0, false);
-					}
+					frame = dObj.getBufferedImage(0, false);
 				}
 
 				if (frame == null)
