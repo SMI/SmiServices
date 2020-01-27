@@ -64,6 +64,20 @@ namespace Microservices.IsIdentifiable.Tests
             Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY"));
         }
 
+        [Test]
+        public void TestOneRule_NoColumn_WithPattern()
+        {
+            var rule = new IsIdentifiableRule()
+            {
+                Action = RuleAction.Ignore,
+                IfPattern = "^CT$"
+            };
+
+            Assert.AreEqual(RuleAction.Ignore,rule.Apply("Modality","CT"));
+            Assert.AreEqual(RuleAction.Ignore,rule.Apply("ImageType","CT")); //ignore both because no restriction on column
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY"));
+        }
+
 
         [Test]
         public void TestOneRule_NoColumn_NoPattern()
