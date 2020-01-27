@@ -30,7 +30,7 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfPattern
         {
             get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value);
+            set => _ifPattern = value == null ? null : new Regex(value,RegexOptions.IgnoreCase);
         }
 
 
