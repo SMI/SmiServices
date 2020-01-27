@@ -19,6 +19,7 @@
 - [Douglas Hardy](https://github.com/dhardy-hic)
 - [Thomas Nind](https://github.com/tznind)
 - [Leandro Tramma](https://github.com/Tallmaris)
+- [James Sutherland](https://github.com/jas88)
 
 ### Former
 
