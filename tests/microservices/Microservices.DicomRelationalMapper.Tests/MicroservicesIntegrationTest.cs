@@ -12,6 +12,7 @@ using Dicom;
 using FAnsi.Discovery;
 using MapsDirectlyToDatabaseTable;
 using Microservices.CohortExtractor.Execution;
+using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
 using Microservices.DicomTagReader.Execution;
@@ -144,6 +145,53 @@ namespace Microservices.DicomRelationalMapper.Tests
             _globals.DicomRelationalMapperOptions.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = namerType.FullName;
+
+            _globals.FileSystemOptions.DicomSearchPattern = "*";
+
+            _helper.TruncateTablesIfExists();
+
+            //Create test directory with a single image
+            var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_NoFileExtensions)));
+            dir.Create();
+
+            var arg = _helper.LoadMetadata.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
+            arg.SetValue(new Regex("([A-z]*)_.*$"));
+            arg.SaveToDatabase();
+
+            //clean up the directory
+            foreach (FileInfo f in dir.GetFiles())
+                f.Delete();
+
+            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
+
+            try
+            {
+                RunTest(dir, 1, (o) => o.DicomSearchPattern = "*");
+            }
+            finally
+            {
+                // Reset this in case it breaks other tests
+                _globals.FileSystemOptions.DicomSearchPattern = "*.dcm";
+            }
+        }
+
+        [TestCase(DatabaseType.MicrosoftSQLServer, null)]
+        [TestCase(DatabaseType.MySql, typeof(RejectAll))]
+        public void IntegrationTest_Rejector(DatabaseType databaseType, Type rejector)
+        {
+            var server = GetCleanedServer(databaseType, ScratchDatabaseName);
+            SetupSuite(server, false, "MR_");
+
+            //this ensures that the ExtractionConfiguration.ID and Project.ID properties are out of sync (they are automnums).  Its just a precaution since we are using both IDs in places if we
+            //had any bugs where we used the wrong one but they were the same then it would be obscured until production
+            var p = new Project(DataExportRepository, "delme");
+            p.DeleteInDatabase();
+
+            _globals.DicomRelationalMapperOptions.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
+            _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
+            _globals.DicomRelationalMapperOptions.DatabaseNamerType = typeof(GuidDatabaseNamer).FullName;
+
+            _globals.CohortExtractorOptions.RejectorType = rejector?.FullName;
 
             _globals.FileSystemOptions.DicomSearchPattern = "*";
 

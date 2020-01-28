@@ -352,6 +352,12 @@ namespace Smi.Common.Options
         /// </summary>
         public string RequestFulfillerType { get; set; }
 
+        
+        /// <summary>
+        /// The Type of a class implementing IRejector which is responsible for deciding individual records/images are not extractable (after fetching from database)
+        /// </summary>
+        public string RejectorType { get; set; }
+
         public bool AllCatalogues { get; private set; }
         public List<int> OnlyCatalogues { get; private set; }
 

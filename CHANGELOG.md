@@ -7,11 +7,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Refactor Java exception handling and use of threads
 
 ### Added
 
 - Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
 - IsIdentifiable runs standalone or as a service in the extraction pipeline (where it validates anonymised files)
+- Added support for custom rules in IsIdentifiable (entered in `Rules.yaml`)
+  - Rules are applied in the order they appear in this file
+  - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
+
 
 ## [1.2.3] - 2020-01-09
 

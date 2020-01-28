@@ -4,6 +4,7 @@ using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
+using Microservices.CohortExtractor.Execution.RequestFulfillers;
 
 
 namespace Microservices.CohortExtractor.Tests
@@ -17,7 +18,10 @@ namespace Microservices.CohortExtractor.Tests
         [Test]
         public void TestDefaultPathResolver()
         {
-            var collection = new ExtractImageCollection(SeriesId, SeriesId, new HashSet<string>(new[] { FilePath }));
+            var collection = new ExtractImageCollection(SeriesId);
+                collection.Add(SeriesId,
+                    new HashSet<QueryToExecuteResult>(new[]
+                        {new QueryToExecuteResult(FilePath, null, SeriesId, null, false, null)}));
 
             Assert.AreEqual("testDicom-an.dcm", new DefaultProjectPathResolver().GetOutputPath(FilePath, collection));
         }
@@ -25,7 +29,10 @@ namespace Microservices.CohortExtractor.Tests
         [Test]
         public void TestSeriesPathResolvers()
         {
-            var collection = new ExtractImageCollection(SeriesId, SeriesId, new HashSet<string>(new[] { FilePath }));
+            var collection = new ExtractImageCollection(SeriesId);
+            collection.Add(SeriesId,
+                new HashSet<QueryToExecuteResult>(new[]
+                    {new QueryToExecuteResult(FilePath, null, SeriesId, null, false, null)}));
 
             Assert.AreEqual(
                 "1.2.3.4/testDicom-an.dcm".Replace('/', Path.DirectorySeparatorChar),

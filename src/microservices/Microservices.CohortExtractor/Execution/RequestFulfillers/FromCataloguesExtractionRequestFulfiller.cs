@@ -11,101 +11,99 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
     public class FromCataloguesExtractionRequestFulfiller : IExtractionRequestFulfiller
     {
-        public const string ImagePathColumnName = "RelativeFileArchiveURI";
-        public const string SeriesIdColumnName = "SeriesInstanceUID";
+        protected readonly QueryToExecuteColumnSet[] Catalogues;
+        protected readonly Logger Logger;
 
-
-        private readonly Dictionary<ICatalogue, ExtractionInformation[]> _catalogues;
-        private readonly Logger _logger;
-
-
+        public IRejector Rejector { get; set; } = new RejectNone();
+        
         public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
         {
-            _logger = LogManager.GetCurrentClassLogger();
+            Logger = LogManager.GetCurrentClassLogger();
 
-            _logger.Debug("Preparing to filter " + cataloguesToUseForImageLookup.Length + " Catalogues to look for compatible ones");
+            Logger.Debug("Preparing to filter " + cataloguesToUseForImageLookup.Length + " Catalogues to look for compatible ones");
 
-            _catalogues = FilterCatalogues(cataloguesToUseForImageLookup);
+            Catalogues = FilterCatalogues(cataloguesToUseForImageLookup);
 
-            _logger.Debug("Found " + _catalogues.Count + " Catalogues containing an extractable field '" + ImagePathColumnName + "'");
+            Logger.Debug("Found " + Catalogues.Length + " Catalogues matching filter criteria");
 
-            if (!_catalogues.Any())
-                throw new Exception("There are no compatible Catalogues in the repository, there must be at least one Catalogue with an extractable column called '" + ImagePathColumnName + "' (ExtractionInformation)");
+            if (!Catalogues.Any())
+                throw new Exception("There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns)");
         }
 
 
-        private Dictionary<ICatalogue, ExtractionInformation[]> FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
+        protected QueryToExecuteColumnSet[] FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
         {
-            var toReturn = new Dictionary<ICatalogue, ExtractionInformation[]>();
-
-            foreach (ICatalogue cata in cataloguesToUseForImageLookup.OrderBy(c => c.ID))
-            {
-                ExtractionInformation[] eis = cata.GetAllExtractionInformation(ExtractionCategory.Any);
-
-                // If the Catalogue does not expose the image path ignore it
-                if (!eis.Any(e => e.GetRuntimeName().Equals(ImagePathColumnName, StringComparison.CurrentCultureIgnoreCase)))
-                    continue;
-
-                // It does expose the image path
-                toReturn.Add(cata, eis);
-            }
-
-            return toReturn;
+            return cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray();
         }
 
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
         {
             var queries = new List<QueryToExecute>();
-
-            foreach (KeyValuePair<ICatalogue, ExtractionInformation[]> eis in _catalogues)
+            
+            foreach (var c in GetCataloguesFor(message))
             {
-                ExtractionInformation keyTagColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(message.KeyTag, StringComparison.CurrentCultureIgnoreCase));
-                ExtractionInformation filePathColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(ImagePathColumnName, StringComparison.CurrentCultureIgnoreCase));
+                var query = GetQueryToExecute(c, message);
 
-                if (message.KeyTag != SeriesIdColumnName)
+                if (query != null)
                 {
-                    ExtractionInformation seriesTagColumn = eis.Value.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SeriesIdColumnName));
-
-                    if (seriesTagColumn == null)
-                        continue;
-
-                    queries.Add(new QueryToExecute(eis.Key, keyTagColumn, filePathColumn, seriesTagColumn));
+                    queries.Add(query);
+                    auditor.AuditCatalogueUse(message, c.Catalogue);
                 }
-                else if (filePathColumn != null && keyTagColumn != null)
-                {
-                    queries.Add(new QueryToExecute(eis.Key, keyTagColumn, filePathColumn, null));
-                }
-
-                auditor.AuditCatalogueUse(message, eis.Key);
             }
 
-            _logger.Debug("Found " + queries.Count + " Catalogues with columns called '" + ImagePathColumnName + "' and '" + message.KeyTag + "'");
+            Logger.Debug("Found " + queries.Count + " Catalogues which support extracting based on '" + message.KeyTag + "'");
 
             if (queries.Count == 0)
-                throw new Exception("Couldn't find any compatible Catalogues to run extraction queries against");
+                throw new Exception($"Couldn't find any compatible Catalogues to run extraction queries against for query {message}");
+
+            
 
             foreach (string valueToLookup in message.ExtractionIdentifiers)
             {
-                var current = new HashSet<string>();
-                string seriesInstanceUid = null;
-
-                if (message.KeyTag == SeriesIdColumnName)
-                    seriesInstanceUid = valueToLookup;
+                var results = new ExtractImageCollection(valueToLookup);
 
                 foreach (QueryToExecute query in queries)
                 {
-                    // If extracting by SopId, the HashSet should only contain 1 value?
-                    Tuple<string, HashSet<string>> results = query.Execute(valueToLookup);
+                    foreach (var result in query.Execute(valueToLookup,Rejector))
+                    {
+                        if(!results.ContainsKey(result.SeriesTagValue))
+                            results.Add(result.SeriesTagValue,new HashSet<QueryToExecuteResult>());
 
-                    if(seriesInstanceUid == null)
-                        seriesInstanceUid = results.Item1;
-
-                    foreach (string s in results.Item2)
-                        current.Add(s);
+                        results[result.SeriesTagValue].Add(result);
+                    }
                 }
 
-                yield return new ExtractImageCollection(valueToLookup, seriesInstanceUid, current);
+                yield return results;
             }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="QueryToExecute"/> based on the current <paramref name="message"/> and a <paramref name="columnSet"/> to
+        /// fetch back / filter using.
+        /// </summary>
+        /// <param name="columnSet"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        protected virtual QueryToExecute GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
+        {
+            if(!string.IsNullOrWhiteSpace(message.Modality))
+                throw new NotSupportedException("Filtering on Modality is not supported by this implementation");
+
+            return new QueryToExecute(columnSet, message.KeyTag);
+        }
+
+        /// <summary>
+        /// Return all valid query targets for the given <paramref name="message"/>.  Use this to handle throwing out queries
+        /// because they go to the wrong table for the given <see cref="ExtractionRequestMessage.Modality"/> etc.
+        ///
+        /// <para>Default implementation returns all <see cref="Catalogues"/> in which the <see cref="ExtractionRequestMessage.KeyTag"/>
+        /// appears</para>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<QueryToExecuteColumnSet> GetCataloguesFor(ExtractionRequestMessage message)
+        {
+            return Catalogues.Where(c => c.Contains(message.KeyTag));
         }
     }
 }

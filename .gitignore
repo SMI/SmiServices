@@ -305,3 +305,6 @@ dist/
 
 global.json
 
+.settings/
+.project
+.classpath
