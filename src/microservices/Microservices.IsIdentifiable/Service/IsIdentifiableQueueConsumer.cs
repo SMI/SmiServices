@@ -7,6 +7,7 @@ using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
+using Newtonsoft.Json;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -48,7 +49,8 @@ namespace Microservices.IsIdentifiable.Service
             
             _producer.SendMessage(new IsIdentifiableMessage(message)
             {
-                IsIdentifiable = ! isClean
+                IsIdentifiable = ! isClean,
+                Report = JsonConvert.SerializeObject(result)
             }, header);
 
             Ack(header, basicDeliverEventArgs);
