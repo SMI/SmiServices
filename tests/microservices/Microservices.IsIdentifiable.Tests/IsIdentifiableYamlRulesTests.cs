@@ -59,10 +59,10 @@ SocketRules:
                 As = FailureClassification.Date
             };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out FailureClassification f, out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out FailureClassification f, out _, out _));
             Assert.AreEqual(isReport ? FailureClassification.Date : FailureClassification.None,f);
 
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _, out _));
         }
         
         [TestCase(true)]
@@ -77,9 +77,9 @@ SocketRules:
                 As = FailureClassification.Date
             };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _));
-            Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR", out _, out _));
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _, out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR", out _, out _, out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _, out _));
         }
 
         [TestCase(true)]
@@ -93,9 +93,9 @@ SocketRules:
                 As = FailureClassification.Date
             };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _));
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("ImageType","CT", out _, out _)); //ignore both because no restriction on column
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _, out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("ImageType","CT", out _, out _, out _)); //ignore both because no restriction on column
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _, out _));
         }
 
 
@@ -109,7 +109,7 @@ SocketRules:
                 Action = isReport ? RuleAction.Report : RuleAction.Ignore,
             };
 
-            var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT", out _, out _));
+            var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT", out _, out _, out _));
 
             Assert.AreEqual("Illegal rule setup.  You must specify either a column or a pattern (or both)",ex.Message);
         }

@@ -148,7 +148,7 @@ namespace Microservices.IsIdentifiable.Runners
             //for each custom rule
             foreach (ICustomRule rule in CustomRules)
             {
-                switch (rule.Apply(fieldName, fieldValue, out FailureClassification classification, out int offset))
+                switch (rule.Apply(fieldName, fieldValue, out FailureClassification classification, out int offset,out string badWord))
                 {
                     case RuleAction.None:
                         break;
@@ -158,7 +158,7 @@ namespace Microservices.IsIdentifiable.Runners
                     
                     //if the rule is to report it then report as a failure but also run other classifiers
                     case RuleAction.Report:
-                        yield return new FailurePart(fieldValue, classification,offset);
+                        yield return new FailurePart(badWord, classification,offset);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

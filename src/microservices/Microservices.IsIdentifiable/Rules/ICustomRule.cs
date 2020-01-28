@@ -14,8 +14,9 @@ namespace Microservices.IsIdentifiable.Rules
         /// <param name="fieldName">The column name or dicom tag keyword that is being validated e.g. "PatientID"</param>
         /// <param name="fieldValue">The value that should be validated e.g. "0101010101"</param>
         /// <param name="classification"></param>
-        /// <param name="offset"></param>
+        /// <param name="offset">The word that failed validation</param>
+        /// <param name="badWord"></param>
         /// <returns>Action to take if any as a result of applying the rule</returns>
-        RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification, out int offset);
+        RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification, out int offset,out string badWord);
     }
 }

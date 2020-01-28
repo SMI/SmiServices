@@ -39,10 +39,11 @@ namespace Microservices.IsIdentifiable.Rules
 
 
         public RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification,
-            out int offset)
+            out int offset, out string badWord)
         {
             classification = FailureClassification.None;
             offset = 0;
+            badWord = null;
 
             if (Action == RuleAction.None)
                 return RuleAction.None;
@@ -67,6 +68,7 @@ namespace Microservices.IsIdentifiable.Rules
                 var m = _ifPattern.Match(fieldValue);
                 if (m.Success)
                 {
+                    badWord = m.Value;
                     offset = m.Index;
                     return Action;
                 }
