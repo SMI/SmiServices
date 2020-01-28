@@ -106,8 +106,11 @@ namespace Microservices.IsIdentifiable.Runners
             var deserializer = new Deserializer();
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
-            CustomRules.AddRange(ruleSet.BasicRules);
-            CustomRules.AddRange(ruleSet.SocketRules);
+            if(ruleSet.BasicRules != null)
+                CustomRules.AddRange(ruleSet.BasicRules);
+
+            if(ruleSet.SocketRules != null)
+                CustomRules.AddRange(ruleSet.SocketRules);
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
