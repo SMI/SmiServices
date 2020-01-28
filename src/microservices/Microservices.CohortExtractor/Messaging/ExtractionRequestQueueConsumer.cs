@@ -20,14 +20,15 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
 
-        //TODO This should depend on the message key
-        private readonly IProjectPathResolver _resolver = new SeriesKeyPathResolver();
-
-
-        public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor, IProducerModel fileMessageProducer, IProducerModel fileMessageInfoProducer)
+        private readonly IProjectPathResolver _resolver;
+        
+        public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
+            IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
+            IProducerModel fileMessageInfoProducer)
         {
             _fulfiller = fulfiller;
             _auditor = auditor;
+            _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }

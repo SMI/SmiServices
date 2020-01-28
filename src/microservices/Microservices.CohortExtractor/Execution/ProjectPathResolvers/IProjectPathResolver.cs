@@ -1,7 +1,7 @@
 ﻿
 namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
 {
-    internal interface IProjectPathResolver
+    public interface IProjectPathResolver
     {
         /// <summary>
         /// Get the anonymous filename from the original filename

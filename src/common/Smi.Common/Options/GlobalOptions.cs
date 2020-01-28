@@ -333,7 +333,11 @@ namespace Smi.Common.Options
         /// The Type of a class implementing IExtractionRequestFulfiller which is responsible for mapping requested image identifiers to image file paths.  Mandatory
         /// </summary>
         public string RequestFulfillerType { get; set; }
-
+        
+        /// <summary>
+        /// The Type of a class implementing IProjectPathResolver which is responsible for deciding the folder hierarchy to output into
+        /// </summary>
+        public string ProjectPathResolverType { get; set; }
         
         /// <summary>
         /// The Type of a class implementing IRejector which is responsible for deciding individual records/images are not extractable (after fetching from database)
