@@ -48,7 +48,7 @@ namespace Microservices.IsIdentifiable.Service
             
             _producer.SendMessage(new IsIdentifiableMessage(message)
             {
-                IsIdentifiable = isClean 
+                IsIdentifiable = ! isClean
             }, header);
 
             Ack(header, basicDeliverEventArgs);
