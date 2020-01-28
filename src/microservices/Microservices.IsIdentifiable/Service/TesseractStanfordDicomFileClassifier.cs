@@ -8,7 +8,7 @@ using Microservices.IsIdentifiable.Runners;
 
 namespace Microservices.IsIdentifiable.Service
 {
-    public class TesseractStanfordDicomFileClassifier : Classifier
+    public class TesseractStanfordDicomFileClassifier : Classifier, IDisposable
     {
 
         public const string StanfordNerDir = "stanford-ner";
@@ -46,5 +46,9 @@ namespace Microservices.IsIdentifiable.Service
             return toMemory.Failures;
         }
 
+        public void Dispose()
+        {
+            _runner?.Dispose();
+        }
     }
 }

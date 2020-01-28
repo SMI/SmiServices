@@ -10,7 +10,7 @@ using Smi.Common.Messaging;
 
 namespace Microservices.IsIdentifiable.Service
 {
-    public class IsIdentifiableQueueConsumer : Consumer
+    public class IsIdentifiableQueueConsumer : Consumer, IDisposable
     {
         private readonly IProducerModel _producer;
         private readonly string _fileSystemRoot;
@@ -49,6 +49,12 @@ namespace Microservices.IsIdentifiable.Service
             }, header);
 
             Ack(header, basicDeliverEventArgs);
+        }
+
+        public void Dispose()
+        {
+            if(_classifier is IDisposable d)
+                d.Dispose();
         }
     }
 }

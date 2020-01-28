@@ -15,7 +15,7 @@ using YamlDotNet.Serialization;
 
 namespace Microservices.IsIdentifiable.Runners
 {
-    public abstract class IsIdentifiableAbstractRunner
+    public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -276,6 +276,12 @@ namespace Microservices.IsIdentifiable.Runners
                 throw new Exception("No current database");
 
             return db;
+        }
+
+        public void Dispose()
+        {
+            foreach (var d in CustomRules.OfType<IDisposable>()) 
+                d.Dispose();
         }
     }
 }

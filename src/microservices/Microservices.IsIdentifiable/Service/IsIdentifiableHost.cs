@@ -12,7 +12,7 @@ namespace Microservices.IsIdentifiable.Service
     public class IsIdentifiableHost : MicroserviceHost
     {
         private ConsumerOptions _consumerOptions;
-        public Consumer Consumer { get; }
+        public IsIdentifiableQueueConsumer Consumer { get; }
 
         private IProducerModel _producerModel;
 
@@ -42,6 +42,13 @@ namespace Microservices.IsIdentifiable.Service
         public override void Start()
         {
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer);
+        }
+
+        public override void Stop(string reason)
+        {
+            base.Stop(reason);
+
+            Consumer?.Dispose();
         }
     }
 }
