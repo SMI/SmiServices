@@ -9,6 +9,7 @@ using Smi.Common.Messaging;
 using RabbitMQ.Client.Events;
 using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Microservices.CohortExtractor.Messaging
 {
@@ -50,7 +51,7 @@ namespace Microservices.CohortExtractor.Messaging
             {
                 var infoMessage = new ExtractFileCollectionInfoMessage(request);
 
-                foreach (string filePath in answers.MatchingFiles)
+                foreach (string filePath in answers.Accepted.Select(a=>a.FilePathValue))
                 {
                     var extractFileMessage = new ExtractFileMessage(request)
                     {
@@ -71,6 +72,15 @@ namespace Microservices.CohortExtractor.Messaging
 
                     // Record that we sent it
                     infoMessage.ExtractFileMessagesDispatched.Add(sentHeader, extractFileMessage.OutputPath);
+                }
+
+                //for all the rejected messages log why (in the info message)
+                foreach (var rejectedResults in answers.Rejected)
+                {
+                    if(!infoMessage.RejectionReasons.ContainsKey(rejectedResults.RejectReason))
+                        infoMessage.RejectionReasons.Add(rejectedResults.RejectReason,0);
+
+                    infoMessage.RejectionReasons[rejectedResults.RejectReason]++;
                 }
 
                 _auditor.AuditExtractFiles(request, answers);

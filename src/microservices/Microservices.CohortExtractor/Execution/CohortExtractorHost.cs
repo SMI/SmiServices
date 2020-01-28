@@ -108,6 +108,9 @@ namespace Microservices.CohortExtractor.Execution
 
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
+                _fulfiller.Rejector = ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly);
         }
     }
 }

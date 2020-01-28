@@ -6,6 +6,7 @@ using Rdmp.Core.Curation.Data;
 using Smi.Common.Helpers;
 using Smi.Common.Options;
 using System;
+using System.Linq;
 using Tests.Common;
 
 namespace Microservices.CohortExtractor.Tests
@@ -82,18 +83,52 @@ namespace Microservices.CohortExtractor.Tests
             }
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void UnitTest_Reflection_RejectorTypeNames(bool supplyRejectorName)
+        {
+            CohortExtractorOptions opts = new CohortExtractorOptions();
+            opts.RequestFulfillerType =  typeof(FromCataloguesExtractionRequestFulfiller).FullName;
+            opts.RejectorType = supplyRejectorName ? typeof(TestRejector).FullName : null;
+            opts.Validate();
+
+            var fulfiller = CreateRequestFulfiller(opts);
+            
+            Assert.IsInstanceOf(supplyRejectorName ? typeof(TestRejector): typeof(RejectNone),fulfiller.Rejector);
+        }
+
         private IExtractionRequestFulfiller CreateRequestFulfiller(CohortExtractorOptions opts)
         {
-            var ei = WhenIHaveA<ExtractionInformation>();
-            ei.Alias = "RelativeFileArchiveURI";
-            ei.SaveToDatabase();
+            var c = WhenIHaveA<ExtractionInformation>().CatalogueItem.Catalogue;
+            var t = c.GetTableInfoList(false).Single();
+            var repo = Repository.CatalogueRepository;
 
+            foreach (string requiredColumn in new string[]
+            {
+                QueryToExecuteColumnSet.DefaultImagePathColumnName,
+                QueryToExecuteColumnSet.DefaultStudyIdColumnName,
+                QueryToExecuteColumnSet.DefaultSeriesIdColumnName,
+                QueryToExecuteColumnSet.DefaultInstanceIdColumnName,
+            })
+            {
+                var ei = new ExtractionInformation(repo, new CatalogueItem(repo, c,"a"), new ColumnInfo(repo,requiredColumn,"varchar(10)",(TableInfo)t), requiredColumn);
+                ei.ExtractionCategory = ExtractionCategory.Core;
+                ei.SaveToDatabase();
+            }
+
+            c.ClearAllInjections();
+            
+            Assert.AreEqual(5,c.GetAllExtractionInformation(ExtractionCategory.Any).Length);
+            
             var f = new MicroserviceObjectFactory();
-
-            var catas = new[] { ei.CatalogueItem.Catalogue };
-            return f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType,
+            var fulfiller = f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType,
                 typeof(IExtractionRequestFulfiller).Assembly,
-                new object[] { catas });
+                new object[] {new[] {c}});
+            
+            if(fulfiller != null)
+                fulfiller.Rejector = f.CreateInstance<IRejector>(opts.RejectorType,typeof(TestRejector).Assembly) ?? new RejectNone();
+
+            return fulfiller;
 
         }
 

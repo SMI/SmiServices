@@ -15,5 +15,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <param name="auditor">The class we should inform of progress</param>
         /// <returns></returns>
         IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor);
+
+        /// <summary>
+        /// Controls what records that are fetched back should be reported as non extractable (including the reason why)
+        /// </summary>
+        IRejector Rejector { get; set; }
     }
 }
