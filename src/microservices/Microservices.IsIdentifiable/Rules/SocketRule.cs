@@ -24,7 +24,7 @@ namespace Microservices.IsIdentifiable.Rules
             }
 
             // Translate the passed message into ASCII and store it as a Byte array.
-            byte[] data = Encoding.UTF8.GetBytes(fieldValue);         
+            byte[] data = Encoding.UTF8.GetBytes(fieldValue + "\0");
 
             // Send the message to the connected TcpServer. 
             _stream.Write(data, 0, data.Length);
