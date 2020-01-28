@@ -12,27 +12,40 @@ namespace Microservices.IsIdentifiable.Tests
         public void TestYamlDeserialization_OfRules()
         {
             string yaml = @"
-# Ignore any values in the column Modality
-- Action: Ignore
-  IfColumn: Modality
+BasicRules: 
+  # Ignore any values in the column Modality
+  - Action: Ignore
+    IfColumn: Modality
 
-# Ignore the value CT in the column Modality
-- Action: Ignore
-  IfColumn: Modality
-  IfPattern: ^CT$
+  # Ignore the value CT in the column Modality
+  - Action: Ignore
+    IfColumn: Modality
+    IfPattern: ^CT$
 
-# Report as an error any values which contain 2 digits
-- IfPattern: ""[0-9][0-9]""
-  
-  As: PrivateIdentifier";
+  # Report as an error any values which contain 2 digits
+  - IfPattern: ""[0-9][0-9]""
+    Action: Report
+    As: PrivateIdentifier
+
+SocketRules:   
+  - Host: 127.0.123.123
+    Port: 8080
+ ";
 
             var deserializer = new Deserializer();
-            var rules = deserializer.Deserialize<IsIdentifiableRule[]>(yaml);
+            var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
 
-            Assert.AreEqual(3,rules.Length);
+            Assert.AreEqual(3,ruleSet.BasicRules.Length);
 
-            Assert.AreEqual(RuleAction.Ignore,rules[0].Action);
+            Assert.AreEqual(RuleAction.Ignore,ruleSet.BasicRules[0].Action);
+
+            
+            Assert.AreEqual(1,ruleSet.SocketRules.Length);
+
+            Assert.AreEqual("127.0.123.123",ruleSet.SocketRules[0].Host);
+            Assert.AreEqual(8080,ruleSet.SocketRules[0].Port);
+
         }
 
         [TestCase(true)]

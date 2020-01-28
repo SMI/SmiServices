@@ -10,7 +10,7 @@ namespace Microservices.IsIdentifiable.Tests
         [Test]
         public void TestSocket_NegativeResponse()
         {
-            using (var socketRule = new SocketRule("localhost",123))
+            using (var socketRule = new SocketRule())
             {
                 Assert.AreEqual(RuleAction.None,socketRule.HandleResponse("\0", out FailureClassification c, out int offset));
                 Assert.AreEqual(FailureClassification.None,c);
@@ -21,7 +21,7 @@ namespace Microservices.IsIdentifiable.Tests
         [Test]
         public void TestSocket_PositiveResponse()
         {
-            using (var socketRule = new SocketRule("localhost",123))
+            using (var socketRule = new SocketRule())
             {
                 Assert.AreEqual(RuleAction.Report,socketRule.HandleResponse("Person\010\0", out FailureClassification c, out int offset));
                 Assert.AreEqual(FailureClassification.Person,c);
@@ -32,7 +32,7 @@ namespace Microservices.IsIdentifiable.Tests
         [Test]
         public void TestSocket_InvalidResponses()
         {
-            using (var socketRule = new SocketRule("localhost",123))
+            using (var socketRule = new SocketRule())
             {
                 var ex = Assert.Throws<Exception>(()=>socketRule.HandleResponse("Cadbury\010\0", out FailureClassification c, out int offset));
                 StringAssert.Contains("'Cadbury' (expected a member of Enum FailureClassification)",ex.Message);

@@ -8,23 +8,18 @@ namespace Microservices.IsIdentifiable.Rules
 {
     public class SocketRule : ICustomRule,IDisposable
     {
-        private readonly string _hostname;
-        private readonly int _port;
+        public string Host { get; set; }
+        public int Port { get; set; }
+        
         private TcpClient _tcp;
         private NetworkStream _stream;
-
-        public SocketRule(string hostname, int port)
-        {
-            _hostname = hostname;
-            _port = port;
-        }
-
+        
         public RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification,
             out int offset)
         {
             if (_stream == null)
             {
-                _tcp = new TcpClient(_hostname, _port);
+                _tcp = new TcpClient(Host, Port);
                 _stream = _tcp.GetStream();
             }
 
