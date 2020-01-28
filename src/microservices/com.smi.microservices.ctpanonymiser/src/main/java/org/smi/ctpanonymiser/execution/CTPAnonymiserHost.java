@@ -12,7 +12,9 @@ import org.smi.ctpanonymiser.util.DicomAnonymizerToolBuilder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeoutException;
 
 public class CTPAnonymiserHost implements IMicroserviceHost {
 
@@ -24,7 +26,7 @@ public class CTPAnonymiserHost implements IMicroserviceHost {
 
 	private final GlobalOptions _options;
 
-	public CTPAnonymiserHost(GlobalOptions options, CommandLine cliOptions) throws FileNotFoundException {
+	public CTPAnonymiserHost(GlobalOptions options, CommandLine cliOptions) throws IOException, TimeoutException {
 
 		_options = options;
 
