@@ -17,14 +17,6 @@ namespace Microservices.CohortExtractor.Tests
         private const string SeriesId = "1.2.3.4";
 
         [Test]
-        public void TestDefaultPathResolver()
-        {
-            Assert.AreEqual("testDicom-an.dcm",
-                new DefaultProjectPathResolver().GetOutputPath(new QueryToExecuteResult(FilePath, null, SeriesId, null,
-                    false, null),null));
-        }
-
-        [Test]
         public void TestSeriesPathResolvers()
         {
             Assert.AreEqual(
