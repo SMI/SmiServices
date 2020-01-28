@@ -18,11 +18,8 @@ namespace Microservices.IsIdentifiable.Options
         [Option(HelpText = "Optional. True to check the files opened have a valid dicom preamble", Default = true)]
         public bool RequirePreamble { get; set; }
 
-        [Option(HelpText = "Optional. Path to a 'tessdata' directory.  tessdata.eng will be created here (unless a more recent version already exists).  If specified then the DICOM file's pixel data will be run through text detection")]
-        public string TessDirectory { get; set; }
-
-        [Option(HelpText = "Optional. If set images will be rotated to 90, 180 and 270 degrees (clockwise) to allow OCR to pick up upside down or horizontal text.")]
-        public bool Rotate { get; set; }
+        [Option(HelpText = "Optional. Pass a hostname with port (e.g. localhost:2020) to an OCR classifier that will be passed file paths for classification")]
+        public string OCRHost { get; set; }
 
         [Option(HelpText = "Optional.  If set any image tag which contains a DateTime will result in a failure")]
         public bool NoDateFields { get; set; }
@@ -39,9 +36,6 @@ namespace Microservices.IsIdentifiable.Options
                     new IsIdentifiableDicomFileOptions
                     {
                         Directory = @"C:\MyDataFolder",
-                        PathToNerClassifier =
-                            @"C:\temp\stanford-ner-2016-10-31\classifiers\english.all.3class.distsim.crf.ser.gz",
-                        TessDirectory = ".",
                         StoreReport = true
                     });
 
@@ -49,10 +43,7 @@ namespace Microservices.IsIdentifiable.Options
                     new IsIdentifiableDicomFileOptions
                     {
                         Directory = @"C:\MyDataFolder",
-                        Pattern = "*",
-                        PathToNerClassifier =
-                            @"C:\temp\stanford-ner-2016-10-31\classifiers\english.all.3class.distsim.crf.ser.gz",
-                            StoreReport = true
+                        Pattern = "*"
                     });
             }
         }
@@ -65,9 +56,6 @@ namespace Microservices.IsIdentifiable.Options
         public override void ValidateOptions()
         {
             base.ValidateOptions();
-
-            if (string.IsNullOrWhiteSpace(TessDirectory) && Rotate)
-                throw new Exception("Rotate option is only valid if OCR is running (TessDirectory is set)");
 
             if (!string.IsNullOrWhiteSpace(ZeroDate) && !NoDateFields)
                 throw new Exception("ZeroDate is only valid if the NoDateFields flag is set");

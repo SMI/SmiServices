@@ -21,9 +21,6 @@ namespace Microservices.IsIdentifiable.Runners
 
         private readonly IsIdentifiableAbstractOptions _opts;
 
-        private readonly NerEngine _nerEngine;
-        private readonly string[] _classifications = { "PERSON", "LOCATION", "ORGANIZATION" };
-
         public readonly List<IFailureReport> Reports = new List<IFailureReport>();
 
         // DDMMYY + 4 digits 
@@ -62,9 +59,7 @@ namespace Microservices.IsIdentifiable.Runners
         {
             _opts = opts;
             _opts.ValidateOptions();
-
-            _nerEngine = GetNerEngine();
-
+            
             string targetName = _opts.GetTargetName();
 
             if (opts.ColumnReport)
@@ -115,18 +110,6 @@ namespace Microservices.IsIdentifiable.Runners
 
         // ReSharper disable once UnusedMemberInSuper.Global
         public abstract int Run();
-
-        /// <summary>
-        /// Returns a NER classifier primed with the relevant classifier and whitelist source (if one is specified in command line options)
-        /// </summary>
-        /// <returns></returns>
-        private NerEngine GetNerEngine()
-        {
-            return new NerEngine(_opts.PathToNerClassifier, GetWhitelistSource())
-            {
-                TreatCaretAsSpace = false //this is handled in Validate method so no need to handle it again in NerEngine
-            };
-        }
 
         /// <summary>
         /// Returns each subsection of <paramref name="fieldValue"/> which violates validation rules (e.g. the CHI found).
@@ -185,10 +168,6 @@ namespace Microservices.IsIdentifiable.Runners
                     yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
             }
-
-            // Validate the column does not match any of the listed classifications
-            foreach (FailurePart m in _nerEngine.Match(fieldValue, _classifications))
-                yield return m;
         }
 
         /// <summary>
@@ -281,7 +260,7 @@ namespace Microservices.IsIdentifiable.Runners
             return db;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             foreach (var d in CustomRules.OfType<IDisposable>()) 
                 d.Dispose();

@@ -40,8 +40,7 @@ namespace Microservices.IsIdentifiable.Options
                     Port = 1234,
                     DatabaseName = "dicom",
                     CollectionName = "images",
-                    MongoDbBatchSize = 5000,
-                    PathToNerClassifier = @"C:\temp\stanford-ner-2016-10-31\classifiers\english.all.3class.distsim.crf.ser.gz"
+                    MongoDbBatchSize = 5000
                 });
             }
         }

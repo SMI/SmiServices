@@ -93,28 +93,29 @@ namespace Microservices.IsIdentifiable
 
         private static int Run(IsIdentifiableDicomFileOptions opts)
         {
-            var runner = new DicomFileRunner(opts);
-            return runner.Run();
+            using(var runner = new DicomFileRunner(opts))
+                return runner.Run();
         }
 
         private static int Run(IsIdentifiableRelationalDatabaseOptions opts)
         {
-            var runner = new DatabaseRunner(opts);
-            return runner.Run();
+            using(var runner = new DatabaseRunner(opts))
+                return runner.Run();
         }
 
         private static int Run(IsIdentifiableMongoOptions opts)
         {
             string appId = _process.ProcessName + "-" + _process.Id;
-            var runner = new IsIdentifiableMongoRunner(opts, appId);
-
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            using (var runner = new IsIdentifiableMongoRunner(opts, appId))
             {
-                e.Cancel = true;
-                runner.Stop();
-            };
+                Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+                {
+                    e.Cancel = true;
+                    runner.Stop();
+                };
 
-            return runner.Run();
+                return runner.Run();
+            }
         }
 
         private static Parser GetParser()

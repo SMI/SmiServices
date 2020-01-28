@@ -13,8 +13,8 @@ using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Reports;
+using Microservices.IsIdentifiable.Rules;
 using NLog;
-using Tesseract;
 using ImageFormat = System.Drawing.Imaging.ImageFormat;
 
 namespace Microservices.IsIdentifiable.Runners
@@ -25,10 +25,10 @@ namespace Microservices.IsIdentifiable.Runners
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly DicomFileFailureFactory factory = new DicomFileFailureFactory();
 
-        private readonly TesseractEngine _tesseractEngine;
         private readonly PixelTextFailureReport _tesseractReport;
 
         private DateTime? _zeroDate = null;
+        private SocketRule _ocrHost;
 
         public const string EngData = "https://github.com/tesseract-ocr/tessdata/blob/master/eng.traineddata";
 
@@ -49,33 +49,15 @@ namespace Microservices.IsIdentifiable.Runners
                 _zeroDate = DateTime.Parse(_opts.ZeroDate);
 
             //if the user wants to run text detection
-            if (!string.IsNullOrWhiteSpace(_opts.TessDirectory))
+            if (!string.IsNullOrWhiteSpace(_opts.OCRHost))
             {
-                var dir = new DirectoryInfo(_opts.TessDirectory);
-
-                if (!dir.Exists)
-                    throw new DirectoryNotFoundException("Could not find TESS directory '" + _opts.TessDirectory + "'");
-
-                //to work with Tesseract eng.traineddata has to be in a folder called tessdata
-                if (!dir.Name.Equals("tessdata"))
-                    dir = dir.CreateSubdirectory("tessdata");
-
-                var languageFile = new FileInfo(Path.Combine(dir.FullName, "eng.traineddata"));
-
-                if (!languageFile.Exists)
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        client.DownloadFile(new Uri(EngData), languageFile.FullName);
-                    }
-                }
-
-                _tesseractEngine = new TesseractEngine(_opts.TessDirectory, "eng", EngineMode.Default);
-                _tesseractEngine.DefaultPageSegMode = PageSegMode.Auto;
-
                 _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName());
-
                 Reports.Add(_tesseractReport);
+                _ocrHost = new SocketRule()
+                {
+                    Host = _opts.OCRHost.Split(':')[0],
+                    Port = int.Parse(_opts.OCRHost.Split(':')[1]),
+                };
             }
         }
 
@@ -117,8 +99,25 @@ namespace Microservices.IsIdentifiable.Runners
                 var dicomFile = DicomFile.Open(fi.FullName);
                 var dataSet = dicomFile.Dataset;
 
-                if (_tesseractEngine != null)
-                    ValidateDicomPixelData(fi, dicomFile, dataSet);
+                if (_ocrHost != null)
+                    if (_ocrHost.Apply("path", fi.FullName, out FailureClassification classification, out _, out _) == RuleAction.Report)
+                    {
+                        string modality = GetTagOrUnknown(dataSet, DicomTag.Modality);
+                        string[] imageType = GetImageType(dataSet);
+                        string studyID = GetTagOrUnknown(dataSet, DicomTag.StudyInstanceUID);
+                        string seriesID = GetTagOrUnknown(dataSet, DicomTag.SeriesInstanceUID);
+                        string sopID = GetTagOrUnknown(dataSet, DicomTag.SOPInstanceUID);
+
+                        // Don't go looking for images in structured reports
+                        if (modality == "SR") return;
+
+
+                        if(classification != FailureClassification.PixelText)
+                            throw new Exception($"OCR service returned {classification} (expected PixelText)");
+                        
+                        _tesseractReport.FoundPixelData(fi,sopID,studyID,seriesID,modality,imageType,0,0,"",0);
+
+                    }
 
                 foreach (var dicomItem in dataSet)
                     ValidateDicomItem(fi, dicomFile, dataSet, dicomItem);
@@ -162,86 +161,6 @@ namespace Microservices.IsIdentifiable.Runners
 
             if (parts.Any())
                 AddToReports(factory.Create(fi, dicomFile, fieldValue, dicomItem.Tag.ToString(), parts));
-        }
-
-        void ValidateDicomPixelData(FileInfo fi, DicomFile dicomFile, DicomDataset ds)
-        {
-            string modality = GetTagOrUnknown(ds, DicomTag.Modality);
-            string[] imageType = GetImageType(ds);
-            string studyID = GetTagOrUnknown(ds, DicomTag.StudyInstanceUID);
-            string seriesID = GetTagOrUnknown(ds, DicomTag.SeriesInstanceUID);
-            string sopID = GetTagOrUnknown(ds, DicomTag.SOPInstanceUID);
-
-            // Don't go looking for images in structured reports
-            if (modality == "SR") return;
-
-            try
-            {
-                DicomImage dicomImage = new DicomImage(ds);
-
-                using (Bitmap oldBmp = dicomImage.RenderImage().As<Bitmap>())
-                {
-                    using (Bitmap newBmp = new Bitmap(oldBmp)) // Strangle this line is neede for the subsequent Clone call to work
-                    {
-                        using (Bitmap targetBmp = newBmp.Clone(new Rectangle(0, 0, newBmp.Width, newBmp.Height), PixelFormat.Format32bppArgb))
-                        {
-                            Process(targetBmp, oldBmp.PixelFormat, targetBmp.PixelFormat, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
-
-                            //if user wants to rotate the image 90, 180 and 270 degress
-                            if (_opts.Rotate)
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    //rotate image 90 degrees and run OCR again
-                                    targetBmp.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                                    Process(targetBmp, oldBmp.PixelFormat, targetBmp.PixelFormat, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, (i + 1) * 90);
-                                }
-                        }
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, "Could not run Tesseract on '" + fi.FullName + "'");
-            }
-        }
-
-        private void Process(Bitmap targetBmp, PixelFormat pixelFormat, PixelFormat processedPixelFormat, FileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
-        {
-            float meanConfidence;
-            string text;
-
-            using (var ms = new MemoryStream())
-            {
-                targetBmp.Save(ms,ImageFormat.Bmp);
-                var bytes = ms.ToArray();
-
-                // targetBmp is now in the desired format.
-                // XXX abrooks added PixConverter.ToPix (which requires Tesseract 3.0.2, not 3.3.0, or 4) for dotnet netcoreapp2.2
-                //targetBmp.Save("tesseract_input_debug.png", System.Drawing.Imaging.ImageFormat.Png);
-                //tnind changed to LoadFromMemory
-                using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
-                {
-                    text = page.GetText();
-                    //_logger.Warn("Tesseract returned " + text);   // XXX abrooks added for debugging
-                    text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
-                    text = text.Trim();
-                    meanConfidence = page.GetMeanConfidence();
-                }
-            }
-            
-
-            //if we find some text
-            if (!string.IsNullOrWhiteSpace(text))
-            {
-                string problemField = rotationIfAny != 0 ? "PixelData" + rotationIfAny : "PixelData";
-
-                var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
-
-                AddToReports(f);
-
-                _tesseractReport.FoundPixelData(fi, sopID, pixelFormat, processedPixelFormat, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny);
-            }
         }
 
         /// <summary>
@@ -290,6 +209,13 @@ namespace Microservices.IsIdentifiable.Runners
                 return ds.GetValue<string>(dt, 0);
 
             return null;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _ocrHost?.Dispose();
         }
     }
 }

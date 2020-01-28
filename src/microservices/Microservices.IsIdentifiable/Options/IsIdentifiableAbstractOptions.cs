@@ -5,9 +5,7 @@ namespace Microservices.IsIdentifiable.Options
 {
     public abstract class IsIdentifiableAbstractOptions
     {
-        [Option('c', HelpText = "Path to the Stanford NER classifier data file used to find identifiable data in text (e.g. names).", Required = true)]
-        public string PathToNerClassifier { get; set; }
-
+        
         [Option(HelpText = "Optional. Full connection string to the database storing the whitelist of valid entries")]
         public string WhitelistConnectionString { get; set; }
 
