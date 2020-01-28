@@ -76,11 +76,9 @@ namespace Microservices.IsIdentifiable.Runners
 
             Reports.ForEach(r => r.AddDestinations(_opts));
 
-            if (string.IsNullOrWhiteSpace(_opts.SkipColumns))
-                return;
-
-            foreach (string c in _opts.SkipColumns.Split(','))
-                _skipColumns.Add(c);
+            if (!string.IsNullOrWhiteSpace(_opts.SkipColumns))
+                foreach (string c in _opts.SkipColumns.Split(','))
+                    _skipColumns.Add(c);
 
             var fi = new FileInfo("Rules.yaml");
             
