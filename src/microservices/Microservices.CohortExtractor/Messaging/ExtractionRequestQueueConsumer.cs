@@ -52,16 +52,16 @@ namespace Microservices.CohortExtractor.Messaging
             {
                 var infoMessage = new ExtractFileCollectionInfoMessage(request);
 
-                foreach (string filePath in answers.Accepted.Select(a=>a.FilePathValue))
+                foreach (QueryToExecuteResult accepted in answers.Accepted)
                 {
                     var extractFileMessage = new ExtractFileMessage(request)
                     {
                         // Path to the original file
-                        DicomFilePath = filePath.TrimStart('/', '\\'),
+                        DicomFilePath = accepted.FilePathValue.TrimStart('/', '\\'),
                         // Extraction directory relative to the extract root
                         ExtractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\'),
                         // Output path for the anonymised file, relative to the extraction directory
-                        OutputPath = _resolver.GetOutputPath(filePath, answers).Replace('\\', '/')
+                        OutputPath = _resolver.GetOutputPath(accepted,request).Replace('\\', '/')
                     };
 
                     Logger.Debug("DicomFilePath: " + extractFileMessage.DicomFilePath);
