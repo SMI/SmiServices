@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
+using Microservices.IsIdentifiable.Failure;
 using Microservices.IsIdentifiable.Rules;
 using NUnit.Framework;
 using YamlDotNet.Serialization;
@@ -24,8 +22,9 @@ namespace Microservices.IsIdentifiable.Tests
   IfPattern: ^CT$
 
 # Report as an error any values which contain 2 digits
-- Action: Report
-  IfPattern: ""[0-9][0-9]""";
+- IfPattern: ""[0-9][0-9]""
+  
+  As: PrivateIdentifier";
 
             var deserializer = new Deserializer();
             var rules = deserializer.Deserialize<IsIdentifiableRule[]>(yaml);
@@ -36,59 +35,68 @@ namespace Microservices.IsIdentifiable.Tests
             Assert.AreEqual(RuleAction.Ignore,rules[0].Action);
         }
 
-        [Test]
-        public void TestOneRule_IsColumnMatch_NoPattern()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestOneRule_IsColumnMatch_NoPattern(bool isReport)
         {
             var rule = new IsIdentifiableRule()
             {
-                Action = RuleAction.Ignore,
-                IfColumn = "Modality"
+                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+                IfColumn = "Modality",
+                As = FailureClassification.Date
             };
 
-            Assert.AreEqual(RuleAction.Ignore,rule.Apply("MODALITY","CT"));
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY"));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out FailureClassification f, out _));
+            Assert.AreEqual(isReport ? FailureClassification.Date : FailureClassification.None,f);
+
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _));
         }
         
-        [Test]
-        public void TestOneRule_IsColumnMatch_WithPattern()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestOneRule_IsColumnMatch_WithPattern(bool isReport)
         {
             var rule = new IsIdentifiableRule()
             {
-                Action = RuleAction.Ignore,
+                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
                 IfColumn = "Modality",
-                IfPattern = "^CT$"
+                IfPattern = "^CT$",
+                As = FailureClassification.Date
             };
 
-            Assert.AreEqual(RuleAction.Ignore,rule.Apply("Modality","CT"));
-            Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR"));
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY"));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR", out _, out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _));
         }
 
-        [Test]
-        public void TestOneRule_NoColumn_WithPattern()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestOneRule_NoColumn_WithPattern(bool isReport)
         {
             var rule = new IsIdentifiableRule()
             {
-                Action = RuleAction.Ignore,
-                IfPattern = "^CT$"
+                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+                IfPattern = "^CT$",
+                As = FailureClassification.Date
             };
 
-            Assert.AreEqual(RuleAction.Ignore,rule.Apply("Modality","CT"));
-            Assert.AreEqual(RuleAction.Ignore,rule.Apply("ImageType","CT")); //ignore both because no restriction on column
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY"));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("ImageType","CT", out _, out _)); //ignore both because no restriction on column
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _));
         }
 
 
-        [Test]
-        public void TestOneRule_NoColumn_NoPattern()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestOneRule_NoColumn_NoPattern(bool isReport)
         {
             //rule is to ignore everything
             var rule = new IsIdentifiableRule()
             {
-                Action = RuleAction.Ignore
+                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
             };
 
-            var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT"));
+            var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT", out _, out _));
 
             Assert.AreEqual("Illegal rule setup.  You must specify either a column or a pattern (or both)",ex.Message);
         }

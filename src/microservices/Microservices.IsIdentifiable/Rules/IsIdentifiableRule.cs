@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microservices.IsIdentifiable.Failure;
 
 namespace Microservices.IsIdentifiable.Rules
 {
@@ -25,6 +26,11 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfColumn { get; set; }
 
         /// <summary>
+        /// What you are trying to classify (if <see cref="Action"/> is <see cref="RuleAction.Report"/>)
+        /// </summary>
+        public FailureClassification As { get; set; }
+
+        /// <summary>
         /// The Regex pattern which should be used to match values with
         /// </summary>
         public string IfPattern
@@ -34,20 +40,40 @@ namespace Microservices.IsIdentifiable.Rules
         }
 
 
-        public RuleAction Apply(string fieldName, string fieldValue)
+        public RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification,
+            out int offset)
         {
+            classification = FailureClassification.None;
+            offset = 0;
+
             if (Action == RuleAction.None)
                 return RuleAction.None;
 
             if(IfColumn == null && IfPattern == null)
                 throw new Exception("Illegal rule setup.  You must specify either a column or a pattern (or both)");
 
+            if(Action == RuleAction.Report && As == FailureClassification.None)
+                throw new Exception("Illegal rule setup.  You must specify 'As' when Action is Report");
+
             //if there is no column restriction or restriction applies to the current column
             if (string.IsNullOrWhiteSpace(IfColumn) || string.Equals(IfColumn,fieldName,StringComparison.InvariantCultureIgnoreCase))
             {
-                //if there is no pattern or the pattern matches the string we examined
-                if (IfPattern == null || _ifPattern.IsMatch(fieldValue))
+                if (Action == RuleAction.Report)
+                    classification = As;
+
+                //if there is no pattern
+                if (IfPattern == null)
                     return Action;
+
+                // or the pattern matches the string we examined
+                var m = _ifPattern.Match(fieldValue);
+                if (m.Success)
+                {
+                    offset = m.Index;
+                    return Action;
+                }
+
+
             }
 
             //our rule does not apply to the current value

@@ -22,12 +22,7 @@ namespace Microservices.IsIdentifiable.Failure
         /// </summary>
         PixelText,
 
-        Postcode,
-
-        /// <summary>
-        /// A rule violation by an <see cref="ICustomRule"/>
-        /// </summary>
-        CustomRule
+        Postcode
 
     }
 }
