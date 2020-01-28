@@ -22,7 +22,7 @@
   <Class Name="Microservices.IsIdentifiable.Runners.DatabaseRunner" Collapsed="true">
     <Position X="1" Y="6.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAQAAAAAAgAAAAAABAAAAIAAACAAAAAACAAAAIAI=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Runners\DatabaseRunner.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -48,7 +48,7 @@
   <Class Name="Microservices.IsIdentifiable.Reporting.Destinations.CsvDestination" Collapsed="true">
     <Position X="10" Y="11.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAIAAACAAEIEAAAAAAAAAIAAAAABAAABgAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Destinations\CsvDestination.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -74,7 +74,7 @@
   <Class Name="Microservices.IsIdentifiable.Reporting.Destinations.DatabaseDestination" Collapsed="true">
     <Position X="10" Y="12.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAIAAAEAAAAAgAAAAAAAAAAAAAAAAAAAAABAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Destinations\DatabaseDestination.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -116,14 +116,14 @@
   <Class Name="Microservices.IsIdentifiable.Runners.DicomFileRunner" Collapsed="true">
     <Position X="1" Y="7.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AIAAgAgAAASgAAAAggAAAAACIAAIAAABAAAAAAIAKAI=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Runners\DicomFileRunner.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.IsIdentifiable.Runners.IsIdentifiableMongoRunner" Collapsed="true">
     <Position X="1" Y="8" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAIAAAAAAAAAUAAAAAAEQAAIAEAAQIAIAACIAEAoAI=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Runners\IsIdentifiableMongoRunner.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -151,42 +151,42 @@
   <Class Name="Microservices.IsIdentifiable.Reporting.Reports.FailureStoreReport" Collapsed="true">
     <Position X="6.75" Y="9.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAIAAEAAAAAAAAAAAEAAAAAAAAAAIBQAAAQACAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Reports\FailureStoreReport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.IsIdentifiable.Reporting.Reports.ColumnFailureReport" Collapsed="true">
     <Position X="6.75" Y="10" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAIAAAAAAAAAAAAAAABAAAAAAAAAAAAAgAwAAAAEAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Reports\ColumnFailureReport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.IsIdentifiable.Reporting.Reports.FailingValuesReport" Collapsed="true">
     <Position X="6.75" Y="11.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAACAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Reports\FailingValuesReport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.IsIdentifiable.Reporting.Reports.PixelTextFailureReport" Collapsed="true">
     <Position X="6.75" Y="12.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAIAiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Reports\PixelTextFailureReport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.IsIdentifiable.Reporting.Reports.TreeFailureReport" Collapsed="true">
     <Position X="6.75" Y="10.75" Width="2" />
     <TypeIdentifier>
-      <HashCode>BAIBAAAAAAAAAAAAAAAAAAAAAAEIIAAAABQQCAEAAEA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Reports\TreeFailureReport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.IsIdentifiable.Whitelists.CsvWhitelist" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="1" Y="10.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Whitelists\CsvWhitelist.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
@@ -194,7 +194,7 @@
   <Class Name="Microservices.IsIdentifiable.Whitelists.DiscoveredColumnWhitelist" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="1" Y="9.75" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAIAAAAAAIAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Whitelists\DiscoveredColumnWhitelist.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -209,7 +209,7 @@
   <Interface Name="Microservices.IsIdentifiable.Reporting.Destinations.IReportDestination" Collapsed="true">
     <Position X="10.25" Y="7.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Reporting\Destinations\IReportDestination.cs</FileName>
     </TypeIdentifier>
   </Interface>
