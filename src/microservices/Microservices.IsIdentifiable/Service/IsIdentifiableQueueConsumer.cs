@@ -29,9 +29,12 @@ namespace Microservices.IsIdentifiable.Service
             if (!SafeDeserializeToMessage(header, basicDeliverEventArgs, out ExtractFileStatusMessage message))
                 return;
 
-            var toProcess = new FileInfo( message.AnonymisedFileName);
+            // The path is taken from the message, however maybe it should be FileSystemOptions|ExtractRoot in default.yaml
+            // If the filename has a rooted path then the ExtractionDirectory is ignored by Path.Combine
+            var toProcess = new FileInfo( Path.Combine(message.ExtractionDirectory, message.AnonymisedFileName) );
 
             if(!toProcess.Exists)
+                //  XXX  this causes a fatal error and the whole service terminates
                 throw new FileNotFoundException();
 
             var result = _classifier.Classify(toProcess);
