@@ -61,8 +61,9 @@ namespace Microservices.IsIdentifiable.Tests
             
             runner.LoadRules(
                 @"
-- Action: Ignore
-  IfPattern: DD3");
+BasicRules:
+  - Action: Ignore
+    IfPattern: DD3");
 
             runner.Run();
             
