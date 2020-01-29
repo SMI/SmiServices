@@ -12,9 +12,11 @@ import org.smi.ctpanonymiser.util.DicomAnonymizerToolBuilder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeoutException;
 
-public class CTPAnonymiserHost implements Runnable, IMicroserviceHost {
+public class CTPAnonymiserHost implements IMicroserviceHost {
 
 	private static final Logger _logger = LoggerFactory.getLogger(CTPAnonymiserHost.class);
 
@@ -24,7 +26,7 @@ public class CTPAnonymiserHost implements Runnable, IMicroserviceHost {
 
 	private final GlobalOptions _options;
 
-	public CTPAnonymiserHost(GlobalOptions options, CommandLine cliOptions) throws FileNotFoundException {
+	public CTPAnonymiserHost(GlobalOptions options, CommandLine cliOptions) throws IOException, TimeoutException {
 
 		_options = options;
 
@@ -71,31 +73,13 @@ public class CTPAnonymiserHost implements Runnable, IMicroserviceHost {
 				exRoot);
 
 		_logger.info("CTPAnonymiserHost created successfully");
+
+		// Start the consumer
+		_rabbitMqAdapter.StartConsumer(_options.CTPAnonymiserOptions.ExtractFileConsumerOptions, _consumer);
 	}
 
 	public IProducerModel getProducer() {
 		return _producer;
-	}
-
-	/**
-	 * Entry point for the thread (Runnable interface)
-	 */
-	@Override
-	public void run() {
-
-		// Start the consumer
-		_rabbitMqAdapter.StartConsumer(_options.CTPAnonymiserOptions.ExtractFileConsumerOptions, _consumer);
-
-		try {
-
-			Thread.currentThread().join();
-
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
-		}
-
-		_logger.info("Anonymiser host finishing");
 	}
 
 	public void Shutdown() {

@@ -28,8 +28,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 	private String _extractionDir;
 	private ExtractionKey _extractionKey;
 	private int _extractionKeyColumnIndex;
-	private Pattern _chiPattern;
-	private Pattern _eupiPattern;
+	private static final Pattern _chiPattern=Pattern.compile("^\\d{10}$");
+	private static final Pattern _eupiPattern = Pattern.compile("^([A-Z]|[0-9]){32}$");
 	private IProducerModel _extractRequestMessageProducerModel;
 	private IProducerModel _extractRequestInfoMessageProducerModel;
 
@@ -54,10 +54,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		_extractRequestMessageProducerModel = extractRequestMessageProducerModel;
 		_extractRequestInfoMessageProducerModel = extractRequestInfoMessageProducerModel;
 
-		// TODO Unused
-		// Pattern to detect what looks like CHI numbers
-		_chiPattern = Pattern.compile("^\\d{10}$");
-		_eupiPattern = Pattern.compile("^([A-Z]|[0-9]){32}$");
+		// TODO Use regexes to detect what looks like CHI numbers
 	}
 
 	@Override

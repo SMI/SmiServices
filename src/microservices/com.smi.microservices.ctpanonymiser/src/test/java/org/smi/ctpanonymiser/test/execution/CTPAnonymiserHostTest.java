@@ -140,16 +140,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 		_conn.close();
 	}
 
-	public void testBasicAnonymise_Success() throws InterruptedException
-	{
-		// Start the host
-		Thread hostThread = new Thread(_ctpHost);
-		hostThread.start();
-
-		doTestBasicAnonymise_Success();
-	}
-
-	private void doTestBasicAnonymise_Success() throws InterruptedException {
+	public void testBasicAnonymise_Success() throws InterruptedException {
 
 		_logger.info("Starting basic anonymise test - should succeed");
 
@@ -180,9 +171,9 @@ public class CTPAnonymiserHostTest extends TestCase {
 		}
 
 		if (timeout > 0) {
-			_logger.info("... message received, took " + timeout + " milliseconds");
+			_logger.info("... message received, took " + (10000-timeout) + " milliseconds");
 		} else {
-			fail("Message not received in " + timeout + " milliseconds");
+			fail("Message not received in 10000 milliseconds");
 		}
 
 		if (_anonFileStatusMessageConsumer.isMessageValid()) {
@@ -201,15 +192,10 @@ public class CTPAnonymiserHostTest extends TestCase {
 	}
 
 	public void testBasicAnonymise_Failure() throws InterruptedException {
-
-		_logger.info("Starting basic anonymise test - failure hadling");
-
-		// Start the host
-		Thread hostThread = new Thread(_ctpHost);
-		hostThread.start();
-
-		doTestBasicAnonymise_Success();
-		_logger.info("First message processed successfully");
+		// TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
+		testBasicAnonymise_Success();
+		
+		_logger.info("Starting basic anonymise test - failure handling");
 
 		// Send an invalid message - should fail
 		ExtractFileMessage exMessage = new ExtractFileMessage();
