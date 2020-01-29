@@ -53,6 +53,25 @@ namespace Microservices.IsIdentifiable.Tests
         [TestCase("DD3 7LB")]
         [TestCase("dd3 7lb")]
         [TestCase("dd37lb")]
+        public void IsIdentifiable_TestPostcodes_WhitelistDD3(string code)
+        {
+            FailIfNoClassifier();
+
+            var runner = new TestRunner("Patient lives at " + code);
+            
+            runner.LoadRules(
+                @"
+- Action: Ignore
+  IfPattern: DD3");
+
+            runner.Run();
+            
+            Assert.IsEmpty(runner.ResultsOfValidate);
+        }
+
+        [TestCase("DD3 7LB")]
+        [TestCase("dd3 7lb")]
+        [TestCase("dd37lb")]
         public void IsIdentifiable_TestPostcodes_IgnorePostcodesFlagSet(string code)
         {
             FailIfNoClassifier();
