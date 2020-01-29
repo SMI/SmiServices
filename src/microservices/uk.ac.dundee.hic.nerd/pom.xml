@@ -50,6 +50,49 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M4</version>
 			</plugin>
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				<executions>
+					<execution>
+						<id>grab-ner</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://nlp.stanford.edu/software/stanford-ner-2018-10-16.zip</url>
+							<unpack>true</unpack>
+							<outputDirectory>${project.build.directory}/stanford-ner-2018-10-16/</outputDirectory>
+							<md5>ed85958f7b00a93addaf9fa7e0536de9</md5>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>copy-ner</id>
+						<phase>compile</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/stanford-ner-2018-10-16/</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>stanford-ner-2018-10-16/classifiers/english.all.3class.distsim.crf.ser.gz</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>

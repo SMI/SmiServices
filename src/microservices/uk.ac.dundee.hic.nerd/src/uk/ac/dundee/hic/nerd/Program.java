@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
@@ -23,19 +22,22 @@ public class Program {
 	private final CRFClassifier<CoreLabel> c;
 	private final HashSet<String> classifications=new HashSet<String>(Arrays.asList(new String[] {"PERSON","LOCATION","ORGANIZATION"}));
 	private volatile static boolean shutdown=false;
+	
+	public static void shutdown() {
+		shutdown=true;
+	}
 
-	private Program() throws IOException, ClassCastException, ClassNotFoundException {
+	Program() throws IOException, ClassCastException, ClassNotFoundException {
 		this.listener = new ServerSocket(1881,255,InetAddress.getByName("127.0.0.1"));
 		c=CRFClassifier.getClassifier(new File("stanford-ner-2018-10-16/classifiers/english.all.3class.distsim.crf.ser.gz"));
 	}
 	
 	private void handlein(Socket client) throws IOException {
-		InputStream is = client.getInputStream();
+		BufferedReader is = new BufferedReader(new InputStreamReader(client.getInputStream()));
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 		StringBuilder sb=new StringBuilder();
-		int ic,counter=0;
+		int ic;
 		while ((ic=is.read())>-1) {
-			counter++;
 			sb.append((char)ic);
 			if (ic==0) {
 				System.err.println(sb);
@@ -57,17 +59,18 @@ public class Program {
 					s.append((char)0);
 					s.append(Integer.toString(cl.beginPosition()));
 					s.append((char)0);
-					//s.append(cl.value());
-					//s.append((char)0);
-					return s.toString();
+					s.append(cl.value());
+					s.append((char)0);
 				}
 			}
 		}
+		if (s.length()==0)
+			s.append((char)0);	// Double-null if no matches.
 		s.append((char)0);
 		return s.toString();
 	}
 
-	private void run() throws IOException {
+	void run() throws IOException {
 		Socket client;
 		while(!shutdown) {
 			client=listener.accept();
@@ -79,7 +82,7 @@ public class Program {
 	public static void main(String[] args) throws IOException, ClassCastException, ClassNotFoundException {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				shutdown=true;
+				shutdown();
 			}
 		});
 		Program p = new Program();
