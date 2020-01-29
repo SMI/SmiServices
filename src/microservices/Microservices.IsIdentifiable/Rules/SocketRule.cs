@@ -32,9 +32,20 @@ namespace Microservices.IsIdentifiable.Rules
             // Translate the passed message into ASCII and store it as a Byte array.
             _write.Write(fieldValue);
 
-            var responseData = _read.ReadToEnd();
+            StringBuilder sb = new StringBuilder();
+
+            char c = ' ';
+            do
+            {
+                //if last character was a \0 and the next one we read is a \0 that marks the end of the response
+                if (c == '\0' && (c = (char)_read.Read()) == '\0')
+                    break;
+
+                sb.Append(c);
+            } while (true);
+
             
-            badParts = HandleResponse(responseData).ToArray();
+            badParts = HandleResponse(sb.ToString()).ToArray();
             
             return badParts.Any() ? RuleAction.Report : RuleAction.None;
         }
@@ -72,8 +83,10 @@ namespace Microservices.IsIdentifiable.Rules
 
         public void Dispose()
         {
-            _tcp?.Dispose();
+            _read?.Dispose();
+            _write?.Dispose();
             _stream?.Dispose();
+            _tcp?.Dispose();
         }
     }
 }
