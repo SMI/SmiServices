@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using Microservices.IsIdentifiable.Failures;
@@ -13,63 +16,58 @@ namespace Microservices.IsIdentifiable.Rules
         
         private TcpClient _tcp;
         private NetworkStream _stream;
-        
-        public RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification,
-            out int offset, out string badWord)
+        private StreamWriter _write;
+        private StreamReader _read;
+
+        public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
             if (_stream == null)
             {
                 _tcp = new TcpClient(Host, Port);
                 _stream = _tcp.GetStream();
+                _write = new StreamWriter(_stream);
+                _read = new StreamReader(_stream);
             }
 
             // Translate the passed message into ASCII and store it as a Byte array.
-            byte[] data = Encoding.UTF8.GetBytes(fieldValue + "\0");
+            _write.Write(fieldValue);
 
-            // Send the message to the connected TcpServer. 
-            _stream.Write(data, 0, data.Length);
-   
-            // Receive the TcpServer.response.
-    
-            // Buffer to store the response bytes.
-            data = new byte[256];
-
-            // String to store the response UTF8 representation.
-
-            // Read the first batch of the TcpServer response bytes.
-            int bytes = _stream.Read(data, 0, data.Length);
-            var responseData = System.Text.Encoding.UTF8.GetString(data, 0, bytes);
-
-            return HandleResponse(responseData, out classification, out offset, out badWord);
+            var responseData = _read.ReadToEnd();
+            
+            badParts = HandleResponse(responseData).ToArray();
+            
+            return badParts.Any() ? RuleAction.Report : RuleAction.None;
         }
 
-        public RuleAction HandleResponse(string responseData, out FailureClassification classification, out int offset,
-            out string badWord)
+        public IEnumerable<FailurePart> HandleResponse(string responseData)
         {
-            if (string.Equals(responseData, "\0"))
-            {
-                classification = FailureClassification.None;
-                offset = -1;
-                badWord = null;
-                return RuleAction.None;
-            }
-                
+            int parts = 3;
+            if (string.Equals(responseData, "\0") || string.IsNullOrWhiteSpace(responseData))
+                yield break;
+
+            if (responseData.Contains("\0\0")) 
+                throw new Exception("Invalid sequence detected: two null terminators in a row");
+
             var result = responseData.Split("\0",StringSplitOptions.RemoveEmptyEntries);
             
-            if(result.Length != 3)
-                throw new Exception($"Unexpected number of tokens in response from TCP client (expected '{2}' but got '{result.Length}').  Full message was '{responseData}' (expected <classification><offset> or <null terminator>)");
+            if(result.Length % parts != 0)
+                throw new Exception($"Expected tokens to arrive in multiples of {parts} (but got '{result.Length}').  Full message was '{responseData}' (expected <classification><offset> or <null terminator>)");
 
-            object c;
-            if (!Enum.TryParse(typeof(FailureClassification), result[0],true, out c))
-                throw new Exception($"Could not parse TCP client classification '{result[0]}' (expected a member of Enum FailureClassification)");
-            classification = (FailureClassification)c;
+            for (int i = 0; i < result.Length; i+=parts)
+            {
+                object c;
+                if (!Enum.TryParse(typeof(FailureClassification), result[i],true, out c))
+                    throw new Exception($"Could not parse TCP client classification '{result[i]}' (expected a member of Enum FailureClassification)");
+                var classification = (FailureClassification)c;
 
-            if(!int.TryParse(result[1],out offset))
-                throw new Exception($"Failed to parse offset from TCP client response.  Response was '{result[1]}' (expected int)");
+                int offset;
+                if(!int.TryParse(result[i+1],out offset))
+                    throw new Exception($"Failed to parse offset from TCP client response.  Response was '{result[i+1]}' (expected int)");
 
-            badWord = result[2];
+                string badWord = result[i+2];
 
-            return RuleAction.Report;
+                yield return new FailurePart(badWord,classification,offset);
+            }
         }
 
         public void Dispose()

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microservices.IsIdentifiable.Failures;
 
@@ -38,12 +41,9 @@ namespace Microservices.IsIdentifiable.Rules
         }
 
 
-        public RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification,
-            out int offset, out string badWord)
+        public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
-            classification = FailureClassification.None;
-            offset = 0;
-            badWord = null;
+            badParts = new List<FailurePart>();
 
             if (Action == RuleAction.None)
                 return RuleAction.None;
@@ -57,19 +57,25 @@ namespace Microservices.IsIdentifiable.Rules
             //if there is no column restriction or restriction applies to the current column
             if (string.IsNullOrWhiteSpace(IfColumn) || string.Equals(IfColumn,fieldName,StringComparison.InvariantCultureIgnoreCase))
             {
-                if (Action == RuleAction.Report)
-                    classification = As;
-
                 //if there is no pattern
                 if (IfPattern == null)
-                    return Action;
-
-                // or the pattern matches the string we examined
-                var m = _ifPattern.Match(fieldValue);
-                if (m.Success)
                 {
-                    badWord = m.Value;
-                    offset = m.Index;
+                    //we are reporting everything in this column? ok fair enough (no pattern just column name)
+                    if (Action == RuleAction.Report) 
+                        ((IList) badParts).Add(new FailurePart(fieldValue, As, 0));
+
+                    return Action;
+                }
+                    
+                // if the pattern matches the string we examined
+                var matches = _ifPattern.Matches(fieldValue);
+                if (matches.Any())
+                {
+                    //if we are reporting all failing regexes
+                    if(Action == RuleAction.Report)
+                        foreach (Match match in matches)
+                            ((IList) badParts).Add(new FailurePart(match.Value, As, match.Index));
+
                     return Action;
                 }
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Rules;
 using NUnit.Framework;
@@ -59,10 +61,48 @@ SocketRules:
                 As = FailureClassification.Date
             };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out FailureClassification f, out _, out _));
-            Assert.AreEqual(isReport ? FailureClassification.Date : FailureClassification.None,f);
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out IEnumerable<FailurePart> bad));
+            
+            if(isReport)
+                Assert.AreEqual(FailureClassification.Date,bad.Single().Classification);
+            else
+                Assert.IsEmpty(bad);
 
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _, out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Test_RegexMultipleMatches(bool isReport)
+        {
+            var rule = new IsIdentifiableRule()
+            {
+                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+                IfColumn = "Modality",
+                IfPattern = "[0-9],",
+                As = FailureClassification.Date
+            };
+
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","1,2,3", out IEnumerable<FailurePart> bad));
+
+            if (isReport)
+            {
+                var b = bad.ToArray();
+
+                Assert.AreEqual(2,b.Length);
+
+                Assert.AreEqual("1,",b[0].Word);
+                Assert.AreEqual(FailureClassification.Date,b[0].Classification);
+                Assert.AreEqual(0,b[0].Offset);
+
+                Assert.AreEqual("2,",b[1].Word);
+                Assert.AreEqual(FailureClassification.Date,b[1].Classification);
+                Assert.AreEqual(2,b[1].Offset);
+            }
+            else
+                Assert.IsEmpty(bad);
+
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
         }
         
         [TestCase(true)]
@@ -77,9 +117,9 @@ SocketRules:
                 As = FailureClassification.Date
             };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _, out _));
-            Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR", out _, out _, out _));
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _, out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR", out _));
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
         }
 
         [TestCase(true)]
@@ -93,9 +133,9 @@ SocketRules:
                 As = FailureClassification.Date
             };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _, out _, out _));
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("ImageType","CT", out _, out _, out _)); //ignore both because no restriction on column
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _, out _, out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _));
+            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("ImageType","CT", out _)); //ignore both because no restriction on column
+            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
         }
 
 
@@ -109,7 +149,7 @@ SocketRules:
                 Action = isReport ? RuleAction.Report : RuleAction.Ignore,
             };
 
-            var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT", out _, out _, out _));
+            var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT", out _));
 
             Assert.AreEqual("Illegal rule setup.  You must specify either a column or a pattern (or both)",ex.Message);
         }

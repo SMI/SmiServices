@@ -1,4 +1,5 @@
-﻿using Microservices.IsIdentifiable.Failures;
+﻿using System.Collections.Generic;
+using Microservices.IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Rules
 {
@@ -13,10 +14,8 @@ namespace Microservices.IsIdentifiable.Rules
         /// </summary>
         /// <param name="fieldName">The column name or dicom tag keyword that is being validated e.g. "PatientID"</param>
         /// <param name="fieldValue">The value that should be validated e.g. "0101010101"</param>
-        /// <param name="classification"></param>
-        /// <param name="offset">The word that failed validation</param>
-        /// <param name="badWord"></param>
+        /// <param name="badParts"></param>
         /// <returns>Action to take if any as a result of applying the rule</returns>
-        RuleAction Apply(string fieldName, string fieldValue, out FailureClassification classification, out int offset,out string badWord);
+        RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts);
     }
 }

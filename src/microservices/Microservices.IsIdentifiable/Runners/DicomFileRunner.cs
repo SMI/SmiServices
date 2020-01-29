@@ -100,7 +100,7 @@ namespace Microservices.IsIdentifiable.Runners
                 var dataSet = dicomFile.Dataset;
 
                 if (_ocrHost != null)
-                    if (_ocrHost.Apply("path", fi.FullName, out FailureClassification classification, out _, out _) == RuleAction.Report)
+                    if (_ocrHost.Apply("path", fi.FullName, out IEnumerable<FailurePart> parts) == RuleAction.Report)
                     {
                         string modality = GetTagOrUnknown(dataSet, DicomTag.Modality);
                         string[] imageType = GetImageType(dataSet);
@@ -111,11 +111,15 @@ namespace Microservices.IsIdentifiable.Runners
                         // Don't go looking for images in structured reports
                         if (modality == "SR") return;
 
-
-                        if(classification != FailureClassification.PixelText)
-                            throw new Exception($"OCR service returned {classification} (expected PixelText)");
+                        foreach (var part in parts)
+                        {
+                            if(part.Classification != FailureClassification.PixelText)
+                                throw new Exception($"OCR service returned {part.Classification} (expected PixelText)");
                         
-                        _tesseractReport.FoundPixelData(fi,sopID,studyID,seriesID,modality,imageType,0,0,"",0);
+                            _tesseractReport.FoundPixelData(fi,sopID,studyID,seriesID,modality,imageType,0,0,part.Word,0);
+                        }
+
+                        
 
                     }
 
