@@ -308,3 +308,6 @@ global.json
 .settings/
 .project
 .classpath
+
+.vscode/
+venv/
