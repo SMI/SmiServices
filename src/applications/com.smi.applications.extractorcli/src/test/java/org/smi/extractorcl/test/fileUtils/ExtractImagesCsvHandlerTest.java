@@ -1,6 +1,7 @@
 package org.smi.extractorcl.test.fileUtils;
 
 import junit.framework.TestCase;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.smi.common.messaging.IProducerModel;
@@ -53,6 +54,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
+		assertEquals(null, erm.ExtractionModality);
 		assertEquals(5, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -66,6 +68,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals(uuid, erim.ExtractionJobIdentifier);
 		assertEquals("MyProjectID", erim.ProjectNumber);
 		assertEquals("MyProjectFolder", erim.ExtractionDirectory);
+		assertEquals(null, erim.ExtractionModality);
 		assertEquals(5, erim.KeyValueCount);
 
 	}
@@ -107,6 +110,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
+		assertEquals(null, erm.ExtractionModality);
 		assertEquals(4, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -119,8 +123,8 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals(uuid, erim.ExtractionJobIdentifier);
 		assertEquals("MyProjectID", erim.ProjectNumber);
 		assertEquals("MyProjectFolder", erim.ExtractionDirectory);
+		assertEquals(null, erim.ExtractionModality);
 		assertEquals(4, erim.KeyValueCount);
-
 	}
 
 	/**
@@ -168,6 +172,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
+		assertEquals(null, erm.ExtractionModality);
 		assertEquals(6, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -182,6 +187,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals(uuid, erim.ExtractionJobIdentifier);
 		assertEquals("MyProjectID", erim.ProjectNumber);
 		assertEquals("MyProjectFolder", erim.ExtractionDirectory);
+		assertEquals(null, erim.ExtractionModality);
 		assertEquals(6, erim.KeyValueCount);
 	}
 
@@ -231,8 +237,40 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertTrue("Set are equal", expected.equals(captured));
 	}
 
-	public void testModalityRequirement() {
-		// TODO...
-		assertNotNull(null);
+	public void testModalityRequirement() throws LineProcessingException {
+		IProducerModel extractRequestMessageProducerModel = mock(IProducerModel.class);
+		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
+
+		UUID uuid = UUID.randomUUID();
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+
+		// Yes, I know there's probably some way to do this with JUnit
+		boolean thrown = false;
+		try {
+			handler.processHeader(new String[] { "StudyInstanceUID" });
+		} catch (IllegalArgumentException e) {
+			thrown = true;
+		}
+		assertTrue(thrown);
+
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+		handler.processHeader(new String[] { "StudyInstanceUID" });
+		handler.processLine(1, new String[] { "s1" });
+		handler.finished();
+		handler.sendMessages(true);
+
+		ArgumentCaptor<Object> requestMessage = ArgumentCaptor.forClass(Object.class);
+		verify(extractRequestMessageProducerModel).SendMessage(requestMessage.capture(), eq(""), eq(null));
+		verifyNoMoreInteractions(extractRequestMessageProducerModel);
+
+		ArgumentCaptor<Object> requestInfoMessage = ArgumentCaptor.forClass(Object.class);
+		verify(extractRequestInfoMessageProducerModel).SendMessage(requestInfoMessage.capture(), eq(""), eq(null));
+		verifyNoMoreInteractions(extractRequestInfoMessageProducerModel);
+
+		// Check the messages had the correct details
+		ExtractionRequestMessage erm = (ExtractionRequestMessage) requestMessage.getValue();
+		assertEquals("MR", erm.ExtractionModality);
 	}
 }

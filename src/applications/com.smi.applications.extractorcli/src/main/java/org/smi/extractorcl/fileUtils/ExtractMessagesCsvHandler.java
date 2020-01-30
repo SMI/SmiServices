@@ -135,6 +135,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		erm.ExtractionDirectory = _extractionDir;
 		erm.JobSubmittedAt = now;
 		erm.KeyTag = _extractionKey.toString();
+		if (_extractionKey == ExtractionKey.StudyInstanceUID)
+			erm.ExtractionModality = _extractionModality;
 
 		// Only need to send 1 of these
 		ExtractionRequestInfoMessage erim = new ExtractionRequestInfoMessage();
@@ -144,6 +146,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		erim.JobSubmittedAt = now;
 		erim.KeyValueCount = _identifierSet.size();
 		erim.KeyTag = _extractionKey.toString();
+		if (_extractionKey == ExtractionKey.StudyInstanceUID)
+			erim.ExtractionModality = _extractionModality;
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("    ExtractionJobIdentifier:               " + _extractionJobID + System.lineSeparator());

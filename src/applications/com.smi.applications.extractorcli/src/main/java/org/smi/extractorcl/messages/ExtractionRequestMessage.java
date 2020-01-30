@@ -10,17 +10,24 @@ import org.smi.common.messages.IMessage;
  * Message sent to initiate the extraction of images for a research project.
  * 
  */
-public class ExtractionRequestMessage extends ExtractMessage implements IMessage
-{    
-    /** 
-     * Contains the name of the identifier you want to extract based on (this should 
-     * be a DicomTag e.g. 'SeriesInstanceUID') */
+public class ExtractionRequestMessage extends ExtractMessage implements IMessage {
+    /**
+     * Contains the name of the identifier you want to extract based on (this should
+     * be a DicomTag e.g. 'SeriesInstanceUID')
+     */
     @FieldRequired
     public String KeyTag;
 
-    /** 
-     * The unique set of identifiers of Type which should be extracted and the 
-     * corresponding project specific patient identifiers they should be released under
+    /**
+     * The extraction modality. Only specified if the KeyTag is StudyInstanceUID
+     */
+    @FieldRequired
+    public String ExtractionModality;
+
+    /**
+     * The unique set of identifiers of Type which should be extracted and the
+     * corresponding project specific patient identifiers they should be released
+     * under
      */
     @FieldRequired
     public ArrayList<String> ExtractionIdentifiers;
@@ -28,8 +35,7 @@ public class ExtractionRequestMessage extends ExtractMessage implements IMessage
     /**
      * Constructor.
      */
-    public ExtractionRequestMessage()
-    {
+    public ExtractionRequestMessage() {
         ExtractionIdentifiers = new ArrayList<String>();
     }
 }
