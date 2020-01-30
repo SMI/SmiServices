@@ -49,7 +49,14 @@ public class MessageHeaderTests extends TestCase {
 
 				_factory = new MessageHeaderFactory("MessageHeaderTests", 1234);
 
+				GlobalOptions options = GlobalOptions.Load(true);
 				ConnectionFactory conFactory = new ConnectionFactory();
+				conFactory.setHost(options.RabbitOptions.RabbitMqHostName);
+				conFactory.setPort(options.RabbitOptions.RabbitMqHostPort);
+				conFactory.setVirtualHost(options.RabbitOptions.RabbitMqVirtualHost);
+				conFactory.setUsername(options.RabbitOptions.RabbitMqUserName);
+				conFactory.setPassword(options.RabbitOptions.RabbitMqPassword);
+
 				_conn = conFactory.newConnection("JavaTestConnection");
 				_ch = _conn.createChannel();
 
@@ -129,9 +136,9 @@ public class MessageHeaderTests extends TestCase {
 		headerMap.put("RetryCount", 5678);
 		headerMap.put("Parents", "");
 
-		//TODO Fix this test
+		// TODO Fix this test
 		// System.out.println(((byte[]) headerMap.get("MessageGuid")).length);
-		//MessageHeader header = _factory.getHeader(headerMap, StandardCharsets.UTF_8);
+		// MessageHeader header = _factory.getHeader(headerMap, StandardCharsets.UTF_8);
 	}
 
 	public void testHeaderRoundTrip() throws InterruptedException, URISyntaxException, IOException, TimeoutException {
@@ -139,7 +146,7 @@ public class MessageHeaderTests extends TestCase {
 		GlobalOptions options = GlobalOptions.Load(true);
 
 		RabbitMqAdapter adapter = new RabbitMqAdapter(options.RabbitOptions, "MessageHeaderTests");
-				
+
 		ConsumerOptions consumerOptions = new ConsumerOptions();
 		consumerOptions.QueueName = QueueName;
 		consumerOptions.QoSPrefetchCount = 1;
@@ -150,7 +157,7 @@ public class MessageHeaderTests extends TestCase {
 
 		ProducerOptions producerOptions = new ProducerOptions();
 		producerOptions.ExchangeName = ExchangeName;
-		
+
 		IProducerModel producerModel = adapter.SetupProducer(producerOptions);
 
 		SimpleMessage message = new SimpleMessage("testHeaderRoundTrip");
