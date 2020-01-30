@@ -145,12 +145,16 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		erim.KeyValueCount = _identifierSet.size();
 		erim.KeyTag = _extractionKey.toString();
 
-		System.out.println("ExtractionJobIdentifier:\t" + _extractionJobID);
-		System.out.println("ProjectNumber:\t\t\t\t" + _projectID);
-		System.out.println("ExtractionDirectory:\t\t" + _extractionDir);
-		System.out.println("ExtractionKey:\t\t\t\t" + _extractionKey);
-		System.out.println("KeyValueCount:\t\t\t\t" + _identifierSet.size());
-		System.out.println("Number of ExtractionRequestMessage(s):\t" + split.size());
+		StringBuilder sb = new StringBuilder();
+		sb.append("    ExtractionJobIdentifier:               " + _extractionJobID + System.lineSeparator());
+		sb.append("    ProjectNumber:                         " + _projectID + System.lineSeparator());
+		sb.append("    ExtractionDirectory:                   " + _extractionDir + System.lineSeparator());
+		sb.append("    ExtractionKey:                         " + _extractionKey + System.lineSeparator());
+		if (_extractionKey == ExtractionKey.StudyInstanceUID)
+			sb.append("    ExtractionModality:                    " + _extractionModality + System.lineSeparator());
+		sb.append("    KeyValueCount:                         " + _identifierSet.size() + System.lineSeparator());
+		sb.append("    Number of ExtractionRequestMessage(s): " + split.size() + System.lineSeparator());
+		System.out.println(sb);
 
 		if (!autoRun) {
 
