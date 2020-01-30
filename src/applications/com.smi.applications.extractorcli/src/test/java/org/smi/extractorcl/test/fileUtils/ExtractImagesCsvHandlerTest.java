@@ -242,11 +242,26 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
-				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+
+		// Test extractionModality validation
+
+		ExtractMessagesCsvHandler handler = null;
 
 		// Yes, I know there's probably some way to do this with JUnit
 		boolean thrown = false;
+
+		try {
+			handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "aaaaa",
+					extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+		} catch (IllegalArgumentException e) {
+			thrown = true;
+		}
+		assertTrue(thrown);
+
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+
+		thrown = false;
 		try {
 			handler.processHeader(new String[] { "StudyInstanceUID" });
 		} catch (IllegalArgumentException e) {
