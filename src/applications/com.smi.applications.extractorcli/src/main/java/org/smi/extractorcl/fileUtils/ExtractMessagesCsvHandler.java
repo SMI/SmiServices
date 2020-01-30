@@ -89,6 +89,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 
 		if (_extractionKey == ExtractionKey.StudyInstanceUID && _extractionModality == null)
 			throw new IllegalArgumentException("Extracting by StudyInstanceUID, but extraction modality not set");
+		if (_extractionKey != ExtractionKey.StudyInstanceUID && _extractionModality != null)
+			throw new IllegalArgumentException("Extraction modality set, but extraction identifier is " + _extractionKey);
 
 		_logger.debug("extractionKey: " + _extractionKey);
 	}
