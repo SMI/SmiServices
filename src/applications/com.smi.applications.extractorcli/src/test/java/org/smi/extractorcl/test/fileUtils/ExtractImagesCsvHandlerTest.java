@@ -272,6 +272,20 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 		handler.processHeader(new String[] { "StudyInstanceUID" });
+
+		thrown = false;
+		try {
+			handler.processHeader(new String[] { "SeriesInstanceUID" });
+		} catch (IllegalArgumentException e) {
+			thrown = true;
+		}
+		assertTrue(thrown);
+
+		// Happy path
+
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+		handler.processHeader(new String[] { "StudyInstanceUID" });
 		handler.processLine(1, new String[] { "s1" });
 		handler.finished();
 		handler.sendMessages(true);

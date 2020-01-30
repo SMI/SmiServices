@@ -74,13 +74,18 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		if (header.length > 1)
 			throw new LineProcessingException(0, header, "Multiple columns detected");
 
+		ExtractionKey extractionKey;
 		try {
-			_extractionKey = ExtractionKey.valueOf(header[0]);
+			extractionKey = ExtractionKey.valueOf(header[0]);
 		} catch (IllegalArgumentException e) {
 			_logger.error("Couldn't parse '" + header[0] + "' to an ExtractionKey value. Possible values are: "
 					+ Arrays.asList(ExtractionKey.values()));
 			throw e;
 		}
+
+		if (_extractionKey != null && extractionKey != _extractionKey)
+			throw new IllegalArgumentException("ExtractionKey differs from previous file");
+		_extractionKey = extractionKey;
 
 		if (_extractionKey == ExtractionKey.StudyInstanceUID && _extractionModality == null)
 			throw new IllegalArgumentException("Extracting by StudyInstanceUID, but extraction modality not set");
