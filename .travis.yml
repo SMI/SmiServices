@@ -31,10 +31,10 @@ jobs:
     - chmod +x rdmp-cli/rdmp
     - rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
     before_script:
-    - docker run -d -p 5672:5672 rabbitmq:3
+    - docker run -d -p 5672:5672 -p 15672:15672 rabbitmq:3-management
     script:
-    - docker ps
     - dotnet build --verbosity quiet
+    - ./utils/wait-for-rabbit.sh
     - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
     - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
@@ -75,11 +75,10 @@ jobs:
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
     before_script:
-    - docker run -d -p 5672:5672 rabbitmq:3
+    - docker run -d -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+    - ./utils/wait-for-rabbit.sh
     script:
-    - docker ps
-    - sleep 30 # TMP
-    - mvn -f $PARENT_POM -ntp install    
+    - mvn -f $PARENT_POM -ntp clean install    
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - mvn -f $PARENT_POM -ntp assembly:single@create-deployable
