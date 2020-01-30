@@ -57,6 +57,16 @@ public class MessageHeaderTests extends TestCase {
 				conFactory.setUsername(options.RabbitOptions.RabbitMqUserName);
 				conFactory.setPassword(options.RabbitOptions.RabbitMqPassword);
 
+				// Travis debug
+				StringBuilder sb = new StringBuilder();
+				sb.append("RabbitMQ settings:");
+				sb.append("    HostName:                       " + conFactory.getHost() + System.lineSeparator());
+				sb.append("    Port:                           " + conFactory.getPort() + System.lineSeparator());
+				sb.append("    UserName:                       " + conFactory.getUsername() + System.lineSeparator());
+				sb.append("    VirtualHost:                    " + conFactory.getVirtualHost() + System.lineSeparator());
+				sb.append("    HandshakeContinuationTimeout:   " + conFactory.getHandshakeTimeout()	+ System.lineSeparator());
+				System.out.println(sb);
+
 				_conn = conFactory.newConnection("JavaTestConnection");
 				_ch = _conn.createChannel();
 
