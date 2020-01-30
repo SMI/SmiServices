@@ -21,10 +21,10 @@ namespace Microservices.CohortExtractor.Execution
         /// </summary>
         public string SeriesInstanceUID => Values.SelectMany(v => v.Select(e=>e.SeriesTagValue)).Distinct().Single(); //TODO: could be multiple series under a study
 
-        public HashSet<QueryToExecuteResult> Accepted => GetWhereRejected(false);
-        public HashSet<QueryToExecuteResult> Rejected => GetWhereRejected(true);
+        public IReadOnlyCollection<QueryToExecuteResult> Accepted => GetWhereRejected(false);
+        public IReadOnlyCollection<QueryToExecuteResult> Rejected => GetWhereRejected(true);
 
-        private HashSet<QueryToExecuteResult> GetWhereRejected(bool isRejected)
+        private IReadOnlyCollection<QueryToExecuteResult> GetWhereRejected(bool isRejected)
         {
             
             HashSet<QueryToExecuteResult> result = new HashSet<QueryToExecuteResult>();

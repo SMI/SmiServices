@@ -171,9 +171,9 @@ public class CTPAnonymiserHostTest extends TestCase {
 		}
 
 		if (timeout > 0) {
-			_logger.info("... message received, took " + timeout + " milliseconds");
+			_logger.info("... message received, took " + (10000-timeout) + " milliseconds");
 		} else {
-			fail("Message not received in " + timeout + " milliseconds");
+			fail("Message not received in 10000 milliseconds");
 		}
 
 		if (_anonFileStatusMessageConsumer.isMessageValid()) {

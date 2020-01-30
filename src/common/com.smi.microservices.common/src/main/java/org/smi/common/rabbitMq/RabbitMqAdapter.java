@@ -59,8 +59,10 @@ public class RabbitMqAdapter {
 	 * Constructor for the RabbitMQ adapter helper class
 	 *
 	 * @param options The options for the microservices
+	 * @throws TimeoutException 
+	 * @throws IOException 
 	 */
-	public RabbitMqAdapter(RabbitOptions options, String microserviceName) {
+	public RabbitMqAdapter(RabbitOptions options, String microserviceName) throws IOException, TimeoutException {
 
 		// TODO Make sure fatal logging setup properly
 
@@ -82,27 +84,21 @@ public class RabbitMqAdapter {
 		_hostId = _headerFactory.getProcessName() + _headerFactory.getProcessId();
 	}
 
-	private void CheckValidServerSettings() {
+	private void CheckValidServerSettings() throws IOException, TimeoutException {
+		Connection conn = _factory.newConnection("TestConnection");
+		if (!conn.getServerProperties().containsKey("version"))
+			throw new IOException("Could not get RabbitMQ server version");
 
-		try (Connection conn = _factory.newConnection("TestConnection")) {
+		String version = ((LongString) conn.getServerProperties().get("version")).toString();
+		String[] split = version.split(Pattern.quote("."));
 
-			if (!conn.getServerProperties().containsKey("version"))
-				throw new Exception("Could not get RabbitMQ server version");
+		if (Integer.parseInt(split[0]) < MinRabbitServerVersionMajor || Integer.parseInt(split[1]) < MinRabbitServerVersionMinor
+				|| Integer.parseInt(split[2]) < MinRabbitServerVersionPatch)
+			throw new IOException(
+					"Connected to RabbitMQ server version " + version + " but minimum required is " + MinRabbitServerVersionMajor + "."
+							+ MinRabbitServerVersionMinor + "." + MinRabbitServerVersionPatch);
 
-			String version = ((LongString) conn.getServerProperties().get("version")).toString();
-			String[] split = version.split(Pattern.quote("."));
-
-			if (Integer.parseInt(split[0]) < MinRabbitServerVersionMajor || Integer.parseInt(split[1]) < MinRabbitServerVersionMinor
-					|| Integer.parseInt(split[2]) < MinRabbitServerVersionPatch)
-				throw new Exception(
-						"Connected to RabbitMQ server version " + version + " but minimum required is " + MinRabbitServerVersionMajor + "."
-								+ MinRabbitServerVersionMinor + "." + MinRabbitServerVersionPatch);
-
-			_rabbitMqServerVersion = version;
-		} catch (Exception e) {
-
-			throw new RuntimeException("Could not create a connection to RabbitMQ on startup", e);
-		}
+		_rabbitMqServerVersion = version;
 	}
 
 	/**
@@ -139,18 +135,11 @@ public class RabbitMqAdapter {
 		private Consumer _consumer; /// < The consumer of messages
 		private Channel _channel; /// < The channel sending messages
 		private ConsumerOptions _options; /// < The options for this consumer
-		private String _label;
-
-		/**
-		 * Continue running flag
-		 */
-		private volatile boolean _running = true;
 
 		/**
 		 * Finishes the consume operation
 		 */
 		public void terminate() {
-			_running = false;
 		}
 
 		/**
@@ -184,9 +173,6 @@ public class RabbitMqAdapter {
 
 				e.printStackTrace();
 				System.exit(0);
-			}
-
-			while (_running) {
 			}
 		}
 	}

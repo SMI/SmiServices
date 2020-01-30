@@ -1,4 +1,6 @@
-﻿namespace Microservices.IsIdentifiable.Failure
+﻿using Microservices.IsIdentifiable.Rules;
+
+namespace Microservices.IsIdentifiable.Failure
 {
     public enum FailureClassification
     {
@@ -21,5 +23,6 @@
         PixelText,
 
         Postcode
+
     }
 }

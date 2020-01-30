@@ -8,8 +8,10 @@ using FAnsi.Discovery;
 using Microservices.IsIdentifiable.Failure;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Reports;
+using Microservices.IsIdentifiable.Rules;
 using Microservices.IsIdentifiable.Whitelists;
 using NLog;
+using YamlDotNet.Serialization;
 
 namespace Microservices.IsIdentifiable.Runners
 {
@@ -51,6 +53,10 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         private readonly HashSet<string> _skipColumns = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
+        /// <summary>
+        /// Custom rules you want to apply e.g. always ignore column X if value is Y
+        /// </summary>
+        public List<ICustomRule> CustomRules { get; set; } = new List<ICustomRule>();
 
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
@@ -80,6 +86,25 @@ namespace Microservices.IsIdentifiable.Runners
 
             foreach (string c in _opts.SkipColumns.Split(','))
                 _skipColumns.Add(c);
+
+            var fi = new FileInfo("Rules.yaml");
+            
+            if (fi.Exists)
+                LoadRules(File.ReadAllText(fi.FullName));
+            else
+                _logger.Info("No Rules Yaml file found (thats ok)");
+        }
+
+        /// <summary>
+        /// Deserializes the given <paramref name="yaml"/> into a collection of <see cref="IsIdentifiableRule"/>
+        /// which are added to <see cref="CustomRules"/>
+        /// </summary>
+        /// <param name="yaml"></param>
+        public void LoadRules(string yaml)
+        {
+            _logger.Info("Loading Rules Yaml:" + Environment.NewLine + yaml);
+            var deserializer = new Deserializer();
+            CustomRules.AddRange(deserializer.Deserialize<IsIdentifiableRule[]>(yaml));
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
@@ -113,6 +138,26 @@ namespace Microservices.IsIdentifiable.Runners
 
             // Carets (^) are synonymous with space in some dicom tags
             fieldValue = fieldValue.Replace('^', ' ');
+            
+            //for each custom rule
+            foreach (ICustomRule rule in CustomRules)
+            {
+                switch (rule.Apply(fieldName, fieldValue, out FailureClassification classification, out int offset))
+                {
+                    case RuleAction.None:
+                        break;
+                    //if rule is to skip the cell (i.e. don't run other classifiers)
+                    case RuleAction.Ignore:
+                        yield break;
+                    
+                    //if the rule is to report it then report as a failure but also run other classifiers
+                    case RuleAction.Report:
+                        yield return new FailurePart(fieldValue, classification,offset);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
 
             //does the string contain chis?
             foreach (Match m in _chiRegex.Matches(fieldValue))

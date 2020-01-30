@@ -20,14 +20,15 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
 
-        //TODO This should depend on the message key
-        private readonly IProjectPathResolver _resolver = new SeriesKeyPathResolver();
-
-
-        public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor, IProducerModel fileMessageProducer, IProducerModel fileMessageInfoProducer)
+        private readonly IProjectPathResolver _resolver;
+        
+        public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
+            IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
+            IProducerModel fileMessageInfoProducer)
         {
             _fulfiller = fulfiller;
             _auditor = auditor;
+            _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }
@@ -51,16 +52,16 @@ namespace Microservices.CohortExtractor.Messaging
             {
                 var infoMessage = new ExtractFileCollectionInfoMessage(request);
 
-                foreach (string filePath in answers.Accepted.Select(a=>a.FilePathValue))
+                foreach (QueryToExecuteResult accepted in answers.Accepted)
                 {
                     var extractFileMessage = new ExtractFileMessage(request)
                     {
                         // Path to the original file
-                        DicomFilePath = filePath.TrimStart('/', '\\'),
+                        DicomFilePath = accepted.FilePathValue.TrimStart('/', '\\'),
                         // Extraction directory relative to the extract root
                         ExtractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\'),
                         // Output path for the anonymised file, relative to the extraction directory
-                        OutputPath = _resolver.GetOutputPath(filePath, answers).Replace('\\', '/')
+                        OutputPath = _resolver.GetOutputPath(accepted,request).Replace('\\', '/')
                     };
 
                     Logger.Debug("DicomFilePath: " + extractFileMessage.DicomFilePath);

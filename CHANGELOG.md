@@ -7,10 +7,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Refactor Java exception handling and use of threads
 
 ### Added
 
 - Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
+- Added support for custom rules in IsIdentifiable (entered in `Rules.yaml`)
+  - Rules are applied in the order they appear in this file
+  - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
+- New CohortExtractor yaml config option `ProjectPathResolverType` which determines the folder structure for extracted images
 
 ## [1.2.3] - 2020-01-09
 
