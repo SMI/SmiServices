@@ -30,18 +30,22 @@ namespace Microservices.IsIdentifiable.Rules
             }
 
             // Translate the passed message into ASCII and store it as a Byte array.
-            _write.Write(fieldValue);
+            
+            _write.Write(fieldValue.Replace("\0","")+'\0');
+            _write.Flush();
 
             StringBuilder sb = new StringBuilder();
 
-            char c = ' ';
+            int last,c = ' ';
             do
             {
                 //if last character was a \0 and the next one we read is a \0 that marks the end of the response
-                if (c == '\0' && (c = (char)_read.Read()) == '\0')
+                last=c;
+                c=_read.Read();
+                if (last <= '\0' && c <= '\0')
                     break;
-
-                sb.Append(c);
+                if (sb.Length>10000) throw new Exception($"Unexpected response {sb.ToString()}");
+                sb.Append((char)c);
             } while (true);
 
             
@@ -83,8 +87,6 @@ namespace Microservices.IsIdentifiable.Rules
 
         public void Dispose()
         {
-            _read?.Dispose();
-            _write?.Dispose();
             _stream?.Dispose();
             _tcp?.Dispose();
         }
