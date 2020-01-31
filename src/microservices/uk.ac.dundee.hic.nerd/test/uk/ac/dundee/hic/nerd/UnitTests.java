@@ -55,7 +55,7 @@ public class UnitTests {
 		hexdump(reply);
 		Assertions.assertArrayEquals(reply, new byte[] {'O','R','G','A','N','I','Z','A','T','I','O','N','\u0000','0','\u0000','U','n','i','v','e','r','s','i','t','y','\u0000','O','R','G','A','N','I','Z','A','T','I','O','N','\u0000','1','1','\u0000','o','f','\u0000','O','R','G','A','N','I','Z','A','T','I','O','N','\u0000','1','4','\u0000','D','u','n','d','e','e','\u0000','\u0000',});
 		sock.close();
-		Program.shutdown();
+		p.shutdown();
 		t.join();
 		Assertions.assertEquals(ok, true);
 	}
