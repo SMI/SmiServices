@@ -17,6 +17,8 @@ jobs:
         - postgresql-client-10
         - libc6-dev
         - libgdiplus
+        - tesseract-ocr
+        - libtesseract-dev
     services:
     - postgresql
     - mysql
@@ -47,10 +49,7 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
 
-    - ( cd data/stanford-ner && ./download.sh && cd - )
     - ( cd data/tessdata && ./download.sh && cd - )
-    - sudo apt install tesseract-ocr
-    - sudo apt install libtesseract-dev
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
 
     after_success:
