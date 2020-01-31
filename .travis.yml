@@ -65,6 +65,9 @@ jobs:
   - language: java
     addons:
       apt:
+        sources:
+          - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
+          - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
         packages:
           - maven
           - rabbitmq-server
