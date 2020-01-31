@@ -1,7 +1,6 @@
 
 dist: bionic
 os: linux
-language: csharp
 
 jobs:
   include:
@@ -14,8 +13,14 @@ jobs:
     addons:
       postgresql: "10"
       apt:
-        update: true
+        config:
+          retries: true
+        update: false
         sources:
+        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic main universe multiverse restricted'
+        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic-backports main universe'
+        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic-updates main universe multiverse restricted'
+        - sourceline: 'deb http://security.ubuntu.com/ubuntu bionic-security main multiverse restricted universe'
         - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
           key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
         - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
@@ -34,6 +39,7 @@ jobs:
         - erlang-public-key
         - erlang-ssl
         - erlang-tools
+        - libssl1.1
     services:
     - postgresql
     - mysql
