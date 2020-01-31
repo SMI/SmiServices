@@ -104,25 +104,31 @@ The CTP dependency first needs to be manually installed:
 
 - Linux
 
-```shell
-> cd lib/java/
-> ./installDat.sh
+```bash
+$ cd lib/java/
+$ ./installDat.sh
 ```
 
 - Windows
 
-```shell
-> cd lib\java\
-> .\installDat.bat
+```bash
+$ cd lib\java\
+$ .\installDat.bat
 ```
 
-The projects can then be built by returning to the top level directory and running:
+The projects can then be built and tested by returning to the top level directory and running:
 
-```shell
-> mvn -f src/common/com.smi.microservices.parent/pom.xml clean install
+```bash
+$ mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
 ```
 
-This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test sutie can be skipped by passing `-DskipTests`.
+This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test suite can be skipped by instead running `compile`, or by passing `-DskipTests`.
+
+To build a single project and its dependencies, you can do:
+
+```bash
+$ mvn -f src/common/com.smi.microservices.parent/pom.xml test -pl com.smi.microservices:extractorcli -am
+```
 
 Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
 

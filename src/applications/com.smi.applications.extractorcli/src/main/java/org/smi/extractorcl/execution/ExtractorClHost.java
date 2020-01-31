@@ -44,7 +44,8 @@ public class ExtractorClHost {
 		File extractionRoot = new File(options.FileSystemOptions.getExtractRoot());
 
 		if (!extractionRoot.exists())
-			throw new FileNotFoundException("Could not locate the extraction root on startup (" + extractionRoot.getAbsolutePath() + ")");
+			throw new FileNotFoundException(
+					"Could not locate the extraction root on startup (" + extractionRoot.getAbsolutePath() + ")");
 
 		if (_jobIdentifier == new UUID(0L, 0L))
 			throw new IllegalArgumentException("Job identifier cannot be the zero UUID");
@@ -53,9 +54,8 @@ public class ExtractorClHost {
 
 		_logger.debug("Setting up ExtractorClHost for job " + jobIdentifier);
 
-
 		final String projectID = commandLineOptions.getOptionValue("p");
-		final String extractionDir = projectID + "/" + commandLineOptions.getOptionValue("e", _jobIdentifier.toString() + "/");
+		final String extractionDir = projectID + "/"				+ commandLineOptions.getOptionValue("e", _jobIdentifier.toString() + "/");
 
 		_logger.debug("projectID: " + projectID);
 		_logger.debug("extractionDirectory: " + extractionDir);
@@ -63,7 +63,8 @@ public class ExtractorClHost {
 		Path fullExtractionDirectory = Paths.get(extractionRoot.getAbsolutePath().toString(), extractionDir);
 
 		if (fullExtractionDirectory.toFile().exists()) {
-			_logger.error("Extraction directory already exists - please run again with an empty directory, or do not pass the -e option");
+			_logger.error(
+					"Extraction directory already exists - please run again with an empty directory, or do not pass the -e option");
 			throw new FileAlreadyExistsException(fullExtractionDirectory.toFile().getAbsolutePath());
 		}
 
@@ -94,14 +95,9 @@ public class ExtractorClHost {
 		RabbitMqAdapter rabbitMQAdapter = new RabbitMqAdapter(options.RabbitOptions, "ExtractorCL");
 		_logger.debug("Connected to RabbitMQ server version " + rabbitMQAdapter.getRabbitMqServerVersion());
 
-		int extractionIdentifierColumn = parseExtractionIdentifierColumn(commandLineOptions.getOptionValue('c'));
-		_logger.debug("extractionIdentifierColumn: " + extractionIdentifierColumn);
+		String extractionModality = commandLineOptions.getOptionValue("modality", null);
 
-		_csvHandler = new ExtractMessagesCsvHandler(
-				jobIdentifier,
-				projectID,
-				extractionDir,
-				extractionIdentifierColumn,
+		_csvHandler = new ExtractMessagesCsvHandler(jobIdentifier, projectID, extractionDir, extractionModality,
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestProducerOptions),
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestInfoProducerOptions));
 	}
@@ -111,9 +107,9 @@ public class ExtractorClHost {
 	 * exchanges.
 	 *
 	 * @throws FileProcessingException if an error occurs processing a file.
-	 * @throws IOException 
-	 * @throws LineProcessingException 
-	 * @throws FileNotFoundException 
+	 * @throws IOException
+	 * @throws LineProcessingException
+	 * @throws FileNotFoundException
 	 */
 	public void process() throws FileProcessingException, FileNotFoundException, LineProcessingException, IOException {
 
@@ -147,9 +143,5 @@ public class ExtractorClHost {
 			_adapter.Shutdown();
 
 		_adapter = null;
-	}
-
-	private int parseExtractionIdentifierColumn(String columnStr) throws NumberFormatException {
-		return Integer.parseUnsignedInt(columnStr);
 	}
 }
