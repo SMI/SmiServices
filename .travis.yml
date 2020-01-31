@@ -12,7 +12,12 @@ jobs:
     addons:
       postgresql: 10
       apt:
+        sources:
+        - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
+        - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
+          key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
         packages:
+        - rabbitmq-server
         - postgresql-10
         - postgresql-client-10
         - libc6-dev
@@ -28,15 +33,12 @@ jobs:
     - sleep 10 # NOTE: This helps to ensure that the SQL server inside the Docker container has started
     install:
     - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
-    # NOTE: unzip should run successfully, but returns a non-zero exit code since the zip was packaged from Windows using the '\' directory separator. We therefore need to ignore the exit code with "|| true"
-    - unzip -d rdmp-cli rdmp-cli-linux-x64.zip || true
+    # RDMP 3.2.1 was packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
+    - unzip -d rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
     - chmod +x rdmp-cli/rdmp
     - rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
-    before_script:
-    - docker run -d -p 5672:5672 -p 15672:15672 rabbitmq:3-management
     script:
     - dotnet build --verbosity quiet
-    - ./utils/wait-for-rabbit.sh
     - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
     - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
