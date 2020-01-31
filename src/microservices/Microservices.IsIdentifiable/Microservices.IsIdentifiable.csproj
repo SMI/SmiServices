@@ -18,7 +18,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\lib\libleptonica-1.78.0.so" Link="x64\libleptonica-1.78.0.so">
+    <Content Include="..\..\..\lib\libtesseract.so.4.0.1-centos7" Link="x64\libtesseract41.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\lib\libleptonica.so.1.78.0-minimal-centos7" Link="x64\libleptonica-1.78.0.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\lib\libleptonica.so.1.78.0-minimal-centos7" Link="x64\libleptonica.so.5.3.0">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -27,9 +33,11 @@
     <PackageReference Include="CsvHelper" Version="12.1.2" />
     <PackageReference Include="fo-Dicom.Drawing" Version="4.0.3" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="2.1.2" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.15.1" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
+    <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />

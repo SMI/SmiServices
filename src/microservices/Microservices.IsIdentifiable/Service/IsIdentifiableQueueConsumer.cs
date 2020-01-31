@@ -7,6 +7,7 @@ using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
+using Newtonsoft.Json;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -29,9 +30,12 @@ namespace Microservices.IsIdentifiable.Service
             if (!SafeDeserializeToMessage(header, basicDeliverEventArgs, out ExtractFileStatusMessage message))
                 return;
 
-            var toProcess = new FileInfo( message.AnonymisedFileName);
+            // The path is taken from the message, however maybe it should be FileSystemOptions|ExtractRoot in default.yaml
+            // If the filename has a rooted path then the ExtractionDirectory is ignored by Path.Combine
+            var toProcess = new FileInfo( Path.Combine(message.ExtractionDirectory, message.AnonymisedFileName) );
 
             if(!toProcess.Exists)
+                //  XXX  this causes a fatal error and the whole service terminates
                 throw new FileNotFoundException();
 
             var result = _classifier.Classify(toProcess);
@@ -45,7 +49,8 @@ namespace Microservices.IsIdentifiable.Service
             
             _producer.SendMessage(new IsIdentifiableMessage(message)
             {
-                IsIdentifiable = isClean 
+                IsIdentifiable = ! isClean,
+                Report = JsonConvert.SerializeObject(result)
             }, header);
 
             Ack(header, basicDeliverEventArgs);
