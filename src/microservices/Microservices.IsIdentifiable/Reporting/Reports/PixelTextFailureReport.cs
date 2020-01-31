@@ -12,6 +12,8 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
         {
             "Filename",
             "SOPInstanceUID",
+            "PixelFormat",
+            "ProcessedPixelFormat",
             "StudyInstanceUID",
             "SeriesInstanceUID",
             "Modality",
@@ -42,7 +44,7 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
         }
 
         //TODO Replace argument list with object
-        public void FoundPixelData(FileInfo fi, string sopID, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation)
+        public void FoundPixelData(FileInfo fi, string sopID, PixelFormat pixelFormat, PixelFormat processedPixelFormat, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation)
         {
             DataRow dr = _dt.Rows.Add();
 
@@ -56,6 +58,8 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
             //TODO Pull these out
             dr["Filename"] = fi.FullName;
             dr["SOPInstanceUID"] = sopID;
+            dr["PixelFormat"] = pixelFormat;
+            dr["ProcessedPixelFormat"] = processedPixelFormat;
 
             dr["StudyInstanceUID"] = studyID;
 

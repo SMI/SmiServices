@@ -6,6 +6,7 @@ namespace Smi.Common.Messages.Extraction
     public class IsIdentifiableMessage : ExtractMessage,IFileReferenceMessage,IEquatable<IsIdentifiableMessage>
     {
         public bool IsIdentifiable { get; set; }
+        public string Report { get; set; }
 
         /// <summary>
         /// The originally sourced origin (identifiable file path).

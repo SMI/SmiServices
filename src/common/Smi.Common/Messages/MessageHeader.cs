@@ -73,7 +73,7 @@ namespace Smi.Common.Messages
             ProducerProcessID = (int)encodedHeaders["ProducerProcessID"];
             ProducerExecutableName = enc.GetString((byte[])encodedHeaders["ProducerExecutableName"]);
             Parents = GetGuidArrayFromEncodedHeader(encodedHeaders["Parents"], enc);
-            OriginalPublishTimestamp = (long)encodedHeaders["OriginalPublishTimestamp"];
+            OriginalPublishTimestamp = Convert.ToInt64(encodedHeaders["OriginalPublishTimestamp"]); // XXX error casting from Int32 to Int64 using (long)
         }
 
         /// <summary>
