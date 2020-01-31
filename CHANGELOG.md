@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Rules are applied in the order they appear in this file
   - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
 - New CohortExtractor yaml config option `ProjectPathResolverType` which determines the folder structure for extracted images
-- Added [script](utils/rabbitmq-config-tester/rabbitmq-config-tester.md) to verify RabbitMQ config files
+- Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
 
 
 ## [1.2.3] - 2020-01-09
