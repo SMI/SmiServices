@@ -12,6 +12,7 @@ jobs:
     addons:
       postgresql: "10"
       apt:
+        update: true
         sources:
         - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
           key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
@@ -21,7 +22,6 @@ jobs:
         - rabbitmq-server
         - postgresql-10
         - postgresql-client-10
-        - libc6-dev
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
