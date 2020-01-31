@@ -22,17 +22,21 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4.1</version>
+				<version>3.2.0</version>
 				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
 					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+						<index>true</index>
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<mainClass>uk.ac.dundee.hic.nerd.Program</mainClass>
 						</manifest>
 					</archive>
+					<descriptors>
+						<descriptor>filefilter.xml</descriptor>
+					</descriptors>
+					<finalName>nerd</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
 				<executions>
 					<execution>
@@ -105,7 +109,7 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>5.5.2</version>
-			<scope>compile</scope>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>

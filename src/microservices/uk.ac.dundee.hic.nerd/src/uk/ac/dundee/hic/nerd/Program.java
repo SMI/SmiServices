@@ -2,8 +2,8 @@ package uk.ac.dundee.hic.nerd;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -29,7 +30,9 @@ public class Program {
 
 	Program() throws IOException, ClassCastException, ClassNotFoundException {
 		this.listener = new ServerSocket(1881,255,InetAddress.getByName("127.0.0.1"));
-		c=CRFClassifier.getClassifier(new File("stanford-ner-2018-10-16/classifiers/english.all.3class.distsim.crf.ser.gz"));
+		InputStream stream = Program.class.getResourceAsStream("/english.all.3class.distsim.crf.ser.gz");
+		assert(stream!=null);
+		c=CRFClassifier.getClassifier(new GZIPInputStream(stream));
 	}
 	
 	private void handlein(Socket client) throws IOException {
