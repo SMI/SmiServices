@@ -71,7 +71,8 @@ BasicRules:
         }
 
 
-        [TestCase("Patient_lives_at_DD28DD", "DD28DD")]
+        //no longer detected, that's fine
+        //[TestCase("Patient_lives_at_DD28DD", "DD28DD")]
         [TestCase("^DD28DD^", "DD28DD")]
         [TestCase("dd3^7lb", "dd3 7lb")]
         public void IsIdentifiable_TestPostcodes_EmbeddedInText(string find, string expectedMatch)
@@ -164,20 +165,24 @@ BasicRules:
             var runner = new TestRunner("David Smith should be referred to with chi 0101010101");
 
             runner.Run();
-            Assert.AreEqual(3, runner.ResultsOfValidate.Count);
+            Assert.AreEqual(1, runner.ResultsOfValidate.Count);
 
             FailurePart w1 = runner.ResultsOfValidate[0];
-            FailurePart w2 = runner.ResultsOfValidate[1];
-            FailurePart w3 = runner.ResultsOfValidate[2];
+            
+            /* Names are now picked up by the Socket NER Daemon
+            //FailurePart w2 = runner.ResultsOfValidate[1];
+            //FailurePart w3 = runner.ResultsOfValidate[2];
 
+            
             Assert.AreEqual("David", w1.Word);
             Assert.AreEqual(0, w1.Offset);
 
             Assert.AreEqual("Smith", w2.Word);
             Assert.AreEqual(6, w2.Offset);
+            */
 
-            Assert.AreEqual("0101010101", w3.Word);
-            Assert.AreEqual(43, w3.Offset);
+            Assert.AreEqual("0101010101", w1.Word);
+            Assert.AreEqual(43, w1.Offset);
         }
 
         [Test]
