@@ -10,10 +10,11 @@ jobs:
       directories:
       - $HOME/.nuget    
     addons:
-      postgresql: 10
+      postgresql: "10"
       apt:
         sources:
         - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
+          key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
         - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
           key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
         packages:
@@ -28,6 +29,9 @@ jobs:
     - postgresql
     - mysql
     - mongodb
+	env:
+	  global:
+      - PGPORT=5433
     before_install:
     - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
     - sleep 10 # NOTE: This helps to ensure that the SQL server inside the Docker container has started
