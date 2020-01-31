@@ -25,6 +25,13 @@ jobs:
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
+        - erlang-crypto
+        - erlang-eldap
+        - erlang-inets
+        - erlang-os-mon
+        - erlang-public-key
+        - erlang-ssl
+        - erlang-tools
     services:
     - postgresql
     - mysql
