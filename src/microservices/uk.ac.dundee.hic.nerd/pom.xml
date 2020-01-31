@@ -11,6 +11,11 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>target/stanford-ner-2018-10-16/classifiers</directory>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -35,7 +40,7 @@
 					<descriptors>
 						<descriptor>filefilter.xml</descriptor>
 					</descriptors>
-					<finalName>nerd</finalName>
+					<finalName>nerd-${project.version}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
 				<executions>
@@ -87,7 +92,24 @@
 							<resources>
 								<resource>
 									<directory>${project.build.directory}/stanford-ner-2018-10-16/</directory>
-									<filtering>true</filtering>
+									<filtering>false</filtering>
+									<includes>
+										<include>stanford-ner-2018-10-16/classifiers/english.all.3class.distsim.crf.ser.gz</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-ner-test</id>
+						<phase>test</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/stanford-ner-2018-10-16/</directory>
+									<filtering>false</filtering>
 									<includes>
 										<include>stanford-ner-2018-10-16/classifiers/english.all.3class.distsim.crf.ser.gz</include>
 									</includes>
@@ -113,7 +135,7 @@
 					<executable>sh</executable>
 					<arguments>
 						<argument>-c</argument>
-						<argument>java -jar target/nerd.jar &lt;&amp;- &amp;</argument>
+						<argument>java -jar target/nerd-${project.version}.jar &lt;&amp;- &amp;</argument>
 					</arguments>
 				</configuration>
 			</plugin>
