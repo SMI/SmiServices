@@ -1,5 +1,7 @@
 
 dist: bionic
+os: linux
+language: csharp
 
 jobs:
   include:
@@ -36,9 +38,9 @@ jobs:
     - postgresql
     - mysql
     - mongodb
-	env:
-	  global:
-      - PGPORT=5433
+    env:
+      global:
+        PGPORT=5433
     before_install:
     - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
     - sleep 10 # NOTE: This helps to ensure that the SQL server inside the Docker container has started
@@ -110,11 +112,11 @@ jobs:
 # NOTE: This is inherited by both jobs, so actually runs twice
 deploy:
       provider: releases
-      api_key:
+      token:
         secure: DdirbOkYUePnKisYPlqYOpyti2HQFWmSIwY5spWflTUglzEZbnp+Q3sEltTebdlWo18i9skz6P5seAAXbX2ye1c3EZhqEyirWMxz1lvGdlNoQGHhWK6x+suM1DrG6Uun5dmcG/CEpWhDpcEbF8xQ/revtyCHEJj4xK9TXUHyFFG/KrzKSLGtsiBG1BOPkHJr4CoHjcpLzpmDB2hn+pYENtl3Nk0EeKmJgWdY/BWctEmUmRAXgfwsO/ejm9IbC5mIy5KBxbIUco/mf2JEKQB1drwdbINMxJXkbx+mWZYiDJBo5CWuWIzNOxv0Z3+Kg+N2cSwPX833v+W5YRTHyef/7Dum1yUrD3T7LMLY+3EIeCoGvARfRnQbi+BM9n1rFobPy/PWHWYxYRDnhDEfXrMcAyH/66InlQIhUh7XD01oZLEbsdZAbGnEsv5Ttz3F9LaEpk3EfoGqLxOWkL50OCxw6Jk6TfxsNtMoLpK1g7Jp8sI/EkjxYISer7S5myzLhKtgbtBwI0RcKh/sUo2m69QX++1JYy6CeN7/EwRmV4zJLk0WgalJuxgNFYrdzPLvg09okgxr1stHZQ7a5RkLH+r8KzA/Lmj6vTQG9HB44lHvX1hMiD0v8aCii+/wfr9AZZlNHjYq8RuHsP5uQ5U5F8G9uMqfiVb75MOPKY7qdYCZZZg=
       file_glob: true
       file: dist/*.*
-      skip-cleanup: true
+      skip_cleanup: true
       on:
         all_branches: true
         tags: true
