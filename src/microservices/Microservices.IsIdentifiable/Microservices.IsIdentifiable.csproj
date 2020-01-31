@@ -8,6 +8,9 @@
     <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Rules.template.yaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
@@ -25,6 +28,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\..\lib\libleptonica.so.1.78.0-minimal-centos7" Link="x64\libleptonica.so.5.3.0">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Rules.template.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
