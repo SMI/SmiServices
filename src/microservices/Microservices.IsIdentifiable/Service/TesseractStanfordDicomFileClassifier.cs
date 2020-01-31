@@ -10,25 +10,15 @@ namespace Microservices.IsIdentifiable.Service
 {
     public class TesseractStanfordDicomFileClassifier : Classifier, IDisposable
     {
-
-        public const string StanfordNerDir = "stanford-ner";
-        public const string StanfordNerClassifierFilePattern = "*3class.distsim.crf.ser.gz";
-
-        public const string TessDir = "tessdata";
-
         private DicomFileRunner _runner;
 
         public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
         {
-            var nerDir = GetSubdirectory(StanfordNerDir);
-            var nerFile = FindOneFile(StanfordNerClassifierFilePattern, nerDir);
-
             var fileOptions = new IsIdentifiableDicomFileOptions();
             
             //need to pass this so that the runner doesn't get unhappy about there being no reports (even though we clear it below)
             fileOptions.ColumnReport = true;
-
-
+            
             _runner = new DicomFileRunner(fileOptions);
         }
 
