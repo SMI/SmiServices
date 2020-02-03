@@ -11,9 +11,21 @@ import org.junit.jupiter.api.Test;
 
 import uk.ac.dundee.hic.nerd.Program;
 
+/**
+ * Test the nerd core functionality by sending a simple query and validating against known-good response.
+ * Exercises full TCP server functionality including orderly shutdown.
+ * 
+ * @author jas88
+ *
+ */
 public class UnitTests {
 	boolean ok = false;
-	
+
+	/**
+	 * Logging method used in development stage only: dump an array of bytes in
+	 * Java source syntax for inclusion in test code, only if running under Eclipse.
+	 * @param a Array to be dumped.
+	 */
 	private static void hexdump(byte[] a) {
 		// Abort unless running under Eclipse, avoid spamming Travis/console
 		StackTraceElement[] trace = new Throwable().getStackTrace();
@@ -35,16 +47,20 @@ public class UnitTests {
 		System.out.print("}");
 	}
 
+	/**
+	 * Core test case: initialise the server on a worker thread, connect to it, send and check a query, then shut down.
+	 * 
+	 * @throws ClassCastException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	@Test public void testClassifier() throws ClassCastException, ClassNotFoundException, IOException, InterruptedException {
 		Program p = new Program();
 		Thread t = new Thread() {
 			public void run() {
-				try {
-					p.run();
-					ok=true;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				p.run();
+				ok=true;
 			}
 		};
 		t.start();

@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -19,12 +18,21 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 
+/**
+ * Main program class - loads Stanford NER model data, provides a service on localhost TCP port 1881.
+ * 
+ * @author jas88
+ *
+ */
 public class Program {
 	private final ServerSocket listener;
 	private final CRFClassifier<CoreLabel> c;
 	private final HashSet<String> classifications=new HashSet<String>(Arrays.asList(new String[] {"PERSON","LOCATION","ORGANIZATION"}));
 	private volatile static boolean shutdown=false;
-	
+
+	/**
+	 * Shut down the listening socket and set the termination condition
+	 */
 	public void shutdown() {
 		try {
 			listener.close();
@@ -34,6 +42,13 @@ public class Program {
 		shutdown=true;
 	}
 
+	/**
+	 * Constructor: loads NER model data and passes to Stanford NER code, binds to TCP localhost:1881
+	 * 
+	 * @throws IOException If unable to bind TCP socket
+	 * @throws ClassCastException Only thrown from within Stanford NER initialisation
+	 * @throws ClassNotFoundException Only thrown from within Stanford NER initialisation
+	 */
 	Program() throws IOException, ClassCastException, ClassNotFoundException {
 		this.listener = new ServerSocket(1881,255,InetAddress.getByName("127.0.0.1"));
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -46,6 +61,12 @@ public class Program {
 		c=CRFClassifier.getClassifier(new GZIPInputStream(stream));
 	}
 	
+	/**
+	 * Loop reading null-terminated queries on the client TCP socket, returning results the same way.
+	 * 
+	 * @param client
+	 * @throws IOException If client terminates connection unexpectedly - ignore
+	 */
 	private void handlein(Socket client) throws IOException {
 		BufferedReader is = new BufferedReader(new InputStreamReader(client.getInputStream()));
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
@@ -60,7 +81,14 @@ public class Program {
 			}
 		}
 	}
-	
+
+	/**
+	 * Process a single word/phrase query and return the response text.
+	 * Returns either one or more label responses (null-delimited 3-tuples of type,offset,word) or a single null,
+	 * terminated by an additional null, so the final two octets are always double-null.
+	 * @param l	Input string, for example "University"
+	 * @return
+	 */
 	private String handleText(String l) {
 		StringBuilder s=new StringBuilder();
 		List<List<CoreLabel>> r = c.classify(l);
@@ -83,7 +111,10 @@ public class Program {
 		return s.toString();
 	}
 
-	void run() throws IOException {
+	/**
+	 * Loop, accepting new service clients until shut down elsewhere.
+	 */
+	public void run() {
 		while(!shutdown) {
 			try {
 				Socket client = listener.accept();
@@ -97,13 +128,22 @@ public class Program {
 						}
 					}
 				}.start();
-			} catch (SocketException e) {
+			} catch (IOException e) {
 				// This means we were shut down.
 				return;
 			}
 		}
 	}
-	
+
+	/**
+	 * Command line initialisation: load the program then run disconnected as a daemon (until SIGTERM).
+	 * Any early-stage exception will be reported to the console before disconnection.
+	 * 
+	 * @param args
+	 * @throws IOException
+	 * @throws ClassCastException
+	 * @throws ClassNotFoundException
+	 */
 	public static void main(String[] args) throws IOException, ClassCastException, ClassNotFoundException {
 		Program p = new Program();
 		System.err.println("nerd started OK");
@@ -113,4 +153,3 @@ public class Program {
 	}
 
 }
-
