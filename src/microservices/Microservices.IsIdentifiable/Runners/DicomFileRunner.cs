@@ -64,14 +64,9 @@ namespace Microservices.IsIdentifiable.Runners
                 var languageFile = new FileInfo(Path.Combine(dir.FullName, "eng.traineddata"));
 
                 if (!languageFile.Exists)
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        client.DownloadFile(new Uri(EngData), languageFile.FullName);
-                    }
-                }
+                    throw new FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
 
-                _tesseractEngine = new TesseractEngine(_opts.TessDirectory, "eng", EngineMode.Default);
+                _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default);
                 _tesseractEngine.DefaultPageSegMode = PageSegMode.Auto;
 
                 _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName());
