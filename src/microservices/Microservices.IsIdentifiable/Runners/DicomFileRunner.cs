@@ -66,7 +66,7 @@ namespace Microservices.IsIdentifiable.Runners
                 if (!languageFile.Exists)
                     throw new FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
 
-                _tesseractEngine = new TesseractEngine(_opts.TessDirectory, "eng", EngineMode.Default);
+                _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default);
                 _tesseractEngine.DefaultPageSegMode = PageSegMode.Auto;
 
                 _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName());
