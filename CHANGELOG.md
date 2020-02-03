@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - \[Breaking\] Updated RabbitMQ extraction config to match extraction plan v2
 - Refactor Java exception handling and use of threads
+- `TessDirectory` option in [IsIdentifiable] now expects tesseract models file to exist (no longer downloads it on demand)
 
 ### Added
 

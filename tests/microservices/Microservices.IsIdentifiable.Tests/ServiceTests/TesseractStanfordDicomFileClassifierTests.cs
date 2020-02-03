@@ -24,7 +24,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
 
             var d = new DirectoryInfo(path);
             d.Create();
-            Assert.Throws<DirectoryNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d));
+            Assert.Throws<FileNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d));
         }
     }
 }
