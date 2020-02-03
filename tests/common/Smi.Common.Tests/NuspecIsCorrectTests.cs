@@ -32,6 +32,7 @@ namespace Smi.Common.Tests
         [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj",null,null)]
         [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj",null,null)]
         [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj",null,null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.IsIdentifiable/Microservices.IsIdentifiable.csproj",null,null)]
 
         public void TestDependencyCorrect(string csproj, string nuspec, string packagesMarkdown)
         {

@@ -6,11 +6,13 @@ import org.slf4j.LoggerFactory;
 import org.smi.common.options.GlobalOptions;
 import org.smi.common.rabbitMq.RabbitMqAdapter;
 import org.smi.extractorcl.exceptions.FileProcessingException;
+import org.smi.extractorcl.exceptions.LineProcessingException;
 import org.smi.extractorcl.fileUtils.CsvParser;
 import org.smi.extractorcl.fileUtils.ExtractMessagesCsvHandler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Main class for command line program that sends out the messages to start the
@@ -34,7 +37,7 @@ public class ExtractorClHost {
 	private LinkedList<Path> _filesToProcess;
 
 	public ExtractorClHost(GlobalOptions options, CommandLine commandLineOptions, UUID jobIdentifier)
-			throws IllegalArgumentException, FileNotFoundException, FileAlreadyExistsException {
+			throws IllegalArgumentException, IOException, TimeoutException {
 
 		_options = options;
 
@@ -72,7 +75,7 @@ public class ExtractorClHost {
 			throw new IllegalArgumentException("No files given to process");
 
 		// Find the data files
-		_filesToProcess = new LinkedList<>();
+		_filesToProcess = new LinkedList<Path>();
 
 		_logger.debug("Data files to process: ");
 
@@ -108,8 +111,11 @@ public class ExtractorClHost {
 	 * exchanges.
 	 *
 	 * @throws FileProcessingException if an error occurs processing a file.
+	 * @throws IOException 
+	 * @throws LineProcessingException 
+	 * @throws FileNotFoundException 
 	 */
-	public void process() throws FileProcessingException {
+	public void process() throws FileProcessingException, FileNotFoundException, LineProcessingException, IOException {
 
 		_logger.info("Processing files (Job " + _jobIdentifier + ")");
 
@@ -125,14 +131,9 @@ public class ExtractorClHost {
 
 			CsvParser parser = new CsvParser(filePath, _csvHandler);
 
-			try {
 
-				parser.parse();
+			parser.parse();
 
-			} catch (Throwable e) {
-
-				throw new FileProcessingException(filePath, e);
-			}
 		}
 
 		_csvHandler.sendMessages(_options.ExtractorClOptions.MaxIdentifiersPerMessage);
@@ -149,25 +150,6 @@ public class ExtractorClHost {
 	}
 
 	private int parseExtractionIdentifierColumn(String columnStr) throws NumberFormatException {
-
-		if (columnStr == null) {
-			_logger.warn("Extraction column not specified, using 0");
-			return 0;
-		}
-
-		try {
-
-			int columnIndex = Integer.valueOf(columnStr);
-
-			if (columnIndex < 0)
-				throw new NumberFormatException("column index must be greater than 0");
-
-			return columnIndex;
-
-		} catch (NumberFormatException e) {
-
-			_logger.error("Couldn't parse '" + columnStr + "' to a valid column index");
-			throw e;
-		}
+		return Integer.parseUnsignedInt(columnStr);
 	}
 }

@@ -1,11 +1,10 @@
 ﻿
 using System;
 using System.Linq;
-using Smi.Common.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
-
+using Smi.Common.Options;
 
 namespace Smi.Common.MongoDB
 {
@@ -15,6 +14,8 @@ namespace Smi.Common.MongoDB
         private const string AuthDatabase = "admin"; // Always authenticate against the admin database
 
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
+        private static readonly ListCollectionNamesOptions _listOptions = new ListCollectionNamesOptions();
 
         /// <summary>
         /// Creates a <see cref="MongoClient"/> from the given options, and checks that the user has the "readWrite" role for the given database
@@ -79,6 +80,24 @@ namespace Smi.Common.MongoDB
             }
 
             return client;
+        }
+
+        public static IMongoDatabase TryGetDatabase(this MongoClient client, string dbName)
+        {
+            if (!client.ListDatabaseNames().ToList().Contains(dbName))
+                throw new MongoException("Database \'" + dbName + "\' does not exist on the server");
+
+            return client.GetDatabase(dbName);
+        }
+
+        public static IMongoCollection<BsonDocument> TryGetCollection(this IMongoDatabase database, string collectionName)
+        {
+            _listOptions.Filter = new BsonDocument("name", collectionName);
+
+            if (!database.ListCollectionNames(_listOptions).Any())
+                throw new MongoException("Collection \'" + collectionName + "\' does not exist in database " + database.DatabaseNamespace);
+
+            return database.GetCollection<BsonDocument>(collectionName);
         }
     }
 }

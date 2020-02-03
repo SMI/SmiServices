@@ -1,10 +1,10 @@
 
 
-[![Build Status](https://travis-ci.org/SMI/SmiServices.svg?branch=master)](https://travis-ci.org/SMI/SmiServices)
+[![Build Status](https://travis-ci.com/SMI/SmiServices.svg?branch=master)](https://travis-ci.com/SMI/SmiServices)
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-Version: `1.2.2`
+Version: `1.2.3`
 
 # SMI Services
 
@@ -43,12 +43,12 @@ A control queue is provided for controlling Microservices during runtime.  It su
 
 | Microservice / Console App| Description |
 | ------------- | ------------- |
-| [ProcessDirectory](./src/applications/Applications.DicomDirectoryProcessor/Readme.md)  | Enumerates directories and generates `AccessionDirectoryMessage` for those that contain dicom files.|
-| [DicomTagReader](./src/microservices/Microservices.DicomTagReader/Readme.md)  | Opens dicom files found in `AccessionDirectoryMessage` directories and converts to JSON as a `DicomFileMessage`.  Also creates a summary record of the whole series as a `SeriesMessage`.|
+| [ProcessDirectory](./src/applications/Applications.DicomDirectoryProcessor/README.md)  | Enumerates directories and generates `AccessionDirectoryMessage` for those that contain dicom files.|
+| [DicomTagReader](./src/microservices/Microservices.DicomTagReader/README.md)  | Opens dicom files found in `AccessionDirectoryMessage` directories and converts to JSON as a `DicomFileMessage`.  Also creates a summary record of the whole series as a `SeriesMessage`.|
 | [IdentifierMapper](./src/microservices/Microservices.IdentifierMapper/Readme.md)  | Replaces the `PatientID` Dicom Tag in a `DicomFileMessage` using a specified mapping table.|
-| [MongoDBPopulator](./src/microservices/Microservices.MongoDBPopulator/Readme.md)  | Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a MongoDB database document store. |
+| [MongoDBPopulator](./src/microservices/Microservices.MongoDbPopulator/Readme.md)  | Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a MongoDB database document store. |
 | [DicomRelationalMapper](./src/microservices/Microservices.DicomRelationalMapper/Readme.md)  | Runs an RDMP data load configuration with a batch of `DicomFileMessage` to load Dicom Tag data into a relational database (MySql or Microsoft Sql Server).|
-| [DicomReprocessor](./src/microservices/Microservices.DicomReprocessor/Readme.md)  | Runs a MongoDB query on the database populated by `MongoDBPopulator` and converts the results back into `DicomFileMessage` for (re)loading by `DicomRelationalMapper`.|
+| [DicomReprocessor](./src/microservices/Microservices.DicomReprocessor/README.md)  | Runs a MongoDB query on the database populated by `MongoDBPopulator` and converts the results back into `DicomFileMessage` for (re)loading by `DicomRelationalMapper`.|
 
 ### Image Extraction Microservices
 
@@ -57,7 +57,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | Microservice / Console App| Description |
 | ------------- | ------------- |
 | [ExtractorCL](./src/applications/com.smi.applications.extractorcli/README.md)  | Reads SeriesInstanceUIDs from a CSV file and generates `ExtractionRequestMessage` and audit message `ExtractionRequestInfoMessage`.|
-| [CohortExtractor](./src/microservices/Microservices.CohortExtractor/Readme.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
+| [CohortExtractor](./src/microservices/Microservices.CohortExtractor/README.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
 | [CTPAnonymiser](./src/microservices/com.smi.microservices.ctpanonymiser/README.md)  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  `ExtractFileMessage` and copies to specified output directory.  Generates audit message `ExtractFileStatusMessage`.|
 | [CohortPackager](./src/microservices/Microservices.CohortPackager/README.md)  | Records all audit messages and determines when jobs are complete.|
 
@@ -131,6 +131,13 @@ Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above 
 ### C# Projects
 
 Development requires Visual Studio 2017 or later. Simply open the SmiServices.sln file.
+
+To run the tests for IsIdentifiable, the Stanford NER classifier is required. This can be downloaded with the included script:
+
+```bash
+$ cd data/stanford-ner
+$ ./download.sh
+```
 
 ### Java Projects
 
