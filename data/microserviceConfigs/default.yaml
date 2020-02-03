@@ -167,3 +167,11 @@ ExtractorClOptions:
     ExtractionRequestInfoProducerOptions:
         ExchangeName: 'TEST.RequestInfoExchange'
         MaxConfirmAttempts: 1
+
+IsIdentifiableOptions:
+    QueueName: 'TEST.IsIdentifiableQueue'
+    QoSPrefetchCount: 1
+    AutoAck: false
+    IsIdentifiableProducerOptions:
+        ExchangeName: 'TEST.IsIdentifiableExchange'
+        MaxConfirmAttempts: 1

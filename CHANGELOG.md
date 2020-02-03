@@ -10,15 +10,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - \[Breaking\] Updated RabbitMQ extraction config to match extraction plan v2
 - Refactor Java exception handling and use of threads
+- `TessDirectory` option in [IsIdentifiable] now expects tesseract models file to exist (no longer downloads it on demand)
 
 ### Added
 
-- Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
-- Added support for custom rules in IsIdentifiable (entered in `Rules.yaml`)
+- Added new microservice [IsIdentifiable] which scans for personally identifiable information (in databases and dicom files)
+- IsIdentifiable runs standalone or as a service in the extraction pipeline (where it validates anonymised files)
+- Added support for custom rules in [IsIdentifiable] (entered in `Rules.yaml`)
   - Rules are applied in the order they appear in this file
   - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
+- Addeed support for outsourcing classification (e.g. NLP) to other processes via TCP (entered in [SocketRules] in `Rules.yaml`)
+- IsIdentifiable NLP text classification now outsourced via TCP to any services configured in 
+  - [StanfordNER implementation written in java](./src/microservices/uk.ac.dundee.hic.nerd/README.md)
 - New CohortExtractor yaml config option `ProjectPathResolverType` which determines the folder structure for extracted images
-- Added [script](utils/rabbitmq-config-tester/rabbitmq-config-tester.md) to verify RabbitMQ config files
+- Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
+
 
 ## [1.2.3] - 2020-01-09
 
@@ -135,3 +141,6 @@ First stable release after importing the repository from the private [SMIPlugin]
 [1.2.0-rc1]: https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0-rc1
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
+
+[IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
+[SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using FAnsi;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using Microservices.IsIdentifiable.Rules;
@@ -15,21 +15,18 @@ using YamlDotNet.Serialization;
 
 namespace Microservices.IsIdentifiable.Runners
 {
-    public abstract class IsIdentifiableAbstractRunner
+    public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IsIdentifiableAbstractOptions _opts;
 
-        private readonly NerEngine _nerEngine;
-        private readonly string[] _classifications = { "PERSON", "LOCATION", "ORGANIZATION" };
-
-        protected readonly List<IFailureReport> Reports = new List<IFailureReport>();
+        public readonly List<IFailureReport> Reports = new List<IFailureReport>();
 
         // DDMMYY + 4 digits 
         // \b bounded i.e. not more than 10 digits
         readonly Regex _chiRegex = new Regex(@"\b[0-3][0-9][0-1][0-9][0-9]{6}\b");
-        readonly Regex _postcodeRegex = new Regex(@"(GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY]))))\s?[0-9][A-Z-[CIKMOV]]{2})", RegexOptions.IgnoreCase);
+        readonly Regex _postcodeRegex = new Regex(@"\b((GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY]))))\s?[0-9][A-Z-[CIKMOV]]{2}))\b", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Matches a 'symbol' (digit followed by an optional th, rd or separator) then a month name (e.g. Jan or January)
@@ -62,9 +59,7 @@ namespace Microservices.IsIdentifiable.Runners
         {
             _opts = opts;
             _opts.ValidateOptions();
-
-            _nerEngine = GetNerEngine();
-
+            
             string targetName = _opts.GetTargetName();
 
             if (opts.ColumnReport)
@@ -81,11 +76,9 @@ namespace Microservices.IsIdentifiable.Runners
 
             Reports.ForEach(r => r.AddDestinations(_opts));
 
-            if (string.IsNullOrWhiteSpace(_opts.SkipColumns))
-                return;
-
-            foreach (string c in _opts.SkipColumns.Split(','))
-                _skipColumns.Add(c);
+            if (!string.IsNullOrWhiteSpace(_opts.SkipColumns))
+                foreach (string c in _opts.SkipColumns.Split(','))
+                    _skipColumns.Add(c);
 
             var fi = new FileInfo("Rules.yaml");
             
@@ -104,23 +97,17 @@ namespace Microservices.IsIdentifiable.Runners
         {
             _logger.Info("Loading Rules Yaml:" + Environment.NewLine + yaml);
             var deserializer = new Deserializer();
-            CustomRules.AddRange(deserializer.Deserialize<IsIdentifiableRule[]>(yaml));
+            var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
+
+            if(ruleSet.BasicRules != null)
+                CustomRules.AddRange(ruleSet.BasicRules);
+
+            if(ruleSet.SocketRules != null)
+                CustomRules.AddRange(ruleSet.SocketRules);
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
         public abstract int Run();
-
-        /// <summary>
-        /// Returns a NER classifier primed with the relevant classifier and whitelist source (if one is specified in command line options)
-        /// </summary>
-        /// <returns></returns>
-        private NerEngine GetNerEngine()
-        {
-            return new NerEngine(_opts.PathToNerClassifier, GetWhitelistSource())
-            {
-                TreatCaretAsSpace = false //this is handled in Validate method so no need to handle it again in NerEngine
-            };
-        }
 
         /// <summary>
         /// Returns each subsection of <paramref name="fieldValue"/> which violates validation rules (e.g. the CHI found).
@@ -142,7 +129,7 @@ namespace Microservices.IsIdentifiable.Runners
             //for each custom rule
             foreach (ICustomRule rule in CustomRules)
             {
-                switch (rule.Apply(fieldName, fieldValue, out FailureClassification classification, out int offset))
+                switch (rule.Apply(fieldName, fieldValue, out IEnumerable<FailurePart> parts))
                 {
                     case RuleAction.None:
                         break;
@@ -152,7 +139,9 @@ namespace Microservices.IsIdentifiable.Runners
                     
                     //if the rule is to report it then report as a failure but also run other classifiers
                     case RuleAction.Report:
-                        yield return new FailurePart(fieldValue, classification,offset);
+                        foreach (var p in parts)
+                            yield return p;
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -179,10 +168,6 @@ namespace Microservices.IsIdentifiable.Runners
                     yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
             }
-
-            // Validate the column does not match any of the listed classifications
-            foreach (FailurePart m in _nerEngine.Match(fieldValue, _classifications))
-                yield return m;
         }
 
         /// <summary>
@@ -273,6 +258,12 @@ namespace Microservices.IsIdentifiable.Runners
                 throw new Exception("No current database");
 
             return db;
+        }
+
+        public virtual void Dispose()
+        {
+            foreach (var d in CustomRules.OfType<IDisposable>()) 
+                d.Dispose();
         }
     }
 }

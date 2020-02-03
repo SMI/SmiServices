@@ -8,6 +8,9 @@
     <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Rules.template.yaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
@@ -18,11 +21,25 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\..\lib\libtesseract.so.4.0.1-centos7" Link="x64\libtesseract41.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\lib\libleptonica.so.1.78.0-minimal-centos7" Link="x64\libleptonica-1.78.0.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\lib\libleptonica.so.1.78.0-minimal-centos7" Link="x64\libleptonica.so.5.3.0">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Rules.template.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.5.0" />
     <PackageReference Include="CsvHelper" Version="12.1.2" />
     <PackageReference Include="fo-Dicom.Drawing" Version="4.0.3" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="2.1.2" />
-    <PackageReference Include="Stanford.NLP.CoreNLP" Version="3.9.2" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.15.1" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
@@ -30,5 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="x64\" />
   </ItemGroup>
 </Project>

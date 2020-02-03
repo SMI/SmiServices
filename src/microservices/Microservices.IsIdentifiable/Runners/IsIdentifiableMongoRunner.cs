@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dicom;
 using DicomTypeTranslation;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Reports;
