@@ -100,6 +100,9 @@ namespace Smi.Common
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
+            if (consumerOptions == null)
+                throw new ArgumentNullException(nameof(consumerOptions));
+
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
