@@ -323,7 +323,7 @@ namespace Smi.Common.Options
         public ConsumerOptions ExtractRequestInfoOptions { get; set; }
         public ConsumerOptions ExtractFilesInfoOptions { get; set; }
         public ConsumerOptions AnonImageStatusOptions { get; set; }
-        public uint JobWatcherTickrate { get; set; }
+        public uint JobWatcherTimeoutInSeconds { get; set; }
 
         public override string ToString()
         {

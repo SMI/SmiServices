@@ -1,4 +1,4 @@
-﻿
+
 // ReSharper disable InconsistentlySynchronizedField
 
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
@@ -45,8 +45,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             _exceptionCallback = exceptionCallback;
             _notifier = new JobCompleteNotifier(options);
 
-            //TODO Validate tickrate is sensible
-            _processTimer = new SysTimers.Timer(options.JobWatcherTickrate * 1000);
+            _processTimer = new SysTimers.Timer(TimeSpan.FromSeconds(options.JobWatcherTimeoutInSeconds).TotalMilliseconds);
             _processTimer.Elapsed += TimerElapsedEvent;
         }
 
