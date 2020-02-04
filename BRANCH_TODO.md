@@ -2,7 +2,11 @@
 # TODO for feature/extraction-refactoring
 
 - Ensure that any changes to the RabbitMQ messages are reflected in both the C# and Java codebases
-  - Yes, we could definitely use Protobuf here but that would take more effort than we have at the moment
 
-- Java services need to support the SMI_LOGS_ROOT env var
-- Java services need to support the control messages
+# TODO for feature/extraction-refactoring-cohort-packager
+
+- Refactor the event loop
+  - Consumers listening from high-volume queues should only be blocked during the "is extraction done" check
+  - The "is extraction done" check should be quick to determine
+  - If no messages are received in `n` seconds on any queue, then check if any jobs have completed
+
