@@ -92,7 +92,7 @@ CohortPackagerOptions:
         QoSPrefetchCount: 1
         AutoAck: false
     AnonImageStatusOptions:
-        QueueName: 'TEST.FileStatusQueue'
+        QueueName: 'TEST.VerificationStatusQueue'
         QoSPrefetchCount: 1
         AutoAck: false
 
