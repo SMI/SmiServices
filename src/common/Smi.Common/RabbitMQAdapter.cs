@@ -200,7 +200,7 @@ namespace Smi.Common
             };
 
             consumerTask.Start();
-            _logger.Debug($"Consumer task started [ID={consumerTask.Id}]");
+            _logger.Debug($"Consumer task started [[QueueName={subscription.QueueName}]]");
 
             return taskId;
         }
@@ -502,7 +502,7 @@ namespace Smi.Common
                     Dispose();
                 }
 
-                Logger.Debug($"Consumer task shutdown [ID={ConsumerTask.Id}]");
+                Logger.Debug($"Consumer task shutdown [QueueName={Subscription.QueueName}]");
 
                 return exitOk;
             }
