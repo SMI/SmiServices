@@ -23,8 +23,7 @@ namespace Microservices.CohortPackager.Messaging
 
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs ea)
         {
-            ExtractionRequestInfoMessage message;
-            if (!SafeDeserializeToMessage(header, ea, out message))
+            if (!SafeDeserializeToMessage(header, ea, out ExtractionRequestInfoMessage message))
                 return;
 
             try
@@ -34,7 +33,6 @@ namespace Microservices.CohortPackager.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-
                 ErrorAndNack(header, ea, "Error while processing ExtractionRequestInfoMessage", e);
                 return;
             }

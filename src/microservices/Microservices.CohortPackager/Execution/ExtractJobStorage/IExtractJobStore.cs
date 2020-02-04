@@ -33,6 +33,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         void PersistMessageToStore(ExtractFileStatusMessage fileStatusMessage, IMessageHeader header);
 
         /// <summary>
+        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// </summary>
+        /// <param name="anonVerificationMessage"></param>
+        /// <param name="header"></param>
+        void PersistMessageToStore(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header);
+
+        /// <summary>
         /// Returns a list of all jobs which are in progress (where status is <see cref="ExtractJobStatus.WaitingForFiles"/>)
         /// </summary>
         /// <param name="extractionJobIdentifier">A specific job to get <see cref="ExtractJobInfo"/> for. Empty returns all jobs in progress</param>

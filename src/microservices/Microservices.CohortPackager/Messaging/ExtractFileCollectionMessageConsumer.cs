@@ -23,8 +23,7 @@ namespace Microservices.CohortPackager.Messaging
 
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs ea)
         {
-            ExtractFileCollectionInfoMessage message;
-            if (!SafeDeserializeToMessage(header, ea, out message))
+            if (!SafeDeserializeToMessage(header, ea, out ExtractFileCollectionInfoMessage message))
                 return;
 
             // TODO(rkm 2020-02-04) Handle message.RejectionReasons
@@ -36,9 +35,6 @@ namespace Microservices.CohortPackager.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-
-                Logger.Debug("ApplicationException, doing ErrorAndNack for message (DeliveryTag " + ea.DeliveryTag + ")");
-
                 ErrorAndNack(header, ea, "Error while processing ExtractFileCollectionInfoMessage", e);
                 return;
             }

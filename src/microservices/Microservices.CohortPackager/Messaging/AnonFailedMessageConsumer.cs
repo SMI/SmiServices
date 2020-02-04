@@ -33,20 +33,18 @@ namespace Microservices.CohortPackager.Messaging
             if (message.Status == ExtractFileStatus.Anonymised)
                 throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 
-            // TODO(rkm 2020-02-04)
-            throw new NotImplementedException();
-            //try
-            //{
-            //    _store.PersistMessageToStore(message, header);
-            //}
-            //catch (ApplicationException e)
-            //{
-            //    // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
+            try
+            {
+                _store.PersistMessageToStore(message, header);
+            }
+            catch (ApplicationException e)
+            {
+                // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
+                ErrorAndNack(header, ea, "Error while processing ExtractFileStatusMessage", e);
+                return;
+            }
 
-            //    ErrorAndNack(header, ea, "Error while processing ExtractFileStatusMessage", e);
-            //    return;
-            //}
-            //Ack(header, ea);
+            Ack(header, ea);
         }
     }
 }

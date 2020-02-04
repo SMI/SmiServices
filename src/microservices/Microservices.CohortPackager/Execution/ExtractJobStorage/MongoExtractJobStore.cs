@@ -299,6 +299,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             }
         }
 
+        public void PersistMessageToStore(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<ExtractJobInfo> GetLatestJobInfo(Guid extractionJobIdentifier = default(Guid))
         {
             _logger.Debug("Getting job info for " + (extractionJobIdentifier != Guid.Empty ? extractionJobIdentifier.ToString() : "all active jobs"));

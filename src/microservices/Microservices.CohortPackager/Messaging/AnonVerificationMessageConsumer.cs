@@ -27,20 +27,18 @@ namespace Microservices.CohortPackager.Messaging
             if (!SafeDeserializeToMessage(header, ea, out IsIdentifiableMessage message))
                 return;
 
-            // TODO(rkm 2020-02-02)
-            throw new NotImplementedException();
-            //try
-            //{
-            //    _store.PersistMessageToStore(message, header);
-            //}
-            //catch (ApplicationException e)
-            //{
-            //    // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
+            try
+            {
+                _store.PersistMessageToStore(message, header);
+            }
+            catch (ApplicationException e)
+            {
+                // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
+                ErrorAndNack(header, ea, "Error while processing IsIdentifiableMessage", e);
+                return;
+            }
 
-            //    ErrorAndNack(header, ea, "Error while processing ExtractFileStatusMessage", e);
-            //    return;
-            //}
-            //Ack(header, ea);
+            Ack(header, ea);
         }
     }
 }
