@@ -49,16 +49,16 @@ namespace Microservices.CohortPackager.Tests.Execution
             using (
                 var tester = new MicroserviceTester(
                     _helper.Options.RabbitOptions,
-                    _helper.Options.CohortPackagerOptions.AnonImageStatusOptions,
-                    _helper.Options.CohortPackagerOptions.ExtractFilesInfoOptions,
+                    _helper.Options.CohortPackagerOptions.VerificationStatusOptions,
+                    _helper.Options.CohortPackagerOptions.FileCollectionInfoOptions,
                     _helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions))
             {
                 var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem, loadSmiLogConfig: false);
                 tester.StopOnDispose.Add(host);
 
                 tester.SendMessage(_helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions, _helper.TestExtractRequestInfoMessage);
-                tester.SendMessage(_helper.Options.CohortPackagerOptions.ExtractFilesInfoOptions, _helper.TestFileCollectionInfoMessage);
-                tester.SendMessage(_helper.Options.CohortPackagerOptions.AnonImageStatusOptions, _helper.TestExtractFileStatusMessage);
+                tester.SendMessage(_helper.Options.CohortPackagerOptions.FileCollectionInfoOptions, _helper.TestFileCollectionInfoMessage);
+                tester.SendMessage(_helper.Options.CohortPackagerOptions.VerificationStatusOptions, _helper.TestExtractFileStatusMessage);
 
                 host.Start();
                 Thread.Sleep(1000);
@@ -77,8 +77,8 @@ namespace Microservices.CohortPackager.Tests.Execution
         {
             using (
                 var tester = new MicroserviceTester(_helper.Options.RabbitOptions,
-                    _helper.Options.CohortPackagerOptions.AnonImageStatusOptions,
-                    _helper.Options.CohortPackagerOptions.ExtractFilesInfoOptions,
+                    _helper.Options.CohortPackagerOptions.VerificationStatusOptions,
+                    _helper.Options.CohortPackagerOptions.FileCollectionInfoOptions,
                     _helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions))
             {
                 var host = new CohortPackagerHost(_helper.Options, _helper.MockFileSystem, loadSmiLogConfig: false);
@@ -91,8 +91,8 @@ namespace Microservices.CohortPackager.Tests.Execution
                 };
 
                 tester.SendMessage(_helper.Options.CohortPackagerOptions.ExtractRequestInfoOptions, _helper.TestExtractRequestInfoMessage);
-                tester.SendMessage(_helper.Options.CohortPackagerOptions.ExtractFilesInfoOptions, _helper.TestFileCollectionInfoMessage);
-                tester.SendMessage(_helper.Options.CohortPackagerOptions.AnonImageStatusOptions, _helper.TestExtractFileStatusMessage);
+                tester.SendMessage(_helper.Options.CohortPackagerOptions.FileCollectionInfoOptions, _helper.TestFileCollectionInfoMessage);
+                tester.SendMessage(_helper.Options.CohortPackagerOptions.VerificationStatusOptions, _helper.TestExtractFileStatusMessage);
 
                 host.Start();
                 Thread.Sleep(1000);

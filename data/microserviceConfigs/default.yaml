@@ -82,16 +82,20 @@ CohortExtractorOptions:
         MaxConfirmAttempts: 1
         
 CohortPackagerOptions:
-    JobWatcherTickrate: 30 # Seconds
-    ExtractRequestInfoOptions: 
+    JobWatcherTimeoutInSeconds: 30
+    ExtractRequestInfoOptions:
         QueueName: 'TEST.RequestInfoQueue'
         QoSPrefetchCount: 1
         AutoAck: false
-    ExtractFilesInfoOptions:
+    FileCollectionInfoOptions:
         QueueName: 'TEST.FileCollectionInfoQueue'
         QoSPrefetchCount: 1
         AutoAck: false
-    AnonImageStatusOptions:
+    AnonFailedOptions:
+        QueueName: 'TEST.AnonFailedQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    VerificationStatusOptions:
         QueueName: 'TEST.VerificationStatusQueue'
         QoSPrefetchCount: 1
         AutoAck: false
