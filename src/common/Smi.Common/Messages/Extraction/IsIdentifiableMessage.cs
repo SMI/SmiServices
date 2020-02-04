@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
 {
+    // TODO(rkm 2020-02-04) Rename to AnonVerificationMessage
     public class IsIdentifiableMessage : ExtractMessage,IFileReferenceMessage,IEquatable<IsIdentifiableMessage>
     {
         public bool IsIdentifiable { get; set; }

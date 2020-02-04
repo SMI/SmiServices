@@ -21,7 +21,8 @@ namespace Microservices.CohortPackager.Execution
 
         private readonly ExtractionRequestInfoMessageConsumer _requestInfoMessageConsumer;
         private readonly ExtractFileCollectionMessageConsumer _fileCollectionMessageConsumer;
-        private readonly ExtractFileStatusMessageConsumer _fileStatusMessageConsumer;
+        private readonly AnonVerificationMessageConsumer _anonVerificationMessageConsumer;
+        private readonly AnonFailedMessageConsumer _anonFailedMessageConsumer;
 
 
         public CohortPackagerHost(GlobalOptions globals, IFileSystem overrideFileSystem = null, bool loadSmiLogConfig = true)
@@ -42,7 +43,8 @@ namespace Microservices.CohortPackager.Execution
             // Setup our consumers
             _requestInfoMessageConsumer = new ExtractionRequestInfoMessageConsumer(jobStore);
             _fileCollectionMessageConsumer = new ExtractFileCollectionMessageConsumer(jobStore);
-            _fileStatusMessageConsumer = new ExtractFileStatusMessageConsumer(jobStore);
+            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore);
+            _anonFailedMessageConsumer = new AnonFailedMessageConsumer(jobStore);
         }
 
         public override void Start()
@@ -53,7 +55,8 @@ namespace Microservices.CohortPackager.Execution
 
             RabbitMqAdapter.StartConsumer(_extractRequestInfoOptions, _requestInfoMessageConsumer, isSolo: true);
             RabbitMqAdapter.StartConsumer(_extractFilesInfoOptions, _fileCollectionMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(_anonImageStatusOptions, _fileStatusMessageConsumer, isSolo: true);
+            RabbitMqAdapter.StartConsumer(_anonImageStatusOptions, _anonVerificationMessageConsumer, isSolo: true);
+            RabbitMqAdapter.StartConsumer(_anonImageStatusOptions, _anonFailedMessageConsumer, isSolo: true);
         }
 
         public override void Stop(string reason)

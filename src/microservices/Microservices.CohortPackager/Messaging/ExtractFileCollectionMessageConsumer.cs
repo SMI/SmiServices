@@ -27,6 +27,8 @@ namespace Microservices.CohortPackager.Messaging
             if (!SafeDeserializeToMessage(header, ea, out message))
                 return;
 
+            // TODO(rkm 2020-02-04) Handle message.RejectionReasons
+
             try
             {
                 _store.PersistMessageToStore(message, header);
