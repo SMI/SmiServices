@@ -1,6 +1,7 @@
 ﻿using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 using System;
 using System.IO;
+using Rdmp.Dicom.Extraction.FoDicomBased;
 
 namespace Microservices.DicomRelationalMapper.Execution
 {
@@ -14,7 +15,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             _filesAndOrDirectories = filesAndOrDirectories;
         }
 
-        public bool GetNextFileOrDirectoryToProcess(out DirectoryInfo directory, out FileInfo file)
+        public bool GetNextFileOrDirectoryToProcess(out DirectoryInfo directory, out AmbiguousFilePath file)
         {
             directory = null;
             file = null;
@@ -26,7 +27,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             if (File.Exists(_filesAndOrDirectories[index]))
             {
-                file = new FileInfo(_filesAndOrDirectories[index]);
+                file = new AmbiguousFilePath(_filesAndOrDirectories[index]);
                 index++;
                 return true;
             }
