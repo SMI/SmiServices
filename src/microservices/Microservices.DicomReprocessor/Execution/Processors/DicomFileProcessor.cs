@@ -9,6 +9,7 @@ using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 
@@ -74,7 +75,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
             {
                 NationalPACSAccessionNumber = (string)headerDoc["NationalPACSAccessionNumber"],
                 DicomFilePath = (string)headerDoc["DicomFilePath"],
-                DicomFileSize = (long)headerDoc["DicomFileSize"]
+                DicomFileSize = headerDoc.Contains("DicomFileSize") ? (long)headerDoc["DicomFileSize"] : 0
             };
 
             try
