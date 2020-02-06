@@ -18,6 +18,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Rules are applied in the order they appear in this file
   - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
 
+### Changed
+
+- Updated RDMP and Dicom plugins
+
 ## [1.2.3] - 2020-01-09
 
 ### Changed
