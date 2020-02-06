@@ -117,7 +117,7 @@ public class Program {
 	public void run() {
 		while(!shutdown) {
 			try {
-				Socket client = listener.accept();
+				final Socket client = listener.accept();
 				new Thread() {
 					public void run() {
 						try {

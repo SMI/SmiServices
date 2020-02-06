@@ -56,7 +56,7 @@ public class UnitTests {
 	 * @throws InterruptedException
 	 */
 	@Test public void testClassifier() throws ClassCastException, ClassNotFoundException, IOException, InterruptedException {
-		Program p = new Program();
+		final Program p = new Program();
 		Thread t = new Thread() {
 			public void run() {
 				p.run();
