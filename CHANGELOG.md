@@ -13,6 +13,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Added (optional) DicomFileSize property to ETL pipeline.  Add to template(s) with:
+```yaml
+  - ColumnName: DicomFileSize
+    AllowNulls: true
+    Type:
+      CSharpType: System.Int64
+```
+
 - Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
 - Added support for custom rules in IsIdentifiable (entered in `Rules.yaml`)
   - Rules are applied in the order they appear in this file
