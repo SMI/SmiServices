@@ -25,7 +25,6 @@ namespace Smi.Common.Messages
         [JsonProperty(Required = Required.Always)]
         public string DicomFilePath { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public long DicomFileSize { get; set; }
 
         /// <summary>

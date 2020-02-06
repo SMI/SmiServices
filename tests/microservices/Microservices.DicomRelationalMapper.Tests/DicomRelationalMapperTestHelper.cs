@@ -264,6 +264,7 @@ namespace Microservices.Tests.RDMPTests
   - ColumnName: ScanOptions
     AllowNulls: true
   - ColumnName: DicomFileSize
+    AllowNulls: true
     Type:
       CSharpType: System.Int64
 ";
