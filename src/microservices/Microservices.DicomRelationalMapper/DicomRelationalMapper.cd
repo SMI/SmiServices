@@ -55,6 +55,7 @@
     <ShowAsAssociation>
       <Property Name="Consumer" />
     </ShowAsAssociation>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="Microservices.DicomRelationalMapper.Execution.NLogThrowerDataLoadEventListener" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="5.5" Y="10.25" Width="2.75" />
@@ -74,24 +75,26 @@
   <Class Name="Microservices.DicomRelationalMapper.Messaging.DicomRelationalMapperQueueConsumer">
     <Position X="3.75" Y="4.5" Width="3" />
     <TypeIdentifier>
-      <HashCode>gIAAAEDiAECBACBAAAABAAAAQAAAAEAAcAEGAACAAAA=</HashCode>
+      <HashCode>gIAAAEDiAGCBICBAAAABAAAAQAAAAEABcAEGAACAAAA=</HashCode>
       <FileName>Messaging\DicomRelationalMapperQueueConsumer.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Microservices.Common.Options.GlobalOptions" Collapsed="true">
+  <Class Name="Smi.Common.Options.GlobalOptions" Collapsed="true">
     <Position X="0.5" Y="0.5" Width="1.5" />
-    <AssociationLine Name="RDMPOptions" Type="Microservices.Common.Options.RDMPOptions" FixedFromPoint="true" FixedToPoint="true">
+    <AssociationLine Name="RDMPOptions" Type="Smi.Common.Options.RDMPOptions" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="1.75" Y="1.062" />
-        <Point X="1.75" Y="1.531" />
+        <Point X="2" Y="0.938" />
+        <Point X="2.375" Y="0.938" />
+        <Point X="2.375" Y="1.531" />
         <Point X="6" Y="1.531" />
       </Path>
     </AssociationLine>
-    <AssociationLine Name="DicomRelationalMapperOptions" Type="Microservices.Common.Options.DicomRelationalMapperOptions" FixedFromPoint="true" FixedToPoint="true">
+    <AssociationLine Name="DicomRelationalMapperOptions" Type="Smi.Common.Options.DicomRelationalMapperOptions" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="1.312" Y="1.062" />
-        <Point X="1.312" Y="3" />
-        <Point X="6" Y="3" />
+        <Point X="1.5" Y="1.062" />
+        <Point X="1.5" Y="3" />
+        <Point X="8.25" Y="3" />
       </Path>
     </AssociationLine>
     <TypeIdentifier />
@@ -101,16 +104,16 @@
       <Property Name="DicomRelationalMapperOptions" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="Microservices.Common.Options.DicomRelationalMapperOptions">
-    <Position X="6" Y="2" Width="2.75" />
+  <Class Name="Smi.Common.Options.RabbitOptions" Collapsed="true">
+    <Position X="6" Y="0.5" Width="1.5" />
     <TypeIdentifier />
   </Class>
-  <Class Name="Microservices.Common.Options.RDMPOptions" Collapsed="true">
+  <Class Name="Smi.Common.Options.RDMPOptions" Collapsed="true">
     <Position X="6" Y="1.25" Width="1.5" />
     <TypeIdentifier />
   </Class>
-  <Class Name="Microservices.Common.Options.RabbitOptions" Collapsed="true">
-    <Position X="6" Y="0.5" Width="1.5" />
+  <Class Name="Smi.Common.Options.DicomRelationalMapperOptions">
+    <Position X="8.25" Y="0.5" Width="2.75" />
     <TypeIdentifier />
   </Class>
   <Interface Name="Microservices.DicomRelationalMapper.Execution.Namers.ICreateAndDestroyStagingDuringLoads">

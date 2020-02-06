@@ -25,6 +25,8 @@ namespace Smi.Common.Messages
         [JsonProperty(Required = Required.Always)]
         public string DicomFilePath { get; set; }
 
+        public long DicomFileSize { get; set; } = -1;
+
         /// <summary>
         /// Dicom tag (0020,000D).
         /// </summary>

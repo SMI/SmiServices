@@ -32,6 +32,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             filename = toReturn.DicomFileMessage.DicomFilePath;
 
             otherValuesToStoreInRow.Add("MessageGuid", _messages[_progress].Header.MessageGuid.ToString());
+            otherValuesToStoreInRow.Add("DicomFileSize",toReturn.DicomFileMessage.DicomFileSize.ToString()); //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
 
             _progress++;
 
