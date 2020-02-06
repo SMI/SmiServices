@@ -120,3 +120,6 @@ Tables:
     AllowNulls: true
   - ColumnName: ScanOptions
     AllowNulls: true
+  - ColumnName: DicomFileSize
+    Type:
+      CSharpType: System.Int64

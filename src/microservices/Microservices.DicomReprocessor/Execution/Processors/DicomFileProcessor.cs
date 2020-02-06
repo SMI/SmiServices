@@ -73,7 +73,8 @@ namespace Microservices.DicomReprocessor.Execution.Processors
             var message = new DicomFileMessage
             {
                 NationalPACSAccessionNumber = (string)headerDoc["NationalPACSAccessionNumber"],
-                DicomFilePath = (string)headerDoc["DicomFilePath"]
+                DicomFilePath = (string)headerDoc["DicomFilePath"],
+                DicomFileSize = (long)headerDoc["DicomFileSize"]
             };
 
             try
