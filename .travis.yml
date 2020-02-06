@@ -19,6 +19,7 @@ jobs:
     - postgresql
     - mysql
     - mongodb
+    - redis-server
     before_install:
     - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
     - sudo apt install libc6-dev 

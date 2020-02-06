@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Improved logging in IdentifierSwappers
+- Added `RedisSwapper` which caches answers from any other swapper.  Set `RedisHost` option in yaml to use.
 
 ### Changed
 
