@@ -50,6 +50,10 @@ namespace Microservices.IdentifierMapper.Execution
                 _swapper = swapper;
             }
 
+            //if we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
+            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisHost))
+                _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisHost, _swapper);
+            
             Logger.Info("Calling Setup on swapper");
 
             try
