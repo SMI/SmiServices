@@ -75,7 +75,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
             {
                 NationalPACSAccessionNumber = (string)headerDoc["NationalPACSAccessionNumber"],
                 DicomFilePath = (string)headerDoc["DicomFilePath"],
-                DicomFileSize = headerDoc.Contains("DicomFileSize") ? (long)headerDoc["DicomFileSize"] : 0
+                DicomFileSize = headerDoc.Contains("DicomFileSize") ? (long)headerDoc["DicomFileSize"] : -1
             };
 
             try
