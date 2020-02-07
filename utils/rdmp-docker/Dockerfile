@@ -18,4 +18,3 @@ ENV SA_PASSWORD=SA_PASSWORD1.
 
 COPY install-rdmp.sh .
 RUN ./install-rdmp.sh
-RUN cat ./rdmp-cli/Databases.yaml
