@@ -14,6 +14,32 @@ import threading
 import spacy
 import sys
 
+# Map from spaCy's output to a member of FailureClassification enum
+spacy_entity_to_FailureClassification_map = {
+    'PERSON': 'Person',  # People, including fictional.
+    'NORP': '',    # Nationalities or religious or political groups.
+    'FAC': '', # Buildings, airports, highways, bridges, etc.
+    'ORG': 'Organization', # Companies, agencies, institutions, etc.
+    'GPE': 'Location', # Countries, cities, states.
+    'LOC': '', # Non-GPE locations, mountain ranges, bodies of water.
+    'PRODUCT': '', # Objects, vehicles, foods, etc. (Not services.)
+    'EVENT': '', #   Named hurricanes, battles, wars, sports events, etc.
+    'WORK_OF_ART': '', # Titles of books, songs, etc.
+    'LAW': '', # Named documents made into laws.
+    'LANGUAGE': '', #    Any named language.
+    'DATE': 'Date', #    Absolute or relative dates or periods.
+    'TIME': 'Time', #    Times smaller than a day.
+    'PERCENT': 'Percent', # Percentage, including ”%“.
+    'MONEY': 'Money', #   Monetary values, including unit.
+    'QUANTITY': '', #    Measurements, as of weight or distance.
+    'ORDINAL': '', # “first”, “second”, etc.
+    'CARDINAL': '', #    Numerals that do not fall under another type.
+    'PER': 'Person', # Named person or family.
+    'LOC': 'Location', # Name of politically or geographically defined location (cities, provinces, countries, international regions, bodies of water, mountains).
+    'ORG': 'Organization', # Named corporate, governmental, or other organizational entity.
+    'MISC': '', #    Miscellaneous entities, e.g. events, nationalities, products or works of art.
+}
+
 class ThreadedServer(object):
     def __init__(self, host, port):
         self.host = host
@@ -37,12 +63,11 @@ class ThreadedServer(object):
                 data = client.recv(size)
                 if data:
                     response = ''
-                    # replace \0 with . then decode from utf-8 bytes to string then do NER
+                    # replace nul with dot, decode from utf-8 bytes to string, do NER
                     ner_doc = self.nlp(data.replace(b'\0', b'.').decode(text_encoding))
                     for entity in ner_doc.ents:
-                            label = entity.label_
-                            if label == 'ORG': label = 'ORGANIZATION'
-                            # pack the response into nul-separated fields
+                            label = spacy_entity_to_FailureClassification_map.get(entity.label_, '')
+                            if label == '': continue
                             response += ("%s\0%d\0%s\0" % (label, entity.start_char, entity.text))
                     if response == '': response += '\0'
                     response += '\0'
