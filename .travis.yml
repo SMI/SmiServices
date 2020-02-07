@@ -6,6 +6,9 @@ jobs:
   - language: csharp
     mono: none
     dotnet: 2.2.100
+    cache:
+      directories:
+      - $HOME/.nuget    
     addons:
       postgresql: 10
       apt:
@@ -16,6 +19,7 @@ jobs:
     - postgresql
     - mysql
     - mongodb
+    - redis-server
     before_install:
     - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
     - sudo apt install libc6-dev 
@@ -43,6 +47,10 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
+
+    - ( cd data/stanford-ner && ./download.sh && cd - )
+    - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
+
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - |
@@ -53,6 +61,9 @@ jobs:
     - ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
 
   - language: java
+    cache:
+      directories:
+      - $HOME/.m2
     env:
     - PARENT_POM=src/common/com.smi.microservices.parent/pom.xml
     before_install:

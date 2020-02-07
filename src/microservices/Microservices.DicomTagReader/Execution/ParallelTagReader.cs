@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace Microservices.DicomTagReader.Execution
             Logger.Info($"Using MaxDegreeOfParallelism={_parallelOptions.MaxDegreeOfParallelism} for parallel IO operations");
         }
 
-        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<string> dicomFilePaths,
+        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
             AccessionDirectoryMessage accMessage)
         {
             var fileMessages = new List<DicomFileMessage>();

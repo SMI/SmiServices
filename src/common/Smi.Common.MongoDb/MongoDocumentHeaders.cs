@@ -19,6 +19,7 @@ namespace Smi.Common.MongoDB
             return new BsonDocument
             {
                 { "DicomFilePath",               message.DicomFilePath },
+                { "DicomFileSize",               message.DicomFileSize },
                 { "NationalPACSAccessionNumber", message.NationalPACSAccessionNumber },
                 { "MessageHeader", new BsonDocument
                     {

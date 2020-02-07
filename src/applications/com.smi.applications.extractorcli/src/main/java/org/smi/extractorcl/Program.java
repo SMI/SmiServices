@@ -5,13 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smi.common.logging.SmiLogging;
 import org.smi.common.options.GlobalOptions;
+import org.smi.extractorcl.exceptions.FileProcessingException;
+import org.smi.extractorcl.exceptions.LineProcessingException;
 import org.smi.extractorcl.execution.ExtractorClHost;
+import org.yaml.snakeyaml.error.YAMLException;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 public class Program {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws FileNotFoundException, FileProcessingException, LineProcessingException, IOException, ParseException, YAMLException, URISyntaxException, IllegalArgumentException, TimeoutException  {
 
 		SmiLogging.Setup();
 		final Logger logger = LoggerFactory.getLogger(Program.class);
@@ -24,18 +31,9 @@ public class Program {
 
 		ExtractorClHost host = new ExtractorClHost(options, parsedArgs, UUID.randomUUID());
 
-		try {
 
 			host.process();
 
-		} catch (Exception e) {
-
-			logger.error("Exception in host process: " + e.getMessage());
-			e.printStackTrace();
-
-			System.exit(-1);
-			return;
-		}
 
 		host.shutdown();
 

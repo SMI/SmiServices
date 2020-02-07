@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
@@ -97,7 +98,7 @@ namespace Microservices.DicomTagReader.Execution
 
             long beginRead = _stopwatch.ElapsedTicks;
 
-            List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths, message);
+            List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(p=>new FileInfo(p)), message);
 
             _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / dicomFilePaths.Length;
 
@@ -169,7 +170,7 @@ namespace Microservices.DicomTagReader.Execution
                 LogRates();
         }
 
-        protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<string> dicomFilePaths,
+        protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
             AccessionDirectoryMessage accMessage);
 
         /// <summary>
@@ -177,7 +178,7 @@ namespace Microservices.DicomTagReader.Execution
         /// </summary>
         /// <param name="dicomFilePath"></param>
         /// <returns></returns>
-        protected static DicomFileMessage ReadTagsFromFile(string dicomFilePath)
+        protected static DicomFileMessage ReadTagsFromFile(FileInfo dicomFilePath)
         {
             DicomDataset ds;
             var IDs = new string[3];
@@ -185,7 +186,7 @@ namespace Microservices.DicomTagReader.Execution
             try
             {
                 //TODO(Ruairidh 04/07) Check if we can mock this out now
-                ds = DicomFile.Open(dicomFilePath, _fileReadOption).Dataset;
+                ds = DicomFile.Open(dicomFilePath.FullName, _fileReadOption).Dataset;
 
                 // Pre-fetch these to ensure they exist before we go further
                 IDs[0] = ds.GetValue<string>(DicomTag.StudyInstanceUID, 0);
@@ -222,7 +223,8 @@ namespace Microservices.DicomTagReader.Execution
                 SeriesInstanceUID = IDs[1],
                 SOPInstanceUID = IDs[2],
 
-                DicomDataset = serializedDataset
+                DicomDataset = serializedDataset,
+                DicomFileSize = dicomFilePath.Length
             };
         }
 

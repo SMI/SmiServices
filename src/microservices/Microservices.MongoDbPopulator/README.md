@@ -1,6 +1,6 @@
 # MongoDB Populator
 
-Primary Author: [Ruairidh](https://github.com/Ruairidh)
+Primary Author: [Ruairidh](https://github.com/rkm)
 
 ## Contents
  1. [Overview](#1-overview)

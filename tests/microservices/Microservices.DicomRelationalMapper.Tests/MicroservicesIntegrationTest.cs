@@ -493,6 +493,9 @@ namespace Microservices.DicomRelationalMapper.Tests
                     //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
                     Assert.AreEqual("FISHFISH", _helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"]);
 
+                    //The file size in the final table should be more than 0
+                    Assert.Greater((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"],0);
+
                     dicomTagReaderHost.Stop("TestIsFinished");
 
                     mongoDbPopulatorHost.Stop("TestIsFinished");
