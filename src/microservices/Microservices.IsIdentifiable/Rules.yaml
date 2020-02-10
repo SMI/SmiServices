@@ -1,0 +1,146 @@
+﻿# SocketRules specify the connection to the Named Entity Recogniser
+
+SocketRules:   
+ - Host: localhost
+   Port: 1881
+
+# BasicRules specify the patterns to Ignore or Report
+
+BasicRules: 
+
+ # Ignore IDs which don't look like personal identifiers
+ - Action: Ignore
+   IfColumn: StudyInstanceUID
+   IfPattern: ^([0-9]+\.){10,11}[0-9]+$
+ - Action: Ignore
+   IfColumn: SeriesInstanceUID
+   IfPattern: ^([0-9]+\.){10,11}[0-9]+$
+ - Action: Ignore
+   IfColumn: SOPInstanceUID
+   IfPattern: ^([0-9]+\.){10,11}[0-9]+$
+
+ # Ignore specific modalities
+ - Action: Ignore
+   IfColumn: Modality
+   IfPattern: ^CT$
+ - Action: Ignore
+   IfColumn: Modality
+   IfPattern: ^MR$
+ - Action: Ignore
+   IfColumn: ModalitiesInStudy
+   IfPattern: ^CT$
+ - Action: Ignore
+   IfColumn: ModalitiesInStudy
+   IfPattern: ^MR$
+
+ # These patterns have been derived by testing 100 CT and 100 MR images:
+ # NOTE these strings are necessarily substrings but sufficiently unique.
+
+ # SIEMENS
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: SIEMENS MR HEADER
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: SIEMENS CSA HEADER
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: SIEMENS MED
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: SIEMENS CT
+
+ # Philips
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: Philips MR Imaging DD
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: Philips Imaging DD
+
+ # Toshiba
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: TOSHIBA_MEC_CT
+
+ # Body parts
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ABDO_PELVIS
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: LSPINE
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: LSSPINE
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: WHOLESPINE
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: CTPA
+
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: GEHC_CT_ADVAPP_001
+
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^NORM$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: MOCO
+
+ - Action: Ignore
+   IfColumn: FilterType
+   IfPattern: UB
+ - Action: Ignore
+   IfColumn: FilterType
+   IfPattern: EC
+
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: FFDL
+
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: BESTPHASE_OFF
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: PULSTART_P0070PC
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: EDR_GEMS
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: EPI_GEMS
+
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: PULS_EC
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ZDOM
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ZDOM_ACS
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: Z_EC
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: XYZ_EC
+
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: GEMS_PATI_01
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: GEMS_SERS_01
+
+ - Action: Ignore
+   IfColumn: CodeMeaning
+   IfPattern: IEC Head Dosimetry Phantom
+ - Action: Ignore
+   IfColumn: CodeMeaning
+   IfPattern: IEC Body Dosimetry Phantom
