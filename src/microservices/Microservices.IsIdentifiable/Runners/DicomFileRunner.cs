@@ -164,10 +164,13 @@ namespace Microservices.IsIdentifiable.Runners
 
         private void Validate(FileInfo fi, DicomFile dicomFile, DicomItem dicomItem, string fieldValue)
         {
-            List<FailurePart> parts = Validate(dicomItem.Tag.DictionaryEntry.Keyword, fieldValue).ToList();
+            // Keyword might be "Unknown" in which case we would rather use "(xxxx,yyyy)"
+            string tagName = dicomItem.Tag.DictionaryEntry.Keyword;
+            if (tagName == "Unknown") tagName = dicomItem.Tag.ToString();
+            List<FailurePart> parts = Validate(tagName, fieldValue).ToList();
 
             if (parts.Any())
-                AddToReports(factory.Create(fi, dicomFile, fieldValue, dicomItem.Tag.ToString(), parts));
+                AddToReports(factory.Create(fi, dicomFile, fieldValue, tagName, parts));
         }
 
         void ValidateDicomPixelData(FileInfo fi, DicomFile dicomFile, DicomDataset ds)
