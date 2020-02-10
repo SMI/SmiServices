@@ -11,13 +11,13 @@ BasicRules:
  # Ignore IDs which don't look like personal identifiers
  - Action: Ignore
    IfColumn: StudyInstanceUID
-   IfPattern: ^([0-9]+\.){10,11}[0-9]+$
+   IfPattern: ^([0-9]+\.){9,11}[0-9]+$
  - Action: Ignore
    IfColumn: SeriesInstanceUID
-   IfPattern: ^([0-9]+\.){10,11}[0-9]+$
+   IfPattern: ^([0-9]+\.){9,11}[0-9]+$
  - Action: Ignore
    IfColumn: SOPInstanceUID
-   IfPattern: ^([0-9]+\.){10,11}[0-9]+$
+   IfPattern: ^([0-9]+\.){9,11}[0-9]+$
 
  # Ignore specific modalities
  - Action: Ignore
@@ -79,10 +79,24 @@ BasicRules:
  - Action: Ignore
    IfColumn: BodyPartExamined
    IfPattern: CTPA
-
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEHC_CT_ADVAPP_001
+   IfColumn: BodyPartExamined
+   IfPattern: BRAIN
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: HEART
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ABDOMEN
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: PROSTATE
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: PERIPHERAL
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: NECK
 
  - Action: Ignore
    IfColumn: ImageType
@@ -90,6 +104,33 @@ BasicRules:
  - Action: Ignore
    IfColumn: ImageType
    IfPattern: MOCO
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: FIL
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: SECONDARY
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: TRACEW
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ND
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: CT_SOM5
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ADC
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: DFC
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: MPR
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^F$
 
  - Action: Ignore
    IfColumn: FilterType
@@ -101,6 +142,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: PatientPosition
    IfPattern: FFDL
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: FFP
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: FFS
 
  - Action: Ignore
    IfColumn: ScanOptions
@@ -114,6 +161,34 @@ BasicRules:
  - Action: Ignore
    IfColumn: ScanOptions
    IfPattern: EPI_GEMS
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: NPW
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: PFF
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: PFP
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: SFS
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: CT
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: HELICAL
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: SYNCUSREDIT
+
+ - Action: Ignore
+   IfColumn: ScanningSequence
+   IfPattern: GR
+ - Action: Ignore
+   IfColumn: ScanningSequence
+   IfPattern: RM
 
  - Action: Ignore
    IfColumn: ExposureModulationType
@@ -121,6 +196,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: ExposureModulationType
    IfPattern: ZDOM
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: Z DOM
  - Action: Ignore
    IfColumn: ExposureModulationType
    IfPattern: ZDOM_ACS
@@ -133,10 +211,25 @@ BasicRules:
 
  - Action: Ignore
    IfColumn: PrivateCreator
+   IfPattern: GEHC_CT_ADVAPP_001
+ - Action: Ignore
+   IfColumn: PrivateCreator
    IfPattern: GEMS_PATI_01
  - Action: Ignore
    IfColumn: PrivateCreator
    IfPattern: GEMS_SERS_01
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: GEMS_IDEN_01
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: GEMS_STDY_01
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: GEMS_IMAG_01
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: GEMS_RELA_01
 
  - Action: Ignore
    IfColumn: CodeMeaning
@@ -144,3 +237,7 @@ BasicRules:
  - Action: Ignore
    IfColumn: CodeMeaning
    IfPattern: IEC Body Dosimetry Phantom
+
+ - Action: Ignore
+   IfColumn: SpecificCharacterSet
+   IfPattern: ISO
