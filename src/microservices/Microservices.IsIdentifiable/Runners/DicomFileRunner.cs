@@ -137,7 +137,17 @@ namespace Microservices.IsIdentifiable.Runners
             }
             else
             {
-                var value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
+                Object value;
+                try
+                {
+                    value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
+                }
+                catch (System.FormatException e)
+                {
+                    value = "Unknown value for "+dicomItem;
+                }
+                // Sometimes throws "Input string was not in a correct format"
+                //var value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
 
                 if (value is string)
                     Validate(fi, dicomFile, dicomItem, value as string);
