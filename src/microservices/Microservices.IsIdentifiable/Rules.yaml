@@ -11,13 +11,13 @@ BasicRules:
  # Ignore IDs which don't look like personal identifiers
  - Action: Ignore
    IfColumn: StudyInstanceUID
-   IfPattern: ^([0-9]+\.){9,11}[0-9]+$
+   IfPattern: ^([0-9]+\.){8,11}[0-9]+$
  - Action: Ignore
    IfColumn: SeriesInstanceUID
-   IfPattern: ^([0-9]+\.){9,11}[0-9]+$
+   IfPattern: ^([0-9]+\.){8,11}[0-9]+$
  - Action: Ignore
    IfColumn: SOPInstanceUID
-   IfPattern: ^([0-9]+\.){9,11}[0-9]+$
+   IfPattern: ^([0-9]+\.){8,11}[0-9]+$
 
  # Ignore specific modalities
  - Action: Ignore
@@ -97,6 +97,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: BodyPartExamined
    IfPattern: NECK
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^CAP$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: CT_1
 
  - Action: Ignore
    IfColumn: ImageType
@@ -110,6 +116,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: ImageType
    IfPattern: SECONDARY
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: COMP_AD
  - Action: Ignore
    IfColumn: ImageType
    IfPattern: TRACEW
@@ -138,6 +147,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: FilterType
    IfPattern: EC
+ - Action: Ignore
+   IfColumn: FilterType
+   IfPattern: MEDIUM FILTER
 
  - Action: Ignore
    IfColumn: PatientPosition
@@ -164,6 +176,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: ScanOptions
    IfPattern: NPW
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: IPG
  - Action: Ignore
    IfColumn: ScanOptions
    IfPattern: PFF
