@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - [StanfordNER implementation written in java](./src/microservices/uk.ac.dundee.hic.nerd/README.md)
 - New CohortExtractor yaml config option `ProjectPathResolverType` which determines the folder structure for extracted images
 - Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
-
+- Added `DynamicRejector` which takes its cohort extraction rules from a script file (of CSharp code)
 
 ## [1.2.3] - 2020-01-09
 
