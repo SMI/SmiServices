@@ -6,6 +6,7 @@ using Rdmp.Core.Curation.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
@@ -15,7 +16,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         protected readonly Logger Logger;
 
         public IRejector Rejector { get; set; } = new RejectNone();
-        
+        public Regex ModalityRoutingRegex { get; set; }
+
         public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
         {
             Logger = LogManager.GetCurrentClassLogger();
@@ -86,9 +88,28 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <returns></returns>
         protected virtual QueryToExecute GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
         {
-            if(!string.IsNullOrWhiteSpace(message.Modality))
-                throw new NotSupportedException("Filtering on Modality is not supported by this implementation");
+            if (!string.IsNullOrWhiteSpace(message.Modality))
+            {
+                if(ModalityRoutingRegex == null)
+                    throw new NotSupportedException("Filtering on Modality requires setting a ModalityRoutingRegex");
 
+                var anyModality = message.Modality.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                var match = ModalityRoutingRegex.Match(columnSet.Catalogue.Name);
+
+                if (match.Success)
+                {
+                    //if none of the modalities match the table name
+                    if (!anyModality.Any(m => m.Equals(match.Groups[1].Value)))
+                        return null;
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Warn,nameof(ModalityRoutingRegex) + " did not match Catalogue name " + columnSet.Catalogue.Name);
+                }
+
+            }
+                
+            
             return new QueryToExecute(columnSet, message.KeyTag);
         }
 
@@ -105,5 +126,6 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             return Catalogues.Where(c => c.Contains(message.KeyTag));
         }
+
     }
 }

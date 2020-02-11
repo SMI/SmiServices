@@ -2,26 +2,20 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using BadMedicine;
 using BadMedicine.Dicom;
 using Dicom;
 using FAnsi.Discovery;
-using FAnsi.Discovery.QuerySyntax.Update;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic;
-using Microservices.CohortExtractor.Execution.RequestFulfillers.Epcc;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
-using Rdmp.Core.Curation.Data;
-using Rdmp.Core.Curation.Data.Spontaneous;
 using Rdmp.Core.DataLoad.Triggers;
-using Rdmp.Core.Repositories;
 using Smi.Common.Messages.Extraction;
+using Smi.Common.Options;
 using Smi.Common.Tests;
 using Tests.Common;
 using TypeGuesser;
@@ -196,7 +190,13 @@ namespace Microservices.CohortExtractor.Tests
             int matches = 0;
             
             //The strategy pattern implementation that goes to the database but also considers reason
-            var fulfiller = new EpccExtractionRequestFulfiller(new[] {cataCT,cataMR});
+
+            
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cataCT,cataMR})
+            {
+                //Give it the default modality pattern (table prefix)
+                ModalityRoutingRegex = new Regex(new CohortExtractorOptions().ModalityRoutingRegex)
+            };
             
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
