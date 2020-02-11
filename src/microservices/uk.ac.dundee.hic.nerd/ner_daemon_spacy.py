@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 1.01 arb Tue 11 Feb 13:40:40 GMT 2020 - lock call to nlp incase not thread-safe
 # Runs a NER daemon on the port and interface specified below.
 # Reads nul-terminated string, responds with nul-separated and nul-terminated
 # string having fields: classification, start char, named entity
@@ -48,6 +49,7 @@ class ThreadedServer(object):
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
         self.nlp = spacy.load(spacy_model)
+        self.lock = threading.Lock()
 
     def run(self):
         self.sock.listen(5)
@@ -64,7 +66,9 @@ class ThreadedServer(object):
                 if data:
                     response = ''
                     # replace nul with dot, decode from utf-8 bytes to string, do NER
+                    self.lock.acquire()
                     ner_doc = self.nlp(data.replace(b'\0', b'.').decode(text_encoding))
+                    self.lock.release()
                     for entity in ner_doc.ents:
                             label = spacy_entity_to_FailureClassification_map.get(entity.label_, '')
                             if label == '': continue
