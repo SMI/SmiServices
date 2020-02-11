@@ -13,6 +13,7 @@ using FAnsi.Discovery.QuerySyntax.Update;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic;
 using Microservices.CohortExtractor.Execution.RequestFulfillers.Epcc;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -89,9 +90,11 @@ namespace Microservices.CohortExtractor.Tests
         }
 
 
-        [TestCase(DatabaseType.MicrosoftSQLServer), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql), RequiresRelationalDb(DatabaseType.MySql)]
-        public void Test_OnlyExtractableImages(DatabaseType dbType)
+        [TestCase(DatabaseType.MicrosoftSQLServer,true), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql,true), RequiresRelationalDb(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer,false), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql,false), RequiresRelationalDb(DatabaseType.MySql)]
+        public void Test_OnlyExtractableImages(DatabaseType dbType,bool useDynamic)
         {
             var db = GetCleanedServer(dbType);
 
@@ -119,8 +122,8 @@ namespace Microservices.CohortExtractor.Tests
             
             //The strategy pattern implementation that goes to the database but also considers reason
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cata});
-            fulfiller.Rejector = new TestRejector();
-
+            fulfiller.Rejector = useDynamic? (IRejector) new DynamicRejector():new TestRejector();
+            
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
                 matches += msgOut.Accepted.Count();
