@@ -75,7 +75,12 @@ namespace Microservices.IsIdentifiable.Runners
                     var parts = new List<FailurePart>();
 
                     foreach (string part in asString.Split('\\'))
-                        parts.AddRange(Validate(_columnsNames[i], part));
+                    {
+                        // Some strings contain null characters?!  Remove them all.
+                        // XXX hopefully this won't break any special character encoding (eg. UTF)
+                        string partCleaned = part.Replace("\0", "");
+                        parts.AddRange(Validate(_columnsNames[i], partCleaned));
+                    }
 
                     if (parts.Any())
                         yield return _factory.Create(_columnsNames[i], asString, parts, primaryKey);

@@ -125,7 +125,7 @@ namespace Microservices.IsIdentifiable.Runners
 
             // Carets (^) are synonymous with space in some dicom tags
             fieldValue = fieldValue.Replace('^', ' ');
-            
+
             //for each custom rule
             foreach (ICustomRule rule in CustomRules)
             {

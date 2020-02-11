@@ -166,7 +166,13 @@ namespace Microservices.IsIdentifiable.Runners
         {
             // Keyword might be "Unknown" in which case we would rather use "(xxxx,yyyy)"
             string tagName = dicomItem.Tag.DictionaryEntry.Keyword;
+            //if (tagName == "Unknown" || tagName == "PrivateCreator") tagName = dicomItem.Tag.ToString(); // do this if you want PrivateCreator tags to have the numeric value preserved
             if (tagName == "Unknown") tagName = dicomItem.Tag.ToString();
+
+            // Some strings contain null characters?!  Remove them all.
+            // XXX hopefully this won't break any special character encoding (eg. UTF)
+            fieldValue = fieldValue.Replace("\0", "");
+
             List<FailurePart> parts = Validate(tagName, fieldValue).ToList();
 
             if (parts.Any())
