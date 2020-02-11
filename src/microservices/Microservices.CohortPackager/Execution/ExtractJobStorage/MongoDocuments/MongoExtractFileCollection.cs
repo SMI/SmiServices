@@ -1,4 +1,4 @@
-﻿
+
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
@@ -17,14 +17,17 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocument
 
         [BsonElement("expectedFiles")]
         public List<ExpectedAnonymisedFileInfo> AnonymisedFiles { get; set; }
-        
+
+        [BsonElement("rejectedKeys")]
+        public List<Tuple<string, int>> RejectedKeys { get; set; }
 
         public bool Equals(MongoExtractFileCollection other)
         {
             return other != null &&
                    Header.Equals(other.Header) &&
                    KeyValue == other.KeyValue &&
-                   AnonymisedFiles.All(other.AnonymisedFiles.Contains);
+                   AnonymisedFiles.All(other.AnonymisedFiles.Contains) &&
+                   RejectedKeys.All(other.RejectedKeys.Contains);
         }
     }
 

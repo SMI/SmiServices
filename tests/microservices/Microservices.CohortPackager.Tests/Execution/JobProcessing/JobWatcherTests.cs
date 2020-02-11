@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Moq;
@@ -40,7 +40,17 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
 
             var jobExtractFileStatuses = new List<ExtractFileStatusInfo>();
 
-            var mockJobInfo = new ExtractJobInfo(Guid.NewGuid(), TestProjectNumber, DateTime.Now, ExtractJobStatus.WaitingForFiles, TestExtractionDirectory, 1, "SeriesInstanceUID", jobFileCollectionInfo, jobExtractFileStatuses);
+            var mockJobInfo = new ExtractJobInfo(
+                Guid.NewGuid(),
+                TestProjectNumber,
+                DateTime.Now,
+                ExtractJobStatus.WaitingForStatuses,
+                TestExtractionDirectory,
+                1,
+                "SeriesInstanceUID",
+                jobFileCollectionInfo,
+                jobExtractFileStatuses,
+                "MR");
 
             _mockJobInfos.Add(mockJobInfo);
         }

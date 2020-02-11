@@ -163,7 +163,16 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             var fileStatusInfoErrorWillRetry = new ExtractFileStatusInfo("ErrorWillRetry", null, "Not giving up!");
             var fileStatusInfoErrorWontRetry = new ExtractFileStatusInfo("ErrorWontRetry", null, "Oh fish :(");
 
-            _expectedBasicJobInfo = new ExtractJobInfo(_extractionIdentifier, "1234-5678", _testTime, ExtractJobStatus.WaitingForFiles, @"1234-5678\testExtract", 1, "SeriesInstanceUID", extractFileCollectionInfos, new List<ExtractFileStatusInfo> { fileStatusInfoOk, fileStatusInfoErrorWillRetry, fileStatusInfoErrorWontRetry });
+            _expectedBasicJobInfo = new ExtractJobInfo(
+                _extractionIdentifier,
+                "1234-5678",
+                _testTime,
+                ExtractJobStatus.WaitingForStatuses, @"1234-5678\testExtract",
+                1,
+                "SeriesInstanceUID",
+                extractFileCollectionInfos,
+                new List<ExtractFileStatusInfo> { fileStatusInfoOk, fileStatusInfoErrorWillRetry, fileStatusInfoErrorWontRetry },
+                "MR");
         }
 
         /// <summary> 

@@ -40,7 +40,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         void PersistMessageToStore(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header);
 
         /// <summary>
-        /// Returns a list of all jobs which are in progress (where status is <see cref="ExtractJobStatus.WaitingForFiles"/>)
+        /// Returns a list of all jobs which are in progress (where status is <see cref="ExtractJobStatus.WaitingForStatuses"/>)
         /// </summary>
         /// <param name="extractionJobIdentifier">A specific job to get <see cref="ExtractJobInfo"/> for. Empty returns all jobs in progress</param>
         /// <returns></returns>

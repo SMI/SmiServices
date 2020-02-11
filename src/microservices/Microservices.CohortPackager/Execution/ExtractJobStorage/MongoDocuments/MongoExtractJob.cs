@@ -33,7 +33,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocument
         public string KeyTag { get; set; }
 
         [BsonElement("keyValueCount")]
-        public int KeyValueCount { get; set; }
+        public int KeyCount { get; set; }
+
+        [BsonElement("extractionModality")]
+        public string ExtractionModality { get; set; }
 
         [BsonElement("fileCollectionInfo")]
         public List<MongoExtractFileCollection> FileCollectionInfo { get; set; }
@@ -50,8 +53,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocument
             ExtractionDirectory = existing.ExtractionDirectory;
             JobSubmittedAt = existing.JobSubmittedAt;
             KeyTag = existing.KeyTag;
-            KeyValueCount = existing.KeyValueCount;
+            KeyCount = existing.KeyCount;
             FileCollectionInfo = existing.FileCollectionInfo;
+            ExtractionModality = existing.ExtractionModality;
         }
 
         public bool Equals(MongoExtractJob other)
@@ -66,8 +70,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocument
                 string.Equals(ExtractionDirectory, other.ExtractionDirectory) &&
                 JobSubmittedAt.Equals(other.JobSubmittedAt) &&
                 string.Equals(KeyTag, other.KeyTag) &&
-                KeyValueCount == other.KeyValueCount &&
-                FileCollectionInfo.All(other.FileCollectionInfo.Contains);
+                KeyCount == other.KeyCount &&
+                FileCollectionInfo.All(other.FileCollectionInfo.Contains) &&
+                ExtractionModality == other.ExtractionModality;
         }
     }
 

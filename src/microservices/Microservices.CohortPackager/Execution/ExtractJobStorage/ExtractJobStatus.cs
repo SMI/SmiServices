@@ -24,7 +24,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <summary>
         /// 
         /// </summary>
-        WaitingForFiles,
+        WaitingForStatuses,
         
         /// <summary>
         /// 

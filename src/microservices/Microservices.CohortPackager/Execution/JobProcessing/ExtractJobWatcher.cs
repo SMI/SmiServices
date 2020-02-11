@@ -1,4 +1,4 @@
-
+﻿
 // ReSharper disable InconsistentlySynchronizedField
 
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
@@ -63,7 +63,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
         public void StopProcessing(string reason)
         {
-            _logger.Info("Stopping (" + reason + ")");
+            _logger.Info($"Stopping ({reason})");
 
             _processTimer.Stop();
 
@@ -145,6 +145,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
         private bool CheckJobFiles(ExtractJobInfo jobInfo)
         {
+            // TODO(rkm 2020-02-06) Check if expected IDs count matches with the rejection reasons (if possible)
+
             _logger.Debug("Checking files for job " + jobInfo.ExtractionJobIdentifier);
 
             foreach (ExtractFileCollectionInfo item in jobInfo.JobFileCollectionInfo)

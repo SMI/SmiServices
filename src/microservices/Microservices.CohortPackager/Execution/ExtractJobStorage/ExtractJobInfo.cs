@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
@@ -42,6 +42,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         public readonly int KeyValueCount;
 
+        public readonly string ExtractionModality;
+
         /// <summary>
         /// Current status of the extract job
         /// </summary>
@@ -59,7 +61,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public readonly List<ExtractFileStatusInfo> JobExtractFileStatuses;
 
 
-        public ExtractJobInfo(Guid extractionJobIdentifier, string projectNumber, DateTime jobSubmittedAt, ExtractJobStatus jobStatus, string extractionDirectory, int keyValueCount, string keyTag, List<ExtractFileCollectionInfo> jobFileCollectionInfo, List<ExtractFileStatusInfo> jobExtractFileStatuses)
+        public ExtractJobInfo(Guid extractionJobIdentifier, string projectNumber, DateTime jobSubmittedAt, ExtractJobStatus jobStatus, string extractionDirectory, int keyValueCount, string keyTag, List<ExtractFileCollectionInfo> jobFileCollectionInfo, List<ExtractFileStatusInfo> jobExtractFileStatuses, string extractionModality)
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
             ProjectNumber = projectNumber;
@@ -70,11 +72,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             KeyTag = keyTag;
             JobFileCollectionInfo = jobFileCollectionInfo;
             JobExtractFileStatuses = jobExtractFileStatuses;
+            ExtractionModality = extractionModality;
 
             if (!Validate())
-                throw new ArgumentException("The given parameters were not valid (values were " + ToString() + ")");
+                throw new ArgumentException($"The given parameters were not valid (values were {this})");
         }
-        
+
 
         private bool Validate()
         {
@@ -99,7 +102,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             sb.AppendLine("JobStatus: " + JobStatus);
             sb.AppendLine("ExtractionDirectory: " + ExtractionDirectory);
             sb.AppendLine("KeyTag: " + KeyTag);
-            sb.AppendLine("KeyValueCount: " + KeyValueCount);
+            sb.AppendLine("KeyCount: " + KeyValueCount);
+            sb.AppendLine("ExtractionModality: " + ExtractionModality);
             sb.AppendLine("JobFileCollectionInfo:\n" + string.Join(", ", JobFileCollectionInfo));
             sb.AppendLine("JobExtractFileStatuses:\n" + string.Join(", ", JobExtractFileStatuses));
 
@@ -123,6 +127,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             isValid &= JobFileCollectionInfo.All(other.JobFileCollectionInfo.Contains);
             isValid &= JobExtractFileStatuses.Count == other.JobExtractFileStatuses.Count;
             isValid &= JobExtractFileStatuses.All(other.JobExtractFileStatuses.Contains);
+            isValid &= ExtractionModality == other.ExtractionModality;
             return isValid;
         }
 
@@ -144,6 +149,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 hashCode = (hashCode * 397) ^ (KeyTag != null ? KeyTag.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (JobFileCollectionInfo != null ? JobFileCollectionInfo.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (JobExtractFileStatuses != null ? JobExtractFileStatuses.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
                 return hashCode;
             }
         }

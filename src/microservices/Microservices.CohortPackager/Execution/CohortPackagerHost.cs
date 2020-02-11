@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
 using Smi.Common.Execution;
@@ -45,6 +45,7 @@ namespace Microservices.CohortPackager.Execution
 
             JobWatcher.Start();
 
+            // NOTE(rkm 2020-02-06) For now, there can be only 1 instance of this service managing a single extraction database
             RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.ExtractRequestInfoOptions, _requestInfoMessageConsumer, isSolo: true);
             RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions, _fileCollectionMessageConsumer, isSolo: true);
             RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.AnonFailedOptions, _anonFailedMessageConsumer, isSolo: true);
