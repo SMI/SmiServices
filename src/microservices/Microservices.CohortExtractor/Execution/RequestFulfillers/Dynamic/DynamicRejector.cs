@@ -29,7 +29,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
             }
             catch (CompilationErrorException e)
             {
-                throw new Exception($"Failed to compile {DynamicRulesPath} " + e.Diagnostics,e);
+                throw new Exception($"Failed to compile {DynamicRulesPath} " + string.Join(Environment.NewLine, e.Diagnostics),e);
             }
         }
 
