@@ -1,4 +1,4 @@
-﻿// This script is run when the IRjector is set to DynamicRejector ('#' symbols are not supported in this script, use CSharp syntax)
+﻿// This script is run when the IRejector is set to DynamicRejector ('#' symbols are not supported in this script, use CSharp syntax)
 
 if (!System.Convert.ToBoolean(row["IsOriginal"]))
 {
