@@ -20,6 +20,8 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 
         public override void SearchForDicomDirectories(string accessionsList)
         {
+            // TODO(rkm 2020-02-12) One enhancement here could be to keep track of the list of directories we've already seen, and not publish messages for any duplicates
+
             Logger.Info("Starting accession directory path listing from: " + accessionsList);
             IsProcessing = true;
             TotalSent = 0;
