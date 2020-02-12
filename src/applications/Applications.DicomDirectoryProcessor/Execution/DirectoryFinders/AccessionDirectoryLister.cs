@@ -24,11 +24,15 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             IsProcessing = true;
             TotalSent = 0;
 
-            using (var reader = new StreamReader(@accessionsList))
+            using (var reader = new StreamReader(accessionsList))
             {
+                // TODO(rkm 2020-02-12) Add check for early cancellation here - see BasicDicomDirectoryFinder#L39
                 while (!reader.EndOfStream)
                 {
+                    // TODO(rkm 2020-02-12) Possible null reference here
                     string accessionDirectory = reader.ReadLine().Replace(",", "");
+
+                    // TODO(rkm 2020-02-12) Check for empty string - ignore blank lines in the csv
 
                     if (_accDirectoryRegex.IsMatch(accessionDirectory))
                     {
