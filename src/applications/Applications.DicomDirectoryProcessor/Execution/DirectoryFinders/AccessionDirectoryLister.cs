@@ -37,16 +37,13 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                             Logger.Warn("Can not find " + accessionDirectory + ", continuing");
                             continue;
                         }
-                        else
-                        {
-                            Logger.Debug("Sending message (" + accessionDirectory + ")");
-                            FoundNewDicomDirectory(accessionDirectory.Remove(0, FileSystemRoot.Length));
-                        }
+
+                        Logger.Debug("Sending message (" + accessionDirectory + ")");
+                        FoundNewDicomDirectory(accessionDirectory.Remove(0, FileSystemRoot.Length));
                     }
                     else
                     {
                         Logger.Warn("This path does not point to an accession directory: (" + accessionDirectory + "), continuing");
-                        continue;
                     }
                 }
             }
