@@ -104,6 +104,41 @@ BasicRules:
    IfColumn: BodyPartExamined
    IfPattern: CT_1
 
+ # Study descriptions
+ # This is intended to match anything which has a space after CT at the start
+ # XXX check that (Adult) is literal and the brackets are not a regex group
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT .
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^NM .
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: _SAFIRE
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: _KUB
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^KUB$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: CH/AB/PEL
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: \(Adult\)
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^HEAD$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CHEST$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ABDO/PELVIS
+
+
  - Action: Ignore
    IfColumn: ImageType
    IfPattern: ^NORM$
