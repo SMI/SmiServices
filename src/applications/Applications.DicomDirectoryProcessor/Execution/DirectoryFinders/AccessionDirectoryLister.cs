@@ -1,10 +1,8 @@
 
-using Smi.Common.Messaging;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Text.RegularExpressions;
+using Smi.Common.Messaging;
 
 namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 {
@@ -26,10 +24,10 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             IsProcessing = true;
             TotalSent = 0;
 
-	    using(var reader = new StreamReader(@accessionsList))
-	    {
-		while (!reader.EndOfStream)
-		{
+            using (var reader = new StreamReader(@accessionsList))
+            {
+                while (!reader.EndOfStream)
+                {
                     string accessionDirectory = reader.ReadLine().Replace(",", "");
 
                     if (_accDirectoryRegex.IsMatch(accessionDirectory))
@@ -39,7 +37,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                             Logger.Warn("Can not find " + accessionDirectory + ", continuing");
                             continue;
                         }
-		        else
+                        else
                         {
                             Logger.Debug("Sending message (" + accessionDirectory + ")");
                             FoundNewDicomDirectory(accessionDirectory.Remove(0, FileSystemRoot.Length));
@@ -48,9 +46,9 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                     else
                     {
                         Logger.Warn("This path does not point to an accession directory: (" + accessionDirectory + "), continuing");
-		        continue;
-	            }
-		}
+                        continue;
+                    }
+                }
             }
 
             IsProcessing = false;

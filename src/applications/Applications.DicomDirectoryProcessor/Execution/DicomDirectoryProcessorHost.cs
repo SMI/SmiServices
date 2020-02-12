@@ -1,11 +1,11 @@
 ﻿
+using System;
+using System.Globalization;
+using System.IO;
 using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Applications.DicomDirectoryProcessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
-using System;
-using System.Globalization;
-using System.IO;
 
 namespace Applications.DicomDirectoryProcessor.Execution
 {
@@ -27,9 +27,9 @@ namespace Applications.DicomDirectoryProcessor.Execution
         {
             _cliOptions = cliOptions;
 
-	    if (!cliOptions.DirectoryFormat.ToLower().Equals("list"))
-	    {
-		Logger.Info("This indicates that the list mode is not being recognised");
+            if (!cliOptions.DirectoryFormat.ToLower().Equals("list"))
+            {
+                Logger.Info("This indicates that the list mode is not being recognised");
                 if (!Directory.Exists(globals.FileSystemOptions.FileSystemRoot))
                     throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + globals.FileSystemOptions.FileSystemRoot + ")");
 
@@ -39,15 +39,15 @@ namespace Applications.DicomDirectoryProcessor.Execution
                 if (!cliOptions.ToProcessDir.FullName.StartsWith(globals.FileSystemOptions.FileSystemRoot, true, CultureInfo.CurrentCulture))
                     throw new ArgumentException("Directory parameter (" + cliOptions.ToProcessDir.FullName + ") must be below the FileSystemRoot (" + globals.FileSystemOptions.FileSystemRoot + ")");
             }
-	    else
+            else
             {
-		Logger.Info("This indicates that the list mode is being recognised");
-		if (!File.Exists(cliOptions.ToProcessDir.FullName))
-		    throw new ArgumentException("Could not find accession directory list file (" + cliOptions.ToProcessDir.FullName + ")");
-		
-		if (!Path.GetExtension(cliOptions.ToProcessDir.FullName).Equals(".csv"))
-		    throw new ArgumentException("When in 'list' mode, path to accession directory file of format .csv expected (" + cliOptions.ToProcessDir.FullName + ")");
-	    }
+                Logger.Info("This indicates that the list mode is being recognised");
+                if (!File.Exists(cliOptions.ToProcessDir.FullName))
+                    throw new ArgumentException("Could not find accession directory list file (" + cliOptions.ToProcessDir.FullName + ")");
+
+                if (!Path.GetExtension(cliOptions.ToProcessDir.FullName).Equals(".csv"))
+                    throw new ArgumentException("When in 'list' mode, path to accession directory file of format .csv expected (" + cliOptions.ToProcessDir.FullName + ")");
+            }
 
             if (cliOptions.DirectoryFormat.ToLower().Equals("pacs"))
             {
