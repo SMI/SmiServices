@@ -9,6 +9,7 @@
 
 spacy_model = 'en_core_web_sm'      # the language model for NER
 text_encoding = 'utf-8'             # XXX assumed
+debug_logging=True
 
 import socket
 import threading
@@ -41,6 +42,12 @@ spacy_entity_to_FailureClassification_map = {
     'MISC': '', #    Miscellaneous entities, e.g. events, nationalities, products or works of art.
 }
 
+def debuglog(str):
+    if not debug_logging: return
+    f=open("NERd_spacy.log", "a")
+    f.write(str+'\n')
+    f.close()
+
 class ThreadedServer(object):
     def __init__(self, host, port):
         self.host = host
@@ -60,15 +67,14 @@ class ThreadedServer(object):
 
     def listenToClient(self, client, address):
         size = 4096
+        self.lock.acquire()
         while True:
             try:
                 data = client.recv(size)
                 if data:
                     response = ''
                     # replace nul with dot, decode from utf-8 bytes to string, do NER
-                    self.lock.acquire()
                     ner_doc = self.nlp(data.replace(b'\0', b'.').decode(text_encoding))
-                    self.lock.release()
                     for entity in ner_doc.ents:
                             label = spacy_entity_to_FailureClassification_map.get(entity.label_, '')
                             if label == '': continue
@@ -77,11 +83,17 @@ class ThreadedServer(object):
                     response += '\0'
                     # convert from utf-8 back to bytes for transmission
                     client.send(response.encode(text_encoding))
+                    debuglog(repr(data))
+                    debuglog(repr(response))
                 else:
+                    self.lock.release()
                     return
             except Exception as e:
+                debuglog("NERd exception "+repr(e))
+                self.lock.release()
                 client.close()
                 return False
+        self.lock.release()
 
 
 if __name__ == "__main__":
