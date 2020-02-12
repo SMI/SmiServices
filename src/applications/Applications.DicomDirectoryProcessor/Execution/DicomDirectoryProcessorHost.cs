@@ -38,7 +38,6 @@ namespace Applications.DicomDirectoryProcessor.Execution
                 if (!cliOptions.ToProcessDir.Exists)
                     throw new ArgumentException("Could not find directory " + cliOptions.ToProcessDir.FullName);
 
-                // TODO(rkm 2020-02-12) We probably want to check this for each file path we load from the file as well - reject anything that isn't below the filesystem root
                 if (!cliOptions.ToProcessDir.FullName.StartsWith(globals.FileSystemOptions.FileSystemRoot, true, CultureInfo.CurrentCulture))
                     throw new ArgumentException("Directory parameter (" + cliOptions.ToProcessDir.FullName + ") must be below the FileSystemRoot (" + globals.FileSystemOptions.FileSystemRoot + ")");
             }
