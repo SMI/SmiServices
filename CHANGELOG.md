@@ -11,10 +11,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.3.0] - (2020-02-06)
 
-### Changed
-
-- Refactor Java exception handling and use of threads
-
 ### Added
 
 - Added (optional) DicomFileSize property to ETL pipeline.  Add to template(s) with:
@@ -33,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Updated RDMP and Dicom plugins
+- Refactor Java exception handling and use of threads
 
 ## [1.2.3] - 2020-01-09
 
@@ -103,16 +100,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.1.0] - 2019-11-22
 
-## Added
+### Added
 
 - Improvements to unit and integration tests
 - Documentation fixes
 - Config file for Dependabot
 - Test for DicomFile SkipLargeTags option. Closes [#19](https://dev.azure.com/SmiOps/MVP%20Service/_workitems/edit/19)
 
-## Changed
+### Changed
 
-### C#
+#### C#
 
 - Bumped HIC.DicomTypeTranslation from 1.0.0.3 to 2.1.2
 - Bumped HIC.RDMP.Plugin from 3.1.1 to 4.0.1-rc2
@@ -121,10 +118,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Bumped System.IO.Abstractions from 4.2.17 to 7.0.7
 - Bumped MongoDB.Driver from 2.8.0 to 2.9.3
 
-### Java
+#### Java
 
 - Bumped jackson-databind from 2.9.6 to 2.9.10.0
-
 
 ## [1.0.0] - 2019-11-18
 
@@ -134,12 +130,12 @@ First stable release after importing the repository from the private [SMIPlugin]
 
 - ForGuidIdentifierSwapper automatically creates it's mapping database if it does not exist on the server referenced (previously only table was automatically created)
 
-## Changed
+### Changed
 
 - Updated to [Rdmp.Dicom 2.0.2](https://github.com/HicServices/RdmpDicom/blob/master/CHANGELOG.md#202-2019-11-13)
 - Updated to [Rdmp.Core 3.2.1](https://github.com/HicServices/RDMP/blob/develop/CHANGELOG.md#321---2019-10-30)
 
-## Removed
+### Removed
 
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`).  Previously skipping database portion was supported.
 
