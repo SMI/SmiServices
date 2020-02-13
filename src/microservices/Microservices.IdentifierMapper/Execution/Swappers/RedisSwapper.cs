@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
-using LRUCache;
+using System.Collections.Concurrent;
+using System.Threading;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using Smi.Common.Options;
 using StackExchange.Redis;
@@ -19,8 +19,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         private const string NullString = "NO MATCH";
 
-        LRUCache<string,string> _memoryCache = new LRUCache<string, string>(1000);
-        
+        private MemoryCache _cache = new MemoryCache(new MemoryCacheOptions()
+        {
+            SizeLimit = 1024
+        });
+        private ConcurrentDictionary<object, SemaphoreSlim> _locks = new ConcurrentDictionary<object, SemaphoreSlim>();
+
         public RedisSwapper(string redisHost, ISwapIdentifiers wrappedSwapper)
         {
             _redis = ConnectionMultiplexer.Connect(redisHost);
@@ -33,58 +37,56 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public override string GetSubstitutionFor(string toSwap, out string reason)
         {
-            string output;
+            string result;
             reason = null;
 
-            IDatabase db = _redis.GetDatabase();
-
             //lookup in memory
-            var memCacheResult = _memoryCache.Get(toSwap);
-            if (memCacheResult != null)
+            if (!_cache.TryGetValue(toSwap, out result))
+            {
+                SemaphoreSlim locket = _locks.GetOrAdd(toSwap, toSwap => new SemaphoreSlim(1, 1));
+                locket.Wait();
+                try
+                {
+                    if (!_cache.TryGetValue(toSwap, out result))
+                    {
+                        // Now try Redis cache
+                        IDatabase db = _redis.GetDatabase();
+                        var val = db.StringGet(toSwap);
+                        //we have a cached answer (which might be null)
+                        if (val.HasValue)
+                        {
+                            result = val.ToString();
+                            CacheHit++;
+                        }
+                        else
+                        {
+                            //we have no cached answer from Redis
+                            CacheMiss++;
+
+                            //Go to the hosted swapper
+                            lock(_hostedSwapper)
+                            {
+                                result = _hostedSwapper.GetSubstitutionFor(toSwap, out reason);
+                            }
+
+                            //and cache the result (even if it is null - no lookup match found)
+                            db.StringSet(toSwap, result ?? NullString, null, When.NotExists);
+                        }
+
+                        _cache.Set(toSwap, result);
+                    }
+                }
+                finally
+                {
+                    locket.Release();
+                }
+            }
+            else
             {
                 CacheHit++;
                 Success++;
-                return memCacheResult;
             }
-
-            //look up Redis for a cached answer
-            var val = db.StringGet(toSwap);
-
-            //we have a cached answer (which might be null)
-            if (val.HasValue)
-            {
-                output = val.ToString();
-                CacheHit++;
-            }
-            else
-            { 
-
-                //we have no cached answer from Redis
-                CacheMiss++;
-            
-                //Go to the hosted swapper
-                output = _hostedSwapper.GetSubstitutionFor(toSwap, out reason);
-
-                //and cache the result (even if it is null - no lookup match found)
-                db.StringSet(toSwap, output ?? NullString, null, When.NotExists);
-            }
-
-            if (string.Equals(NullString, output))
-            {
-                output = null;
-                reason = $"Value '{toSwap}' was cached in Redis as missing (i.e. no mapping was found)";
-            }
-                
-            if (output == null)
-                Fail++;
-            else
-            {
-                //record in memory the value we matched
-                _memoryCache.Add(toSwap,output);
-                Success++;
-            }
-
-            return output;
+            return result;
         }
 
 
