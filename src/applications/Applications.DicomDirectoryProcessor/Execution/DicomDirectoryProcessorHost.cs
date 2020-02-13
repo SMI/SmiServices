@@ -32,6 +32,7 @@ namespace Applications.DicomDirectoryProcessor.Execution
                 Logger.Info("This indicates that the list mode is not being recognised");
 
                 // TODO(rkm 2020-02-12) I think we want to check this regardless of the mode
+                // (bp 2020-02-13) By not doing this check on list means that the list of paths is not required to be in PACS and can be imported from anywhere
                 if (!Directory.Exists(globals.FileSystemOptions.FileSystemRoot))
                     throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + globals.FileSystemOptions.FileSystemRoot + ")");
 
