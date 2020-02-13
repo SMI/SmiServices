@@ -43,7 +43,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             //lookup in memory
             if (!_cache.TryGetValue(toSwap, out result))
             {
-                SemaphoreSlim locket = _locks.GetOrAdd(toSwap, toSwap => new SemaphoreSlim(1, 1));
+                SemaphoreSlim locket = _locks.GetOrAdd(toSwap, k => new SemaphoreSlim(1, 1));
                 locket.Wait();
                 try
                 {
