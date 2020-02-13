@@ -87,10 +87,18 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             {
                 CacheHit++;
             }
+
+            if (string.Equals(NullString, result))
+            {
+                result = null;
+                reason = $"Value '{toSwap}' was cached in Redis as missing (i.e. no mapping was found)";
+            }
+
             if (result == null)
                 Fail++;
             else
                 Success++;
+
             return result;
         }
 
