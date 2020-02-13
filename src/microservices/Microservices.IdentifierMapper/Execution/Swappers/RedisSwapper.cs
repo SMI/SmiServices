@@ -86,8 +86,11 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             else
             {
                 CacheHit++;
-                Success++;
             }
+            if (result == null)
+                Fail++;
+            else
+                Success++;
             return result;
         }
 
