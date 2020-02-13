@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LRUCache;
 using NLog;
 using Smi.Common.Options;
 using StackExchange.Redis;
@@ -19,6 +19,8 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         private const string NullString = "NO MATCH";
 
+        LRUCache<string,string> _memoryCache = new LRUCache<string, string>(1000);
+        
         public RedisSwapper(string redisHost, ISwapIdentifiers wrappedSwapper)
         {
             _redis = ConnectionMultiplexer.Connect(redisHost);
@@ -35,7 +37,15 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             reason = null;
 
             IDatabase db = _redis.GetDatabase();
-            
+
+            //lookup in memory
+            var memCacheResult = _memoryCache.Get(toSwap);
+            if (memCacheResult != null)
+            {
+                CacheHit++;
+                return memCacheResult;
+            }
+
             //look up Redis for a cached answer
             var val = db.StringGet(toSwap);
 
@@ -67,7 +77,11 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             if (output == null)
                 Fail++;
             else
+            {
+                //record in memory the value we matched
+                _memoryCache.Add(toSwap,output);
                 Success++;
+            }
 
             return output;
         }
