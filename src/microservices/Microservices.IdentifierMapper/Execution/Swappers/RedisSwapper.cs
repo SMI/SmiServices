@@ -43,6 +43,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             if (memCacheResult != null)
             {
                 CacheHit++;
+                Success++;
                 return memCacheResult;
             }
 
