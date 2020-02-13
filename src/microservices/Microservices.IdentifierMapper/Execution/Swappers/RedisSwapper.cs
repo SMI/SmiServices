@@ -73,7 +73,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                             db.StringSet(toSwap, result ?? NullString, null, When.NotExists);
                         }
 
-                        _cache.Set(toSwap, result);
+                        _cache.Set(toSwap, result,new MemoryCacheEntryOptions() {
+                            Size=1
+                        });
                     }
                 }
                 finally
