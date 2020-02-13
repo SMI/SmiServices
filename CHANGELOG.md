@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ...
 
+### Added
+
+- Added in memory caching of the last 1000 values when using Redis wrapper for an IdentifierSwapper
+
 ## [1.3.0] - (2020-02-06)
 
 ### Added
