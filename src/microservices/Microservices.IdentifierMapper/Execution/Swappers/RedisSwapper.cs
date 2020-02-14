@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.Concurrent;
+using System.Threading;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using Smi.Common.Options;
 using StackExchange.Redis;
@@ -19,6 +19,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         private const string NullString = "NO MATCH";
 
+        private MemoryCache _cache = new MemoryCache(new MemoryCacheOptions()
+        {
+            SizeLimit = 1024
+        });
+        private ConcurrentDictionary<object, SemaphoreSlim> _locks = new ConcurrentDictionary<object, SemaphoreSlim>();
+
         public RedisSwapper(string redisHost, ISwapIdentifiers wrappedSwapper)
         {
             _redis = ConnectionMultiplexer.Connect(redisHost);
@@ -31,45 +37,69 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public override string GetSubstitutionFor(string toSwap, out string reason)
         {
-            string output;
+            string result;
             reason = null;
 
-            IDatabase db = _redis.GetDatabase();
-            
-            //look up Redis for a cached answer
-            var val = db.StringGet(toSwap);
-
-            //we have a cached answer (which might be null)
-            if (val.HasValue)
+            //lookup in memory
+            if (!_cache.TryGetValue(toSwap, out result))
             {
-                output = val.ToString();
-                CacheHit++;
+                SemaphoreSlim locket = _locks.GetOrAdd(toSwap, k => new SemaphoreSlim(1, 1));
+                locket.Wait();
+                try
+                {
+                    if (!_cache.TryGetValue(toSwap, out result))
+                    {
+                        // Now try Redis cache
+                        IDatabase db = _redis.GetDatabase();
+                        var val = db.StringGet(toSwap);
+                        //we have a cached answer (which might be null)
+                        if (val.HasValue)
+                        {
+                            result = val.ToString();
+                            CacheHit++;
+                        }
+                        else
+                        {
+                            //we have no cached answer from Redis
+                            CacheMiss++;
+
+                            //Go to the hosted swapper
+                            lock(_hostedSwapper)
+                            {
+                                result = _hostedSwapper.GetSubstitutionFor(toSwap, out reason);
+                            }
+
+                            //and cache the result (even if it is null - no lookup match found)
+                            db.StringSet(toSwap, result ?? NullString, null, When.NotExists);
+                        }
+
+                        _cache.Set(toSwap, result ?? NullString, new MemoryCacheEntryOptions() {
+                            Size=1
+                        });
+                    }
+                }
+                finally
+                {
+                    locket.Release();
+                }
             }
             else
-            { 
-
-                //we have no cached answer from Redis
-                CacheMiss++;
-            
-                //Go to the hosted swapper
-                output = _hostedSwapper.GetSubstitutionFor(toSwap, out reason);
-
-                //and cache the result (even if it is null - no lookup match found)
-                db.StringSet(toSwap, output ?? NullString, null, When.NotExists);
+            {
+                CacheHit++;
             }
 
-            if (string.Equals(NullString, output))
+            if (string.Equals(NullString, result))
             {
-                output = null;
+                result = null;
                 reason = $"Value '{toSwap}' was cached in Redis as missing (i.e. no mapping was found)";
             }
-                
-            if (output == null)
+
+            if (result == null)
                 Fail++;
             else
                 Success++;
 
-            return output;
+            return result;
         }
 
 

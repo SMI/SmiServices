@@ -1,10 +1,9 @@
 
-
 [![Build Status](https://travis-ci.com/SMI/SmiServices.svg?branch=master)](https://travis-ci.com/SMI/SmiServices)
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-Version: `1.3.1`
+Version: `1.4.0`
 
 # SMI Services
 
@@ -91,10 +90,19 @@ Appart from the Microservices (documented above) the following library classes a
 Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
 
 ```bash
-dotnet build [-r RID]
+$ dotnet build [-r RID]
 ```
 
-_To build other OS substitute the respective [runtime identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) e.g. linux-x64_
+_The RID argument is optional. Use this if you want to build for a different platform e.g. `-r linux-x64` to build for Linux from a Windows machine. See [here](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) for more info on runtime identifiers._
+
+To build an individual sub-project:
+
+```bash
+$ cd src/microservices/Microservices.DicomTagReader/
+$ dotnet build
+```
+
+This will automatically rebuild any dependent projects which have changes as well.
 
 ### Building the Java Projects
 

@@ -56,6 +56,7 @@ namespace Smi.Common
 
         private const int MaxSubscriptionAttempts = 5;
 
+        private readonly bool _threaded;
 
         /// <summary>
         /// 
@@ -63,8 +64,21 @@ namespace Smi.Common
         /// <param name="options">Connection parameters to a RabbitMQ server</param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
-        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null)
+        /// <param name="threaded"></param>
+        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
         {
+            //_threaded = options.ThreadReceivers;
+            _threaded = threaded;
+
+            if (_threaded)
+            {
+                int minWorker, minIOC;
+                ThreadPool.GetMinThreads(out minWorker, out minIOC);
+                int workers = Math.Max(50, minWorker);
+                ThreadPool.SetMaxThreads(workers, 50);
+                _logger.Info($"Set Rabbit event concurrency to {workers}");
+            }
+
             _factory = new ConnectionFactory
             {
                 HostName = options.RabbitMqHostName,
@@ -387,7 +401,12 @@ namespace Smi.Common
                 BasicDeliverEventArgs e;
 
                 if (subscription.Next(500, out e))
-                    consumer.ProcessMessage(e);
+                {
+                    if (_threaded)
+                        Task.Run(() => consumer.ProcessMessage(e));
+                    else
+                        consumer.ProcessMessage(e);
+                }
             }
 
             string reason = "unknown";
