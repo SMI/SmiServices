@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ...
 
+### Added
+
+- Added in memory caching of the last 1024 values when using Redis wrapper for an IdentifierSwapper
+- Added some parallelism and marshalling of backend queries to improve throughput in IdentifierSwapper
+- Added temporary flag for RabbitMQAdapter parallelism for the above: should be made per-microservice later
+
 ## [1.3.1] - (2020-02-13)
 
 ### Changed

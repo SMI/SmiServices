@@ -520,6 +520,7 @@ namespace Smi.Common.Options
         public string RabbitMqPassword { get; set; }
         public string FatalLoggingExchange { get; set; }
         public string RabbitMqControlExchangeName { get; set; }
+        public bool ThreadReceivers { get; set; }
 
         public bool Validate()
         {
