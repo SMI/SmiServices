@@ -1,11 +1,11 @@
 ﻿
+using System;
+using System.Globalization;
+using System.IO;
 using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Applications.DicomDirectoryProcessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
-using System;
-using System.Globalization;
-using System.IO;
 
 namespace Applications.DicomDirectoryProcessor.Execution
 {
@@ -27,20 +27,43 @@ namespace Applications.DicomDirectoryProcessor.Execution
         {
             _cliOptions = cliOptions;
 
-            if (!Directory.Exists(globals.FileSystemOptions.FileSystemRoot))
-                throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + globals.FileSystemOptions.FileSystemRoot + ")");
+            if (!cliOptions.DirectoryFormat.ToLower().Equals("list"))
+            {
+                Logger.Info("This indicates that the list mode is not being recognised");
 
-            if (!cliOptions.ToProcessDir.Exists)
-                throw new ArgumentException("Could not find directory " + cliOptions.ToProcessDir.FullName);
+                // TODO(rkm 2020-02-12) I think we want to check this regardless of the mode
+                // (bp 2020-02-13) By not doing this check on list means that the list of paths is not required to be in PACS and can be imported from anywhere
+                if (!Directory.Exists(globals.FileSystemOptions.FileSystemRoot))
+                    throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + globals.FileSystemOptions.FileSystemRoot + ")");
 
-            if (!cliOptions.ToProcessDir.FullName.StartsWith(globals.FileSystemOptions.FileSystemRoot, true, CultureInfo.CurrentCulture))
-                throw new ArgumentException("Directory parameter (" + cliOptions.ToProcessDir.FullName + ") must be below the FileSystemRoot (" + globals.FileSystemOptions.FileSystemRoot + ")");
+                if (!cliOptions.ToProcessDir.Exists)
+                    throw new ArgumentException("Could not find directory " + cliOptions.ToProcessDir.FullName);
+
+                if (!cliOptions.ToProcessDir.FullName.StartsWith(globals.FileSystemOptions.FileSystemRoot, true, CultureInfo.CurrentCulture))
+                    throw new ArgumentException("Directory parameter (" + cliOptions.ToProcessDir.FullName + ") must be below the FileSystemRoot (" + globals.FileSystemOptions.FileSystemRoot + ")");
+            }
+            else
+            {
+                Logger.Info("This indicates that the list mode is being recognised");
+                if (!File.Exists(cliOptions.ToProcessDir.FullName))
+                    throw new ArgumentException("Could not find accession directory list file (" + cliOptions.ToProcessDir.FullName + ")");
+
+                if (!Path.GetExtension(cliOptions.ToProcessDir.FullName).Equals(".csv"))
+                    throw new ArgumentException("When in 'list' mode, path to accession directory file of format .csv expected (" + cliOptions.ToProcessDir.FullName + ")");
+            }
 
             if (cliOptions.DirectoryFormat.ToLower().Equals("pacs"))
             {
                 Logger.Info("Creating PACS directory finder");
 
                 _ddf = new PacsDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
+                    globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions));
+            }
+            else if (cliOptions.DirectoryFormat.ToLower().Equals("list"))
+            {
+                Logger.Info("Creating accession directory lister");
+
+                _ddf = new AccessionDirectoryLister(globals.FileSystemOptions.FileSystemRoot,
                     globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions));
             }
             else if (cliOptions.DirectoryFormat.ToLower().Equals("default"))
