@@ -17,13 +17,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added some parallelism and marshalling of backend queries to improve throughput in IdentifierSwapper
 - Added temporary flag for RabbitMQAdapter parallelism for the above: should be made per-microservice later
 
-## [1.3.1] - (2020-02-13)
+## [1.3.1] - 2020-02-13
 
 ### Changed
 
 - Pinned fo-dicom to v4.0.1
 
-## [1.3.0] - (2020-02-06)
+## [1.3.0] - 2020-02-06
 
 ### Added
 
