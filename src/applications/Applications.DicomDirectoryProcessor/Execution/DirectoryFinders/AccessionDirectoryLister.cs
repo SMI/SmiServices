@@ -31,7 +31,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             {
                 while (!reader.EndOfStream && !TokenSource.IsCancellationRequested)
                 {
-                    // TODO(rkm 2020-02-12) Possible null reference here
+
                     string accessionDirectory = reader.ReadLine().Replace(",", "");
 
                     if (!_accDirectoryRegex.IsMatch(accessionDirectory))
