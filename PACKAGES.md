@@ -9,6 +9,7 @@
 
 | Package | Source Code | Version | License | Purpose | Additional Risk Assessment |
 | ------- | ------------| --------| ------- | ------- | -------------------------- |
+| Microsoft.Extensions.Caching.Memory | [GitHub]() | [3.1.1](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory/3.1.1) | | | |
 | fo-dicom | [GitHub](https://github.com/fo-dicom/fo-dicom) |[4.0.1](https://www.nuget.org/packages/fo-dicom/4.0.1) | [MS-PL](https://opensource.org/licenses/MS-PL) | Handles reading/writing dicom tags from dicom datasets | |
 | fo-dicom.Json | [GitHub](https://github.com/fo-dicom/fo-dicom) | [4.0.1](https://www.nuget.org/packages/fo-dicom.Json/4.0.1) | [MS-PL](https://opensource.org/licenses/MS-PL)| Support library for serializing fo-dicom DICOM datasets to json | |
 | HIC.DicomTypeTranslation | [GitHub](https://github.com/HicServices/DicomTypeTranslation) | [2.1.2](https://www.nuget.org/packages/HIC.DicomTypeTranslation/2.1.2) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Translate dicom types into C# / database types | |
