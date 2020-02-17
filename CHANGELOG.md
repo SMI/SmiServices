@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ...
 
+## [1.4.1] - 2020-02-17
+
+### Added
+
+- Added randomisation in the retry delay on DicomRelationalMapper (and set minimum wait duration to 10s)
+
+### Fixed
+
+- Fixed DLE Payload state being wrong when retrying batches (when it is half / completely consumed)
+- Added lock on producer sending messages in IdentifierMapper
+
 ## [1.4.0] - 2020-02-14
 
 ### Added
@@ -147,7 +158,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`).  Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.1...develop
+[1.4.1]:  https://github.com/SMI/SmiServices/compare/v1.4.0...v1.4.1
 [1.4.0]:  https://github.com/SMI/SmiServices/compare/v1.3.1...v1.4.0
 [1.3.1]:  https://github.com/SMI/SmiServices/compare/v1.3.0...v1.3.1
 [1.3.0]:  https://github.com/SMI/SmiServices/compare/v1.2.3...v1.3.0
