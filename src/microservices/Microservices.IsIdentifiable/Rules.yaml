@@ -8,18 +8,39 @@ SocketRules:
 
 BasicRules: 
 
+ # Ignore 32 uppercase hex digits
+ - Action: Ignore
+   IfPattern: ^([0-9A-F]{32})$
+ # Ignore GUIDs xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ - Action: Ignore
+   IfPattern: ^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$
+
  # Ignore IDs which don't look like personal identifiers
  - Action: Ignore
    IfColumn: StudyInstanceUID
-   IfPattern: ^([0-9]+\.){8,11}[0-9]+$
+   IfPattern: ^(\d+\.){5,12}\d+$
  - Action: Ignore
    IfColumn: SeriesInstanceUID
-   IfPattern: ^([0-9]+\.){8,11}[0-9]+$
+   IfPattern: ^(\d+\.){5,12}\d+$
  - Action: Ignore
    IfColumn: SOPInstanceUID
-   IfPattern: ^([0-9]+\.){8,11}[0-9]+$
+   IfPattern: ^(\d+\.){5,12}\d+$
+# AccessionNumbers are in various formats but hopefully none are CHI
+# nnnnnnnnnn, nn-nnnnnn, nnnnnnnnn-nnn, etc.
+# Others seem to contain a reference to the hospital name.
+ - Action: Ignore
+   IfColumn: AccessionNumber
+   IfPattern: ^\d{10}$
+ - Action: Ignore
+   IfColumn: AccessionNumber
+   IfPattern: ^\d{1,9}[-/]\d{1,9}$
+ - Action: Ignore
+   IfColumn: AccessionNumber
+   IfPattern: ^(MR|CT)-\d{2}-\d{7}$
 
- # Ignore specific modalities
+ # Ignore specific modalities.
+ # Note that they are often recorded as REG\MR or REG\OT\PR
+ # but IsIdentifiable splits strings on \ characters.
  - Action: Ignore
    IfColumn: Modality
    IfPattern: ^CT$
@@ -32,9 +53,25 @@ BasicRules:
  - Action: Ignore
    IfColumn: ModalitiesInStudy
    IfPattern: ^MR$
+ - Action: Ignore
+   IfColumn: ModalitiesInStudy
+   IfPattern: ^REG$
+ - Action: Ignore
+   IfColumn: ModalitiesInStudy
+   IfPattern: ^US$
+ - Action: Ignore
+   IfColumn: ModalitiesInStudy
+   IfPattern: ^SR$
+ - Action: Ignore
+   IfColumn: ModalitiesInStudy
+   IfPattern: ^OT$
+ - Action: Ignore
+   IfColumn: ModalitiesInStudy
+   IfPattern: ^PR$
 
  # These patterns have been derived by testing 100 CT and 100 MR images:
- # NOTE these strings are necessarily substrings but sufficiently unique.
+ # NOTE these strings are necessarily substrings but sufficiently unique as
+ # no PII has been observed in PrivateCreator in conjunction with these values.
 
  # SIEMENS
  - Action: Ignore
@@ -63,231 +100,674 @@ BasicRules:
    IfColumn: PrivateCreator
    IfPattern: TOSHIBA_MEC_CT
 
- # Body parts
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: ABDO_PELVIS
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: LSPINE
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: LSSPINE
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: WHOLESPINE
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: CTPA
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: BRAIN
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: HEART
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: ABDOMEN
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: PROSTATE
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: PERIPHERAL
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: NECK
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: ^CAP$
- - Action: Ignore
-   IfColumn: BodyPartExamined
-   IfPattern: CT_1
-
- # Study descriptions
- # This is intended to match anything which has a space after CT at the start
- # XXX check that (Adult) is literal and the brackets are not a regex group
+ # Rules generated from testing the MySQL tables for CT and MR with Stanford CoreNLP.
+ # (Different rules may be needed if using spaCy).
+ # All patterns converted to lowercase letters because regex is case insensitive.
+ # Note: we replaced ^ \ ( ) characters with . otherwise regex fails to match them
+ # (tried to escape them with backslash but that didn't help).
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^CT .
+   IfPattern: ^abdomen.4_kub .adult.$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^NM .
+   IfPattern: ^abdomen.cic_aaa_pre_post_c .adult.$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: _SAFIRE
+   IfPattern: ^abdomen.cic_renal_x3 .adult.$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: _KUB
+   IfPattern: ^abdomen.ims_ap_4temps .adulte.$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^KUB$
+   IfPattern: ^abdo pelvis$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: CH/AB/PEL
+   IfPattern: ^aktuelles knie.knie re$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: \(Adult\)
+   IfPattern: ^am.colonna$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^HEAD$
+   IfPattern: ^aml protocols v1.brain$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^CHEST$
+   IfPattern: ^aml protocols v1.lower extremity$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ABDO/PELVIS
-
-
+   IfPattern: ^aml protocols v1.spine$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: ^NORM$
+   IfColumn: StudyDescription
+   IfPattern: ^anche.generale$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: MOCO
+   IfColumn: StudyDescription
+   IfPattern: ^angio  carotid lt$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: FIL
+   IfColumn: StudyDescription
+   IfPattern: ^angio_ce.venogram .diaphragm-knees.$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: SECONDARY
+   IfColumn: StudyDescription
+   IfPattern: ^angio - contrasted.kidneys$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: COMP_AD
+   IfColumn: StudyDescription
+   IfPattern: ^angio lower limbs both$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: TRACEW
+   IfColumn: StudyDescription
+   IfPattern: ^angio tc cranial$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: ND
+   IfColumn: StudyDescription
+   IfPattern: ^angio-tc de cr.neo$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: CT_SOM5
+   IfColumn: StudyDescription
+   IfPattern: ^angio  upper limb rt$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: ADC
+   IfColumn: StudyDescription
+   IfPattern: ^a.t..spine$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: DFC
+   IfColumn: StudyDescription
+   IfPattern: ^ayr.abdomen$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: MPR
+   IfColumn: StudyDescription
+   IfPattern: ^_.beyin$
  - Action: Ignore
-   IfColumn: ImageType
-   IfPattern: ^F$
-
+   IfColumn: StudyDescription
+   IfPattern: ^bony pelvis$
  - Action: Ignore
-   IfColumn: FilterType
-   IfPattern: UB
+   IfColumn: StudyDescription
+   IfPattern: ^bt,3 boyutlu goruntule$
  - Action: Ignore
-   IfColumn: FilterType
-   IfPattern: EC
+   IfColumn: StudyDescription
+   IfPattern: ^bt,beyin$
  - Action: Ignore
-   IfColumn: FilterType
-   IfPattern: MEDIUM FILTER
-
+   IfColumn: StudyDescription
+   IfPattern: ^burton.femur / calves$
  - Action: Ignore
-   IfColumn: PatientPosition
-   IfPattern: FFDL
+   IfColumn: StudyDescription
+   IfPattern: ^cabpec$
  - Action: Ignore
-   IfColumn: PatientPosition
-   IfPattern: FFP
+   IfColumn: StudyDescription
+   IfPattern: ^cardiac.flash_angio_thorax .child.$
  - Action: Ignore
-   IfColumn: PatientPosition
-   IfPattern: FFS
-
+   IfColumn: StudyDescription
+   IfPattern: ^colonography$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: BESTPHASE_OFF
+   IfColumn: StudyDescription
+   IfPattern: ^columna arco iris.lumbar$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: PULSTART_P0070PC
+   IfColumn: StudyDescription
+   IfPattern: ^crane cerv 1.acqui$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: EDR_GEMS
+   IfColumn: StudyDescription
+   IfPattern: ^cranio.encefalo$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: EPI_GEMS
+   IfColumn: StudyDescription
+   IfPattern: ^crh.brain$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: NPW
+   IfColumn: StudyDescription
+   IfPattern: ^cta abdominal aorta$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: IPG
+   IfColumn: StudyDescription
+   IfPattern: ^cta_aorta$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: PFF
+   IfColumn: StudyDescription
+   IfPattern: ^ct- abd, pelvis w/ contrast .labs..$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: PFP
+   IfColumn: StudyDescription
+   IfPattern: ^cta brain$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: SFS
+   IfColumn: StudyDescription
+   IfPattern: ^cta brain .cow.$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: CT
+   IfColumn: StudyDescription
+   IfPattern: ^cta carotids$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: HELICAL
+   IfColumn: StudyDescription
+   IfPattern: ^cta head$
  - Action: Ignore
-   IfColumn: ScanOptions
-   IfPattern: SYNCUSREDIT
-
+   IfColumn: StudyDescription
+   IfPattern: ^cta legs$
  - Action: Ignore
-   IfColumn: ScanningSequence
-   IfPattern: GR
+   IfColumn: StudyDescription
+   IfPattern: ^ct angio aortic arch . carotid both$
  - Action: Ignore
-   IfColumn: ScanningSequence
-   IfPattern: RM
-
+   IfColumn: StudyDescription
+   IfPattern: ^ct ankelledd$
  - Action: Ignore
-   IfColumn: ExposureModulationType
-   IfPattern: PULS_EC
+   IfColumn: StudyDescription
+   IfPattern: ^cta thoracic aorta$
  - Action: Ignore
-   IfColumn: ExposureModulationType
-   IfPattern: ZDOM
+   IfColumn: StudyDescription
+   IfPattern: ^cta upper extremity$
  - Action: Ignore
-   IfColumn: ExposureModulationType
-   IfPattern: Z DOM
+   IfColumn: StudyDescription
+   IfPattern: ^ct boney pelvis$
  - Action: Ignore
-   IfColumn: ExposureModulationType
-   IfPattern: ZDOM_ACS
+   IfColumn: StudyDescription
+   IfPattern: ^ct brain neck thorax abdo and pelvis$
  - Action: Ignore
-   IfColumn: ExposureModulationType
-   IfPattern: Z_EC
+   IfColumn: StudyDescription
+   IfPattern: ^ct calcaneum lt$
  - Action: Ignore
-   IfColumn: ExposureModulationType
-   IfPattern: XYZ_EC
-
+   IfColumn: StudyDescription
+   IfPattern: ^ct chest.abdomen.pelvi$
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEHC_CT_ADVAPP_001
+   IfColumn: StudyDescription
+   IfPattern: ^ct chest, abdo, pelvis \+ c$
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEMS_PATI_01
+   IfColumn: StudyDescription
+   IfPattern: ^ct chest abdo pelvis w$
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEMS_SERS_01
+   IfColumn: StudyDescription
+   IfPattern: ^ct chest high res$
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEMS_IDEN_01
+   IfColumn: StudyDescription
+   IfPattern: ^ct cholangiogram$
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEMS_STDY_01
+   IfColumn: StudyDescription
+   IfPattern: ^ct circle of willis$
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEMS_IMAG_01
+   IfColumn: StudyDescription
+   IfPattern: ^ct cisternography$
  - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: GEMS_RELA_01
-
+   IfColumn: StudyDescription
+   IfPattern: ^ct clavicle lt$
  - Action: Ignore
-   IfColumn: CodeMeaning
-   IfPattern: IEC Head Dosimetry Phantom
+   IfColumn: StudyDescription
+   IfPattern: ^ct col. lombaire$
  - Action: Ignore
-   IfColumn: CodeMeaning
-   IfPattern: IEC Body Dosimetry Phantom
-
+   IfColumn: StudyDescription
+   IfPattern: ^ct colonography$
  - Action: Ignore
-   IfColumn: SpecificCharacterSet
-   IfPattern: ISO
+   IfColumn: StudyDescription
+   IfPattern: ^ct cone beam$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct cone beam mandible$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct cone beam maxilla$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct cystogram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct dacrocystogram rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct enteroclysis$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct enterography$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct facet joint injection lumbar$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct head neck thorax abdo and pelvis cont$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct head thorax abdo pelvis with contrast$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct head venogram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct hersenen$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct iam.s with contrast$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct internal auditory meatii$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct kub stone search$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct larynx$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct lower leg lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct lumbar spine, lwr extremities$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct mastoids$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct mesenteric angio$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct pelvimetry$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct scanogram for leg length$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct scapula lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct scapula rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct sinogram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct spine c t l s with contrast$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct sternum$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct thorax abdo pelvis with contrast$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct toes lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct upper leg lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct urogram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct venogram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^epaule$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^espree.head$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^flouroscopic guided injection$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^glowa.rutynowa$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^head.2_headroutine_crc_new .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^head.cic_head_c_spine_trauma .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^head.cic_headroutine .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^hrct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^import of non contracted mr images$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^knie.knie links$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^knie.routine$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^kopf_verio_std.ed$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^kranial$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^kub$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^lombaire$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^lower extremities.3_angiorunoff_safire .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mlspn$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra aorta whole$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr abdomen$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra circle of willis$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra circle of willis with and without gadolinium$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra circle of willis with gadolinium$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra iliac artery$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra lower limb both$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra neck with contrast$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra renal both$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra renal/visceral$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr arthrogram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra spine with contrast$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra subclavian artery both$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra subclavian artery left$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra subclavian artery right$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra upper limb both$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mra whole body$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr brain$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr columna lumbalis uden kontrast$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr funkcionalna preiskava$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr glave s kontrastom$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr glowy$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr - glowy$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr gynae pelvis$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr head$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri axilla lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri clavicle lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri hand lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri head, mra head$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri iam.s with gadolinium$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri lymphogram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri pelvis gynaecological \+ gad$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri scapula lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri shoulder rt, mri elbow rt, mri upper arm rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri spine 1/2 contig. reg c- s- canal stenosis$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr - kreg. l/s$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr- pituitary$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr spine thoracic$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr spondyloarthritis screening$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr stawu kolanowego$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrt becken$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrt schaedel$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv cerebral veins$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv inferior vena cava$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv lower limb both$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv lower limbs$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv superior vena cava$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv upper limb both$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv upper limb lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nh1ai nilkan kartiokeila-tt .oikea.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nh mri head post gad$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm bone pelvis and hips spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm hepatobiliary function scan and stim$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm lymphoscintigram$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm octreotide scan spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm octreotide scan with spect$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm parathyroid scan spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm post 90y sirt hepatic spect/ct scan$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm sentinel lymph node spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm tumour imaging spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm white cell hmpao .ceretec,wb.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm white cell hmpao spect$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm white cell indium 111 scan spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^orthopaedic.knee .8 channel coil.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^orthopaedic.quads - myositis$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^outside films - ct...$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^pet.01_petct_fdg_wb_a .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^private.dea_cerebrale_sc_seq_12 .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^rachis.1_rachis_lombaire .adulte.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^rbh.head$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^rezonans magnetyczny jamy brzusznej bez kontrastu$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^rmn cerebral funcional  uvi-8$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^rmn dorsolumbar$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^sant.brain$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^schädel$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^schädel.schaedel_nativ_km .erwachsener.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^shoulder.spalla .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^specials.cic_polytrauma .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^spine.1_cspine_safire_vol .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^spine.2_lspine_safire_vol .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^spine.w spine$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^sr/sp.knie$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^t.a.c. orbita s/c$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^tc con contraste i.v. de cr.neo$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^tc con contraste i.v. de t.rax y abdomen$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^tc dell. addome completo$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^tc osteoarticular otros territorios$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^tdm poignet et/ou scapho.de - gche$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.3_thorax_abdo_safire .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.7_singlerun_thorax_abdo_safire .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.cic_high_res_sequential .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.cic_pulmangio_.ml .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.cic_tap .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.cic_thoracic_aorta .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.cic_thorax_liver .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.thorax_abdo_pel .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.torax_rotina_hpa .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^thorax.wgh_thor_.._abdopel_.._neck .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^tomografia axial computada de craneo,orbita,oido,hipofisis$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^trainingbrain$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^untere extremit.ten._knie_tibiak_uhr .erwachsener.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^upper extremities.1_extremity .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us abdomen$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us guided biopsy$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us guided drainage$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us guided suprapubic catheter insertion$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us knee lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us pelvis transabdominal$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us shoulder rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us testes$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us wrist rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^vascular.cic_angiorunoff .adult.$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^vertebral kolon lomber mrg$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^wb h . n ca fdg$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^wh abdomen$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^xr orthopantomogram$
