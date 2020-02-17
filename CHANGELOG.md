@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Fixed DLE Payload state being wrong when retrying batches (when it is half / completely consumed)
+- Added lock on producer sending messages in IdentifierMapper
 
 ## [1.4.0] - 2020-02-14
 
