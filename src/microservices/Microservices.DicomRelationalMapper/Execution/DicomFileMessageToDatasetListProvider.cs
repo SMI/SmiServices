@@ -18,6 +18,15 @@ namespace Microservices.DicomRelationalMapper.Execution
             _messages = messages;
         }
 
+        /// <summary>
+        /// Resets the progress through the work list e.g. if half the list is consumed and you want to
+        /// start again.
+        /// </summary>
+        public void ResetProgress()
+        {
+            _progress = 0;
+        }
+
         public DicomDataset GetNextDatasetToProcess(out string filename, out Dictionary<string, string> otherValuesToStoreInRow)
         {
             otherValuesToStoreInRow = new Dictionary<string, string>();

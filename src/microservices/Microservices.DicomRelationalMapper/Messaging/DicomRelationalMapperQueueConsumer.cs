@@ -220,6 +220,9 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
                 // We last ran now!
                 _lastRanDle = DateTime.Now;
+                
+                //reset the progress e.g. if we crashed later on in the load
+                datasetProvider.ResetProgress();
 
                 try
                 {
