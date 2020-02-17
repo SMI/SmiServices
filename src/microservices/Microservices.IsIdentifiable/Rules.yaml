@@ -70,8 +70,9 @@ BasicRules:
    IfPattern: ^PR$
 
  # These patterns have been derived by testing 100 CT and 100 MR images:
- # NOTE these strings are necessarily substrings but sufficiently unique as
- # no PII has been observed in PrivateCreator in conjunction with these values.
+ # NOTE the manufacturer strings are necessarily substrings but sufficiently unique
+ # as no PII has been observed in PrivateCreator in conjunction with these values
+ # and they are added automatically not by hand.
 
  # SIEMENS
  - Action: Ignore
@@ -99,6 +100,92 @@ BasicRules:
  - Action: Ignore
    IfColumn: PrivateCreator
    IfPattern: TOSHIBA_MEC_CT
+
+ - Action: Ignore
+   IfColumn: SpecificCharacterSet
+   IfPattern: ^ISO_IR 100$
+
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^NORM$
+
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^ABDO_PELVIS$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^LSPINE$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^LSSPINE$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^WHOLESPINE$
+
+ - Action: Ignore
+   IfColumn: FilterType
+   IfPattern: ^UB$
+ - Action: Ignore
+   IfColumn: FilterType
+   IfPattern: ^EC$
+
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^CALC_BVALUE$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^MOCO$
+
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: ^FFDL$
+
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^BESTPHASE_OFF$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^EPI_GEMS$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^PULSTART_P0070PC$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^EDR_GEMS$
+
+
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ^XYZ_EC$
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ^ZDOM_ACS$
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ^Z_EC$
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ^PULS_EC$
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ^ZDOM$
+
+ - Action: Ignore
+   IfColumn: CodeMeaning
+   IfPattern: ^IEC Body Dosimetry Phantom$
+ - Action: Ignore
+   IfColumn: CodeMeaning
+   IfPattern: ^IEC Head Dosimetry Phantom$
+
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: ^GEMS_SERS_01$
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: ^GEMS_PATI_01$
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: ^GEHC_CT_ADVAPP_001$
 
  # Rules generated from testing the MySQL tables for CT and MR with Stanford CoreNLP.
  # (Different rules may be needed if using spaCy).
