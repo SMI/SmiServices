@@ -111,7 +111,10 @@ namespace Smi.Common.Execution
             //    throw new ArgumentException("Could not locate the FileSystemRoot \"" + options.FileSystemRoot + "\"");
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
-            RabbitMqAdapter = new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal);
+
+            // TODO(rkm 2020-02-14) This is only a temporary fix
+            bool threaded = (HostProcessName == "IdentifierMapper");
+            RabbitMqAdapter = new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
 
             _controlMessageConsumer = new ControlMessageConsumer(this, globals.RabbitOptions, HostProcessName, HostProcessID);
 
