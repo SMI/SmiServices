@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ...
 
+### Added
+
+- Added randomisation in the retry delay on DicomRelationalMapper (and set minimum wait duration to 10s)
+
 ### Fixed
 
 - Fixed DLE Payload state being wrong when retrying batches (when it is half / completely consumed)
