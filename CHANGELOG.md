@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 - Added unit test for AccessionDirectoryLister as part of DicomDirectoryProcessor tests
+- Make performance counters in RedisSwapper atomic for thread-safety
+- Clean up threads when using threaded mode in RabbitMQAdapter
+- Use explicit threads rather than Task queueing in IdentifierMapper
 
 ## [1.4.1] - 2020-02-17
 
