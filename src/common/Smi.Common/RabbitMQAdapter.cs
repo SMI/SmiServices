@@ -418,7 +418,7 @@ namespace Smi.Common
                         consumer.ProcessMessage(e);
                 }
             }
-            if (threaded) {
+            if (_threaded) {
                 foreach (Thread t in threads.Keys) {
                     t.Join();
                 }
