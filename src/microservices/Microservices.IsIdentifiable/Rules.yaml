@@ -69,7 +69,7 @@ BasicRules:
    IfColumn: ModalitiesInStudy
    IfPattern: ^PR$
 
- # These patterns have been derived by testing 100 CT and 100 MR images:
+ # These patterns have been derived by testing 100 CT and 100 MR images with Stanford CoreNLP.
  # NOTE the manufacturer strings are necessarily substrings but sufficiently unique
  # as no PII has been observed in PrivateCreator in conjunction with these values
  # and they are added automatically not by hand.
@@ -186,6 +186,140 @@ BasicRules:
  - Action: Ignore
    IfColumn: PrivateCreator
    IfPattern: ^GEHC_CT_ADVAPP_001$
+
+# These patterns have been derivedby testing 100 CT and MR images with spaCy.
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^BRAIN$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^CAP$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^CT_1 _C_ CONTRAS$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^CTPA$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^HEART$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^NECK$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^PERIPHERAL$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^PROSTATE$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^ABDOMEN$
+
+ - Action: Ignore
+   IfColumn: CodeValue
+   IfPattern: ^\d{6}$
+
+ - Action: Ignore
+   IfColumn: ExposureModulationType
+   IfPattern: ^Z DOM$
+
+ - Action: Ignore
+   IfColumn: FilterType
+   IfPattern: ^MEDIUM FILTER$
+
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^ADC$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^COMP_AD$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^CSA MPR$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^CT_SOM5 SPI$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^DFC$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^F$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^FIL$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^MPR$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^SECONDARY$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^ND$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^TRACEW$
+
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: ^FFP$
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: ^FFS$
+
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: ^GEMS_IDEN_01$
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: ^GEMS_IMAG_01$
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: ^GEMS_RELA_01$
+ - Action: Ignore
+   IfColumn: PrivateCreator
+   IfPattern: ^GEMS_STDY_01$
+
+ - Action: Ignore
+   IfColumn: ScanningSequence
+   IfPattern: ^GR$
+ - Action: Ignore
+   IfColumn: ScanningSequence
+   IfPattern: ^RM$
+
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^CT$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^HELICAL.CT$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^HELICAL.MODE$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^IPG$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^NPW$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^PFF$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^PFP$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^SFS$
+ - Action: Ignore
+   IfColumn: ScanOptions
+   IfPattern: ^SYNCUSREDIT.NO$
+
+ - Action: Ignore
+   IfColumn: SpecificCharacterSet
+   IfPattern: ^ISO 2022 IR 100$
 
  # Rules generated from testing the MySQL tables for CT and MR with Stanford CoreNLP.
  # (Different rules may be needed if using spaCy).
