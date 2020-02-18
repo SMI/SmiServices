@@ -6,15 +6,15 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 {
     public abstract class SwapIdentifiers: ISwapIdentifiers
     {
-        public int CacheHit { get; protected set; }
-        public int CacheMiss { get; protected set;}
-        
-        public int Success { get; protected set;}
-        public int Fail { get; protected set;}
+        public int CacheHit;
+        public int CacheMiss;
+
+        public int Success;
+        public int Fail;
         public int Invalid { get; protected set;}
 
         public Stopwatch DatabaseStopwatch { get; } = new Stopwatch();
-        
+
         public abstract void Setup(IMappingTableOptions mappingTableOptions);
 
         public abstract string GetSubstitutionFor(string toSwap, out string reason);
