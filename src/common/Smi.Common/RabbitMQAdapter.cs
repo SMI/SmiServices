@@ -57,7 +57,7 @@ namespace Smi.Common
 
         private const int MaxSubscriptionAttempts = 5;
 
-        private bool threaded;
+        private readonly bool _threaded;
 
         /// <summary>
         ///
@@ -65,10 +65,13 @@ namespace Smi.Common
         /// <param name="options">Connection parameters to a RabbitMQ server</param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
-        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null)
+        /// <param name="threaded"></param>
+        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
         {
-            threaded = options.ThreadReceivers;
-            if (threaded)
+            //_threaded = options.ThreadReceivers;
+            _threaded = threaded;
+
+            if (_threaded)
             {
                 int minWorker, minIOC;
                 ThreadPool.GetMinThreads(out minWorker, out minIOC);
@@ -403,7 +406,7 @@ namespace Smi.Common
 
                 if (subscription.Next(500, out e))
                 {
-                    if (threaded) {
+                    if (_threaded) {
                         Thread t = new Thread(() => {
                             consumer.ProcessMessage(e);
                             threads.TryRemove(Thread.CurrentThread,out _);

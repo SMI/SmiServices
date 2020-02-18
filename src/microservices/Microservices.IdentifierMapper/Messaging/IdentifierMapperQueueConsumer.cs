@@ -70,7 +70,8 @@ namespace Microservices.IdentifierMapper.Messaging
             else
             {
                 // Now ship it to the exchange
-                lock(_producer) {
+                lock (_producer)
+                {
                     _producer.SendMessage(msg, header);
                 }
                 Ack(header, deliverArgs);
