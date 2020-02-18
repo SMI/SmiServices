@@ -19,27 +19,28 @@ import sys
 # Map from spaCy's output to a member of FailureClassification enum
 spacy_entity_to_FailureClassification_map = {
     'PERSON': 'Person',  # People, including fictional.
-    'NORP': '',    # Nationalities or religious or political groups.
-    'FAC': '', # Buildings, airports, highways, bridges, etc.
+    'NORP': '',          # Nationalities or religious or political groups.
+    'FAC': '',           # Buildings, airports, highways, bridges, etc.
     'ORG': 'Organization', # Companies, agencies, institutions, etc.
-    'GPE': 'Location', # Countries, cities, states.
-    'LOC': '', # Non-GPE locations, mountain ranges, bodies of water.
-    'PRODUCT': '', # Objects, vehicles, foods, etc. (Not services.)
-    'EVENT': '', #   Named hurricanes, battles, wars, sports events, etc.
-    'WORK_OF_ART': '', # Titles of books, songs, etc.
+    'GPE': 'Location',   # Countries, cities, states.
+    'LOC': '',           # Non-GPE locations, mountain ranges, bodies of water.
+    'PRODUCT': '',       # Objects, vehicles, foods, etc. (Not services.)
+    'EVENT': '',         # Named hurricanes, battles, wars, sports events, etc.
+    'WORK_OF_ART': '',   # Titles of books, songs, etc.
     'LAW': '', # Named documents made into laws.
-    'LANGUAGE': '', #    Any named language.
-    'DATE': 'Date', #    Absolute or relative dates or periods.
-    'TIME': 'Time', #    Times smaller than a day.
+    'LANGUAGE': '',      # Any named language.
+    'DATE': 'Date',      # Absolute or relative dates or periods.
+    'TIME': 'Time',      # Times smaller than a day.
     'PERCENT': 'Percent', # Percentage, including ”%“.
-    'MONEY': 'Money', #   Monetary values, including unit.
-    'QUANTITY': '', #    Measurements, as of weight or distance.
-    'ORDINAL': '', # “first”, “second”, etc.
-    'CARDINAL': '', #    Numerals that do not fall under another type.
-    'PER': 'Person', # Named person or family.
-    'LOC': 'Location', # Name of politically or geographically defined location (cities, provinces, countries, international regions, bodies of water, mountains).
+    'MONEY': 'Money',    # Monetary values, including unit.
+    'QUANTITY': '',      # Measurements, as of weight or distance.
+    'ORDINAL': '',       # "first", "second", etc.
+    'CARDINAL': '',      # Numerals that do not fall under another type.
+    # When trained on Wikipedia you get different entity meanings
+    'PER': 'Person',     # Named person or family.
+   #'LOC': 'Location' ,  # Name of politically or geographically defined location (cities, provinces, countries, international regions, bodies of water, mountains). This clashes with the above so commented out.
     'ORG': 'Organization', # Named corporate, governmental, or other organizational entity.
-    'MISC': '', #    Miscellaneous entities, e.g. events, nationalities, products or works of art.
+    'MISC': '',          # Miscellaneous entities, e.g. events, nationalities, products or works of art.
 }
 
 def debuglog(str):
@@ -55,7 +56,7 @@ class ThreadedServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
-        self.nlp = spacy.load(spacy_model)
+        self.nlp = spacy.load(spacy_model, disable=["tagger", "parser"])
         self.lock = threading.Lock()
 
     def run(self):
@@ -74,15 +75,20 @@ class ThreadedServer(object):
                 if data:
                     response = ''
                     # replace nul with dot, decode from utf-8 bytes to string, do NER
-                    ner_doc = self.nlp(data.replace(b'\0', b'.').decode(text_encoding))
-                    for entity in ner_doc.ents:
+                    # either doc=self.nlp OR
+                    # self.nlp.pipe takes a generator and returns a generator (and runs threaded)
+                    def text_generator(data):
+                        yield data.replace(b'\0', b'.').decode(text_encoding, errors='strict')
+                    #ner_doc = self.nlp(data.replace(b'\0', b'.').decode(text_encoding, errors='strict'))
+                    for ner_doc in self.nlp.pipe(text_generator(data), disable=['tagger','parser']):
+                        for entity in ner_doc.ents:
                             label = spacy_entity_to_FailureClassification_map.get(entity.label_, '')
                             if label == '': continue
                             response += ("%s\0%d\0%s\0" % (label, entity.start_char, entity.text))
                     if response == '': response += '\0'
                     response += '\0'
                     # convert from utf-8 back to bytes for transmission
-                    client.send(response.encode(text_encoding))
+                    client.send(response.encode(text_encoding, errors='strict'))
                     debuglog(repr(data))
                     debuglog(repr(response))
                 else:
@@ -94,6 +100,7 @@ class ThreadedServer(object):
                 client.close()
                 return False
         self.lock.release()
+        return
 
 
 if __name__ == "__main__":
