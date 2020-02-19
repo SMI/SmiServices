@@ -15,7 +15,7 @@
 | HIC.RDMP.Dicom | [GitHub](https://github.com/HicServices/RdmpDicom) | [2.0.7](https://www.nuget.org/packages/HIC.RDMP.Dicom/2.0.7) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | RDMP Plugin containing data load / pipeline components for imaging, reading dicom files etc | |
 | HIC.RDMP.Plugin | [GitHub](https://github.com/HicServices/RDMP) | [4.0.2](https://www.nuget.org/packages/HIC.RDMP.Plugin/4.0.2) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Interact with RDMP objects, base classes for plugin components etc | |
 | JetBrains.Annotations | | [2019.1.3](https://www.nuget.org/packages/JetBrains.Annotations/2019.1.3) |[MIT](https://opensource.org/licenses/MIT) | Static analysis tool | |
-| Microsoft.Extensions.Caching.Memory | [GitHub]() | [3.1.1](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory/3.1.1) | | | |
+| Microsoft.Extensions.Caching.Memory | [GitHub]() | [3.1.2](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory/3.1.2) | | | |
 | MongoDB.Driver | [GitHub](https://github.com/mongodb/mongo-csharp-driver) |[2.9.3](https://www.nuget.org/packages/MongoDB.Driver/2.9.3)|  [Apache 2.0](https://www.nuget.org/packages/MongoDB.Driver/2.8.1/License) | For writting/reading dicom tags into MongoDb databases|
 | NLog | [GitHub](https://github.com/NLog/NLog) | [4.6.4](https://www.nuget.org/packages/NLog/4.6.4) | [BSD 3-Clause](https://github.com/NLog/NLog/blob/dev/LICENSE.txt) | Flexible user configurable logging | |
 | Newtonsoft.Json | [GitHub](https://github.com/JamesNK/Newtonsoft.Json) | [12.0.3](https://www.nuget.org/packages/Newtonsoft.Json/12.0.3) | [MIT](https://opensource.org/licenses/MIT) | Serialization of objects for sharing/transmission |
