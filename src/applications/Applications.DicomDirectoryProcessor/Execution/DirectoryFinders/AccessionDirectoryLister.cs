@@ -27,7 +27,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             IsProcessing = true;
             TotalSent = 0;
 
-            using (var reader = new StreamReader(accessionsList))
+            using (StreamReader reader = FileSystem.File.OpenText(accessionsList))
             {
                 while (!reader.EndOfStream && !TokenSource.IsCancellationRequested)
                 {

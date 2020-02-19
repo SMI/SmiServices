@@ -66,10 +66,9 @@ namespace Microservices.DicomReprocessor.Execution
 
             if (_processor.TotalProcessed == 0)
                 Logger.Warn("Nothing reprocessed");
-
-            Logger.Info("Total messages sent: " + _processor.TotalProcessed);
-            Logger.Info("Total failed to reprocess : " + _processor.TotalFailed);
-
+            else
+                _processor.LogProgress();
+            
             if (queryTime != default)
                 Logger.Info("Average documents processed per second: " + Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds));
 

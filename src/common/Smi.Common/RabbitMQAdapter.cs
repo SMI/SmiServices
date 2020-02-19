@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -59,7 +60,7 @@ namespace Smi.Common
         private readonly bool _threaded;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="options">Connection parameters to a RabbitMQ server</param>
         /// <param name="hostId">Identifier for this host instance</param>
@@ -75,8 +76,10 @@ namespace Smi.Common
                 int minWorker, minIOC;
                 ThreadPool.GetMinThreads(out minWorker, out minIOC);
                 int workers = Math.Max(50, minWorker);
-                ThreadPool.SetMaxThreads(workers, 50);
-                _logger.Info($"Set Rabbit event concurrency to {workers}");
+                if (ThreadPool.SetMaxThreads(workers, 50))
+                    _logger.Info($"Set Rabbit event concurrency to ({workers},50)");
+                else
+                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
             }
 
             _factory = new ConnectionFactory
@@ -220,7 +223,7 @@ namespace Smi.Common
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="taskId"></param>
         /// <param name="timeout"></param>
@@ -395,6 +398,7 @@ namespace Smi.Common
         {
             IModel m = subscription.Model;
             consumer.SetModel(m);
+            ConcurrentDictionary<Thread,int> threads=new ConcurrentDictionary<Thread,int>();
 
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
@@ -402,10 +406,21 @@ namespace Smi.Common
 
                 if (subscription.Next(500, out e))
                 {
-                    if (_threaded)
-                        Task.Run(() => consumer.ProcessMessage(e));
+                    if (_threaded) {
+                        Thread t = new Thread(() => {
+                            consumer.ProcessMessage(e);
+                            threads.TryRemove(Thread.CurrentThread,out _);
+                        });
+                        threads.TryAdd(t,1);
+                        t.Start();
+                    }
                     else
                         consumer.ProcessMessage(e);
+                }
+            }
+            if (_threaded) {
+                foreach (Thread t in threads.Keys) {
+                    t.Join();
                 }
             }
 

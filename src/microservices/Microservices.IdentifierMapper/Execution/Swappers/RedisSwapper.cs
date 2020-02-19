@@ -56,12 +56,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                         if (val.HasValue)
                         {
                             result = val.ToString();
-                            CacheHit++;
+                            Interlocked.Increment(ref CacheHit);
                         }
                         else
                         {
                             //we have no cached answer from Redis
-                            CacheMiss++;
+                            Interlocked.Increment(ref CacheMiss);
 
                             //Go to the hosted swapper
                             lock(_hostedSwapper)
@@ -85,7 +85,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             }
             else
             {
-                CacheHit++;
+                Interlocked.Increment(ref CacheHit);
             }
 
             if (string.Equals(NullString, result))
@@ -95,9 +95,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             }
 
             if (result == null)
-                Fail++;
+                Interlocked.Increment(ref Fail);
             else
-                Success++;
+                Interlocked.Increment(ref Success);
 
             return result;
         }
