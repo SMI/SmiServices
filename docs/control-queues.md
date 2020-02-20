@@ -14,7 +14,7 @@ This describes how the services can be controlled via RabbitMQ messages.
 
 Commands are sent by publishing a message to the ControlExchange (specified in your config by `RabbitOptions.RabbitMqControlExchangeName`) with a specific routing key. This allows you to easily send them from the RabbitMQ web management page, or via a CLI.
 
-RabbitMQ message routing keys are used to control which services recieve the message. The current format for routing keys is `smi.control.<who>.<what>`. Where `<who>` is the name of the service, and `<what>` is some defined action. The currently defined actions are:
+RabbitMQ message routing keys are used to control which services recieve the message. The current format for routing keys is `smi.control.<who>.<what>`. Where `<who>` is the name of the service, and `<what>` is some defined action. Note that all keys must be specified in lowercase. The currently defined actions are:
 
 ### General - any service
 
