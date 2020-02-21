@@ -1,4 +1,3 @@
-﻿
 using Dicom;
 using DicomTypeTranslation;
 using Microservices.IdentifierMapper.Execution.Swappers;
@@ -6,6 +5,8 @@ using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Microservices.IdentifierMapper.Messaging
@@ -19,6 +20,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
         private readonly Regex _patientIdRegex = new Regex("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
+        ConcurrentQueue<Tuple<DicomFileMessage,IMessageHeader,BasicDeliverEventArgs>> msgq=new ConcurrentQueue<Tuple<DicomFileMessage,IMessageHeader, BasicDeliverEventArgs>>();
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
         {
@@ -70,11 +72,33 @@ namespace Microservices.IdentifierMapper.Messaging
             else
             {
                 // Now ship it to the exchange
+                // Looks strange, but:
+                // First invocation will send 1 message and wait for ack
+                // While that is waiting, more messages pile up
+                // Once that completes, it releases the lock and another thread will drain the whole queue in one
+                // This should then have the effect of batching messages up and waiting for a full batch to process.
+                msgq.Enqueue(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
                 lock (_producer)
                 {
-                    _producer.SendMessage(msg, header);
+                    if (!msgq.IsEmpty)
+                    {
+                        List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
+                        while (!msgq.IsEmpty)
+                        {
+                            Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
+                            if (msgq.TryDequeue(out t))
+                            {
+                                _producer.SendMessage(t.Item1, t.Item2, "");
+                                done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                            }
+                        }
+                        _producer.WaitForConfirms();
+                        foreach (var t in done)
+                        {
+                            Ack(t.Item1, t.Item2);
+                        }
+                    }
                 }
-                Ack(header, deliverArgs);
             }
         }
 
