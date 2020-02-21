@@ -44,7 +44,7 @@ namespace Smi.Common.Execution
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Smi.NLog.config" of the current directory)</param>
-        protected MicroserviceHost(GlobalOptions globals, bool loadSmiLogConfig = true)
+        protected MicroserviceHost(GlobalOptions globals, bool loadSmiLogConfig = true, bool threaded=false)
         {
             HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
 
@@ -112,8 +112,6 @@ namespace Smi.Common.Execution
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
-            // TODO(rkm 2020-02-14) This is only a temporary fix
-            bool threaded = (HostProcessName == "IdentifierMapper");
             RabbitMqAdapter = new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
 
             _controlMessageConsumer = new ControlMessageConsumer(this, globals.RabbitOptions, HostProcessName, HostProcessID);
