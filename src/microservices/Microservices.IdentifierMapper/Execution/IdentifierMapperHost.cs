@@ -30,7 +30,7 @@ namespace Microservices.IdentifierMapper.Execution
 
 
         public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig, true)
+            : base(options, loadSmiLogConfig, threaded: true)
         {
             _consumerOptions = options.IdentifierMapperOptions;
 
