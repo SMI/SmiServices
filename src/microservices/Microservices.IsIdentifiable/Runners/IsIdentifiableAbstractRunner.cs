@@ -55,6 +55,11 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         public List<ICustomRule> CustomRules { get; set; } = new List<ICustomRule>();
 
+        /// <summary>
+        /// Custom whitelist rules you want to apply e.g. always ignore a failure if column is X AND value is Y
+        /// </summary>
+        public List<ICustomRule> CustomWhiteListRules { get; set; } = new List<ICustomRule>();
+
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
             _opts = opts;
@@ -95,7 +100,7 @@ namespace Microservices.IsIdentifiable.Runners
         /// <param name="yaml"></param>
         public void LoadRules(string yaml)
         {
-            _logger.Info("Loading Rules Yaml:" + Environment.NewLine + yaml);
+            _logger.Info("Loading Rules Yaml"); // +Environment.NewLine+yaml
             var deserializer = new Deserializer();
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
@@ -104,6 +109,9 @@ namespace Microservices.IsIdentifiable.Runners
 
             if(ruleSet.SocketRules != null)
                 CustomRules.AddRange(ruleSet.SocketRules);
+
+            if(ruleSet.WhiteListRules != null)
+                CustomWhiteListRules.AddRange(ruleSet.WhiteListRules);
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
@@ -140,8 +148,23 @@ namespace Microservices.IsIdentifiable.Runners
                     //if the rule is to report it then report as a failure but also run other classifiers
                     case RuleAction.Report:
                         foreach (var p in parts)
-                            yield return p;
-
+                        {
+                            bool whitelisted = false;
+                            foreach (WhiteListRule whiterule in CustomWhiteListRules)
+                            {
+                                switch (whiterule.ApplyWhiteListRule(fieldName, fieldValue, p))
+                                {
+                                    case RuleAction.Ignore: whitelisted = true; break;
+                                    case RuleAction.None:
+                                    case RuleAction.Report: break;
+                                    default: throw new ArgumentOutOfRangeException();
+                                }
+                                if (whitelisted)
+                                    break;
+                            }
+                            if (!whitelisted)
+                                yield return p;
+                        }
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

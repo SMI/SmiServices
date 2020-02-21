@@ -79,11 +79,14 @@ dotnet IsIdentifiable.dll dir -d C:\MassiveImageArchive --storereport --tessdire
 
 ### Rules
 
+Some rules come out of the box (e.g. CHI/Postcode/Date) but for the rest you must configure rules in Rules.yaml.
+There are three classes of Rules, BasicRules, SocketRules and WhiteListRules.
+They are applied in that order, so if a value is Ignored in a Basic rule it will not be passed to any further rules.
+If a value fails in a SocketRule (eg. the NER daemon labels it as a Person), then a subsequent WhiteList rule can Ignore it.
+
 #### Basic Rules
 
-Some rules come out of the box (e.g. CHI/Postcode) but for the rest you must configure rules in Rules.yaml.
-
-There can either result in a value being Reported or Ignored (i.e. not passed to any downstream classifiers).  Rules can apply to all columns (e.g. Ignore the Modality column) or only those values that match a Regex.
+These can either result in a value being Reported or Ignored (i.e. not passed to any downstream classifiers).  Rules can apply to all columns (e.g. Ignore the Modality column) or only those values that match a Regex.
 
 ```yaml
 BasicRules: 
@@ -124,6 +127,24 @@ Once the responder has decided there are no more offending sections (or there we
 ```
 Responder: \0\0
 ```
+
+#### WhiteListRules
+
+The Action for a White List rule must be Ignore because it is intended to allow values previously reported to be ignored as false positives.
+All of the constraints must match in order for the rule to Ignore the value.
+As soon as a value matches a white list rule no further white list rules are needed.
+Unlike a BasicRule whose Pattern matches the full value of a field (column or DICOM tag) the whitelist rule has two Patterns, IfPattern which has the same behaviour and IfPartPattern which matches only the substring that failed.
+A whitelist rule can also match the failure classification (PrivateIdentifier, Location, Person, Organization, Money, Percent, Date, Time, PixelText, Postcode).
+For example, if SIEMENS has been reported as a Person found in the the Manufacturer column,
+
+```yaml
+WhiteListRules:
+ - Action: Ignore
+   IfClassification: Person
+   IfColumn: Manufacturer
+   IfPartPattern: ^SIEMENS$
+```
+
 
 ### Exchange and Queue Settings
 
