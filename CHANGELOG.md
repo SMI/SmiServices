@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ...
 
+- Batch up RabbitMQ messages/acks in IdentifierMapper to avoid contention with the message publishing persistence
+
 ## [1.4.2] - 2020-02-18
 
 ### Added
