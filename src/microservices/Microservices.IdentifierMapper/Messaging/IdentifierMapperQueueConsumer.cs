@@ -89,7 +89,7 @@ namespace Microservices.IdentifierMapper.Messaging
                             Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
                             if (msgq.TryDequeue(out t))
                             {
-                                _producer.SendMessage(t.Item1, t.Item2, "", false);
+                                _producer.SendMessage(t.Item1, t.Item2, "");
                                 done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
                             }
                         }
