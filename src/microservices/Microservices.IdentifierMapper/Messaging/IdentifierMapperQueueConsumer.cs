@@ -1,4 +1,3 @@
-﻿
 using Dicom;
 using DicomTypeTranslation;
 using Microservices.IdentifierMapper.Execution.Swappers;
