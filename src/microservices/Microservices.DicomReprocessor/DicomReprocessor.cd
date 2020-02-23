@@ -3,25 +3,24 @@
   <Class Name="Microservices.DicomReprocessor.Execution.DicomReprocessorHost">
     <Position X="0.5" Y="4" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAgAIAAAAAAEAAA=</HashCode>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAIoAIAAAAAAAAAA=</HashCode>
       <FileName>Execution\DicomReprocessorHost.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
       <Field Name="_mongoReader" />
-      <Property Name="Processor" />
     </ShowAsAssociation>
   </Class>
   <Class Name="Microservices.DicomReprocessor.Execution.MongoDbReader">
     <Position X="3.75" Y="4.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAEAAAAAAAAAAIAAAAAAAAAAAAQEAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAEAAAAAAEQAAIAAAAQAAIAAQgAECgAA=</HashCode>
       <FileName>Execution\MongoDbReader.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.DicomReprocessor.Execution.Processors.DicomFileProcessor" BaseTypeListCollapsed="true">
     <Position X="6.75" Y="5.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAACFAAAAAAAAAAAAAAAAAAAIAAAQAAAAAAAAQAAAAA=</HashCode>
+      <HashCode>AAQDFQAAAQAAAAAAACEAAAAAIAAAAAAAAAAAAQAIAAA=</HashCode>
       <FileName>Execution\Processors\DicomFileProcessor.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -29,50 +28,42 @@
   <Class Name="Microservices.DicomReprocessor.Execution.Processors.TagPromotionProcessor" BaseTypeListCollapsed="true">
     <Position X="9" Y="5.75" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAACEAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAQAAAAA=</HashCode>
+      <HashCode>AAACEAAAAQAAAAAAACEAAAAAIAAAAAAAAAAAAQAIAAA=</HashCode>
       <FileName>Execution\Processors\TagPromotionProcessor.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Microservices.Common.Options.GlobalOptions" Collapsed="true">
+  <Class Name="Smi.Common.Options.GlobalOptions" Collapsed="true">
     <Position X="0.5" Y="0.5" Width="1.75" />
-    <AssociationLine Name="DicomReprocessorOptions" Type="Microservices.Common.Options.DicomReprocessorOptions" FixedFromPoint="true" FixedToPoint="true">
-      <Path>
-        <Point X="0.812" Y="1.062" />
-        <Point X="0.812" Y="2.312" />
-        <Point X="3.75" Y="2.312" />
-      </Path>
-    </AssociationLine>
     <TypeIdentifier />
     <ShowAsAssociation>
       <Property Name="MongoDatabases" />
       <Property Name="RabbitOptions" />
-      <Property Name="DicomReprocessorOptions" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="Microservices.Common.Options.DicomReprocessorOptions">
-    <Position X="3.75" Y="2" Width="3.5" />
-    <TypeIdentifier />
-  </Class>
-  <Class Name="Microservices.Common.Options.MongoDatabases" Collapsed="true">
+  <Class Name="Smi.Common.Options.MongoDatabases" Collapsed="true">
     <Position X="3.75" Y="0.5" Width="1.75" />
     <TypeIdentifier />
     <ShowAsAssociation>
       <Property Name="DicomStoreOptions" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="Microservices.Common.Options.MongoDbOptions" Collapsed="true">
-    <Position X="7.25" Y="0.5" Width="1.5" />
-    <TypeIdentifier />
-  </Class>
-  <Class Name="Microservices.Common.Options.RabbitOptions" Collapsed="true">
+  <Class Name="Smi.Common.Options.RabbitOptions" Collapsed="true">
     <Position X="3.75" Y="1.25" Width="1.5" />
     <TypeIdentifier />
   </Class>
+  <Class Name="Smi.Common.Options.DicomReprocessorOptions">
+    <Position X="3.75" Y="2" Width="3.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Smi.Common.Options.MongoDbOptions" Collapsed="true">
+    <Position X="7.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
   <Interface Name="Microservices.DicomReprocessor.Execution.Processors.IDocumentProcessor">
-    <Position X="3.75" Y="6.75" Width="2.75" />
+    <Position X="3.75" Y="8" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <HashCode>AAAAEAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAQAIAAA=</HashCode>
       <FileName>Execution\Processors\IDocumentProcessor.cs</FileName>
     </TypeIdentifier>
   </Interface>

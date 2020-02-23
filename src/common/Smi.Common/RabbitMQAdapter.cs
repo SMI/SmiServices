@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,15 +57,31 @@ namespace Smi.Common
 
         private const int MaxSubscriptionAttempts = 5;
 
+        private readonly bool _threaded;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="options">Connection parameters to a RabbitMQ server</param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
-        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null)
+        /// <param name="threaded"></param>
+        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
         {
+            //_threaded = options.ThreadReceivers;
+            _threaded = threaded;
+
+            if (_threaded)
+            {
+                int minWorker, minIOC;
+                ThreadPool.GetMinThreads(out minWorker, out minIOC);
+                int workers = Math.Max(50, minWorker);
+                if (ThreadPool.SetMaxThreads(workers, 50))
+                    _logger.Info($"Set Rabbit event concurrency to ({workers},50)");
+                else
+                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
+            }
+
             _factory = new ConnectionFactory
             {
                 HostName = options.RabbitMqHostName,
@@ -206,7 +223,7 @@ namespace Smi.Common
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="taskId"></param>
         /// <param name="timeout"></param>
@@ -381,13 +398,30 @@ namespace Smi.Common
         {
             IModel m = subscription.Model;
             consumer.SetModel(m);
+            ConcurrentDictionary<Thread,int> threads=new ConcurrentDictionary<Thread,int>();
 
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
                 BasicDeliverEventArgs e;
 
                 if (subscription.Next(500, out e))
-                    consumer.ProcessMessage(e);
+                {
+                    if (_threaded) {
+                        Thread t = new Thread(() => {
+                            consumer.ProcessMessage(e);
+                            threads.TryRemove(Thread.CurrentThread,out _);
+                        });
+                        threads.TryAdd(t,1);
+                        t.Start();
+                    }
+                    else
+                        consumer.ProcessMessage(e);
+                }
+            }
+            if (_threaded) {
+                foreach (Thread t in threads.Keys) {
+                    t.Join();
+                }
             }
 
             string reason = "unknown";

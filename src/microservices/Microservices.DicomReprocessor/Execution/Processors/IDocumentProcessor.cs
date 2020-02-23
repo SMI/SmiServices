@@ -29,5 +29,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
         /// 
         /// </summary>
         void SendMessages();
+
+        void LogProgress();
     }
 }

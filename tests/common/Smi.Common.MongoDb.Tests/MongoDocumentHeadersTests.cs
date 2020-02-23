@@ -35,6 +35,7 @@ namespace Smi.Common.MongoDB.Tests
             var expected = new BsonDocument
             {
                 { "DicomFilePath",               msg.DicomFilePath },
+                { "DicomFileSize",               msg.DicomFileSize },
                 { "NationalPACSAccessionNumber", msg.NationalPACSAccessionNumber },
                 { "MessageHeader", new BsonDocument
                 {

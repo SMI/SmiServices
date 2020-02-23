@@ -194,6 +194,13 @@ namespace Smi.Common.Options
         /// </summary>
         public bool AllowRegexMatching { get; set; }
 
+        /// <summary>
+        /// Optional, if set then your <see cref="SwapperType"/> will be wrapped and it's answers cached in this Redis database.
+        /// The Redis database will always be consulted for a known answer first and <see cref="SwapperType"/> used
+        /// as a fallback.
+        /// </summary>
+        public string RedisHost { get; set; }
+
         public override string ToString()
         {
             return GlobalOptions.GenerateToString(this);
@@ -548,6 +555,7 @@ namespace Smi.Common.Options
         public string RabbitMqPassword { get; set; }
         public string FatalLoggingExchange { get; set; }
         public string RabbitMqControlExchangeName { get; set; }
+        public bool ThreadReceivers { get; set; }
 
         public bool Validate()
         {

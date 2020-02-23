@@ -44,7 +44,7 @@ namespace Smi.Common.Execution
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Smi.NLog.config" of the current directory)</param>
-        protected MicroserviceHost(GlobalOptions globals, bool loadSmiLogConfig = true)
+        protected MicroserviceHost(GlobalOptions globals, bool loadSmiLogConfig = true, bool threaded=false)
         {
             HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
 
@@ -90,7 +90,7 @@ namespace Smi.Common.Execution
                 throw new ApplicationException("Incorrect fo-dicom version for the current platform");
 
             HostProcessID = Process.GetCurrentProcess().Id;
-            Logger.Info("Started " + HostProcessName + ":" + HostProcessID);
+            Logger.Info($"Started {HostProcessName}:{HostProcessID} on host {Environment.MachineName}");
 
             Globals = globals;
             Logger.Debug("Loaded global options:\n" + globals);
@@ -111,7 +111,8 @@ namespace Smi.Common.Execution
             //    throw new ArgumentException("Could not locate the FileSystemRoot \"" + options.FileSystemRoot + "\"");
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
-            RabbitMqAdapter = new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal);
+
+            RabbitMqAdapter = new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
 
             _controlMessageConsumer = new ControlMessageConsumer(this, globals.RabbitOptions, HostProcessName, HostProcessID);
 

@@ -6,25 +6,81 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-### Changed
-
 - \[Breaking\] Updated RabbitMQ extraction config to match extraction plan v2
 - Refactor Java exception handling and use of threads
 - `TessDirectory` option in [IsIdentifiable] now expects tesseract models file to exist (no longer downloads it on demand)
-
-### Added
-
-- Added new microservice [IsIdentifiable] which scans for personally identifiable information (in databases and dicom files)
-- IsIdentifiable runs standalone or as a service in the extraction pipeline (where it validates anonymised files)
-- Added support for custom rules in [IsIdentifiable] (entered in `Rules.yaml`)
-  - Rules are applied in the order they appear in this file
-  - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
 - Addeed support for outsourcing classification (e.g. NLP) to other processes via TCP (entered in [SocketRules] in `Rules.yaml`)
 - IsIdentifiable NLP text classification now outsourced via TCP to any services configured in 
   - [StanfordNER implementation written in java](./src/microservices/uk.ac.dundee.hic.nerd/README.md)
 - New CohortExtractor yaml config option `ProjectPathResolverType` which determines the folder structure for extracted images
 - Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
 - Added `DynamicRejector` which takes its cohort extraction rules from a script file (of CSharp code)
+
+## [1.4.3] - 2020-02-21
+
+### Changed
+
+- Batch up RabbitMQ messages/acks in IdentifierMapper to avoid contention with the message publishing persistence
+
+## [1.4.2] - 2020-02-18
+
+### Added
+
+- Added unit test for AccessionDirectoryLister as part of DicomDirectoryProcessor tests
+
+### Changed
+
+- Make performance counters in RedisSwapper atomic for thread-safety
+- Clean up threads when using threaded mode in RabbitMQAdapter
+- Use explicit threads rather than Task queueing in IdentifierMapper
+
+## [1.4.1] - 2020-02-17
+
+### Added
+
+- Added randomisation in the retry delay on DicomRelationalMapper (and set minimum wait duration to 10s)
+
+### Fixed
+
+- Fixed DLE Payload state being wrong when retrying batches (when it is half / completely consumed)
+- Added lock on producer sending messages in IdentifierMapper
+
+## [1.4.0] - 2020-02-14
+
+### Added
+
+- Added in memory caching of the last 1024 values when using Redis wrapper for an IdentifierSwapper
+- Added some parallelism and marshalling of backend queries to improve throughput in IdentifierSwapper
+- Added temporary flag for RabbitMQAdapter parallelism for the above. Only enabled for the IdentifierMapper for now
+- Added new mode to DicomDirectoryProcessor which allows reading in a list of accession directories
+
+## [1.3.1] - 2020-02-13
+
+### Changed
+
+- Pinned fo-dicom to v4.0.1
+
+## [1.3.0] - 2020-02-06
+
+### Added
+
+- Added (optional) DicomFileSize property to ETL pipeline.  Add to template(s) with:
+```yaml
+  - ColumnName: DicomFileSize
+    AllowNulls: true
+    Type:
+      CSharpType: System.Int64
+```
+
+- Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
+- Added support for custom rules in IsIdentifiable (entered in `Rules.yaml`)
+  - Rules are applied in the order they appear in this file
+  - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
+
+### Changed
+
+- Updated RDMP and Dicom plugins
+- Refactor Java exception handling and use of threads
 
 ## [1.2.3] - 2020-01-09
 
@@ -35,6 +91,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Improved logging in IdentifierSwappers
+- Added `RedisSwapper` which caches answers from any other swapper.  Set `RedisHost` option in yaml to use.
 
 ### Changed
 
@@ -66,15 +123,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Improved travis deployment
 - (Re-)added Smi.NLog.config in builds
+- Added better CLI argument descriptions for DicomReprocessor
+- Added error logging for RabbitMQ bad Ack responses 
+  - Previously: `BasicReturn for TEST.IdentifiableImageExchange`
+  - Now : `BasicReturn for Exchange 'TEST.IdentifiableImageExchange' Routing Key 'reprocessed' ReplyCode '312' (NO_ROUTE)`
+- Added new swapper `TableLookupWithGuidFallbackSwapper` which performs lookup substitutions but allocates guids for lookup misses
+- Added Travis CI build & deploy for all services
 
 ### Changed
 
 - Make exceptions on startup clearer
-
-## [1.2.0-rc1] - 2019-12-10
-
-### Changed
-
 - Updated to latest RDMP API (4.0.1)
 - `TableLookupSwapper` now throws consistent error if the provided table does not exist during `Setup` (previously it would error with DBMS specific error message at lookup time)
 
@@ -83,28 +141,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fixed freeze condition when exchanges are not mapped to queues
 - IdentifierMapper now loads all FAnsi database implementations up front on startup
 
-### Added
-
-- Added better CLI argument descriptions for DicomReprocessor
-- Added error logging for RabbitMQ bad Ack responses
-  - Previously: `BasicReturn for TEST.IdentifiableImageExchange`
-  - Now : `BasicReturn for Exchange 'TEST.IdentifiableImageExchange' Routing Key 'reprocessed' ReplyCode '312' (NO_ROUTE)`
-- Added new swapper `TableLookupWithGuidFallbackSwapper` which performs lookup substitutions but allocates guids for lookup misses
-- Added Travis CI build & deploy for all services
-
 ## [1.1.0] - 2019-11-22
 
-## Added
+### Added
 
 - Improvements to unit and integration tests
 - Documentation fixes
 - Config file for Dependabot
 - Test for DicomFile SkipLargeTags option. Closes [#19](https://dev.azure.com/SmiOps/MVP%20Service/_workitems/edit/19)
 
-## Changed
+### Changed
 
 ### C\# dependencies
-
 - Bumped HIC.DicomTypeTranslation from 1.0.0.3 to 2.1.2
 - Bumped HIC.RDMP.Plugin from 3.1.1 to 4.0.1-rc2
 - Bumped Newtonsoft.Json from 12.0.2 to 12.0.3
@@ -124,21 +172,26 @@ First stable release after importing the repository from the private [SMIPlugin]
 
 - ForGuidIdentifierSwapper automatically creates it's mapping database if it does not exist on the server referenced (previously only table was automatically created)
 
-## Changed
+### Changed
 
 - Updated to [Rdmp.Dicom 2.0.2](https://github.com/HicServices/RdmpDicom/blob/master/CHANGELOG.md#202-2019-11-13)
 - Updated to [Rdmp.Core 3.2.1](https://github.com/HicServices/RDMP/blob/develop/CHANGELOG.md#321---2019-10-30)
 
-## Removed
+### Removed
 
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v1.2.3...develop
-[1.2.3]: https://github.com/SMI/SmiServices/compare/v1.2.2...v1.2.3
-[1.2.2]: https://github.com/SMI/SmiServices/compare/v1.2.1...v1.2.2
-[1.2.1]: https://github.com/SMI/SmiServices/compare/1.2.0...v1.2.1
-[1.2.0]: https://github.com/SMI/SmiServices/compare/1.1.0-rc1...1.2.0
-[1.2.0-rc1]: https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0-rc1
+[unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.3...develop
+[1.4.3]:  https://github.com/SMI/SmiServices/compare/v1.4.2...v1.4.3
+[1.4.2]:  https://github.com/SMI/SmiServices/compare/v1.4.1...v1.4.2
+[1.4.1]:  https://github.com/SMI/SmiServices/compare/v1.4.0...v1.4.1
+[1.4.0]:  https://github.com/SMI/SmiServices/compare/v1.3.1...v1.4.0
+[1.3.1]:  https://github.com/SMI/SmiServices/compare/v1.3.0...v1.3.1
+[1.3.0]:  https://github.com/SMI/SmiServices/compare/v1.2.3...v1.3.0
+[1.2.3]:  https://github.com/SMI/SmiServices/compare/v1.2.2...v1.2.3
+[1.2.2]:  https://github.com/SMI/SmiServices/compare/v1.2.1...v1.2.2
+[1.2.1]:  https://github.com/SMI/SmiServices/compare/1.2.0...v1.2.1
+[1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0-rc1...1.2.0
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
 

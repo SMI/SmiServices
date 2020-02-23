@@ -44,6 +44,7 @@ jobs:
     - postgresql
     - mysql
     - mongodb
+    - redis-server
     env:
       global:
         PGPORT=5433

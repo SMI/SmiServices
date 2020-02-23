@@ -124,6 +124,7 @@ namespace Microservices.Tests.RDMPTests
             toReturn.StudyInstanceUID = "999";
             toReturn.SeriesInstanceUID = "999";
             toReturn.SOPInstanceUID = "999";
+            toReturn.DicomFileSize = fi.Length;
 
             var ds = DicomFile.Open(fi.FullName).Dataset;
             ds.Remove(DicomTag.PixelData);
@@ -271,6 +272,10 @@ namespace Microservices.Tests.RDMPTests
     AllowNulls: true
   - ColumnName: ScanOptions
     AllowNulls: true
+  - ColumnName: DicomFileSize
+    AllowNulls: true
+    Type:
+      CSharpType: System.Int64
 ";
     }
 }
