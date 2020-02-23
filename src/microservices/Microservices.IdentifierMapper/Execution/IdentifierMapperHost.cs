@@ -30,7 +30,7 @@ namespace Microservices.IdentifierMapper.Execution
 
 
         public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig, threaded: true)
         {
             _consumerOptions = options.IdentifierMapperOptions;
 
@@ -50,6 +50,10 @@ namespace Microservices.IdentifierMapper.Execution
                 _swapper = swapper;
             }
 
+            //if we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
+            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisHost))
+                _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisHost, _swapper);
+            
             Logger.Info("Calling Setup on swapper");
 
             try
@@ -62,10 +66,8 @@ namespace Microservices.IdentifierMapper.Execution
                 throw;
             }
 
-            //TODO Probably want to run this in one of two modes:
-            //TODO 1) "Batch" -> Preload whole mapping table, process messages in batches (with batch consumer). Can't scale this horizontally (more services running)
-            //TODO 2) "Stream" -> Query the database for a swap value for each message as it comes in (with a small cache), produce single messages
-            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: false);
+            // Batching now handled implicitly as backlog demands
+            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: true);
 
             Consumer = new IdentifierMapperQueueConsumer(_producerModel, _swapper)
             {

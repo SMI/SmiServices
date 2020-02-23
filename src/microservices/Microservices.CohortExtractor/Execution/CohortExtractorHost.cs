@@ -14,6 +14,7 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 
 namespace Microservices.CohortExtractor.Execution
@@ -110,6 +111,9 @@ namespace Microservices.CohortExtractor.Execution
 
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
+                _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
 
             if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
                 _fulfiller.Rejector = ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly);

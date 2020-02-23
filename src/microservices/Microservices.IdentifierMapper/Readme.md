@@ -24,6 +24,8 @@ This service takes serialized Dicom file as `DicomFileMessage` messages and uses
 		- SwapColumnName, the column in the `MappingTableName` that will contain the expected (identifiable) input values to replace.
 		- ReplacementColumnName, the column in the `MappingTableName` that contains the replacement values.
 
+- Decide if you want to [use a Redis](#Redis) cache.
+
 *The table/connection string details are at the disposal of the `ISwapIdentifiers` chosen.  Some might ignore them completely or might manually create the mapping table themselves (e.g. `ForGuidIdentifierSwapper`)
 
 ### 3. Exchange and Queue Settings
@@ -44,7 +46,21 @@ Expects to receive control messages informing it to 'refresh' it's mapping table
 | ------------- | ------------- |
 |CliOptions | Allows overriding of which yaml file is loaded. |
 
-### 5. Expectations
+### 5. Redis
+
+If you are using an `ISwapper` implementation that consults a large mapping database e.g. 10 million then you may benefit from using a Redis caching database.  Install Redis and set the `RedisHost` option in the config file e.g.
+
+```yaml
+IdentifierMapperOptions:
+    SwapperType: 'Microservices.IdentifierMapper.Execution.Swappers.TableLookupSwapper'
+    RedisHost: localhost
+```
+
+All lookup results will be cached in the Redis server (both succesful lookups and misses).
+
+If you update your lookup table you will have to manually flush the Redis server (if desired).
+
+### 6. Expectations
 
 All identifier allocation is handled by the chosen `ISwapIdentifiers`.  The only field considered is `DicomTag.PatientID` which should be the only patient identifier field loaded by any downstream processes.
 

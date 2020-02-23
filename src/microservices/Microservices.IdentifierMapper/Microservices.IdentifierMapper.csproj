@@ -15,6 +15,10 @@
     <None Include="IdentifierMapper.cd" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.2" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
 </Project>
