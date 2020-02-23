@@ -76,6 +76,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added support for custom rules in IsIdentifiable (entered in `Rules.yaml`)
   - Rules are applied in the order they appear in this file
   - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
+- Added `RedisSwapper` which caches answers from any other swapper.  Set `RedisHost` option in yaml to use.
 
 ### Changed
 
@@ -91,7 +92,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Improved logging in IdentifierSwappers
-- Added `RedisSwapper` which caches answers from any other swapper.  Set `RedisHost` option in yaml to use.
 
 ### Changed
 
@@ -191,7 +191,7 @@ First stable release after importing the repository from the private [SMIPlugin]
 [1.2.3]:  https://github.com/SMI/SmiServices/compare/v1.2.2...v1.2.3
 [1.2.2]:  https://github.com/SMI/SmiServices/compare/v1.2.1...v1.2.2
 [1.2.1]:  https://github.com/SMI/SmiServices/compare/1.2.0...v1.2.1
-[1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0-rc1...1.2.0
+[1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
 
