@@ -133,10 +133,9 @@ namespace Smi.Common.Messages
             return sb.ToString();
         }
 
-        public static long UnixTimeNow()
-        {
-            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
-        }
+        public static long UnixTimeNow() => UnixTime(DateTime.UtcNow);
+
+        public static long UnixTime(DateTime dateTime) => (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
 
         public static Guid[] GetGuidArray(string str)
         {
