@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -28,6 +28,11 @@ namespace Microservices.CohortPackager.Messaging
 
             try
             {
+                // TODO(rkm 2020-02-23) This should really be part of a base ExtractJobStore class
+                // If KeyTag is StudyInstanceUID then ExtractionModality must be specified, otherwise must be null
+                if (message.KeyTag == "StudyInstanceUID" ^ !string.IsNullOrWhiteSpace(message.ExtractionModality))
+                    throw new ApplicationException("Invalid combination of KeyTag and ExtractionModality");
+
                 _store.PersistMessageToStore(message, header);
             }
             catch (ApplicationException e)
