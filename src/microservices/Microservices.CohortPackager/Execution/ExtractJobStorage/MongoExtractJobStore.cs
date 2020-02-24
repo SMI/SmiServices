@@ -135,7 +135,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             {
                 ExtractRequestInfoMessageGuid = header.MessageGuid,
                 ProducerIdentifier = $"{header.ProducerExecutableName}({header.ProducerProcessID})",
-                ReceivedAt = DateTime.Now
+                ReceivedAt = DateTime.UtcNow
             };
 
         public void PersistMessageToStore(ExtractionRequestInfoMessage requestInfoMessage, IMessageHeader header)
