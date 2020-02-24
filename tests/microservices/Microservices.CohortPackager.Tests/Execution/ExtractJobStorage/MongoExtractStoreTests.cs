@@ -1,210 +1,215 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.MessageSerialization;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
+using Smi.Common.MongoDB.Tests;
 using Smi.Common.Tests;
-using System;
-using System.Collections.Generic;
+
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 {
-    [TestFixture, RequiresMongoDb]
+    [TestFixture]
     public class MongoExtractStoreTests
     {
-        private const string JobCollectionName = "extractJobStore";
-
-        private MongoClient _mongoClient;
-        private string _testDbName;
-        private IMongoDatabase _testJobDatabase;
-        private IMongoCollection<MongoExtractJob> _testExtractJobStoreCollection;
-
-        private readonly GlobalOptions _globalOptions = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
-        private MongoDbOptions _mongoDbOptions;
-
-        private readonly Guid _extractionIdentifier = Guid.NewGuid();
-        private readonly Guid _messageHeaderGuid = Guid.NewGuid();
-        private DateTime _testTime;
-
-        private ExtractionRequestInfoMessage _testExtractionRequestInfoMessage;
-        private IMessageHeader _testExtractionRequestInfoMessageHeader;
-
-        private ExtractFileCollectionInfoMessage _testFileCollectionInfoMessage;
-        private IMessageHeader _testFileCollectionInfoMessageHeader;
-
-        private ExtractFileStatusMessage _testStatusMessageOk;
-        private ExtractFileStatusMessage _testStatusMessageWillRetry;
-        private ExtractFileStatusMessage _testStatusMessageWontRetry;
-        private IMessageHeader _testStatusMessageHeader;
-
-        private ExtractJobInfo _expectedBasicJobInfo;
-
         #region Fixture Methods 
 
-        /// <summary> 
-        /// Run once before any tests in this fixture 
-        /// </summary> 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-
-            _mongoDbOptions = _globalOptions.MongoDatabases.ExtractionStoreOptions;
-            _testDbName = _mongoDbOptions.DatabaseName;
-
-            _testTime = DateTime.Now;
-
-            _mongoClient = MongoClientHelpers.GetMongoClient(_mongoDbOptions, "CohortPackagerTests");
-
-            _mongoClient.DropDatabase(_testDbName);
-            _testJobDatabase = _mongoClient.GetDatabase(_testDbName);
-            _testExtractJobStoreCollection = _testJobDatabase.GetCollection<MongoExtractJob>(JobCollectionName);
-
-            _testExtractionRequestInfoMessageHeader = Mock.Of<IMessageHeader>(x =>
-            x.MessageGuid == _messageHeaderGuid
-            && x.ProducerExecutableName == "MockedLinkerCL"
-            && x.ProducerProcessID == 123);
-
-            _testFileCollectionInfoMessageHeader = Mock.Of<IMessageHeader>(x =>
-            x.MessageGuid == _messageHeaderGuid
-            && x.ProducerExecutableName == "MockedCohortExtractor"
-            && x.ProducerProcessID == 123);
-
-            _testStatusMessageHeader = Mock.Of<IMessageHeader>(x =>
-            x.MessageGuid == _messageHeaderGuid
-            && x.ProducerExecutableName == "MockedAnonymiser"
-            && x.ProducerProcessID == 123);
-        }
-
-        /// <summary> 
-        /// Run once after every test in this fixture 
-        /// </summary> 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _mongoClient.DropDatabase(_testDbName);
         }
 
         #endregion
 
         #region Test Methods 
 
-        /// <summary> 
-        /// Run once before every test in this fixture 
-        /// </summary> 
         [SetUp]
-        public void SetUp()
-        {
-            _mongoClient.DropDatabase(_testDbName);
+        public void SetUp() { }
 
-            _testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
-            {
-                ExtractionJobIdentifier = _extractionIdentifier,
-                ProjectNumber = "1234-5678",
-                ExtractionDirectory = @"1234-5678\testExtract",
-                JobSubmittedAt = _testTime,
-                KeyTag = "SeriesInstanceUID",
-                KeyValueCount = 1
-            };
-
-            var dispatched = new JsonCompatibleDictionary<MessageHeader, string>
-            {
-                {new MessageHeader(), "file1.dcm"},
-                {new MessageHeader(), "file2.dcm"},
-                {new MessageHeader(), "file3.dcm"}
-            };
-
-            _testFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
-            {
-                ExtractionJobIdentifier = _extractionIdentifier,
-                ExtractFileMessagesDispatched = dispatched,
-                KeyValue = "1.2.3.4"
-            };
-
-            _testStatusMessageOk = new ExtractFileStatusMessage
-            {
-                ExtractionJobIdentifier = _extractionIdentifier,
-
-                AnonymisedFileName = "file1.dcm",
-                Status = ExtractFileStatus.Anonymised,
-                StatusMessage = null
-            };
-
-            _testStatusMessageWillRetry = new ExtractFileStatusMessage
-            {
-                ExtractionJobIdentifier = _extractionIdentifier,
-                AnonymisedFileName = null,
-                Status = ExtractFileStatus.ErrorWillRetry,
-                StatusMessage = "Not giving up!"
-            };
-            _testStatusMessageWontRetry = new ExtractFileStatusMessage
-            {
-                ExtractionJobIdentifier = _extractionIdentifier,
-                AnonymisedFileName = null,
-                Status = ExtractFileStatus.ErrorWontRetry,
-                StatusMessage = "Oh fish :("
-            };
-
-            var extractFileCollectionInfos = new List<ExtractFileCollectionInfo>
-            {
-                new ExtractFileCollectionInfo("1.2.3.4", new List<string>
-                {
-                    "file1.dcm", "file2.dcm", "file3.dcm"
-                })
-            };
-
-            var fileStatusInfoOk = new ExtractFileStatusInfo("Anonymised", "file1.dcm", null);
-            var fileStatusInfoErrorWillRetry = new ExtractFileStatusInfo("ErrorWillRetry", null, "Not giving up!");
-            var fileStatusInfoErrorWontRetry = new ExtractFileStatusInfo("ErrorWontRetry", null, "Oh fish :(");
-
-            _expectedBasicJobInfo = new ExtractJobInfo(
-                _extractionIdentifier,
-                "1234-5678",
-                _testTime,
-                ExtractJobStatus.WaitingForStatuses, @"1234-5678\testExtract",
-                1,
-                "SeriesInstanceUID",
-                extractFileCollectionInfos,
-                new List<ExtractFileStatusInfo> { fileStatusInfoOk, fileStatusInfoErrorWillRetry, fileStatusInfoErrorWontRetry },
-                "MR");
-        }
-
-        /// <summary> 
-        /// Run once after every test in this fixture 
-        /// </summary> 
         [TearDown]
         public void TearDown() { }
+
+        /// <summary>
+        /// Test mock of the extraction database
+        /// </summary>
+        private class TestExtractionDatabase : TestMongoDatabase
+        {
+            public readonly TestExtractCollection<MongoExtractJob> ExtractJobCollection = new TestExtractCollection<MongoExtractJob>();
+            public readonly TestExtractCollection<ArchivedMongoExtractJob> ExtractJobArchiveCollection = new TestExtractCollection<ArchivedMongoExtractJob>();
+            public readonly TestExtractCollection<QuarantinedMongoExtractJob> ExtractJobQuarantineCollection = new TestExtractCollection<QuarantinedMongoExtractJob>();
+
+            public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null)
+            {
+                if (typeof(TDocument) == typeof(MongoExtractJob) && name == "extractJobStore")
+                    return (IMongoCollection<TDocument>)ExtractJobCollection;
+                if (typeof(TDocument) == typeof(ArchivedMongoExtractJob) && name == "extractJobArchive")
+                    return (IMongoCollection<TDocument>)ExtractJobArchiveCollection;
+                if (typeof(TDocument) == typeof(QuarantinedMongoExtractJob) && name == "extractJobQuarantine")
+                    return (IMongoCollection<TDocument>)ExtractJobQuarantineCollection;
+                throw new ArgumentException($"No implementation for {typeof(TDocument)} with name {name}");
+            }
+        }
+
+        /// <summary>
+        /// Test mock of the extraction collection
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        private class TestExtractCollection<T> : TestMongoCollection<T>
+        {
+            public readonly Dictionary<Guid, T> Documents = new Dictionary<Guid, T>();
+
+            public override long CountDocuments(FilterDefinition<T> filter, CountOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
+
+            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<T> filter, FindOptions<T, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken())
+            {
+                var mockCursor = new Mock<IAsyncCursor<TProjection>>();
+                mockCursor
+                    .SetupSequence(_ => _.MoveNext(It.IsAny<CancellationToken>()))
+                    .Returns(true)
+                    .Returns(false);
+
+                if (filter == FilterDefinition<T>.Empty)
+                {
+                    mockCursor
+                        .Setup(x => x.Current)
+                        .Returns((IEnumerable<TProjection>)Documents.Values.ToList());
+                    return mockCursor.Object;
+                }
+
+                BsonDocument rendered = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<T>(), BsonSerializer.SerializerRegistry);
+                Guid key = Guid.Parse(rendered["_id"].AsString);
+                if (Documents.ContainsKey(key))
+                {
+                    mockCursor
+                        .Setup(x => x.Current)
+                        .Returns((IEnumerable<TProjection>)new List<T> { Documents[key] });
+                    return mockCursor.Object;
+                }
+
+                mockCursor.Reset();
+                mockCursor
+                    .Setup(_ => _.MoveNext(It.IsAny<CancellationToken>()))
+                    .Returns(false);
+                return mockCursor.Object;
+            }
+
+            public override void InsertOne(T document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            {
+                if (!Documents.TryAdd(Guid.Parse(document.ToBsonDocument()["_id"].AsString), document))
+                    throw new Exception("Document already exists");
+            }
+        }
 
         #endregion
 
         #region Tests 
 
         [Test]
-        public void TestPersistJobInfoToStore_Basic()
+        public void TestPersistJobInfoToStore_ExtractionRequestInfoMessage()
         {
-            var store = new MongoExtractJobStore(_mongoDbOptions);
+            var db = new TestExtractionDatabase();
+            var store = new MongoExtractJobStore(db);
+            var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
+            {
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = "1234-5678/testExtract",
+                JobSubmittedAt = DateTime.UtcNow,
+                KeyTag = "SeriesInstanceUID",
+                KeyValueCount = 1,
+                ExtractionModality = "CT",
+            };
+            var testHeader = new MessageHeader
+            {
+                MessageGuid = Guid.NewGuid(),
+                OriginalPublishTimestamp = MessageHeader.UnixTimeNow(),
+                Parents = new Guid[0],
+                ProducerExecutableName = "MongoExtractStoreTests",
+                ProducerProcessID = new Random().Next(),
+            };
 
-            store.PersistMessageToStore(_testExtractionRequestInfoMessage, _testExtractionRequestInfoMessageHeader);
-            store.PersistMessageToStore(_testFileCollectionInfoMessage, _testFileCollectionInfoMessageHeader);
-            store.PersistMessageToStore(_testStatusMessageOk, _testStatusMessageHeader);
-            store.PersistMessageToStore(_testStatusMessageWillRetry, _testStatusMessageHeader);
-            store.PersistMessageToStore(_testStatusMessageWontRetry, _testStatusMessageHeader);
+            store.PersistMessageToStore(testExtractionRequestInfoMessage, testHeader);
 
-            long docCount = _testExtractJobStoreCollection.CountDocuments(FilterDefinition<MongoExtractJob>.Empty);
-            Assert.AreEqual(1, docCount);
-
-            docCount = _testJobDatabase
-                .GetCollection<MongoExtractJob>("statuses_" + _extractionIdentifier)
-                .CountDocuments(FilterDefinition<MongoExtractJob>.Empty);
-
-            Assert.AreEqual(3, docCount);
+            Dictionary<Guid, MongoExtractJob> docs = db.ExtractJobCollection.Documents;
+            Assert.AreEqual(docs.Count, 1);
+            MongoExtractJob extractJob = docs.Values.ToList()[0];
+            Assert.AreEqual(testExtractionRequestInfoMessage.ExtractionJobIdentifier, extractJob.ExtractionJobIdentifier);
+            Assert.AreEqual(testExtractionRequestInfoMessage.ProjectNumber, extractJob.ProjectNumber);
+            Assert.AreEqual(testExtractionRequestInfoMessage.ExtractionDirectory, extractJob.ExtractionDirectory);
+            Assert.AreEqual(testExtractionRequestInfoMessage.JobSubmittedAt, extractJob.JobSubmittedAt);
+            Assert.AreEqual(testExtractionRequestInfoMessage.KeyTag, extractJob.KeyTag);
+            Assert.AreEqual(testExtractionRequestInfoMessage.ExtractionModality, extractJob.ExtractionModality);
+            Assert.AreEqual(new List<MongoExtractFileCollection>(), extractJob.FileCollectionInfo);
+            Assert.AreEqual(ExtractJobStatus.WaitingForCollectionInfo, extractJob.JobStatus);
+            Assert.AreEqual(testExtractionRequestInfoMessage.KeyValueCount, extractJob.KeyCount);
+            Assert.AreEqual(testHeader.MessageGuid, extractJob.Header.ExtractRequestInfoMessageGuid);
+            Assert.AreEqual($"{testHeader.ProducerExecutableName}({testHeader.ProducerProcessID})", extractJob.Header.ProducerIdentifier);
+            Assert.True((DateTime.UtcNow - extractJob.Header.ReceivedAt).TotalSeconds < 1); // Eeehhhh...
         }
+
+        [Test]
+        public void TestPersistJobInfoToStore_ExtractFileCollectionInfoMessage()
+        {
+            var db = new TestExtractionDatabase();
+            var store = new MongoExtractJobStore(db);
+            var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
+            {
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ProjectNumber = "1234-5678",
+                RejectionReasons = new Dictionary<string, int>(),
+                JobSubmittedAt = DateTime.UtcNow,
+                ExtractionDirectory = "1234-5678/testExtract",
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(),
+                KeyValue = "",
+            };
+            var testHeader = new MessageHeader
+            {
+                MessageGuid = Guid.NewGuid(),
+                OriginalPublishTimestamp = MessageHeader.UnixTimeNow(),
+                Parents = new Guid[0],
+                ProducerExecutableName = "MongoExtractStoreTests",
+                ProducerProcessID = new Random().Next(),
+            };
+
+            store.PersistMessageToStore(testExtractFileCollectionInfoMessage, testHeader);
+
+            Dictionary<Guid, MongoExtractJob> docs = db.ExtractJobCollection.Documents;
+            Assert.AreEqual(docs.Count, 1);
+            MongoExtractJob extractJob = docs.Values.ToList()[0];
+            // TODO Check all tested
+            Assert.AreEqual(testExtractFileCollectionInfoMessage.ExtractionJobIdentifier, extractJob.ExtractionJobIdentifier);
+            Assert.AreEqual(testExtractFileCollectionInfoMessage.JobSubmittedAt, extractJob.JobSubmittedAt);
+            Assert.AreEqual(new List<MongoExtractFileCollection>(), extractJob.FileCollectionInfo);
+            Assert.AreEqual(ExtractJobStatus.WaitingForStatuses, extractJob.JobStatus);
+            Assert.AreEqual(testHeader.MessageGuid, extractJob.Header.ExtractRequestInfoMessageGuid);
+            Assert.AreEqual($"{testHeader.ProducerExecutableName}({testHeader.ProducerProcessID})", extractJob.Header.ProducerIdentifier);
+            Assert.True((DateTime.UtcNow - extractJob.Header.ReceivedAt).TotalSeconds < 1);
+        }
+
+        [Test]
+        public void TestPersistJobInfoToStore_ExtractFileStatusMessage()
+        {
+
+
+        }
+
+        [Test]
+        public void TestPersistJobInfoToStore_IsIdentifiableMessage()
+        {
+
+        }
+
+#if false
 
         [Test]
         public void TestGetJobInfo_Basic()
@@ -248,7 +253,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             TestPersistJobInfoToStore_Basic();
 
             var store = new MongoExtractJobStore(_mongoDbOptions);
-            IMongoCollection<ArchivedMongoExtractJob> archiveCollection = _testJobDatabase.GetCollection<ArchivedMongoExtractJob>("extractJobArchive");
+            IMongoCollection<ArchivedMongoExtractJob> archiveCollection =
+ _testJobDatabase.GetCollection<ArchivedMongoExtractJob>("extractJobArchive");
 
             store.CleanupJobData(_extractionIdentifier);
 
@@ -258,19 +264,20 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             Assert.AreEqual(0, jobStoreCount);
             Assert.AreEqual(1, archiveCount);
 
-            ArchivedMongoExtractJob archivedJob = archiveCollection.Find(FilterDefinition<ArchivedMongoExtractJob>.Empty).Single();
+            ArchivedMongoExtractJob archivedJob =
+ archiveCollection.Find(FilterDefinition<ArchivedMongoExtractJob>.Empty).Single();
 
             DateTime now = DateTime.UtcNow;
             Assert.True(now - archivedJob.ArchivedAt < TimeSpan.FromSeconds(5));
             Assert.True(archivedJob.JobStatus == ExtractJobStatus.Archived);
         }
 
-#if false
         [Test]
         public void TestQuarantine()
         {
             var store = new MongoExtractJobStore(_mongoDbOptions);
-            IMongoCollection<BsonDocument> quarantineCollection = _testJobDatabase.GetCollection<BsonDocument>("extractJobQuarantine");
+            IMongoCollection<BsonDocument> quarantineCollection =
+ _testJobDatabase.GetCollection<BsonDocument>("extractJobQuarantine");
 
             TestPersistJobInfoToStore_Basic();
 
@@ -303,7 +310,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             TestQuarantine();
 
             var store = new MongoExtractJobStore(_mongoDbOptions);
-            IMongoCollection<BsonDocument> quarantineCollection = _testJobDatabase.GetCollection<BsonDocument>("extractJobQuarantine");
+            IMongoCollection<BsonDocument> quarantineCollection =
+ _testJobDatabase.GetCollection<BsonDocument>("extractJobQuarantine");
 
             Guid newInfoMessageGuid = Guid.NewGuid();
 
@@ -327,6 +335,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             Assert.NotNull(jobInfoDocument.GetElement(newInfoMessageGuid.ToString()));
         }
 #endif
+
         #endregion
     }
 }
