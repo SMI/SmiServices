@@ -94,11 +94,28 @@ namespace Microservices.IsIdentifiable.Runners
             else
                 _logger.Info("No Rules Yaml file found (thats ok)");
 
-            var source = GetWhitelistSource();
+            IWhitelistSource source = null;
+
+            try
+            {
+                source = GetWhitelistSource();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting Whitelist Source", e);
+            }
+            
             if (source != null)
             {
                 _logger.Info("Fetching Whitelist...");
-                _whiteList = new HashSet<string>(source.GetWhitelist(),StringComparer.CurrentCultureIgnoreCase);
+                try
+                {
+                    _whiteList = new HashSet<string>(source.GetWhitelist(),StringComparer.CurrentCultureIgnoreCase);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Error fetching values for IWhitelistSource {source.GetType().Name}", e);
+                }
 
                 _logger.Info($"Whitelist built with {_whiteList.Count} exact strings");
             }
@@ -252,7 +269,7 @@ namespace Microservices.IsIdentifiable.Runners
                 DiscoveredTable tbl = GetServer(_opts.WhitelistConnectionString, _opts.WhitelistDatabaseType, _opts.WhitelistTableName);
                 DiscoveredColumn col = tbl.DiscoverColumn(_opts.WhitelistColumn);
                 source = new DiscoveredColumnWhitelist(col);
-                _logger.Info($"Loaded a whitelist from {_opts.WhitelistConnectionString} {_opts.WhitelistTableName}");
+                _logger.Info($"Loaded a whitelist from {tbl.GetFullyQualifiedName()}");
             }
 
             return source;
