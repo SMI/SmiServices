@@ -1,4 +1,4 @@
-﻿
+
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
@@ -32,7 +32,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocument
         [BsonElement("keyTag")]
         public string KeyTag { get; set; }
 
-        [BsonElement("keyValueCount")]
+        [BsonElement("keyCount")]
         public int KeyCount { get; set; }
 
         [BsonElement("extractionModality")]
