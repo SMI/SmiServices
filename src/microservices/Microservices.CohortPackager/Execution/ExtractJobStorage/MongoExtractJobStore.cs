@@ -160,6 +160,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                     existing.ExtractionDirectory = requestInfoMessage.ExtractionDirectory;
                     existing.KeyCount = requestInfoMessage.KeyValueCount;
                     existing.ExtractionModality = requestInfoMessage.ExtractionModality;
+                    existing.JobSubmittedAt = requestInfoMessage.JobSubmittedAt;
 
                     if (existing.KeyCount == existing.FileCollectionInfo.Count)
                         existing.JobStatus = ExtractJobStatus.WaitingForStatuses;
@@ -242,9 +243,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 var newJobInfo = new MongoExtractJob
                 {
                     ExtractionJobIdentifier = jobIdentifier,
+                    JobSubmittedAt = collectionInfoMessage.JobSubmittedAt,
                     JobStatus = ExtractJobStatus.WaitingForJobInfo,
                     KeyTag = collectionInfoMessage.KeyValue,
-                    FileCollectionInfo = new List<MongoExtractFileCollection> { newFileCollectionInfo }
+                    FileCollectionInfo = new List<MongoExtractFileCollection> { newFileCollectionInfo },
                 };
 
                 _jobInfoCollection.InsertOne(newJobInfo);
