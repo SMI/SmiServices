@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Batch up RabbitMQ messages/acks in IdentifierMapper to avoid contention with the message publishing persistence
+- Adjust batching so workers queue replies/acks while a worker thread commits those asynchronously, allowing elastic batch sizes (qosprefetch setting now controls maximum batch size, parallelism capped at 50)
 
 ## [1.4.2] - 2020-02-18
 
