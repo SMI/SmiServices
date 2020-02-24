@@ -37,7 +37,6 @@ WhiteListRules:
  - Action: Ignore
    IfPattern: Circle of Willis
    IfPartPattern: ^Willis$
-   IfClassification: Person
  - Action: Ignore
    IfPartPattern: ^Surestart$
    IfClassification: Person
@@ -69,9 +68,6 @@ WhiteListRules:
    IfPartPattern: ^Colo$
    IfClassification: Person
  - Action: Ignore
-   IfPartPattern: ^KUB$
-   IfClassification: Organization
- - Action: Ignore
    IfPartPattern: ^SEC$
    IfClassification: Organization
  - Action: Ignore
@@ -79,18 +75,162 @@ WhiteListRules:
    IfClassification: Organization
  - Action: Ignore
    IfColumn: ProtocolName
+   IfPartPattern: ^Abbvie$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Abd$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Art$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Chest$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^ASIR$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^PETCR$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^ARI$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^CIC$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^WB$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^PETCT$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPartPattern: ^PETNHL$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPartPattern: ^PETOTH$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPartPattern: ^PETCRC$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^EISAI$
+ - Action: Ignore
+   IfColumn: ProtocolName
    IfPartPattern: ^CRIC$
    IfClassification: Organization
+ # These have no Column or Class qualifiers because they are so common and clearly not a Person or Organization
+ - Action: Ignore
+   IfPartPattern: ^AC$
+ - Action: Ignore
+   IfPartPattern: ^Bone$
+ - Action: Ignore
+   IfPartPattern: ^KUB$
+ - Action: Ignore
+   IfPartPattern: ^ECLS$
+ - Action: Ignore
+   IfPartPattern: ^CRC$
+ - Action: Ignore
+   IfPartPattern: ^NCAP$
+ - Action: Ignore
+   IfPartPattern: ^GSI$
+ - Action: Ignore
+   IfPartPattern: ^CCTA$
+ - Action: Ignore
+   IfPartPattern: ^CTA$
+ - Action: Ignore
+   IfPartPattern: ^CTAC$
+ - Action: Ignore
+   IfPartPattern: ^CTV$
+ - Action: Ignore
+   IfPartPattern: ^MPR$
+ - Action: Ignore
+   IfPartPattern: ^NHSH$
+ - Action: Ignore
+   IfPartPattern: ^NCA$
+ - Action: Ignore
+   IfPartPattern: ^IAC$
+ - Action: Ignore
+   IfPartPattern: ^IVP$
+ - Action: Ignore
+   IfPartPattern: ^PE$
+ - Action: Ignore
+   IfPartPattern: ^PULM$
+ - Action: Ignore
+   IfPartPattern: ^Pelv$
+ - Action: Ignore
+   IfPartPattern: ^SPO$
+ - Action: Ignore
+   IfPartPattern: ^Abdomen$
+ - Action: Ignore
+   IfPartPattern: ^AbdoBiopsy$
+ - Action: Ignore
+   IfPartPattern: ^Brainlab$
+ - Action: Ignore
+   IfPartPattern: ^Baseline$
+ - Action: Ignore
+   IfPartPattern: ^Curved$
+ - Action: Ignore
+   IfPartPattern: ^Cystogram$
+ - Action: Ignore
+   IfPartPattern: ^Handwrist$
+ - Action: Ignore
+   IfPartPattern: ^Leg(s)?$
+ - Action: Ignore
+   IfPartPattern: ^Length$
+ - Action: Ignore
+   IfPartPattern: ^Mesenteric$
+ - Action: Ignore
+   IfPartPattern: ^Neck$
+ - Action: Ignore
+   IfPartPattern: ^Petrous$
+ - Action: Ignore
+   IfPartPattern: ^Recon$
+ - Action: Ignore
+   IfPartPattern: ^Urogram$
+ - Action: Ignore
+   IfPartPattern: ^Venegram$
+ - Action: Ignore
+   IfPartPattern: ^VCT$
+ - Action: Ignore
+   IfPartPattern: ^WB$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Bones$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^TAVI$
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^Vertex$
    IfClassification: Organization
+
+ # Why on earth does it pick up & and / as Organizations?!
  - Action: Ignore
-   IfColumn: SeriesDescription
-   IfPartPattern: ^CTA$
+   IfPartPattern: ^\&$
  - Action: Ignore
-   IfColumn: SeriesDescription
-   IfPartPattern: ^CTAC$
+   IfPartPattern: ^/$
+
+ # When every word is capitalised then all words are flagged as Person
+ # To filter out Low and Dose when they occur together as Low Dose:
+ # XXX Warning if Low is found twice, once as Low Dose and another as a person name, in the same string, the latter won't be flagged
+ - Action: Ignore
+   IfPattern: Low Dose
+   IfPartPattern: Low
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: Dose
+   IfClassification: Person
+ - Action: Ignore
+   IfPattern: Body Low Dose
+   IfPartPattern: ^Body$
+ - Action: Ignore
+   IfPattern: Hi.res
+   IfPartPattern: ^Hi$
+ - Action: Ignore
+   IfPattern: Hi.res
+   IfPartPattern: ^Res$
+
  # We expect to find Organizations and Locations in the InstitutionName!
  - Action: Ignore
    IfColumn: InstitutionName
@@ -165,12 +305,31 @@ BasicRules:
    IfColumn: ModalitiesInStudy
    IfPattern: ^PR$
 
+ # Sharp could be a Person but these very specific strings are not
  - Action: Ignore
    IfColumn: SeriesDescription
-   IfPattern: ^[0-9\.] *Sharp$
+   IfPattern: ^[0-9\.]* *Sharp$
  - Action: Ignore
    IfColumn: SeriesDescription
-   IfPattern: ^[0-9\.] *Sharp *Scano$
+   IfPattern: ^[0-9\.]* *CE *Sharp$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^[0-9\.]* *Sharp *Scano$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^[0-9\.]* *Sharp *CE *Scano$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^[0-9\.]* *Bone *Sharp$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^[0-9\.]* *S.*ft *Tissue *Sharp *CE$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^Bone *[0-9\.]* *Bone *Sharp$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^Lung *[0-9\.]* *Lung *HRCT *Sharp$
 
  # Ignore specific hospital names if they occur in InstitutionName
  # (not all need to be listed, these are picked up as a Person by NERd)
@@ -267,10 +426,28 @@ BasicRules:
    IfPattern: ^Bony Pelvis$
  - Action: Ignore
    IfColumn: ProtocolName
+   IfPattern: ^Headcspine$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^[0-9_ ]*Angiohead$
+ - Action: Ignore
+   IfColumn: ProtocolName
    IfPattern: ^HRCT Helical$
  - Action: Ignore
    IfColumn: ProtocolName
+   IfPattern: ^Angio Leg Run.Off$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^Pul.Ang$
+ - Action: Ignore
+   IfColumn: ProtocolName
    IfPattern: ^KUB$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^Abdomen *Pre *Biopsy$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^CT Colonography Minima$
  - Action: Ignore
    IfColumn: PerformedProcedureStepDescription
    IfPattern: ^KUB$
@@ -280,6 +457,33 @@ BasicRules:
  - Action: Ignore
    IfColumn: ProcedureCodeSequence_CodeValue
    IfPattern: ^C[A-Z]{4,5}$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^NBONWO$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^NCGENW$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^WB Standard$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^[0-9 ]*INSPIRATIO$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^Thorax_Liv$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^AC CT WB$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^Abdo Non Contrast$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^Abdo Pelv$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^Pelvis Bone$
 
 
  # These patterns have been derived by testing 100 CT and 100 MR images with Stanford CoreNLP.
@@ -839,6 +1043,9 @@ BasicRules:
    IfColumn: StudyDescription
    IfPattern: ^ct enterography$
  - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^ct enterography$
+ - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^ct facet joint injection lumbar$
  - Action: Ignore
@@ -874,9 +1081,6 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^ct mastoids$
- - Action: Ignore
-   IfColumn: StudyDescription
-   IfPattern: ^ct mesenteric angio$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^ct pelvimetry$
