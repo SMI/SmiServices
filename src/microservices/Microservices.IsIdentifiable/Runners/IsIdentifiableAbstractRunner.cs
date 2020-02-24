@@ -50,6 +50,8 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         private readonly HashSet<string> _skipColumns = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
+        private HashSet<string> _whiteList;
+
         /// <summary>
         /// Custom rules you want to apply e.g. always ignore column X if value is Y
         /// </summary>
@@ -91,6 +93,15 @@ namespace Microservices.IsIdentifiable.Runners
                 LoadRules(File.ReadAllText(fi.FullName));
             else
                 _logger.Info("No Rules Yaml file found (thats ok)");
+
+            var source = GetWhitelistSource();
+            if (source != null)
+            {
+                _logger.Info("Fetching Whitelist...");
+                _whiteList = new HashSet<string>(source.GetWhitelist(),StringComparer.CurrentCultureIgnoreCase);
+
+                _logger.Info($"Whitelist built with {_whiteList.Count} exact strings");
+            }
         }
 
         /// <summary>
@@ -134,6 +145,10 @@ namespace Microservices.IsIdentifiable.Runners
             // Carets (^) are synonymous with space in some dicom tags
             fieldValue = fieldValue.Replace('^', ' ');
 
+            //if there is a whitelist and it says to ignore the (full string) value
+            if (_whiteList != null && _whiteList.Contains(fieldValue.Trim()))
+                yield break;
+                    
             //for each custom rule
             foreach (ICustomRule rule in CustomRules)
             {
