@@ -50,6 +50,8 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         private readonly HashSet<string> _skipColumns = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
+        private HashSet<string> _whiteList;
+
         /// <summary>
         /// Custom rules you want to apply e.g. always ignore column X if value is Y
         /// </summary>
@@ -91,6 +93,32 @@ namespace Microservices.IsIdentifiable.Runners
                 LoadRules(File.ReadAllText(fi.FullName));
             else
                 _logger.Info("No Rules Yaml file found (thats ok)");
+
+            IWhitelistSource source = null;
+
+            try
+            {
+                source = GetWhitelistSource();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting Whitelist Source", e);
+            }
+            
+            if (source != null)
+            {
+                _logger.Info("Fetching Whitelist...");
+                try
+                {
+                    _whiteList = new HashSet<string>(source.GetWhitelist(),StringComparer.CurrentCultureIgnoreCase);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Error fetching values for IWhitelistSource {source.GetType().Name}", e);
+                }
+
+                _logger.Info($"Whitelist built with {_whiteList.Count} exact strings");
+            }
         }
 
         /// <summary>
@@ -134,6 +162,10 @@ namespace Microservices.IsIdentifiable.Runners
             // Carets (^) are synonymous with space in some dicom tags
             fieldValue = fieldValue.Replace('^', ' ');
 
+            //if there is a whitelist and it says to ignore the (full string) value
+            if (_whiteList != null && _whiteList.Contains(fieldValue.Trim()))
+                yield break;
+                    
             //for each custom rule
             foreach (ICustomRule rule in CustomRules)
             {
@@ -237,7 +269,7 @@ namespace Microservices.IsIdentifiable.Runners
                 DiscoveredTable tbl = GetServer(_opts.WhitelistConnectionString, _opts.WhitelistDatabaseType, _opts.WhitelistTableName);
                 DiscoveredColumn col = tbl.DiscoverColumn(_opts.WhitelistColumn);
                 source = new DiscoveredColumnWhitelist(col);
-                _logger.Info($"Loaded a whitelist from {_opts.WhitelistConnectionString} {_opts.WhitelistTableName}");
+                _logger.Info($"Loaded a whitelist from {tbl.GetFullyQualifiedName()}");
             }
 
             return source;
