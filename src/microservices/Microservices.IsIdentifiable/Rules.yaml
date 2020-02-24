@@ -1,8 +1,104 @@
-﻿# SocketRules specify the connection to the Named Entity Recogniser
+﻿# Rules are applied in this order: BasicRules, SocketRules, WhiteListRules
+
+# SocketRules specify the connection to the nerd (Named Entity Recogniser daemon)
 
 SocketRules:   
  - Host: localhost
    Port: 1881
+
+# WhiteListRules specify the failures which can be ignored
+
+WhiteListRules:
+ # Things which NER classifies as a Person but clearly are not
+ - Action: Ignore
+   IfPartPattern: ^SAFIRE$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Topogram$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Urogram$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Pneumocolon$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Mesinteric$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^ABDO$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Angio$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^HRCT$
+   IfClassification: Person
+ - Action: Ignore
+   IfPattern: Circle of Willis
+   IfPartPattern: ^Willis$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Surestart$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Kidneys$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Angiogram$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^CT$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^CT$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^CTPA$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^CTPA$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^(IAM|IAMS)$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^Pelvis$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Colo$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^KUB$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^SEC$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^SPECT$
+   IfClassification: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^CRIC$
+   IfClassification: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Vertex$
+   IfClassification: Organization
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: ^CTA$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: ^CTAC$
+ # We expect to find Organizations and Locations in the InstitutionName!
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfClassification: Organization
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfClassification: Location
+
 
 # BasicRules specify the patterns to Ignore or Report
 
@@ -69,6 +165,123 @@ BasicRules:
    IfColumn: ModalitiesInStudy
    IfPattern: ^PR$
 
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^[0-9\.] *Sharp$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^[0-9\.] *Sharp *Scano$
+
+ # Ignore specific hospital names if they occur in InstitutionName
+ # (not all need to be listed, these are picked up as a Person by NERd)
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^QUEEN ELIZABETH UNIVERSITY HOSP$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^St John.s Hospital Livingston$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Royal Alexandra Hospital CT. TOSH$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Victoria Hospital$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^University Hosp. Crosshouse CT.$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^NEW VICTORIA HOSPITAL$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^QUEEN MARGARET HOSPITAL$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Royal Alexandra Hospital$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^LORN . ISLANDS$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^GALLOWAY COMMUNITY HOSPITAL$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Edinburgh RI$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^John Mallard PET Centre Aberdeen$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Ross Hall Hospital$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Lister Hospital$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Glasgow Royal Inf$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Cumberland Infirmary, Carlisle$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^John Radcliffe Hospital$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Freeman Hospital$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Ysbyty Gwynedd$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Castle Hill$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Preston PETCT Centre$
+
+ # MySQL results
+ - Action: Ignore
+   IfColumn: Manufacturer
+   IfPattern: ^Philips Medical Systems$
+ - Action: Ignore
+   IfColumn: Manufacturer
+   IfPattern: ^TOSHIBA_MEC$
+ - Action: Ignore
+   IfColumn: Manufacturer
+   IfPattern: ^Hitachi Medical Corporation$
+ - Action: Ignore
+   IfColumn: Manufacturer
+   IfPattern: ^Shenzhen Anke High Tech. Corp. Ltd.$
+ - Action: Ignore
+   IfColumn: ManufacturerModelName
+   IfPattern: ^Signa HDxt$
+ - Action: Ignore
+   IfColumn: ManufacturerModelName
+   IfPattern: ^AIRIS_Vento$
+
+ - Action: Ignore
+   IfColumn: ImageOrientationPatient
+   IfPattern: ^[0-9-]{1,2}\.[0-9]{5,8}$
+
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^Bony Pelvis$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^HRCT Helical$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPattern: ^KUB$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^KUB$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^CT Urogram$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^C[A-Z]{4,5}$
+
+
  # These patterns have been derived by testing 100 CT and 100 MR images with Stanford CoreNLP.
  # NOTE the manufacturer strings are necessarily substrings but sufficiently unique
  # as no PII has been observed in PrivateCreator in conjunction with these values
@@ -87,6 +300,19 @@ BasicRules:
  - Action: Ignore
    IfColumn: PrivateCreator
    IfPattern: SIEMENS CT
+ - Action: Ignore
+   IfColumn: Manufacturer
+   IfPattern: ^SIEMENS$
+
+ - Action: Ignore
+   IfColumn: Manufacturer
+   IfPattern: ^PNMS$
+ - Action: Ignore
+   IfColumn: Manufacturer
+   IfPattern: ^Carestream Health$
+ - Action: Ignore
+   IfColumn: ManufacturerModelName
+   IfPattern: ^Asteion$
 
  # Philips
  - Action: Ignore
@@ -261,6 +487,15 @@ BasicRules:
  - Action: Ignore
    IfColumn: ImageType
    IfPattern: ^TRACEW$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^DERIVED$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^PRIMARY$
+ - Action: Ignore
+   IfColumn: ImageType
+   IfPattern: ^EADC$
 
  - Action: Ignore
    IfColumn: PatientPosition
@@ -320,6 +555,91 @@ BasicRules:
  - Action: Ignore
    IfColumn: SpecificCharacterSet
    IfPattern: ^ISO 2022 IR 100$
+
+ # MySQL tables (esp. ImageTable) contain SoftwareVersions
+ # with content such as dates and place names. We will have to assume these are legit.
+ # Currently flagged: dd/mm/yyyy, BOSTON, FPGA in xxx.dll##1.02##dd/mm/yy\etc
+
+ - Action: Ignore
+   IfColumn: SoftwareVersions
+
+ # MySQL image tables contain a path name which we try to filter out:
+ # eg. YYYY/MM/DD/Gxxxxx/CT.nnn.nnn.nnnnn.nnnnn.nnnnn etc
+ # eg. YYYY/MM/DD/MR-nn-nnnnnnn/MR.nnnn etc
+
+ - Action: Ignore
+   IfColumn: RelativeFileArchiveURI
+   IfPattern: ^\d{4}.\d{2}.\d{2}.[A-Z0-9]*.[A-Z]{2}.([\d\.]){5,11}.\d*$
+ - Action: Ignore
+   IfColumn: RelativeFileArchiveURI
+   IfPattern: ^\d{4}.\d{2}.\d{2}.[A-Z0-9]*[0-9-]*.[A-Z]{2}.([\d\.]){5,11}.\d*$
+
+ # MySQL tables also contain some unusual fields:
+ # eg. ISOVUE 300 mls (the mls is optional)
+ - Action: Ignore
+   IfColumn: ContrastBolusAgent
+   IfPattern: ^isovue[0-9 ]*(mls){0,1}$
+
+ # MySQL tables contain these:
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^ABDO$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^ABDO.PEL[A-Z]*$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^BONEY.PEL[A-Z]*$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^CTA_[A-Z_]*$
+
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^HRCT$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^IAMS$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPattern: ^KUB$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^CABPEC$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^CLIVEC$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^CHRC$
+
+ - Action: Ignore
+   IfColumn: DeviceSerialNumber
+   IfPattern: ^[A-Z]{3}\d{7}$
+
+ # Stanford NER claims anything written with a capital letter is a proper noun
+ # so filter out the obvious ones where we can.
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Chest$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Pelvis$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Facial Bones$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Spine Cervical$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Spine Lumbar$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Mandible$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT (Angio|Angiogram) aortic arch
 
  # Rules generated from testing the MySQL tables for CT and MR with Stanford CoreNLP.
  # (Different rules may be needed if using spaCy).
