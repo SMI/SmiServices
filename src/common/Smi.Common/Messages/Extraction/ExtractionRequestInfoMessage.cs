@@ -12,7 +12,7 @@ namespace Smi.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public int KeyValueCount { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        [JsonProperty(Required = Required.AllowNull)]
         public string ExtractionModality { get; set; }
 
 
