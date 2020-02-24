@@ -1,16 +1,13 @@
 
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using NLog;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments;
+using MongoDB.Driver;
+using NLog;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -38,13 +35,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         };
 
 
-        public MongoExtractJobStore(MongoDbOptions options)
+        public MongoExtractJobStore(IMongoDatabase database)
         {
-            MongoClient client = MongoClientHelpers.GetMongoClient(options, "CohortPackager");
-            _database = client.GetDatabase(options.DatabaseName);
-
-            if (!_database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(1000))
-                throw new ArgumentException($"Could not connect to the MongoDB server/database on startup at: {options.HostName}:{options.Port}");
+            _database = database;
 
             _jobInfoCollection = _database.GetCollection<MongoExtractJob>(ExtractJobCollectionName);
             _jobArchiveCollection = _database.GetCollection<ArchivedMongoExtractJob>(ArchiveCollectionName);

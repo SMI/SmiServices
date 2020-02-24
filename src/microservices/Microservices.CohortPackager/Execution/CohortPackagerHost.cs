@@ -1,10 +1,13 @@
+using System;
+using System.IO.Abstractions;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
+using MongoDB.Driver;
 using Smi.Common.Execution;
+using Smi.Common.MongoDB;
 using Smi.Common.Options;
-using System;
-using System.IO.Abstractions;
+
 
 namespace Microservices.CohortPackager.Execution
 {
@@ -25,7 +28,9 @@ namespace Microservices.CohortPackager.Execution
             : base(globals, loadSmiLogConfig)
         {
             // Connect to store & validate etc.
-            var jobStore = new MongoExtractJobStore(globals.MongoDatabases.ExtractionStoreOptions);
+            MongoDbOptions opts = Globals.MongoDatabases.ExtractionStoreOptions;
+            IMongoDatabase database = MongoClientHelpers.GetMongoClient(opts, "CohortPackager").GetDatabase(opts.DatabaseName);
+            var jobStore = new MongoExtractJobStore(database);
 
             // Setup the watcher for completed jobs
             JobWatcher = new ExtractJobWatcher(globals.CohortPackagerOptions, globals.FileSystemOptions, jobStore, ExceptionCallback, overrideFileSystem ?? new FileSystem());
