@@ -100,12 +100,7 @@ namespace Microservices.IdentifierMapper.Messaging
             }
             else
             {
-                // Now ship it to the exchange
-                // Looks strange, but:
-                // First invocation will send 1 message and wait for ack
-                // While that is waiting, more messages pile up
-                // Once that completes, it releases the lock and another thread will drain the whole queue in one
-                // This should then have the effect of batching messages up and waiting for a full batch to process.
+                // Enqueue the outgoing message. Request will be acked by the queue handling thread above.
                 msgq.Add(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
             }
         }
