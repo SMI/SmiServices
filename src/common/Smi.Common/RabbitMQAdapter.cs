@@ -398,7 +398,6 @@ namespace Smi.Common
         {
             IModel m = subscription.Model;
             consumer.SetModel(m);
-            ConcurrentDictionary<Thread,int> threads=new ConcurrentDictionary<Thread,int>();
 
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
@@ -406,21 +405,15 @@ namespace Smi.Common
 
                 if (subscription.Next(500, out e))
                 {
-                    if (_threaded) {
-                        Thread t = new Thread(() => {
+                    if (_threaded)
+                    {
+                        Task.Run(() =>
+                        {
                             consumer.ProcessMessage(e);
-                            threads.TryRemove(Thread.CurrentThread,out _);
-                        });
-                        threads.TryAdd(t,1);
-                        t.Start();
+                        },cancellationToken);
                     }
                     else
                         consumer.ProcessMessage(e);
-                }
-            }
-            if (_threaded) {
-                foreach (Thread t in threads.Keys) {
-                    t.Join();
                 }
             }
 

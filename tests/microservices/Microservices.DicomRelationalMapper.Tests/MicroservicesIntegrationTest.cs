@@ -353,6 +353,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             _globals.DicomRelationalMapperOptions.Guid = new Guid("6c7cfbce-1af6-4101-ade7-6537eea72e03");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
+            _globals.IdentifierMapperOptions.QoSPrefetchCount = 50;
             _globals.DicomTagReaderOptions.NackIfAnyFileErrors = false;
 
             _helper.TruncateTablesIfExists();
