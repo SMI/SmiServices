@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -25,8 +25,6 @@ namespace Microservices.CohortPackager.Messaging
         {
             if (!SafeDeserializeToMessage(header, ea, out ExtractFileCollectionInfoMessage message))
                 return;
-
-            // TODO(rkm 2020-02-04) Handle message.RejectionReasons
 
             try
             {

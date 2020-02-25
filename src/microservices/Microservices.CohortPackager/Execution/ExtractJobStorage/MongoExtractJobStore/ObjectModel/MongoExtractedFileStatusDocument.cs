@@ -1,15 +1,15 @@
-﻿
+﻿using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments
+
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel
 {
-    [BsonIgnoreExtraElements]
-    public class MongoExtractedFileStatus
+    //[BsonIgnoreExtraElements]
+    public class MongoExtractedFileStatusDocument
     {
         [BsonElement("header")]
-        public ExtractFileStatusMessageHeader Header { get; set; }
+        public MongoExtractedFileStatusHeaderDocument Header { get; set; }
 
         [BsonElement("status")]
         public string Status { get; set; }
@@ -21,7 +21,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocument
         public string StatusMessage { get; set; }
     }
 
-    public class ExtractFileStatusMessageHeader
+    public class MongoExtractedFileStatusHeaderDocument
     {
         [BsonElement("fileStatusMessageGuid")]
         [BsonRepresentation(BsonType.String)]

@@ -1,6 +1,6 @@
 using System;
 using System.IO.Abstractions;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
 using MongoDB.Driver;

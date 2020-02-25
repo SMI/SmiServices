@@ -1,8 +1,8 @@
-﻿
+﻿using System;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments
+
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel
 {
     public class ArchivedMongoExtractJob : MongoExtractJob, IEquatable<ArchivedMongoExtractJob>
     {

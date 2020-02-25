@@ -1,12 +1,9 @@
-﻿
+﻿using System;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
-using RabbitMQ.Client.Events;
-using System;
-using System.ComponentModel;
-using Renci.SshNet.Messages;
 
 
 namespace Microservices.CohortPackager.Messaging
@@ -24,14 +21,10 @@ namespace Microservices.CohortPackager.Messaging
             _store = store;
         }
 
-
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs ea)
         {
             if (!SafeDeserializeToMessage(header, ea, out ExtractFileStatusMessage message))
                 return;
-
-            if (message.Status == ExtractFileStatus.Anonymised)
-                throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 
             try
             {

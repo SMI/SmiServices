@@ -194,7 +194,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("KeyValue: " + KeyValue);
+            sb.AppendLine("Key: " + KeyValue);
             sb.AppendLine("ExpectedAnonymisedFiles:\n" + string.Join(", ", ExpectedAnonymisedFiles));
 
             return sb.ToString();

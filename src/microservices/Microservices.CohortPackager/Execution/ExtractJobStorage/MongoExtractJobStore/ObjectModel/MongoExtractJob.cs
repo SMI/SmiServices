@@ -1,11 +1,11 @@
-
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments
+
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel
 {
     public class MongoExtractJob : IEquatable<MongoExtractJob>
     {
@@ -39,7 +39,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocument
         public string ExtractionModality { get; set; }
 
         [BsonElement("fileCollectionInfo")]
-        public List<MongoExtractFileCollection> FileCollectionInfo { get; set; }
+        public List<MongoExpectedFilesForKey> FileCollectionInfo { get; set; }
 
         public MongoExtractJob() { }
 

@@ -1,33 +1,32 @@
-
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments
+
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel
 {
-    public class MongoExtractFileCollection : IEquatable<MongoExtractFileCollection>
+    /// <summary>
+    /// MongoDB document model representing a set of files which are expected to be extracted
+    /// </summary>
+    public class MongoExpectedFilesForKey : IEquatable<MongoExpectedFilesForKey>
     {
         [BsonElement("header")]
         public ExtractFileCollectionHeader Header { get; set; }
 
-        [BsonElement("keyValue")]
-        public string KeyValue { get; set; }
+        [BsonElement("key")]
+        public string Key { get; set; }
 
         [BsonElement("expectedFiles")]
         public List<ExpectedAnonymisedFileInfo> AnonymisedFiles { get; set; }
 
-        [BsonElement("rejectedKeys")]
-        public List<Tuple<string, int>> RejectedKeys { get; set; }
-
-        public bool Equals(MongoExtractFileCollection other)
+        public bool Equals(MongoExpectedFilesForKey other)
         {
             return other != null &&
                    Header.Equals(other.Header) &&
-                   KeyValue == other.KeyValue &&
-                   AnonymisedFiles.All(other.AnonymisedFiles.Contains) &&
-                   RejectedKeys.All(other.RejectedKeys.Contains);
+                   Key == other.Key &&
+                   AnonymisedFiles.All(other.AnonymisedFiles.Contains);
         }
     }
 
