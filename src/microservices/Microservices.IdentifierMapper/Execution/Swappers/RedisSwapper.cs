@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
@@ -23,13 +23,18 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         {
             SizeLimit = 1024
         });
+
         private ConcurrentDictionary<object, SemaphoreSlim> _locks = new ConcurrentDictionary<object, SemaphoreSlim>();
+
+        private readonly ILogger _logger;
 
         public RedisSwapper(string redisHost, ISwapIdentifiers wrappedSwapper)
         {
+            _logger = LogManager.GetCurrentClassLogger();
             _redis = ConnectionMultiplexer.Connect(redisHost);
             _hostedSwapper = wrappedSwapper;
         }
+
         public override void Setup(IMappingTableOptions mappingTableOptions)
         {
             _hostedSwapper.Setup(mappingTableOptions);
@@ -98,6 +103,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 Interlocked.Increment(ref Fail);
             else
                 Interlocked.Increment(ref Success);
+
+            if (Success % 100 == 0)
+                LogProgress(_logger, LogLevel.Info);
 
             return result;
         }
