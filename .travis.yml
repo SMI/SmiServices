@@ -34,6 +34,7 @@ jobs:
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
+        - maven
         - erlang-crypto
         - erlang-eldap
         - erlang-inets
