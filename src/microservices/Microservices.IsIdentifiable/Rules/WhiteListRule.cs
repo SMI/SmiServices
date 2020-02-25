@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microservices.IsIdentifiable.Failures;
+using NLog;
+
+// XXX using RegexOptions.Compiled may result in a large amount of static code
+// which is never freed during garbage collection, see
+// https://docs.microsoft.com/en-us/dotnet/standard/base-types/compilation-and-reuse-in-regular-expressions
+// Note that the Regex Cache is not used in instance methods.
 
 namespace Microservices.IsIdentifiable.Rules
 {
@@ -13,6 +19,8 @@ namespace Microservices.IsIdentifiable.Rules
     /// </summary>
     public class WhiteListRule : ICustomRule
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private Regex _ifPattern;
         private Regex _ifPartPattern;
 
@@ -40,12 +48,12 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfPattern
         {
             get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value,RegexOptions.IgnoreCase);
+            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
         public string IfPartPattern
         {
             get => _ifPartPattern?.ToString();
-            set => _ifPartPattern = value == null ? null : new Regex(value,RegexOptions.IgnoreCase);
+            set => _ifPartPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
         /// <summary>
@@ -89,7 +97,14 @@ namespace Microservices.IsIdentifiable.Rules
             // A pattern to match the whole of the field value, not just the bit which failed
             if (_ifPattern!=null && !_ifPattern.Matches(fieldValue).Any())
                 return(RuleAction.None);
-    
+
+            _logger.Debug("WhiteListing fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
+            + " due to rule: "
+            + (_ifPattern == null ? "" : "Pattern: " + _ifPattern.ToString())
+            + (IfPartPattern == null ? "" : " Part: " + IfPartPattern.ToString())
+            + (IfColumn == null ? "" : " Column: " + IfColumn)
+            + (IfClassification == FailureClassification.None ? "" : " Classification: " + IfClassification));
+
             return Action;
         }
     }

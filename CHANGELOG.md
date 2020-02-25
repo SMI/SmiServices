@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
 - Added `DynamicRejector` which takes its cohort extraction rules from a script file (of CSharp code)
 
+## [1.4.4] - 2020-02-25
+
+- Update Travis config and Java library install shell script to resolve some Travis stability issues
+- Adjust batching so workers queue replies/acks while a worker thread commits those asynchronously, allowing elastic batch sizes (qosprefetch setting now controls maximum batch size, parallelism capped at 50)
+
 ## [1.4.3] - 2020-02-21
 
 ### Changed
@@ -196,6 +201,7 @@ First stable release after importing the repository from the private [SMIPlugin]
 [1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
+
 
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
 [SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules

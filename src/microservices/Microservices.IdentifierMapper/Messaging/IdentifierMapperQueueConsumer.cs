@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Microservices.IdentifierMapper.Messaging
 {
@@ -20,12 +21,40 @@ namespace Microservices.IdentifierMapper.Messaging
 
         private readonly Regex _patientIdRegex = new Regex("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
-        ConcurrentQueue<Tuple<DicomFileMessage,IMessageHeader,BasicDeliverEventArgs>> msgq=new ConcurrentQueue<Tuple<DicomFileMessage,IMessageHeader, BasicDeliverEventArgs>>();
+        BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,BasicDeliverEventArgs>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, BasicDeliverEventArgs>>();
+        private Thread acker;
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
         {
             _producer = producer;
             _swapper = swapper;
+            acker=new Thread(() =>
+            {
+                while (true)
+                {
+                    List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
+                    Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
+                    t = msgq.Take();
+
+                    lock (_producer)
+                    {
+                        _producer.SendMessage(t.Item1, t.Item2, "");
+                        done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                        while (msgq.TryTake(out t))
+                        {
+                            _producer.SendMessage(t.Item1, t.Item2, "");
+                            done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                        }
+                        _producer.WaitForConfirms();
+                        foreach (var ack in done)
+                        {
+                            Ack(ack.Item1, ack.Item2);
+                        }
+                    }
+                }
+            });
+            acker.IsBackground = true;
+            acker.Start();
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
@@ -71,34 +100,8 @@ namespace Microservices.IdentifierMapper.Messaging
             }
             else
             {
-                // Now ship it to the exchange
-                // Looks strange, but:
-                // First invocation will send 1 message and wait for ack
-                // While that is waiting, more messages pile up
-                // Once that completes, it releases the lock and another thread will drain the whole queue in one
-                // This should then have the effect of batching messages up and waiting for a full batch to process.
-                msgq.Enqueue(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
-                lock (_producer)
-                {
-                    if (!msgq.IsEmpty)
-                    {
-                        List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
-                        while (!msgq.IsEmpty)
-                        {
-                            Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
-                            if (msgq.TryDequeue(out t))
-                            {
-                                _producer.SendMessage(t.Item1, t.Item2, "");
-                                done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
-                            }
-                        }
-                        _producer.WaitForConfirms();
-                        foreach (var t in done)
-                        {
-                            Ack(t.Item1, t.Item2);
-                        }
-                    }
-                }
+                // Enqueue the outgoing message. Request will be acked by the queue handling thread above.
+                msgq.Add(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
             }
         }
 
