@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -53,18 +53,9 @@ namespace Microservices.IdentifierMapper.Execution
             //if we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
             if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisHost))
                 _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisHost, _swapper);
-            
-            Logger.Info("Calling Setup on swapper");
 
-            try
-            {
-                _swapper.Setup(_consumerOptions);
-            }
-            catch (Exception e)
-            {
-                Logger.Fatal(e, "Failed to setup swapper");
-                throw;
-            }
+            _swapper.Setup(_consumerOptions);
+            Logger.Info($"Swapper of type {_swapper.GetType()} created");
 
             // Batching now handled implicitly as backlog demands
             _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: true);

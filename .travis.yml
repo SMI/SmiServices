@@ -31,18 +31,11 @@ jobs:
         - rabbitmq-server
         - postgresql-10
         - postgresql-client-10
+        - rabbitmq-server
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
         - maven
-        - erlang-crypto
-        - erlang-eldap
-        - erlang-inets
-        - erlang-os-mon
-        - erlang-public-key
-        - erlang-ssl
-        - erlang-tools
-        - libssl1.1
     services:
     - postgresql
     - mysql
