@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-...
+- Update Travis config and Java library install shell script to resolve some Travis stability issues
 
 ## [1.4.3] - 2020-02-21
 
