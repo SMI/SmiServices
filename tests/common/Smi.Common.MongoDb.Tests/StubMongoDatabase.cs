@@ -10,7 +10,7 @@ namespace Smi.Common.MongoDB.Tests
     /// <summary>
     /// Abstract base class for mocking an IMongoDatabase
     /// </summary>
-    public abstract class TestMongoDatabase : IMongoDatabase
+    public abstract class StubMongoDatabase : IMongoDatabase
     {
         public virtual IMongoClient Client { get; }
         public virtual DatabaseNamespace DatabaseNamespace { get; }

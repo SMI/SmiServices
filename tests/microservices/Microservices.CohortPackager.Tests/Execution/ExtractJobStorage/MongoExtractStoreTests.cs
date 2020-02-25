@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDocuments;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -42,35 +43,44 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         /// <summary>
         /// Test mock of the extraction database
         /// </summary>
-        private class TestExtractionDatabase : TestMongoDatabase
+        private class MockExtractionDatabase : StubMongoDatabase
         {
-            public readonly TestExtractCollection<MongoExtractJob> ExtractJobCollection = new TestExtractCollection<MongoExtractJob>();
-            public readonly TestExtractCollection<ArchivedMongoExtractJob> ExtractJobArchiveCollection = new TestExtractCollection<ArchivedMongoExtractJob>();
-            public readonly TestExtractCollection<QuarantinedMongoExtractJob> ExtractJobQuarantineCollection = new TestExtractCollection<QuarantinedMongoExtractJob>();
+            public readonly MockExtractCollection<Guid, MongoExtractJob> ExtractJobCollection = new MockExtractCollection<Guid, MongoExtractJob>();
+            public readonly MockExtractCollection<Guid, ArchivedMongoExtractJob> ExtractJobArchiveCollection = new MockExtractCollection<Guid, ArchivedMongoExtractJob>();
+            public readonly MockExtractCollection<Guid, QuarantinedMongoExtractJob> ExtractJobQuarantineCollection = new MockExtractCollection<Guid, QuarantinedMongoExtractJob>();
+            public readonly MockExtractCollection<string, MongoExtractedFileStatusDocument> ExtractStatusCollection = new MockExtractCollection<string, MongoExtractedFileStatusDocument>();
 
             public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null)
             {
+                dynamic retCollection = null;
                 if (typeof(TDocument) == typeof(MongoExtractJob) && name == "extractJobStore")
-                    return (IMongoCollection<TDocument>)ExtractJobCollection;
+                    retCollection = ExtractJobCollection;
                 if (typeof(TDocument) == typeof(ArchivedMongoExtractJob) && name == "extractJobArchive")
-                    return (IMongoCollection<TDocument>)ExtractJobArchiveCollection;
+                    retCollection = ExtractJobArchiveCollection;
                 if (typeof(TDocument) == typeof(QuarantinedMongoExtractJob) && name == "extractJobQuarantine")
-                    return (IMongoCollection<TDocument>)ExtractJobQuarantineCollection;
-                throw new ArgumentException($"No implementation for {typeof(TDocument)} with name {name}");
+                    retCollection = ExtractJobQuarantineCollection;
+                if (typeof(TDocument) == typeof(MongoExtractedFileStatusDocument) && name.StartsWith("statuses_"))
+                    // NOTE(rkm 2020-02-25) Doesn't support multiple extractions per test for now
+                    retCollection = ExtractStatusCollection;
+
+                return retCollection != null
+                    ? (IMongoCollection<TDocument>)retCollection
+                    : throw new ArgumentException($"No implementation for {typeof(TDocument)} with name {name}");
             }
         }
 
         /// <summary>
-        /// Test mock of the extraction collection
+        /// Test mock of a collection in the extraction database. Can be keyed by string or Guid.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        private class TestExtractCollection<T> : TestMongoCollection<T>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal"></typeparam>
+        private class MockExtractCollection<TKey, TVal> : StubMongoCollection<TKey, TVal>
         {
-            public readonly Dictionary<Guid, T> Documents = new Dictionary<Guid, T>();
+            public readonly Dictionary<TKey, TVal> Documents = new Dictionary<TKey, TVal>();
 
-            public override long CountDocuments(FilterDefinition<T> filter, CountOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
+            public override long CountDocuments(FilterDefinition<TVal> filter, CountOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
 
-            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<T> filter, FindOptions<T, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 var mockCursor = new Mock<IAsyncCursor<TProjection>>();
                 mockCursor
@@ -78,7 +88,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                     .Returns(true)
                     .Returns(false);
 
-                if (filter == FilterDefinition<T>.Empty)
+                if (filter == FilterDefinition<TVal>.Empty)
                 {
                     mockCursor
                         .Setup(x => x.Current)
@@ -86,13 +96,15 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                     return mockCursor.Object;
                 }
 
-                BsonDocument rendered = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<T>(), BsonSerializer.SerializerRegistry);
-                Guid key = Guid.Parse(rendered["_id"].AsString);
+                BsonDocument rendered = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry);
+
+                TKey key = GetKey(rendered["_id"]);
+
                 if (Documents.ContainsKey(key))
                 {
                     mockCursor
                         .Setup(x => x.Current)
-                        .Returns((IEnumerable<TProjection>)new List<T> { Documents[key] });
+                        .Returns((IEnumerable<TProjection>)new List<TVal> { Documents[key] });
                     return mockCursor.Object;
                 }
 
@@ -103,10 +115,25 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 return mockCursor.Object;
             }
 
-            public override void InsertOne(T document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override void InsertOne(TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken())
             {
-                if (!Documents.TryAdd(Guid.Parse(document.ToBsonDocument()["_id"].AsString), document))
+                BsonDocument bsonDoc = document.ToBsonDocument();
+                if (!bsonDoc.Contains("_id"))
+                    bsonDoc.Add("_id", new BsonObjectId(ObjectId.GenerateNewId()));
+
+                if (!Documents.TryAdd(GetKey(bsonDoc["_id"]), document))
                     throw new Exception("Document already exists");
+            }
+
+            private static TKey GetKey(dynamic key)
+            {
+                if (typeof(TKey) == typeof(string))
+                    return key;
+                if (typeof(TKey) == typeof(Guid))
+                    // Dynamic typing is fun!
+                    return (TKey)Convert.ChangeType(Guid.Parse(((BsonString)key).Value), typeof(TKey));
+
+                throw new Exception($"Unsupported key type {typeof(TKey)}");
             }
         }
 
@@ -117,7 +144,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         [Test]
         public void TestPersistJobInfoToStore_ExtractionRequestInfoMessage()
         {
-            var db = new TestExtractionDatabase();
+            var db = new MockExtractionDatabase();
             var store = new MongoExtractJobStore(db);
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
@@ -149,7 +176,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             Assert.AreEqual(testExtractionRequestInfoMessage.JobSubmittedAt, extractJob.JobSubmittedAt);
             Assert.AreEqual(testExtractionRequestInfoMessage.KeyTag, extractJob.KeyTag);
             Assert.AreEqual(testExtractionRequestInfoMessage.ExtractionModality, extractJob.ExtractionModality);
-            Assert.AreEqual(new List<MongoExtractFileCollection>(), extractJob.FileCollectionInfo);
+            Assert.AreEqual(new List<MongoExpectedFilesForKey>(), extractJob.FileCollectionInfo);
             Assert.AreEqual(ExtractJobStatus.WaitingForCollectionInfo, extractJob.JobStatus);
             Assert.AreEqual(testExtractionRequestInfoMessage.KeyValueCount, extractJob.KeyCount);
             Assert.AreEqual(testHeader.MessageGuid, extractJob.Header.ExtractRequestInfoMessageGuid);
@@ -160,7 +187,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         [Test]
         public void TestPersistJobInfoToStore_ExtractFileCollectionInfoMessage()
         {
-            var db = new TestExtractionDatabase();
+            var db = new MockExtractionDatabase();
             var store = new MongoExtractJobStore(db);
             var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
             {
@@ -185,11 +212,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
             Dictionary<Guid, MongoExtractJob> docs = db.ExtractJobCollection.Documents;
             Assert.AreEqual(docs.Count, 1);
+
             MongoExtractJob extractJob = docs.Values.ToList()[0];
-            // TODO Check all tested
             Assert.AreEqual(testExtractFileCollectionInfoMessage.ExtractionJobIdentifier, extractJob.ExtractionJobIdentifier);
             Assert.AreEqual(testExtractFileCollectionInfoMessage.JobSubmittedAt, extractJob.JobSubmittedAt);
-            Assert.AreEqual(new List<MongoExtractFileCollection>(), extractJob.FileCollectionInfo);
+            Assert.AreEqual(new List<MongoExpectedFilesForKey>(), extractJob.FileCollectionInfo);
             Assert.AreEqual(ExtractJobStatus.WaitingForStatuses, extractJob.JobStatus);
             Assert.AreEqual(testHeader.MessageGuid, extractJob.Header.ExtractRequestInfoMessageGuid);
             Assert.AreEqual($"{testHeader.ProducerExecutableName}({testHeader.ProducerProcessID})", extractJob.Header.ProducerIdentifier);
@@ -200,7 +227,33 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         public void TestPersistJobInfoToStore_ExtractFileStatusMessage()
         {
 
+            var db = new MockExtractionDatabase();
+            var store = new MongoExtractJobStore(db);
+            var testExtractFileCollectionInfoMessage = new ExtractFileStatusMessage
+            {
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ProjectNumber = "1234-5678",
+                JobSubmittedAt = DateTime.UtcNow,
+                ExtractionDirectory = "1234-5678/testExtract",
+                Status = ExtractFileStatus.ErrorWontRetry,
+                AnonymisedFileName = "test-dicom-an.dcm",
+                DicomFilePath = "test-dicom.dcm",
+                StatusMessage = "Could not anonymise - blah",
+            };
+            var testHeader = new MessageHeader
+            {
+                MessageGuid = Guid.NewGuid(),
+                OriginalPublishTimestamp = MessageHeader.UnixTimeNow(),
+                Parents = new Guid[0],
+                ProducerExecutableName = "MongoExtractStoreTests",
+                ProducerProcessID = new Random().Next(),
+            };
 
+
+            store.PersistMessageToStore(testExtractFileCollectionInfoMessage, testHeader);
+
+            //Dictionary<Guid, MongoExtractJob> docs = db.ExtractJobCollection.Documents;
+            //Assert.AreEqual(docs.Count, 1);
         }
 
         [Test]
