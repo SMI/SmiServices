@@ -1,6 +1,6 @@
-
 dist: bionic
 os: linux
+language: csharp
 
 jobs:
   include:
@@ -9,13 +9,12 @@ jobs:
     dotnet: 2.2.100
     cache:
       directories:
-      - $HOME/.nuget    
+      - $HOME/.local/share/NuGet/
+      - $HOME/.nuget
+      - $HOME/.m2
     addons:
       postgresql: "10"
       apt:
-        config:
-          retries: true
-        update: false
         sources:
         - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic main universe multiverse restricted'
         - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic-backports main universe'
@@ -25,6 +24,9 @@ jobs:
           key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
         - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
           key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
+        - sourceline: 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main'
+          key_url: 'https://packages.microsoft.com/keys/microsoft.asc'
+        - sourceline: 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/16.04/mssql-server-2017 xenial main'
         packages:
         - rabbitmq-server
         - postgresql-10
@@ -44,14 +46,16 @@ jobs:
     - postgresql
     - mysql
     - mongodb
-    - redis-server
+    - redis
     env:
-      global:
-        PGPORT=5433
+    - MSSQL_SA_PASSWORD="YourStrong!Passw0rd"
+    - ACCEPT_EULA=Y
+    - MSSQL_PID='evaluation'
     before_install:
-    - docker run --name=mssql-server -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
-    - sleep 10 # NOTE: This helps to ensure that the SQL server inside the Docker container has started
+    - sudo apt-get install -y mssql-tools mssql-server
+    - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
     install:
+    - ( cd ./lib/java && ./installDat.sh && cd - )
     - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
     # RDMP 3.2.1 was packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
     - unzip -d rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
@@ -73,6 +77,8 @@ jobs:
 
     - ( cd data/tessdata && ./download.sh && cd - )
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
+    - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
+    - if [ -d src/microservices/uk.ac.dundee.hic.nerd/ ]; then mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test; fi
 
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
@@ -82,30 +88,7 @@ jobs:
         dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
       done
     - ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
-
-  - language: java
-    addons:
-      apt:
-        sources:
-          - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
-          - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
-            key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
-        packages:
-          - maven
-          - rabbitmq-server
-    cache:
-      directories:
-      - $HOME/.m2
-    env:
-    - PARENT_POM=src/common/com.smi.microservices.parent/pom.xml
-    install:
-    - ( cd ./lib/java && ./installDat.sh )
-    script:
-    - mvn -f $PARENT_POM clean test
-    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test   
-    after_success:
-    - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
-    - mvn -f $PARENT_POM assembly:single@create-deployable
+    - mvn -f src/common/com.smi.microservices.parent/pom.xml assembly:single@create-deployable
     - mkdir ./dist
     - |
       for filename in $(find ./src -name "*deploy-distribution.zip")
@@ -113,8 +96,12 @@ jobs:
         base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
         mv $filename dist/$base-${TRAVIS_TAG}.zip
       done
-    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package
-    - mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
+    - |
+      if [ -d src/microservices/uk.ac.dundee.hic.nerd/ ]
+      then
+      mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package
+      mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
+      fi
 
 # NOTE: This is inherited by both jobs, so actually runs twice
 deploy:
@@ -123,7 +110,7 @@ deploy:
         secure: DdirbOkYUePnKisYPlqYOpyti2HQFWmSIwY5spWflTUglzEZbnp+Q3sEltTebdlWo18i9skz6P5seAAXbX2ye1c3EZhqEyirWMxz1lvGdlNoQGHhWK6x+suM1DrG6Uun5dmcG/CEpWhDpcEbF8xQ/revtyCHEJj4xK9TXUHyFFG/KrzKSLGtsiBG1BOPkHJr4CoHjcpLzpmDB2hn+pYENtl3Nk0EeKmJgWdY/BWctEmUmRAXgfwsO/ejm9IbC5mIy5KBxbIUco/mf2JEKQB1drwdbINMxJXkbx+mWZYiDJBo5CWuWIzNOxv0Z3+Kg+N2cSwPX833v+W5YRTHyef/7Dum1yUrD3T7LMLY+3EIeCoGvARfRnQbi+BM9n1rFobPy/PWHWYxYRDnhDEfXrMcAyH/66InlQIhUh7XD01oZLEbsdZAbGnEsv5Ttz3F9LaEpk3EfoGqLxOWkL50OCxw6Jk6TfxsNtMoLpK1g7Jp8sI/EkjxYISer7S5myzLhKtgbtBwI0RcKh/sUo2m69QX++1JYy6CeN7/EwRmV4zJLk0WgalJuxgNFYrdzPLvg09okgxr1stHZQ7a5RkLH+r8KzA/Lmj6vTQG9HB44lHvX1hMiD0v8aCii+/wfr9AZZlNHjYq8RuHsP5uQ5U5F8G9uMqfiVb75MOPKY7qdYCZZZg=
       file_glob: true
       file: dist/*.*
-      skip_cleanup: true
+      skip-cleanup: true
       on:
         all_branches: true
         tags: true

@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
 - Added `DynamicRejector` which takes its cohort extraction rules from a script file (of CSharp code)
 
+## [1.4.4] - 2020-02-25
+
+- Update Travis config and Java library install shell script to resolve some Travis stability issues
+- Adjust batching so workers queue replies/acks while a worker thread commits those asynchronously, allowing elastic batch sizes (qosprefetch setting now controls maximum batch size, parallelism capped at 50)
+
 ## [1.4.3] - 2020-02-21
 
 ### Changed
@@ -181,7 +186,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.3...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.4...develop
+[1.4.4]:  https://github.com/SMI/SmiServices/compare/v1.4.3...v1.4.4
 [1.4.3]:  https://github.com/SMI/SmiServices/compare/v1.4.2...v1.4.3
 [1.4.2]:  https://github.com/SMI/SmiServices/compare/v1.4.1...v1.4.2
 [1.4.1]:  https://github.com/SMI/SmiServices/compare/v1.4.0...v1.4.1
@@ -194,6 +200,7 @@ First stable release after importing the repository from the private [SMIPlugin]
 [1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
+
 
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
 [SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules
