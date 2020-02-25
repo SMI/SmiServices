@@ -21,7 +21,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
         private readonly Regex _patientIdRegex = new Regex("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
-        ConcurrentQueue<Tuple<DicomFileMessage,IMessageHeader,BasicDeliverEventArgs>> msgq=new ConcurrentQueue<Tuple<DicomFileMessage,IMessageHeader, BasicDeliverEventArgs>>();
+        BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,BasicDeliverEventArgs>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, BasicDeliverEventArgs>>();
         private Thread acker;
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
@@ -32,27 +32,23 @@ namespace Microservices.IdentifierMapper.Messaging
             {
                 while (true)
                 {
-                    if (msgq.IsEmpty)
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                    else
+                    List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
+                    Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
+                    t = msgq.Take();
+
+                    lock (_producer)
                     {
-                        List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
-                        lock (_producer)
+                        _producer.SendMessage(t.Item1, t.Item2, "");
+                        done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                        while (msgq.TryTake(out t))
                         {
-                            while (!msgq.IsEmpty)
-                            {
-                                Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
-                                if (msgq.TryDequeue(out t))
-                                {
-                                    _producer.SendMessage(t.Item1, t.Item2, "");
-                                    done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
-                                }
-                            }
-                            _producer.WaitForConfirms();
-                            foreach (var t in done)
-                            {
-                                Ack(t.Item1, t.Item2);
-                            }
+                            _producer.SendMessage(t.Item1, t.Item2, "");
+                            done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                        }
+                        _producer.WaitForConfirms();
+                        foreach (var ack in done)
+                        {
+                            Ack(ack.Item1, ack.Item2);
                         }
                     }
                 }
@@ -110,7 +106,7 @@ namespace Microservices.IdentifierMapper.Messaging
                 // While that is waiting, more messages pile up
                 // Once that completes, it releases the lock and another thread will drain the whole queue in one
                 // This should then have the effect of batching messages up and waiting for a full batch to process.
-                msgq.Enqueue(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
+                msgq.Add(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
             }
         }
 
