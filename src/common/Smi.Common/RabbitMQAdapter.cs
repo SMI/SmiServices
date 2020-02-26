@@ -408,9 +408,9 @@ namespace Smi.Common
                 {
                     if (_threaded)
                     {
-                        worklock.EnterReadLock();
                         Task.Run(() =>
                         {
+                            worklock.EnterReadLock();
                             try
                             {
                                 consumer.ProcessMessage(e);
