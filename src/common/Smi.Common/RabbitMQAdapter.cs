@@ -434,6 +434,7 @@ namespace Smi.Common
                 // Now there are no *new* messages being processed, send a
                 // null one to flush the queue
                 consumer.Shutdown();
+                worklock.ExitWriteLock();
             }
             worklock.Dispose();
 
