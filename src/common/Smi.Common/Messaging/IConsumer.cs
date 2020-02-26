@@ -26,5 +26,10 @@ namespace Smi.Common.Messaging
         /// 
         /// </summary>
         event ConsumerFatalHandler OnFatal;
+
+        /// <summary>
+        /// Trigger a clean shutdown of worker threads etc
+        /// </summary>
+        void Shutdown();
     }
 }

@@ -38,6 +38,10 @@ namespace Smi.Common.Messaging
 
         protected IModel Model;
 
+        public virtual void Shutdown()
+        {
+
+        }
 
         protected Consumer()
         {
