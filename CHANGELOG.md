@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-...
+- Add clean shutdown hook for IdentifierMapper to clean up the worker threads
 
 ## [1.4.4] - 2020-02-25
 
