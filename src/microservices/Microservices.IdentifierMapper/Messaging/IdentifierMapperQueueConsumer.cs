@@ -30,31 +30,48 @@ namespace Microservices.IdentifierMapper.Messaging
             _swapper = swapper;
             acker=new Thread(() =>
             {
-                while (true)
+                try
                 {
-                    List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
-                    Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
-                    t = msgq.Take();
-
-                    lock (_producer)
+                    while (true)
                     {
-                        _producer.SendMessage(t.Item1, t.Item2, "");
-                        done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
-                        while (msgq.TryTake(out t))
+                        List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
+                        Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
+                        t = msgq.Take();
+
+                        lock (_producer)
                         {
                             _producer.SendMessage(t.Item1, t.Item2, "");
                             done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
-                        }
-                        _producer.WaitForConfirms();
-                        foreach (var ack in done)
-                        {
-                            Ack(ack.Item1, ack.Item2);
+                            while (msgq.TryTake(out t))
+                            {
+                                _producer.SendMessage(t.Item1, t.Item2, "");
+                                done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                            }
+                            _producer.WaitForConfirms();
+                            foreach (var ack in done)
+                            {
+                                Ack(ack.Item1, ack.Item2);
+                            }
                         }
                     }
+                }
+                catch (InvalidOperationException)
+                {
+                    // The BlockingCollection will throw this exception when closed by Shutdown()
+                    return;
                 }
             });
             acker.IsBackground = true;
             acker.Start();
+        }
+
+        /// <summary>
+        /// Cleanly shut this process down, draining the Ack queue and ending that thread
+        /// </summary>
+        public override void Shutdown()
+        {
+            msgq.CompleteAdding();
+            acker.Join();
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)

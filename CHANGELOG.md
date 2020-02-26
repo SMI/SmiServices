@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ...
 
+## [1.4.5] - 2020-02-26
+
+- Add clean shutdown hook for IdentifierMapper to clean up the worker threads
+
 ## [1.4.4] - 2020-02-25
 
 - Update Travis config and Java library install shell script to resolve some Travis stability issues
@@ -181,7 +185,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`).  Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.4...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.5...develop
+[1.4.5]:  https://github.com/SMI/SmiServices/compare/v1.4.4...v1.4.5
 [1.4.4]:  https://github.com/SMI/SmiServices/compare/v1.4.3...v1.4.4
 [1.4.3]:  https://github.com/SMI/SmiServices/compare/v1.4.2...v1.4.3
 [1.4.2]:  https://github.com/SMI/SmiServices/compare/v1.4.1...v1.4.2

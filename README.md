@@ -3,7 +3,7 @@
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-Version: `1.4.4`
+Version: `1.4.5`
 
 # SMI Services
 
