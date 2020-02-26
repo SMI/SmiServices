@@ -28,7 +28,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="fo-dicom" Version="[4.0.1]" />
+    <PackageReference Include="fo-dicom" Version="[4.0.4]" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="2.1.2" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="4.0.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
