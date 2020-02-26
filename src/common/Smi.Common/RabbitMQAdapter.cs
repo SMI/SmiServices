@@ -435,6 +435,7 @@ namespace Smi.Common
                 // null one to flush the queue
                 consumer.ProcessMessage(null);
             }
+            worklock.Dispose();
 
             string reason = "unknown";
 
