@@ -104,7 +104,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             else
             {
                 int res = Interlocked.Increment(ref Success);
-                if (res % 100 == 0)
+                if (res % 1000 == 0)
                     LogProgress(_logger, LogLevel.Info);
             }
 
