@@ -431,8 +431,7 @@ namespace Smi.Common
                 // release, i.e. all workers have finished
                 worklock.EnterWriteLock();
 
-                // Now there are no *new* messages being processed, send a
-                // null one to flush the queue
+                // Now there are no *new* messages being processed, flush the queue
                 consumer.Shutdown();
                 worklock.ExitWriteLock();
             }
