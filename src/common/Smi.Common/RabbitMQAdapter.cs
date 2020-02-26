@@ -399,6 +399,7 @@ namespace Smi.Common
         /// <param name="cancellationToken"></param>
         private void Consume(ISubscription subscription, IConsumer consumer, CancellationToken cancellationToken)
         {
+            ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
             IModel m = subscription.Model;
             consumer.SetModel(m);
 
@@ -412,13 +413,32 @@ namespace Smi.Common
                     {
                         Task.Run(() =>
                         {
-                            consumer.ProcessMessage(e);
+                            worklock.EnterReadLock();
+                            try
+                            {
+                                consumer.ProcessMessage(e);
+                            }
+                            finally
+                            {
+                                worklock.ExitReadLock();
+                            }
                         },cancellationToken);
                     }
                     else
                         consumer.ProcessMessage(e);
                 }
             }
+            if (_threaded)
+            {
+                // Taking a write lock means waiting for all read locks to
+                // release, i.e. all workers have finished
+                worklock.EnterWriteLock();
+
+                // Now there are no *new* messages being processed, flush the queue
+                consumer.Shutdown();
+                worklock.ExitWriteLock();
+            }
+            worklock.Dispose();
 
             string reason = "unknown";
 
