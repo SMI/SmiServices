@@ -128,7 +128,8 @@ namespace Microservices.IsIdentifiable.Runners
         /// <param name="yaml"></param>
         public void LoadRules(string yaml)
         {
-            _logger.Info("Loading Rules Yaml"); // +Environment.NewLine+yaml
+            _logger.Info("Loading Rules Yaml");
+            _logger.Debug("Loading Rules Yaml:" +Environment.NewLine+yaml);
             var deserializer = new Deserializer();
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
