@@ -20,6 +20,11 @@ namespace Smi.Common.Messages.Extraction
         [JsonConstructor]
         public ExtractionRequestInfoMessage() { }
 
+        public override string ToString()
+        {
+            return base.ToString() + $",KeyTag={KeyTag},KeyValueCount={KeyValueCount},ExtractionModality={ExtractionModality}";
+        }
+
 
         #region Equality Members
 

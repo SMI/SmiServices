@@ -46,6 +46,11 @@ namespace Smi.Common.Messages.Extraction
             ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
         }
 
+        public override string ToString()
+        {
+            return base.ToString() + $",KeyValue={KeyValue},ExtractFileMessagesDispatched={ExtractFileMessagesDispatched},RejectionReasons={RejectionReasons},";
+        }
+
         #region Equality Members
 
         public bool Equals(ExtractFileCollectionInfoMessage other)
