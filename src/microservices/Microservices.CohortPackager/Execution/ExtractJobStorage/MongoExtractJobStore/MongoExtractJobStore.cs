@@ -48,7 +48,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         protected override void PersistMessageToStoreImpl(ExtractionRequestInfoMessage requestInfoMessage, IMessageHeader header)
         {
             Guid jobIdentifier = requestInfoMessage.ExtractionJobIdentifier;
-            ExtractJobHeader jobHeader = GetExtractJobHeader(header);
+            ExtractJobHeader jobHeader = ExtractJobHeader.FromMessageHeader(header);
 
             lock (_oJobStoreLock)
             {
@@ -370,14 +370,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
                     x.StatusMessage))
                 .ToList();
         }
-
-        private static ExtractJobHeader GetExtractJobHeader(IMessageHeader header) =>
-            new ExtractJobHeader
-            {
-                ExtractRequestInfoMessageGuid = header.MessageGuid,
-                ProducerIdentifier = $"{header.ProducerExecutableName}({header.ProducerProcessID})",
-                ReceivedAt = DateTime.UtcNow
-            };
 
         private static ExtractFileCollectionHeader GetExtractFileCollectionHeader(IMessageHeader header) =>
             new ExtractFileCollectionHeader

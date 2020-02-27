@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Smi.Common.Messages;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel
@@ -93,10 +94,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return 
+            return
                 ExtractRequestInfoMessageGuid.Equals(other.ExtractRequestInfoMessageGuid) &&
-                string.Equals(ProducerIdentifier, other.ProducerIdentifier) && 
+                string.Equals(ProducerIdentifier, other.ProducerIdentifier) &&
                 ReceivedAt.Equals(other.ReceivedAt);
         }
+
+        public static ExtractJobHeader FromMessageHeader(IMessageHeader header) =>
+            new ExtractJobHeader
+            {
+                ExtractRequestInfoMessageGuid = header.MessageGuid,
+                ProducerIdentifier = $"{header.ProducerExecutableName}({header.ProducerProcessID})",
+                ReceivedAt = DateTime.UtcNow
+            };
     }
 }
