@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel;
 using MongoDB.Driver;
+using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 
@@ -31,10 +32,15 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
             NoCursorTimeout = false
         };
 
+        private readonly DateTimeProvider _dateTimeProvider;
 
         public MongoExtractJobStore(IMongoDatabase database)
+            : this(database, new DateTimeProvider()) { }
+
+        public MongoExtractJobStore(IMongoDatabase database, DateTimeProvider dateTimeProvider)
         {
             _database = database;
+            _dateTimeProvider = dateTimeProvider;
 
             _jobInfoCollection = _database.GetCollection<MongoExtractJob>(ExtractJobCollectionName);
             _jobArchiveCollection = _database.GetCollection<ArchivedMongoExtractJob>(ArchiveCollectionName);
@@ -48,7 +54,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         protected override void PersistMessageToStoreImpl(ExtractionRequestInfoMessage requestInfoMessage, IMessageHeader header)
         {
             Guid jobIdentifier = requestInfoMessage.ExtractionJobIdentifier;
-            ExtractJobHeader jobHeader = ExtractJobHeader.FromMessageHeader(header);
+            ExtractJobHeader jobHeader = ExtractJobHeader.FromMessageHeader(header, _dateTimeProvider);
 
             lock (_oJobStoreLock)
             {
@@ -114,7 +120,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
             var expectedFilesForKey = new MongoExpectedFilesForKey
             {
-                Header = ExtractFileCollectionHeader.FromMessageHeader(header),
+                Header = ExtractFileCollectionHeader.FromMessageHeader(header, _dateTimeProvider),
                 Key = collectionInfoMessage.KeyValue,
                 AnonymisedFiles = expectedFiles
             };
@@ -162,7 +168,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
                 {
                     FileStatusMessageGuid = header.MessageGuid,
                     ProducerIdentifier = header.ProducerExecutableName + "(" + header.ProducerProcessID + ")",
-                    ReceivedAt = DateTime.Now
+                    ReceivedAt = _dateTimeProvider.UtcNow(),
                 },
 
                 Status = fileStatusMessage.Status.ToString(),
@@ -231,9 +237,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
                     throw new ApplicationException("Could not find job " + extractionJobIdentifier + " in the job store");
 
                 // Convert to an archived job, and update the status
-                var archiveJob = new ArchivedMongoExtractJob(toArchive, DateTime.UtcNow)
+                var archiveJob = new ArchivedMongoExtractJob(toArchive)
                 {
-                    JobStatus = ExtractJobStatus.Archived
+                    JobStatus = ExtractJobStatus.Archived,
+                    ArchivedAt = _dateTimeProvider.UtcNow()
                 };
 
                 try

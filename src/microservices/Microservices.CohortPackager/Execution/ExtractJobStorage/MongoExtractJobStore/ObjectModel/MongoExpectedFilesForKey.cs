@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Smi.Common.Helpers;
 using Smi.Common.Messages;
 
 
@@ -51,12 +52,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
                    ReceivedAt.Equals(other.ReceivedAt);
         }
 
-        public static ExtractFileCollectionHeader FromMessageHeader(IMessageHeader header) =>
-            new ExtractFileCollectionHeader
+        public static ExtractFileCollectionHeader FromMessageHeader(IMessageHeader header, DateTimeProvider dateTimeProvider)
+            => new ExtractFileCollectionHeader
             {
                 ExtractFileCollectionInfoMessageGuid = header.MessageGuid,
                 ProducerIdentifier = $"{header.ProducerExecutableName}({header.ProducerProcessID})",
-                ReceivedAt = DateTime.Now
+                ReceivedAt = dateTimeProvider.UtcNow(),
             };
     }
 

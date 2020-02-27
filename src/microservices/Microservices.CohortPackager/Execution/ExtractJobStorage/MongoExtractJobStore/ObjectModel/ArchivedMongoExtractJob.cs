@@ -8,14 +8,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
     {
         [BsonElement("archivedAt")]
         public DateTime ArchivedAt { get; set; }
-        
 
-        public ArchivedMongoExtractJob(MongoExtractJob mongoExtractJob, DateTime archivedAt)
-            : base(mongoExtractJob)
-        {
-            ArchivedAt = archivedAt;
-        }
-        
+        public ArchivedMongoExtractJob(MongoExtractJob extractJob)
+            : base(extractJob) { }
 
         public bool Equals(ArchivedMongoExtractJob other)
         {
