@@ -114,7 +114,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
             var expectedFilesForKey = new MongoExpectedFilesForKey
             {
-                Header = GetExtractFileCollectionHeader(header),
+                Header = ExtractFileCollectionHeader.FromMessageHeader(header),
                 Key = collectionInfoMessage.KeyValue,
                 AnonymisedFiles = expectedFiles
             };
@@ -370,14 +370,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
                     x.StatusMessage))
                 .ToList();
         }
-
-        private static ExtractFileCollectionHeader GetExtractFileCollectionHeader(IMessageHeader header) =>
-            new ExtractFileCollectionHeader
-            {
-                ExtractFileCollectionInfoMessageGuid = header.MessageGuid,
-                ProducerIdentifier = $"{header.ProducerExecutableName}({header.ProducerProcessID})",
-                ReceivedAt = DateTime.Now
-            };
 
         #endregion
     }
