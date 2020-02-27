@@ -21,6 +21,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private readonly IMongoDatabase _database;
 
         // NOTE(rkm 2020-02-25) Lock needed when accessing any of the below collections, but not the status collections
+        // TODO(rkm 2020-02-06) Make this transactional and remove the lock
         private readonly object _oJobStoreLock = new object();
         private readonly IMongoCollection<MongoExtractJob> _jobInfoCollection;
         private readonly IMongoCollection<ArchivedMongoExtractJob> _jobArchiveCollection;
@@ -75,11 +76,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     existing.ExtractionModality = requestInfoMessage.ExtractionModality;
                     existing.JobSubmittedAt = requestInfoMessage.JobSubmittedAt;
 
-                    if (existing.KeyCount == existing.FileCollectionInfo.Count)
+                    if (existing.KeyCount == existing.ExpectedFilesInfo.Count)
                         existing.JobStatus = ExtractJobStatus.WaitingForStatuses;
 
-                    _jobInfoCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJob>(jobIdentifier), existing);
-
+                    ReplaceOneResult res = _jobInfoCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJob>(jobIdentifier), existing);
+                    if (!res.IsAcknowledged || res.ModifiedCount != 1)
+                        throw new ApplicationException($"Received invalid ReplaceOneResult: {res}");
                     return;
                 }
 
@@ -93,8 +95,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     ExtractionDirectory = requestInfoMessage.ExtractionDirectory,
                     KeyTag = requestInfoMessage.KeyTag,
                     KeyCount = requestInfoMessage.KeyValueCount,
-                    FileCollectionInfo = new List<MongoExpectedFilesForKey>(),
-                    ExtractionModality = requestInfoMessage.ExtractionModality
+                    ExtractionModality = requestInfoMessage.ExtractionModality,
+                    ExpectedFilesInfo = new List<MongoExpectedFilesForKey>(),
+                    RejectedKeysInfo = new List<MongoRejectedKeyInfo>(),
                 };
 
                 _jobInfoCollection.InsertOne(newJobInfo);
@@ -103,28 +106,26 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header)
         {
-            // TODO(rkm 2020-02-26) Check job status calculation
-
             Guid jobId = collectionInfoMessage.ExtractionJobIdentifier;
-            var expectedFiles = new List<ExpectedAnonymisedFileInfo>();
-
-            // Extract the list of expected anonymised files from the message
-            collectionInfoMessage.ExtractFileMessagesDispatched.ToList().ForEach(
-                x => expectedFiles.Add(
-                    new ExpectedAnonymisedFileInfo
-                    {
-                        ExtractFileMessageGuid = x.Key.MessageGuid,
-                        AnonymisedFilePath = x.Value
-                    }));
-
-            // TODO(rkm 2020-02-06) RejectionReasons
-            var rejectionReasons = new List<string>();
 
             var expectedFilesForKey = new MongoExpectedFilesForKey
             {
                 Header = ExtractFileCollectionHeader.FromMessageHeader(header, _dateTimeProvider),
                 Key = collectionInfoMessage.KeyValue,
-                AnonymisedFiles = expectedFiles
+                AnonymisedFiles = collectionInfoMessage.ExtractFileMessagesDispatched
+                    .Select(x => new ExpectedAnonymisedFileInfo
+                    {
+                        ExtractFileMessageGuid = x.Key.MessageGuid,
+                        AnonymisedFilePath = x.Value
+                    })
+                    .ToList()
+            };
+
+            var rejectedKeyInfo = new MongoRejectedKeyInfo
+            {
+                Header = ExtractFileCollectionHeader.FromMessageHeader(header, _dateTimeProvider),
+                Key = collectionInfoMessage.KeyValue,
+                RejectionInfo = collectionInfoMessage.RejectionReasons
             };
 
             lock (_oJobStoreLock)
@@ -133,28 +134,36 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     throw new ApplicationException("Received an ExtractFileCollectionInfoMessage for a job that exists in the archive or quarantine");
 
                 // Most likely already have an entry for this
-
                 if (InJobCollection(jobId, out MongoExtractJob existing))
                 {
-                    existing.FileCollectionInfo.Add(expectedFilesForKey);
+                    existing.ExpectedFilesInfo.Add(expectedFilesForKey);
+                    existing.RejectedKeysInfo.Add(rejectedKeyInfo);
+                    existing.ReceivedCollectionInfoMessages += 1;
 
-                    if (existing.FileCollectionInfo.Count == existing.KeyCount)
+                    if (existing.ReceivedCollectionInfoMessages == existing.KeyCount)
                         existing.JobStatus = ExtractJobStatus.WaitingForStatuses;
 
-                    _jobInfoCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJob>(jobId), existing);
+                    ReplaceOneResult res = _jobInfoCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJob>(jobId), existing);
+                    if (!res.IsAcknowledged || res.ModifiedCount != 1)
+                        throw new ApplicationException($"Received invalid ReplaceOneResult: {res}");
+
                     return;
                 }
 
                 // Else create a blank one with just the new MongoExpectedFilesForKey
-
                 var newJobInfo = new MongoExtractJob
                 {
+                    Header = new MongoExtractJobHeader(),
                     ExtractionJobIdentifier = jobId,
-                    JobSubmittedAt = collectionInfoMessage.JobSubmittedAt,
                     JobStatus = ExtractJobStatus.WaitingForJobInfo,
-                    KeyTag = collectionInfoMessage.KeyValue,
-                    FileCollectionInfo = new List<MongoExpectedFilesForKey> { expectedFilesForKey },
+                    ExpectedFilesInfo = new List<MongoExpectedFilesForKey> { expectedFilesForKey },
+                    RejectedKeysInfo = new List<MongoRejectedKeyInfo> { rejectedKeyInfo },
+                    KeyCount = -1,
+                    ReceivedCollectionInfoMessages = 1,
                 };
+
+                if (newJobInfo.ReceivedCollectionInfoMessages == newJobInfo.KeyCount)
+                    newJobInfo.JobStatus = ExtractJobStatus.WaitingForStatuses;
 
                 _jobInfoCollection.InsertOne(newJobInfo);
             }
@@ -162,34 +171,48 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void PersistMessageToStoreImpl(ExtractFileStatusMessage fileStatusMessage, IMessageHeader header)
         {
-            string collectionName = StatusCollectionPrefix + fileStatusMessage.ExtractionJobIdentifier;
-
             var newStatus = new MongoExtractedFileStatusDocument
             {
-                Header = new MongoExtractedFileStatusHeaderDocument
-                {
-                    FileStatusMessageGuid = header.MessageGuid,
-                    ProducerIdentifier = header.ProducerExecutableName + "(" + header.ProducerProcessID + ")",
-                    ReceivedAt = _dateTimeProvider.UtcNow(),
-                },
-
+                Header = MongoExtractedFileStatusHeaderDocument.FromMessageHeader(header, _dateTimeProvider),
                 Status = fileStatusMessage.Status.ToString(),
                 StatusMessage = fileStatusMessage.StatusMessage
             };
 
-            // TODO(rkm 2020-02-25) If the collection doesn't exist then it could have been archived/killed already - check first
+            string collectionName = StatusCollectionPrefix + fileStatusMessage.ExtractionJobIdentifier;
             IMongoCollection<MongoExtractedFileStatusDocument> statusCollection = _database.GetCollection<MongoExtractedFileStatusDocument>(collectionName);
+            if (statusCollection.CountDocuments(FilterDefinition<MongoExtractedFileStatusDocument>.Empty) == 0)
+            {
+                // TODO(rkm 2020-02-25) If the collection doesn't exist then it could have been archived/killed already - check this if the count is 0
+                Logger.Warn($"No other status messages recieved - see TODO");
+            }
             statusCollection.InsertOne(newStatus);
-
         }
 
         protected override void PersistMessageToStoreImpl(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header)
         {
-            throw new NotImplementedException();
+            var newStatus = new MongoExtractedFileStatusDocument
+            {
+                Header = MongoExtractedFileStatusHeaderDocument.FromMessageHeader(header, _dateTimeProvider),
+                AnonymisedFileName = anonVerificationMessage.AnonymisedFileName,
+                Status = anonVerificationMessage.IsIdentifiable ? "Identifiable" : "Verified",
+                // TODO(rkm 2020-02-27) Check what the actual format of this report is
+                StatusMessage = anonVerificationMessage.Report,
+            };
+
+            string collectionName = StatusCollectionPrefix + anonVerificationMessage.ExtractionJobIdentifier;
+            IMongoCollection<MongoExtractedFileStatusDocument> statusCollection = _database.GetCollection<MongoExtractedFileStatusDocument>(collectionName);
+            if (statusCollection.CountDocuments(FilterDefinition<MongoExtractedFileStatusDocument>.Empty) == 0)
+            {
+                // TODO(rkm 2020-02-25) If the collection doesn't exist then it could have been archived/killed already - check this if the count is 0
+                Logger.Warn($"No other status messages recieved - see TODO");
+            }
+
+            statusCollection.InsertOne(newStatus);
         }
 
         protected override List<ExtractJobInfo> GetLatestJobInfoImpl(Guid jobId = default)
         {
+            // TODO(rkm 2020-02-27) Log what exactly we are waiting for
             // TODO(rkm 2020-02-27 Check why this is for WaitingForStatuses only
             FilterDefinition<MongoExtractJob> filter = Builders<MongoExtractJob>.Filter.Eq(x => x.JobStatus, ExtractJobStatus.WaitingForStatuses);
 
@@ -230,8 +253,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void CleanupJobDataImpl(Guid extractionJobIdentifier)
         {
-            // TODO(rkm 2020-02-06) Make this transactional
-
             lock (_oJobStoreLock)
             {
                 MongoExtractJob toArchive;

@@ -28,7 +28,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             return other != null &&
                    Header.Equals(other.Header) &&
                    Key == other.Key &&
-                   AnonymisedFiles.All(other.AnonymisedFiles.Contains);
+                   AnonymisedFiles.OrderBy(x => x.ExtractFileMessageGuid).SequenceEqual(other.AnonymisedFiles.OrderBy(x => x.ExtractFileMessageGuid));
         }
     }
 
@@ -44,14 +44,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [BsonElement("receivedAt")]
         public DateTime ReceivedAt { get; set; }
 
-        public bool Equals(ExtractFileCollectionHeader other)
-        {
-            return other != null &&
-                   ExtractFileCollectionInfoMessageGuid == other.ExtractFileCollectionInfoMessageGuid &&
-                   string.Equals(ProducerIdentifier, other.ProducerIdentifier) &&
-                   ReceivedAt.Equals(other.ReceivedAt);
-        }
-
         public static ExtractFileCollectionHeader FromMessageHeader(IMessageHeader header, DateTimeProvider dateTimeProvider)
             => new ExtractFileCollectionHeader
             {
@@ -59,15 +51,45 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 ProducerIdentifier = $"{header.ProducerExecutableName}({header.ProducerProcessID})",
                 ReceivedAt = dateTimeProvider.UtcNow(),
             };
-    }
 
-    public class ExpectedAnonymisedFileInfo
-    {
-        [BsonElement("extractFileMessageGuid")]
-        [BsonRepresentation(BsonType.String)]
-        public Guid ExtractFileMessageGuid { get; set; }
+        #region Equality Members
 
-        [BsonElement("anonymisedFilePath")]
-        public string AnonymisedFilePath { get; set; }
+        protected bool Equals(ExtractFileCollectionHeader other)
+        {
+            return ExtractFileCollectionInfoMessageGuid.Equals(other.ExtractFileCollectionInfoMessageGuid) &&
+                   ProducerIdentifier == other.ProducerIdentifier &&
+                   ReceivedAt.Equals(other.ReceivedAt);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ExtractFileCollectionHeader)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = ExtractFileCollectionInfoMessageGuid.GetHashCode();
+                hashCode = (hashCode * 397) ^ (ProducerIdentifier != null ? ProducerIdentifier.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ ReceivedAt.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ExtractFileCollectionHeader left, ExtractFileCollectionHeader right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ExtractFileCollectionHeader left, ExtractFileCollectionHeader right)
+        {
+            return !Equals(left, right);
+        }
+
+        #endregion
     }
 }

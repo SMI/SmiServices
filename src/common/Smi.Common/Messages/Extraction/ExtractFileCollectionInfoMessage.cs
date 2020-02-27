@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.MessageSerialization;
 using Newtonsoft.Json;
 using System;
@@ -13,7 +13,7 @@ namespace Smi.Common.Messages.Extraction
     public class ExtractFileCollectionInfoMessage : ExtractMessage, IEquatable<ExtractFileCollectionInfoMessage>
     {
         /// <summary>
-        /// Contains the value of the Tag <see cref="KeyTag"/> which is being extracted
+        /// Contains the value of the tag which is being extracted
         /// </summary>
         [JsonProperty(Required = Required.Always)]
         public string KeyValue { get; set; }

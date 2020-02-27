@@ -37,11 +37,17 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [BsonElement("keyCount")]
         public int KeyCount { get; set; }
 
+        [BsonElement("receivedCollectionInfoMessages")]
+        public int ReceivedCollectionInfoMessages { get; set; }
+
         [BsonElement("extractionModality")]
         public string ExtractionModality { get; set; }
 
-        [BsonElement("fileCollectionInfo")]
-        public List<MongoExpectedFilesForKey> FileCollectionInfo { get; set; }
+        [BsonElement("expectedFileInfo")]
+        public List<MongoExpectedFilesForKey> ExpectedFilesInfo { get; set; }
+
+        [BsonElement("rejectedKeysInfo")]
+        public List<MongoRejectedKeyInfo> RejectedKeysInfo { get; set; }
 
         public MongoExtractJob() { }
 
@@ -55,8 +61,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             JobSubmittedAt = existing.JobSubmittedAt;
             KeyTag = existing.KeyTag;
             KeyCount = existing.KeyCount;
-            FileCollectionInfo = existing.FileCollectionInfo;
+            ReceivedCollectionInfoMessages = existing.ReceivedCollectionInfoMessages;
+            ExpectedFilesInfo = existing.ExpectedFilesInfo;
             ExtractionModality = existing.ExtractionModality;
+            RejectedKeysInfo = existing.RejectedKeysInfo;
         }
 
         public bool Equals(MongoExtractJob other)
@@ -72,7 +80,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 JobSubmittedAt.Equals(other.JobSubmittedAt) &&
                 string.Equals(KeyTag, other.KeyTag) &&
                 KeyCount == other.KeyCount &&
-                FileCollectionInfo.All(other.FileCollectionInfo.Contains) &&
+                ReceivedCollectionInfoMessages == other.ReceivedCollectionInfoMessages &&
+                ExpectedFilesInfo.OrderBy(x => x.Key).SequenceEqual(other.ExpectedFilesInfo.OrderBy(x => x.Key)) &&
+                RejectedKeysInfo.OrderBy(x => x.Key).SequenceEqual(other.RejectedKeysInfo.OrderBy(x => x.Key)) &&
                 ExtractionModality == other.ExtractionModality;
         }
     }

@@ -23,7 +23,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private static List<ExtractFileCollectionInfo> FromMongoExtractJob(MongoExtractJob mongoExtractJob)
         {
             return mongoExtractJob
-                .FileCollectionInfo
+                .ExpectedFilesInfo
                 .Select(fileColl => new ExtractFileCollectionInfo(
                     fileColl.Key,
                     fileColl.AnonymisedFiles
