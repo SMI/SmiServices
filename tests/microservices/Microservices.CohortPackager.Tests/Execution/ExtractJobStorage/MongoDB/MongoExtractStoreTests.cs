@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -17,7 +17,7 @@ using Smi.Common.MongoDB.Tests;
 using Smi.Common.Tests;
 
 
-namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
+namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 {
     [TestFixture]
     public class MongoExtractStoreTests
@@ -30,9 +30,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             TestLogger.Setup();
         }
 
-        #endregion
-
-        #region Test Methods 
+        [OneTimeTearDown]
+        public void OneTimeTearDown() { }
 
         [SetUp]
         public void SetUp() { }
@@ -145,13 +144,16 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         public void TestPersistJobInfoToStore_ExtractionRequestInfoMessage()
         {
             var db = new MockExtractionDatabase();
-            var store = new MongoExtractJobStore(db);
+            var timeProvider = new TestDateTimeProvider();
+            var store = new MongoExtractJobStore(db, timeProvider);
+            Guid jobId = Guid.NewGuid();
+            DateTime jobSubmittedAt = DateTime.UtcNow;
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
-                ExtractionJobIdentifier = Guid.NewGuid(),
+                ExtractionJobIdentifier = jobId,
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "1234-5678/testExtract",
-                JobSubmittedAt = DateTime.UtcNow,
+                JobSubmittedAt = jobSubmittedAt,
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 ExtractionModality = "CT",
@@ -170,31 +172,38 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             Dictionary<Guid, MongoExtractJob> docs = db.ExtractJobCollection.Documents;
             Assert.AreEqual(docs.Count, 1);
             MongoExtractJob extractJob = docs.Values.ToList()[0];
-            Assert.AreEqual(testExtractionRequestInfoMessage.ExtractionJobIdentifier, extractJob.ExtractionJobIdentifier);
-            Assert.AreEqual(testExtractionRequestInfoMessage.ProjectNumber, extractJob.ProjectNumber);
-            Assert.AreEqual(testExtractionRequestInfoMessage.ExtractionDirectory, extractJob.ExtractionDirectory);
-            Assert.AreEqual(testExtractionRequestInfoMessage.JobSubmittedAt, extractJob.JobSubmittedAt);
-            Assert.AreEqual(testExtractionRequestInfoMessage.KeyTag, extractJob.KeyTag);
-            Assert.AreEqual(testExtractionRequestInfoMessage.ExtractionModality, extractJob.ExtractionModality);
-            Assert.AreEqual(new List<MongoExpectedFilesForKey>(), extractJob.FileCollectionInfo);
-            Assert.AreEqual(ExtractJobStatus.WaitingForCollectionInfo, extractJob.JobStatus);
-            Assert.AreEqual(testExtractionRequestInfoMessage.KeyValueCount, extractJob.KeyCount);
-            Assert.AreEqual(testHeader.MessageGuid, extractJob.Header.ExtractRequestInfoMessageGuid);
-            Assert.AreEqual($"{testHeader.ProducerExecutableName}({testHeader.ProducerProcessID})", extractJob.Header.ProducerIdentifier);
-            Assert.True((DateTime.UtcNow - extractJob.Header.ReceivedAt).TotalSeconds < 1); // Eeehhhh...
+
+            var expected = new MongoExtractJob
+            {
+                ExtractionModality = "CT",
+                JobSubmittedAt = jobSubmittedAt,
+                ProjectNumber = "1234-5678",
+                ExtractionJobIdentifier = jobId,
+                KeyTag = "StudyInstanceUID",
+                ExtractionDirectory = "1234-5678/testExtract",
+                Header = MongoExtractJobHeader.FromMessageHeader(testHeader, timeProvider),
+                JobStatus = ExtractJobStatus.WaitingForCollectionInfo,
+                FileCollectionInfo = new List<MongoExpectedFilesForKey>(),
+                KeyCount = 1,
+            };
+
+            Assert.AreEqual(expected, extractJob);
         }
 
         [Test]
         public void TestPersistJobInfoToStore_ExtractFileCollectionInfoMessage()
         {
             var db = new MockExtractionDatabase();
-            var store = new MongoExtractJobStore(db);
+            var timeProvider = new TestDateTimeProvider();
+            var store = new MongoExtractJobStore(db, timeProvider);
+            Guid jobId = Guid.NewGuid();
+            DateTime jobSubmittedAt = DateTime.UtcNow;
             var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
             {
-                ExtractionJobIdentifier = Guid.NewGuid(),
+                ExtractionJobIdentifier = jobId,
                 ProjectNumber = "1234-5678",
                 RejectionReasons = new Dictionary<string, int>(),
-                JobSubmittedAt = DateTime.UtcNow,
+                JobSubmittedAt = jobSubmittedAt,
                 ExtractionDirectory = "1234-5678/testExtract",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(),
                 KeyValue = "",
