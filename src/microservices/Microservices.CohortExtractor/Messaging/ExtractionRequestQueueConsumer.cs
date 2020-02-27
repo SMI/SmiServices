@@ -44,8 +44,7 @@ namespace Microservices.CohortExtractor.Messaging
 
             _auditor.AuditExtractionRequest(request);
 
-            ExtractionKey extractionKey;
-            if (!CheckValidRequest(request, header, deliverArgs, out extractionKey))
+            if (!CheckValidRequest(request, header, deliverArgs))
                 return;
 
             foreach (ExtractImageCollection answers in _fulfiller.GetAllMatchingFiles(request, _auditor))
@@ -94,25 +93,16 @@ namespace Microservices.CohortExtractor.Messaging
         }
 
 
-        private bool CheckValidRequest(ExtractionRequestMessage request, IMessageHeader header, BasicDeliverEventArgs deliverArgs, out ExtractionKey key)
+        private bool CheckValidRequest(ExtractionRequestMessage request, IMessageHeader header, BasicDeliverEventArgs deliverArgs)
         {
-            key = default(ExtractionKey);
-
             if (!request.ExtractionDirectory.StartsWith(request.ProjectNumber))
             {
                 Logger.Debug("ExtractionDirectory did not start with the project number, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
                 ErrorAndNack(header, deliverArgs, "", new InvalidEnumArgumentException("ExtractionDirectory"));
-
                 return false;
             }
 
-            if (Enum.TryParse(request.KeyTag, true, out key))
-                return true;
-
-            Logger.Debug("KeyTag '" + request.KeyTag + "' could not be parsed to a valid extraction key, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-            ErrorAndNack(header, deliverArgs, "", new InvalidEnumArgumentException("KeyTag"));
-
-            return false;
+            return true;
         }
     }
 }
