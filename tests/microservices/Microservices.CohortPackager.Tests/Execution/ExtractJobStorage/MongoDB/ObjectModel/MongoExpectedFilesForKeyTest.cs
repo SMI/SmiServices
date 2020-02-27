@@ -8,7 +8,7 @@ using Smi.Common.Tests;
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
     [TestFixture]
-    public class ExtractJobHeaderTest
+    public class MongoExpectedFilesForKeyTest
     {
         #region Fixture Methods 
 
@@ -45,13 +45,13 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             };
             var dateTimeProvider = new TestDateTimeProvider();
 
-            MongoExtractJobHeader mongoExtractJobHeader = MongoExtractJobHeader.FromMessageHeader(header, dateTimeProvider);
+            ExtractFileCollectionHeader mongoExtractJobHeader = ExtractFileCollectionHeader.FromMessageHeader(header, dateTimeProvider);
 
-            var expected = new MongoExtractJobHeader
+            var expected = new ExtractFileCollectionHeader
             {
                 ReceivedAt = dateTimeProvider.UtcNow(),
-                ExtractRequestInfoMessageGuid = messageGuid,
                 ProducerIdentifier = "TestFromMessageHeader(1234)",
+                ExtractFileCollectionInfoMessageGuid = messageGuid,
             };
             Assert.True(mongoExtractJobHeader.Equals(expected));
         }
