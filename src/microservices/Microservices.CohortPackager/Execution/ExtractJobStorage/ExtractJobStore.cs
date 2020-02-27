@@ -61,11 +61,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public void CleanupJobData(Guid jobId)
         {
+            Logger.Debug($"Cleaning up job data for {jobId}");
             CleanupJobDataImpl(jobId);
         }
 
         public void QuarantineJob(Guid jobId, Exception e)
         {
+            Logger.Debug($"Quarantining job data for {jobId}");
             QuarantineJobImpl(jobId, e);
         }
 

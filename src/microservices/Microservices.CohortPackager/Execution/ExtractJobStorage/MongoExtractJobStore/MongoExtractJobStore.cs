@@ -154,9 +154,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
         protected override void PersistMessageToStoreImpl(ExtractFileStatusMessage fileStatusMessage, IMessageHeader header)
         {
-            if (fileStatusMessage.Status == ExtractFileStatus.Anonymised)
-                throw new ArgumentOutOfRangeException(nameof(fileStatusMessage.Status));
-
             string collectionName = StatusCollectionPrefix + fileStatusMessage.ExtractionJobIdentifier;
 
             var newStatus = new MongoExtractedFileStatusDocument
@@ -185,6 +182,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
         protected override List<ExtractJobInfo> GetLatestJobInfoImpl(Guid jobId = default)
         {
+            // TODO(rkm 2020-02-27 Check why this is for WaitingForStatuses only
             FilterDefinition<MongoExtractJob> filter = Builders<MongoExtractJob>.Filter.Eq(x => x.JobStatus, ExtractJobStatus.WaitingForStatuses);
 
             // If we have been passed a specific GUID, search for that job only
@@ -227,8 +225,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         {
             // TODO(rkm 2020-02-06) Make this transactional
 
-            Logger.Debug("Cleaning up job data for " + extractionJobIdentifier);
-
             lock (_oJobStoreLock)
             {
                 MongoExtractJob toArchive;
@@ -262,8 +258,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         protected override void QuarantineJobImpl(Guid extractionJobIdentifier, Exception cause)
         {
             // TODO(rkm 2020-02-06) Make this transactional
-
-            Logger.Debug("Quarantining job data for " + extractionJobIdentifier);
 
             lock (_oJobStoreLock)
             {
