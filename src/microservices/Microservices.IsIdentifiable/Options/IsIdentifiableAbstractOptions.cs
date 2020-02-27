@@ -56,6 +56,9 @@ namespace Microservices.IsIdentifiable.Options
 
         [Option(HelpText = "Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data", Default = 10000)]
         public int MaxCacheSize { get; set; }
+
+        [Option(HelpText = "Optional. Filename of additional rules in yaml format.")]
+        public string RulesFile { get; set; }
         
         /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
