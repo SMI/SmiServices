@@ -207,8 +207,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
                     {
                         IMongoCollection<MongoExtractedFileStatusDocument> statusCollection = _database.GetCollection<MongoExtractedFileStatusDocument>(StatusCollectionPrefix + job.ExtractionJobIdentifier);
                         List<MongoExtractedFileStatusDocument> statuses = statusCollection.Find(FilterDefinition<MongoExtractedFileStatusDocument>.Empty).ToList();
-
-                        toRet.Add(BuildJobInfo(job, statuses));
+                        toRet.Add(MongoExtractJobInfoExtensions.FromMongoJobInfo(job, statuses));
                     }
                     catch (Exception e)
                     {
@@ -327,42 +326,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
             }
 
             return toReturn;
-        }
-
-        private static ExtractJobInfo BuildJobInfo(MongoExtractJob mongoExtractJob, List<MongoExtractedFileStatusDocument> jobStatuses)
-        {
-            return new ExtractJobInfo(
-                mongoExtractJob.ExtractionJobIdentifier,
-                mongoExtractJob.ProjectNumber,
-                mongoExtractJob.JobSubmittedAt,
-                mongoExtractJob.JobStatus,
-                mongoExtractJob.ExtractionDirectory,
-                mongoExtractJob.KeyCount,
-                mongoExtractJob.KeyTag,
-                BuildFileCollectionInfoList(mongoExtractJob),
-                BuildFileStatusInfoList(jobStatuses),
-                mongoExtractJob.ExtractionModality);
-        }
-
-        private static List<ExtractFileCollectionInfo> BuildFileCollectionInfoList(MongoExtractJob mongoExtractJob)
-        {
-            return mongoExtractJob
-                .FileCollectionInfo
-                .Select(fileColl => new ExtractFileCollectionInfo(
-                    fileColl.Key,
-                    fileColl.AnonymisedFiles
-                        .Select(fileInfo => fileInfo.AnonymisedFilePath)
-                        .ToList()))
-                .ToList();
-        }
-
-        private static List<ExtractFileStatusInfo> BuildFileStatusInfoList(IEnumerable<MongoExtractedFileStatusDocument> jobStatuses)
-        {
-            return jobStatuses.Select(x => new ExtractFileStatusInfo(
-                    x.Status,
-                    x.AnonymisedFileName,
-                    x.StatusMessage))
-                .ToList();
         }
 
         #endregion
