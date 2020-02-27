@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -152,7 +152,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "1234-5678/testExtract",
                 JobSubmittedAt = DateTime.UtcNow,
-                KeyTag = "SeriesInstanceUID",
+                KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 ExtractionModality = "CT",
             };
