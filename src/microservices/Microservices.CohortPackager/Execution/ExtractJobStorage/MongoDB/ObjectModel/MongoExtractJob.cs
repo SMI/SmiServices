@@ -7,7 +7,7 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages;
 
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
     public class MongoExtractJob : IEquatable<MongoExtractJob>
     {
@@ -16,7 +16,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         public Guid ExtractionJobIdentifier { get; set; }
 
         [BsonElement("header")]
-        public ExtractJobHeader Header { get; set; }
+        public MongoExtractJobHeader Header { get; set; }
 
         [BsonElement("projectNumber")]
         public string ProjectNumber { get; set; }
@@ -45,7 +45,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
         public MongoExtractJob() { }
 
-        //TODO Probably want to implement a deep copy here, but not currently using this in a context where it will matter
         protected MongoExtractJob(MongoExtractJob existing)
         {
             ExtractionJobIdentifier = existing.ExtractionJobIdentifier;
@@ -78,7 +77,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         }
     }
 
-    public class ExtractJobHeader : IEquatable<ExtractJobHeader>
+    public class MongoExtractJobHeader : IEquatable<MongoExtractJobHeader>
     {
         [BsonElement("extractRequestInfoMessageGuid")]
         [BsonRepresentation(BsonType.String)]
@@ -91,7 +90,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         public DateTime ReceivedAt { get; set; }
 
 
-        public bool Equals(ExtractJobHeader other)
+        public bool Equals(MongoExtractJobHeader other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -101,8 +100,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
                 ReceivedAt.Equals(other.ReceivedAt);
         }
 
-        public static ExtractJobHeader FromMessageHeader(IMessageHeader header, DateTimeProvider dateTimeProvider)
-            => new ExtractJobHeader
+        public static MongoExtractJobHeader FromMessageHeader(IMessageHeader header, DateTimeProvider dateTimeProvider)
+            => new MongoExtractJobHeader
             {
                 ExtractRequestInfoMessageGuid = header.MessageGuid,
                 ProducerIdentifier = $"{header.ProducerExecutableName}({header.ProducerProcessID})",

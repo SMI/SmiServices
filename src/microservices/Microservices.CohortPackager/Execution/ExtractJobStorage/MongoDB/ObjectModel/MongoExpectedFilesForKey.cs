@@ -7,7 +7,7 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages;
 
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
     /// <summary>
     /// MongoDB document model representing a set of files which are expected to be extracted

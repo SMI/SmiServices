@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 {
     public static class MongoExtractJobInfoExtensions
     {

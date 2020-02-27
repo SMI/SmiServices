@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore.ObjectModel;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Driver;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 
 
-namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJobStore
+namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 {
     public class MongoExtractJobStore : ExtractJobStore
     {
@@ -54,7 +54,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
         protected override void PersistMessageToStoreImpl(ExtractionRequestInfoMessage requestInfoMessage, IMessageHeader header)
         {
             Guid jobIdentifier = requestInfoMessage.ExtractionJobIdentifier;
-            ExtractJobHeader jobHeader = ExtractJobHeader.FromMessageHeader(header, _dateTimeProvider);
+            MongoExtractJobHeader jobHeader = MongoExtractJobHeader.FromMessageHeader(header, _dateTimeProvider);
 
             lock (_oJobStoreLock)
             {
@@ -103,7 +103,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
         protected override void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header)
         {
-            Guid jobIdentifier = collectionInfoMessage.ExtractionJobIdentifier;
+            // TODO(rkm 2020-02-26) Check job status calculation
+
+            Guid jobId = collectionInfoMessage.ExtractionJobIdentifier;
             var expectedFiles = new List<ExpectedAnonymisedFileInfo>();
 
             // Extract the list of expected anonymised files from the message
@@ -127,19 +129,19 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
             lock (_oJobStoreLock)
             {
-                if (InArchiveCollection(jobIdentifier, out MongoExtractJob _) || InQuarantineCollection(jobIdentifier, out _))
+                if (InArchiveCollection(jobId, out MongoExtractJob _) || InQuarantineCollection(jobId, out _))
                     throw new ApplicationException("Received an ExtractFileCollectionInfoMessage for a job that exists in the archive or quarantine");
 
                 // Most likely already have an entry for this
 
-                if (InJobCollection(jobIdentifier, out MongoExtractJob existing))
+                if (InJobCollection(jobId, out MongoExtractJob existing))
                 {
                     existing.FileCollectionInfo.Add(expectedFilesForKey);
 
                     if (existing.FileCollectionInfo.Count == existing.KeyCount)
                         existing.JobStatus = ExtractJobStatus.WaitingForStatuses;
 
-                    _jobInfoCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJob>(jobIdentifier), existing);
+                    _jobInfoCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJob>(jobId), existing);
                     return;
                 }
 
@@ -147,7 +149,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoExtractJ
 
                 var newJobInfo = new MongoExtractJob
                 {
-                    ExtractionJobIdentifier = jobIdentifier,
+                    ExtractionJobIdentifier = jobId,
                     JobSubmittedAt = collectionInfoMessage.JobSubmittedAt,
                     JobStatus = ExtractJobStatus.WaitingForJobInfo,
                     KeyTag = collectionInfoMessage.KeyValue,

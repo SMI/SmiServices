@@ -7,7 +7,6 @@ using Smi.Common.Messages.Extraction;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 {
-    // TODO(rkm 2020-02-25) Pull more of the general extraction logic out of MongoExtractJobStore to here
     /// <summary>
     /// Base class for any extract job store implementation
     /// </summary>
