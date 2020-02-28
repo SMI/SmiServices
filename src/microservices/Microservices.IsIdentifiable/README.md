@@ -173,7 +173,7 @@ In order to run as a microservice you should call it with the `--service` flag
 | YAML Section  | Purpose |
 | ------------- | ------------- |
 | RabbitOptions | Describes the location of the rabbit server for sending messages to |
-| IsIdentifiableOptions | Describes what `IClassifier` to run and where the classifier models are stored |
+| IsIdentifiableOptions | Describes what `IClassifier` to run and where the classifier models are stored. The key `DataDirectory` specifies the path to the data directory. The key `ClassifierType` specifies which classifier to run, typically `Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier` |
 
 ### Expectations
 
