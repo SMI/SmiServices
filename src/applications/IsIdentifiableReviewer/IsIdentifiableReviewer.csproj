@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="ExampleReport.csv" />
+    <None Remove="Settings.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ExampleReport.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Settings.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="12.1.2" />
+    <PackageReference Include="HIC.FAnsiSql" Version="0.10.13" />
+    <PackageReference Include="Terminal.Gui" Version="0.65.0" />
+    <PackageReference Include="YamlDotNet" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\microservices\Microservices.IsIdentifiable\Microservices.IsIdentifiable.csproj" />
+  </ItemGroup>
+
+</Project>
