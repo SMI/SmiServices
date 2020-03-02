@@ -149,6 +149,8 @@ WhiteListRules:
  - Action: Ignore
    IfPartPattern: ^AVM$
  - Action: Ignore
+   IfPartPattern: ^Bolustrak$
+ - Action: Ignore
    IfPartPattern: ^Bone$
  - Action: Ignore
    IfPartPattern: ^Cholesteatoma$
@@ -691,6 +693,9 @@ BasicRules:
    IfColumn: ProcedureCodeSequence_CodeValue
    IfPattern: ^MWRIR$
  - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^MTSPN$
+ - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^WB Standard$
  - Action: Ignore
@@ -799,6 +804,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: PatientPosition
    IfPattern: ^FFDL$
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: ^HFDL$
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: ^FFDR$
 
  - Action: Ignore
    IfColumn: ScanOptions
