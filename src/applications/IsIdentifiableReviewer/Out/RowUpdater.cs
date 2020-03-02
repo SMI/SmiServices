@@ -61,5 +61,16 @@ namespace IsIdentifiableReviewer.Out
                 
             }
         }
+
+        /// <summary>
+        /// Handler for loading <paramref name="failure"/>.  If the user previously made an update decision an
+        /// update will transparently happen for this record and false is returned.
+        /// </summary>
+        /// <param name="failure"></param>
+        /// <returns>True if <paramref name="failure"/> is novel and not seen before</returns>
+        public bool OnLoad(Failure failure)
+        {
+            return true;
+        }
     }
 }

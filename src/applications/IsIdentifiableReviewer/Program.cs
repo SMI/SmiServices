@@ -26,7 +26,7 @@ namespace IsIdentifiableReviewer
 
             try
             {
-                targets = d.Deserialize<List<Target>>(File.ReadAllText("Settings.yaml"));
+                targets = d.Deserialize<List<Target>>(File.ReadAllText("Targets.yaml"));
 
                 if (!targets.Any())
                     throw new Exception("No targets found in file");

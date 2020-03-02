@@ -1,3 +1,0 @@
-﻿- Name: Example Server
-  ConnectionString: Server=localhost;Username=root;Password=zombie
-  DatabaseType: MySql

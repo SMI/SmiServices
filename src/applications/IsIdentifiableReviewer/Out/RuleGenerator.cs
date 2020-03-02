@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microservices.IsIdentifiable.Reporting;
@@ -11,14 +12,25 @@ namespace IsIdentifiableReviewer.Out
 {
     class RuleGenerator
     {
+        private List<IsIdentifiableRule> Rules;
         public FileInfo RulesFile { get; }
-
+        
         public RuleGenerator(FileInfo rulesFile)
         {
             RulesFile = rulesFile;
 
             if (!rulesFile.Exists)
                 rulesFile.Create();
+
+            var existingRules = File.ReadAllText(rulesFile.FullName);
+
+            if(string.IsNullOrWhiteSpace(existingRules))
+                Rules = new List<IsIdentifiableRule>();
+            else
+            {
+                var deserializer = new Deserializer();
+                Rules = deserializer.Deserialize<List<IsIdentifiableRule>>(existingRules);
+            }
         }
 
         /// <summary>
@@ -33,10 +45,26 @@ namespace IsIdentifiableReviewer.Out
             rule.IfColumn = f.ProblemField;
             rule.IfPattern = "^" + Regex.Escape(f.ProblemValue) + "$";
 
-            var serializer = new Serializer();
+            //don't add identical rules
+            if (Rules.Any(r => r.AreIdentical(rule)))
+                return;
 
+            Rules.Add(rule);
+
+            var serializer = new Serializer();
             var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
-            File.AppendText(yaml);
+            File.AppendAllText(RulesFile.FullName,yaml);
+        }
+        
+        /// <summary>
+        /// When a new <paramref name="failure"/> is loaded, is it already covered by existing rules i.e. rules you are
+        /// working on now that have been added since the report was generated
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns>true if it is novel</returns>
+        public bool OnLoad(Failure failure)
+        {
+            return Rules.All(r => r.Apply(failure.ProblemField, failure.ProblemValue) == RuleAction.None);
         }
     }
 }

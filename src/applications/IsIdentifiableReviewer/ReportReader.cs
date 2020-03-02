@@ -10,10 +10,11 @@ namespace IsIdentifiableReviewer
 {
     class ReportReader
     {
-        private int _current;
+        private int _current = -1;
         public Failure[] Failures { get; set; }
 
         public Failure Current => _current < Failures.Length ? Failures[_current]: null;
+        public bool Exhausted => !(_current < Failures.Length);
 
         public ReportReader(FileInfo csvFile)
         {
@@ -24,12 +25,23 @@ namespace IsIdentifiableReviewer
         public bool Next()
         {
             _current++;
-            return _current < Failures.Length;
+            if (_current < Failures.Length)
+                return true;
+
+            _current = Failures.Length;
+            return false;
         }
 
+        
         public void GoTo(int index)
         {
             _current = index;
+        }
+
+
+        public string DescribeProgress()
+        {
+            return _current + "/" + Failures.Length;
         }
     }
 }

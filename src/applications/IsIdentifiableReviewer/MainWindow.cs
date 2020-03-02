@@ -10,6 +10,7 @@ using Microservices.IsIdentifiable.Rules;
 using MongoDB.Bson;
 using NPOI.OpenXmlFormats.Dml.Diagram;
 using Terminal.Gui;
+using Attribute = Terminal.Gui.Attribute;
 
 namespace IsIdentifiableReviewer
 {
@@ -28,6 +29,7 @@ namespace IsIdentifiableReviewer
         public int DlgHeight = 18;
         public int DlgBoundary = 2;
         private ValuePane _valuePane;
+        private Label _info;
 
         public MainWindow(List<Target> targets)
         {
@@ -46,10 +48,20 @@ namespace IsIdentifiableReviewer
                 })
             });
 
-            _valuePane = new ValuePane()
+            _info = new Label("Info")
             {
                 X = 0,
                 Y = 0,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+            
+            _info.TextColor = Attribute.Make(Color.Black,Color.Gray);
+            
+            _valuePane = new ValuePane()
+            {
+                X = 0,
+                Y = 1,
                 Width = Dim.Fill(),
                 Height = 10,
             };
@@ -57,7 +69,7 @@ namespace IsIdentifiableReviewer
             var frame = new FrameView("Options")
             {
                 X = 0,
-                Y = 10,
+                Y = 11,
                 Width = Dim.Fill(),
                 Height = Dim.Fill()
             };
@@ -78,8 +90,9 @@ namespace IsIdentifiableReviewer
                 X = 22,
                 Clicked = Update
             });
-
+            
             top.Add (menu);
+            Add(_info);
             Add(_valuePane);
             Add(frame);
         }
@@ -89,10 +102,37 @@ namespace IsIdentifiableReviewer
             if(_valuePane.CurrentFailure == null)
                 return;
 
-            if(CurrentReport.Next())
-                _valuePane.CurrentFailure = CurrentReport.Current;
-            else
+            int skipped = 0;
+            int updated = 0;
+
+            while(CurrentReport.Next())
+            {
+                var next = CurrentReport.Current;
+
+                if (!Generator.OnLoad(next))
+                    skipped++;
+                else if (!Updater.OnLoad(next))
+                    updated++;
+                else
+                {
+                    _valuePane.CurrentFailure = next;
+                    break;
+                }
+            }
+
+            if(CurrentReport.Exhausted)
                 ShowMessage("End", "End of Failures");
+            
+            StringBuilder info = new StringBuilder();
+
+            info.Append(CurrentReport.DescribeProgress());
+
+            if (skipped > 0)
+                info.Append(" Skipped " + skipped);
+            if (updated > 0)
+                info.Append(" Auto Updated " + updated);
+
+            _info.Text = info.ToString();
         }
         
         private void Ignore()
@@ -151,11 +191,13 @@ namespace IsIdentifiableReviewer
 
                     CurrentReport = new ReportReader(new FileInfo(f));
                     _valuePane.CurrentFailure = CurrentReport.Failures.FirstOrDefault();
+                    Next();
                 }
                 catch (Exception e)
                 {
                     ShowException("Failed to Load",e);
                 }
+
             }
         }
         

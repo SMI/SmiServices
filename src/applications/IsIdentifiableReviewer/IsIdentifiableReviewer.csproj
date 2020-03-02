@@ -7,14 +7,14 @@
 
   <ItemGroup>
     <None Remove="ExampleReport.csv" />
-    <None Remove="Settings.yaml" />
+    <None Remove="Targets.yaml" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="ExampleReport.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Settings.yaml">
+    <Content Include="Targets.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
