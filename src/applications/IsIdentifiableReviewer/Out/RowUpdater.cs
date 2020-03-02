@@ -7,13 +7,17 @@ using Microservices.IsIdentifiable.Reporting;
 
 namespace IsIdentifiableReviewer.Out
 {
-    class RowUpdater
+    public class RowUpdater
     {
         Dictionary<DiscoveredTable,DiscoveredColumn> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn>();
 
         public void Update(Target target, Failure failure)
         {
-            var server = target.Discover();
+            Update(target.Discover(),failure);
+        }
+
+        public void Update(DiscoveredServer server, Failure failure)
+        {
             var syntax = server.GetQuerySyntaxHelper();
 
             //the fully specified name e.g. [mydb]..[mytbl]
@@ -42,15 +46,19 @@ namespace IsIdentifiableReviewer.Out
             using (var con = server.GetConnection())
             {
                 con.Open();
-
-                string sql =
-                $@"update {failure.Resource} 
-                SET {failure.ProblemField} = 
-                REPLACE({failure.ProblemField},'{syntax.Escape(failure.ProblemValue)}', 'SMI_REDACTED')
+                
+                foreach (var part in failure.Parts)             
+                {
+                    string sql =
+                        $@"update {table.GetFullyQualifiedName()} 
+                SET {syntax.EnsureWrapped(failure.ProblemField)} = 
+                REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(part.Word)}', 'SMI_REDACTED')
                 WHERE {_primaryKeys[table].GetFullyQualifiedName()} = '{syntax.Escape(failure.ResourcePrimaryKey)}'";
 
-                var cmd = server.GetCommand(sql, con);
-                cmd.ExecuteNonQuery();
+                    var cmd = server.GetCommand(sql, con);
+                    cmd.ExecuteNonQuery();
+                }
+                
             }
         }
     }
