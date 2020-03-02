@@ -64,7 +64,7 @@ namespace IsIdentifiableReviewer.Out
         /// <returns>true if it is novel</returns>
         public bool OnLoad(Failure failure)
         {
-            return Rules.All(r => r.Apply(failure.ProblemField, failure.ProblemValue) == RuleAction.None);
+            return Rules.All(r => r.Apply(failure.ProblemField, failure.ProblemValue, out _) == RuleAction.None);
         }
     }
 }

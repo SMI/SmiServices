@@ -43,6 +43,8 @@ namespace Smi.Common.Helpers
             }
             catch (Exception e)
             {
+                _logger.Error(e,$"Failed to construct Type '{typeof(T)}'");
+
                 if(FatalHandler != null)
                     FatalHandler(this,new FatalErrorEventArgs("Error constructing Type " + toCreate, e));
                 else

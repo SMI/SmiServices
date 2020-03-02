@@ -9,6 +9,7 @@ using Smi.Common.Messaging;
 using RabbitMQ.Client.Events;
 using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Microservices.CohortExtractor.Messaging
 {
@@ -19,14 +20,15 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
 
-        //TODO This should depend on the message key
-        private readonly IProjectPathResolver _resolver = new SeriesKeyPathResolver();
-
-
-        public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor, IProducerModel fileMessageProducer, IProducerModel fileMessageInfoProducer)
+        private readonly IProjectPathResolver _resolver;
+        
+        public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
+            IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
+            IProducerModel fileMessageInfoProducer)
         {
             _fulfiller = fulfiller;
             _auditor = auditor;
+            _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }
@@ -42,24 +44,23 @@ namespace Microservices.CohortExtractor.Messaging
 
             _auditor.AuditExtractionRequest(request);
 
-            ExtractionKey extractionKey;
-            if (!CheckValidRequest(request, header, deliverArgs, out extractionKey))
+            if (!CheckValidRequest(request, header, deliverArgs))
                 return;
 
             foreach (ExtractImageCollection answers in _fulfiller.GetAllMatchingFiles(request, _auditor))
             {
                 var infoMessage = new ExtractFileCollectionInfoMessage(request);
 
-                foreach (string filePath in answers.MatchingFiles)
+                foreach (QueryToExecuteResult accepted in answers.Accepted)
                 {
                     var extractFileMessage = new ExtractFileMessage(request)
                     {
                         // Path to the original file
-                        DicomFilePath = filePath.TrimStart('/', '\\'),
+                        DicomFilePath = accepted.FilePathValue.TrimStart('/', '\\'),
                         // Extraction directory relative to the extract root
                         ExtractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\'),
                         // Output path for the anonymised file, relative to the extraction directory
-                        OutputPath = _resolver.GetOutputPath(filePath, answers).Replace('\\', '/')
+                        OutputPath = _resolver.GetOutputPath(accepted,request).Replace('\\', '/')
                     };
 
                     Logger.Debug("DicomFilePath: " + extractFileMessage.DicomFilePath);
@@ -73,6 +74,15 @@ namespace Microservices.CohortExtractor.Messaging
                     infoMessage.ExtractFileMessagesDispatched.Add(sentHeader, extractFileMessage.OutputPath);
                 }
 
+                //for all the rejected messages log why (in the info message)
+                foreach (var rejectedResults in answers.Rejected)
+                {
+                    if(!infoMessage.RejectionReasons.ContainsKey(rejectedResults.RejectReason))
+                        infoMessage.RejectionReasons.Add(rejectedResults.RejectReason,0);
+
+                    infoMessage.RejectionReasons[rejectedResults.RejectReason]++;
+                }
+
                 _auditor.AuditExtractFiles(request, answers);
 
                 infoMessage.KeyValue = answers.KeyValue;
@@ -83,25 +93,16 @@ namespace Microservices.CohortExtractor.Messaging
         }
 
 
-        private bool CheckValidRequest(ExtractionRequestMessage request, IMessageHeader header, BasicDeliverEventArgs deliverArgs, out ExtractionKey key)
+        private bool CheckValidRequest(ExtractionRequestMessage request, IMessageHeader header, BasicDeliverEventArgs deliverArgs)
         {
-            key = default(ExtractionKey);
-
             if (!request.ExtractionDirectory.StartsWith(request.ProjectNumber))
             {
                 Logger.Debug("ExtractionDirectory did not start with the project number, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
                 ErrorAndNack(header, deliverArgs, "", new InvalidEnumArgumentException("ExtractionDirectory"));
-
                 return false;
             }
 
-            if (Enum.TryParse(request.KeyTag, true, out key))
-                return true;
-
-            Logger.Debug("KeyTag '" + request.KeyTag + "' could not be parsed to a valid extraction key, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-            ErrorAndNack(header, deliverArgs, "", new InvalidEnumArgumentException("KeyTag"));
-
-            return false;
+            return true;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using MongoDB.Bson;
 
 namespace Microservices.IsIdentifiable.Reporting

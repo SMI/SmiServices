@@ -12,7 +12,10 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Runners;
+using Microservices.IsIdentifiable.Service;
 using NLog;
+using Smi.Common.Execution;
+using Smi.Common.Options;
 
 namespace Microservices.IsIdentifiable
 {
@@ -34,6 +37,17 @@ namespace Microservices.IsIdentifiable
             ImplementationManager.Load<MySqlImplementation>();
             ImplementationManager.Load<OracleImplementation>();
             ImplementationManager.Load<PostgreSqlImplementation>();
+
+            //If running as a self contained micro service (getting messages from RabbitMQ)
+            if (args.Length == 1 && string.Equals(args[0], "--service", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var options = GlobalOptions.Load();
+                
+                var bootstrapper = new MicroserviceHostBootstrapper(
+                    () => new IsIdentifiableHost(options));
+                return bootstrapper.Main();
+            }
+
             try
             {
                 string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -79,28 +93,29 @@ namespace Microservices.IsIdentifiable
 
         private static int Run(IsIdentifiableDicomFileOptions opts)
         {
-            var runner = new DicomFileRunner(opts);
-            return runner.Run();
+            using(var runner = new DicomFileRunner(opts))
+                return runner.Run();
         }
 
         private static int Run(IsIdentifiableRelationalDatabaseOptions opts)
         {
-            var runner = new DatabaseRunner(opts);
-            return runner.Run();
+            using(var runner = new DatabaseRunner(opts))
+                return runner.Run();
         }
 
         private static int Run(IsIdentifiableMongoOptions opts)
         {
             string appId = _process.ProcessName + "-" + _process.Id;
-            var runner = new IsIdentifiableMongoRunner(opts, appId);
-
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            using (var runner = new IsIdentifiableMongoRunner(opts, appId))
             {
-                e.Cancel = true;
-                runner.Stop();
-            };
+                Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+                {
+                    e.Cancel = true;
+                    runner.Stop();
+                };
 
-            return runner.Run();
+                return runner.Run();
+            }
         }
 
         private static Parser GetParser()

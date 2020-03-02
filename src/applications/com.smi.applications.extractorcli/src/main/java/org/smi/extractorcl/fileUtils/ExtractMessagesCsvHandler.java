@@ -14,6 +14,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import com.rabbitmq.client.impl.Environment;
+
 /**
  * Handles events from the CSV parser and constructs the Extract Request Message
  * and Extract Request Info Message.
@@ -26,65 +28,77 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 	private HashSet<String> _identifierSet = new HashSet<>();
 	private String _projectID;
 	private String _extractionDir;
+	private String _extractionModality;
 	private ExtractionKey _extractionKey;
-	private int _extractionKeyColumnIndex;
-	private static final Pattern _chiPattern=Pattern.compile("^\\d{10}$");
+	private static final Pattern _chiPattern = Pattern.compile("^\\d{10}$");
 	private static final Pattern _eupiPattern = Pattern.compile("^([A-Z]|[0-9]){32}$");
 	private IProducerModel _extractRequestMessageProducerModel;
 	private IProducerModel _extractRequestInfoMessageProducerModel;
 
 	/**
-	 * Constructor
+	 * Default constructor
 	 *
 	 * @param extractionJobID                        Extraction job ID
 	 * @param projectID                              Project ID
-	 * @param extractionDir                          Folder to write extracted DICOM files
-	 * @param extractionKeyColumnIndex               Index of series ID column (0 based)
-	 * @param extractRequestMessageProducerModel     Producer model used to write ExtractRequest messages
-	 * @param extractRequestInfoMessageProducerModel Producer model used to write ExtractRequestInfo messages
+	 * @param extractionDir                          Folder to write extracted DICOM
+	 *                                               files
+	 * @param extractionModality                     Modality specifier. Required
+	 *                                               when extracting by
+	 *                                               StudyInstanceUID
+	 * @param extractRequestMessageProducerModel     Producer model used to write
+	 *                                               ExtractRequest messages
+	 * @param extractRequestInfoMessageProducerModel Producer model used to write
+	 *                                               ExtractRequestInfo messages
 	 */
 	public ExtractMessagesCsvHandler(UUID extractionJobID, String projectID, String extractionDir,
-									 int extractionKeyColumnIndex, IProducerModel extractRequestMessageProducerModel,
-									 IProducerModel extractRequestInfoMessageProducerModel) {
+			String extractionModality, IProducerModel extractRequestMessageProducerModel,
+			IProducerModel extractRequestInfoMessageProducerModel) {
 
 		_extractionJobID = extractionJobID;
 		_projectID = projectID;
 		_extractionDir = extractionDir;
-		_extractionKeyColumnIndex = extractionKeyColumnIndex;
 		_extractRequestMessageProducerModel = extractRequestMessageProducerModel;
 		_extractRequestInfoMessageProducerModel = extractRequestInfoMessageProducerModel;
+		_extractionModality = extractionModality;
 
-		// TODO Use regexes to detect what looks like CHI numbers
+		// TODO(rkm 2020-01-30) Properly handle this
+		if (_extractionModality != null && (_extractionModality != "CT" && _extractionModality != "MR")) {
+			throw new IllegalArgumentException(
+					"Invalid value " + _extractionModality + " for extractionModality. Supported values are: CT, MR");
+		}
 	}
 
 	@Override
-	public void processHeader(String[] header) throws LineProcessingException {
+	public void processHeader(String[] header) throws LineProcessingException, IllegalArgumentException {
 
-		if (_extractionKeyColumnIndex >= header.length) {
+		if (header.length > 1)
+			throw new LineProcessingException(0, header, "Multiple columns detected");
 
-			String errorMessage = String.format(
-					"Data header line has fewer columns (%d) than the series ID column index (%d)",
-					header.length,
-					_extractionKeyColumnIndex + 1);
-
-			throw new LineProcessingException(1, header, errorMessage);
+		ExtractionKey extractionKey;
+		try {
+			extractionKey = ExtractionKey.valueOf(header[0]);
+		} catch (IllegalArgumentException e) {
+			_logger.error("Couldn't parse '" + header[0] + "' to an ExtractionKey value. Possible values are: "
+					+ Arrays.asList(ExtractionKey.values()));
+			throw e;
 		}
 
-		parseExtractionKey(header[_extractionKeyColumnIndex]);
+		if (_extractionKey != null && extractionKey != _extractionKey)
+			throw new IllegalArgumentException("ExtractionKey differs from previous file");
+		_extractionKey = extractionKey;
+
+		if (_extractionKey == ExtractionKey.StudyInstanceUID && _extractionModality == null)
+			throw new IllegalArgumentException("Extracting by StudyInstanceUID, but extraction modality not set");
+		if (_extractionKey != ExtractionKey.StudyInstanceUID && _extractionModality != null)
+			throw new IllegalArgumentException("Extraction modality set, but extraction identifier is " + _extractionKey);
+
 		_logger.debug("extractionKey: " + _extractionKey);
 	}
 
 	@Override
 	public void processLine(int lineNum, String[] line) throws LineProcessingException {
-
-		if (_extractionKeyColumnIndex >= line.length) {
-			String errorMessage = String
-					.format("Line has fewer columns (%d) than the series ID column index (%d)", line.length, _extractionKeyColumnIndex + 1);
-
-			throw new LineProcessingException(lineNum, line, errorMessage);
-		}
-
-		_identifierSet.add(line[_extractionKeyColumnIndex]);
+		// hmmm...
+		_identifierSet.add(line[0]);
 	}
 
 	@Override
@@ -106,7 +120,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 	public void sendMessages(boolean autoRun, int maxIdentifiersPerMessage) throws IllegalArgumentException {
 
 		if (maxIdentifiersPerMessage < 1000) {
-			throw new IllegalArgumentException(String.format("MaxIdentifiersPerMessage must be at least 1000 (given %s)", maxIdentifiersPerMessage));
+			throw new IllegalArgumentException(String
+					.format("MaxIdentifiersPerMessage must be at least 1000 (given %s)", maxIdentifiersPerMessage));
 		}
 
 		if (_identifierSet.isEmpty()) {
@@ -133,6 +148,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		erm.ExtractionDirectory = _extractionDir;
 		erm.JobSubmittedAt = now;
 		erm.KeyTag = _extractionKey.toString();
+		if (_extractionKey == ExtractionKey.StudyInstanceUID)
+			erm.ExtractionModality = _extractionModality;
 
 		// Only need to send 1 of these
 		ExtractionRequestInfoMessage erim = new ExtractionRequestInfoMessage();
@@ -142,13 +159,19 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		erim.JobSubmittedAt = now;
 		erim.KeyValueCount = _identifierSet.size();
 		erim.KeyTag = _extractionKey.toString();
+		if (_extractionKey == ExtractionKey.StudyInstanceUID)
+			erim.ExtractionModality = _extractionModality;
 
-		System.out.println("ExtractionJobIdentifier:\t" + _extractionJobID);
-		System.out.println("ProjectNumber:\t\t\t\t" + _projectID);
-		System.out.println("ExtractionDirectory:\t\t" + _extractionDir);
-		System.out.println("ExtractionKey:\t\t\t\t" + _extractionKey);
-		System.out.println("KeyValueCount:\t\t\t\t" + _identifierSet.size());
-		System.out.println("Number of ExtractionRequestMessage(s):\t" + split.size());
+		StringBuilder sb = new StringBuilder();
+		sb.append("    ExtractionJobIdentifier:               " + _extractionJobID + System.lineSeparator());
+		sb.append("    ProjectNumber:                         " + _projectID + System.lineSeparator());
+		sb.append("    ExtractionDirectory:                   " + _extractionDir + System.lineSeparator());
+		sb.append("    ExtractionKey:                         " + _extractionKey + System.lineSeparator());
+		if (_extractionKey == ExtractionKey.StudyInstanceUID)
+			sb.append("    ExtractionModality:                    " + _extractionModality + System.lineSeparator());
+		sb.append("    KeyValueCount:                         " + _identifierSet.size() + System.lineSeparator());
+		sb.append("    Number of ExtractionRequestMessage(s): " + split.size() + System.lineSeparator());
+		System.out.println(sb);
 
 		if (!autoRun) {
 
@@ -196,32 +219,4 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		return _eupiPattern.matcher(patientID.trim()).matches();
 	}
 
-	/**
-	 * Parses the extraction key from the csv header
-	 *
-	 * @param keyStr
-	 * @throws IllegalArgumentException
-	 */
-	private void parseExtractionKey(String keyStr) throws IllegalArgumentException {
-
-		if (keyStr == null) {
-
-			_logger.warn("Extraction key not specified, using SOPInstanceUID");
-			_extractionKey = ExtractionKey.SOPInstanceUID;
-
-		} else {
-
-			try {
-
-				_extractionKey = ExtractionKey.valueOf(keyStr);
-
-			} catch (IllegalArgumentException e) {
-
-				_logger.error(
-						"Couldn't parse '" + keyStr + "' to an ExtractionKey value. Possible values are: "
-								+ Arrays.asList(ExtractionKey.values()));
-				throw e;
-			}
-		}
-	}
 }

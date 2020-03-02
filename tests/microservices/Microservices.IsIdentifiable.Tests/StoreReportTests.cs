@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;

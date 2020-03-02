@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Comment CommentText="Where to order the matching image records to be extracted to in the ExtractFileMessage">
-    <Position X="5.517" Y="13.103" Height="0.365" Width="6.677" />
+    <Position X="5.517" Y="13.603" Height="0.365" Width="6.677" />
   </Comment>
   <Comment CommentText="Identifies relevant datasets capable of answering the request and executes queries, collating responses.">
     <Position X="7.299" Y="6.706" Height="0.646" Width="3.263" />
   </Comment>
   <Comment CommentText="Exchanges to send ExtractFileMessage (do it) and ExtractFileCollectionInfoMessage (audit it).">
-    <Position X="3.435" Y="14.953" Height="0.544" Width="2.983" />
+    <Position X="3.435" Y="15.453" Height="0.544" Width="2.983" />
   </Comment>
   <Comment CommentText="Alternative / supplemental audit (in addition to ExtractFileCollectionInfoMessage).">
     <Position X="9.986" Y="5.098" Height="0.365" Width="5.69" />
@@ -16,15 +16,18 @@
     <Position X="0.51" Y="9.573" Height="0.385" Width="2.44" />
   </Comment>
   <Comment CommentText="Results Object from IExtractionRequestFulfiller">
-    <Position X="6.994" Y="10.726" Height="0.367" Width="2.917" />
+    <Position X="6.973" Y="11.195" Height="0.367" Width="2.823" />
   </Comment>
   <Comment CommentText="Output Messages">
-    <Position X="7.032" Y="16.656" Height="0.291" Width="5.159" />
+    <Position X="7.032" Y="17.156" Height="0.291" Width="5.159" />
+  </Comment>
+  <Comment CommentText="Handles reporting that records are not extractable (as opposed to just not fetching them)">
+    <Position X="12.309" Y="11.394" Height="0.594" Width="2.857" />
   </Comment>
   <Class Name="Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller" BaseTypeListCollapsed="true">
     <Position X="10.75" Y="7.5" Width="3.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAgEAAACAAAAAAAAAgAAIAAAAAAAAAAACAAAAAA=</HashCode>
+      <HashCode>AAAAAAAEAAICAAAAAAAAAAAAABAAAAAAAEQAAAAAAAA=</HashCode>
       <FileName>Execution\RequestFulfillers\FromCataloguesExtractionRequestFulfiller.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -32,7 +35,7 @@
   <Class Name="Microservices.CohortExtractor.Execution.RequestFulfillers.QueryToExecute">
     <Position X="14.25" Y="7.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AMAAAAAAABAAAAQAAAAAAAAAAAAAAAAAAAAAAgAAAAQ=</HashCode>
+      <HashCode>AAAAAAAAABACAAQAAAAAAAIAAAAAAAEACAQAAggAAAQ=</HashCode>
       <FileName>Execution\RequestFulfillers\QueryToExecute.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -51,26 +54,6 @@
   </Class>
   <Class Name="Microservices.CohortExtractor.Messaging.ExtractionRequestQueueConsumer">
     <Position X="3.5" Y="7.25" Width="2.5" />
-    <AssociationLine Name="_fileMessageProducer" Type="Microservices.Common.Messaging.IProducerModel" FixedToPoint="true">
-      <Path>
-        <Point X="4.312" Y="8.867" />
-        <Point X="4.312" Y="14.25" />
-      </Path>
-      <MemberNameLabel ManuallyPlaced="true" ManuallySized="true">
-        <Position X="0.276" Y="0.254" Height="0.182" Width="1.616" />
-      </MemberNameLabel>
-    </AssociationLine>
-    <AssociationLine Name="_fileMessageInfoProducer" Type="Microservices.Common.Messaging.IProducerModel">
-      <MemberNameLabel ManuallyPlaced="true">
-        <Position X="-0.395" Y="0.146" />
-      </MemberNameLabel>
-    </AssociationLine>
-    <AssociationLine Name="_resolver" Type="Microservices.CohortExtractor.Execution.ProjectPathResolvers.IProjectPathResolver" FixedToPoint="true">
-      <Path>
-        <Point X="5.875" Y="8.867" />
-        <Point X="5.875" Y="11.5" />
-      </Path>
-    </AssociationLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAIAAKAAAEAAgAAAEAAAAAAAAAAABAAAAAAAAA=</HashCode>
       <FileName>Messaging\ExtractionRequestQueueConsumer.cs</FileName>
@@ -78,20 +61,18 @@
     <ShowAsAssociation>
       <Field Name="_fulfiller" />
       <Field Name="_auditor" />
-      <Field Name="_fileMessageProducer" />
-      <Field Name="_fileMessageInfoProducer" />
       <Field Name="_resolver" />
     </ShowAsAssociation>
   </Class>
   <Class Name="Microservices.CohortExtractor.Execution.ExtractImageCollection">
     <Position X="7" Y="8.75" Width="2" />
     <TypeIdentifier>
-      <HashCode>AgAAAAAAAAACAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA=</HashCode>
+      <HashCode>AgAAQAAAAAQCAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
       <FileName>Execution\ExtractImageCollection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microservices.CohortExtractor.Execution.ProjectPathResolvers.DefaultProjectPathResolver">
-    <Position X="9" Y="11.5" Width="3.25" />
+    <Position X="9" Y="12" Width="3.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAEAEAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Execution\ProjectPathResolvers\DefaultProjectPathResolver.cs</FileName>
@@ -106,13 +87,20 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Microservices.Common.Options.GlobalOptions" Collapsed="true">
-    <Position X="3.25" Y="0.5" Width="1.75" />
-    <AssociationLine Name="CohortExtractorOptions" Type="Microservices.Common.Options.CohortExtractorOptions" FixedFromPoint="true" FixedToPoint="true">
+  <Class Name="FAnsi.Discovery.DiscoveredServer" Collapsed="true">
+    <Position X="14.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Smi.Common.Options.GlobalOptions" Collapsed="true">
+    <Position X="3" Y="0.5" Width="2.5" />
+    <AssociationLine Name="CohortExtractorOptions" Type="Smi.Common.Options.CohortExtractorOptions" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="3.875" Y="1.062" />
-        <Point X="3.875" Y="3.125" />
-        <Point X="6.25" Y="3.125" />
+        <Point X="3.938" Y="1.062" />
+        <Point X="3.938" Y="1.485" />
+        <Point X="3.906" Y="1.485" />
+        <Point X="3.906" Y="2.346" />
+        <Point X="7.75" Y="2.346" />
       </Path>
     </AssociationLine>
     <TypeIdentifier />
@@ -122,47 +110,43 @@
       <Property Name="CohortExtractorOptions" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="Microservices.Common.Options.CohortExtractorOptions">
-    <Position X="6.25" Y="2" Width="2.5" />
+  <Class Name="Smi.Common.Options.RabbitOptions" Collapsed="true">
+    <Position X="7.75" Y="0.5" Width="1.5" />
     <TypeIdentifier />
   </Class>
-  <Class Name="Microservices.Common.Options.RDMPOptions" Collapsed="true">
-    <Position X="6.25" Y="1.25" Width="1.5" />
+  <Class Name="Smi.Common.Options.RDMPOptions" Collapsed="true">
+    <Position X="7.75" Y="1.25" Width="1.5" />
     <TypeIdentifier />
   </Class>
-  <Class Name="Microservices.Common.Options.RabbitOptions" Collapsed="true">
-    <Position X="6.25" Y="0.5" Width="1.5" />
+  <Class Name="Smi.Common.Options.CohortExtractorOptions" Collapsed="true">
+    <Position X="7.75" Y="2" Width="2" />
     <TypeIdentifier />
   </Class>
-  <Class Name="Microservices.Common.Messages.Extraction.ExtractionRequestMessage">
-    <Position X="0.5" Y="7.25" Width="2.5" />
+  <Class Name="Smi.Common.Messages.Extraction.ExtractionRequestMessage" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="2.25" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractFileMessage">
+    <Position X="7" Y="14.75" Width="2.5" />
     <TypeIdentifier />
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Microservices.Common.Messages.Extraction.ExtractFileMessage">
-    <Position X="7" Y="14.25" Width="2.5" />
+  <Class Name="Smi.Common.Messages.Extraction.ExtractFileCollectionInfoMessage">
+    <Position X="9.75" Y="14.75" Width="2.5" />
     <TypeIdentifier />
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="Microservices.Common.Messages.Extraction.ExtractFileCollectionInfoMessage">
-    <Position X="9.75" Y="14.25" Width="2.5" />
-    <TypeIdentifier />
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="FAnsi.Discovery.DiscoveredServer" Collapsed="true">
-    <Position X="14.75" Y="6.25" Width="1.5" />
-    <TypeIdentifier />
-    <Lollipop Position="0.2" />
   </Class>
   <Interface Name="Microservices.CohortExtractor.Execution.RequestFulfillers.IExtractionRequestFulfiller">
     <Position X="8" Y="7.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAA=</HashCode>
       <FileName>Execution\RequestFulfillers\IExtractionRequestFulfiller.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Rejector" />
+    </ShowAsAssociation>
   </Interface>
   <Interface Name="Microservices.CohortExtractor.Execution.ProjectPathResolvers.IProjectPathResolver">
-    <Position X="5.5" Y="11.5" Width="3.25" />
+    <Position X="5.5" Y="12" Width="3.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAEAEAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Execution\ProjectPathResolvers\IProjectPathResolver.cs</FileName>
@@ -175,9 +159,20 @@
       <FileName>Audit\IAuditExtractions.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="Microservices.Common.Messaging.IProducerModel" Collapsed="true">
-    <Position X="4" Y="14.25" Width="1.5" />
+  <Interface Name="Smi.Common.Options.IMappingTableOptions" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
     <TypeIdentifier />
+  </Interface>
+  <Interface Name="Smi.Common.Messaging.IProducerModel" Collapsed="true">
+    <Position X="2.75" Y="14.75" Width="3.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="Microservices.CohortExtractor.Execution.RequestFulfillers.IRejector" Collapsed="true">
+    <Position X="12.25" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Execution\RequestFulfillers\IRejector.cs</FileName>
+    </TypeIdentifier>
   </Interface>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

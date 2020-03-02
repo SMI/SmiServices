@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Microservices.IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Rules
 {
@@ -25,6 +27,11 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfColumn { get; set; }
 
         /// <summary>
+        /// What you are trying to classify (if <see cref="Action"/> is <see cref="RuleAction.Report"/>)
+        /// </summary>
+        public FailureClassification As { get; set; }
+
+        /// <summary>
         /// The Regex pattern which should be used to match values with
         /// </summary>
         public string IfPattern
@@ -34,20 +41,45 @@ namespace Microservices.IsIdentifiable.Rules
         }
 
 
-        public RuleAction Apply(string fieldName, string fieldValue)
+        public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
+            badParts = new List<FailurePart>();
+
             if (Action == RuleAction.None)
                 return RuleAction.None;
 
             if(IfColumn == null && IfPattern == null)
                 throw new Exception("Illegal rule setup.  You must specify either a column or a pattern (or both)");
 
+            if(Action == RuleAction.Report && As == FailureClassification.None)
+                throw new Exception("Illegal rule setup.  You must specify 'As' when Action is Report");
+
             //if there is no column restriction or restriction applies to the current column
             if (string.IsNullOrWhiteSpace(IfColumn) || string.Equals(IfColumn,fieldName,StringComparison.InvariantCultureIgnoreCase))
             {
-                //if there is no pattern or the pattern matches the string we examined
-                if (IfPattern == null || _ifPattern.IsMatch(fieldValue))
+                //if there is no pattern
+                if (IfPattern == null)
+                {
+                    //we are reporting everything in this column? ok fair enough (no pattern just column name)
+                    if (Action == RuleAction.Report) 
+                        ((IList) badParts).Add(new FailurePart(fieldValue, As, 0));
+
                     return Action;
+                }
+                    
+                // if the pattern matches the string we examined
+                var matches = _ifPattern.Matches(fieldValue);
+                if (matches.Any())
+                {
+                    //if we are reporting all failing regexes
+                    if(Action == RuleAction.Report)
+                        foreach (Match match in matches)
+                            ((IList) badParts).Add(new FailurePart(match.Value, As, match.Index));
+
+                    return Action;
+                }
+
+
             }
 
             //our rule does not apply to the current value

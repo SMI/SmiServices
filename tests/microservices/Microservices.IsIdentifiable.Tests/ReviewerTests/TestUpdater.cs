@@ -4,7 +4,7 @@ using System.Data;
 using System.Text;
 using FAnsi;
 using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using NUnit.Framework;
 using Tests.Common;
 

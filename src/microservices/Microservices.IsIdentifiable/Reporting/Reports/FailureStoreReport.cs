@@ -4,7 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using CsvHelper;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 
 namespace Microservices.IsIdentifiable.Reporting.Reports
