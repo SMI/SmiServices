@@ -19,17 +19,26 @@ namespace IsIdentifiableReviewer.Out
         {
             RulesFile = rulesFile;
 
+            //no rules file yet
             if (!rulesFile.Exists)
+            {
+                //create it
                 rulesFile.Create();
-
-            var existingRules = File.ReadAllText(rulesFile.FullName);
-
-            if(string.IsNullOrWhiteSpace(existingRules))
                 Rules = new List<IsIdentifiableRule>();
+            }
             else
             {
-                var deserializer = new Deserializer();
-                Rules = deserializer.Deserialize<List<IsIdentifiableRule>>(existingRules);
+                var existingRules = File.ReadAllText(rulesFile.FullName);
+
+                //empty rules file
+                if(string.IsNullOrWhiteSpace(existingRules))
+                    Rules = new List<IsIdentifiableRule>();
+                else
+                {
+                    //populated rules file already existed
+                    var deserializer = new Deserializer();
+                    Rules = deserializer.Deserialize<List<IsIdentifiableRule>>(existingRules);
+                }
             }
         }
 

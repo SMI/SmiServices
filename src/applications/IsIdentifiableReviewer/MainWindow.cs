@@ -42,7 +42,7 @@ namespace IsIdentifiableReviewer
             var top = Application.Top;
 
             var menu = new MenuBar (new MenuBarItem [] {
-                new MenuBarItem ("_Game (F9)", new MenuItem [] {
+                new MenuBarItem ("_File (F9)", new MenuItem [] {
                     new MenuItem("_Open Report",null, OpenReport), 
                     new MenuItem ("_Quit", null, () => { top.Running = false; })
                 })
