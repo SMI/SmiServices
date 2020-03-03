@@ -34,7 +34,7 @@ namespace IsIdentifiableReviewer
             }
             catch (Exception e)
             {
-                Console.WriteLine("Could not find/deserialize Settings.yaml");
+                Console.WriteLine("Could not find/deserialize Targets.yaml");
                 Console.WriteLine(e.ToString());
                 return -1;
             }
