@@ -13,6 +13,7 @@ namespace IsIdentifiableReviewer
         private int _current = -1;
         public Failure[] Failures { get; set; }
 
+        public int CurrentIndex => _current;
         public Failure Current => _current < Failures.Length ? Failures[_current]: null;
         public bool Exhausted => !(_current < Failures.Length);
 
@@ -31,14 +32,12 @@ namespace IsIdentifiableReviewer
             _current = Failures.Length;
             return false;
         }
-
         
         public void GoTo(int index)
         {
-            _current = index;
+            _current = Math.Min(Math.Max(0,index),Failures.Length);
         }
-
-
+        
         public string DescribeProgress()
         {
             return _current + "/" + Failures.Length;

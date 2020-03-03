@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Rules;
-using MongoDB.Bson;
-using NPOI.OpenXmlFormats.Dml.Diagram;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
@@ -30,6 +27,7 @@ namespace IsIdentifiableReviewer
         public int DlgBoundary = 2;
         private ValuePane _valuePane;
         private Label _info;
+        private TextField _gotoTextField;
 
         public MainWindow(List<Target> targets)
         {
@@ -74,27 +72,83 @@ namespace IsIdentifiableReviewer
                 Height = Dim.Fill()
             };
 
-            frame.Add(new Button("Skip")
-            {
-                Clicked = Next
-            });
-
             frame.Add(new Button("Ignore")
             {
-                X = 10,
+                X = 0,
                 Clicked = Ignore
             });
 
             frame.Add(new Button("Update")
             {
-                X = 22,
+                X = 11,
                 Clicked = Update
             });
             
+            _gotoTextField = new TextField("1")
+            {
+                X=23,
+                Width = 5
+            };
+            _gotoTextField.Changed += (s,e) => GoTo();
+            frame.Add(_gotoTextField);
+
+            frame.Add(new Button("Previous")
+            {
+                X = 0,
+                Y = 1,
+                Clicked = ()=>GoToRelative(-1)
+            });
+            frame.Add(new Button("Next")
+            {
+                X = 11,
+                Y = 1,
+                Clicked = ()=>GoToRelative(1)
+            });
+
             top.Add (menu);
             Add(_info);
             Add(_valuePane);
             Add(frame);
+        }
+
+        private void GoToRelative(int offset)
+        {
+            if(CurrentReport == null)
+                return;
+
+            GoTo(CurrentReport.CurrentIndex + offset);
+        }
+
+        private void GoTo()
+        {
+            if(CurrentReport == null)
+                return;
+
+            try
+            {
+                GoTo(int.Parse(_gotoTextField.Text.ToString()));
+            }
+            catch (FormatException)
+            {
+                //use typed in 'hello there! or some such'
+            }
+        }
+        
+        private void GoTo(int page)
+        {
+            if(CurrentReport == null)
+                return;
+            try
+            {
+                CurrentReport.GoTo(page);
+                _info.Text = CurrentReport.DescribeProgress();
+                _valuePane.CurrentFailure = CurrentReport.Current;
+            }
+            catch (Exception e)
+            {
+                ShowException("Failed to GoTo",e);
+            }
+            
         }
 
         private void Next()
