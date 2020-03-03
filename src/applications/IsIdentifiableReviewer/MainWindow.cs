@@ -287,13 +287,13 @@ namespace IsIdentifiableReviewer
             var result = default(T);
             bool optionChosen = false;
 
-            var dlg = new Dialog(title, DlgWidth, DlgHeight);
+            var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
             
             var line = DlgHeight - (DlgBoundary)*2 - options.Length;
 
             if (!string.IsNullOrWhiteSpace(message))
             {
-                int width = DlgWidth - (DlgBoundary * 2);
+                int width = Math.Min(Console.WindowWidth,DlgWidth) - (DlgBoundary * 2);
 
                 var msg = Wrap(message, width-1).TrimEnd();
 
