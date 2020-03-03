@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - New CohortExtractor yaml config option `ProjectPathResolverType` which determines the folder structure for extracted images
 - Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
 - Added `DynamicRejector` which takes its cohort extraction rules from a script file (of CSharp code)
+- Added new application for reviewing IsIdentifiable output files
 
 ## [1.4.5] - 2020-02-26
 

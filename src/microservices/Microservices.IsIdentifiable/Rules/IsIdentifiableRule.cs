@@ -86,5 +86,13 @@ namespace Microservices.IsIdentifiable.Rules
 
             return RuleAction.None;
         }
+
+        public bool AreIdentical(IsIdentifiableRule other)
+        {
+            return
+                string.Equals(IfColumn, other.IfColumn,StringComparison.CurrentCultureIgnoreCase) &&
+                Action == other.Action &&
+                string.Equals(IfPattern, other.IfPattern,StringComparison.CurrentCultureIgnoreCase);
+        }
     }
 }
