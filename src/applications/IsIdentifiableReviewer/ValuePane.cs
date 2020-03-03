@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microservices.IsIdentifiable.Reporting;
@@ -35,7 +36,16 @@ namespace IsIdentifiableReviewer
             var w = bounds.Width;
             var h = bounds.Height;
 
-            var lines = MainWindow.Wrap(CurrentFailure?.ProblemValue ??" ", bounds.Width).Split('\n',StringSplitOptions.RemoveEmptyEntries);
+            var toDisplay = CurrentFailure?.ProblemValue ?? " ";
+            
+            //if the original string validated 
+            var originalNewlines = new HashSet<int>();
+
+            for (int i = 0; i < toDisplay.Length; i++)
+                if (toDisplay[i] == '\n')
+                    originalNewlines.Add(i);
+
+            var lines = MainWindow.Wrap(toDisplay, bounds.Width).Split('\n',StringSplitOptions.RemoveEmptyEntries);
 
             int characterOffset = 0;
             Attribute? oldColor = null;
@@ -63,6 +73,10 @@ namespace IsIdentifiableReviewer
 
                         symbol = currentLine[x];
                         characterOffset++;
+
+                        //we dropped a \n in our split so have to compensate for that
+                        if (originalNewlines.Contains(characterOffset))
+                            characterOffset++;
                     }
 
                     if(newColor != oldColor)
