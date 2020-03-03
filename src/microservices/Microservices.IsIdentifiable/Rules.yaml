@@ -337,6 +337,9 @@ WhiteListRules:
  - Action: Ignore
    IfColumn: InstitutionName
    IfPartPattern: Western General
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPartPattern: ^LAMBOO$
 
  - Action: Ignore
    IfColumn: BodyPartExamined
