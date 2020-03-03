@@ -92,7 +92,7 @@ namespace IsIdentifiableReviewer
             _gotoTextField.Changed += (s,e) => GoTo();
             frame.Add(_gotoTextField);
 
-            frame.Add(new Button("Previous")
+            frame.Add(new Button("Prev")
             {
                 X = 0,
                 Y = 1,
