@@ -89,7 +89,7 @@ public class ExtractImagesTest extends TestCase {
 				jobIdentifier,
 				"MyProjectID",
 				"MyProjectFolder",
-				0,
+				null,
 				extractRequestMessageProducerModel,
 				extractRequestInfoMessageProducerModel);
 
@@ -151,7 +151,7 @@ public class ExtractImagesTest extends TestCase {
 				jobIdentifier,
 				"MyProjectID",
 				"MyProjectFolder",
-				0,
+				null,
 				extractRequestMessageProducerModel,
 				extractRequestInfoMessageProducerModel);
 
@@ -213,7 +213,7 @@ public class ExtractImagesTest extends TestCase {
 				UUID.randomUUID(),
 				"MyProjectID",
 				"MyProjectFolder",
-				0,
+				null,
 				null,
 				null);
 
@@ -241,7 +241,7 @@ public class ExtractImagesTest extends TestCase {
 				UUID.randomUUID(),
 				"MyProjectID",
 				"MyProjectFolder",
-				0,
+				null,
 				null,
 				null);
 

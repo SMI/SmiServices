@@ -14,6 +14,8 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 
 namespace Microservices.CohortExtractor.Execution
 {
@@ -35,6 +37,7 @@ namespace Microservices.CohortExtractor.Execution
 
         private IAuditExtractions _auditor;
         private IExtractionRequestFulfiller _fulfiller;
+        private IProjectPathResolver _pathResolver;
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -73,7 +76,7 @@ namespace Microservices.CohortExtractor.Execution
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(_fulfiller, _auditor, fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(_fulfiller, _auditor,_pathResolver, fileMessageProducer, fileMessageInfoProducer);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer);
         }
@@ -108,6 +111,17 @@ namespace Microservices.CohortExtractor.Execution
 
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
+                _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
+                _fulfiller.Rejector = ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly);
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType))
+                _pathResolver = ObjectFactory.CreateInstance<IProjectPathResolver>(_consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly,repositoryLocator);
+            else
+                _pathResolver = new DefaultProjectPathResolver();
         }
     }
 }

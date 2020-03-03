@@ -56,7 +56,13 @@ public class RabbitMQAdapterTest extends TestCase {
 		
 		// Declare exchange & queue for this test
 		
-		_factory = new ConnectionFactory();		
+        _factory = new ConnectionFactory();
+        _factory.setHost(_options.RabbitOptions.RabbitMqHostName);
+		_factory.setPort(_options.RabbitOptions.RabbitMqHostPort);
+		_factory.setVirtualHost(_options.RabbitOptions.RabbitMqVirtualHost);
+		_factory.setUsername(_options.RabbitOptions.RabbitMqUserName);
+		_factory.setPassword(_options.RabbitOptions.RabbitMqPassword);
+
 		_connection = _factory.newConnection();
 		_channel = _connection.createChannel();
 				

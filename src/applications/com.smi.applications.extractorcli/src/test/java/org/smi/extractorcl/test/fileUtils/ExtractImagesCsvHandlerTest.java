@@ -1,6 +1,7 @@
 package org.smi.extractorcl.test.fileUtils;
 
 import junit.framework.TestCase;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.smi.common.messaging.IProducerModel;
@@ -26,20 +27,15 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(
-				uuid,
-				"MyProjectID",
-				"MyProjectFolder",
-				0,
-				extractRequestMessageProducerModel,
-				extractRequestInfoMessageProducerModel);
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
-		handler.processHeader(new String[]{"SeriesInstanceUID"});
-		handler.processLine(1, new String[]{"s1"});
-		handler.processLine(2, new String[]{"s2"});
-		handler.processLine(3, new String[]{"s3"});
-		handler.processLine(4, new String[]{"s4"});
-		handler.processLine(5, new String[]{"s5"});
+		handler.processHeader(new String[] { "SeriesInstanceUID" });
+		handler.processLine(1, new String[] { "s1" });
+		handler.processLine(2, new String[] { "s2" });
+		handler.processLine(3, new String[] { "s3" });
+		handler.processLine(4, new String[] { "s4" });
+		handler.processLine(5, new String[] { "s5" });
 		handler.finished();
 
 		handler.sendMessages(true);
@@ -58,6 +54,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
+		assertEquals(null, erm.ExtractionModality);
 		assertEquals(5, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -71,6 +68,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals(uuid, erim.ExtractionJobIdentifier);
 		assertEquals("MyProjectID", erim.ProjectNumber);
 		assertEquals("MyProjectFolder", erim.ExtractionDirectory);
+		assertEquals(null, erim.ExtractionModality);
 		assertEquals(5, erim.KeyValueCount);
 
 	}
@@ -85,20 +83,15 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(
-				uuid,
-				"MyProjectID",
-				"MyProjectFolder",
-				0,
-				extractRequestMessageProducerModel,
-				extractRequestInfoMessageProducerModel);
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
-		handler.processHeader(new String[]{"SeriesInstanceUID"});
-		handler.processLine(1, new String[]{"s1"});
-		handler.processLine(2, new String[]{"s2"});
-		handler.processLine(3, new String[]{"s3"});
-		handler.processLine(4, new String[]{"s4"});
-		handler.processLine(5, new String[]{"s1"}); // This is the duplicate
+		handler.processHeader(new String[] { "SeriesInstanceUID" });
+		handler.processLine(1, new String[] { "s1" });
+		handler.processLine(2, new String[] { "s2" });
+		handler.processLine(3, new String[] { "s3" });
+		handler.processLine(4, new String[] { "s4" });
+		handler.processLine(5, new String[] { "s1" }); // This is the duplicate
 		handler.finished();
 
 		handler.sendMessages(true);
@@ -117,6 +110,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
+		assertEquals(null, erm.ExtractionModality);
 		assertEquals(4, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -129,8 +123,8 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals(uuid, erim.ExtractionJobIdentifier);
 		assertEquals("MyProjectID", erim.ProjectNumber);
 		assertEquals("MyProjectFolder", erim.ExtractionDirectory);
+		assertEquals(null, erim.ExtractionModality);
 		assertEquals(4, erim.KeyValueCount);
-
 	}
 
 	/**
@@ -144,26 +138,21 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(
-				uuid,
-				"MyProjectID",
-				"MyProjectFolder",
-				0,
-				extractRequestMessageProducerModel,
-				extractRequestInfoMessageProducerModel);
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
-		handler.processHeader(new String[]{"SeriesInstanceUID"});
-		handler.processLine(1, new String[]{"s1"});
-		handler.processLine(2, new String[]{"s2"});
-		handler.processLine(3, new String[]{"s3"});
-		handler.processLine(4, new String[]{"s4"});
+		handler.processHeader(new String[] { "SeriesInstanceUID" });
+		handler.processLine(1, new String[] { "s1" });
+		handler.processLine(2, new String[] { "s2" });
+		handler.processLine(3, new String[] { "s3" });
+		handler.processLine(4, new String[] { "s4" });
 		handler.finished();
 
-		handler.processHeader(new String[]{"SeriesInstanceUID"});
-		handler.processLine(1, new String[]{"s1"}); // Duplicate
-		handler.processLine(2, new String[]{"s5"});
-		handler.processLine(3, new String[]{"s6"});
-		handler.processLine(4, new String[]{"s3"}); // Duplicate
+		handler.processHeader(new String[] { "SeriesInstanceUID" });
+		handler.processLine(1, new String[] { "s1" }); // Duplicate
+		handler.processLine(2, new String[] { "s5" });
+		handler.processLine(3, new String[] { "s6" });
+		handler.processLine(4, new String[] { "s3" }); // Duplicate
 		handler.finished();
 
 		handler.sendMessages(true);
@@ -183,6 +172,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
+		assertEquals(null, erm.ExtractionModality);
 		assertEquals(6, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -197,65 +187,8 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals(uuid, erim.ExtractionJobIdentifier);
 		assertEquals("MyProjectID", erim.ProjectNumber);
 		assertEquals("MyProjectFolder", erim.ExtractionDirectory);
+		assertEquals(null, erim.ExtractionModality);
 		assertEquals(6, erim.KeyValueCount);
-	}
-
-	public void testSeriesIndexOutOfBoundsForHeader() throws Exception {
-
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(
-				UUID.randomUUID(),
-				"MyProjectID",
-				"MyProjectFolder",
-				1,
-				null,
-				null);
-
-		boolean producedException = false;
-		String[] line = new String[]{"SeriesInstanceUID"};
-
-		try {
-
-			handler.processHeader(line);
-
-		} catch (LineProcessingException lpe) {
-
-			producedException = true;
-			assertEquals("Line number should be 1", 1, lpe.getLineNumber());
-			assertEquals(line, lpe.getLine());
-			assertEquals("Error at line 1: Data header line has fewer columns (1) than the series ID column index (2)", lpe.getMessage());
-		}
-
-		assertTrue("Expected a LineProcessingException", producedException);
-	}
-
-	public void testSeriesIndexOutOfBoundsForData() throws Exception {
-
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(
-				UUID.randomUUID(),
-				"MyProjectID",
-				"MyProjectFolder",
-				1,
-				null,
-				null);
-
-		boolean producedException = false;
-		String[] line = null;
-
-		try {
-
-			handler.processHeader(new String[]{"otherItem", "SeriesInstanceUID"});
-			line = new String[]{"s1"};
-			handler.processLine(2, line);
-
-		} catch (LineProcessingException lpe) {
-
-			producedException = true;
-			assertEquals("Line number should be 2", 2, lpe.getLineNumber());
-			assertEquals(line, lpe.getLine());
-			assertEquals("Error at line 2: Line has fewer columns (1) than the series ID column index (2)", lpe.getMessage());
-		}
-
-		assertTrue("Expected a LineProcessingException", producedException);
 	}
 
 	/**
@@ -272,20 +205,15 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		UUID extractionUid = UUID.randomUUID();
 
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(
-				extractionUid,
-				"MyProjectID",
-				"MyProjectFolder",
-				0,
-				extractRequestMessageProducerModel,
-				extractRequestInfoMessageProducerModel);
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(extractionUid, "MyProjectID",
+				"MyProjectFolder", null, extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
-		handler.processHeader(new String[]{"SeriesInstanceUID"});
+		handler.processHeader(new String[] { "SeriesInstanceUID" });
 
 		HashSet<String> expected = new HashSet<>();
 		for (int i = 0; i < nIdentifiers; ++i) {
 			String id = "id" + i;
-			handler.processLine(i + 1, new String[]{id});
+			handler.processLine(i + 1, new String[] { id });
 			expected.add(id);
 		}
 
@@ -293,13 +221,10 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		HashSet<String> captured = new HashSet<>();
 
-		doAnswer(
-				(Answer<Void>) invocation -> {
-					captured.addAll(((ExtractionRequestMessage) invocation.getArguments()[0]).ExtractionIdentifiers);
-					return null;
-				})
-				.when(extractRequestMessageProducerModel)
-				.SendMessage(any(), eq(""), eq(null));
+		doAnswer((Answer<Void>) invocation -> {
+			captured.addAll(((ExtractionRequestMessage) invocation.getArguments()[0]).ExtractionIdentifiers);
+			return null;
+		}).when(extractRequestMessageProducerModel).SendMessage(any(), eq(""), eq(null));
 
 		handler.sendMessages(true, maxPerMessage);
 
@@ -310,5 +235,71 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		assertEquals("The correct number of identifiers were sent", expected.size(), captured.size());
 		assertTrue("Set are equal", expected.equals(captured));
+	}
+
+	public void testModalityRequirement() throws LineProcessingException {
+		IProducerModel extractRequestMessageProducerModel = mock(IProducerModel.class);
+		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
+
+		UUID uuid = UUID.randomUUID();
+
+		// Test extractionModality validation
+
+		ExtractMessagesCsvHandler handler = null;
+
+		// Yes, I know there's probably some way to do this with JUnit
+		boolean thrown = false;
+
+		try {
+			handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "aaaaa",
+					extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+		} catch (IllegalArgumentException e) {
+			thrown = true;
+		}
+		assertTrue(thrown);
+
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+
+		thrown = false;
+		try {
+			handler.processHeader(new String[] { "StudyInstanceUID" });
+		} catch (IllegalArgumentException e) {
+			thrown = true;
+		}
+		assertTrue(thrown);
+
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+		handler.processHeader(new String[] { "StudyInstanceUID" });
+
+		thrown = false;
+		try {
+			handler.processHeader(new String[] { "SeriesInstanceUID" });
+		} catch (IllegalArgumentException e) {
+			thrown = true;
+		}
+		assertTrue(thrown);
+
+		// Happy path
+
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
+				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+		handler.processHeader(new String[] { "StudyInstanceUID" });
+		handler.processLine(1, new String[] { "s1" });
+		handler.finished();
+		handler.sendMessages(true);
+
+		ArgumentCaptor<Object> requestMessage = ArgumentCaptor.forClass(Object.class);
+		verify(extractRequestMessageProducerModel).SendMessage(requestMessage.capture(), eq(""), eq(null));
+		verifyNoMoreInteractions(extractRequestMessageProducerModel);
+
+		ArgumentCaptor<Object> requestInfoMessage = ArgumentCaptor.forClass(Object.class);
+		verify(extractRequestInfoMessageProducerModel).SendMessage(requestInfoMessage.capture(), eq(""), eq(null));
+		verifyNoMoreInteractions(extractRequestInfoMessageProducerModel);
+
+		// Check the messages had the correct details
+		ExtractionRequestMessage erm = (ExtractionRequestMessage) requestMessage.getValue();
+		assertEquals("MR", erm.ExtractionModality);
 	}
 }

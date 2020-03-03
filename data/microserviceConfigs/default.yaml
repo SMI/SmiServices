@@ -71,6 +71,7 @@ CohortExtractorOptions:
     # also doable on a single line with [2,4,5] :)
     AuditorType: 'Microservices.CohortExtractor.Audit.NullAuditExtractions'
     RequestFulfillerType: 'Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller'
+    ProjectPathResolverType: 'Microservices.CohortExtractor.Execution.ProjectPathResolvers.DefaultProjectPathResolver'
     # Writes (Producer) to this exchange
     ExtractFilesProducerOptions: 
         ExchangeName: 'TEST.ExtractFileExchange'
@@ -165,4 +166,12 @@ ExtractorClOptions:
         MaxConfirmAttempts: 1
     ExtractionRequestInfoProducerOptions:
         ExchangeName: 'TEST.RequestInfoExchange'
+        MaxConfirmAttempts: 1
+
+IsIdentifiableOptions:
+    QueueName: 'TEST.IsIdentifiableQueue'
+    QoSPrefetchCount: 1
+    AutoAck: false
+    IsIdentifiableProducerOptions:
+        ExchangeName: 'TEST.IsIdentifiableExchange'
         MaxConfirmAttempts: 1

@@ -27,7 +27,6 @@ namespace Microservices.IsIdentifiable.Options
                     DatabaseConnectionString = "Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;",
                     DatabaseType = DatabaseType.MySql,
                     TableName = "MyTable",
-                    PathToNerClassifier = @"C:\temp\stanford-ner-2016-10-31\classifiers\english.all.3class.distsim.crf.ser.gz",
                     StoreReport = true
 
                 });
@@ -38,7 +37,6 @@ namespace Microservices.IsIdentifiable.Options
                         DatabaseConnectionString = "Server=myServerAddress;Database=myDataBase;Trusted_Connection=True;",
                         DatabaseType = DatabaseType.MicrosoftSQLServer,
                         TableName = "MyTable",
-                        PathToNerClassifier = @"C:\temp\stanford-ner-2016-10-31\classifiers\english.all.3class.distsim.crf.ser.gz",
                         StoreReport = true
                     });
             }
