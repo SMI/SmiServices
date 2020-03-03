@@ -22,9 +22,9 @@ namespace IsIdentifiableReviewer.Out
             //no rules file yet
             if (!rulesFile.Exists)
             {
-                //create it
-                rulesFile.Create();
-                Rules = new List<IsIdentifiableRule>();
+                //create it as an empty file
+                using (rulesFile.Create())
+                    Rules = new List<IsIdentifiableRule>();
             }
             else
             {
