@@ -111,7 +111,7 @@ namespace IsIdentifiableReviewer
 
                 if (!Generator.OnLoad(next))
                     skipped++;
-                else if (!Updater.OnLoad(next))
+                else if (!Updater.OnLoad(CurrentTarget,next))
                     updated++;
                 else
                 {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Microservices.IsIdentifiable.Failures;
@@ -40,6 +41,23 @@ namespace Microservices.IsIdentifiable.Reporting
         public Failure(IEnumerable<FailurePart> parts)
         {
             Parts = new ReadOnlyCollection<FailurePart>(parts.ToList());
+        }
+
+        /// <summary>
+        /// Returns true if the user looking at the <paramref name="other"/> would consider
+        /// it the same as this (same problem value in same column).  Does not have to be the same
+        /// origin record (Resource / Primary Key)
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool HaveSameProblem(Failure other)
+        {
+            if (other == null)
+                return false;
+
+            return
+                string.Equals(ProblemValue, other.ProblemValue, StringComparison.CurrentCultureIgnoreCase) &&
+                string.Equals(ProblemField, other.ProblemField, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

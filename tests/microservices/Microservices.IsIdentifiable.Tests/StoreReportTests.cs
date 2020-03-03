@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
+using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
 
@@ -99,5 +101,45 @@ namespace Microservices.IsIdentifiable.Tests
             Assert.IsFalse(part.Includes(12));
             Assert.IsFalse(part.Includes(13));
         }
+
+        
+
+        [Test]
+        public void Test_HaveSameProblem()
+        {
+            var f1 = new Failure(new List<FailurePart>())
+            {
+                ProblemValue = "Happy fun times",
+                ProblemField = "Jokes",
+                Resource = "MyTable",
+                ResourcePrimaryKey = "1.2.3"
+            };
+            var f2 = new Failure(new List<FailurePart>())
+            {
+                ProblemValue = "Happy fun times",
+                ProblemField = "Jokes",
+                Resource = "MyTable",
+                ResourcePrimaryKey = "9.9.9" //same problem different record (are considered to have the same problem)
+            };
+            var f3 = new Failure(new List<FailurePart>())
+            {
+                ProblemValue = "Happy times", //different because input value is different
+                ProblemField = "Jokes",
+                Resource = "MyTable",
+                ResourcePrimaryKey = "1.2.3"
+            };
+            var f4 = new Failure(new List<FailurePart>())
+            {
+                ProblemValue = "Happy fun times",
+                ProblemField = "SensitiveJokes", //different because other column
+                Resource = "MyTable",
+                ResourcePrimaryKey = "1.2.3"
+            };
+            
+            Assert.IsTrue(f1.HaveSameProblem(f2));
+            Assert.IsFalse(f1.HaveSameProblem(f3));
+            Assert.IsFalse(f1.HaveSameProblem(f4));
+        }
+
     }
 }
