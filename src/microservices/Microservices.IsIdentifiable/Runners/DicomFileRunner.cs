@@ -242,7 +242,17 @@ namespace Microservices.IsIdentifiable.Runners
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Could not run Tesseract on '" + fi.FullName + "'");
+                // XXX ideally we should return an error code indicating unable to verify
+                // XXX instead we add a message to the report saying we failed to run OCR
+                _logger.Info(e, "Could not run Tesseract on '" + fi.FullName + "'");
+                //throw new Exception ("Could not run Tesseract on '" + fi.FullName + "'", e);
+
+                string problemField = "PixelData";
+                string text = "Error running OCR on pixel data: "+e;
+                var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
+                AddToReports(f);
+                // XXX do we need this?
+                //_tesseractReport.FoundPixelData(fi, sopID, pixelFormat, processedPixelFormat, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny);
             }
         }
 
@@ -264,13 +274,9 @@ namespace Microservices.IsIdentifiable.Runners
                 var bytes = ms.ToArray();
 
                 // targetBmp is now in the desired format.
-                // XXX abrooks added PixConverter.ToPix (which requires Tesseract 3.0.2, not 3.3.0, or 4) for dotnet netcoreapp2.2
-                //targetBmp.Save("tesseract_input_debug.png", System.Drawing.Imaging.ImageFormat.Png);
-                //tnind changed to LoadFromMemory
                 using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
                 {
                     text = page.GetText();
-                    //_logger.Warn("Tesseract returned " + text);   // XXX abrooks added for debugging
                     text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
                     text = text.Trim();
                     meanConfidence = page.GetMeanConfidence();
