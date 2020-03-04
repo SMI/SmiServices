@@ -52,7 +52,6 @@ namespace IsIdentifiableReviewer
             {
                 storeReport.AddDestination(storeReportDestination);
 
-                //todo does this skip element 0?
                 while(_reportReader.Next())
                 {
                     //is it novel for updater
@@ -71,14 +70,14 @@ namespace IsIdentifiableReviewer
 
                     Total++;
 
-                    if(Total% 100 == 0)
+                    if(Total% 10000 == 0)
                         Console.WriteLine($"Done {Total:N0} u={Updates:N0} i={Ignores:N0} o={Unresolved:N0}");
                 }
 
                 storeReport.CloseReport();
             }
             
-            Console.WriteLine($"Finished {Total:N0} u={Updates:N0} i={Ignores:N0} o={Unresolved:N0}");
+            Console.WriteLine($"Finished {Total:N0} updates={Updates:N0} ignored={Ignores:N0} out={Unresolved:N0}");
             return 0;
         }
     }
