@@ -106,6 +106,8 @@ public class CTPAnonymiserHostTest extends TestCase {
 		_channel.exchangeDeclare(_producerExchangeName, "direct", true);
 		_channel.queueDeclare(_outputQueueName, true, false, false, null);
 		_channel.queueBind(_outputQueueName, _producerExchangeName, "");
+		_channel.queueBind(_outputQueueName, _producerExchangeName, "success");
+		_channel.queueBind(_outputQueueName, _producerExchangeName, "failure");
 		System.out.println(String.format("Bound %s -> %s", _producerExchangeName, _outputQueueName));
 
 		_channel.queuePurge(_consumerQueueName);
