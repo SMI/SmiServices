@@ -11,6 +11,9 @@ namespace IsIdentifiableReviewer.Out
         {
             
         }
+        public IgnoreRuleGenerator() : this(new FileInfo("NewRules.yaml"))
+        {
+        }
 
         /// <summary>
         /// Adds a rule to ignore the given failure

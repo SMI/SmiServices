@@ -51,13 +51,26 @@ namespace IsIdentifiableReviewer
                 returnCode = -1;
                 return;
             }
-
+            
             try
             {
-                Application.Init();
-                var mainWindow = new MainWindow(targets,opts);
-                Application.Top.Add(mainWindow);
-                Application.Run();
+                if(!string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
+                {
+                    //run unattended
+                    if (targets.Count != 1)
+                        throw new Exception("Unattended requires a single entry in Targets");
+
+                    var unattended = new UnattendedReviewer(opts);
+                    returnCode = unattended.Run();
+                }
+                else
+                {
+                    //run interactive
+                    Application.Init();
+                    var mainWindow = new MainWindow(targets,opts);
+                    Application.Top.Add(mainWindow);
+                    Application.Run();
+                }
             }
             catch (Exception e)
             {

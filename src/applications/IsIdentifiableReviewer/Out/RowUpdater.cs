@@ -17,6 +17,10 @@ namespace IsIdentifiableReviewer.Out
         {
         }
 
+        public RowUpdater() : this(new FileInfo("RedList.yaml"))
+        {
+        }
+
         public void Update(Target target, Failure failure)
         {
             Update(target.Discover(),failure);

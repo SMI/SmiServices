@@ -7,7 +7,7 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
 {
     public abstract class FailureReport : IFailureReport
     {
-        private readonly string _reportName;
+        public readonly string _reportName;
 
         public List<IReportDestination> Destinations = new List<IReportDestination>();
 
