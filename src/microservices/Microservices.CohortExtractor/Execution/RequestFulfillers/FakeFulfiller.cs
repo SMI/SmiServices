@@ -28,7 +28,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             foreach (string valueToLookup in message.ExtractionIdentifiers)
             {
                 var results = new ExtractImageCollection(valueToLookup);
-                string filePathValue = "img001.dcm";
+                string filePathValue = valueToLookup; // "img001.dcm";
                 string studyTagValue = "2";
                 string seriesTagValue = "3";
                 string instanceTagValue = "4";
