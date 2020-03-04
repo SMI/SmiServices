@@ -60,7 +60,7 @@ namespace IsIdentifiableReviewer
                     if (targets.Count != 1)
                         throw new Exception("Unattended requires a single entry in Targets");
 
-                    var unattended = new UnattendedReviewer(opts);
+                    var unattended = new UnattendedReviewer(opts,targets.Single());
                     returnCode = unattended.Run();
                 }
                 else

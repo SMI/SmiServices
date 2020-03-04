@@ -18,9 +18,9 @@ namespace IsIdentifiableReviewer
         public Target CurrentTarget { get; set; }
         public ReportReader CurrentReport { get; set; }
 
-        public IgnoreRuleGenerator Ignorer { get; set; } = new IgnoreRuleGenerator(new FileInfo("NewRules.yaml"));
+        public IgnoreRuleGenerator Ignorer { get; set; } = new IgnoreRuleGenerator();
 
-        public RowUpdater Updater { get; set; } = new RowUpdater(new FileInfo("RedList.yaml"));
+        public RowUpdater Updater { get; set; } = new RowUpdater();
 
         public int DlgWidth = 78;
         public int DlgHeight = 18;

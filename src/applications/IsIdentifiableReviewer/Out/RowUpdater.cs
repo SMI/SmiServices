@@ -11,13 +11,15 @@ namespace IsIdentifiableReviewer.Out
 {
     public class RowUpdater : OutBase
     {
+        public const string DefaultFileName = "RedList.yaml";
+
         Dictionary<DiscoveredTable,DiscoveredColumn> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn>();
         
         public RowUpdater(FileInfo rulesFile) : base(rulesFile)
         {
         }
 
-        public RowUpdater() : this(new FileInfo("RedList.yaml"))
+        public RowUpdater() : this(new FileInfo(DefaultFileName))
         {
         }
 

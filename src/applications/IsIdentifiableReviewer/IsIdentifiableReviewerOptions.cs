@@ -2,7 +2,7 @@
 
 namespace IsIdentifiableReviewer
 {
-    class IsIdentifiableReviewerOptions
+    public class IsIdentifiableReviewerOptions
     {
 
         [Option('f', "file",
