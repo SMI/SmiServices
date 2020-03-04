@@ -52,6 +52,7 @@ namespace Smi.Common.Tests.Messages
             var h3 = new MessageHeader();
 
             // Test all the various flavours of equality
+
             Assert.AreEqual(h1, h2);
             Assert.True(Equals(h1, h2));
             Assert.True(h1.Equals(h2));
