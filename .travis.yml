@@ -76,6 +76,7 @@ jobs:
 
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
+    - mkdir -p dist
     - |
       for platform in linux win
       do
@@ -83,7 +84,6 @@ jobs:
       done
     - ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
     - mvn -f src/common/com.smi.microservices.parent/pom.xml assembly:single@create-deployable
-    - mkdir ./dist
     - |
       for filename in $(find ./src -name "*deploy-distribution.zip")
       do

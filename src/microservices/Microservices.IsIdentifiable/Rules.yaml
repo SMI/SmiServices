@@ -62,6 +62,9 @@ WhiteListRules:
    IfPartPattern: ^(IAM|IAMS)$
    IfClassification: Organization
  - Action: Ignore
+   IfPartPattern: ^ISO$
+   IfClassification: Organization
+ - Action: Ignore
    IfPartPattern: ^Pelvis$
    IfClassification: Person
  - Action: Ignore
@@ -75,6 +78,9 @@ WhiteListRules:
    IfClassification: Organization
  - Action: Ignore
    IfColumn: ProtocolName
+   IfPartPattern: ^AIF$
+ - Action: Ignore
+   IfColumn: Organization
    IfPartPattern: ^AIF$
  - Action: Ignore
    IfColumn: ProtocolName
@@ -125,6 +131,9 @@ WhiteListRules:
    IfColumn: ProtocolName
    IfPartPattern: ^EISAI$
  - Action: Ignore
+   IfPattern: CT Cone
+   IfPartPattern: ^Cone$
+ - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^CRIC$
    IfClassification: Organization
@@ -134,7 +143,17 @@ WhiteListRules:
  - Action: Ignore
    IfPartPattern: ^ADC$
  - Action: Ignore
+   IfPartPattern: ^AIF$
+ - Action: Ignore
+   IfPartPattern: ^AML$
+ - Action: Ignore
+   IfPartPattern: ^AVM$
+ - Action: Ignore
+   IfPartPattern: ^Bolustrak$
+ - Action: Ignore
    IfPartPattern: ^Bone$
+ - Action: Ignore
+   IfPartPattern: ^Cholesteatoma$
  - Action: Ignore
    IfPartPattern: ^KUB$
  - Action: Ignore
@@ -158,19 +177,29 @@ WhiteListRules:
  - Action: Ignore
    IfPartPattern: ^CTV$
  - Action: Ignore
+   IfPartPattern: ^EORTCMERCK$
+ - Action: Ignore
    IfPartPattern: ^FFE$
  - Action: Ignore
    IfPartPattern: ^GRE$
+ - Action: Ignore
+   IfPartPattern: ^HFDR$
  - Action: Ignore
    IfPartPattern: ^INS$
  - Action: Ignore
    IfPartPattern: ^IRFSPGR$
  - Action: Ignore
+   IfPartPattern: ^LowerLimbAngio$
+ - Action: Ignore
    IfPartPattern: ^MCSC$
+ - Action: Ignore
+   IfPartPattern: ^MLSC$
  - Action: Ignore
    IfPartPattern: ^MPR$
  - Action: Ignore
    IfPartPattern: ^NHSH$
+ - Action: Ignore
+   IfPartPattern: ^NVSI$
  - Action: Ignore
    IfPartPattern: ^NCA$
  - Action: Ignore
@@ -187,6 +216,8 @@ WhiteListRules:
    IfPartPattern: ^SPO$
  - Action: Ignore
    IfPartPattern: ^SPAIR$
+ - Action: Ignore
+   IfPartPattern: ^TAAA$
  - Action: Ignore
    IfPartPattern: ^Abdomen$
  - Action: Ignore
@@ -210,6 +241,8 @@ WhiteListRules:
  - Action: Ignore
    IfPartPattern: ^Neck$
  - Action: Ignore
+   IfPartPattern: ^Non.Contrast$
+ - Action: Ignore
    IfPartPattern: ^Petrous$
  - Action: Ignore
    IfPartPattern: ^QCLEAR$
@@ -226,11 +259,14 @@ WhiteListRules:
  - Action: Ignore
    IfPartPattern: ^WB$
  - Action: Ignore
+   IfPartPattern: ^-$
+ - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^Bones$
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^TAVI$
+ # Rules which require surrounding context:
  - Action: Ignore
    IfPattern: LE_
    IfPartPattern: ^LE$
@@ -238,6 +274,28 @@ WhiteListRules:
    IfColumn: ProtocolName
    IfPartPattern: ^Vertex$
    IfClassification: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Vertex$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^TOSH$
+   IfPattern: CT TOSH
+ - Action: Ignore
+   IfPartPattern: ^Sharp$
+   IfPattern: Bone.Sharp
+ - Action: Ignore
+   IfPartPattern: ^S(o)?ft$
+   IfPattern: S(o)?ft.Tissue
+ - Action: Ignore
+   IfPartPattern: ^Tissue$
+   IfPattern: S(o)?ft.Tissue
+ - Action: Ignore
+   IfPartPattern: ^Brian$
+   IfPattern: Brian.and.Neck
+ - Action: Ignore
+   IfPartPattern: ^(Non|Contrast)$
+   IfPattern: Non.Contrast
 
  # Why on earth does it pick up & and / as Organizations?!
  - Action: Ignore
@@ -279,6 +337,9 @@ WhiteListRules:
  - Action: Ignore
    IfColumn: InstitutionName
    IfPartPattern: Western General
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPartPattern: ^LAMBOO$
 
  - Action: Ignore
    IfColumn: BodyPartExamined
@@ -630,7 +691,13 @@ BasicRules:
    IfPattern: ^MANKR$
  - Action: Ignore
    IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^MHACR$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
    IfPattern: ^MWRIR$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^MTSPN$
  - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^WB Standard$
@@ -740,6 +807,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: PatientPosition
    IfPattern: ^FFDL$
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: ^HFDL$
+ - Action: Ignore
+   IfColumn: PatientPosition
+   IfPattern: ^FFDR$
 
  - Action: Ignore
    IfColumn: ScanOptions
@@ -1713,6 +1786,12 @@ BasicRules:
    IfColumn: ProtocolName
    IfPattern: ^mr$
 
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^evar$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^pethn$
  - Action: Ignore
    IfColumn: PerformedProcedureStepDescription
    IfPattern: ^femur.femur$

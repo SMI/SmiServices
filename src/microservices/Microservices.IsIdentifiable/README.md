@@ -8,6 +8,7 @@ Primary Author: [Thomas](https://github.com/tznind)
  1. [Rules](#rules) 
     1. [Basic Rules](#basic-rules) 
     2. [Socket Rules](#socket-rules) 
+    3. [White List Rules](#white-list-rules) 
  1. [Exchange and Queue Settings](#exchange-and-queue-settings)
  1. [Expectations](#expectations)
  1. [Class Diagram](#class-diagram)
@@ -77,12 +78,17 @@ You can run pixel data (OCR) by passing the `--tessdirectory` flag:
 dotnet IsIdentifiable.dll dir -d C:\MassiveImageArchive --storereport --tessdirectory E:/SmiServices/data/tessdata/
 ```
 
+The directory must be named `tessdata` and contain a file named `eng.traineddata`
+
 ### Rules
 
 Some rules come out of the box (e.g. CHI/Postcode/Date) but for the rest you must configure rules in Rules.yaml.
 There are three classes of Rules, BasicRules, SocketRules and WhiteListRules.
 They are applied in that order, so if a value is Ignored in a Basic rule it will not be passed to any further rules.
 If a value fails in a SocketRule (eg. the NER daemon labels it as a Person), then a subsequent WhiteList rule can Ignore it.
+
+Rules are read from the file `Rules.yaml` but no error is reported if the file does not exist.
+Additional rules can be supplied using the `--rulesfile` option.
 
 #### Basic Rules
 
@@ -128,12 +134,12 @@ Once the responder has decided there are no more offending sections (or there we
 Responder: \0\0
 ```
 
-#### WhiteListRules
+#### White List Rules
 
 The Action for a White List rule must be Ignore because it is intended to allow values previously reported to be ignored as false positives.
 All of the constraints must match in order for the rule to Ignore the value.
 As soon as a value matches a white list rule no further white list rules are needed.
-Unlike a BasicRule whose Pattern matches the full value of a field (column or DICOM tag) the whitelist rule has two Patterns, IfPattern which has the same behaviour and IfPartPattern which matches only the substring that failed.
+Unlike a BasicRule whose Pattern matches the full value of a field (column or DICOM tag) the whitelist rule has two Patterns, IfPattern which has the same behaviour and IfPartPattern which matches only the substring that failed. This feature allows context to be specified, see the second example below.
 A whitelist rule can also match the failure classification (PrivateIdentifier, Location, Person, Organization, Money, Percent, Date, Time, PixelText, Postcode).
 For example, if SIEMENS has been reported as a Person found in the the Manufacturer column,
 
@@ -144,7 +150,14 @@ WhiteListRules:
    IfColumn: Manufacturer
    IfPartPattern: ^SIEMENS$
 ```
+For example, what seems like a name Brian can be ignored if it occurs in the exact phrase "MR Brian And Skull" using:
 
+```yaml
+IfPartPattern: ^Brian$
+IfPattern: MR Brian And Skull
+```
+
+Note that there is no need to specify ^ and $ in IfPattern as other text before or after it will not change the meaning.
 
 ### Exchange and Queue Settings
 
@@ -160,7 +173,7 @@ In order to run as a microservice you should call it with the `--service` flag
 | YAML Section  | Purpose |
 | ------------- | ------------- |
 | RabbitOptions | Describes the location of the rabbit server for sending messages to |
-| IsIdentifiableOptions | Describes what `IClassifier` to run and where the classifier models are stored |
+| IsIdentifiableOptions | Describes what `IClassifier` to run and where the classifier models are stored. The key `DataDirectory` specifies the path to the data directory. The key `ClassifierType` specifies which classifier to run, typically `Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier` |
 
 ### Expectations
 

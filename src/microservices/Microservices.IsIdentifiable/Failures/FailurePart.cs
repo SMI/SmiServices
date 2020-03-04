@@ -25,5 +25,21 @@
             Classification = classification;
             Offset = offset;
         }
+
+        /// <summary>
+        /// Returns true if the provided <paramref name="index"/> is within the problem part of the original string
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public bool Includes(int index)
+        {
+            if (Offset == -1)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(Word))
+                return false;
+
+            return index >= Offset && index < Offset + Word.Length;
+        }
     }
 }
