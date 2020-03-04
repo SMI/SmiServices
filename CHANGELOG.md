@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
 - Added `DynamicRejector` which takes its cohort extraction rules from a script file (of CSharp code)
 
+### Fixed
+
+- Corrected the GetHashCode implementation in the MessageHeader class
+
 ## [1.4.5] - 2020-02-26
 
 - Add clean shutdown hook for IdentifierMapper to clean up the worker threads
