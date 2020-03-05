@@ -76,7 +76,7 @@ jobs:
 
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
-    - mkdir -p dist
+    - mkdir -p ./dist
     - |
       for platform in linux win
       do
