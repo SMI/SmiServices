@@ -15,12 +15,14 @@ namespace Microservices.IsIdentifiable.Service
     {
         private readonly IProducerModel _producer;
         private readonly string _fileSystemRoot;
+        private readonly string _extractionRoot;
         private readonly IClassifier _classifier;
 
-        public IsIdentifiableQueueConsumer(IProducerModel producer, string fileSystemRoot, IClassifier classifier)
+        public IsIdentifiableQueueConsumer(IProducerModel producer, string fileSystemRoot, string extractionRoot, IClassifier classifier)
         {
             _producer = producer;
             _fileSystemRoot = fileSystemRoot;
+            _extractionRoot = extractionRoot;
             _classifier = classifier;
         }
 
@@ -30,13 +32,12 @@ namespace Microservices.IsIdentifiable.Service
             if (!SafeDeserializeToMessage(header, basicDeliverEventArgs, out ExtractFileStatusMessage message))
                 return;
 
-            // The path is taken from the message, however maybe it should be FileSystemOptions|ExtractRoot in default.yaml
             // If the filename has a rooted path then the ExtractionDirectory is ignored by Path.Combine
-            var toProcess = new FileInfo( Path.Combine(message.ExtractionDirectory, message.AnonymisedFileName) );
+            var toProcess = new FileInfo( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.AnonymisedFileName) );
 
             if(!toProcess.Exists)
                 //  XXX  this causes a fatal error and the whole service terminates
-                throw new FileNotFoundException();
+                throw new FileNotFoundException("IsIdentifiable service cannot find file "+toProcess.FullName);
 
             var result = _classifier.Classify(toProcess);
 
