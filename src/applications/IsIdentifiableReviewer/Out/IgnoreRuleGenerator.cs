@@ -7,9 +7,14 @@ namespace IsIdentifiableReviewer.Out
 {
     public class IgnoreRuleGenerator: OutBase
     {
+        public const string DefaultFileName = "NewRules.yaml";
+
         public IgnoreRuleGenerator(FileInfo rulesFile):base(rulesFile)
         {
             
+        }
+        public IgnoreRuleGenerator() : this(new FileInfo(DefaultFileName))
+        {
         }
 
         /// <summary>

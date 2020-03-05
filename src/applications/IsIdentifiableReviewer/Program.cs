@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CommandLine;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
@@ -14,6 +15,8 @@ namespace IsIdentifiableReviewer
 {
     class Program
     {
+        private static int returnCode;
+
         static int Main(string[] args)
         {
             ImplementationManager.Load<MySqlImplementation>();
@@ -21,6 +24,15 @@ namespace IsIdentifiableReviewer
             ImplementationManager.Load<MicrosoftSQLImplementation>();
             ImplementationManager.Load<PostgreSqlImplementation>();
 
+            Parser.Default.ParseArguments<IsIdentifiableReviewerOptions>(args)
+                .WithParsed(RunOptionsAndReturnExitCode)
+                .WithNotParsed(errs => {   returnCode = 500;});
+            
+            return returnCode;
+        }
+
+        private static void RunOptionsAndReturnExitCode(IsIdentifiableReviewerOptions opts)
+        {
             Deserializer d = new Deserializer();
             List<Target> targets;
 
@@ -36,15 +48,38 @@ namespace IsIdentifiableReviewer
             {
                 Console.WriteLine("Could not find/deserialize Targets.yaml");
                 Console.WriteLine(e.ToString());
-                return -1;
+                returnCode = -1;
+                return;
             }
             
-            Application.Init();
-            var mainWindow = new MainWindow(targets);
-            Application.Top.Add(mainWindow);
-            Application.Run();
+            try
+            {
+                if(!string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
+                {
+                    //run unattended
+                    if (targets.Count != 1)
+                        throw new Exception("Unattended requires a single entry in Targets");
 
-            return 0;
+                    var unattended = new UnattendedReviewer(opts,targets.Single());
+                    returnCode = unattended.Run();
+                }
+                else
+                {
+                    //run interactive
+                    Application.Init();
+                    var mainWindow = new MainWindow(targets,opts);
+                    Application.Top.Add(mainWindow);
+                    Application.Run();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write(e);
+                returnCode = -1;
+                return;
+            }
+
+            returnCode = 0;
         }
     }
 }

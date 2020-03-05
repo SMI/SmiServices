@@ -38,6 +38,11 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
                 Path.Combine(destDir.FullName, reportName + ".csv");
         }
 
+        public CsvDestination(IsIdentifiableAbstractOptions options, FileInfo file):base(options)
+        {
+            _reportPath = file.FullName;
+        }
+
         public override void WriteHeader(params string[] headers)
         {
             lock (_oHeaderLock)

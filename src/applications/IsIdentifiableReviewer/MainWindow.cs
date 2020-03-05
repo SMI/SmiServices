@@ -18,9 +18,9 @@ namespace IsIdentifiableReviewer
         public Target CurrentTarget { get; set; }
         public ReportReader CurrentReport { get; set; }
 
-        public IgnoreRuleGenerator Ignorer { get; set; } = new IgnoreRuleGenerator(new FileInfo("NewRules.yaml"));
+        public IgnoreRuleGenerator Ignorer { get; set; } = new IgnoreRuleGenerator();
 
-        public RowUpdater Updater { get; set; } = new RowUpdater(new FileInfo("RedList.yaml"));
+        public RowUpdater Updater { get; set; } = new RowUpdater();
 
         public int DlgWidth = 78;
         public int DlgHeight = 18;
@@ -29,7 +29,7 @@ namespace IsIdentifiableReviewer
         private Label _info;
         private TextField _gotoTextField;
 
-        public MainWindow(List<Target> targets)
+        public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts)
         {
             _targets = targets;
             X = 0;
@@ -105,10 +105,17 @@ namespace IsIdentifiableReviewer
                 Clicked = ()=>GoToRelative(1)
             });
 
+            var cbRulesOnly = new CheckBox(23,1,"Rules Only",false);
+            cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = cbRulesOnly.Checked;};
+            frame.Add(cbRulesOnly);
+            
             top.Add (menu);
             Add(_info);
             Add(_valuePane);
             Add(frame);
+
+            if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
+                OpenReport(opts.FailuresCsv,(e)=>throw e, (t)=>throw new Exception("Mode only supported when a single Target is configured"));
         }
 
         private void GoToRelative(int offset)
@@ -234,34 +241,37 @@ namespace IsIdentifiableReviewer
             Application.Run(ofd);
 
             var f = ofd.FilePaths?.SingleOrDefault();
-            if ( f != null)
+
+            OpenReport(f,
+                (e)=>ShowException("Failed to Load", e),
+                (t)=> 
+                    GetChoice("Target", "Pick the database this was generated from", out Target chosen,t.ToArray())
+                    ? chosen : null);
+        }
+
+        private void OpenReport(string path, Action<Exception> exceptionHandler, Func<IEnumerable<Target>,Target> targetPicker)
+        {
+            if ( path == null)
+                return;
+
+            try
             {
-                try
-                {
-                    //if there are multiple targets
-                    if (_targets.Count > 1)
-                    {
-                        //pick one
-                        if (GetChoice("Target", "Pick the database this was generated from", out Target chosen,_targets.ToArray()))
-                            CurrentTarget = chosen;
-                        else
-                            return; //they cancelled picking a target
-                    }
-                    else
-                        CurrentTarget = _targets.Single();
+                //if there are multiple targets
+                CurrentTarget = _targets.Count > 1 ? targetPicker(_targets) : _targets.Single();
 
-                    CurrentReport = new ReportReader(new FileInfo(f));
-                    _valuePane.CurrentFailure = CurrentReport.Failures.FirstOrDefault();
-                    Next();
-                }
-                catch (Exception e)
-                {
-                    ShowException("Failed to Load",e);
-                }
+                if(CurrentTarget == null)
+                    return;
 
+                CurrentReport = new ReportReader(new FileInfo(path));
+                _valuePane.CurrentFailure = CurrentReport.Failures.FirstOrDefault();
+                Next();
+            }
+            catch (Exception e)
+            {
+                exceptionHandler(e);
             }
         }
-        
+
         public void ShowMessage(string title, string body)
         {
             RunDialog(title,body,out _,"Ok");
