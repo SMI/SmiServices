@@ -7,7 +7,7 @@ using CommandLine.Text;
 namespace Microservices.IsIdentifiable.Options
 {
     [Verb("dir")]
-    class IsIdentifiableDicomFileOptions : IsIdentifiableAbstractOptions
+    public class IsIdentifiableDicomFileOptions : IsIdentifiableAbstractOptions
     {
         [Option('d', HelpText = "Directory in which to recursively search for dicom files", Required = true)]
         public string Directory { get; set; }
@@ -39,8 +39,6 @@ namespace Microservices.IsIdentifiable.Options
                     new IsIdentifiableDicomFileOptions
                     {
                         Directory = @"C:\MyDataFolder",
-                        PathToNerClassifier =
-                            @"C:\temp\stanford-ner-2016-10-31\classifiers\english.all.3class.distsim.crf.ser.gz",
                         TessDirectory = ".",
                         StoreReport = true
                     });
@@ -50,8 +48,6 @@ namespace Microservices.IsIdentifiable.Options
                     {
                         Directory = @"C:\MyDataFolder",
                         Pattern = "*",
-                        PathToNerClassifier =
-                            @"C:\temp\stanford-ner-2016-10-31\classifiers\english.all.3class.distsim.crf.ser.gz",
                             StoreReport = true
                     });
             }
@@ -59,7 +55,7 @@ namespace Microservices.IsIdentifiable.Options
 
         public override string GetTargetName()
         {
-            return new DirectoryInfo(Directory).Name;
+            return Directory == null ?"No Directory Specified":new DirectoryInfo(Directory).Name;
         }
 
         public override void ValidateOptions()

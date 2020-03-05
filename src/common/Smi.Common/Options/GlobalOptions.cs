@@ -88,6 +88,8 @@ namespace Smi.Common.Options
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
         public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
 
+        public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
+
         #endregion
 
         public static string GenerateToString(object o)
@@ -107,6 +109,22 @@ namespace Smi.Common.Options
         {
             return GenerateToString(this);
         }
+    }
+
+    public class IsIdentifiableOptions : ConsumerOptions
+    {
+        /// <summary>
+        /// The full name of the classifier you want to run
+        /// </summary>
+        public string ClassifierType { get; set; }
+
+        /// <summary>
+        /// The root location in which subfolders must exist containing all data files required by any classifiers
+        /// (typically 1 sub-directory per classifier)
+        /// </summary>
+        public string DataDirectory { get; set; }
+
+        public ProducerOptions IsIdentifiableProducerOptions {get; set;}
     }
 
     [UsedImplicitly]
@@ -340,6 +358,23 @@ namespace Smi.Common.Options
         /// The Type of a class implementing IExtractionRequestFulfiller which is responsible for mapping requested image identifiers to image file paths.  Mandatory
         /// </summary>
         public string RequestFulfillerType { get; set; }
+        
+        /// <summary>
+        /// The Type of a class implementing IProjectPathResolver which is responsible for deciding the folder hierarchy to output into
+        /// </summary>
+        public string ProjectPathResolverType { get; set; }
+
+        /// <summary>
+        /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which
+        /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result
+        /// in Modalities being routed based on the start of the table name e.g. CT => CT_MyTable and MR=> MR_MyTable
+        /// </summary>
+        public string ModalityRoutingRegex { get; set; } = "^([A-Z]+)_.*$";
+
+        /// <summary>
+        /// The Type of a class implementing IRejector which is responsible for deciding individual records/images are not extractable (after fetching from database)
+        /// </summary>
+        public string RejectorType { get; set; }
 
         public bool AllCatalogues { get; private set; }
         public List<int> OnlyCatalogues { get; private set; }

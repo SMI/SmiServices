@@ -22,24 +22,23 @@ import java.nio.file.Paths;
 public class CTPAnonymiserConsumer extends SmiConsumer {
 
 	private final static Logger _logger = LoggerFactory.getLogger(CTPAnonymiserConsumer.class);
-
+	private final static String _routingKey_failure = "failure";
+	private final static String _routingKey_success = "success";
 	private String _fileSystemRoot;
 	private String _extractFileSystemRoot;
 
 	private SmiCtpProcessor _anonTool;
 
 	private IProducerModel _statusMessageProducer;
-	private String _routingKey;
 
 	private boolean _foundAFile = false;
 
 
-	public CTPAnonymiserConsumer(IProducerModel producer, SmiCtpProcessor anonTool, String routingKey, String fileSystemRoot,
+	public CTPAnonymiserConsumer(IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
 								 String extractFileSystemRoot) {
 
 		_statusMessageProducer = producer;
 		_anonTool = anonTool;
-		_routingKey = routingKey;
 		_fileSystemRoot = fileSystemRoot;
 		_extractFileSystemRoot = extractFileSystemRoot;
 	}
@@ -85,7 +84,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			statusMessage.StatusMessage = msg;
 			statusMessage.Status = 2;
 
-			_statusMessageProducer.SendMessage(statusMessage, _routingKey, header);
+			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
 			AckMessage(envelope.getDeliveryTag());
 			return;
@@ -121,7 +120,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			statusMessage.StatusMessage = msg;
 			statusMessage.Status = 2;
 
-			_statusMessageProducer.SendMessage(statusMessage, _routingKey, header);
+			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
 			AckMessage(envelope.getDeliveryTag());
 			return;
@@ -136,18 +135,22 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 		if (!tempFile.delete() || tempFile.exists())
 			_logger.warn("Could not delete temp file " + tempFile.getAbsolutePath());
 
+		String routingKey = _routingKey_failure;
+
 		if (status == CtpAnonymisationStatus.Anonymised) {
 
 			statusMessage.AnonymisedFileName = extractFileMessage.OutputPath;
 			statusMessage.Status = 0;
+			routingKey = _routingKey_success;
 
 		} else {
 
 			statusMessage.StatusMessage = _anonTool.getLastStatus();
 			statusMessage.Status = 2;
+			routingKey = _routingKey_failure;
 		}
 
-		_statusMessageProducer.SendMessage(statusMessage, _routingKey, header);
+		_statusMessageProducer.SendMessage(statusMessage, routingKey, header);
 
 		// Everything worked so acknowledge message
 		AckMessage(envelope.getDeliveryTag());
