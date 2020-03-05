@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
+using System.IO;
 using FAnsi;
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Failures;
@@ -47,14 +45,33 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             //redacted string will be longer! 
             var col = tbl.DiscoverColumn("Narrative");
             col.DataType.Resize(1000);
-            
-            RowUpdater updater = new RowUpdater();
+
+            var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "Redlist.yaml"));
+
+            //make sure repeat test runs work properly
+            if(File.Exists(newRules.FullName))
+                File.Delete(newRules.FullName);
+
+            RowUpdater updater = new RowUpdater(newRules);
+
+            //it should be novel i.e. require user decision
+            Assert.IsTrue(updater.OnLoad(db.Server,failure));
+
             updater.Update(db.Server,failure);
 
             var result = tbl.GetDataTable();
             Assert.AreEqual("We aren't in SMI_REDACTED anymore SMI_REDACTED",result.Rows[0]["Narrative"]);
 
+            Assert.AreEqual(
+@"- Action: Report
+  IfColumn: Narrative
+  As: Location
+  IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
+",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
+            //it should be updated automatically and not require user decision
+            Assert.IsFalse(updater.OnLoad(db.Server,failure));
+            
         }
     }
 }

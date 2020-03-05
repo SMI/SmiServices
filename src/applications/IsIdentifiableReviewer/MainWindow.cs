@@ -18,9 +18,9 @@ namespace IsIdentifiableReviewer
         public Target CurrentTarget { get; set; }
         public ReportReader CurrentReport { get; set; }
 
-        public RuleGenerator Generator { get; set; } = new RuleGenerator(new FileInfo("NewRules.yaml"));
+        public IgnoreRuleGenerator Ignorer { get; set; } = new IgnoreRuleGenerator(new FileInfo("NewRules.yaml"));
 
-        public RowUpdater Updater { get; set; } = new RowUpdater();
+        public RowUpdater Updater { get; set; } = new RowUpdater(new FileInfo("RedList.yaml"));
 
         public int DlgWidth = 78;
         public int DlgHeight = 18;
@@ -158,22 +158,29 @@ namespace IsIdentifiableReviewer
 
             int skipped = 0;
             int updated = 0;
-
-            while(CurrentReport.Next())
+            try
             {
-                var next = CurrentReport.Current;
-
-                if (!Generator.OnLoad(next))
-                    skipped++;
-                else if (!Updater.OnLoad(CurrentTarget,next))
-                    updated++;
-                else
+                while(CurrentReport.Next())
                 {
-                    _valuePane.CurrentFailure = next;
-                    break;
+                    var next = CurrentReport.Current;
+
+                    //prefer rules that say we should update the database with redacted over rules that say we should ignore the problem
+                    if (!Updater.OnLoad(CurrentTarget?.Discover(),next))
+                        updated++;
+                    else if (!Ignorer.OnLoad(next))
+                        skipped++;
+                    else
+                    {
+                        _valuePane.CurrentFailure = next;
+                        break;
+                    }
                 }
             }
-
+            catch (Exception e)
+            {
+                ShowException("Error moving to next record",e);
+            }
+            
             if(CurrentReport.Exhausted)
                 ShowMessage("End", "End of Failures");
             
@@ -194,7 +201,7 @@ namespace IsIdentifiableReviewer
             if(_valuePane.CurrentFailure == null)
                 return;
 
-            Generator.Add(_valuePane.CurrentFailure,RuleAction.Ignore);
+            Ignorer.Add(_valuePane.CurrentFailure);
             Next();
         }
         private void Update()
