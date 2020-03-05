@@ -13,6 +13,13 @@ namespace IsIdentifiableReviewer.Out
     {
         public const string DefaultFileName = "RedList.yaml";
 
+        /// <summary>
+        /// Set to true to only output updates to redlist instead of trying to update the database.
+        /// This is useful if you want to  run in manual mode to process everything then run unattended
+        /// for the updates.
+        /// </summary>
+        public bool RulesOnly { get; set; }
+
         Dictionary<DiscoveredTable,DiscoveredColumn> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn>();
         
         public RowUpdater(FileInfo rulesFile) : base(rulesFile)
@@ -30,6 +37,13 @@ namespace IsIdentifiableReviewer.Out
 
         public void Update(DiscoveredServer server, Failure failure)
         {
+            //add the update rule to the redlist
+            Add(failure,RuleAction.Report);
+
+            //if we are running in rules only mode we don't need to also update the database
+            if(RulesOnly)
+                return;
+
             var syntax = server.GetQuerySyntaxHelper();
 
             //the fully specified name e.g. [mydb]..[mytbl]
@@ -71,9 +85,6 @@ namespace IsIdentifiableReviewer.Out
                     cmd.ExecuteNonQuery();
                 }   
             }
-            
-            //add the update rule to the redlist
-            Add(failure,RuleAction.Report);
         }
 
         /// <summary>

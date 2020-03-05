@@ -105,6 +105,10 @@ namespace IsIdentifiableReviewer
                 Clicked = ()=>GoToRelative(1)
             });
 
+            var cbRulesOnly = new CheckBox(23,1,"Rules Only",false);
+            cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = cbRulesOnly.Checked;};
+            frame.Add(cbRulesOnly);
+            
             top.Add (menu);
             Add(_info);
             Add(_valuePane);
