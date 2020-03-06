@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Options;
@@ -48,6 +49,9 @@ namespace IsIdentifiableReviewer
             
             var storeReport = new FailureStoreReport(_outputFile.Name,100);
             
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), _outputFile))
             {
                 storeReport.AddDestination(storeReportDestination);
@@ -70,8 +74,11 @@ namespace IsIdentifiableReviewer
 
                     Total++;
 
-                    if(Total% 10000 == 0)
+                    if (Total % 10000 == 0 || sw.ElapsedMilliseconds > 5000)
+                    {
                         Console.WriteLine($"Done {Total:N0} u={Updates:N0} i={Ignores:N0} o={Unresolved:N0}");
+                        sw.Restart();
+                    }
                 }
 
                 storeReport.CloseReport();
