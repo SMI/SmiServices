@@ -21,7 +21,7 @@ namespace IsIdentifiableReviewer
         public int Unresolved = 0;
         public int Total = 0;
 
-        public UnattendedReviewer(IsIdentifiableReviewerOptions opts, Target target)
+        public UnattendedReviewer(IsIdentifiableReviewerOptions opts, Target target, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             if (string.IsNullOrWhiteSpace(opts.FailuresCsv))
                 throw new Exception("Unattended requires a file of errors to process");
@@ -39,8 +39,8 @@ namespace IsIdentifiableReviewer
 
             _outputFile = new FileInfo(opts.UnattendedOutputPath);
 
-            _updater = new RowUpdater();
-            _ignorer = new IgnoreRuleGenerator();
+            _ignorer = ignorer;
+            _updater = updater;
         }
 
         public int Run()

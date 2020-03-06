@@ -8,6 +8,7 @@ using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
+using IsIdentifiableReviewer.Out;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 
@@ -36,19 +37,32 @@ namespace IsIdentifiableReviewer
             Deserializer d = new Deserializer();
             List<Target> targets;
 
+            
             try
             {
-                targets = d.Deserialize<List<Target>>(File.ReadAllText("Targets.yaml"));
+                var file = new FileInfo(opts.TargetsFile);
+
+                if (file.Exists)
+                {
+                    Console.Write($"Could not find '{file.FullName}'");
+                    returnCode = -1;
+                    return;
+                }
+                    
+                targets = d.Deserialize<List<Target>>(File.ReadAllText(file.FullName));
 
                 if (!targets.Any())
-                    throw new Exception("No targets found in file");
-
+                {
+                    Console.Write($"Targets file is empty '{file.FullName}'");
+                    returnCode = -2;
+                    return;
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Could not find/deserialize Targets.yaml");
-                Console.WriteLine(e.ToString());
-                returnCode = -1;
+                Console.WriteLine($"Error deserializing '{opts.TargetsFile}'");
+                Console.WriteLine(e.Message);
+                returnCode = -3;
                 return;
             }
 
@@ -59,6 +73,10 @@ namespace IsIdentifiableReviewer
                     ? $"Successfully connected to {t.Name}"
                     : $"Failed to connect to {t.Name}");
 
+                        
+            var updater = new RowUpdater(new FileInfo(opts.RedList));
+            var ignorer = new IgnoreRuleGenerator(new FileInfo(opts.IgnoreList));
+
             try
             {
                 if(!string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
@@ -67,20 +85,22 @@ namespace IsIdentifiableReviewer
                     if (targets.Count != 1)
                         throw new Exception("Unattended requires a single entry in Targets");
 
-                    var unattended = new UnattendedReviewer(opts,targets.Single());
+                    var unattended = new UnattendedReviewer(opts,targets.Single(),ignorer,updater);
                     returnCode = unattended.Run();
                 }
                 else
                 {
                     //run interactive
                     Application.Init();
-                    var mainWindow = new MainWindow(targets,opts);
+                    var mainWindow = new MainWindow(targets,opts,ignorer,updater);
                     Application.Top.Add(mainWindow);
                     Application.Run();
                 }
             }
             catch (Exception e)
             {
+                Application.RequestStop();
+
                 Console.Write(e);
                 returnCode = -1;
                 return;

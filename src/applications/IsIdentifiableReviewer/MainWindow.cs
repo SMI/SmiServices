@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Rules;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
@@ -18,9 +17,9 @@ namespace IsIdentifiableReviewer
         public Target CurrentTarget { get; set; }
         public ReportReader CurrentReport { get; set; }
 
-        public IgnoreRuleGenerator Ignorer { get; set; } = new IgnoreRuleGenerator();
+        public IgnoreRuleGenerator Ignorer { get; }
 
-        public RowUpdater Updater { get; set; } = new RowUpdater();
+        public RowUpdater Updater { get;  } 
 
         public int DlgWidth = 78;
         public int DlgHeight = 18;
@@ -29,9 +28,12 @@ namespace IsIdentifiableReviewer
         private Label _info;
         private TextField _gotoTextField;
 
-        public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts)
+        public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
+            Ignorer = ignorer;
+            Updater = updater;
+
             X = 0;
             Y = 1;
             Width = Dim.Fill();
