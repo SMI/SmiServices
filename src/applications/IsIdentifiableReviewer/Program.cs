@@ -51,7 +51,14 @@ namespace IsIdentifiableReviewer
                 returnCode = -1;
                 return;
             }
-            
+
+            Console.Write("Running Connection Tests");
+
+            foreach (Target t in targets)
+                Console.WriteLine(t.Discover().Exists()
+                    ? $"Successfully connected to {t.Name}"
+                    : $"Failed to connect to {t.Name}");
+
             try
             {
                 if(!string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
