@@ -29,8 +29,6 @@ namespace Applications.DicomDirectoryProcessor.Execution
 
             if (!cliOptions.DirectoryFormat.ToLower().Equals("list"))
             {
-                Logger.Info("This indicates that the list mode is not being recognised");
-
                 // TODO(rkm 2020-02-12) I think we want to check this regardless of the mode
                 // (bp 2020-02-13) By not doing this check on list means that the list of paths is not required to be in PACS and can be imported from anywhere
                 if (!Directory.Exists(globals.FileSystemOptions.FileSystemRoot))
@@ -44,7 +42,6 @@ namespace Applications.DicomDirectoryProcessor.Execution
             }
             else
             {
-                Logger.Info("This indicates that the list mode is being recognised");
                 if (!File.Exists(cliOptions.ToProcessDir.FullName))
                     throw new ArgumentException("Could not find accession directory list file (" + cliOptions.ToProcessDir.FullName + ")");
 
