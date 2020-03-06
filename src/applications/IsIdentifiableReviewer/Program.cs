@@ -42,7 +42,7 @@ namespace IsIdentifiableReviewer
             {
                 var file = new FileInfo(opts.TargetsFile);
 
-                if (file.Exists)
+                if (!file.Exists)
                 {
                     Console.Write($"Could not find '{file.FullName}'");
                     returnCode = -1;
@@ -66,7 +66,7 @@ namespace IsIdentifiableReviewer
                 return;
             }
 
-            Console.Write("Running Connection Tests");
+            Console.WriteLine("Running Connection Tests");
 
             foreach (Target t in targets)
                 Console.WriteLine(t.Discover().Exists()
@@ -90,6 +90,9 @@ namespace IsIdentifiableReviewer
                 }
                 else
                 {
+                    Console.WriteLine("Press any key to launch GUI");
+                    Console.ReadKey();
+
                     //run interactive
                     Application.Init();
                     var mainWindow = new MainWindow(targets,opts,ignorer,updater);

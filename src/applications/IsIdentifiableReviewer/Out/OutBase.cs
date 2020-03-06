@@ -14,6 +14,8 @@ namespace IsIdentifiableReviewer.Out
     {
         protected List<IsIdentifiableRule> Rules { get;}
         public FileInfo RulesFile { get; }
+        
+        public IRulePatternFactory RulesFactory { get; set; } = new MatchWholeStringRulePatternFactory();
 
         protected OutBase(FileInfo rulesFile)
         {
@@ -53,7 +55,7 @@ namespace IsIdentifiableReviewer.Out
             {
                 Action = action,
                 IfColumn = f.ProblemField,
-                IfPattern = "^" + Regex.Escape(f.ProblemValue) + "$",
+                IfPattern = RulesFactory.GetPattern(f),
                 As = 
                     action == RuleAction.Ignore? 
                         FailureClassification.None : 
