@@ -30,15 +30,16 @@ namespace IsIdentifiableReviewer.Out
         {
         }
 
-        public void Update(Target target, Failure failure)
+        public void Update(Target target, Failure failure, bool addRule)
         {
-            Update(target.Discover(),failure);
+            Update(target.Discover(),failure,addRule);
         }
 
-        public void Update(DiscoveredServer server, Failure failure)
+        public void Update(DiscoveredServer server, Failure failure, bool addRule)
         {
             //add the update rule to the redlist
-            Add(failure,RuleAction.Report);
+            if(addRule)
+                Add(failure,RuleAction.Report);
 
             //if we are running in rules only mode we don't need to also update the database
             if(RulesOnly)
@@ -104,7 +105,7 @@ namespace IsIdentifiableReviewer.Out
             if (IsCoveredByExistingRule(failure))
             {
                 //since user has issued an update for this exact problem before we can update this one too
-                Update(server,failure);
+                Update(server,failure,false);
 
                 //and return false to indicate that it is not a novel issue
                 return false;

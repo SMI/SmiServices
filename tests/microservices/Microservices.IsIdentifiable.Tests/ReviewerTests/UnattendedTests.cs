@@ -17,7 +17,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         public void NoFileToProcess_Throws()
         {
 
-            var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions(),null));
+            var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions(),null, new IgnoreRuleGenerator(),new RowUpdater() ));
             Assert.AreEqual("Unattended requires a file of errors to process",ex.Message);
         }
 
@@ -28,7 +28,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var ex = Assert.Throws<FileNotFoundException>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
             {
                 FailuresCsv = "troll.csv"
-            },null));
+            },null, new IgnoreRuleGenerator(),new RowUpdater()));
             StringAssert.Contains("Could not find Failures file",ex.Message);
         }
         
@@ -42,7 +42,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
             {
                 FailuresCsv = fi
-            },null));
+            },null, new IgnoreRuleGenerator(),new RowUpdater()));
             StringAssert.Contains("A single Target must be supplied for database updates",ex.Message);
         }
 
@@ -55,7 +55,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
             {
                 FailuresCsv = fi
-            },new Target()));
+            },new Target(), new IgnoreRuleGenerator(),new RowUpdater()));
             StringAssert.Contains("An output path must be specified ",ex.Message);
         }
 
@@ -75,7 +75,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             {
                 FailuresCsv = fi,
                 UnattendedOutputPath = fiOut
-            }, new Target());
+            }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
 
             Assert.AreEqual(0,reviewer.Run());
             
@@ -111,7 +111,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             {
                 FailuresCsv = fi,
                 UnattendedOutputPath = fiOut
-            }, new Target());
+            }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
 
             Assert.AreEqual(0,reviewer.Run());
             
@@ -159,7 +159,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             {
                 FailuresCsv = fi,
                 UnattendedOutputPath = fiOut
-            }, new Target());
+            }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
 
             Assert.AreEqual(0,reviewer.Run());
             

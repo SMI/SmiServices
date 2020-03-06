@@ -5,22 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Rules;
+using Microservices.IsIdentifiable.Reporting;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
 namespace IsIdentifiableReviewer
 {
-    class MainWindow : View
+    class MainWindow : View,IRulePatternFactory
     {
         private readonly List<Target> _targets;
 
         public Target CurrentTarget { get; set; }
         public ReportReader CurrentReport { get; set; }
 
-        public IgnoreRuleGenerator Ignorer { get; set; } = new IgnoreRuleGenerator();
+        public IgnoreRuleGenerator Ignorer { get; }
 
-        public RowUpdater Updater { get; set; } = new RowUpdater();
+        public RowUpdater Updater { get;  } 
 
         public int DlgWidth = 78;
         public int DlgHeight = 18;
@@ -29,9 +29,12 @@ namespace IsIdentifiableReviewer
         private Label _info;
         private TextField _gotoTextField;
 
-        public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts)
+        public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
+            Ignorer = ignorer;
+            Updater = updater;
+
             X = 0;
             Y = 1;
             Width = Dim.Fill();
@@ -105,7 +108,17 @@ namespace IsIdentifiableReviewer
                 Clicked = ()=>GoToRelative(1)
             });
 
-            var cbRulesOnly = new CheckBox(23,1,"Rules Only",false);
+            var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
+            cbCustomPattern.Toggled += (c, s) =>
+            {
+                Updater.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
+                Ignorer.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
+            };
+            frame.Add(cbCustomPattern);
+
+            var cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
+            Updater.RulesOnly = opts.OnlyRules;
+
             cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = cbRulesOnly.Checked;};
             frame.Add(cbRulesOnly);
             
@@ -218,7 +231,7 @@ namespace IsIdentifiableReviewer
 
             try
             {
-                Updater.Update(CurrentTarget,_valuePane.CurrentFailure);
+                Updater.Update(CurrentTarget,_valuePane.CurrentFailure,true);
             }
             catch (Exception e)
             {
@@ -365,12 +378,90 @@ namespace IsIdentifiableReviewer
             chosen = result;
             return optionChosen;
         }
+         private bool GetText(string title, string message, string initialValue, out string chosen)
+         {
+            bool optionChosen = false;
+
+            var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
+
+            var line = DlgHeight - (DlgBoundary)*2 - 2;
+
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                int width = Math.Min(Console.WindowWidth,DlgWidth) - (DlgBoundary * 2);
+
+                var msg = Wrap(message, width-1).TrimEnd();
+
+                var text = new Label(0, 0, msg)
+                {
+                    Height = line - 1, Width = width
+                };
+
+                //if it is too long a message
+                int newlines = msg.Count(c => c == '\n');
+                if (newlines > line - 1)
+                {
+                    var view = new ScrollView(new Rect(0, 0, width, line - 1))
+                    {
+                        ContentSize = new Size(width, newlines + 1),
+                        ContentOffset = new Point(0, 0),
+                        ShowVerticalScrollIndicator = true,
+                        ShowHorizontalScrollIndicator = false
+                    };
+                    view.Add(text);
+                    dlg.Add(view);
+                }
+                else
+                    dlg.Add(text);
+            }
+
+            var txt = new TextField(0, line++, DlgWidth -4 ,initialValue ?? "");
+            dlg.Add(txt);
+
+            var btn = new Button(0, line, "Ok")
+            {
+                IsDefault = true,
+                Clicked = () =>
+                {
+                    dlg.Running = false;
+                    optionChosen = true;
+                }
+            };
+            dlg.Add(btn);
+
+            var btnClear = new Button(15, line, "Clear")
+            {
+                Clicked = () => { txt.Text = ""; }
+            };
+            dlg.Add(btnClear);
+
+            
+
+            dlg.FocusFirst();
+        
+
+            Application.Run(dlg);
+
+            chosen = txt.Text?.ToString();
+            return optionChosen;
+         }
          
          public static string Wrap(string s, int width)
          {
              var r = new Regex(@"(?:((?>.{1," + width + @"}(?:(?<=[^\S\r\n])[^\S\r\n]?|(?=\r?\n)|$|[^\S\r\n]))|.{1,16})(?:\r?\n)?|(?:\r?\n|$))");
              return r.Replace(s, "$1\n");
          }
-         
+
+         public string GetPattern(Failure failure)
+         {
+             var defaultFactory = new MatchWholeStringRulePatternFactory();
+             var recommendedPattern = defaultFactory.GetPattern(failure);
+
+             if(GetText("Pattern","Enter pattern to match failure",recommendedPattern, out string chosen))
+                return chosen;
+            
+             throw new Exception("User chose not to enter a pattern");
+         }
+
     }
 }

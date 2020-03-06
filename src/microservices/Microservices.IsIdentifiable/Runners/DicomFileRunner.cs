@@ -242,15 +242,15 @@ namespace Microservices.IsIdentifiable.Runners
             }
             catch (Exception e)
             {
-                // XXX ideally we should return an error code indicating unable to verify
-                // XXX instead we add a message to the report saying we failed to run OCR
+                // An internal error should cause IsIdentifiable to exit
                 _logger.Info(e, "Could not run Tesseract on '" + fi.FullName + "'");
-                //throw new Exception ("Could not run Tesseract on '" + fi.FullName + "'", e);
+                throw new Exception ("Could not run Tesseract on '" + fi.FullName + "'", e);
 
-                string problemField = "PixelData";
-                string text = "Error running OCR on pixel data: "+e;
-                var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
-                AddToReports(f);
+                // OR add a message to the report saying we failed to run OCR
+                //string problemField = "PixelData";
+                //string text = "Error running OCR on pixel data: "+e;
+                //var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
+                //AddToReports(f);
                 // XXX do we need this?
                 //_tesseractReport.FoundPixelData(fi, sopID, pixelFormat, processedPixelFormat, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny);
             }
