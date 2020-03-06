@@ -12,7 +12,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
     public class AccessionDirectoryLister : DicomDirectoryFinder
     {
         // Regex that matches when we are at the yyyy\mm\dd\xxxxx directory level
-        private readonly Regex _accDirectoryRegex = new Regex(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2})[\\\/]\w+[^.]*?$");
+        private readonly Regex _accDirectoryRegex = new Regex(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2}[\\\/][a-zA-Z0-9._-]+[\\\/]$)");
 
         public AccessionDirectoryLister(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
         : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel) { }

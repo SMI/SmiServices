@@ -24,21 +24,40 @@ namespace Applications.DicomDirectoryProcessor.Tests
         public void TestRegexMatches()
         {
             string rootDir = Path.GetFullPath("/PACS");
-            string testFile = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/testDicom.dcm"));
             var mockFs = new MockFileSystem();
+            
+	    string testFile = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/testDicom.dcm"));
             mockFs.AddFile(testFile, MockFileData.NullObject);
 
-            // Test case, expected messages
+	    string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2016/01/01/E-12345/testDicom.dcm"));
+            mockFs.AddFile(specialCase1, MockFileData.NullObject);
+	    
+	    string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2017/01/01/01.01.2017/testDicom.dcm"));
+            mockFs.AddFile(specialCase2, MockFileData.NullObject);
+	    
+	    string multiLayer1 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/E-12345/testDicom.dcm"));
+            mockFs.AddFile(multiLayer1, MockFileData.NullObject);
+	    
+	    string multiLayer2 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/AAA/testDicom.dcm"));
+            mockFs.AddFile(multiLayer2, MockFileData.NullObject);
+	    
+	    string multiLayer3 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/BBB/testDicom.dcm"));
+            mockFs.AddFile(multiLayer3, MockFileData.NullObject);
+            
+	    // Test case, expected messages
             var testCases = new Dictionary<string, int>
             {
-                { "2018",               1 },
-                { "2018/",              1 },
-                { "2018/01",            1 },
-                { "2018/01/",           1 },
-                { "2018/01/01",         1 },
-                { "2018/01/01/",        1 },
-                { "2018/01/01/AAA",     1 },
-                { "2018/01/01/AAA/",    1 }
+                { "2018",                   1 },
+                { "2018/",                  1 },
+                { "2018/01",                1 },
+                { "2018/01/",               1 },
+                { "2018/01/01",             1 },
+                { "2018/01/01/",            1 },
+                { "2015/01/01/",            3 },
+                { "2018/01/01/AAA",         0 },
+                { "2018/01/01/AAA/",        1 },
+                { "2016/01/01/E-12345/",    1 },
+                { "2017/01/01/01.01.2017/", 1 }
             };
 
             var totalSent = 0;
