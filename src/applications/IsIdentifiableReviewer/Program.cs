@@ -48,13 +48,22 @@ namespace IsIdentifiableReviewer
                     returnCode = -1;
                     return;
                 }
-                    
-                targets = d.Deserialize<List<Target>>(File.ReadAllText(file.FullName));
 
-                if (!targets.Any())
+                var contents = File.ReadAllText(file.FullName);
+
+                if (string.IsNullOrWhiteSpace(contents))
                 {
                     Console.Write($"Targets file is empty '{file.FullName}'");
                     returnCode = -2;
+                    return;
+                }
+
+                targets = d.Deserialize<List<Target>>(contents);
+
+                if (!targets.Any())
+                {
+                    Console.Write($"Targets file did not contain any valid targets '{file.FullName}'");
+                    returnCode = -3;
                     return;
                 }
             }
@@ -62,16 +71,27 @@ namespace IsIdentifiableReviewer
             {
                 Console.WriteLine($"Error deserializing '{opts.TargetsFile}'");
                 Console.WriteLine(e.Message);
-                returnCode = -3;
+                returnCode = -4;
                 return;
             }
 
             Console.WriteLine("Running Connection Tests");
 
-            foreach (Target t in targets)
-                Console.WriteLine(t.Discover().Exists()
-                    ? $"Successfully connected to {t.Name}"
-                    : $"Failed to connect to {t.Name}");
+            try
+            {
+                foreach (Target t in targets)
+                    Console.WriteLine(t.Discover().Exists()
+                        ? $"Successfully connected to {t.Name}"
+                        : $"Failed to connect to {t.Name}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error Validating Targets");
+                Console.WriteLine(e.ToString());
+                returnCode = -10;
+                return;
+
+            }
 
                         
             var updater = new RowUpdater(new FileInfo(opts.RedList));
@@ -105,7 +125,7 @@ namespace IsIdentifiableReviewer
                 Application.RequestStop();
 
                 Console.Write(e);
-                returnCode = -1;
+                returnCode = -99;
                 return;
             }
 

@@ -116,7 +116,9 @@ namespace IsIdentifiableReviewer
             };
             frame.Add(cbCustomPattern);
 
-            var cbRulesOnly = new CheckBox(23,2,"Rules Only",false);
+            var cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
+            Updater.RulesOnly = opts.OnlyRules;
+
             cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = cbRulesOnly.Checked;};
             frame.Add(cbRulesOnly);
             
@@ -413,10 +415,10 @@ namespace IsIdentifiableReviewer
                     dlg.Add(text);
             }
 
-            var txt = new TextField(0, line++, DlgWidth,initialValue ?? "");
+            var txt = new TextField(0, line++, DlgWidth -4 ,initialValue ?? "");
             dlg.Add(txt);
 
-            var btn = new Button(0, line++, "Ok")
+            var btn = new Button(0, line, "Ok")
             {
                 IsDefault = true,
                 Clicked = () =>
@@ -425,9 +427,15 @@ namespace IsIdentifiableReviewer
                     optionChosen = true;
                 }
             };
-
-
             dlg.Add(btn);
+
+            var btnClear = new Button(15, line, "Clear")
+            {
+                Clicked = () => { txt.Text = ""; }
+            };
+            dlg.Add(btnClear);
+
+            
 
             dlg.FocusFirst();
         

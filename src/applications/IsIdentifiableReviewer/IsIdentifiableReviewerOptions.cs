@@ -39,5 +39,12 @@ namespace IsIdentifiableReviewer
         )]
         public string RedList { get; set; }
 
+
+        [Option('o', "only-rules",
+            Required = false,
+            Default = false,
+            HelpText = "Specify to make GUI UPDATE choices only create new rules instead of going to database"
+        )]
+        public bool OnlyRules { get; set; }
     }
 }
