@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+ - IsIdentifiable microservice was started with --service but can now be started with the service verb allowing it to take additional options. It should now be started with `service -y file.yaml`
+ - IsIdentifiable no longer reads Rules.yaml from the current directory. It now has a command line option --RulesDirectory, to go with the already existing --RulesFile. That will read all *.yaml files in the given directory. However when run as a microservice the yaml file specifies a DataDirectory; the RulesDirectory will implicitly be a subdirectory called IsIdentifiableRules from which all *.yaml files will be read.
+
 ...
 
 ## [1.5.1] - 2020-03-06
