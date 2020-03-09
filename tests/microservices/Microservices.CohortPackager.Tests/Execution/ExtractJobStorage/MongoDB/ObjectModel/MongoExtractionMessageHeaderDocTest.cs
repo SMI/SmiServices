@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -30,6 +31,13 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         #endregion
 
         #region Tests
+
+        [Test]
+        public void TestMongoExtractionMessageHeaderDoc_SettersAvailable()
+        {
+            foreach (PropertyInfo p in typeof(MongoExtractionMessageHeaderDoc).GetProperties())
+                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+        }
 
         [Test]
         public void TestMongoExtractionMessageHeaderDoc_FromMessageHeader()
