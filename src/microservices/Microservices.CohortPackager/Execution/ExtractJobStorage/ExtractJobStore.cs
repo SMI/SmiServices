@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
             // If KeyTag is StudyInstanceUID then ExtractionModality must be specified, otherwise must be null
             if (message.KeyTag == "StudyInstanceUID" ^ !string.IsNullOrWhiteSpace(message.ExtractionModality))
-                throw new ApplicationException("Invalid combination of KeyTag and ExtractionModality");
+                throw new ApplicationException($"Invalid combination of KeyTag and ExtractionModality (KeyTag={message.KeyTag}, ExtractionModality={message.ExtractionModality}");
 
             PersistMessageToStoreImpl(message, header);
         }
@@ -34,8 +34,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public void PersistMessageToStore(ExtractFileCollectionInfoMessage message, IMessageHeader header)
         {
             Logger.Info($"Received new file collection info {message}");
-
-            // TODO(rkm 2020-02-04) Handle message.RejectionReasons
             PersistMessageToStoreImpl(message, header);
         }
 
@@ -49,33 +47,38 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public void PersistMessageToStore(IsIdentifiableMessage message, IMessageHeader header)
         {
+            if (string.IsNullOrWhiteSpace(message.AnonymisedFileName))
+                throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
+            if (message.IsIdentifiable ^ !string.IsNullOrWhiteSpace(message.Report))
+                throw new ApplicationException($"Invalid combination of IsIdentifiable and Report (KeyTag={message.IsIdentifiable}, ExtractionModality={message.Report}");
+
             PersistMessageToStoreImpl(message, header);
         }
 
-        public List<ExtractJobInfo> GetLatestJobInfo(Guid jobId = new Guid())
+        public List<ExtractJobInfo> GetReadyJobs(Guid jobId = new Guid())
         {
             Logger.Debug("Getting job info for " + (jobId != Guid.Empty ? jobId.ToString() : "all active jobs"));
-            return GetLatestJobInfoImpl(jobId);
+            return GetReadyJobsImpl(jobId);
         }
 
-        public void CleanupJobData(Guid jobId)
+        public void MarkJobCompleted(Guid jobId)
         {
-            Logger.Debug($"Cleaning up job data for {jobId}");
-            CleanupJobDataImpl(jobId);
+            Logger.Debug($"Marking job {jobId} as completed");
+            CompleteJobImpl(jobId);
         }
 
-        public void QuarantineJob(Guid jobId, Exception e)
+        public void MarkJobFailed(Guid jobId, Exception e)
         {
-            Logger.Debug($"Quarantining job data for {jobId}");
-            QuarantineJobImpl(jobId, e);
+            Logger.Debug($"Marking job {jobId} as failed");
+            MarkJobFailedImpl(jobId, e);
         }
 
         protected abstract void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(IsIdentifiableMessage message, IMessageHeader header);
-        protected abstract List<ExtractJobInfo> GetLatestJobInfoImpl(Guid jobId = new Guid());
-        protected abstract void CleanupJobDataImpl(Guid jobId);
-        protected abstract void QuarantineJobImpl(Guid jobId, Exception e);
+        protected abstract List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid());
+        protected abstract void CompleteJobImpl(Guid jobId);
+        protected abstract void MarkJobFailedImpl(Guid jobId, Exception e);
     }
 }

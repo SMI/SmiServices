@@ -131,9 +131,10 @@ namespace Smi.Common.Messages
             return sb.ToString();
         }
 
+        // TODO(rkm 2020-03-08) Can't we just use the DateTime.UnixEpoch value here?
         public static long UnixTimeNow() => UnixTime(DateTime.UtcNow);
-
         public static long UnixTime(DateTime dateTime) => (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+        public static DateTime UnixTimeToDateTime(long unixTime) => new DateTime(1970, 1, 1, 0, 0, 0) + TimeSpan.FromSeconds(unixTime);
 
         public static Guid[] GetGuidArray(string str)
         {

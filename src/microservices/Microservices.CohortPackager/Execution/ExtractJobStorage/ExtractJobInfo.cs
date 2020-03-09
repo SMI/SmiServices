@@ -1,9 +1,9 @@
-
-using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
+using Smi.Common.Messages.Extraction;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 {
@@ -15,98 +15,77 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <summary>
         /// Unique identifier for this extract job. In the Mongo store implementation, this is also the _id of the document
         /// </summary>
-        public readonly Guid ExtractionJobIdentifier;
+        public Guid ExtractionJobIdentifier { get; }
 
         /// <summary>
         /// DateTime the job was submitted at (time the ExtractorCL was run)
         /// </summary>
-        public readonly DateTime JobSubmittedAt;
+        public DateTime JobSubmittedAt { get; }
 
         /// <summary>
         /// Reference number for the project
         /// </summary>
-        public readonly string ProjectNumber;
+        [NotNull]
+        public string ProjectNumber { get; }
 
         /// <summary>
         /// Working directory for this project
         /// </summary>
-        public readonly string ExtractionDirectory;
+        [NotNull]
+        public string ExtractionDirectory { get; }
 
         /// <summary>
         /// The DICOM tag of the identifier we are extracting (i.e. "SeriesInstanceUID")
         /// </summary>
-        public readonly string KeyTag;
+        [NotNull]
+        public string KeyTag { get; }
 
         /// <summary>
         /// Total number of expected distinct identifiers (i.e. number of distinct SeriesInstanceUIDs that are expected to be extracted)
         /// </summary>
-        public readonly int KeyValueCount;
+        public uint KeyValueCount { get; }
 
-        public readonly string ExtractionModality;
+        /// <summary>
+        /// The modality being extracted
+        /// </summary>
+        [CanBeNull]
+        public string ExtractionModality { get; }
 
         /// <summary>
         /// Current status of the extract job
         /// </summary>
-        public readonly ExtractJobStatus JobStatus;
+        public ExtractJobStatus JobStatus { get; }
 
-        /// <summary>
-        /// Data from the <see cref="ExtractFileCollectionInfoMessage"/>(s) for this job
-        /// </summary>
-        public readonly List<ExtractFileCollectionInfo> JobFileCollectionInfo;
-
-        //TODO Move this down a level
-        /// <summary>
-        /// Data from the <see cref="ExtractFileStatusMessage"/>(s) for this job
-        /// </summary>
-        public readonly List<ExtractFileStatusInfo> JobExtractFileStatuses;
-
-
-        public ExtractJobInfo(Guid extractionJobIdentifier, string projectNumber, DateTime jobSubmittedAt, ExtractJobStatus jobStatus, string extractionDirectory, int keyValueCount, string keyTag, List<ExtractFileCollectionInfo> jobFileCollectionInfo, List<ExtractFileStatusInfo> jobExtractFileStatuses, string extractionModality)
+        public ExtractJobInfo(
+            Guid extractionJobIdentifier,
+            DateTime jobSubmittedAt,
+            [NotNull] string projectNumber,
+            [NotNull] string extractionDirectory,
+            [NotNull] string keyTag,
+            uint keyValueCount,
+            [CanBeNull] string extractionModality,
+            ExtractJobStatus jobStatus)
         {
-            ExtractionJobIdentifier = extractionJobIdentifier;
-            ProjectNumber = projectNumber;
-            JobSubmittedAt = jobSubmittedAt;
-            JobStatus = jobStatus;
-            ExtractionDirectory = extractionDirectory;
-            KeyValueCount = keyValueCount;
-            KeyTag = keyTag;
-            JobFileCollectionInfo = jobFileCollectionInfo;
-            JobExtractFileStatuses = jobExtractFileStatuses;
-            ExtractionModality = extractionModality;
-
-            if (!Validate())
-                throw new ArgumentException($"The given parameters were not valid (values were {this})");
-        }
-
-
-        private bool Validate()
-        {
-            var isValid = true;
-            isValid &= ExtractionJobIdentifier != Guid.Empty;
-            isValid &= !string.IsNullOrWhiteSpace(ProjectNumber);
-            isValid &= JobSubmittedAt != default(DateTime);
-            isValid &= JobStatus != ExtractJobStatus.Unknown;
-            isValid &= !string.IsNullOrWhiteSpace(ExtractionDirectory);
-            isValid &= KeyValueCount > 0;
-            isValid &= !string.IsNullOrWhiteSpace(KeyTag);
-            isValid &= (JobFileCollectionInfo != null && JobFileCollectionInfo.Count == KeyValueCount);
-            isValid &= JobExtractFileStatuses != null;
-            return isValid;
+            ExtractionJobIdentifier = (extractionJobIdentifier != default) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
+            JobSubmittedAt = (jobSubmittedAt != default) ? jobSubmittedAt : throw new ArgumentNullException(nameof(jobSubmittedAt));
+            ProjectNumber = (!string.IsNullOrWhiteSpace(projectNumber)) ? projectNumber : throw new ArgumentNullException(nameof(projectNumber));
+            ExtractionDirectory = (!string.IsNullOrWhiteSpace(extractionDirectory)) ? extractionDirectory : throw new ArgumentNullException(nameof(extractionDirectory));
+            KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentNullException(nameof(keyTag));
+            KeyValueCount = (keyValueCount > 0) ? keyValueCount : throw new ArgumentNullException(nameof(keyValueCount));
+            if (extractionModality != null)
+                ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
+            JobStatus = (jobStatus != default) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-
             sb.AppendLine("ExtractionJobIdentifier: " + ExtractionJobIdentifier);
             sb.AppendLine("JobStatus: " + JobStatus);
             sb.AppendLine("ExtractionDirectory: " + ExtractionDirectory);
             sb.AppendLine("KeyTag: " + KeyTag);
             sb.AppendLine("KeyCount: " + KeyValueCount);
             sb.AppendLine("ExtractionModality: " + ExtractionModality);
-            sb.AppendLine("JobFileCollectionInfo:\n" + string.Join(", ", JobFileCollectionInfo));
-            sb.AppendLine("JobExtractFileStatuses:\n" + string.Join(", ", JobExtractFileStatuses));
-
             return sb.ToString();
         }
 
@@ -116,40 +95,40 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-
-            var isValid = true;
-            isValid &= ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier);
-            isValid &= JobStatus == other.JobStatus;
-            isValid &= string.Equals(ExtractionDirectory, other.ExtractionDirectory);
-            isValid &= KeyValueCount == other.KeyValueCount;
-            isValid &= string.Equals(KeyTag, other.KeyTag);
-            isValid &= JobFileCollectionInfo.Count == other.JobFileCollectionInfo.Count;
-            isValid &= JobFileCollectionInfo.All(other.JobFileCollectionInfo.Contains);
-            isValid &= JobExtractFileStatuses.Count == other.JobExtractFileStatuses.Count;
-            isValid &= JobExtractFileStatuses.All(other.JobExtractFileStatuses.Contains);
-            isValid &= ExtractionModality == other.ExtractionModality;
-            return isValid;
+            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
+                   JobSubmittedAt.Equals(other.JobSubmittedAt) &&
+                   ProjectNumber == other.ProjectNumber &&
+                   ExtractionDirectory == other.ExtractionDirectory &&
+                   KeyTag == other.KeyTag &&
+                   KeyValueCount == other.KeyValueCount &&
+                   ExtractionModality == other.ExtractionModality &&
+                   JobStatus == other.JobStatus;
         }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ExtractJobInfo)obj);
+            if (obj.GetType() != GetType()) return false;
+            return Equals((ExtractJobInfo)obj);
         }
+
+        public static bool operator ==(ExtractJobInfo left, ExtractJobInfo right) => Equals(left, right);
+
+        public static bool operator !=(ExtractJobInfo left, ExtractJobInfo right) => !Equals(left, right);
 
         public override int GetHashCode()
         {
             unchecked
             {
                 int hashCode = ExtractionJobIdentifier.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)JobStatus;
-                hashCode = (hashCode * 397) ^ (ExtractionDirectory != null ? ExtractionDirectory.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ KeyValueCount;
-                hashCode = (hashCode * 397) ^ (KeyTag != null ? KeyTag.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (JobFileCollectionInfo != null ? JobFileCollectionInfo.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (JobExtractFileStatuses != null ? JobExtractFileStatuses.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();
+                hashCode = (hashCode * 397) ^ ProjectNumber.GetHashCode();
+                hashCode = (hashCode * 397) ^ ExtractionDirectory.GetHashCode();
+                hashCode = (hashCode * 397) ^ KeyTag.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int)KeyValueCount;
                 hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int)JobStatus;
                 return hashCode;
             }
         }
@@ -157,87 +136,69 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         #endregion
     }
 
+    // TODO(rkm 2020-03-09) Now only needed for reporting - check if we still need all the properties
     /// <summary>
     /// Container class to store information from a single <see cref="ExtractFileCollectionInfoMessage"/>
     /// </summary>
-    public sealed class ExtractFileCollectionInfo : IEquatable<ExtractFileCollectionInfo>
+    public class ExtractFileCollectionInfo
     {
         /// <summary>
         /// Value matched to each of the files sent for anonymisation
         /// </summary>
-        public readonly string KeyValue;
+        [NotNull]
+        public string KeyValue { get; }
 
         /// <summary>
         /// List of all the expected anonymised file paths, relative to the ExtractionDirectory
         /// </summary>
-        public readonly List<string> ExpectedAnonymisedFiles;
+        [NotNull]
+        public List<string> ExpectedAnonymisedFiles { get; }
 
+        /// <summary>
+        /// Information on all the matched files which were rejected before anonymisation. Can be empty
+        /// </summary>
+        [NotNull]
+        public Dictionary<string, int> RejectionInfo { get; }
 
-        public ExtractFileCollectionInfo(string keyValue, List<string> expectedAnonymisedFiles)
+        public ExtractFileCollectionInfo(
+            [NotNull] string keyValue,
+            [NotNull] List<string> expectedAnonymisedFiles,
+            [NotNull] Dictionary<string, int> rejectionInfo)
         {
-            KeyValue = keyValue;
-            ExpectedAnonymisedFiles = expectedAnonymisedFiles;
-
-            if (!Validate())
-                throw new ArgumentException("The given parameters were not valid (values were " + ToString() + ")");
-        }
-
-
-        private bool Validate()
-        {
-            return !string.IsNullOrWhiteSpace(KeyValue) &&
-                   ExpectedAnonymisedFiles != null &&
-                   ExpectedAnonymisedFiles.Count > 0;
-        }
-
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("Key: " + KeyValue);
-            sb.AppendLine("ExpectedAnonymisedFiles:\n" + string.Join(", ", ExpectedAnonymisedFiles));
-
-            return sb.ToString();
+            KeyValue = (!string.IsNullOrWhiteSpace(keyValue)) ? keyValue : throw new ArgumentNullException(nameof(keyValue));
+            ExpectedAnonymisedFiles = (expectedAnonymisedFiles.Count > 0) ? expectedAnonymisedFiles : throw new ArgumentNullException(nameof(expectedAnonymisedFiles));
+            RejectionInfo = rejectionInfo ?? throw new ArgumentNullException(nameof(rejectionInfo));
         }
 
         #region Equality Members
 
-        public bool Equals(ExtractFileCollectionInfo other)
+        private bool Equals(ExtractFileCollectionInfo other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return string.Equals(KeyValue, other.KeyValue) &&
-                   ExpectedAnonymisedFiles.All(other.ExpectedAnonymisedFiles.Contains);
+            return KeyValue == other.KeyValue &&
+                   ExpectedAnonymisedFiles.OrderBy(x => x).SequenceEqual(other.ExpectedAnonymisedFiles.OrderBy(x => x)) &&
+                   RejectionInfo.OrderBy(x => x.Key).SequenceEqual(other.RejectionInfo.OrderBy(x => x.Key));
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is ExtractFileCollectionInfo && Equals((ExtractFileCollectionInfo)obj);
+            return ReferenceEquals(this, obj) || obj is ExtractFileCollectionInfo other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((KeyValue != null ? KeyValue.GetHashCode() : 0) * 397) ^ (ExpectedAnonymisedFiles != null ? ExpectedAnonymisedFiles.GetHashCode() : 0);
+                int hashCode = KeyValue.GetHashCode();
+                hashCode = (hashCode * 397) ^ ExpectedAnonymisedFiles.Distinct().Aggregate(0, (x, y) => x.GetHashCode() ^ y.GetHashCode());
+                hashCode = (hashCode * 397) ^ RejectionInfo.Distinct().Aggregate(0, (x, y) => x.GetHashCode() ^ y.GetHashCode());
+                return hashCode;
             }
-        }
-
-        public static bool operator ==(ExtractFileCollectionInfo left, ExtractFileCollectionInfo right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(ExtractFileCollectionInfo left, ExtractFileCollectionInfo right)
-        {
-            return !Equals(left, right);
         }
 
         #endregion
     }
 
+    // TODO(rkm 2020-03-09) Now only needed for reporting - check if we still need all the properties
     /// <summary>
     /// Container class to store information from a single <see cref="ExtractFileStatusMessage"/>
     /// </summary>
@@ -246,49 +207,39 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <summary>
         /// Status for this anonymised file
         /// </summary>
-        public readonly ExtractFileStatus Status;
+        public ExtractFileStatus Status { get; }
 
         /// <summary>
         /// Filename for the anonymised file, if it exists, otherwise null
         /// </summary>
-        public readonly string AnonymisedFileName;
+        [CanBeNull]
+        public string AnonymisedFileName { get; }
 
         /// <summary>
         /// Optional message if the file could not be anonymised
         /// </summary>
-        public readonly string StatusMessage;
+        [CanBeNull]
+        public string StatusMessage { get; }
 
-
-        public ExtractFileStatusInfo(string status, string anonymisedFileName, string statusMessage)
-            : this(status)
+        public ExtractFileStatusInfo(
+            ExtractFileStatus status,
+            [CanBeNull] string anonymisedFileName,
+            [CanBeNull] string statusMessage)
         {
-            AnonymisedFileName = anonymisedFileName;
-            StatusMessage = statusMessage;
+            Status = (status != default) ? status : throw new ArgumentException(nameof(status));
 
-            if (!Validate())
-                throw new ArgumentException("The given parameters were not valid (values were " + ToString() + ")");
-        }
-
-        private ExtractFileStatusInfo(string stringStatus)
-        {
-            ExtractFileStatus parsed;
-
-            Status = Enum.TryParse(stringStatus, out parsed)
-                ? parsed
-                : ExtractFileStatus.Unknown;
-        }
-
-        private bool Validate()
-        {
-            return Status != ExtractFileStatus.Unknown &&
-                   ValidateOptionals();
-        }
-
-        private bool ValidateOptionals()
-        {
-            return Status == ExtractFileStatus.Anonymised ?
-                !string.IsNullOrWhiteSpace(AnonymisedFileName) :
-                !string.IsNullOrWhiteSpace(StatusMessage);
+            if (Status == ExtractFileStatus.Anonymised)
+            {
+                if (string.IsNullOrWhiteSpace(anonymisedFileName))
+                    throw new ArgumentException("Status is Anonymised, but AnonymisedFileName is null");
+                AnonymisedFileName = anonymisedFileName;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(statusMessage))
+                    throw new ArgumentException("Status is not Anonymised, but StatusMessage is null");
+                StatusMessage = statusMessage;
+            }
         }
 
         public override string ToString()
@@ -318,6 +269,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return obj is ExtractFileStatusInfo && Equals((ExtractFileStatusInfo)obj);
         }
 
+        public static bool operator ==(ExtractFileStatusInfo left, ExtractFileStatusInfo right) => Equals(left, right);
+
+        public static bool operator !=(ExtractFileStatusInfo left, ExtractFileStatusInfo right) => !Equals(left, right);
+
         public override int GetHashCode()
         {
             unchecked
@@ -327,16 +282,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 hashCode = (hashCode * 397) ^ (StatusMessage != null ? StatusMessage.GetHashCode() : 0);
                 return hashCode;
             }
-        }
-
-        public static bool operator ==(ExtractFileStatusInfo left, ExtractFileStatusInfo right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(ExtractFileStatusInfo left, ExtractFileStatusInfo right)
-        {
-            return !Equals(left, right);
         }
 
         #endregion

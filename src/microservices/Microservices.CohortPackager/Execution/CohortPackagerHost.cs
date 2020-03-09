@@ -1,5 +1,4 @@
 using System;
-using System.IO.Abstractions;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
@@ -16,7 +15,7 @@ namespace Microservices.CohortPackager.Execution
         /// <summary>
         /// The process which monitors for extract jobs being completed
         /// </summary>
-        public readonly ExtractJobWatcher JobWatcher;
+        private readonly ExtractJobWatcher _jobWatcher;
 
         private readonly ExtractionRequestInfoMessageConsumer _requestInfoMessageConsumer;
         private readonly ExtractFileCollectionMessageConsumer _fileCollectionMessageConsumer;
@@ -24,18 +23,18 @@ namespace Microservices.CohortPackager.Execution
         private readonly AnonFailedMessageConsumer _anonFailedMessageConsumer;
 
 
-        public CohortPackagerHost(GlobalOptions globals, IFileSystem overrideFileSystem = null, bool loadSmiLogConfig = true)
+        public CohortPackagerHost(GlobalOptions globals, bool loadSmiLogConfig = true)
             : base(globals, loadSmiLogConfig)
         {
             // Connect to store & validate etc.
             MongoDbOptions opts = Globals.MongoDatabases.ExtractionStoreOptions;
-            IMongoDatabase database = MongoClientHelpers.GetMongoClient(opts, "CohortPackager").GetDatabase(opts.DatabaseName);
-            var jobStore = new MongoExtractJobStore(database);
+            MongoClient client = MongoClientHelpers.GetMongoClient(opts, HostProcessName);
+            var jobStore = new MongoExtractJobStore(client, opts.DatabaseName);
 
             // Setup the watcher for completed jobs
-            JobWatcher = new ExtractJobWatcher(globals.CohortPackagerOptions, globals.FileSystemOptions, jobStore, ExceptionCallback, overrideFileSystem ?? new FileSystem());
+            _jobWatcher = new ExtractJobWatcher(globals.CohortPackagerOptions, jobStore, ExceptionCallback);
 
-            AddControlHandler(new CohortPackagerControlMessageHandler(JobWatcher));
+            AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 
             // Setup our consumers
             _requestInfoMessageConsumer = new ExtractionRequestInfoMessageConsumer(jobStore);
@@ -48,9 +47,9 @@ namespace Microservices.CohortPackager.Execution
         {
             Logger.Debug("Starting host");
 
-            JobWatcher.Start();
+            _jobWatcher.Start();
 
-            // NOTE(rkm 2020-02-06) For now, there can be only 1 instance of this service managing a single extraction database
+            // TODO(rkm 2020-03-02) Once this is transactional, we can have one "master" service which actually does the job checking
             RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.ExtractRequestInfoOptions, _requestInfoMessageConsumer, isSolo: true);
             RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions, _fileCollectionMessageConsumer, isSolo: true);
             RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.AnonFailedOptions, _anonFailedMessageConsumer, isSolo: true);
@@ -59,7 +58,7 @@ namespace Microservices.CohortPackager.Execution
 
         public override void Stop(string reason)
         {
-            JobWatcher.StopProcessing("Host - " + reason);
+            _jobWatcher.StopProcessing("Host - " + reason);
 
             base.Stop(reason);
         }

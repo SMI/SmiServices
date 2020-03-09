@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -10,6 +9,7 @@ using Smi.Common.Tests;
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 {
+
     [TestFixture]
     public class ExtractJobStoreTest
     {
@@ -30,15 +30,15 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         [TearDown]
         public void TearDown() { }
 
-        private class MockExtractJobStore : ExtractJobStore
+        private class TestExtractJobStore : ExtractJobStore
         {
             protected override void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header) { }
-            protected override void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header) { }
+            protected override void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header) => throw new NotImplementedException();
             protected override void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header) { }
             protected override void PersistMessageToStoreImpl(IsIdentifiableMessage message, IMessageHeader header) { }
-            protected override List<ExtractJobInfo> GetLatestJobInfoImpl(Guid jobId = new Guid()) => throw new NotImplementedException();
-            protected override void CleanupJobDataImpl(Guid jobId) { }
-            protected override void QuarantineJobImpl(Guid jobId, Exception e) { }
+            protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid()) => throw new NotImplementedException();
+            protected override void CompleteJobImpl(Guid jobId) => throw new NotImplementedException();
+            protected override void MarkJobFailedImpl(Guid jobId, Exception e) => throw new NotImplementedException();
         }
 
         #endregion
@@ -48,41 +48,72 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         [Test]
         public void TestPersistMessageToStore_ExtractionRequestInfoMessage()
         {
-            var mockJobStore = new MockExtractJobStore();
-            var testMessage = new ExtractionRequestInfoMessage();
-            var mockHeader = new Mock<IMessageHeader>();
+            var testExtractJobStore = new TestExtractJobStore();
+            var message = new ExtractionRequestInfoMessage();
+            var mockHeader = new MessageHeader();
 
-            // TODO(rkm 2020-02-27) Use the ExtractionKey enum
-            testMessage.KeyTag = "SeriesInstanceUID";
-            testMessage.ExtractionModality = null;
-            mockJobStore.PersistMessageToStore(testMessage, mockHeader.Object);
+            message.KeyTag = "SeriesInstanceUID";
+            message.ExtractionModality = null;
+            testExtractJobStore.PersistMessageToStore(message, mockHeader);
 
-            testMessage.KeyTag = "StudyInstanceUID";
-            testMessage.ExtractionModality = "MR";
-            mockJobStore.PersistMessageToStore(testMessage, mockHeader.Object);
+            message.KeyTag = "StudyInstanceUID";
+            message.ExtractionModality = "MR";
+            testExtractJobStore.PersistMessageToStore(message, mockHeader);
 
-            testMessage.KeyTag = "StudyInstanceUID";
-            testMessage.ExtractionModality = null;
-            Assert.Throws<ApplicationException>(() => mockJobStore.PersistMessageToStore(testMessage, mockHeader.Object));
+            message.KeyTag = "StudyInstanceUID";
+            message.ExtractionModality = null;
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, mockHeader));
 
-            testMessage.KeyTag = "SeriesInstanceUID";
-            testMessage.ExtractionModality = "MR";
-            Assert.Throws<ApplicationException>(() => mockJobStore.PersistMessageToStore(testMessage, mockHeader.Object));
+            message.KeyTag = "SeriesInstanceUID";
+            message.ExtractionModality = "MR";
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, mockHeader));
         }
 
         [Test]
         public void TestPersistMessageToStore_ExtractFileStatusMessage()
         {
-            var mockJobStore = new MockExtractJobStore();
-            var testMessage = new ExtractFileStatusMessage();
-            var mockHeader = new Mock<IMessageHeader>();
+            var testExtractJobStore = new TestExtractJobStore();
+            var message = new ExtractFileStatusMessage();
+            var header = new MessageHeader();
 
-            // TODO(rkm 2020-02-27) Use the ExtractionKey enum
-            testMessage.Status = ExtractFileStatus.Unknown;
-            mockJobStore.PersistMessageToStore(testMessage, mockHeader.Object);
+            message.Status = ExtractFileStatus.Unknown;
+            testExtractJobStore.PersistMessageToStore(message, header);
 
-            testMessage.Status = ExtractFileStatus.Anonymised;
-            Assert.Throws<ApplicationException>(() => mockJobStore.PersistMessageToStore(testMessage, mockHeader.Object));
+            message.Status = ExtractFileStatus.Anonymised;
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
+        }
+
+        [Test]
+        public void TestPersistMessageToStore_IsIdentifiableMessage()
+        {
+            var testExtractJobStore = new TestExtractJobStore();
+            var message = new IsIdentifiableMessage();
+            var header = new MessageHeader();
+
+            // Must have AnonymisedFileName
+            message.AnonymisedFileName = "";
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
+
+            // Must have report if IsIdentifiable
+            message.AnonymisedFileName = "anon.dcm";
+            message.IsIdentifiable = true;
+            message.Report = "";
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
+
+            // Shouldn't have report if not IsIdentifiable
+            message.IsIdentifiable = false;
+            message.Report = "report";
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
+
+            // Otherwise ok
+
+            message.IsIdentifiable = false;
+            message.Report = "";
+            testExtractJobStore.PersistMessageToStore(message, header);
+
+            message.IsIdentifiable = true;
+            message.Report = "report";
+            testExtractJobStore.PersistMessageToStore(message, header);
         }
 
         #endregion

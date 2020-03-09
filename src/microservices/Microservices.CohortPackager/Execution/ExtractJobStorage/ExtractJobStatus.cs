@@ -6,29 +6,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
     /// </summary>
     public enum ExtractJobStatus
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        Unknown = -1,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        WaitingForJobInfo,
-
-        /// <summary>
-        /// 
-        /// </summary>
+        Unknown,
         WaitingForCollectionInfo,
-
-        /// <summary>
-        /// 
-        /// </summary>
         WaitingForStatuses,
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        Archived
+        ReadyForChecks,
+        Completed,
+        Failed,
     }
 }

@@ -5,7 +5,7 @@ using Smi.Common.Helpers;
 namespace Smi.Common.Tests
 {
     /// <summary>
-    /// Helper class for working with DateTime's in test methods
+    /// Helper class for working with DateTimes in test methods. Returns a constant DateTime
     /// </summary>
     public class TestDateTimeProvider : DateTimeProvider
     {

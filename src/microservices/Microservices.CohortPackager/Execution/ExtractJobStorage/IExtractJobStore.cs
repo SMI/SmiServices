@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using System;
@@ -40,23 +40,23 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         void PersistMessageToStore(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header);
 
         /// <summary>
-        /// Returns a list of all jobs which are in progress (where status is <see cref="ExtractJobStatus.WaitingForStatuses"/>)
+        /// Returns a list of all jobs which are ready for final checks
         /// </summary>
         /// <param name="extractionJobIdentifier">A specific job to get <see cref="ExtractJobInfo"/> for. Empty returns all jobs in progress</param>
         /// <returns></returns>
-        List<ExtractJobInfo> GetLatestJobInfo(Guid extractionJobIdentifier = new Guid());
+        List<ExtractJobInfo> GetReadyJobs(Guid extractionJobIdentifier = new Guid());
 
         /// <summary>
         /// Cleanup/archive any data in the database related to an extract job
         /// </summary>
         /// <param name="extractionJobIdentifier"></param>
-        void CleanupJobData(Guid extractionJobIdentifier);
+        void MarkJobCompleted(Guid extractionJobIdentifier);
 
         /// <summary>
         /// Quarantines a job if there is some issue processing it
         /// </summary>
         /// <param name="extractionJobIdentifier"></param>
         /// <param name="e"></param>
-        void QuarantineJob(Guid extractionJobIdentifier, Exception e);
+        void MarkJobFailed(Guid extractionJobIdentifier, Exception e);
     }
 }

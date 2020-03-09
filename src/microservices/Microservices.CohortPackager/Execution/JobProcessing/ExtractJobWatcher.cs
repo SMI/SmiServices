@@ -1,29 +1,18 @@
-﻿
-// ReSharper disable InconsistentlySynchronizedField
-
+﻿using System;
+using System.Collections.Generic;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NLog;
-using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
-using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Linq;
 using SysTimers = System.Timers;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing
 {
     /// <summary>
-    /// Class which does the actual processing of the jobs in the cache
+    /// Class which periodically queries the job store for any ready jobs and performs any final checks
     /// </summary>
     public class ExtractJobWatcher : IExtractJobWatcher
     {
-        public int JobsCompleted { get; private set; }
-
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly IFileSystem _fileSystem;
-        private readonly FileSystemOptions _fileSystemOptions;
 
         private readonly IExtractJobStore _jobStore;
 
@@ -36,11 +25,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
         private bool _startCalled;
 
 
-        public ExtractJobWatcher(CohortPackagerOptions options, FileSystemOptions fileSystemOptions, IExtractJobStore jobStore, Action<Exception> exceptionCallback, IFileSystem fileSystem)
+        public ExtractJobWatcher(CohortPackagerOptions options, IExtractJobStore jobStore, Action<Exception> exceptionCallback)
         {
-            _fileSystem = fileSystem;
-            _fileSystemOptions = fileSystemOptions;
-
             _jobStore = jobStore;
             _exceptionCallback = exceptionCallback;
             _notifier = new JobCompleteNotifier(options);
@@ -48,7 +34,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             _processTimer = new SysTimers.Timer(TimeSpan.FromSeconds(options.JobWatcherTimeoutInSeconds).TotalMilliseconds);
             _processTimer.Elapsed += TimerElapsedEvent;
         }
-
 
         public void Start()
         {
@@ -80,32 +65,31 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
             lock (_oProcessorLock)
             {
-                List<ExtractJobInfo> jobs = _jobStore.GetLatestJobInfo(specificJob);
+                List<ExtractJobInfo> jobs = _jobStore.GetReadyJobs(specificJob);
 
                 if (jobs.Count == 0)
                 {
-                    _logger.Info("No jobs to process");
+                    _logger.Debug("No jobs in progress");
                     return;
                 }
 
-                foreach (ExtractJobInfo jobInfo in jobs)
+                foreach (ExtractJobInfo job in jobs)
                 {
+                    Guid jobId = job.ExtractionJobIdentifier;
+
                     try
                     {
-                        ProcessJob(jobInfo);
+                        DoJobCompletionTasks(job);
                     }
                     catch (ApplicationException e)
                     {
-                        _logger.Warn(e, "Issue with job " + jobInfo.ExtractionJobIdentifier + ", sending to quarantine");
-
-                        //TODO This should also notify that the job has been quarantined
-                        _jobStore.QuarantineJob(jobInfo.ExtractionJobIdentifier, e);
+                        _logger.Warn(e, $"Issue with job {jobId}, marking as failed");
+                        _jobStore.MarkJobFailed(jobId, e);
                     }
                     catch (Exception e)
                     {
-                        StopProcessing("Timed ProcessJob threw an unhandled exception");
+                        StopProcessing("ProcessJob threw an unhandled exception");
                         _exceptionCallback(e);
-
                         return;
                     }
                 }
@@ -116,86 +100,26 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
                 _processTimer.Start();
         }
 
-
         private void TimerElapsedEvent(object source, SysTimers.ElapsedEventArgs ea)
         {
-            _logger.Debug("Processing jobs");
-
+            _logger.Debug("Checking job statuses");
             ProcessJobs();
-        }
-
-        private void ProcessJob(ExtractJobInfo jobInfo)
-        {
-            _logger.Debug("Processing job " + jobInfo.ExtractionJobIdentifier);
-
-            if (!jobInfo.JobFileCollectionInfo.Any())
-                throw new ApplicationException("The given job info has no file collections set");
-
-            bool doneProcessing = CheckJobFiles(jobInfo);
-            if (!doneProcessing)
-            {
-                _logger.Debug("Some expected files missing for job " + jobInfo.ExtractionJobIdentifier);
-
-                //TODO Check job timeout etc.
-                return;
-            }
-
-            DoJobCompletionTasks(jobInfo);
-        }
-
-        private bool CheckJobFiles(ExtractJobInfo jobInfo)
-        {
-            // TODO(rkm 2020-02-06) Check if expected IDs count matches with the rejection reasons (if possible)
-
-            _logger.Debug("Checking files for job " + jobInfo.ExtractionJobIdentifier);
-
-            foreach (ExtractFileCollectionInfo item in jobInfo.JobFileCollectionInfo)
-            {
-                foreach (string filePath in item.ExpectedAnonymisedFiles)
-                {
-                    if (string.IsNullOrWhiteSpace(filePath))
-                        throw new ApplicationException("Expected filePath was null");
-
-                    string absFilePath = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(_fileSystemOptions.ExtractRoot, jobInfo.ExtractionDirectory, filePath));
-                    _logger.Debug("Scanning for job file  " + absFilePath);
-
-                    // If file exists, continue. Otherwise have to investigate the status messages
-                    if (_fileSystem.File.Exists(absFilePath))
-                    {
-                        _logger.Debug("Found file " + absFilePath);
-                        continue;
-                    }
-
-                    List<ExtractFileStatusInfo> fileStatuses = jobInfo.JobExtractFileStatuses.Where(x => x.AnonymisedFileName == null).ToList();
-
-                    // No information for the file, have to give up
-                    if (!fileStatuses.Any())
-                        return false;
-
-                    // Shouldn't be either of these cases if we have got this far
-                    if (fileStatuses.Any(x => x.Status == ExtractFileStatus.Anonymised || x.Status == ExtractFileStatus.Unknown))
-                        throw new ArgumentException("Have a status message of Anonymised or Unknown for a file we could not locate");
-
-                    // File won't be outputted, will check for this after
-                    if (fileStatuses.Any(x => x.Status == ExtractFileStatus.ErrorWontRetry && x.StatusMessage.Contains(filePath)))
-                        continue;
-
-                    // Don't think we should ever actually reach here
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         private void DoJobCompletionTasks(ExtractJobInfo jobInfo)
         {
-            _logger.Info("All files for job " + jobInfo.ExtractionJobIdentifier + " present, running completion tasks");
+            Guid jobId = jobInfo.ExtractionJobIdentifier;
 
-            _jobStore.CleanupJobData(jobInfo.ExtractionJobIdentifier);
+            if (jobInfo.JobStatus != ExtractJobStatus.ReadyForChecks)
+                throw new ApplicationException($"Job {jobId} is not ready for checks");
+
+            _logger.Info($"All files for job {jobId} present, running completion tasks");
+
+            _jobStore.MarkJobCompleted(jobId);
+
+            //TODO (rkm 2020-03-03) Generate report data :)
+
             _notifier.NotifyJobCompleted(jobInfo);
-
-            ++JobsCompleted;
         }
     }
 }

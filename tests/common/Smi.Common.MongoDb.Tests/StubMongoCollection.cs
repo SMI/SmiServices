@@ -12,7 +12,7 @@ namespace Smi.Common.MongoDB.Tests
     /// <summary>
     /// Abstract base class for mocking an IMongoCollection, parameterised by a key type and value type
     /// </summary>
-    public class StubMongoCollection<TKey, TVal> : IMongoCollection<TVal>
+    public abstract class StubMongoCollection<TKey, TVal> : IMongoCollection<TVal>
     {
         public virtual CollectionNamespace CollectionNamespace { get; }
         public virtual IMongoDatabase Database { get; }
