@@ -30,6 +30,8 @@ namespace IsIdentifiableReviewer
         private TextField _gotoTextField;
         private IRulePatternFactory _origUpdaterRulesFactory;
         private IRulePatternFactory _origIgnorerRulesFactory;
+        private Label _ignoreRuleLabel;
+        private Label _updateRuleLabel;
 
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
@@ -93,11 +95,12 @@ namespace IsIdentifiableReviewer
             
             _gotoTextField = new TextField("1")
             {
-                X=23,
+                X=28,
                 Width = 5
             };
             _gotoTextField.Changed += (s,e) => GoTo();
             frame.Add(_gotoTextField);
+            frame.Add(new Label(23,0,"GoTo:"));
 
             frame.Add(new Button("Prev")
             {
@@ -111,6 +114,13 @@ namespace IsIdentifiableReviewer
                 Y = 1,
                 Clicked = ()=>GoToRelative(1)
             });
+
+            frame.Add(new Label(0,4,"Default Patterns"));
+
+            _ignoreRuleLabel = new Label(0,5,"Ignore:");
+            _updateRuleLabel= new Label(0,6,"Update:");;
+            frame.Add(_ignoreRuleLabel);
+            frame.Add(_updateRuleLabel);
 
             var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
             cbCustomPattern.Toggled += (c, s) =>
@@ -166,13 +176,29 @@ namespace IsIdentifiableReviewer
             {
                 CurrentReport.GoTo(page);
                 _info.Text = CurrentReport.DescribeProgress();
-                _valuePane.CurrentFailure = CurrentReport.Current;
+                SetupToShow(CurrentReport.Current);
             }
             catch (Exception e)
             {
                 ShowException("Failed to GoTo",e);
             }
             
+        }
+
+        private void SetupToShow(Failure f)
+        {
+            _valuePane.CurrentFailure = f;
+
+            if (f != null)
+            {
+                _ignoreRuleLabel.Text = "Ignore:" + _origIgnorerRulesFactory.GetPattern(Ignorer, f);
+                _updateRuleLabel.Text = "Update:" + _origUpdaterRulesFactory.GetPattern(Ignorer, f);
+            }
+            else
+            {
+                _ignoreRuleLabel.Text = "Ignore:";
+                _updateRuleLabel.Text = "Update:";
+            }
         }
 
         private void Next()
@@ -195,7 +221,8 @@ namespace IsIdentifiableReviewer
                         skipped++;
                     else
                     {
-                        _valuePane.CurrentFailure = next;
+                        SetupToShow(next);
+
                         break;
                     }
                 }
@@ -280,7 +307,7 @@ namespace IsIdentifiableReviewer
                     return;
 
                 CurrentReport = new ReportReader(new FileInfo(path));
-                _valuePane.CurrentFailure = CurrentReport.Failures.FirstOrDefault();
+                SetupToShow(CurrentReport.Failures.FirstOrDefault());
                 Next();
             }
             catch (Exception e)
