@@ -16,7 +16,7 @@ using Smi.Common.Tests;
 namespace Microservices.CohortPackager.Tests.Execution
 {
     [TestFixture, RequiresMongoDb, RequiresRabbit]
-    public class CohortPackagerHostTests
+    public class CohortPackagerHostTest
     {
 
         #region Fixture Methods 
@@ -109,8 +109,6 @@ namespace Microservices.CohortPackager.Tests.Execution
 
 
             GlobalOptions globals = GlobalOptions.Load();
-            globals.RabbitOptions.RabbitMqHostName = "192.168.56.104";
-            globals.MongoDatabases.ExtractionStoreOptions.HostName = "192.168.56.104";
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
 
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
@@ -132,7 +130,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 var host = new CohortPackagerHost(globals, notifier, null, false);
                 host.Start();
 
-                var timeoutSecs = 10;
+                var timeoutSecs = 30;
                 while (!notifier.JobCompleted && timeoutSecs > 0)
                 {
                     --timeoutSecs;
