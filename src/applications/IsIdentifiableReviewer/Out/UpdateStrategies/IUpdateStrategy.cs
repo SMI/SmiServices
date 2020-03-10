@@ -3,7 +3,7 @@ using FAnsi.Discovery;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Rules;
 
-namespace IsIdentifiableReviewer.Out
+namespace IsIdentifiableReviewer.Out.UpdateStrategies
 {
     public interface IUpdateStrategy
     {

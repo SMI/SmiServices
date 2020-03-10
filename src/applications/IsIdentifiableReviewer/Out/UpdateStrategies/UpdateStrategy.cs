@@ -1,0 +1,32 @@
+﻿using System.Collections.Generic;
+using FAnsi.Discovery;
+using FAnsi.Discovery.QuerySyntax;
+using Microservices.IsIdentifiable.Reporting;
+using Microservices.IsIdentifiable.Rules;
+
+namespace IsIdentifiableReviewer.Out.UpdateStrategies
+{
+    public abstract class UpdateStrategy : IUpdateStrategy
+    {
+        public abstract IEnumerable<string> GetUpdateSql(DiscoveredTable table,Dictionary<DiscoveredTable, DiscoveredColumn> primaryKeys, Failure failure, IsIdentifiableRule usingRule);
+
+        /// <summary>
+        /// Returns SQL to update a single <paramref name="word"/> in the <paramref name="table"/> row referenced by the primary key value
+        /// in <paramref name="failure"/>
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="primaryKeys"></param>
+        /// <param name="syntax"></param>
+        /// <param name="failure"></param>
+        /// <param name="word">The word or collection of words that should be redacted</param>
+        /// <returns></returns>
+        protected string GetUpdateWordSql(DiscoveredTable table,
+            Dictionary<DiscoveredTable, DiscoveredColumn> primaryKeys, IQuerySyntaxHelper syntax, Failure failure,string word)
+        {
+            return $@"update {table.GetFullyQualifiedName()} 
+                SET {syntax.EnsureWrapped(failure.ProblemField)} = 
+                REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(word)}', 'SMI_REDACTED')
+                WHERE {primaryKeys[table].GetFullyQualifiedName()} = '{syntax.Escape(failure.ResourcePrimaryKey)}'";
+        }
+    }
+}

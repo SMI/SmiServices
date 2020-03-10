@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using FAnsi.Discovery;
+using IsIdentifiableReviewer.Out.UpdateStrategies;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Rules;
 
@@ -22,7 +23,10 @@ namespace IsIdentifiableReviewer.Out
 
         Dictionary<DiscoveredTable,DiscoveredColumn> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn>();
 
-        public IUpdateStrategy UpdateStrategy = new ProblemValuesUpdateStrategy();
+        /// <summary>
+        /// The strategy to use to build SQL updates to run on the database
+        /// </summary>
+        public IUpdateStrategy UpdateStrategy = new RegexUpdateStrategy();
 
         public RowUpdater(FileInfo rulesFile) : base(rulesFile)
         {
