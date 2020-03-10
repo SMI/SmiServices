@@ -31,7 +31,9 @@ namespace IsIdentifiableReviewer
             if(!fi.Exists)
                 throw new FileNotFoundException($"Could not find Failures file '{fi.FullName}'");
 
-            _target = target ?? throw new Exception("A single Target must be supplied for database updates");
+            if(!opts.OnlyRules)
+                _target = target ?? throw new Exception("A single Target must be supplied for database updates");
+
             _reportReader = new ReportReader(fi);
 
             if(string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
@@ -45,7 +47,8 @@ namespace IsIdentifiableReviewer
 
         public int Run()
         {
-            var server = _target.Discover();
+            //In RulesOnly mode this will be null
+            var server = _target?.Discover();
             
             var storeReport = new FailureStoreReport(_outputFile.Name,100);
             

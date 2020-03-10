@@ -75,26 +75,32 @@ namespace IsIdentifiableReviewer
                 return;
             }
 
-            Console.WriteLine("Running Connection Tests");
-
-            try
+            if(opts.OnlyRules)
+                Console.WriteLine("Skipping Connection Tests");
+            else
             {
-                foreach (Target t in targets)
-                    Console.WriteLine(t.Discover().Exists()
-                        ? $"Successfully connected to {t.Name}"
-                        : $"Failed to connect to {t.Name}");
+                Console.WriteLine("Running Connection Tests");
+
+                try
+                {
+                    foreach (Target t in targets)
+                        Console.WriteLine(t.Discover().Exists()
+                            ? $"Successfully connected to {t.Name}"
+                            : $"Failed to connect to {t.Name}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error Validating Targets");
+                    Console.WriteLine(e.ToString());
+                    returnCode = -10;
+                    return;
+                }
             }
-            catch (Exception e)
+            
+            var updater = new RowUpdater( new FileInfo(opts.RedList))
             {
-                Console.WriteLine("Error Validating Targets");
-                Console.WriteLine(e.ToString());
-                returnCode = -10;
-                return;
-
-            }
-
-                        
-            var updater = new RowUpdater( new FileInfo(opts.RedList));
+                RulesOnly = opts.OnlyRules
+            };
             var ignorer = new IgnoreRuleGenerator(new FileInfo(opts.IgnoreList));
 
             try
@@ -122,7 +128,7 @@ namespace IsIdentifiableReviewer
             }
             catch (Exception e)
             {
-                Console.Write(e);
+                Console.Write(e.Message);
 
                 int tries = 5;
                 while(Application.Top != null && tries-- >0)
