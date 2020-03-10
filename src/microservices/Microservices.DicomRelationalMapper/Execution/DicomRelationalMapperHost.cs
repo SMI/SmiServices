@@ -24,7 +24,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         public DicomRelationalMapperQueueConsumer Consumer { get; private set; }
 
         public DicomRelationalMapperHost(GlobalOptions globals, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig) { }
+            : base(globals, loadSmiLogConfig: loadSmiLogConfig) { }
 
 
         //TODO Should most of this not be in the constructor?

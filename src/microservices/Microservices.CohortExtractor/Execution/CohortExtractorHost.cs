@@ -47,7 +47,7 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Microservices.NLog.config" of the current directory)</param>
         public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = options.CohortExtractorOptions;
             _consumerOptions.Validate();

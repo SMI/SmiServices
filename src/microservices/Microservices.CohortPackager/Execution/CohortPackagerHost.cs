@@ -24,7 +24,7 @@ namespace Microservices.CohortPackager.Execution
 
 
         public CohortPackagerHost(GlobalOptions globals, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig)
+            : base(globals, loadSmiLogConfig: loadSmiLogConfig)
         {
             // Connect to store & validate etc.
             MongoDbOptions opts = Globals.MongoDatabases.ExtractionStoreOptions;
