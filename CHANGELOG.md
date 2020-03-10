@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
  
+ - IsIdentifiableReviewer considers rule capture groups when performing redactions (e.g. can now handle custom rules like `^(Ninewells)`)
  - IsIdentifiableReviewer adds comment with time/user to rules file e.g. `#TZNind - 3/10/2020 1:17:17 PM`
  - IsIdentifiableReviewer checks custom patterns match the original Failure
  - IsIdentifiable microservice was started with --service but can now be started with the service verb allowing it to take additional options. It should now be started with `service -y file.yaml`
