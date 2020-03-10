@@ -16,7 +16,8 @@ namespace Microservices.IsIdentifiable.Service
 
         private IProducerModel _producerModel;
 
-        public IsIdentifiableHost(GlobalOptions globals, bool loadSmiLogConfig = true) : base(globals, loadSmiLogConfig)
+        public IsIdentifiableHost(GlobalOptions globals, bool loadSmiLogConfig = true)
+            : base(globals, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = globals.IsIdentifiableOptions;
 

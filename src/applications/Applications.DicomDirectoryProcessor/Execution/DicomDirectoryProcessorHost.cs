@@ -23,7 +23,7 @@ namespace Applications.DicomDirectoryProcessor.Execution
         /// <param name="cliOptions">Common microservices options.  Must contain details for an message exchange labelled as "accessionDirectories"</param>
         /// <param name="globals">Configuration settings for the program</param>
         public DicomDirectoryProcessorHost(GlobalOptions globals, DicomDirectoryProcessorCliOptions cliOptions, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig)
+            : base(globals, loadSmiLogConfig: loadSmiLogConfig)
         {
             _cliOptions = cliOptions;
 

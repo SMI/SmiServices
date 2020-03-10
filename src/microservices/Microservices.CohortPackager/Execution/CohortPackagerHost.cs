@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager.Execution
 
 
         public CohortPackagerHost(GlobalOptions globals, IFileSystem overrideFileSystem = null, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig)
+            : base(globals, loadSmiLogConfig: loadSmiLogConfig)
         {
             _extractRequestInfoOptions = globals.CohortPackagerOptions.ExtractRequestInfoOptions;
             _extractFilesInfoOptions = globals.CohortPackagerOptions.ExtractFilesInfoOptions;

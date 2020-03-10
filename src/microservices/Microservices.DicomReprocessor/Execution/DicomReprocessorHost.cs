@@ -20,7 +20,7 @@ namespace Microservices.DicomReprocessor.Execution
 
 
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             string key = cliOptions.ReprocessingRoutingKey;
 

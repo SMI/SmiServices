@@ -16,7 +16,7 @@ namespace Microservices.DicomTagReader.Execution
 
 
         public DicomTagReaderHost(GlobalOptions options, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             if (!Directory.Exists(options.FileSystemOptions.FileSystemRoot))
                 throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + options.FileSystemOptions.FileSystemRoot + ")");

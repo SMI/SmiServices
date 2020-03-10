@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using DicomTypeTranslation;
 using DicomTypeTranslation.Helpers;
+using JetBrains.Annotations;
 using NLog;
 using Smi.Common.Events;
 using Smi.Common.Helpers;
@@ -44,8 +45,16 @@ namespace Smi.Common.Execution
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Smi.NLog.config" of the current directory)</param>
-        protected MicroserviceHost(GlobalOptions globals, bool loadSmiLogConfig = true, bool threaded=false)
+        /// <param name="threaded"></param>
+        protected MicroserviceHost(
+            [NotNull] GlobalOptions globals,
+            RabbitMqAdapter rabbitMqAdapter = null,
+            bool loadSmiLogConfig = true,
+            bool threaded = false)
         {
+            if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.MicroserviceOptions == null)
+                throw new ArgumentException("All or part of the global options are null");
+
             HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
 
             string logConfigPath = null;
@@ -112,7 +121,7 @@ namespace Smi.Common.Execution
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
-            RabbitMqAdapter = new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
+            RabbitMqAdapter = rabbitMqAdapter ?? new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
 
             _controlMessageConsumer = new ControlMessageConsumer(this, globals.RabbitOptions, HostProcessName, HostProcessID);
 
