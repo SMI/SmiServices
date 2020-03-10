@@ -124,8 +124,9 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             Assert.AreEqual(0,reviewer.Updates);
         }
         
-        [Test]
-        public void Passes_FailuresAllIgnored()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Passes_FailuresAllIgnored(bool rulesOnly)
         {
             //the default Target() will be this DatabaseType
             ImplementationManager.Load<MicrosoftSQLImplementation>();
@@ -158,7 +159,8 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             var reviewer = new UnattendedReviewer(new IsIdentifiableReviewerOptions()
             {
                 FailuresCsv = fi,
-                UnattendedOutputPath = fiOut
+                UnattendedOutputPath = fiOut,
+                OnlyRules = rulesOnly
             }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
 
             Assert.AreEqual(0,reviewer.Run());
@@ -169,6 +171,56 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             Assert.AreEqual(1,reviewer.Total);
             Assert.AreEqual(1,reviewer.Ignores);
             Assert.AreEqual(0,reviewer.Unresolved);
+            Assert.AreEqual(0,reviewer.Updates);
+        }
+
+        [Test]
+        public void Passes_FailuresAllUpdated()
+        {
+            //the default Target() will be this DatabaseType
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+
+            var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
+FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
+
+            var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.csv");
+            File.WriteAllText(fi,inputFile);
+
+            var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
+            
+            //cleanup any remnant whitelist or redlists
+            var fiWhitelist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
+            var fiRedlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
+
+            if(File.Exists(fiWhitelist))
+                File.Delete(fiWhitelist);
+            
+            if(File.Exists(fiRedlist))
+                File.Delete(fiRedlist);
+
+            //add a redlist to UPDATE these
+            File.WriteAllText(fiRedlist,
+                @"
+- Action: Ignore
+  IfColumn: Narrative
+  IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$");
+            
+            var reviewer = new UnattendedReviewer(new IsIdentifiableReviewerOptions()
+            {
+                FailuresCsv = fi,
+                UnattendedOutputPath = fiOut,
+                OnlyRules = true //prevents it going to the database
+            }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
+
+            Assert.AreEqual(0,reviewer.Run());
+            
+            //it matches the UPDATE rule but since OnlyRules is true it didn't actually update the database! so the record should definitely be in the output
+            StringAssert.AreEqualIgnoringCase(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
+FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28",File.ReadAllText(fiOut).TrimEnd());
+
+            Assert.AreEqual(1,reviewer.Total);
+            Assert.AreEqual(0,reviewer.Ignores);
+            Assert.AreEqual(1,reviewer.Unresolved);
             Assert.AreEqual(0,reviewer.Updates);
         }
     }
