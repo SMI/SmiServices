@@ -457,8 +457,35 @@ namespace IsIdentifiableReviewer
              var defaultFactory = new MatchWholeStringRulePatternFactory();
              var recommendedPattern = defaultFactory.GetPattern(failure);
 
-             if(GetText("Pattern","Enter pattern to match failure",recommendedPattern, out string chosen))
-                return chosen;
+             if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen))
+             {
+                 Regex regex;
+
+                 try
+                 {
+                     regex = new Regex(chosen);
+                 }
+                 catch (Exception)
+                 {
+                    ShowMessage("Invalid Regex","Pattern was not a valid Regex");
+                    //try again!
+                    return GetPattern(failure);
+                 }
+
+                 if (!regex.IsMatch(failure.ProblemValue))
+                 {
+                     GetChoice("Pattern Match Failure","The provided pattern did not match the original ProblemValue.  Try a different pattern?",out string retry,new []{"Yes","No"});
+
+                     if (retry == "Yes")
+                         return GetPattern(failure);
+                 }
+                 
+                 if(string.IsNullOrWhiteSpace(chosen))
+                     throw new Exception("User entered blank Regex pattern");
+
+                 return chosen;
+             }
+                
             
              throw new Exception("User chose not to enter a pattern");
          }
