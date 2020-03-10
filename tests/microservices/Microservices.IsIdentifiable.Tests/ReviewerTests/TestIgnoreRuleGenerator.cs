@@ -36,7 +36,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             //we tell it to ignore this value
             updater.Add(failure);
             
-            Assert.AreEqual(
+            StringAssert.Contains(
                 @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$

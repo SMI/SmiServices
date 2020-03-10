@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -70,7 +71,9 @@ namespace IsIdentifiableReviewer.Out
 
             var serializer = new Serializer();
             var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
-            File.AppendAllText(RulesFile.FullName,yaml);
+            File.AppendAllText(RulesFile.FullName,
+                $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
+                yaml);
         }
 
         /// <summary>

@@ -62,7 +62,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var result = tbl.GetDataTable();
             Assert.AreEqual("We aren't in SMI_REDACTED anymore SMI_REDACTED",result.Rows[0]["Narrative"]);
 
-            Assert.AreEqual(
+            StringAssert.Contains(
 @"- Action: Report
   IfColumn: Narrative
   As: Location
