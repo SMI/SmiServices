@@ -52,15 +52,15 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Guid guid = Guid.NewGuid();
             var doc1 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "Ok",
                 "anon.dcm",
-                "Ok");
+                false,
+                "anonymised");
 
             var doc2 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "Ok",
                 "anon.dcm",
-                "Ok");
+                false,
+                "anonymised");
 
             Assert.AreEqual(doc1, doc2);
         }
@@ -71,15 +71,15 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Guid guid = Guid.NewGuid();
             var doc1 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "Ok",
                 "anon.dcm",
-                "Ok");
+                false,
+                "anonymised");
 
             var doc2 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "Ok",
                 "anon.dcm",
-                "Ok");
+                false,
+                "anonymised");
 
             Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());
         }

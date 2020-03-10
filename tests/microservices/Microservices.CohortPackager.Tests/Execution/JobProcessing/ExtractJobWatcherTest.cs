@@ -1,4 +1,10 @@
+using System;
+using System.Collections.Generic;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.JobProcessing;
+using Moq;
 using NUnit.Framework;
+using Smi.Common.Options;
 using Smi.Common.Tests;
 
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
@@ -31,10 +37,64 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
 
         #region Tests
 
-        [Test]
-        public void Test()
+        private class TestJobCompleteNotifier : IJobCompleteNotifier
         {
-            Assert.Fail("TODO");
+            public bool Notified { get; set; }
+
+            public void NotifyJobCompleted(ExtractJobInfo jobInfo)
+            {
+                Notified = true;
+            }
+        }
+
+        [Test]
+        public void TestProcessJobs()
+        {
+            Guid jobId = Guid.NewGuid();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                DateTime.UtcNow,
+                "123",
+                "test/dir",
+                "KeyTag",
+                123,
+                null,
+                ExtractJobStatus.ReadyForChecks
+            );
+
+            var opts = new CohortPackagerOptions { JobWatcherTimeoutInSeconds = 123 };
+            var mockJobStore = new Mock<IExtractJobStore>();
+            var callbackUsed = false;
+            var mockCallback = new Action<Exception>(_ => callbackUsed = true);
+            var testNotifier = new TestJobCompleteNotifier();
+
+            var watcher = new ExtractJobWatcher(opts, mockJobStore.Object, mockCallback, testNotifier);
+
+            // Check that we can call ProcessJobs with no Guid to process all jobs
+            mockJobStore.Setup(x => x.GetReadyJobs(default)).Returns(new List<ExtractJobInfo>());
+            watcher.ProcessJobs();
+            mockJobStore.Verify();
+
+            // Check that we MarkJobFailed for known exceptions
+            mockJobStore.Reset();
+            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
+            mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new ApplicationException("aah"));
+            watcher.ProcessJobs(jobId);
+            mockJobStore.Verify(x => x.MarkJobFailed(jobId, It.IsAny<ApplicationException>()), Times.Once);
+
+            // Check that we call the exception callback for unhandled exceptions
+            mockJobStore.Reset();
+            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
+            mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new Exception("aah"));
+            watcher.ProcessJobs(jobId);
+            Assert.True(callbackUsed);
+
+            // Check happy path
+            mockJobStore.Reset();
+            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
+            testNotifier.Notified = false;
+            watcher.ProcessJobs(jobId);
+            Assert.True(testNotifier.Notified);
         }
 
         #endregion

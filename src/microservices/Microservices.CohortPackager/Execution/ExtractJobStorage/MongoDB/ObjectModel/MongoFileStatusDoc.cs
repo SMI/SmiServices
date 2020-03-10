@@ -11,13 +11,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [NotNull]
         public MongoExtractionMessageHeaderDoc Header { get; set; }
 
-        [BsonElement("status")]
-        [CanBeNull] // NOTE(rkm 2020-03-04) Will be null for messages received from the validation tool
-        public string Status { get; set; }
-
         [BsonElement("anonymisedFileName")]
         [CanBeNull] // NOTE(rkm 2020-03-04) Will be null for messages we receive regarding failed anonymisation
         public string AnonymisedFileName { get; set; }
+
+        [BsonElement("isIdentifiable")]
+        public bool IsIdentifiable { get; set; }
 
         [BsonElement("statusMessage")]
         [NotNull] // NOTE(rkm 2020-02-27) Will be the failure reason from an ExtractFileStatusMessage, or the report content from an IsIdentifiableMessage
@@ -25,15 +24,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         public MongoFileStatusDoc(
             [NotNull] MongoExtractionMessageHeaderDoc header,
-            [CanBeNull] string status,
             [CanBeNull] string anonymisedFileName,
+            bool isIdentifiable,
             [NotNull] string statusMessage)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
-            if (status != null)
-                Status = (!string.IsNullOrWhiteSpace(status)) ? status : throw new ArgumentNullException(nameof(status));
-            if (anonymisedFileName != null)
-                AnonymisedFileName = (!string.IsNullOrWhiteSpace(anonymisedFileName)) ? anonymisedFileName : throw new ArgumentNullException(nameof(anonymisedFileName));
+            AnonymisedFileName = anonymisedFileName;
+            IsIdentifiable = isIdentifiable;
             StatusMessage = (!string.IsNullOrWhiteSpace(statusMessage)) ? statusMessage : throw new ArgumentNullException(nameof(statusMessage));
         }
 
@@ -42,8 +39,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         protected bool Equals(MongoFileStatusDoc other)
         {
             return Equals(Header, other.Header) &&
-                   Status == other.Status &&
                    AnonymisedFileName == other.AnonymisedFileName &&
+                   IsIdentifiable == other.IsIdentifiable &&
                    StatusMessage == other.StatusMessage;
         }
 
@@ -64,8 +61,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             unchecked
             {
                 int hashCode = (Header.GetHashCode());
-                hashCode = (hashCode * 397) ^ (Status != null ? Status.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (AnonymisedFileName != null ? AnonymisedFileName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (IsIdentifiable.GetHashCode());
                 hashCode = (hashCode * 397) ^ (StatusMessage.GetHashCode());
                 return hashCode;
             }

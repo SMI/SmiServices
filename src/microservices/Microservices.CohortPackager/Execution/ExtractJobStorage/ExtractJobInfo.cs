@@ -205,48 +205,37 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
     public sealed class ExtractFileStatusInfo : IEquatable<ExtractFileStatusInfo>
     {
         /// <summary>
-        /// Status for this anonymised file
-        /// </summary>
-        public ExtractFileStatus Status { get; }
-
-        /// <summary>
         /// Filename for the anonymised file, if it exists, otherwise null
         /// </summary>
         [CanBeNull]
         public string AnonymisedFileName { get; }
 
         /// <summary>
-        /// Optional message if the file could not be anonymised
+        /// 
         /// </summary>
-        [CanBeNull]
+        public bool IsIdentifiable { get; }
+
+        /// <summary>
+        /// Will be the failure reason from an ExtractFileStatusMessage, or the report content from an IsIdentifiableMessage
+        /// </summary>
+        [NotNull]
         public string StatusMessage { get; }
 
         public ExtractFileStatusInfo(
-            ExtractFileStatus status,
             [CanBeNull] string anonymisedFileName,
-            [CanBeNull] string statusMessage)
+            bool isIdentifiable,
+            [NotNull] string statusMessage)
         {
-            Status = (status != default) ? status : throw new ArgumentException(nameof(status));
-
-            if (Status == ExtractFileStatus.Anonymised)
-            {
-                if (string.IsNullOrWhiteSpace(anonymisedFileName))
-                    throw new ArgumentException("Status is Anonymised, but AnonymisedFileName is null");
-                AnonymisedFileName = anonymisedFileName;
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(statusMessage))
-                    throw new ArgumentException("Status is not Anonymised, but StatusMessage is null");
-                StatusMessage = statusMessage;
-            }
+            AnonymisedFileName = anonymisedFileName;
+            IsIdentifiable = isIdentifiable;
+            StatusMessage = statusMessage ?? throw new ArgumentNullException(nameof(statusMessage));
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Status: " + Status);
             sb.AppendLine("AnonymisedFileName: " + AnonymisedFileName);
+            sb.AppendLine("IsIdentifiable: " + IsIdentifiable);
             sb.AppendLine("StatusMessage: " + StatusMessage);
             return sb.ToString();
         }
@@ -257,8 +246,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Status == other.Status &&
-                   string.Equals(AnonymisedFileName, other.AnonymisedFileName) &&
+            return string.Equals(AnonymisedFileName, other.AnonymisedFileName) &&
+                   IsIdentifiable == other.IsIdentifiable &&
                    string.Equals(StatusMessage, other.StatusMessage);
         }
 
@@ -277,8 +266,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         {
             unchecked
             {
-                var hashCode = (int)Status;
-                hashCode = (hashCode * 397) ^ (AnonymisedFileName != null ? AnonymisedFileName.GetHashCode() : 0);
+                int hashCode = (AnonymisedFileName != null ? AnonymisedFileName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsIdentifiable.GetHashCode();
                 hashCode = (hashCode * 397) ^ (StatusMessage != null ? StatusMessage.GetHashCode() : 0);
                 return hashCode;
             }

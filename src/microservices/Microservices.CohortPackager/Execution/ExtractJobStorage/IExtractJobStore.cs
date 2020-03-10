@@ -56,7 +56,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// Quarantines a job if there is some issue processing it
         /// </summary>
         /// <param name="extractionJobIdentifier"></param>
-        /// <param name="e"></param>
-        void MarkJobFailed(Guid extractionJobIdentifier, Exception e);
+        /// <param name="cause"></param>
+        void MarkJobFailed(Guid extractionJobIdentifier, Exception cause);
     }
 }

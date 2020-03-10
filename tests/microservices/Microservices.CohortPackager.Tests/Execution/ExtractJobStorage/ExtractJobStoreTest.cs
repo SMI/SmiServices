@@ -37,8 +37,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             protected override void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header) { }
             protected override void PersistMessageToStoreImpl(IsIdentifiableMessage message, IMessageHeader header) { }
             protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid()) => throw new NotImplementedException();
-            protected override void CompleteJobImpl(Guid jobId) => throw new NotImplementedException();
-            protected override void MarkJobFailedImpl(Guid jobId, Exception e) => throw new NotImplementedException();
+            protected override void CompleteJobImpl(Guid jobId) { }
+            protected override void MarkJobFailedImpl(Guid jobId, Exception e) { }
         }
 
         #endregion
@@ -94,26 +94,35 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             message.AnonymisedFileName = "";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
-            // Must have report if IsIdentifiable
+            // Must have report
             message.AnonymisedFileName = "anon.dcm";
-            message.IsIdentifiable = true;
             message.Report = "";
-            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
-
-            // Shouldn't have report if not IsIdentifiable
-            message.IsIdentifiable = false;
-            message.Report = "report";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
             // Otherwise ok
-
-            message.IsIdentifiable = false;
-            message.Report = "";
-            testExtractJobStore.PersistMessageToStore(message, header);
-
-            message.IsIdentifiable = true;
             message.Report = "report";
             testExtractJobStore.PersistMessageToStore(message, header);
+        }
+
+        [Test]
+        public void TestMarkJobCompleted()
+        {
+            var store = new TestExtractJobStore();
+
+            Assert.Throws<ArgumentNullException>(() => store.MarkJobCompleted(Guid.Empty));
+
+            store.MarkJobCompleted(Guid.NewGuid());
+        }
+
+        [Test]
+        public void TestMarkJobFailed()
+        {
+            var store = new TestExtractJobStore();
+
+            Assert.Throws<ArgumentNullException>(() => store.MarkJobFailed(Guid.Empty, new Exception()));
+            Assert.Throws<ArgumentNullException>(() => store.MarkJobFailed(Guid.NewGuid(), null));
+
+            store.MarkJobFailed(Guid.NewGuid(), new Exception());
         }
 
         #endregion

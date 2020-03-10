@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Linq;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
-using Smi.Common.Messages.Extraction;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 {
     public static class MongoExtractJobInfoExtensions
     {
-        public static ExtractJobInfo ToExtractJobInfo(
-            this MongoExtractJobDoc mongoExtractJobDoc)
-        {
-            return new ExtractJobInfo(
+        public static ExtractJobInfo ToExtractJobInfo(this MongoExtractJobDoc mongoExtractJobDoc)
+            => new ExtractJobInfo(
                 mongoExtractJobDoc.ExtractionJobIdentifier,
                 mongoExtractJobDoc.JobSubmittedAt,
                 mongoExtractJobDoc.ProjectNumber,
@@ -19,7 +16,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 mongoExtractJobDoc.KeyCount,
                 mongoExtractJobDoc.ExtractionModality,
                 mongoExtractJobDoc.JobStatus);
-        }
 
         public static ExtractFileCollectionInfo ToExtractFileCollectionInfo(this MongoExpectedFilesDoc doc)
         {
@@ -34,11 +30,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         }
 
         public static ExtractFileStatusInfo ToExtractFileStatusInfo(this MongoFileStatusDoc doc)
-        {
-            if (!Enum.TryParse(doc.Status, out ExtractFileStatus status))
-                throw new ArgumentException(nameof(doc));
-
-            return new ExtractFileStatusInfo(status, doc.AnonymisedFileName, doc.StatusMessage);
-        }
+            => new ExtractFileStatusInfo(doc.AnonymisedFileName, doc.IsIdentifiable, doc.StatusMessage);
     }
 }

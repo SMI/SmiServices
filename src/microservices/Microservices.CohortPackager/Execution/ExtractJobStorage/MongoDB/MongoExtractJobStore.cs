@@ -77,8 +77,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
-                message.Status.ToString(),
                 null,
+                true,
                 message.StatusMessage);
 
             _database
@@ -90,13 +90,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             if (InCompletedJobCollection(message.ExtractionJobIdentifier))
                 throw new ApplicationException("Received an ExtractionRequestInfoMessage for a job that is already completed");
-
+            
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.AnonymisedFileName,
-                message.IsIdentifiable ? "Identifiable" : "Verified",
-                message.Report
-            );
+                message.IsIdentifiable,
+                message.Report);
 
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
@@ -106,6 +105,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         //TODO(rkm 2020-03-09) Test this with a large volume of messages
         protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = default)
         {
+            //TODO Docs
+
             FilterDefinition<MongoExtractJobDoc> filter = FilterDefinition<MongoExtractJobDoc>.Empty;
 
             // If we have been passed a specific GUID, search for that job only
@@ -205,10 +206,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void CompleteJobImpl(Guid jobId)
         {
+            //TODO Docs
+
             using (IClientSessionHandle session = _client.StartSession())
             {
                 session.StartTransaction();
-
                 string expectedCollNameForJob = ExpectedFilesCollectionName(jobId);
                 string statusCollNameForJob = StatusCollectionName(jobId);
 
@@ -218,22 +220,20 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                         throw new ApplicationException($"Could not find job {jobId} in the job store");
 
                     if (toComplete.JobStatus == ExtractJobStatus.Failed)
-                    {
-                        Logger.Warn($"Job {jobId} is marked as failed - aborting");
-                        session.AbortTransaction();
-                        return;
-                    }
+                        throw new ApplicationException($"Job {jobId} is marked as failed");
 
                     var completedJob = new MongoCompletedExtractJobDoc(toComplete, _dateTimeProvider);
                     _completedJobCollection.InsertOne(completedJob);
 
                     DeleteResult res = _inProgressJobCollection.DeleteOne(GetFilterForSpecificJob<MongoExtractJobDoc>(jobId));
-                    if (!(res.IsAcknowledged || res.DeletedCount != 1))
+                    if (!res.IsAcknowledged)
                         throw new ApplicationException("Job data was archived but could not delete original from job store");
 
                     // Move the associated docs from each collection to the archives
 
                     IMongoCollection<MongoExpectedFilesDoc> expectedTempCollection = _database.GetCollection<MongoExpectedFilesDoc>(expectedCollNameForJob);
+                    if (expectedTempCollection.CountDocuments(FilterDefinition<MongoExpectedFilesDoc>.Empty) == 0)
+                        throw new ApplicationException($"Collection of MongoExpectedFilesDoc for job {jobId} was missing or empty");
                     using (IAsyncCursor<MongoExpectedFilesDoc> cursor = expectedTempCollection.FindSync(FilterDefinition<MongoExpectedFilesDoc>.Empty))
                     {
                         while (cursor.MoveNext())
@@ -241,6 +241,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     }
 
                     IMongoCollection<MongoFileStatusDoc> statusTemp = _database.GetCollection<MongoFileStatusDoc>(statusCollNameForJob);
+                    if (statusTemp.CountDocuments(FilterDefinition<MongoFileStatusDoc>.Empty) == 0)
+                        throw new ApplicationException($"Collection of MongoFileStatusDoc for job {jobId} was missing or empty");
                     using (IAsyncCursor<MongoFileStatusDoc> cursor = statusTemp.FindSync(FilterDefinition<MongoFileStatusDoc>.Empty))
                     {
                         while (cursor.MoveNext())
@@ -265,6 +267,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void MarkJobFailedImpl(Guid jobId, Exception cause)
         {
+            //TODO Docs
+
             using (IClientSessionHandle session = _client.StartSession())
             {
                 session.StartTransaction();
@@ -274,7 +278,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     if (!TryGetMongoExtractJobDoc(jobId, out MongoExtractJobDoc toFail))
                         throw new ApplicationException($"Could not find job {jobId} in the job store");
 
-                    if (toFail.FailedJobInfoDoc != null)
+                    if (toFail.JobStatus == ExtractJobStatus.Failed || toFail.FailedJobInfoDoc != null)
                         throw new ApplicationException($"Job {jobId} is already marked as failed");
 
                     toFail.JobStatus = ExtractJobStatus.Failed;

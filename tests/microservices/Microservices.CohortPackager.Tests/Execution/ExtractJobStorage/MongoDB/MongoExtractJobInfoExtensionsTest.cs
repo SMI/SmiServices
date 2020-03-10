@@ -121,15 +121,15 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         {
             var statusDoc = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), _messageHeader, _dateTimeProvider),
-                "Anonymised",
                 "anon.dcm",
-                "message");
+                false,
+                "anonymised");
             ExtractFileStatusInfo statusInfo = statusDoc.ToExtractFileStatusInfo();
 
             var expected = new ExtractFileStatusInfo(
-                ExtractFileStatus.Anonymised,
                 "anon.dcm",
-                "message");
+                false,
+                "anonymised");
 
             Assert.AreEqual(expected, statusInfo);
         }

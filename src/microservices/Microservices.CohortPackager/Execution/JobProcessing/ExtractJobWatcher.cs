@@ -16,7 +16,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
         private readonly IExtractJobStore _jobStore;
 
-        private readonly JobCompleteNotifier _notifier;
+        private readonly IJobCompleteNotifier _notifier;
 
         private readonly SysTimers.Timer _processTimer;
         private readonly Action<Exception> _exceptionCallback;
@@ -25,11 +25,15 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
         private bool _startCalled;
 
 
-        public ExtractJobWatcher(CohortPackagerOptions options, IExtractJobStore jobStore, Action<Exception> exceptionCallback)
+        public ExtractJobWatcher(
+            CohortPackagerOptions options,
+            IExtractJobStore jobStore,
+            Action<Exception> exceptionCallback,
+            IJobCompleteNotifier jobCompleteNotifier)
         {
             _jobStore = jobStore;
             _exceptionCallback = exceptionCallback;
-            _notifier = new JobCompleteNotifier(options);
+            _notifier = jobCompleteNotifier;
 
             _processTimer = new SysTimers.Timer(TimeSpan.FromSeconds(options.JobWatcherTimeoutInSeconds).TotalMilliseconds);
             _processTimer.Elapsed += TimerElapsedEvent;
@@ -69,7 +73,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
                 if (jobs.Count == 0)
                 {
-                    _logger.Debug("No jobs in progress");
+                    _logger.Debug("No jobs ready for checks");
                     return;
                 }
 

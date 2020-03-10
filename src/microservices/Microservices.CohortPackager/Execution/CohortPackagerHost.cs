@@ -32,7 +32,7 @@ namespace Microservices.CohortPackager.Execution
             var jobStore = new MongoExtractJobStore(client, opts.DatabaseName);
 
             // Setup the watcher for completed jobs
-            _jobWatcher = new ExtractJobWatcher(globals.CohortPackagerOptions, jobStore, ExceptionCallback);
+            _jobWatcher = new ExtractJobWatcher(globals.CohortPackagerOptions, jobStore, ExceptionCallback, new DoNothingJobCompleteNotifier());
 
             AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 

@@ -21,13 +21,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Parents = new[] { Guid.NewGuid() }
         };
 
-        private class TestException : Exception
-        {
-            public override string StackTrace { get; } = "StackTrace";
-
-            public TestException(string message) : base(message) { }
-        }
-
         #region Fixture Methods 
 
         [OneTimeSetUp]
@@ -48,7 +41,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         #endregion
 
         #region Tests
-        
+
         [Test]
         public void TestMongoExtractJobDoc_SettersAvailable()
         {
@@ -92,8 +85,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExtractJobDoc_Equality()
         {
             Guid guid = Guid.NewGuid();
-            var exception = new TestException("aaah");
-            var failedInfoDoc = new MongoFailedJobInfoDoc(exception, _dateTimeProvider);
+            var failedInfoDoc = new MongoFailedJobInfoDoc(new TestException("aaah"), _dateTimeProvider);
 
             var doc1 = new MongoExtractJobDoc(
                 guid,

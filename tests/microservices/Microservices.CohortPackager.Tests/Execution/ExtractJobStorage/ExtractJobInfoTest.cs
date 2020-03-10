@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
-using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
 
 
@@ -152,12 +151,12 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
             Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
         }
-
+        
         [Test]
         public void TestExtractFileStatusInfo_Equality()
         {
-            var info1 = new ExtractFileStatusInfo(ExtractFileStatus.Anonymised, "anon.dcm", "anonymised");
-            var info2 = new ExtractFileStatusInfo(ExtractFileStatus.Anonymised, "anon.dcm", "anonymised");
+            var info1 = new ExtractFileStatusInfo("anon.dcm",true, "anonymised");
+            var info2 = new ExtractFileStatusInfo("anon.dcm",true, "anonymised");
 
             Assert.AreEqual(info1, info2);
         }
@@ -165,8 +164,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         [Test]
         public void TestExtractFileStatusInfo_GetHashCode()
         {
-            var info1 = new ExtractFileStatusInfo(ExtractFileStatus.Anonymised, "anon.dcm", "anonymised");
-            var info2 = new ExtractFileStatusInfo(ExtractFileStatus.Anonymised, "anon.dcm", "anonymised");
+            var info1 = new ExtractFileStatusInfo("anon.dcm", true, "anonymised");
+            var info2 = new ExtractFileStatusInfo("anon.dcm", true, "anonymised");
 
             Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
         }

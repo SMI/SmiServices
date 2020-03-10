@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -19,7 +20,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             Logger = LogManager.GetLogger(GetType().Name);
         }
 
-        public void PersistMessageToStore(ExtractionRequestInfoMessage message, IMessageHeader header)
+        public void PersistMessageToStore(
+            [NotNull] ExtractionRequestInfoMessage message,
+            [NotNull] IMessageHeader header)
         {
             Logger.Info($"Received new job info {message}");
 
@@ -37,20 +40,25 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             PersistMessageToStoreImpl(message, header);
         }
 
-        public void PersistMessageToStore(ExtractFileStatusMessage message, IMessageHeader header)
+        public void PersistMessageToStore(
+            [NotNull] ExtractFileStatusMessage message,
+            [NotNull] IMessageHeader header)
         {
-            if (message.Status == ExtractFileStatus.Anonymised)
+            //test
+            if (message.Status == ExtractFileStatus.Anonymised || !string.IsNullOrWhiteSpace(message.AnonymisedFileName))
                 throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 
             PersistMessageToStoreImpl(message, header);
         }
 
-        public void PersistMessageToStore(IsIdentifiableMessage message, IMessageHeader header)
+        public void PersistMessageToStore(
+            [NotNull] IsIdentifiableMessage message,
+            [NotNull] IMessageHeader header)
         {
             if (string.IsNullOrWhiteSpace(message.AnonymisedFileName))
                 throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
-            if (message.IsIdentifiable ^ !string.IsNullOrWhiteSpace(message.Report))
-                throw new ApplicationException($"Invalid combination of IsIdentifiable and Report (KeyTag={message.IsIdentifiable}, ExtractionModality={message.Report}");
+            if (string.IsNullOrWhiteSpace(message.Report))
+                throw new ApplicationException("Null or empty report data");
 
             PersistMessageToStoreImpl(message, header);
         }
@@ -63,14 +71,24 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public void MarkJobCompleted(Guid jobId)
         {
-            Logger.Debug($"Marking job {jobId} as completed");
+            if (jobId == default)
+                throw new ArgumentNullException(nameof(jobId));
+
             CompleteJobImpl(jobId);
+            Logger.Debug($"Marked job {jobId} as completed");
         }
 
-        public void MarkJobFailed(Guid jobId, Exception e)
+        public void MarkJobFailed(
+            Guid jobId,
+            [NotNull] Exception cause)
         {
-            Logger.Debug($"Marking job {jobId} as failed");
-            MarkJobFailedImpl(jobId, e);
+            if (jobId == default)
+                throw new ArgumentNullException(nameof(jobId));
+            if (cause == null)
+                throw new ArgumentNullException(nameof(cause));
+
+            MarkJobFailedImpl(jobId, cause);
+            Logger.Debug($"Marked job {jobId} as failed");
         }
 
         protected abstract void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header);
