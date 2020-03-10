@@ -64,7 +64,7 @@ namespace IsIdentifiableReviewer
                     //is it novel for updater
                     if(_updater.OnLoad(server,_reportReader.Current))
                         //is it novel for ignorer
-                        if (_ignorer.OnLoad(_reportReader.Current))
+                        if (_ignorer.OnLoad(_reportReader.Current,out _))
                         {
                             //we can't process it unattended
                             storeReport.Add(_reportReader.Current);

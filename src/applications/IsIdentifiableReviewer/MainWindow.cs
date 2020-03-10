@@ -32,6 +32,7 @@ namespace IsIdentifiableReviewer
         private IRulePatternFactory _origIgnorerRulesFactory;
         private Label _ignoreRuleLabel;
         private Label _updateRuleLabel;
+        private CheckBox _cbRulesOnly;
 
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
@@ -130,11 +131,11 @@ namespace IsIdentifiableReviewer
             };
             frame.Add(cbCustomPattern);
 
-            var cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
+            _cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
             Updater.RulesOnly = opts.OnlyRules;
 
-            cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = cbRulesOnly.Checked;};
-            frame.Add(cbRulesOnly);
+            _cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
+            frame.Add(_cbRulesOnly);
             
             top.Add (menu);
             Add(_info);
@@ -217,7 +218,7 @@ namespace IsIdentifiableReviewer
                     //prefer rules that say we should update the database with redacted over rules that say we should ignore the problem
                     if (!Updater.OnLoad(CurrentTarget?.Discover(),next))
                         updated++;
-                    else if (!Ignorer.OnLoad(next))
+                    else if (!Ignorer.OnLoad(next,out _))
                         skipped++;
                     else
                     {
@@ -262,7 +263,8 @@ namespace IsIdentifiableReviewer
 
             try
             {
-                Updater.Update(CurrentTarget,_valuePane.CurrentFailure,true);
+                Updater.Update(_cbRulesOnly.Checked ? null : CurrentTarget?.Discover()
+                    ,_valuePane.CurrentFailure,null /*create one yourself*/);
             }
             catch (Exception e)
             {

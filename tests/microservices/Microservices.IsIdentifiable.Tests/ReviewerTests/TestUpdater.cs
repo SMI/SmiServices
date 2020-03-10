@@ -57,7 +57,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             //it should be novel i.e. require user decision
             Assert.IsTrue(updater.OnLoad(db.Server,failure));
 
-            updater.Update(db.Server,failure,true);
+            updater.Update(db.Server,failure,null);
 
             var result = tbl.GetDataTable();
             Assert.AreEqual("We aren't in SMI_REDACTED anymore SMI_REDACTED",result.Rows[0]["Narrative"]);

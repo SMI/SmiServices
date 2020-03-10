@@ -21,7 +21,9 @@ namespace IsIdentifiableReviewer.Out
         public bool RulesOnly { get; set; }
 
         Dictionary<DiscoveredTable,DiscoveredColumn> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn>();
-        
+
+        public IUpdateStrategy UpdateStrategy = new ProblemValuesUpdateStrategy();
+
         public RowUpdater(FileInfo rulesFile) : base(rulesFile)
         {
         }
@@ -29,17 +31,18 @@ namespace IsIdentifiableReviewer.Out
         public RowUpdater() : this(new FileInfo(DefaultFileName))
         {
         }
-
-        public void Update(Target target, Failure failure, bool addRule)
+        
+        /// <summary>
+        /// Update the database <paramref name="server"/> to redact the <paramref name="failure"/>.
+        /// </summary>
+        /// <param name="server">Where to connect to get the data, can be null if <see cref="RulesOnly"/> is true</param>
+        /// <param name="failure">The failure to redact/create a rule for</param>
+        /// <param name="usingRule">Pass null to create a new rule or give value to reuse an existing rule</param>
+        public void Update(DiscoveredServer server, Failure failure, IsIdentifiableRule usingRule)
         {
-            Update(target.Discover(),failure,addRule);
-        }
-
-        public void Update(DiscoveredServer server, Failure failure, bool addRule)
-        {
-            //add the update rule to the redlist
-            if(addRule)
-                Add(failure,RuleAction.Report);
+            //theres no rule yet so create one (and add to RedList.yaml)
+            if(usingRule == null)
+                usingRule = Add(failure,RuleAction.Report);
 
             //if we are running in rules only mode we don't need to also update the database
             if(RulesOnly)
@@ -74,14 +77,8 @@ namespace IsIdentifiableReviewer.Out
             {
                 con.Open();
                 
-                foreach (var part in failure.Parts)             
+                foreach (var sql in UpdateStrategy.GetUpdateSql(table,_primaryKeys,failure,usingRule))
                 {
-                    string sql =
-                        $@"update {table.GetFullyQualifiedName()} 
-                SET {syntax.EnsureWrapped(failure.ProblemField)} = 
-                REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(part.Word)}', 'SMI_REDACTED')
-                WHERE {_primaryKeys[table].GetFullyQualifiedName()} = '{syntax.Escape(failure.ResourcePrimaryKey)}'";
-
                     var cmd = server.GetCommand(sql, con);
                     cmd.ExecuteNonQuery();
                 }   
@@ -102,10 +99,10 @@ namespace IsIdentifiableReviewer.Out
                 return true;
 
             //if we have seen this before
-            if (IsCoveredByExistingRule(failure))
+            if (IsCoveredByExistingRule(failure, out IsIdentifiableRule rule))
             {
                 //since user has issued an update for this exact problem before we can update this one too
-                Update(server,failure,false);
+                Update(server,failure,rule);
 
                 //and return false to indicate that it is not a novel issue
                 return false;

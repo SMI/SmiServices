@@ -31,7 +31,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             IgnoreRuleGenerator updater = new IgnoreRuleGenerator(newRules);
 
             //it should be novel i.e. require user decision
-            Assert.IsTrue(updater.OnLoad(failure));
+            Assert.IsTrue(updater.OnLoad(failure,out _));
 
             //we tell it to ignore this value
             updater.Add(failure);
@@ -43,7 +43,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
 ",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
             //it should be no longer be novel
-            Assert.IsFalse(updater.OnLoad(failure));
+            Assert.IsFalse(updater.OnLoad(failure, out _));
 
         }
     }
