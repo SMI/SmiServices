@@ -112,9 +112,6 @@ namespace Smi.Common.Execution
                 ExchangeName = Globals.RabbitOptions.FatalLoggingExchange
             };
 
-            if (!globals.RabbitOptions.Validate())
-                throw new ArgumentException("The given RabbitOptions contains invalid values");
-
             //TODO This won't pass for testing with mocked filesystems
             //if(!Directory.Exists(options.FileSystemRoot))
             //    throw new ArgumentException("Could not locate the FileSystemRoot \"" + options.FileSystemRoot + "\"");

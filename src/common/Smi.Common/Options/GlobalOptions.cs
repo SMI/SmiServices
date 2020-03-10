@@ -559,12 +559,6 @@ namespace Smi.Common.Options
         public string RabbitMqControlExchangeName { get; set; }
         public bool ThreadReceivers { get; set; }
 
-        public bool Validate()
-        {
-            return RabbitMqHostPort > 0 &&
-                   !string.IsNullOrWhiteSpace(RabbitMqVirtualHost);
-        }
-
         public override string ToString()
         {
             return GlobalOptions.GenerateToString(this);
