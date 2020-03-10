@@ -82,7 +82,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
 
             PurgeQueues();
 
-            _testAdapter = new RabbitMqAdapter(GlobalOptions.RabbitOptions, "TestHost");
+            _testAdapter = new RabbitMqAdapter(GlobalOptions.RabbitOptions.CreateConnectionFactory(), "TestHost");
         }
 
         public void ResetSuite()

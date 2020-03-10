@@ -39,7 +39,7 @@ namespace Smi.Common.Tests
         {
             CleanUpAfterTest = true;
 
-            _adapter = new RabbitMqAdapter(rabbitOptions, "TestHost");
+            _adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
 
             _factory = new ConnectionFactory
             {

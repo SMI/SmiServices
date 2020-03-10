@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +47,7 @@ namespace Smi.Common
         private readonly HostFatalHandler _hostFatalHandler;
         private readonly string _hostId;
 
-        private readonly ConnectionFactory _factory;
+        private readonly IConnectionFactory _factory;
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new Dictionary<Guid, RabbitResources>();
         private readonly object _oResourceLock = new object();
 
@@ -60,13 +60,13 @@ namespace Smi.Common
         private readonly bool _threaded;
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="options">Connection parameters to a RabbitMQ server</param>
+        /// <param name="connectionFactory"></param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
         /// <param name="threaded"></param>
-        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
+        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
         {
             //_threaded = options.ThreadReceivers;
             _threaded = threaded;
@@ -82,15 +82,8 @@ namespace Smi.Common
                     _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
             }
 
-            _factory = new ConnectionFactory
-            {
-                HostName = options.RabbitMqHostName,
-                VirtualHost = options.RabbitMqVirtualHost,
-                Port = options.RabbitMqHostPort,
-                UserName = options.RabbitMqUserName,
-                Password = options.RabbitMqPassword
-            };
-
+            _factory = connectionFactory;
+            
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("hostId");
 
@@ -482,8 +475,7 @@ namespace Smi.Common
             catch (BrokerUnreachableException e)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine($"    HostName:                       {_factory.HostName}");
-                sb.AppendLine($"    Port:                           {_factory.Port}");
+                sb.AppendLine($"    URI:                            {_factory.Uri}");
                 sb.AppendLine($"    UserName:                       {_factory.UserName}");
                 sb.AppendLine($"    VirtualHost:                    {_factory.VirtualHost}");
                 sb.AppendLine($"    HandshakeContinuationTimeout:   {_factory.HandshakeContinuationTimeout}");

@@ -56,7 +56,7 @@ namespace Smi.Common.Tests
 
             _mockConsumer = Mock.Of<Consumer>();
 
-            _testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions, "RabbitMqAdapterTests");
+            _testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
 
             _tester = new MicroserviceTester(_testOptions.RabbitOptions, _testConsumerOptions);
         }
@@ -68,20 +68,6 @@ namespace Smi.Common.Tests
                 _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
             _tester.Shutdown();
-        }
-
-
-        /// <summary>
-        /// Test that the given setting for the RabbitMQ server are validated when we construct the adapter
-        /// </summary>
-        [Test]
-        public void TestInvalidRabbitServerSettings()
-        {
-            Assert.Throws<ArgumentException>(() =>
-            {
-                var adapter = new RabbitMqAdapter(new RabbitOptions { RabbitMqHostName = "loocalhoost" }, "TestHost");
-                adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
-            });
         }
 
         /// <summary>

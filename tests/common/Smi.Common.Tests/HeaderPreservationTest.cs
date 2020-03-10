@@ -32,7 +32,7 @@ namespace Smi.Common.Tests
                 tester.SendMessage(consumerOptions, header, new TestMessage() { Message = "hi" });
 
                 consumer = new TestConsumer();
-                var a = new RabbitMqAdapter(o.RabbitOptions, "TestHost");
+                var a = new RabbitMqAdapter(o.RabbitOptions.CreateConnectionFactory(), "TestHost");
                 a.StartConsumer(consumerOptions, consumer);
 
                 TestTimelineAwaiter awaiter = new TestTimelineAwaiter();

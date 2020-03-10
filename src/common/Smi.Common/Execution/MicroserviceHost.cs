@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -7,6 +7,7 @@ using DicomTypeTranslation;
 using DicomTypeTranslation.Helpers;
 using JetBrains.Annotations;
 using NLog;
+using RabbitMQ.Client;
 using Smi.Common.Events;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
@@ -119,9 +120,13 @@ namespace Smi.Common.Execution
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
-            RabbitMqAdapter = rabbitMqAdapter ?? new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
-
-            _controlMessageConsumer = new ControlMessageConsumer(this, globals.RabbitOptions, HostProcessName, HostProcessID);
+            RabbitMqAdapter = rabbitMqAdapter;
+            if (RabbitMqAdapter == null)
+            {
+                ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
+                RabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
+                _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, globals.RabbitOptions.RabbitMqControlExchangeName, this.Stop);
+            }
 
             ObjectFactory = new MicroserviceObjectFactory();
             ObjectFactory.FatalHandler = (s, e) => Fatal(e.Message, e.Exception);
