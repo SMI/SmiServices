@@ -76,11 +76,12 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             var message = new ExtractFileStatusMessage();
             var header = new MessageHeader();
 
-            message.Status = ExtractFileStatus.Unknown;
-            testExtractJobStore.PersistMessageToStore(message, header);
-
             message.Status = ExtractFileStatus.Anonymised;
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
+
+            message.Status = ExtractFileStatus.ErrorWontRetry;
+            testExtractJobStore.PersistMessageToStore(message, header);
+
         }
 
         [Test]

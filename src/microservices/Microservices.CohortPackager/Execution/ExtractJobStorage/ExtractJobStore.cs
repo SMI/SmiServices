@@ -44,8 +44,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] ExtractFileStatusMessage message,
             [NotNull] IMessageHeader header)
         {
-            //test
-            if (message.Status == ExtractFileStatus.Anonymised || !string.IsNullOrWhiteSpace(message.AnonymisedFileName))
+            if (message.Status == ExtractFileStatus.Anonymised)
                 throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 
             PersistMessageToStoreImpl(message, header);

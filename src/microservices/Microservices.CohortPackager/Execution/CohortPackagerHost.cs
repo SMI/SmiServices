@@ -3,6 +3,7 @@ using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
 using MongoDB.Driver;
+using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
@@ -23,16 +24,25 @@ namespace Microservices.CohortPackager.Execution
         private readonly AnonFailedMessageConsumer _anonFailedMessageConsumer;
 
 
-        public CohortPackagerHost(GlobalOptions globals, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig: loadSmiLogConfig)
+        public CohortPackagerHost(
+            GlobalOptions globals,
+            IJobCompleteNotifier jobCompleteNotifier = null,
+            IRabbitMqAdapter rabbitMqAdapter = null,
+            bool loadSmiLogConfig = true
+        )
+            : base(globals, rabbitMqAdapter, loadSmiLogConfig)
         {
-            // Connect to store & validate etc.
+
             MongoDbOptions opts = Globals.MongoDatabases.ExtractionStoreOptions;
             MongoClient client = MongoClientHelpers.GetMongoClient(opts, HostProcessName);
             var jobStore = new MongoExtractJobStore(client, opts.DatabaseName);
 
             // Setup the watcher for completed jobs
-            _jobWatcher = new ExtractJobWatcher(globals.CohortPackagerOptions, jobStore, ExceptionCallback, new DoNothingJobCompleteNotifier());
+            _jobWatcher = new ExtractJobWatcher(
+                globals.CohortPackagerOptions,
+                jobStore,
+                ExceptionCallback,
+                jobCompleteNotifier ?? new DoNothingJobCompleteNotifier());
 
             AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 

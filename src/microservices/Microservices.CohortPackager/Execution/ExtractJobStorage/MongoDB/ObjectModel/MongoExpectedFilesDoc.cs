@@ -14,6 +14,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     /// <summary>
     /// MongoDB document model representing a set of files which are expected to be extracted
     /// </summary>
+    [BsonIgnoreExtraElements]
     public class MongoExpectedFilesDoc : IEquatable<MongoExpectedFilesDoc>
     {
         [BsonElement("header")]

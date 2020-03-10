@@ -5,6 +5,10 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    [BsonIgnoreExtraElements]
     public class MongoFileStatusDoc
     {
         [BsonElement("header")]
@@ -12,7 +16,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public MongoExtractionMessageHeaderDoc Header { get; set; }
 
         [BsonElement("anonymisedFileName")]
-        [CanBeNull] // NOTE(rkm 2020-03-04) Will be null for messages we receive regarding failed anonymisation
+        [NotNull]
         public string AnonymisedFileName { get; set; }
 
         [BsonElement("isIdentifiable")]
@@ -24,7 +28,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         public MongoFileStatusDoc(
             [NotNull] MongoExtractionMessageHeaderDoc header,
-            [CanBeNull] string anonymisedFileName,
+            [NotNull] string anonymisedFileName,
             bool isIdentifiable,
             [NotNull] string statusMessage)
         {

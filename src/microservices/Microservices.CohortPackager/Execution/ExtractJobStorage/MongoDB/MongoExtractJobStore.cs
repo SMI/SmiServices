@@ -77,7 +77,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
-                null,
+                message.AnonymisedFileName,
                 true,
                 message.StatusMessage);
 
