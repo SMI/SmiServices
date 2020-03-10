@@ -59,7 +59,10 @@ namespace Microservices.IsIdentifiable.Options
 
         [Option(HelpText = "Optional. Filename of additional rules in yaml format.")]
         public string RulesFile { get; set; }
-        
+
+        [Option(HelpText = "Optional. Directory of additional rules in yaml format.")]
+        public string RulesDirectory { get; set; }
+
         /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
         /// for naming output reports e.g. "biochemistry" , "mydir" etc

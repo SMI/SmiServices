@@ -113,20 +113,22 @@ namespace Microservices.IsIdentifiable.Runners
                 foreach (string c in _opts.SkipColumns.Split(','))
                     _skipColumns.Add(c);
 
-            var fi = new FileInfo("Rules.yaml");
-            
-            if (fi.Exists)
-                LoadRules(File.ReadAllText(fi.FullName));
-            else
-                _logger.Info("No default Rules Yaml file found (thats ok)");
-
             if (!string.IsNullOrWhiteSpace(opts.RulesFile))
             {
-                fi = new FileInfo(_opts.RulesFile);
+                var fi = new FileInfo(_opts.RulesFile);
                 if (fi.Exists)
                     LoadRules(File.ReadAllText(fi.FullName));
                 else
                     throw new Exception("Error reading "+_opts.RulesFile);
+            }
+
+            if (!string.IsNullOrWhiteSpace(opts.RulesDirectory))
+            {
+                DirectoryInfo di = new DirectoryInfo(opts.RulesDirectory);
+                foreach (var fi in di.GetFiles("*.yaml"))
+                {
+                    LoadRules(File.ReadAllText(fi.FullName));
+                }
             }
 
             IWhitelistSource source = null;

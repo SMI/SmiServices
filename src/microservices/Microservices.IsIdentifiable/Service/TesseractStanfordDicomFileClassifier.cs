@@ -12,6 +12,7 @@ namespace Microservices.IsIdentifiable.Service
     {
         private DicomFileRunner _runner;
 
+        //public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
         public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
         {
             var fileOptions = new IsIdentifiableDicomFileOptions();
@@ -19,6 +20,11 @@ namespace Microservices.IsIdentifiable.Service
             //need to pass this so that the runner doesn't get unhappy about there being no reports (even though we clear it below)
             fileOptions.ColumnReport = true;
             fileOptions.TessDirectory = dataDirectory.FullName;
+
+            // The Rules directory is always called "IsIdentifiableRules"
+            DirectoryInfo[] subDirs = dataDirectory.GetDirectories("IsIdentifiableRules");
+            foreach (DirectoryInfo subDir in subDirs)
+                fileOptions.RulesDirectory = subDir.FullName;
 
             _runner = new DicomFileRunner(fileOptions);
         }

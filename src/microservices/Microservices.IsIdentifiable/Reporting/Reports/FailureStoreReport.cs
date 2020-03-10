@@ -6,6 +6,7 @@ using System.Linq;
 using CsvHelper;
 using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
+using Microservices.IsIdentifiable.Reporting.Destinations;
 
 namespace Microservices.IsIdentifiable.Reporting.Reports
 {
@@ -43,6 +44,12 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
         {
             base.AddDestinations(opts);
             Destinations.ForEach(d => d.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray()));
+        }
+
+        public void AddDestination(IReportDestination destination)
+        {
+            Destinations.Add(destination);
+            destination.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray());
         }
         
         public override void Add(Failure failure)

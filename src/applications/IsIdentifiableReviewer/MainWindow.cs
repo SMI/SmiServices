@@ -5,22 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Rules;
+using Microservices.IsIdentifiable.Reporting;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
 namespace IsIdentifiableReviewer
 {
-    class MainWindow : View
+    class MainWindow : View,IRulePatternFactory
     {
         private readonly List<Target> _targets;
 
         public Target CurrentTarget { get; set; }
         public ReportReader CurrentReport { get; set; }
 
-        public RuleGenerator Generator { get; set; } = new RuleGenerator(new FileInfo("NewRules.yaml"));
+        public IgnoreRuleGenerator Ignorer { get; }
 
-        public RowUpdater Updater { get; set; } = new RowUpdater();
+        public RowUpdater Updater { get;  } 
 
         public int DlgWidth = 78;
         public int DlgHeight = 18;
@@ -29,9 +29,12 @@ namespace IsIdentifiableReviewer
         private Label _info;
         private TextField _gotoTextField;
 
-        public MainWindow(List<Target> targets)
+        public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
+            Ignorer = ignorer;
+            Updater = updater;
+
             X = 0;
             Y = 1;
             Width = Dim.Fill();
@@ -105,10 +108,27 @@ namespace IsIdentifiableReviewer
                 Clicked = ()=>GoToRelative(1)
             });
 
+            var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
+            cbCustomPattern.Toggled += (c, s) =>
+            {
+                Updater.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
+                Ignorer.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
+            };
+            frame.Add(cbCustomPattern);
+
+            var cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
+            Updater.RulesOnly = opts.OnlyRules;
+
+            cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = cbRulesOnly.Checked;};
+            frame.Add(cbRulesOnly);
+            
             top.Add (menu);
             Add(_info);
             Add(_valuePane);
             Add(frame);
+
+            if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
+                OpenReport(opts.FailuresCsv,(e)=>throw e, (t)=>throw new Exception("Mode only supported when a single Target is configured"));
         }
 
         private void GoToRelative(int offset)
@@ -158,22 +178,29 @@ namespace IsIdentifiableReviewer
 
             int skipped = 0;
             int updated = 0;
-
-            while(CurrentReport.Next())
+            try
             {
-                var next = CurrentReport.Current;
-
-                if (!Generator.OnLoad(next))
-                    skipped++;
-                else if (!Updater.OnLoad(CurrentTarget,next))
-                    updated++;
-                else
+                while(CurrentReport.Next())
                 {
-                    _valuePane.CurrentFailure = next;
-                    break;
+                    var next = CurrentReport.Current;
+
+                    //prefer rules that say we should update the database with redacted over rules that say we should ignore the problem
+                    if (!Updater.OnLoad(CurrentTarget?.Discover(),next))
+                        updated++;
+                    else if (!Ignorer.OnLoad(next))
+                        skipped++;
+                    else
+                    {
+                        _valuePane.CurrentFailure = next;
+                        break;
+                    }
                 }
             }
-
+            catch (Exception e)
+            {
+                ShowException("Error moving to next record",e);
+            }
+            
             if(CurrentReport.Exhausted)
                 ShowMessage("End", "End of Failures");
             
@@ -194,7 +221,7 @@ namespace IsIdentifiableReviewer
             if(_valuePane.CurrentFailure == null)
                 return;
 
-            Generator.Add(_valuePane.CurrentFailure,RuleAction.Ignore);
+            Ignorer.Add(_valuePane.CurrentFailure);
             Next();
         }
         private void Update()
@@ -204,7 +231,7 @@ namespace IsIdentifiableReviewer
 
             try
             {
-                Updater.Update(CurrentTarget,_valuePane.CurrentFailure);
+                Updater.Update(CurrentTarget,_valuePane.CurrentFailure,true);
             }
             catch (Exception e)
             {
@@ -227,34 +254,37 @@ namespace IsIdentifiableReviewer
             Application.Run(ofd);
 
             var f = ofd.FilePaths?.SingleOrDefault();
-            if ( f != null)
+
+            OpenReport(f,
+                (e)=>ShowException("Failed to Load", e),
+                (t)=> 
+                    GetChoice("Target", "Pick the database this was generated from", out Target chosen,t.ToArray())
+                    ? chosen : null);
+        }
+
+        private void OpenReport(string path, Action<Exception> exceptionHandler, Func<IEnumerable<Target>,Target> targetPicker)
+        {
+            if ( path == null)
+                return;
+
+            try
             {
-                try
-                {
-                    //if there are multiple targets
-                    if (_targets.Count > 1)
-                    {
-                        //pick one
-                        if (GetChoice("Target", "Pick the database this was generated from", out Target chosen,_targets.ToArray()))
-                            CurrentTarget = chosen;
-                        else
-                            return; //they cancelled picking a target
-                    }
-                    else
-                        CurrentTarget = _targets.Single();
+                //if there are multiple targets
+                CurrentTarget = _targets.Count > 1 ? targetPicker(_targets) : _targets.Single();
 
-                    CurrentReport = new ReportReader(new FileInfo(f));
-                    _valuePane.CurrentFailure = CurrentReport.Failures.FirstOrDefault();
-                    Next();
-                }
-                catch (Exception e)
-                {
-                    ShowException("Failed to Load",e);
-                }
+                if(CurrentTarget == null)
+                    return;
 
+                CurrentReport = new ReportReader(new FileInfo(path));
+                _valuePane.CurrentFailure = CurrentReport.Failures.FirstOrDefault();
+                Next();
+            }
+            catch (Exception e)
+            {
+                exceptionHandler(e);
             }
         }
-        
+
         public void ShowMessage(string title, string body)
         {
             RunDialog(title,body,out _,"Ok");
@@ -348,12 +378,90 @@ namespace IsIdentifiableReviewer
             chosen = result;
             return optionChosen;
         }
+         private bool GetText(string title, string message, string initialValue, out string chosen)
+         {
+            bool optionChosen = false;
+
+            var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
+
+            var line = DlgHeight - (DlgBoundary)*2 - 2;
+
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                int width = Math.Min(Console.WindowWidth,DlgWidth) - (DlgBoundary * 2);
+
+                var msg = Wrap(message, width-1).TrimEnd();
+
+                var text = new Label(0, 0, msg)
+                {
+                    Height = line - 1, Width = width
+                };
+
+                //if it is too long a message
+                int newlines = msg.Count(c => c == '\n');
+                if (newlines > line - 1)
+                {
+                    var view = new ScrollView(new Rect(0, 0, width, line - 1))
+                    {
+                        ContentSize = new Size(width, newlines + 1),
+                        ContentOffset = new Point(0, 0),
+                        ShowVerticalScrollIndicator = true,
+                        ShowHorizontalScrollIndicator = false
+                    };
+                    view.Add(text);
+                    dlg.Add(view);
+                }
+                else
+                    dlg.Add(text);
+            }
+
+            var txt = new TextField(0, line++, DlgWidth -4 ,initialValue ?? "");
+            dlg.Add(txt);
+
+            var btn = new Button(0, line, "Ok")
+            {
+                IsDefault = true,
+                Clicked = () =>
+                {
+                    dlg.Running = false;
+                    optionChosen = true;
+                }
+            };
+            dlg.Add(btn);
+
+            var btnClear = new Button(15, line, "Clear")
+            {
+                Clicked = () => { txt.Text = ""; }
+            };
+            dlg.Add(btnClear);
+
+            
+
+            dlg.FocusFirst();
+        
+
+            Application.Run(dlg);
+
+            chosen = txt.Text?.ToString();
+            return optionChosen;
+         }
          
          public static string Wrap(string s, int width)
          {
              var r = new Regex(@"(?:((?>.{1," + width + @"}(?:(?<=[^\S\r\n])[^\S\r\n]?|(?=\r?\n)|$|[^\S\r\n]))|.{1,16})(?:\r?\n)?|(?:\r?\n|$))");
              return r.Replace(s, "$1\n");
          }
-         
+
+         public string GetPattern(Failure failure)
+         {
+             var defaultFactory = new MatchWholeStringRulePatternFactory();
+             var recommendedPattern = defaultFactory.GetPattern(failure);
+
+             if(GetText("Pattern","Enter pattern to match failure",recommendedPattern, out string chosen))
+                return chosen;
+            
+             throw new Exception("User chose not to enter a pattern");
+         }
+
     }
 }

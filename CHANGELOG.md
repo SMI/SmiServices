@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+ - IsIdentifiable microservice was started with --service but can now be started with the service verb allowing it to take additional options. It should now be started with `service -y file.yaml`
+ - IsIdentifiable no longer reads Rules.yaml from the current directory. It now has a command line option --RulesDirectory, to go with the already existing --RulesFile. That will read all *.yaml files in the given directory. However when run as a microservice the yaml file specifies a DataDirectory; the RulesDirectory will implicitly be a subdirectory called IsIdentifiableRules from which all *.yaml files will be read.
+
+...
+
+## [1.5.1] - 2020-03-06
+
+- Improved usability of IsIdentifiableReviewer
+
+## [1.5.0] - 2020-03-05
+
 - \[Breaking\] Updated RabbitMQ extraction config to match extraction plan v2
 - Refactor Java exception handling and use of threads
 - `TessDirectory` option in [IsIdentifiable] now expects tesseract models file to exist (no longer downloads it on demand)
@@ -200,7 +211,9 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.4.5...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.5.1...develop
+[1.5.1]:  https://github.com/SMI/SmiServices/compare/v1.5.0...v1.5.1
+[1.5.0]:  https://github.com/SMI/SmiServices/compare/v1.4.5...v1.5.0
 [1.4.5]:  https://github.com/SMI/SmiServices/compare/v1.4.4...v1.4.5
 [1.4.4]:  https://github.com/SMI/SmiServices/compare/v1.4.3...v1.4.4
 [1.4.3]:  https://github.com/SMI/SmiServices/compare/v1.4.2...v1.4.3

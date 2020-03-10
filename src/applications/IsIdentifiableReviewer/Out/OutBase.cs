@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Rules;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiableReviewer.Out
 {
-    class RuleGenerator
+    public abstract class OutBase
     {
-        private List<IsIdentifiableRule> Rules;
+        protected List<IsIdentifiableRule> Rules { get;}
         public FileInfo RulesFile { get; }
         
-        public RuleGenerator(FileInfo rulesFile)
+        public IRulePatternFactory RulesFactory { get; set; } = new MatchWholeStringRulePatternFactory();
+
+        protected OutBase(FileInfo rulesFile)
         {
             RulesFile = rulesFile;
 
@@ -43,17 +45,23 @@ namespace IsIdentifiableReviewer.Out
         }
 
         /// <summary>
-        /// Adds a rule to ignore the given failure
+        /// Adds a new rule (both to the <see cref="RulesFile"/> and the in memory <see cref="Rules"/> collection).
         /// </summary>
         /// <param name="f"></param>
-        public void Add(Failure f,RuleAction action)
+        /// <param name="action"></param>
+        protected void Add(Failure f, RuleAction action)
         {
-            var rule = new IsIdentifiableRule();
-
-            rule.Action = action;
-            rule.IfColumn = f.ProblemField;
-            rule.IfPattern = "^" + Regex.Escape(f.ProblemValue) + "$";
-
+            var rule = new IsIdentifiableRule
+            {
+                Action = action,
+                IfColumn = f.ProblemField,
+                IfPattern = RulesFactory.GetPattern(f),
+                As = 
+                    action == RuleAction.Ignore? 
+                        FailureClassification.None : 
+                        f.Parts.Select(p=>p.Classification).FirstOrDefault()
+            };
+            
             //don't add identical rules
             if (Rules.Any(r => r.AreIdentical(rule)))
                 return;
@@ -64,16 +72,16 @@ namespace IsIdentifiableReviewer.Out
             var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
             File.AppendAllText(RulesFile.FullName,yaml);
         }
-        
+
         /// <summary>
-        /// When a new <paramref name="failure"/> is loaded, is it already covered by existing rules i.e. rules you are
-        /// working on now that have been added since the report was generated
+        /// Returns true if there are any rules that already exactly cover the given <paramref name="failure"/>
         /// </summary>
-        /// <param name="f"></param>
-        /// <returns>true if it is novel</returns>
-        public bool OnLoad(Failure failure)
+        /// <param name="failure"></param>
+        /// <returns></returns>
+        protected bool IsCoveredByExistingRule(Failure failure)
         {
-            return Rules.All(r => r.Apply(failure.ProblemField, failure.ProblemValue, out _) == RuleAction.None);
+            //if any rule matches then we are covered by an existing rule
+            return Rules.Any(r => r.Apply(failure.ProblemField, failure.ProblemValue, out _) != RuleAction.None);
         }
     }
 }

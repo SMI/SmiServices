@@ -61,10 +61,9 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		_extractRequestInfoMessageProducerModel = extractRequestInfoMessageProducerModel;
 		_extractionModality = extractionModality;
 
-		// TODO(rkm 2020-01-30) Properly handle this
-		if (_extractionModality != null && (_extractionModality != "CT" && _extractionModality != "MR")) {
-			throw new IllegalArgumentException(
-					"Invalid value " + _extractionModality + " for extractionModality. Supported values are: CT, MR");
+        // TODO(rkm 2020-01-30) Properly handle parsing of the supported modalities
+        if (_extractionModality != null && (!_extractionModality.equals("CT") && !_extractionModality.equals("MR"))) {
+			throw new IllegalArgumentException("Invalid value " + _extractionModality + " for extractionModality. Supported values are: CT, MR");
 		}
 	}
 
