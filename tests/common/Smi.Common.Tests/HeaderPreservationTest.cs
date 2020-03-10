@@ -37,7 +37,7 @@ namespace Smi.Common.Tests
 
                 TestTimelineAwaiter awaiter = new TestTimelineAwaiter();
                 awaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
-                a.Shutdown();
+                a.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
             }
 
             Assert.IsTrue(consumer.Passed);

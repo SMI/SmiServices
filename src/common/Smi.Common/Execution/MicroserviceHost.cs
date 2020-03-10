@@ -25,7 +25,7 @@ namespace Smi.Common.Execution
         protected readonly GlobalOptions Globals;
         protected readonly ILogger Logger;
 
-        protected readonly RabbitMqAdapter RabbitMqAdapter;
+        protected readonly IRabbitMqAdapter RabbitMqAdapter;
 
 
         private readonly object _oAdapterLock = new object();
@@ -44,11 +44,12 @@ namespace Smi.Common.Execution
         /// Loads logging, sets up fatal behaviour, subscribes rabbit etc.
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
+        /// <param name="rabbitMqAdapter"></param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Smi.NLog.config" of the current directory)</param>
         /// <param name="threaded"></param>
         protected MicroserviceHost(
             [NotNull] GlobalOptions globals,
-            RabbitMqAdapter rabbitMqAdapter = null,
+            IRabbitMqAdapter rabbitMqAdapter = null,
             bool loadSmiLogConfig = true,
             bool threaded = false)
         {
@@ -152,8 +153,8 @@ namespace Smi.Common.Execution
                 if (RabbitMqAdapter.HasConsumers)
                     throw new ApplicationException("Rabbit adapter has consumers before aux. connections created");
 
-                _fatalLoggingProducer = RabbitMqAdapter.SetupProducer(_fatalLoggingProducerOptions);
-                RabbitMqAdapter.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer);
+                _fatalLoggingProducer = RabbitMqAdapter.SetupProducer(_fatalLoggingProducerOptions, isBatch: false);
+                RabbitMqAdapter.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer, isSolo: false);
             }
         }
 
@@ -187,7 +188,7 @@ namespace Smi.Common.Execution
 
             lock (_oAdapterLock)
             {
-                RabbitMqAdapter.Shutdown();
+                RabbitMqAdapter.Shutdown(Common.RabbitMqAdapter.DefaultOperationTimeout);
             }
 
             Logger.Info("Host stop completed");

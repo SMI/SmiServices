@@ -174,7 +174,7 @@ namespace Smi.Common.Tests
             foreach (MicroserviceHost host in StopOnDispose)
                 host.Stop("MicroserviceTester Disposed");
 
-            _adapter.Shutdown();
+            _adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
         }
 
         /// <summary>

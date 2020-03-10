@@ -90,7 +90,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
             PurgeQueues();
 
             if (_rejectorId != Guid.Empty)
-                _testAdapter.StopConsumer(_rejectorId);
+                _testAdapter.StopConsumer(_rejectorId, RabbitMqAdapter.DefaultOperationTimeout);
 
             MessageRejectorConsumer = new MessageRejector { AcceptNext = false };
             _rejectorId = _testAdapter.StartConsumer(_messageRejectorOptions, MessageRejectorConsumer);
@@ -107,7 +107,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
             TestModel.Close();
             _testConnection.Close();
 
-            _testAdapter.Shutdown();
+            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
         }
 
         private void PurgeQueues()

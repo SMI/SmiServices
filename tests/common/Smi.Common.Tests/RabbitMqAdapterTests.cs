@@ -65,7 +65,7 @@ namespace Smi.Common.Tests
         public void TearDown()
         {
             if (_testAdapter != null)
-                _testAdapter.Shutdown();
+                _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
             _tester.Shutdown();
         }
@@ -80,7 +80,7 @@ namespace Smi.Common.Tests
             Assert.Throws<ArgumentException>(() =>
             {
                 var adapter = new RabbitMqAdapter(new RabbitOptions { RabbitMqHostName = "loocalhoost" }, "TestHost");
-                adapter.Shutdown();
+                adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
             });
         }
 
@@ -127,7 +127,7 @@ namespace Smi.Common.Tests
         public void TestShutdownThrowsOnTimeout()
         {
             _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.Throws<ApplicationException>(() => _testAdapter.Shutdown(0));
+            Assert.Throws<ApplicationException>(() => _testAdapter.Shutdown(TimeSpan.Zero));
             _testAdapter = null;
         }
 
@@ -139,7 +139,7 @@ namespace Smi.Common.Tests
         {
             Assert.False(_testAdapter.ShutdownCalled);
 
-            _testAdapter.Shutdown();
+            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
             Assert.True(_testAdapter.ShutdownCalled);
             Assert.Throws<ApplicationException>(() => _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
@@ -150,8 +150,8 @@ namespace Smi.Common.Tests
         public void TestStopConsumer()
         {
             Guid consumerId = _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.DoesNotThrow(() => _testAdapter.StopConsumer(consumerId));
-            Assert.Throws<ApplicationException>(() => _testAdapter.StopConsumer(consumerId));
+            Assert.DoesNotThrow(() => _testAdapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
+            Assert.Throws<ApplicationException>(() => _testAdapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace Smi.Common.Tests
             IModel model = _testAdapter.GetModel("TestConnection");
             model.ConfirmSelect();
 
-            _testAdapter.Shutdown();
+            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
             Assert.True(model.IsClosed);
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
@@ -253,7 +253,7 @@ namespace Smi.Common.Tests
                 Thread.Sleep(3000);
                 
                 //now attempt to shut down adapter
-                _testAdapter.Shutdown();
+                _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
                 string expectedErrorMessage = "nothing to see here";
 

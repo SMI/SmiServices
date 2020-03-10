@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +19,7 @@ namespace Smi.Common
     /// <summary>
     /// Adapter for the RabbitMQ API.
     /// </summary>
-    public class RabbitMqAdapter
+    public class RabbitMqAdapter : IRabbitMqAdapter
     {
         /// <summary>
         /// Used to ensure we can't create any new connections after we have called Shutdown()
@@ -41,6 +40,7 @@ namespace Smi.Common
         public const string RabbitMqRoutingKey_MatchAnything = "#";
         public const string RabbitMqRoutingKey_MatchOneWord = "*";
 
+        public static TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -215,7 +215,7 @@ namespace Smi.Common
 
             consumer.OnFatal += (s, e) =>
             {
-                resources.Shutdown();
+                resources.Shutdown(DefaultOperationTimeout);
                 _hostFatalHandler(s, e);
             };
 
@@ -224,13 +224,13 @@ namespace Smi.Common
 
             return taskId;
         }
-
+        
         /// <summary>
         ///
         /// </summary>
         /// <param name="taskId"></param>
         /// <param name="timeout"></param>
-        public void StopConsumer(Guid taskId, int timeout = 5000)
+        public void StopConsumer(Guid taskId, TimeSpan timeout)
         {
             if (ShutdownCalled)
                 return;
@@ -357,7 +357,7 @@ namespace Smi.Common
         /// Close all open connections and stop any consumers
         /// </summary>
         /// <param name="timeout">Max time given for each consumer to exit</param>
-        public void Shutdown(int timeout = 5000)
+        public void Shutdown(TimeSpan timeout)
         {
             if (ShutdownCalled)
                 return;
@@ -422,7 +422,7 @@ namespace Smi.Common
                             {
                                 worklock.ExitReadLock();
                             }
-                        },cancellationToken);
+                        }, cancellationToken);
                     }
                     else
                         consumer.ProcessMessage(e);
@@ -537,7 +537,7 @@ namespace Smi.Common
             public ISubscription Subscription { get; set; }
 
 
-            public bool Shutdown(int timeout = 5000)
+            public bool Shutdown(TimeSpan timeout)
             {
                 bool exitOk;
                 lock (OResourceLock)
