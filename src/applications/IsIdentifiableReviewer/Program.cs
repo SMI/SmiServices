@@ -94,7 +94,7 @@ namespace IsIdentifiableReviewer
             }
 
                         
-            var updater = new RowUpdater(new FileInfo(opts.RedList));
+            var updater = new RowUpdater( new FileInfo(opts.RedList));
             var ignorer = new IgnoreRuleGenerator(new FileInfo(opts.IgnoreList));
 
             try
@@ -122,9 +122,20 @@ namespace IsIdentifiableReviewer
             }
             catch (Exception e)
             {
-                Application.RequestStop();
-
                 Console.Write(e);
+
+                int tries = 5;
+                while(Application.Top != null && tries-- >0)
+                    try
+                    {
+                        Application.RequestStop();
+                    }
+                    catch (Exception )
+                    {
+                        Console.WriteLine("Failed to terminate GUI on crash");
+                    }
+
+                
                 returnCode = -99;
                 return;
             }
