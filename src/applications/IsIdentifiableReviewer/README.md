@@ -12,11 +12,16 @@ Primary Author: [Thomas](https://github.com/tznind)
 
 This application allows you to rapidly evaluate and act upon the output of the IsIdentifiable tool (reports of suspected Personally Identifiable Information - PII).
 
+![Screenshot](./images/Role.png)
+_The review process of potentially PII_
+
 You can see the application help by running:
 
 ```
 .\IsIdentifiableReviewer --help
 ```
+
+
 
 ## 2. Setup / Installation
 
@@ -36,7 +41,7 @@ This is because in addition to reviewing failures the application is designed to
 
 In the GUI you can open `ExampleReport.csv` and begin marking reports as `Ignore` or `Update`.  If you have not configured `Targets.yaml` then make sure to select the `Rules Only` option.
 
-![Screenshot](./Screenshot1.png)
+![Screenshot](./images/Screenshot1.png)
 
 ## Usage
 
