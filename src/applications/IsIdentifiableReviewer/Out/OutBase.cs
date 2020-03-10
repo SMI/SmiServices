@@ -56,7 +56,7 @@ namespace IsIdentifiableReviewer.Out
             {
                 Action = action,
                 IfColumn = f.ProblemField,
-                IfPattern = RulesFactory.GetPattern(f),
+                IfPattern = RulesFactory.GetPattern(this,f),
                 As = 
                     action == RuleAction.Ignore? 
                         FailureClassification.None : 

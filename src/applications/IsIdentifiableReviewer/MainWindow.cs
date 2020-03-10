@@ -28,12 +28,16 @@ namespace IsIdentifiableReviewer
         private ValuePane _valuePane;
         private Label _info;
         private TextField _gotoTextField;
+        private IRulePatternFactory _origUpdaterRulesFactory;
+        private IRulePatternFactory _origIgnorerRulesFactory;
 
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
             Ignorer = ignorer;
             Updater = updater;
+            _origUpdaterRulesFactory = updater.RulesFactory;
+            _origIgnorerRulesFactory = ignorer.RulesFactory;
 
             X = 0;
             Y = 1;
@@ -111,8 +115,8 @@ namespace IsIdentifiableReviewer
             var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
             cbCustomPattern.Toggled += (c, s) =>
             {
-                Updater.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
-                Ignorer.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
+                Updater.RulesFactory = cbCustomPattern.Checked ? this : _origUpdaterRulesFactory;
+                Ignorer.RulesFactory = cbCustomPattern.Checked ? this : _origIgnorerRulesFactory;
             };
             frame.Add(cbCustomPattern);
 
@@ -452,10 +456,11 @@ namespace IsIdentifiableReviewer
              return r.Replace(s, "$1\n");
          }
 
-         public string GetPattern(Failure failure)
+         public string GetPattern(object sender,Failure failure)
          {
-             var defaultFactory = new MatchWholeStringRulePatternFactory();
-             var recommendedPattern = defaultFactory.GetPattern(failure);
+             var defaultFactory = sender == Updater ? _origUpdaterRulesFactory : _origIgnorerRulesFactory;
+
+             var recommendedPattern = defaultFactory.GetPattern(sender,failure);
 
              if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen))
              {
@@ -469,7 +474,7 @@ namespace IsIdentifiableReviewer
                  {
                     ShowMessage("Invalid Regex","Pattern was not a valid Regex");
                     //try again!
-                    return GetPattern(failure);
+                    return GetPattern(sender,failure);
                  }
 
                  if (!regex.IsMatch(failure.ProblemValue))
@@ -477,7 +482,7 @@ namespace IsIdentifiableReviewer
                      GetChoice("Pattern Match Failure","The provided pattern did not match the original ProblemValue.  Try a different pattern?",out string retry,new []{"Yes","No"});
 
                      if (retry == "Yes")
-                         return GetPattern(failure);
+                         return GetPattern(sender,failure);
                  }
                  
                  if(string.IsNullOrWhiteSpace(chosen))
