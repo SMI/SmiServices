@@ -97,10 +97,14 @@ namespace IsIdentifiableReviewer
                 }
             }
             
+            //for updater try to match the ProblemValue words
             var updater = new RowUpdater( new FileInfo(opts.RedList))
             {
-                RulesOnly = opts.OnlyRules
+                RulesOnly = opts.OnlyRules,
+                RulesFactory = new MatchProblemValuesPatternFactory()
             };
+
+            //for Ignorer match the whole string
             var ignorer = new IgnoreRuleGenerator(new FileInfo(opts.IgnoreList));
 
             try

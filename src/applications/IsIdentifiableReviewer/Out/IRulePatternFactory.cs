@@ -8,7 +8,8 @@ namespace IsIdentifiableReviewer.Out
         /// Returns a Regex for picking up the provided <paramref name="failure"/>
         /// </summary>
         /// <param name="failure"></param>
+        /// <param name="sender">The requester of the pattern</param>
         /// <returns></returns>
-        string GetPattern(Failure failure);
+        string GetPattern(object sender,Failure failure);
     }
 }

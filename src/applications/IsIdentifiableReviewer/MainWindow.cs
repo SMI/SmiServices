@@ -28,12 +28,19 @@ namespace IsIdentifiableReviewer
         private ValuePane _valuePane;
         private Label _info;
         private TextField _gotoTextField;
+        private IRulePatternFactory _origUpdaterRulesFactory;
+        private IRulePatternFactory _origIgnorerRulesFactory;
+        private Label _ignoreRuleLabel;
+        private Label _updateRuleLabel;
+        private CheckBox _cbRulesOnly;
 
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
             Ignorer = ignorer;
             Updater = updater;
+            _origUpdaterRulesFactory = updater.RulesFactory;
+            _origIgnorerRulesFactory = ignorer.RulesFactory;
 
             X = 0;
             Y = 1;
@@ -89,11 +96,12 @@ namespace IsIdentifiableReviewer
             
             _gotoTextField = new TextField("1")
             {
-                X=23,
+                X=28,
                 Width = 5
             };
             _gotoTextField.Changed += (s,e) => GoTo();
             frame.Add(_gotoTextField);
+            frame.Add(new Label(23,0,"GoTo:"));
 
             frame.Add(new Button("Prev")
             {
@@ -108,19 +116,26 @@ namespace IsIdentifiableReviewer
                 Clicked = ()=>GoToRelative(1)
             });
 
+            frame.Add(new Label(0,4,"Default Patterns"));
+
+            _ignoreRuleLabel = new Label(0,5,"Ignore:");
+            _updateRuleLabel= new Label(0,6,"Update:");;
+            frame.Add(_ignoreRuleLabel);
+            frame.Add(_updateRuleLabel);
+
             var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
             cbCustomPattern.Toggled += (c, s) =>
             {
-                Updater.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
-                Ignorer.RulesFactory = cbCustomPattern.Checked ? this : (IRulePatternFactory)new MatchWholeStringRulePatternFactory();
+                Updater.RulesFactory = cbCustomPattern.Checked ? this : _origUpdaterRulesFactory;
+                Ignorer.RulesFactory = cbCustomPattern.Checked ? this : _origIgnorerRulesFactory;
             };
             frame.Add(cbCustomPattern);
 
-            var cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
+            _cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
             Updater.RulesOnly = opts.OnlyRules;
 
-            cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = cbRulesOnly.Checked;};
-            frame.Add(cbRulesOnly);
+            _cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
+            frame.Add(_cbRulesOnly);
             
             top.Add (menu);
             Add(_info);
@@ -162,13 +177,29 @@ namespace IsIdentifiableReviewer
             {
                 CurrentReport.GoTo(page);
                 _info.Text = CurrentReport.DescribeProgress();
-                _valuePane.CurrentFailure = CurrentReport.Current;
+                SetupToShow(CurrentReport.Current);
             }
             catch (Exception e)
             {
                 ShowException("Failed to GoTo",e);
             }
             
+        }
+
+        private void SetupToShow(Failure f)
+        {
+            _valuePane.CurrentFailure = f;
+
+            if (f != null)
+            {
+                _ignoreRuleLabel.Text = "Ignore:" + _origIgnorerRulesFactory.GetPattern(Ignorer, f);
+                _updateRuleLabel.Text = "Update:" + _origUpdaterRulesFactory.GetPattern(Ignorer, f);
+            }
+            else
+            {
+                _ignoreRuleLabel.Text = "Ignore:";
+                _updateRuleLabel.Text = "Update:";
+            }
         }
 
         private void Next()
@@ -187,11 +218,12 @@ namespace IsIdentifiableReviewer
                     //prefer rules that say we should update the database with redacted over rules that say we should ignore the problem
                     if (!Updater.OnLoad(CurrentTarget?.Discover(),next))
                         updated++;
-                    else if (!Ignorer.OnLoad(next))
+                    else if (!Ignorer.OnLoad(next,out _))
                         skipped++;
                     else
                     {
-                        _valuePane.CurrentFailure = next;
+                        SetupToShow(next);
+
                         break;
                     }
                 }
@@ -231,7 +263,8 @@ namespace IsIdentifiableReviewer
 
             try
             {
-                Updater.Update(CurrentTarget,_valuePane.CurrentFailure,true);
+                Updater.Update(_cbRulesOnly.Checked ? null : CurrentTarget?.Discover()
+                    ,_valuePane.CurrentFailure,null /*create one yourself*/);
             }
             catch (Exception e)
             {
@@ -276,7 +309,7 @@ namespace IsIdentifiableReviewer
                     return;
 
                 CurrentReport = new ReportReader(new FileInfo(path));
-                _valuePane.CurrentFailure = CurrentReport.Failures.FirstOrDefault();
+                SetupToShow(CurrentReport.Failures.FirstOrDefault());
                 Next();
             }
             catch (Exception e)
@@ -452,13 +485,41 @@ namespace IsIdentifiableReviewer
              return r.Replace(s, "$1\n");
          }
 
-         public string GetPattern(Failure failure)
+         public string GetPattern(object sender,Failure failure)
          {
-             var defaultFactory = new MatchWholeStringRulePatternFactory();
-             var recommendedPattern = defaultFactory.GetPattern(failure);
+             var defaultFactory = sender == Updater ? _origUpdaterRulesFactory : _origIgnorerRulesFactory;
 
-             if(GetText("Pattern","Enter pattern to match failure",recommendedPattern, out string chosen))
-                return chosen;
+             var recommendedPattern = defaultFactory.GetPattern(sender,failure);
+
+             if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen))
+             {
+                 Regex regex;
+
+                 try
+                 {
+                     regex = new Regex(chosen);
+                 }
+                 catch (Exception)
+                 {
+                    ShowMessage("Invalid Regex","Pattern was not a valid Regex");
+                    //try again!
+                    return GetPattern(sender,failure);
+                 }
+
+                 if (!regex.IsMatch(failure.ProblemValue))
+                 {
+                     GetChoice("Pattern Match Failure","The provided pattern did not match the original ProblemValue.  Try a different pattern?",out string retry,new []{"Yes","No"});
+
+                     if (retry == "Yes")
+                         return GetPattern(sender,failure);
+                 }
+                 
+                 if(string.IsNullOrWhiteSpace(chosen))
+                     throw new Exception("User entered blank Regex pattern");
+
+                 return chosen;
+             }
+                
             
              throw new Exception("User chose not to enter a pattern");
          }

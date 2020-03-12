@@ -6,9 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+ 
+ - IsIdentifiableReviewer considers rule capture groups when performing redactions (e.g. can now handle custom rules like `^(Ninewells)`)
+ - IsIdentifiableReviewer adds comment with time/user to rules file e.g. `#TZNind - 3/10/2020 1:17:17 PM`
+ - IsIdentifiableReviewer checks custom patterns match the original Failure
  - IsIdentifiable microservice was started with --service but can now be started with the service verb allowing it to take additional options. It should now be started with `service -y file.yaml`
  - IsIdentifiable no longer reads Rules.yaml from the current directory. It now has a command line option --RulesDirectory, to go with the already existing --RulesFile. That will read all *.yaml files in the given directory. However when run as a microservice the yaml file specifies a DataDirectory; the RulesDirectory will implicitly be a subdirectory called IsIdentifiableRules from which all *.yaml files will be read.
 
+### Changed
+  - IsIdentifiableReviewer now tries to isolate 'Problem Words' when generating it's suggested Updater Regex rules (e.g. now suggests `^Ninewells` instead of `^Ninewells\ Spike\ CT$`.)
+  
 ...
 
 ## [1.5.1] - 2020-03-06

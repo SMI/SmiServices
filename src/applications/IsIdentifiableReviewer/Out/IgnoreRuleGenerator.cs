@@ -31,11 +31,12 @@ namespace IsIdentifiableReviewer.Out
         /// working on now that have been added since the report was generated
         /// </summary>
         /// <param name="failure"></param>
+        /// <param name="existingRule">The rule which already covers this failure</param>
         /// <returns>true if it is novel</returns>
-        public bool OnLoad(Failure failure)
+        public bool OnLoad(Failure failure, out IsIdentifiableRule existingRule)
         {
             //get user ot make a decision only if it is NOT covered by an existing rule
-            return !IsCoveredByExistingRule(failure);
+            return !IsCoveredByExistingRule(failure,out existingRule);
         }
 
     }

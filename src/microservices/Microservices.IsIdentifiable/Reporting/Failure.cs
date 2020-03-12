@@ -59,5 +59,24 @@ namespace Microservices.IsIdentifiable.Reporting
                 string.Equals(ProblemValue, other.ProblemValue, StringComparison.CurrentCultureIgnoreCase) &&
                 string.Equals(ProblemField, other.ProblemField, StringComparison.CurrentCultureIgnoreCase);
         }
+
+        public bool HasOverlappingParts(bool includeExactRangeMatches)
+        {
+            //for each index in the word
+            for (int i = 0; i < ProblemValue.Length; i++)
+                if (includeExactRangeMatches)
+                {
+                    if (Parts.Count(p => p.Includes(i)) > 1)  //if 2+ parts include this cell then we have overlapping parts
+                        return true;
+                }
+                else
+                {
+                    if (Parts.Distinct().Count(p => p.Includes(i)) > 1)  //if 2+ parts include this cell then we have overlapping parts
+                        return true;
+                }
+                    
+
+            return false;
+        }
     }
 }
