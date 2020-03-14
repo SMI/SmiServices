@@ -61,7 +61,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         protected override void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage message, IMessageHeader header)
         {
             if (InCompletedJobCollection(message.ExtractionJobIdentifier))
-                throw new ApplicationException("Received an ExtractionRequestInfoMessage for a job that is already completed");
+                throw new ApplicationException("Received an ExtractFileCollectionInfoMessage for a job that is already completed");
 
             MongoExpectedFilesDoc expectedFilesForKey = MongoExpectedFilesDoc.FromMessage(message, header, _dateTimeProvider);
 
@@ -73,11 +73,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         protected override void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header)
         {
             if (InCompletedJobCollection(message.ExtractionJobIdentifier))
-                throw new ApplicationException("Received an ExtractionRequestInfoMessage for a job that is already completed");
+                throw new ApplicationException("Received an ExtractFileStatusMessage for a job that is already completed");
 
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.AnonymisedFileName,
+                false,
                 true,
                 message.StatusMessage);
 
@@ -89,11 +90,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         protected override void PersistMessageToStoreImpl(IsIdentifiableMessage message, IMessageHeader header)
         {
             if (InCompletedJobCollection(message.ExtractionJobIdentifier))
-                throw new ApplicationException("Received an ExtractionRequestInfoMessage for a job that is already completed");
-            
+                throw new ApplicationException("Received an IsIdentifiableMessage for a job that is already completed");
+
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.AnonymisedFileName,
+                true,
                 message.IsIdentifiable,
                 message.Report);
 
@@ -129,66 +131,62 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     }
             }
 
-            // Calculate the current status of each job and return those that are ready for final checks
+            // Calculate the current status of each job and return those that are ready for completion
             var readyJobs = new List<ExtractJobInfo>();
             foreach (MongoExtractJobDoc job in activeJobs)
             {
                 Guid jobId = job.ExtractionJobIdentifier;
+               
+                Logger.Debug($"Checking progress for {jobId}");
 
-                Logger.Debug($"Building collection info list for {jobId}");
+                // Check if the job has progressed
+                var changed = false;
 
                 string expectedTempCollectionName = ExpectedFilesCollectionName(jobId);
                 IMongoCollection<MongoExpectedFilesDoc> expectedTempCollection = _database.GetCollection<MongoExpectedFilesDoc>(expectedTempCollectionName);
-                var collectionInfo = new List<ExtractFileCollectionInfo>();
 
-                using (IAsyncCursor<MongoExpectedFilesDoc> cursor = expectedTempCollection.FindSync(FilterDefinition<MongoExpectedFilesDoc>.Empty))
+                if (job.JobStatus == ExtractJobStatus.WaitingForCollectionInfo)
                 {
-                    while (cursor.MoveNext())
-                        collectionInfo.AddRange(cursor.Current.Select(x => x.ToExtractFileCollectionInfo()));
-                }
+                    long collectionInfoCount = expectedTempCollection.CountDocuments(FilterDefinition<MongoExpectedFilesDoc>.Empty);
 
-                Logger.Debug($"Building status info list for {jobId}");
-                string statusTempCollectionName = StatusCollectionName(jobId);
-                IMongoCollection<MongoFileStatusDoc> statusTempCollection = _database.GetCollection<MongoFileStatusDoc>(statusTempCollectionName);
-                var statuses = new List<ExtractFileStatusInfo>();
-                using (IAsyncCursor<MongoFileStatusDoc> cursor = statusTempCollection.FindSync(FilterDefinition<MongoFileStatusDoc>.Empty))
-                {
-                    while (cursor.MoveNext())
-                        statuses.AddRange(cursor.Current.Select(x => x.ToExtractFileStatusInfo()));
-                }
-
-                Logger.Debug($"Checking progress for {jobId}");
-                var changed = false;
-
-                // Check if the job has progressed
-
-                if (job.JobStatus == ExtractJobStatus.WaitingForCollectionInfo && job.KeyCount == collectionInfo.Count)
-                {
-                    Logger.Debug($"Have all collection messages for job {jobId}");
-                    job.JobStatus = ExtractJobStatus.WaitingForStatuses;
-                    changed = true;
+                    if (job.KeyCount == collectionInfoCount)
+                    {
+                        Logger.Debug($"Have all collection messages for job {jobId}");
+                        job.JobStatus = ExtractJobStatus.WaitingForStatuses;
+                        changed = true;
+                    }
+                    else
+                        Logger.Debug($"Job {jobId} is in state WaitingForCollectionInfo. Expected count is {job.KeyCount}, actual is {collectionInfoCount}");
                 }
 
                 if (job.JobStatus == ExtractJobStatus.WaitingForStatuses)
                 {
-                    // If we have (at least) one status message for each expected file, then we can continue
-                    bool haveAllExpectedStatuses = collectionInfo
-                        .All(fileCollection => !fileCollection.ExpectedAnonymisedFiles
-                            .Any(expected => statuses.All(x => x.AnonymisedFileName != expected)));
+                    string statusTempCollectionName = StatusCollectionName(jobId);
+                    IMongoCollection<MongoFileStatusDoc> statusTempCollection = _database.GetCollection<MongoFileStatusDoc>(statusTempCollectionName);
 
-                    if (haveAllExpectedStatuses)
+                    // If we have (at least) one status message for each expected file, then we can continue
+                    var expectedStatusesCount = 0;
+                    expectedTempCollection
+                        .FindSync(FilterDefinition<MongoExpectedFilesDoc>.Empty)
+                        .ForEachAsync(doc => expectedStatusesCount += doc.ExpectedFiles.Count);
+
+                    long actualStatusCount = statusTempCollection.CountDocuments(FilterDefinition<MongoFileStatusDoc>.Empty);
+
+                    if (expectedStatusesCount == actualStatusCount)
                     {
                         Logger.Debug($"Have all status messages for job {jobId}");
                         job.JobStatus = ExtractJobStatus.ReadyForChecks;
                         changed = true;
                     }
+                    else
+                        Logger.Debug($"Job {jobId} is in state WaitingForStatuses. Expected count is {expectedStatusesCount}, actual is {actualStatusCount}");
                 }
 
                 // If the status has moved on then update the document in the database
                 if (changed)
                 {
                     ReplaceOneResult res = _inProgressJobCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJobDoc>(jobId), job);
-                    if (!res.IsAcknowledged || res.ModifiedCount != 1)
+                    if (!res.IsAcknowledged)
                         throw new ApplicationException($"Received invalid ReplaceOneResult: {res}");
                 }
 
