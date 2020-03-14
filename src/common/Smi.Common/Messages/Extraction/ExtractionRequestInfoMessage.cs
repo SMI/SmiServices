@@ -12,8 +12,7 @@ namespace Smi.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public int KeyValueCount { get; set; }
 
-        // TODO(rkm 2020-02-24) Check the Java service always writes this as null
-        [JsonProperty(Required = Required.AllowNull)]
+        [JsonProperty(Required = Required.Default)]
         public string ExtractionModality { get; set; }
 
 
