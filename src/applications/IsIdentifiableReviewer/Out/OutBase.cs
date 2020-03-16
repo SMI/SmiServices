@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -49,13 +50,14 @@ namespace IsIdentifiableReviewer.Out
         /// </summary>
         /// <param name="f"></param>
         /// <param name="action"></param>
-        protected void Add(Failure f, RuleAction action)
+        /// <returns>The new / existing rule that covers failure</returns>
+        protected IsIdentifiableRule Add(Failure f, RuleAction action)
         {
             var rule = new IsIdentifiableRule
             {
                 Action = action,
                 IfColumn = f.ProblemField,
-                IfPattern = RulesFactory.GetPattern(f),
+                IfPattern = RulesFactory.GetPattern(this,f),
                 As = 
                     action == RuleAction.Ignore? 
                         FailureClassification.None : 
@@ -64,24 +66,30 @@ namespace IsIdentifiableReviewer.Out
             
             //don't add identical rules
             if (Rules.Any(r => r.AreIdentical(rule)))
-                return;
+                return rule;
 
             Rules.Add(rule);
 
             var serializer = new Serializer();
             var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
-            File.AppendAllText(RulesFile.FullName,yaml);
-        }
+            File.AppendAllText(RulesFile.FullName,
+                $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
+                yaml);
 
+            return rule;
+        }
+        
         /// <summary>
         /// Returns true if there are any rules that already exactly cover the given <paramref name="failure"/>
         /// </summary>
         /// <param name="failure"></param>
+        /// <param name="match">The first rule that matches the <paramref name="failure"/></param>
         /// <returns></returns>
-        protected bool IsCoveredByExistingRule(Failure failure)
+        protected bool IsCoveredByExistingRule(Failure failure, out IsIdentifiableRule match)
         {
             //if any rule matches then we are covered by an existing rule
-            return Rules.Any(r => r.Apply(failure.ProblemField, failure.ProblemValue, out _) != RuleAction.None);
+            match = Rules.FirstOrDefault(r => r.Apply(failure.ProblemField, failure.ProblemValue, out _) != RuleAction.None);
+            return match != null;
         }
     }
 }
