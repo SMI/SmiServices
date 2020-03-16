@@ -333,6 +333,8 @@ namespace Smi.Common.Options
         public ConsumerOptions AnonFailedOptions { get; set; }
         public ConsumerOptions VerificationStatusOptions { get; set; }
         public uint JobWatcherTimeoutInSeconds { get; set; }
+        public string ReporterType { get; set; }
+        public string NotifierType { get; set; }
 
         public override string ToString()
         {

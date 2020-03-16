@@ -52,7 +52,16 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobCompleted = true;
             }
         }
-        
+
+        private class TestReporter : IJobReporter
+        {
+            public string Report { get; set; }
+            public void CreateReport(Guid jobId)
+            {
+                Report = "test";
+            }
+        }
+
         [Test]
         public void TestCohortPackagerHost_HappyPath()
         {
@@ -126,8 +135,9 @@ namespace Microservices.CohortPackager.Tests.Execution
                 tester.SendMessage(globals.CohortPackagerOptions.AnonFailedOptions, new MessageHeader(), testExtractFileStatusMessage);
                 tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage);
 
+                var reporter = new TestReporter();
                 var notifier = new TestJobCompleteNotifier();
-                var host = new CohortPackagerHost(globals, notifier, null, false);
+                var host = new CohortPackagerHost(globals, reporter, notifier, null, false);
                 host.Start();
 
                 var timeoutSecs = 30;

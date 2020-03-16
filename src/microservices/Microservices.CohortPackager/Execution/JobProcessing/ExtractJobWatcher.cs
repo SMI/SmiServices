@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NLog;
 using Smi.Common.Options;
@@ -30,13 +31,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             CohortPackagerOptions options,
             IExtractJobStore jobStore,
             Action<Exception> exceptionCallback,
-            IJobCompleteNotifier jobCompleteNotifier,
-            IJobReporter reporter = null)
+            [NotNull] IJobCompleteNotifier jobCompleteNotifier,
+            [NotNull] IJobReporter reporter)
         {
             _jobStore = jobStore;
             _exceptionCallback = exceptionCallback;
 
-            _reporter = reporter ?? new LoggingTextReporter(_jobStore);
+            _reporter = reporter;
             _notifier = jobCompleteNotifier;
 
             _processTimer = new SysTimers.Timer(TimeSpan.FromSeconds(options.JobWatcherTimeoutInSeconds).TotalMilliseconds);

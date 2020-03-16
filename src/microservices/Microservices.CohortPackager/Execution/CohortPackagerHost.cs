@@ -26,23 +26,30 @@ namespace Microservices.CohortPackager.Execution
 
         public CohortPackagerHost(
             GlobalOptions globals,
-            IJobCompleteNotifier jobCompleteNotifier = null,
+            IJobReporter reporter = null,
+            IJobCompleteNotifier notifier = null,
             IRabbitMqAdapter rabbitMqAdapter = null,
             bool loadSmiLogConfig = true
         )
             : base(globals, rabbitMqAdapter, loadSmiLogConfig)
         {
 
-            MongoDbOptions opts = Globals.MongoDatabases.ExtractionStoreOptions;
-            MongoClient client = MongoClientHelpers.GetMongoClient(opts, HostProcessName);
-            var jobStore = new MongoExtractJobStore(client, opts.DatabaseName);
+            MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
+            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName);
+            var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
 
-            // Setup the watcher for completed jobs
+            // If not passed a reporter or notifier, try and construct one from the given options
+            if (reporter == null)
+                reporter = ObjectFactory.CreateInstance<IJobReporter>($"{typeof(IJobReporter).Namespace}.{Globals.CohortPackagerOptions.ReporterType}", typeof(IJobReporter).Assembly, jobStore);
+            if (notifier == null)
+                notifier = ObjectFactory.CreateInstance<IJobCompleteNotifier>($"{typeof(IJobCompleteNotifier).Namespace}.{Globals.CohortPackagerOptions.NotifierType}", typeof(IJobCompleteNotifier).Assembly, jobStore);
+
             _jobWatcher = new ExtractJobWatcher(
                 globals.CohortPackagerOptions,
                 jobStore,
                 ExceptionCallback,
-                jobCompleteNotifier ?? new DoNothingJobCompleteNotifier());
+                notifier,
+                reporter);
 
             AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 

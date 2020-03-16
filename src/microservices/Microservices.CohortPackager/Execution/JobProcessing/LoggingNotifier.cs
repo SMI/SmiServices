@@ -4,7 +4,7 @@ using NLog;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing
 {
-    public class DoNothingJobCompleteNotifier : IJobCompleteNotifier
+    public class LoggingNotifier : IJobCompleteNotifier
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
