@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.CohortPackager.Execution.JobProcessing;
+using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using MongoDB.Driver;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -44,21 +45,22 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         #region Tests
 
-        private class TestJobCompleteNotifier : IJobCompleteNotifier
-        {
-            public bool JobCompleted { get; private set; }
-            public void NotifyJobCompleted(ExtractJobInfo jobInfo)
-            {
-                JobCompleted = true;
-            }
-        }
-
         private class TestReporter : IJobReporter
         {
             public string Report { get; set; }
             public void CreateReport(Guid jobId)
             {
-                Report = "test";
+                Report = $"Report for {jobId}";
+            }
+        }
+
+        private class TestLoggingNotifier : LoggingNotifier
+        {
+            public bool JobCompleted { get; set; }
+
+            public new void NotifyJobCompleted(ExtractJobInfo jobInfo)
+            {
+                JobCompleted = true;
             }
         }
 
@@ -136,7 +138,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage);
 
                 var reporter = new TestReporter();
-                var notifier = new TestJobCompleteNotifier();
+                var notifier = new TestLoggingNotifier();
                 var host = new CohortPackagerHost(globals, reporter, notifier, null, false);
                 host.Start();
 

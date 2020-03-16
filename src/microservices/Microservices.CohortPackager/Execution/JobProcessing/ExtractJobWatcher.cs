@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using NLog;
 using Smi.Common.Options;
 using SysTimers = System.Timers;
@@ -77,10 +79,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
                 List<ExtractJobInfo> jobs = _jobStore.GetReadyJobs(specificJob);
 
                 if (jobs.Count == 0)
-                {
                     _logger.Debug("No jobs ready for checks");
-                    return;
-                }
 
                 foreach (ExtractJobInfo job in jobs)
                 {

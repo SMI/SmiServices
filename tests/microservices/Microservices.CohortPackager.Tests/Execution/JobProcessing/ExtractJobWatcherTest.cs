@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing;
+using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Options;

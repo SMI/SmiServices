@@ -1,7 +1,7 @@
 ﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 
 
-namespace Microservices.CohortPackager.Execution.JobProcessing
+namespace Microservices.CohortPackager.Execution.JobProcessing.Notifying
 {
     public interface IJobCompleteNotifier
     {

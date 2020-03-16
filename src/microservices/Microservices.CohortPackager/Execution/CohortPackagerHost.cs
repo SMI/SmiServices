@@ -1,6 +1,9 @@
 using System;
+using System.IO;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
+using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Messaging;
 using MongoDB.Driver;
 using Smi.Common;
@@ -38,9 +41,12 @@ namespace Microservices.CohortPackager.Execution
             MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName);
             var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
 
+            string reportDir = $"{Globals.FileSystemOptions.ExtractRoot}/Reports";
+            Directory.CreateDirectory(reportDir);
+
             // If not passed a reporter or notifier, try and construct one from the given options
             if (reporter == null)
-                reporter = ObjectFactory.CreateInstance<IJobReporter>($"{typeof(IJobReporter).Namespace}.{Globals.CohortPackagerOptions.ReporterType}", typeof(IJobReporter).Assembly, jobStore);
+                reporter = ObjectFactory.CreateInstance<IJobReporter>($"{typeof(IJobReporter).Namespace}.{Globals.CohortPackagerOptions.ReporterType}", typeof(IJobReporter).Assembly, jobStore, reportDir);
             if (notifier == null)
                 notifier = ObjectFactory.CreateInstance<IJobCompleteNotifier>($"{typeof(IJobCompleteNotifier).Namespace}.{Globals.CohortPackagerOptions.NotifierType}", typeof(IJobCompleteNotifier).Assembly, jobStore);
 
