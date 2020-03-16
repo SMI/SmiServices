@@ -39,6 +39,10 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid()) => throw new NotImplementedException();
             protected override void CompleteJobImpl(Guid jobId) { }
             protected override void MarkJobFailedImpl(Guid jobId, Exception e) { }
+            protected override ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId) => throw new NotImplementedException();
+            protected override IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId) => throw new NotImplementedException();
+            protected override IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId) => throw new NotImplementedException();
+            protected override IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId) => throw new NotImplementedException();
         }
 
         #endregion
@@ -75,6 +79,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             var testExtractJobStore = new TestExtractJobStore();
             var message = new ExtractFileStatusMessage();
             var header = new MessageHeader();
+
+            message.Status = ExtractFileStatus.Unknown;
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
             message.Status = ExtractFileStatus.Anonymised;
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));

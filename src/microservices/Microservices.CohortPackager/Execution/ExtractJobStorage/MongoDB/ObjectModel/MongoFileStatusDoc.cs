@@ -19,6 +19,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [NotNull]
         public string AnonymisedFileName { get; set; }
 
+        [BsonElement("wasAnonymised")]
+        public bool WasAnonymised { get; set; }
+
         [BsonElement("isIdentifiable")]
         public bool IsIdentifiable { get; set; }
 
@@ -29,11 +32,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public MongoFileStatusDoc(
             [NotNull] MongoExtractionMessageHeaderDoc header,
             [NotNull] string anonymisedFileName,
+            bool wasAnonymised,
             bool isIdentifiable,
             [NotNull] string statusMessage)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             AnonymisedFileName = anonymisedFileName;
+            WasAnonymised = wasAnonymised;
             IsIdentifiable = isIdentifiable;
             StatusMessage = (!string.IsNullOrWhiteSpace(statusMessage)) ? statusMessage : throw new ArgumentNullException(nameof(statusMessage));
         }
@@ -44,6 +49,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         {
             return Equals(Header, other.Header) &&
                    AnonymisedFileName == other.AnonymisedFileName &&
+                   WasAnonymised == other.WasAnonymised &&
                    IsIdentifiable == other.IsIdentifiable &&
                    StatusMessage == other.StatusMessage;
         }
@@ -66,6 +72,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             {
                 int hashCode = (Header.GetHashCode());
                 hashCode = (hashCode * 397) ^ (AnonymisedFileName != null ? AnonymisedFileName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (WasAnonymised.GetHashCode());
                 hashCode = (hashCode * 397) ^ (IsIdentifiable.GetHashCode());
                 hashCode = (hashCode * 397) ^ (StatusMessage.GetHashCode());
                 return hashCode;

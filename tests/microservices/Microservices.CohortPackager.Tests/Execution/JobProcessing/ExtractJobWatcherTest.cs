@@ -47,6 +47,15 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             }
         }
 
+        private class TestJobReporter : IJobReporter
+        {
+            public bool Reported { get; set; }
+            public void CreateReport(Guid jobId)
+            {
+                Reported = true;
+            }
+        }
+
         [Test]
         public void TestProcessJobs()
         {
@@ -67,8 +76,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             var callbackUsed = false;
             var mockCallback = new Action<Exception>(_ => callbackUsed = true);
             var testNotifier = new TestJobCompleteNotifier();
+            var testReporter = new TestJobReporter();
 
-            var watcher = new ExtractJobWatcher(opts, mockJobStore.Object, mockCallback, testNotifier);
+            var watcher = new ExtractJobWatcher(opts, mockJobStore.Object, mockCallback, testNotifier, testReporter);
 
             // Check that we can call ProcessJobs with no Guid to process all jobs
             mockJobStore.Setup(x => x.GetReadyJobs(default)).Returns(new List<ExtractJobInfo>());
@@ -95,6 +105,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             testNotifier.Notified = false;
             watcher.ProcessJobs(jobId);
             Assert.True(testNotifier.Notified);
+            Assert.True(testReporter.Reported);
         }
 
         #endregion

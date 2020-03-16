@@ -53,12 +53,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
                 "anon.dcm",
+                true,
                 false,
                 "anonymised");
 
             var doc2 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
                 "anon.dcm",
+                true,
                 false,
                 "anonymised");
 
@@ -72,12 +74,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
                 "anon.dcm",
+                true,
                 false,
                 "anonymised");
 
             var doc2 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
                 "anon.dcm",
+                true,
                 false,
                 "anonymised");
 

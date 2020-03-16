@@ -16,6 +16,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
         private readonly IExtractJobStore _jobStore;
 
+        private readonly IJobReporter _reporter;
         private readonly IJobCompleteNotifier _notifier;
 
         private readonly SysTimers.Timer _processTimer;
@@ -29,10 +30,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             CohortPackagerOptions options,
             IExtractJobStore jobStore,
             Action<Exception> exceptionCallback,
-            IJobCompleteNotifier jobCompleteNotifier)
+            IJobCompleteNotifier jobCompleteNotifier,
+            IJobReporter reporter = null)
         {
             _jobStore = jobStore;
             _exceptionCallback = exceptionCallback;
+
+            _reporter = reporter ?? new LoggingTextReporter(_jobStore);
             _notifier = jobCompleteNotifier;
 
             _processTimer = new SysTimers.Timer(TimeSpan.FromSeconds(options.JobWatcherTimeoutInSeconds).TotalMilliseconds);
@@ -121,8 +125,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
             _jobStore.MarkJobCompleted(jobId);
 
-            //TODO (rkm 2020-03-03) Generate report data :)
-
+            _reporter.CreateReport(jobId);
             _notifier.NotifyJobCompleted(jobInfo);
         }
     }

@@ -30,7 +30,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public HashSet<MongoExpectedFileInfoDoc> ExpectedFiles { get; set; }
 
         [BsonElement("rejectedKeys")]
-        [CanBeNull]
+        [NotNull]
         public MongoRejectedKeyInfoDoc RejectedKeys { get; set; }
 
 
@@ -38,12 +38,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             [NotNull] MongoExtractionMessageHeaderDoc header,
             [NotNull] string key,
             [NotNull] HashSet<MongoExpectedFileInfoDoc> expectedFiles,
-            [CanBeNull] MongoRejectedKeyInfoDoc rejectedKeys)
+            [NotNull] MongoRejectedKeyInfoDoc rejectedKeys)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             Key = (!string.IsNullOrWhiteSpace(key)) ? key : throw new ArgumentNullException(nameof(key));
             ExpectedFiles = (expectedFiles.Count > 0) ? expectedFiles : throw new ArgumentNullException(nameof(expectedFiles));
-            RejectedKeys = rejectedKeys;
+            RejectedKeys = rejectedKeys ?? throw new ArgumentNullException(nameof(rejectedKeys));
         }
 
         public static MongoExpectedFilesDoc FromMessage(

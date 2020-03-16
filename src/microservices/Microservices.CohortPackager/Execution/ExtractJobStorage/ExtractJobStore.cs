@@ -36,7 +36,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public void PersistMessageToStore(ExtractFileCollectionInfoMessage message, IMessageHeader header)
         {
-            Logger.Info($"Received new file collection info {message}");
             PersistMessageToStoreImpl(message, header);
         }
 
@@ -44,6 +43,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] ExtractFileStatusMessage message,
             [NotNull] IMessageHeader header)
         {
+            if (message.Status == ExtractFileStatus.Unknown)
+                throw new ApplicationException("ExtractFileStatus was unknown");
             if (message.Status == ExtractFileStatus.Anonymised)
                 throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 
@@ -90,6 +91,38 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             Logger.Debug($"Marked job {jobId} as failed");
         }
 
+        public ExtractJobInfo GetCompletedJobInfo(Guid jobId)
+        {
+            if (jobId == default)
+                throw new ArgumentNullException(nameof(jobId));
+
+            return GetCompletedJobInfoImpl(jobId) ?? throw new ApplicationException("The job store implementation returned a null ExtractJobInfo object");
+        }
+
+        public IEnumerable<Tuple<string, int>> GetCompletedJobRejections(Guid jobId)
+        {
+            if (jobId == default)
+                throw new ArgumentNullException(nameof(jobId));
+
+            return GetCompletedJobRejectionsImpl(jobId);
+        }
+
+        public IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailures(Guid jobId)
+        {
+            if (jobId == default)
+                throw new ArgumentNullException(nameof(jobId));
+
+            return GetCompletedJobAnonymisationFailuresImpl(jobId);
+        }
+
+        public IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailures(Guid jobId)
+        {
+            if (jobId == default)
+                throw new ArgumentNullException(nameof(jobId));
+
+            return GetCompletedJobVerificationFailuresImpl(jobId);
+        }
+
         protected abstract void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header);
@@ -97,5 +130,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid());
         protected abstract void CompleteJobImpl(Guid jobId);
         protected abstract void MarkJobFailedImpl(Guid jobId, Exception e);
+        protected abstract ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
+        protected abstract IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId);
+        protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
+        protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId);
+
+
     }
 }

@@ -78,8 +78,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.AnonymisedFileName,
-                false,
-                true,
+                wasAnonymised: false,
+                isIdentifiable: true,
                 message.StatusMessage);
 
             _database
@@ -95,7 +95,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.AnonymisedFileName,
-                true,
+                wasAnonymised: true,
                 message.IsIdentifiable,
                 message.Report);
 
@@ -136,7 +136,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             foreach (MongoExtractJobDoc job in activeJobs)
             {
                 Guid jobId = job.ExtractionJobIdentifier;
-               
+
                 Logger.Debug($"Checking progress for {jobId}");
 
                 // Check if the job has progressed
@@ -166,9 +166,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
                     // If we have (at least) one status message for each expected file, then we can continue
                     var expectedStatusesCount = 0;
-                    expectedTempCollection
-                        .FindSync(FilterDefinition<MongoExpectedFilesDoc>.Empty)
-                        .ForEachAsync(doc => expectedStatusesCount += doc.ExpectedFiles.Count);
+                    IAsyncCursor<MongoExpectedFilesDoc> cursor = expectedTempCollection.FindSync(FilterDefinition<MongoExpectedFilesDoc>.Empty);
+                    while (cursor.MoveNext())
+                        expectedStatusesCount += cursor.Current.Sum(doc => doc.ExpectedFiles.Count);
 
                     long actualStatusCount = statusTempCollection.CountDocuments(FilterDefinition<MongoFileStatusDoc>.Empty);
 
@@ -296,6 +296,48 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 // TODO(rkm 2020-03-03) Can potentially add a retry here
                 session.CommitTransaction();
             }
+        }
+
+        protected override ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId)
+        {
+            return _completedJobCollection
+                .FindSync(Builders<MongoCompletedExtractJobDoc>.Filter.Eq(x => x.ExtractionJobIdentifier, jobId))
+                .Single()
+                .ToExtractJobInfo();
+        }
+
+        protected override IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId)
+        {
+            IAsyncCursor<MongoExpectedFilesDoc> cursor = _completedExpectedFilesCollection.FindSync(Builders<MongoExpectedFilesDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId));
+            while (cursor.MoveNext())
+                foreach (MongoExpectedFilesDoc expectedFilesDoc in cursor.Current)
+                    foreach ((string rejectReason, int count) in expectedFilesDoc.RejectedKeys.RejectionInfo)
+                        yield return new Tuple<string, int>(rejectReason, count);
+        }
+
+        protected override IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId)
+        {
+            // NOTE(rkm 2020-03-16) Files which failed anonymisation should have statuses where WasAnonymised=false and IsIdentifiable=true
+            FilterDefinition<MongoFileStatusDoc> filter = Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.WasAnonymised, false);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.IsIdentifiable, true);
+
+            IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
+            while (cursor.MoveNext())
+                foreach (MongoFileStatusDoc doc in cursor.Current)
+                    yield return new Tuple<string, string>(doc.AnonymisedFileName, doc.StatusMessage);
+        }
+
+        protected override IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId)
+        {
+            FilterDefinition<MongoFileStatusDoc> filter = Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.WasAnonymised, true);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.IsIdentifiable, true);
+
+            IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
+            while (cursor.MoveNext())
+                foreach (MongoFileStatusDoc doc in cursor.Current)
+                    yield return new Tuple<string, string>(doc.AnonymisedFileName, doc.StatusMessage);
         }
 
         #region Helper Methods
