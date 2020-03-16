@@ -111,7 +111,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             Guid extractFileMessageGuid,
             [NotNull] string anonymisedFilePath)
         {
-            ExtractFileMessageGuid = (extractFileMessageGuid != default) ? extractFileMessageGuid : throw new ArgumentException(nameof(extractFileMessageGuid));
+            ExtractFileMessageGuid = (extractFileMessageGuid != default(Guid)) ? extractFileMessageGuid : throw new ArgumentException(nameof(extractFileMessageGuid));
             AnonymisedFilePath = (!string.IsNullOrWhiteSpace(anonymisedFilePath)) ? anonymisedFilePath : throw new ArgumentException(nameof(anonymisedFilePath));
         }
 

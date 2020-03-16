@@ -62,12 +62,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             [CanBeNull] string extractionModality,
             [CanBeNull] MongoFailedJobInfoDoc failedJobInfoDoc)
         {
-            ExtractionJobIdentifier = (extractionJobIdentifier != default) ? extractionJobIdentifier : throw new ArgumentException(nameof(extractionJobIdentifier));
+            ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentException(nameof(extractionJobIdentifier));
             Header = header ?? throw new ArgumentNullException(nameof(header));
             ProjectNumber = (!string.IsNullOrWhiteSpace(projectNumber)) ? projectNumber : throw new ArgumentNullException(nameof(projectNumber));
             JobStatus = (jobStatus != ExtractJobStatus.Unknown) ? jobStatus : throw new ArgumentNullException(nameof(jobStatus));
             ExtractionDirectory = (!string.IsNullOrWhiteSpace(extractionDirectory)) ? extractionDirectory : throw new ArgumentNullException(nameof(extractionDirectory));
-            JobSubmittedAt = (jobSubmittedAt != default) ? jobSubmittedAt : throw new ArgumentException(nameof(jobSubmittedAt));
+            JobSubmittedAt = (jobSubmittedAt != default(DateTime)) ? jobSubmittedAt : throw new ArgumentException(nameof(jobSubmittedAt));
             KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentNullException(nameof(keyTag));
             KeyCount = (keyCount > 0) ? keyCount : throw new ArgumentNullException(nameof(keyCount));
             if (extractionModality != null)

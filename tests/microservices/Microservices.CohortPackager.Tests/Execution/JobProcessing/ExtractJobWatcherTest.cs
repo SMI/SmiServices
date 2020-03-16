@@ -81,7 +81,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             var watcher = new ExtractJobWatcher(opts, mockJobStore.Object, mockCallback, testNotifier, testReporter);
 
             // Check that we can call ProcessJobs with no Guid to process all jobs
-            mockJobStore.Setup(x => x.GetReadyJobs(default)).Returns(new List<ExtractJobInfo>());
+            mockJobStore.Setup(x => x.GetReadyJobs(default(Guid))).Returns(new List<ExtractJobInfo>());
             watcher.ProcessJobs();
             mockJobStore.Verify();
 

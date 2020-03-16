@@ -48,13 +48,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             [CanBeNull] string parents,
             DateTime receivedAt)
         {
-            ExtractionJobIdentifier = (extractionJobIdentifier != default) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
-            MessageGuid = (messageGuid != default) ? messageGuid : throw new ArgumentNullException(nameof(messageGuid));
+            ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
+            MessageGuid = (messageGuid != default(Guid)) ? messageGuid : throw new ArgumentNullException(nameof(messageGuid));
             ProducerExecutableName = (!string.IsNullOrWhiteSpace(producerExecutableName)) ? producerExecutableName : throw new ArgumentNullException(nameof(producerExecutableName));
             ProducerProcessID = (producerProcessId > 0) ? producerProcessId : throw new ArgumentNullException(nameof(producerProcessId));
-            OriginalPublishTimestamp = (originalPublishTimestamp != default) ? originalPublishTimestamp : throw new ArgumentNullException(nameof(originalPublishTimestamp));
+            OriginalPublishTimestamp = (originalPublishTimestamp != default(DateTime)) ? originalPublishTimestamp : throw new ArgumentNullException(nameof(originalPublishTimestamp));
             Parents = parents;
-            ReceivedAt = (receivedAt != default) ? receivedAt : throw new ArgumentNullException(nameof(receivedAt));
+            ReceivedAt = (receivedAt != default(DateTime)) ? receivedAt : throw new ArgumentNullException(nameof(receivedAt));
         }
 
         public static MongoExtractionMessageHeaderDoc FromMessageHeader(

@@ -63,15 +63,15 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [CanBeNull] string extractionModality,
             ExtractJobStatus jobStatus)
         {
-            ExtractionJobIdentifier = (extractionJobIdentifier != default) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
-            JobSubmittedAt = (jobSubmittedAt != default) ? jobSubmittedAt : throw new ArgumentNullException(nameof(jobSubmittedAt));
+            ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
+            JobSubmittedAt = (jobSubmittedAt != default(DateTime)) ? jobSubmittedAt : throw new ArgumentNullException(nameof(jobSubmittedAt));
             ProjectNumber = (!string.IsNullOrWhiteSpace(projectNumber)) ? projectNumber : throw new ArgumentNullException(nameof(projectNumber));
             ExtractionDirectory = (!string.IsNullOrWhiteSpace(extractionDirectory)) ? extractionDirectory : throw new ArgumentNullException(nameof(extractionDirectory));
             KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentNullException(nameof(keyTag));
             KeyValueCount = (keyValueCount > 0) ? keyValueCount : throw new ArgumentNullException(nameof(keyValueCount));
             if (extractionModality != null)
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
-            JobStatus = (jobStatus != default) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
+            JobStatus = (jobStatus != default(ExtractJobStatus)) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
         }
 
         public override string ToString()

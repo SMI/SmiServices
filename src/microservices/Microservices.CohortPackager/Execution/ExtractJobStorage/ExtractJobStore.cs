@@ -71,7 +71,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public void MarkJobCompleted(Guid jobId)
         {
-            if (jobId == default)
+            if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
 
             CompleteJobImpl(jobId);
@@ -82,7 +82,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             Guid jobId,
             [NotNull] Exception cause)
         {
-            if (jobId == default)
+            if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
             if (cause == null)
                 throw new ArgumentNullException(nameof(cause));
@@ -93,7 +93,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public ExtractJobInfo GetCompletedJobInfo(Guid jobId)
         {
-            if (jobId == default)
+            if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
 
             return GetCompletedJobInfoImpl(jobId) ?? throw new ApplicationException("The job store implementation returned a null ExtractJobInfo object");
@@ -101,7 +101,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public IEnumerable<Tuple<string, int>> GetCompletedJobRejections(Guid jobId)
         {
-            if (jobId == default)
+            if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
 
             return GetCompletedJobRejectionsImpl(jobId);
@@ -109,7 +109,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailures(Guid jobId)
         {
-            if (jobId == default)
+            if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
 
             return GetCompletedJobAnonymisationFailuresImpl(jobId);
@@ -117,7 +117,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailures(Guid jobId)
         {
-            if (jobId == default)
+            if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
 
             return GetCompletedJobVerificationFailuresImpl(jobId);

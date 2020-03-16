@@ -80,7 +80,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 message.AnonymisedFileName,
                 wasAnonymised: false,
                 isIdentifiable: true,
-                message.StatusMessage);
+                statusMessage: message.StatusMessage);
 
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
@@ -96,8 +96,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.AnonymisedFileName,
                 wasAnonymised: true,
-                message.IsIdentifiable,
-                message.Report);
+                isIdentifiable: message.IsIdentifiable,
+                statusMessage: message.Report);
 
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
@@ -105,14 +105,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         }
 
         //TODO(rkm 2020-03-09) Test this with a large volume of messages
-        protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = default)
+        protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = default(Guid))
         {
             //TODO Docs
 
             FilterDefinition<MongoExtractJobDoc> filter = FilterDefinition<MongoExtractJobDoc>.Empty;
 
             // If we have been passed a specific GUID, search for that job only
-            if (specificJobId != default)
+            if (specificJobId != default(Guid))
                 filter &= Builders<MongoExtractJobDoc>.Filter.Eq(x => x.ExtractionJobIdentifier, specificJobId);
 
             // NOTE(rkm 2020-03-03) Get all extract jobs that are not in the Failed state
