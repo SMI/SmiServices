@@ -175,3 +175,6 @@ IsIdentifiableOptions:
     IsIdentifiableProducerOptions:
         ExchangeName: 'TEST.IsIdentifiableExchange'
         MaxConfirmAttempts: 1
+    ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
+    DataDirectory: ''
+
