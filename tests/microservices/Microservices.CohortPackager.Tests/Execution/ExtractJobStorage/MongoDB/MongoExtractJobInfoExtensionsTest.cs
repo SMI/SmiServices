@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
@@ -76,63 +75,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 ExtractJobStatus.WaitingForCollectionInfo);
 
             Assert.AreEqual(expected, extractJobInfo);
-        }
-
-        [Test]
-        public void TestToExtractFIleCollectionInfo()
-        {
-            var expectedFilesDoc = new MongoExpectedFilesDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), _messageHeader, _dateTimeProvider),
-                "KeyTag",
-                new HashSet<MongoExpectedFileInfoDoc>
-                {
-                    new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon1.dcm"),
-                    new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon2.dcm"),
-                },
-                new MongoRejectedKeyInfoDoc(
-                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), _messageHeader, _dateTimeProvider),
-                    new Dictionary<string, int>
-                    {
-                        {"reject1", 1},
-                        {"reject2", 2},
-                    })
-                );
-            ExtractFileCollectionInfo collectionInfo = expectedFilesDoc.ToExtractFileCollectionInfo();
-
-            var expected = new ExtractFileCollectionInfo(
-                "KeyTag",
-                new List<string>
-                {
-                    "anon1.dcm",
-                    "anon2.dcm",
-                },
-                new Dictionary<string, int>
-                {
-                    {"reject1", 1},
-                    {"reject2", 2},
-                }
-            );
-
-            Assert.AreEqual(expected, collectionInfo);
-        }
-
-        [Test]
-        public void TestToExtractFileStatusInfo()
-        {
-            var statusDoc = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), _messageHeader, _dateTimeProvider),
-                "anon.dcm",
-                true,
-                false,
-                "anonymised");
-            ExtractFileStatusInfo statusInfo = statusDoc.ToExtractFileStatusInfo();
-
-            var expected = new ExtractFileStatusInfo(
-                "anon.dcm",
-                false,
-                "anonymised");
-
-            Assert.AreEqual(expected, statusInfo);
         }
 
         #endregion
