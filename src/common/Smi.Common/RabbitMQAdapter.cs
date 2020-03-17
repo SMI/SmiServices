@@ -213,7 +213,7 @@ namespace Smi.Common
             };
 
             consumerTask.Start();
-            _logger.Debug($"Consumer task started [QueueName={subscription.QueueName}]");
+            _logger.Debug($"Consumer task started [QueueName={subscription?.QueueName}]");
 
             return taskId;
         }

@@ -48,7 +48,7 @@ namespace Smi.Common.Messages.Extraction
 
         public override string ToString()
         {
-            return base.ToString() + $",KeyValue={KeyValue},ExtractFileMessagesDispatched={ExtractFileMessagesDispatched},RejectionReasons={RejectionReasons},";
+            return base.ToString() + $",KeyValue={KeyValue},ExtractFileMessagesDispatched={ExtractFileMessagesDispatched.Count},RejectionReasons={RejectionReasons.Count},";
         }
 
         #region Equality Members

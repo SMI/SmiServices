@@ -21,34 +21,36 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             using (Stream stream = GetStream(jobId))
             {
-                var streamWriter = new StreamWriter(stream);
+                using (var streamWriter = new StreamWriter(stream))
+                {
 
-                streamWriter.WriteLine();
-                foreach (string line in JobHeader(jobInfo))
-                    streamWriter.WriteLine(line);
-                streamWriter.WriteLine();
+                    streamWriter.WriteLine();
+                    foreach (string line in JobHeader(jobInfo))
+                        streamWriter.WriteLine(line);
+                    streamWriter.WriteLine();
 
-                streamWriter.WriteLine("Rejected files:");
-                foreach ((string rejectReason, int count) in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
-                    streamWriter.WriteLine($"{rejectReason} x{count}");
-                streamWriter.WriteLine();
+                    streamWriter.WriteLine("Rejected files:");
+                    foreach ((string rejectReason, int count) in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
+                        streamWriter.WriteLine($"{rejectReason} x{count}");
+                    streamWriter.WriteLine();
 
-                streamWriter.WriteLine("Anonymisation failures:");
-                streamWriter.WriteLine("Expected anonymised file | Failure reason");
-                foreach ((string expectedAnonFile, string failureReason) in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
-                    streamWriter.WriteLine($"{expectedAnonFile} {failureReason}");
-                streamWriter.WriteLine();
+                    streamWriter.WriteLine("Anonymisation failures:");
+                    streamWriter.WriteLine("Expected anonymised file | Failure reason");
+                    foreach ((string expectedAnonFile, string failureReason) in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
+                        streamWriter.WriteLine($"{expectedAnonFile} {failureReason}");
+                    streamWriter.WriteLine();
 
-                streamWriter.WriteLine("Verification failures:");
-                streamWriter.WriteLine("Anonymised file | Failure reason");
-                foreach ((string anonymisedFile, string failureReason) in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
-                    streamWriter.WriteLine($"{anonymisedFile} {failureReason}");
-                streamWriter.WriteLine();
+                    streamWriter.WriteLine("Verification failures:");
+                    streamWriter.WriteLine("Anonymised file | Failure reason");
+                    foreach ((string anonymisedFile, string failureReason) in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
+                        streamWriter.WriteLine($"{anonymisedFile} {failureReason}");
+                    streamWriter.WriteLine();
 
-                streamWriter.Flush();
+                    streamWriter.Flush();
 
-                stream.Position = 0;
-                FinishReport(stream);
+                    stream.Position = 0;
+                    FinishReport(stream);
+                }
             }
         }
 
