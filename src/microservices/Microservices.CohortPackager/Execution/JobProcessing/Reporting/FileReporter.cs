@@ -18,7 +18,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IExtractJobStore jobStore,
             [NotNull] string reportDir
         )
-            : base(jobStore)
+            : base(jobStore, null)
         {
             _reportDir = reportDir ?? throw new ArgumentNullException(nameof(reportDir));
         }

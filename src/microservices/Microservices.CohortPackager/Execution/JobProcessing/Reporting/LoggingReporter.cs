@@ -19,7 +19,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IExtractJobStore jobStore,
             string _
         )
-            : base(jobStore)
+            : base(jobStore, _)
         {
             _logger = LogManager.GetCurrentClassLogger();
         }

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 
 
@@ -10,7 +11,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
     {
         private readonly IExtractJobStore _jobStore;
 
-        protected JobReporterBase(IExtractJobStore jobStore)
+        protected JobReporterBase(
+            [NotNull] IExtractJobStore jobStore,
+            [CanBeNull] string _ // NOTE(rkm 2020-03-17) Required to force matching constructors for all derived types for construction via reflection
+        )
         {
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
         }
@@ -23,7 +27,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             {
                 using (var streamWriter = new StreamWriter(stream))
                 {
-
                     streamWriter.WriteLine();
                     foreach (string line in JobHeader(jobInfo))
                         streamWriter.WriteLine(line);
