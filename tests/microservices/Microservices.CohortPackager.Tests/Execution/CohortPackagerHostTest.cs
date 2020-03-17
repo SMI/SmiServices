@@ -54,11 +54,11 @@ namespace Microservices.CohortPackager.Tests.Execution
             }
         }
 
-        private class TestLoggingNotifier : LoggingNotifier
+        private class TestLoggingNotifier : IJobCompleteNotifier
         {
             public bool JobCompleted { get; set; }
 
-            public new void NotifyJobCompleted(ExtractJobInfo jobInfo)
+            public void NotifyJobCompleted(ExtractJobInfo jobInfo)
             {
                 JobCompleted = true;
             }
