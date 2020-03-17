@@ -81,7 +81,7 @@ namespace Smi.Common.Messaging
         /// <summary>
         /// Ensures the control queue is cleaned up on exit. Should have been deleted already, but this ensures it
         /// </summary>
-        public void Shutdown()
+        public override void Shutdown()
         {
             using (IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueShutdown"))
             using (IModel model = connection.CreateModel())
