@@ -17,6 +17,7 @@ import org.smi.ctpanonymiser.Program;
 import org.smi.ctpanonymiser.execution.CTPAnonymiserHost;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messages.ExtractFileStatusMessage;
+import org.smi.ctpanonymiser.util.ExtractFileStatus;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -187,7 +188,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 
 			assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.AnonymisedFileName);
 			assertEquals("Project numbers do not match", exMessage.ProjectNumber, recvd.ProjectNumber);
-			assertEquals(0, recvd.Status);
+			assertEquals(ExtractFileStatus.Anonymised, recvd.Status);
 		} else {
 			fail("Did not receive message");
 		}
@@ -236,7 +237,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 			_logger.info("\n" + recvd.toString());
 
 			assertEquals("FilePaths do not match", null, recvd.AnonymisedFileName);
-			assertEquals(2, recvd.Status);
+			assertEquals(ExtractFileStatus.ErrorWontRetry, recvd.Status);
 		} else {
 			fail("Did not receive message");
 		}

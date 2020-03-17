@@ -86,7 +86,7 @@ namespace Microservices.DicomReprocessor.Execution
                     if (key == null || !key.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");
-                        return default;
+                        return default(TimeSpan);
                     }
 
                     _logger.Info("User chose to continue with query execution");

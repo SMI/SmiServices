@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.MessageSerialization;
 using Newtonsoft.Json;
 using System;
@@ -13,7 +13,7 @@ namespace Smi.Common.Messages.Extraction
     public class ExtractFileCollectionInfoMessage : ExtractMessage, IEquatable<ExtractFileCollectionInfoMessage>
     {
         /// <summary>
-        /// Contains the value of the Tag <see cref="KeyTag"/> which is being extracted
+        /// Contains the value of the tag which is being extracted
         /// </summary>
         [JsonProperty(Required = Required.Always)]
         public string KeyValue { get; set; }
@@ -23,6 +23,12 @@ namespace Smi.Common.Messages.Extraction
         /// </summary>
         [JsonProperty(Required = Required.Always)]
         public JsonCompatibleDictionary<MessageHeader, string> ExtractFileMessagesDispatched { get; set; }
+        
+        /// <summary>
+        /// All the reasons for message rejection and count of occurrences
+        /// </summary>
+        [JsonProperty(Required = Required.Default)]
+        public Dictionary<string, int> RejectionReasons { get; set; } = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
 
 
         [JsonConstructor]
@@ -31,12 +37,6 @@ namespace Smi.Common.Messages.Extraction
             ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
         }
         
-        /// <summary>
-        /// All the reasons for message rejection and count of occurrences
-        /// </summary>
-        [JsonProperty(Required = Required.Default)]
-        public Dictionary<string,int> RejectionReasons  { get; set; } = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
-
         public ExtractFileCollectionInfoMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
             : base(extractionJobIdentifier, projectNumber, extractionDirectory, jobSubmittedAt) { }
 
@@ -44,6 +44,11 @@ namespace Smi.Common.Messages.Extraction
             : base(request)
         {
             ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + $",KeyValue={KeyValue},ExtractFileMessagesDispatched={ExtractFileMessagesDispatched.Count},RejectionReasons={RejectionReasons.Count},";
         }
 
         #region Equality Members

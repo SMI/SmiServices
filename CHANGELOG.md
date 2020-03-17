@@ -6,7 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-...
+### Changed
+
+- Update CohortPackager for new extraction design
+  - Consume messages from CTP (failed anonymisation) and IsIdentifiable (verification)
+  - Add support for extraction by modality
+  - Remove the final check for the anonymised file. IsIdentifiable handles this already
+  - Refactor tests
+
+- Start to refactor core RabbitMqAdapter code to allow unit testing
 
 ## [1.5.2] - 2020-03-12
 
@@ -16,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  - IsIdentifiableReviewer adds comment with time/user to rules file e.g. `#TZNind - 3/10/2020 1:17:17 PM`
  - IsIdentifiableReviewer checks custom patterns match the original Failure
  - IsIdentifiable microservice was started with --service but can now be started with the service verb allowing it to take additional options. It should now be started with `service -y file.yaml`
- - IsIdentifiable no longer reads Rules.yaml from the current directory. It now has a command line option --RulesDirectory, to go with the already existing --RulesFile. That will read all *.yaml files in the given directory. However when run as a microservice the yaml file specifies a DataDirectory; the RulesDirectory will implicitly be a subdirectory called IsIdentifiableRules from which all *.yaml files will be read.
+ - IsIdentifiable no longer reads Rules.yaml from the current directory. It now has a command line option --RulesDirectory, to go with the already existing --RulesFile. That will read all \*.yaml files in the given directory. However when run as a microservice the yaml file specifies a DataDirectory; the RulesDirectory will implicitly be a subdirectory called IsIdentifiableRules from which all \*.yaml files will be read.
 
 ### Changed
   - IsIdentifiableReviewer now tries to isolate 'Problem Words' when generating it's suggested Updater Regex rules (e.g. now suggests `^Ninewells` instead of `^Ninewells\ Spike\ CT$`.)

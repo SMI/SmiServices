@@ -69,7 +69,7 @@ namespace Microservices.DicomRelationalMapper.Execution
                 RunChecks = Globals.DicomRelationalMapperOptions.RunChecks
             };
 
-            RabbitMqAdapter.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer);
+            RabbitMqAdapter.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer, isSolo: false);
         }
 
         private void Startup_DatabaseFound(object sender, PlatformDatabaseFoundEventArgs e)

@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using System;
@@ -33,23 +33,58 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         void PersistMessageToStore(ExtractFileStatusMessage fileStatusMessage, IMessageHeader header);
 
         /// <summary>
-        /// Returns a list of all jobs which are in progress (where status is <see cref="ExtractJobStatus.WaitingForFiles"/>)
+        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// </summary>
+        /// <param name="anonVerificationMessage"></param>
+        /// <param name="header"></param>
+        void PersistMessageToStore(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header);
+
+        /// <summary>
+        /// Returns a list of all jobs which are ready for final checks
         /// </summary>
         /// <param name="extractionJobIdentifier">A specific job to get <see cref="ExtractJobInfo"/> for. Empty returns all jobs in progress</param>
         /// <returns></returns>
-        List<ExtractJobInfo> GetLatestJobInfo(Guid extractionJobIdentifier = new Guid());
+        List<ExtractJobInfo> GetReadyJobs(Guid extractionJobIdentifier = new Guid());
 
         /// <summary>
         /// Cleanup/archive any data in the database related to an extract job
         /// </summary>
         /// <param name="extractionJobIdentifier"></param>
-        void CleanupJobData(Guid extractionJobIdentifier);
+        void MarkJobCompleted(Guid extractionJobIdentifier);
 
         /// <summary>
         /// Quarantines a job if there is some issue processing it
         /// </summary>
         /// <param name="extractionJobIdentifier"></param>
-        /// <param name="e"></param>
-        void QuarantineJob(Guid extractionJobIdentifier, Exception e);
+        /// <param name="cause"></param>
+        void MarkJobFailed(Guid extractionJobIdentifier, Exception cause);
+
+        /// <summary>
+        /// Returns the ExtractJobInfo for a completed job
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        ExtractJobInfo GetCompletedJobInfo(Guid jobId);
+
+        /// <summary>
+        /// Returns the rejection reasons for a completed job
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        IEnumerable<Tuple<string, int>> GetCompletedJobRejections(Guid jobId);
+
+        /// <summary>
+        /// Returns the anonymisation failures for a completed job. This is a tuple of "expected anonymised file path" and "failure reason"
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailures(Guid jobId);
+
+        /// <summary>
+        /// Returns the verification failures for a completed job. This is a tuple of "anonymised file path" and "verification failure reason"
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailures(Guid jobId);
     }
 }
