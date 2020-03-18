@@ -7,10 +7,10 @@ using System.Reflection;
 using System.Text;
 using Dicom;
 using FAnsi.Discovery;
+using JetBrains.Annotations;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
-using ReusableLibraryCode.Annotations;
 using Smi.Common.Messages;
 using YamlDotNet.Serialization;
 using DatabaseType = FAnsi.DatabaseType;
@@ -110,7 +110,8 @@ namespace Smi.Common.Options
             return GenerateToString(this);
         }
     }
-
+    
+    [UsedImplicitly]
     public class IsIdentifiableOptions : ConsumerOptions
     {
         /// <summary>
@@ -328,9 +329,12 @@ namespace Smi.Common.Options
     public class CohortPackagerOptions
     {
         public ConsumerOptions ExtractRequestInfoOptions { get; set; }
-        public ConsumerOptions ExtractFilesInfoOptions { get; set; }
-        public ConsumerOptions AnonImageStatusOptions { get; set; }
-        public uint JobWatcherTickrate { get; set; }
+        public ConsumerOptions FileCollectionInfoOptions { get; set; }
+        public ConsumerOptions AnonFailedOptions { get; set; }
+        public ConsumerOptions VerificationStatusOptions { get; set; }
+        public uint JobWatcherTimeoutInSeconds { get; set; }
+        public string ReporterType { get; set; }
+        public string NotifierType { get; set; }
 
         public override string ToString()
         {
@@ -556,12 +560,6 @@ namespace Smi.Common.Options
         public string FatalLoggingExchange { get; set; }
         public string RabbitMqControlExchangeName { get; set; }
         public bool ThreadReceivers { get; set; }
-
-        public bool Validate()
-        {
-            return RabbitMqHostPort > 0 &&
-                   !string.IsNullOrWhiteSpace(RabbitMqVirtualHost);
-        }
 
         public override string ToString()
         {

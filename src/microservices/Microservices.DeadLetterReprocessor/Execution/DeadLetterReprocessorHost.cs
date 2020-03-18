@@ -41,7 +41,7 @@ namespace Microservices.DeadLetterReprocessor.Execution
                 
 
             Logger.Info("DLQ empty, stopping consumer");
-            RabbitMqAdapter.StopConsumer(consumerId);
+            RabbitMqAdapter.StopConsumer(consumerId, Smi.Common.RabbitMqAdapter.DefaultOperationTimeout);
 
             if (_cliOptions.StoreOnly)
             {

@@ -69,7 +69,7 @@ namespace Microservices.DicomReprocessor.Execution
             else
                 _processor.LogProgress();
             
-            if (queryTime != default)
+            if (queryTime != default(TimeSpan))
                 Logger.Info("Average documents processed per second: " + Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds));
 
             // Only call stop if we exited normally

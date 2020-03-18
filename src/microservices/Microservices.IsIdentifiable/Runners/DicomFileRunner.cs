@@ -142,7 +142,7 @@ namespace Microservices.IsIdentifiable.Runners
                 {
                     value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
                 }
-                catch (System.FormatException e)
+                catch (System.FormatException)
                 {
                     value = "Unknown value for "+dicomItem;
                 }
