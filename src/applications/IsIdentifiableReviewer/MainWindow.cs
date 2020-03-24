@@ -242,7 +242,7 @@ namespace IsIdentifiableReviewer
                     var next = CurrentReport.Current;
 
                     //prefer rules that say we should update the database with redacted over rules that say we should ignore the problem
-                    if (!Updater.OnLoad(CurrentTarget?.Discover(),next))
+                    if (!Updater.OnLoad(CurrentTarget?.Discover(),next, out _))
                         updated++;
                     else if (!Ignorer.OnLoad(next,out _))
                         skipped++;
