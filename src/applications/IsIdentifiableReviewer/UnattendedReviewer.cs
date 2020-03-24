@@ -84,10 +84,10 @@ namespace IsIdentifiableReviewer
                         else
                         {
                             
-                            if (!_updateRulesUsed.ContainsKey(ignoreRule))
-                                _updateRulesUsed.Add(ignoreRule, 1);
+                            if (!_ignoreRulesUsed.ContainsKey(ignoreRule))
+                                _ignoreRulesUsed.Add(ignoreRule, 1);
                             else
-                                _updateRulesUsed[ignoreRule]++;
+                                _ignoreRulesUsed[ignoreRule]++;
 
                             Ignores++;
                         }
