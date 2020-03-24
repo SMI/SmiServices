@@ -514,7 +514,7 @@ namespace IsIdentifiableReviewer
                         Clicked = () => { txt.Text = kvp.Value; }
                     };
                     dlg.Add(button);
-                    x += 13;
+                    x += kvp.Key.Length + 5;
                 }
 
             dlg.FocusFirst();
