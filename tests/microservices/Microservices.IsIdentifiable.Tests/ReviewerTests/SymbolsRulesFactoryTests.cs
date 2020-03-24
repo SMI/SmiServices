@@ -12,8 +12,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         
         [TestCase("1 6",@"^\d\ \d$")]
 
-        [TestCase(@"abc
-123",@"^[a-z][a-z][a-z]\r\n\d\d\d$")]
+        [TestCase("abc\n123",@"^[a-z][a-z][a-z]\n\d\d\d$")]
         public void TestSymbols(string input, string expectedOutput)
         {
             var f = new SymbolsRulesFactory();
