@@ -253,7 +253,15 @@ namespace IsIdentifiableReviewer
             if(_valuePane.CurrentFailure == null)
                 return;
 
-            Ignorer.Add(_valuePane.CurrentFailure);
+            try
+            {
+                Ignorer.Add(_valuePane.CurrentFailure);
+            }
+            catch (OperationCanceledException)
+            {
+                //if user cancels adding the ignore then stay on the same record
+                return;
+            }
             Next();
         }
         private void Update()
@@ -264,7 +272,12 @@ namespace IsIdentifiableReviewer
             try
             {
                 Updater.Update(_cbRulesOnly.Checked ? null : CurrentTarget?.Discover()
-                    ,_valuePane.CurrentFailure,null /*create one yourself*/);
+                    , _valuePane.CurrentFailure, null /*create one yourself*/);
+            }
+            catch (OperationCanceledException)
+            {
+                //if user cancels updating then stay on the same record
+                return;
             }
             catch (Exception e)
             {
@@ -521,7 +534,7 @@ namespace IsIdentifiableReviewer
              }
                 
             
-             throw new Exception("User chose not to enter a pattern");
+             throw new OperationCanceledException("User chose not to enter a pattern");
          }
 
     }
