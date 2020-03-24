@@ -34,6 +34,8 @@ namespace IsIdentifiableReviewer
         private Label _updateRuleLabel;
         private CheckBox _cbRulesOnly;
 
+        Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
+
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
@@ -116,6 +118,13 @@ namespace IsIdentifiableReviewer
                 Clicked = ()=>GoToRelative(1)
             });
 
+            frame.Add(new Button("unDo")
+            {
+                X = 11,
+                Y = 2,
+                Clicked = ()=>Undo()
+            });
+
             frame.Add(new Label(0,4,"Default Patterns"));
 
             _ignoreRuleLabel = new Label(0,5,"Ignore:");
@@ -144,6 +153,23 @@ namespace IsIdentifiableReviewer
 
             if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
                 OpenReport(opts.FailuresCsv,(e)=>throw e, (t)=>throw new Exception("Mode only supported when a single Target is configured"));
+        }
+
+        private void Undo()
+        {
+            if (History.Count == 0)
+            {
+                ShowMessage("History Empty","Cannot undo, history is empty");
+                return;
+            }
+
+            var popped = History.Pop();
+
+            //undo file history
+            popped.OutputBase.Undo();
+
+            //wind back UI
+            GoTo(popped.Index);
         }
 
         private void GoToRelative(int offset)
@@ -256,6 +282,7 @@ namespace IsIdentifiableReviewer
             try
             {
                 Ignorer.Add(_valuePane.CurrentFailure);
+                History.Push(new MainWindowHistory(CurrentReport.CurrentIndex,Ignorer));
             }
             catch (OperationCanceledException)
             {
@@ -273,6 +300,8 @@ namespace IsIdentifiableReviewer
             {
                 Updater.Update(_cbRulesOnly.Checked ? null : CurrentTarget?.Discover()
                     , _valuePane.CurrentFailure, null /*create one yourself*/);
+
+                History.Push(new MainWindowHistory(CurrentReport.CurrentIndex,Updater));
             }
             catch (OperationCanceledException)
             {
