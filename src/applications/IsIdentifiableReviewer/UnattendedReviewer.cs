@@ -105,7 +105,7 @@ namespace IsIdentifiableReviewer
 
                     if (Total % 10000 == 0 || sw.ElapsedMilliseconds > 5000)
                     {
-                        Log($"Done {Total:N0} u={Updates:N0} i={Ignores:N0} o={Unresolved:N0}");
+                        Log($"Done {Total:N0} u={Updates:N0} i={Ignores:N0} o={Unresolved:N0}",true);
                         sw.Restart();
                     }
                 }
@@ -114,19 +114,20 @@ namespace IsIdentifiableReviewer
             }
 
             Log($"Ignore Rules Used:" + Environment.NewLine + string.Join(Environment.NewLine,
-                                       _ignoreRulesUsed.OrderBy(k=>k.Value).Select(k=>$"{k.Key.IfPattern} - {k.Value:N0}")));
+                                       _ignoreRulesUsed.OrderBy(k=>k.Value).Select(k=>$"{k.Key.IfPattern} - {k.Value:N0}")),false);
 
             Log($"Update Rules Used:" + Environment.NewLine + string.Join(Environment.NewLine,
-                                       _updateRulesUsed.OrderBy(k=>k.Value).Select(k=>$"{k.Key.IfPattern} - {k.Value:N0}")));
+                                       _updateRulesUsed.OrderBy(k=>k.Value).Select(k=>$"{k.Key.IfPattern} - {k.Value:N0}")),false);
 
-            Log($"Finished {Total:N0} updates={Updates:N0} ignored={Ignores:N0} out={Unresolved:N0}");
+            Log($"Finished {Total:N0} updates={Updates:N0} ignored={Ignores:N0} out={Unresolved:N0}",true);
             return 0;
         }
 
-        private void Log(string msg)
+        private void Log(string msg, bool toConsole)
         {
             _log.Info(msg);
-            Console.WriteLine(msg);
+            if(toConsole)
+                Console.WriteLine(msg);
         }
     }
 }
