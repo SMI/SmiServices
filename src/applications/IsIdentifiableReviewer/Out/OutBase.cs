@@ -96,8 +96,14 @@ namespace IsIdentifiableReviewer.Out
                 //clear the rule from the serialized text file
                 var oldText = File.ReadAllText(RulesFile.FullName);
                 var newText = oldText.Replace(popped.Yaml, "");
-                File.WriteAllText(RulesFile.FullName,newText);
 
+                //write to a new temp file
+                File.WriteAllText(RulesFile.FullName + ".tmp",newText);
+                
+                //then hot swap them
+                File.Delete(RulesFile.FullName);
+                File.Move(RulesFile.FullName + ".tmp",RulesFile.FullName);
+                
                 //clear the rule from memory
                 Rules.Remove(popped.Rule);
             }
