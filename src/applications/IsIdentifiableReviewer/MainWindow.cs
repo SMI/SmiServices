@@ -424,7 +424,8 @@ namespace IsIdentifiableReviewer
             chosen = result;
             return optionChosen;
         }
-         private bool GetText(string title, string message, string initialValue, out string chosen)
+         private bool GetText(string title, string message, string initialValue, out string chosen,
+             Dictionary<string, string> buttons)
          {
             bool optionChosen = false;
 
@@ -475,13 +476,17 @@ namespace IsIdentifiableReviewer
             };
             dlg.Add(btn);
 
-            var btnClear = new Button(15, line, "Clear")
-            {
-                Clicked = () => { txt.Text = ""; }
-            };
-            dlg.Add(btnClear);
-
-            
+            int x = 10;
+            if(buttons != null)
+                foreach (var kvp in buttons)
+                {
+                    var button = new Button(x, line,kvp.Key)
+                    {
+                        Clicked = () => { txt.Text = kvp.Value; }
+                    };
+                    dlg.Add(button);
+                    x += 13;
+                }
 
             dlg.FocusFirst();
         
@@ -503,8 +508,15 @@ namespace IsIdentifiableReviewer
              var defaultFactory = sender == Updater ? _origUpdaterRulesFactory : _origIgnorerRulesFactory;
 
              var recommendedPattern = defaultFactory.GetPattern(sender,failure);
+            
+             Dictionary<string,string> buttons = new Dictionary<string, string>();
+             buttons.Add("Clear","");
+             buttons.Add("Full",_origIgnorerRulesFactory.GetPattern(sender,failure));
+             buttons.Add("Captures",_origUpdaterRulesFactory.GetPattern(sender,failure));
+             
+             buttons.Add("Symbols",new SymbolsRulesFactory().GetPattern(sender,failure));
 
-             if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen))
+             if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen,buttons))
              {
                  Regex regex;
 
