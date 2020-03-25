@@ -4,8 +4,8 @@ Primary Author: [Paul Graham] (https://github.com/pjgraham)
 
 ## Contents
  1. [Overview](#1-overview)
- 2. [Setup / Installation](#2-setup--installation)
- 3. [Queue Settings](#3-queue-settings)
+ 2. [Setup / Installation](#2-setup-installation)
+ 3. [Queue Settings](#3-exchange-and-queue-settings)
  4. [Config](#4-config)
  5. [Expectations](#5-expectations)
 

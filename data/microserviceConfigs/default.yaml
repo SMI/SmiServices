@@ -71,6 +71,7 @@ CohortExtractorOptions:
     # also doable on a single line with [2,4,5] :)
     AuditorType: 'Microservices.CohortExtractor.Audit.NullAuditExtractions'
     RequestFulfillerType: 'Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller'
+    ProjectPathResolverType: 'Microservices.CohortExtractor.Execution.ProjectPathResolvers.DefaultProjectPathResolver'
     # Writes (Producer) to this exchange
     ExtractFilesProducerOptions: 
         ExchangeName: 'TEST.ExtractFileExchange'
@@ -81,17 +82,23 @@ CohortExtractorOptions:
         MaxConfirmAttempts: 1
         
 CohortPackagerOptions:
-    JobWatcherTickrate: 30 # Seconds
-    ExtractRequestInfoOptions: 
+    JobWatcherTimeoutInSeconds: 30
+    ReporterType: 'LoggingReporter'
+    NotifierType: 'LoggingNotifier'
+    ExtractRequestInfoOptions:
         QueueName: 'TEST.RequestInfoQueue'
         QoSPrefetchCount: 1
         AutoAck: false
-    ExtractFilesInfoOptions:
+    FileCollectionInfoOptions:
         QueueName: 'TEST.FileCollectionInfoQueue'
         QoSPrefetchCount: 1
         AutoAck: false
-    AnonImageStatusOptions:
-        QueueName: 'TEST.FileStatusQueue'
+    AnonFailedOptions:
+        QueueName: 'TEST.AnonFailedQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    VerificationStatusOptions:
+        QueueName: 'TEST.VerificationStatusQueue'
         QoSPrefetchCount: 1
         AutoAck: false
 
@@ -166,3 +173,14 @@ ExtractorClOptions:
     ExtractionRequestInfoProducerOptions:
         ExchangeName: 'TEST.RequestInfoExchange'
         MaxConfirmAttempts: 1
+
+IsIdentifiableOptions:
+    QueueName: 'TEST.IsIdentifiableQueue'
+    QoSPrefetchCount: 1
+    AutoAck: false
+    IsIdentifiableProducerOptions:
+        ExchangeName: 'TEST.IsIdentifiableExchange'
+        MaxConfirmAttempts: 1
+    ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
+    DataDirectory: ''
+

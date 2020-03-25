@@ -9,13 +9,14 @@ using System.Text.RegularExpressions;
 using Dicom;
 using Dicom.Imaging;
 using DicomTypeTranslation;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using NLog;
 using Tesseract;
 using ImageFormat = System.Drawing.Imaging.ImageFormat;
+using ImageMagick; // dotnet add package Magick.NET-Q16-AnyCPU
 
 namespace Microservices.IsIdentifiable.Runners
 {
@@ -63,14 +64,9 @@ namespace Microservices.IsIdentifiable.Runners
                 var languageFile = new FileInfo(Path.Combine(dir.FullName, "eng.traineddata"));
 
                 if (!languageFile.Exists)
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        client.DownloadFile(new Uri(EngData), languageFile.FullName);
-                    }
-                }
+                    throw new FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
 
-                _tesseractEngine = new TesseractEngine(_opts.TessDirectory, "eng", EngineMode.Default);
+                _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default);
                 _tesseractEngine.DefaultPageSegMode = PageSegMode.Auto;
 
                 _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName());
@@ -108,7 +104,7 @@ namespace Microservices.IsIdentifiable.Runners
         }
 
 
-        private void ValidateDicomFile(FileInfo fi)
+        public void ValidateDicomFile(FileInfo fi)
         {
             _logger.Debug("Opening File: " + fi.Name);
 
@@ -141,7 +137,17 @@ namespace Microservices.IsIdentifiable.Runners
             }
             else
             {
-                var value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
+                Object value;
+                try
+                {
+                    value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
+                }
+                catch (System.FormatException)
+                {
+                    value = "Unknown value for "+dicomItem;
+                }
+                // Sometimes throws "Input string was not in a correct format"
+                //var value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
 
                 if (value is string)
                     Validate(fi, dicomFile, dicomItem, value as string);
@@ -158,10 +164,19 @@ namespace Microservices.IsIdentifiable.Runners
 
         private void Validate(FileInfo fi, DicomFile dicomFile, DicomItem dicomItem, string fieldValue)
         {
-            List<FailurePart> parts = Validate(dicomItem.Tag.DictionaryEntry.Keyword, fieldValue).ToList();
+            // Keyword might be "Unknown" in which case we would rather use "(xxxx,yyyy)"
+            string tagName = dicomItem.Tag.DictionaryEntry.Keyword;
+            //if (tagName == "Unknown" || tagName == "PrivateCreator") tagName = dicomItem.Tag.ToString(); // do this if you want PrivateCreator tags to have the numeric value preserved
+            if (tagName == "Unknown") tagName = dicomItem.Tag.ToString();
+
+            // Some strings contain null characters?!  Remove them all.
+            // XXX hopefully this won't break any special character encoding (eg. UTF)
+            fieldValue = fieldValue.Replace("\0", "");
+
+            List<FailurePart> parts = Validate(tagName, fieldValue).ToList();
 
             if (parts.Any())
-                AddToReports(factory.Create(fi, dicomFile, fieldValue, dicomItem.Tag.ToString(), parts));
+                AddToReports(factory.Create(fi, dicomFile, fieldValue, tagName, parts));
         }
 
         void ValidateDicomPixelData(FileInfo fi, DicomFile dicomFile, DicomDataset ds)
@@ -187,7 +202,32 @@ namespace Microservices.IsIdentifiable.Runners
                         {
                             Process(targetBmp, oldBmp.PixelFormat, targetBmp.PixelFormat, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
 
-                            //if user wants to rotate the image 90, 180 and 270 degress
+                            // Need to threshold and possibly negate the image for best results
+                            // Magick.NET won't read from Bitmap directly in .net core so go via MemoryStream
+                            using (MemoryStream memStreamIn = new MemoryStream())
+                            using (MemoryStream memStreamOut = new MemoryStream())
+                            using (MagickImage mi = new MagickImage())
+                            {
+                                targetBmp.Save(memStreamIn, ImageFormat.Bmp);
+                                memStreamIn.Position = 0;
+                                mi.Read(memStreamIn);
+                                // Threshold the image to monochrome using a window size of 25 square
+                                // The size 25 was determined empirically based on real images (could be larger, less effective if smaller)
+                                mi.AdaptiveThreshold(25, 25);
+                                // Write out to memory, can't reuse memStreamIn here as it breaks
+                                mi.Write(memStreamOut);
+                                memStreamOut.Position = 0;
+                                Process(memStreamOut, oldBmp.PixelFormat, targetBmp.PixelFormat, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                                // Tesseract only works with black text on white background so run again negated
+                                mi.Negate();
+                                memStreamOut.Position = 0;
+                                mi.Write(memStreamOut);
+                                memStreamOut.Position = 0;
+                                Process(memStreamOut, oldBmp.PixelFormat, targetBmp.PixelFormat, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                            }
+
+                            //if user wants to rotate the image 90, 180 and 270 degrees
+                            // XXX this is done after negation, maybe needs to be done with and without negation?
                             if (_opts.Rotate)
                                 for (int i = 0; i < 3; i++)
                                 {
@@ -202,28 +242,41 @@ namespace Microservices.IsIdentifiable.Runners
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Could not run Tesseract on '" + fi.FullName + "'");
+                // An internal error should cause IsIdentifiable to exit
+                _logger.Info(e, "Could not run Tesseract on '" + fi.FullName + "'");
+                throw new Exception ("Could not run Tesseract on '" + fi.FullName + "'", e);
+
+                // OR add a message to the report saying we failed to run OCR
+                //string problemField = "PixelData";
+                //string text = "Error running OCR on pixel data: "+e;
+                //var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
+                //AddToReports(f);
+                // XXX do we need this?
+                //_tesseractReport.FoundPixelData(fi, sopID, pixelFormat, processedPixelFormat, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny);
             }
         }
 
         private void Process(Bitmap targetBmp, PixelFormat pixelFormat, PixelFormat processedPixelFormat, FileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
         {
-            float meanConfidence;
-            string text;
-
             using (var ms = new MemoryStream())
             {
                 targetBmp.Save(ms,ImageFormat.Bmp);
+                Process(ms, pixelFormat, processedPixelFormat, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, rotationIfAny);
+            }
+        }
+
+        private void Process(MemoryStream ms, PixelFormat pixelFormat, PixelFormat processedPixelFormat, FileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
+        {
+            float meanConfidence;
+            string text;
+
+            {
                 var bytes = ms.ToArray();
 
                 // targetBmp is now in the desired format.
-                // XXX abrooks added PixConverter.ToPix (which requires Tesseract 3.0.2, not 3.3.0, or 4) for dotnet netcoreapp2.2
-                //targetBmp.Save("tesseract_input_debug.png", System.Drawing.Imaging.ImageFormat.Png);
-                //tnind changed to LoadFromMemory
                 using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
                 {
                     text = page.GetText();
-                    //_logger.Warn("Tesseract returned " + text);   // XXX abrooks added for debugging
                     text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
                     text = text.Trim();
                     meanConfidence = page.GetMeanConfidence();

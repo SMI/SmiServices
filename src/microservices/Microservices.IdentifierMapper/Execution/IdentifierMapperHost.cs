@@ -30,7 +30,7 @@ namespace Microservices.IdentifierMapper.Execution
 
 
         public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig, threaded: true)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = options.IdentifierMapperOptions;
 
@@ -71,13 +71,13 @@ namespace Microservices.IdentifierMapper.Execution
 
         public override void Start()
         {
-            _consumerId = RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer);
+            _consumerId = RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)
         {
             if (_consumerId != Guid.Empty)
-                RabbitMqAdapter.StopConsumer(_consumerId);
+                RabbitMqAdapter.StopConsumer(_consumerId, Smi.Common.RabbitMqAdapter.DefaultOperationTimeout);
             try
             {
                 // Wait for any unconfirmed messages before calling stop

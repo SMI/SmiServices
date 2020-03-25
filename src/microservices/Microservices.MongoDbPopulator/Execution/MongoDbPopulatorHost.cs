@@ -18,7 +18,7 @@ namespace Microservices.MongoDBPopulator.Execution
 
 
         public MongoDbPopulatorHost(GlobalOptions options, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.SeriesQueueConsumerOptions));
             Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions));
@@ -35,7 +35,7 @@ namespace Microservices.MongoDBPopulator.Execution
             Logger.Info("Starting consumers");
 
             foreach (IMongoDbPopulatorMessageConsumer consumer in Consumers)
-                RabbitMqAdapter.StartConsumer(consumer.ConsumerOptions, consumer);
+                RabbitMqAdapter.StartConsumer(consumer.ConsumerOptions, consumer, isSolo: false);
 
             Logger.Info("Consumers successfully started");
         }

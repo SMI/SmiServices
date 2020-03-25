@@ -3,6 +3,7 @@ package org.smi.ctpanonymiser.messages;
 import org.smi.common.messageSerialization.JsonDeserializerWithOptions.FieldRequired;
 import org.smi.common.messages.ExtractMessage;
 import org.smi.common.messages.IMessage;
+import org.smi.ctpanonymiser.util.ExtractFileStatus;
 
 /**
  * Message indicating the path to an anonymised file
@@ -12,11 +13,10 @@ public class ExtractFileStatusMessage extends ExtractMessage implements IMessage
 	@FieldRequired
 	public String DicomFilePath;
 
-	// TODO Implement this (can be null if anonymisation not successful)
 	public String AnonymisedFileName;
 
-	@FieldRequired
-	public int Status;
+    @FieldRequired
+	public ExtractFileStatus Status;
 
 	public String StatusMessage;
 

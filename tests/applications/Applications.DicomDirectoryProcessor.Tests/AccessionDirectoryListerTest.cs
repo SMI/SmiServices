@@ -26,16 +26,15 @@ namespace Applications.DicomDirectoryProcessor.Tests
             TestLogger.Setup();
         }
         
-        // TODO(rkm 2020-02-12) Things to test
-        // - Valid CSV file
-        // - CSVs with various invalid data / lines
 	private String GetListContent()
 	{
             StringBuilder accessionList = new StringBuilder();
 
-	    accessionList.AppendLine("/PACS/2018/01/01/AAA,");           // exists and has dicom files - pass 
+	    accessionList.AppendLine("/PACS/2018/01/01/AAA,");           // exists and has dicom files - fail (requires indication that is dir) 
 	    accessionList.AppendLine("/PACS/2018/01/01/AAA/,");          // exists and has dicom files - pass
-	    accessionList.AppendLine("/PACS/2018/01/01/BBB,");           // does exist but has no dicom files - fail
+	    accessionList.AppendLine("/PACS/2018/01/01/E-123/,");        // exists and has dicom files - pass
+	    accessionList.AppendLine("/PACS/2018/01/01/01.01.2018/,");   // exists and has dicom files - pass
+	    accessionList.AppendLine("/PACS/2018/01/01/BBB/,");          // does exist but has no dicom files - fail
 	    accessionList.AppendLine("/PACS/2018/01/01/CCC/,");          // does not exist - fail
 	    accessionList.AppendLine("/PACS/2018/01/01/,");              // not pointing to accession directory - fail
 	    accessionList.AppendLine("/PACS/2018/01/01/testDicom.dcm,"); // not pointing to accession directory - fail
@@ -55,7 +54,13 @@ namespace Applications.DicomDirectoryProcessor.Tests
 
 	    string testDicom = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/test.dcm"));
 	    mockFilesystem.AddFile(testDicom, MockFileData.NullObject);
+	    
+	    string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/E-123/test.dcm"));
+	    mockFilesystem.AddFile(specialCase1, MockFileData.NullObject);
 
+	    string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/01.01.2018/test.dcm"));
+	    mockFilesystem.AddFile(specialCase2, MockFileData.NullObject);
+	    
 	    string testBad = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/BBB/test.txt"));
 	    mockFilesystem.AddFile(testBad, MockFileData.NullObject);
 	    
@@ -78,7 +83,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
 
             accessionLister.SearchForDicomDirectories(accessionList);
 	    
-	    Assert.AreEqual(totalSent, 2);
+	    Assert.AreEqual(totalSent, 3);
         }
     }
 }

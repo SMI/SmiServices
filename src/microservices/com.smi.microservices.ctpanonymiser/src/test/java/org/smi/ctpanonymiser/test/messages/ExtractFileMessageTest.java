@@ -47,7 +47,7 @@ public class ExtractFileMessageTest extends TestCase {
 	public void testSerializeDeserialize() {
 
 		ExtractFileMessage recvdMessage;
-		CTPAnonymiserConsumer consumer = new CTPAnonymiserConsumer(null, null, _routingKey, _fileSystemRoot, _extractFileSystemRoot);
+		CTPAnonymiserConsumer consumer = new CTPAnonymiserConsumer(null, null, _fileSystemRoot, _extractFileSystemRoot);
 
 		// Get byte array version of message
 		Gson _gson = new Gson();

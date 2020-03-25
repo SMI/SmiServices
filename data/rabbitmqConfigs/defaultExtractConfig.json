@@ -1,246 +1,241 @@
 {
-  "vhosts":[
+  "vhosts": [
     {
-      "name":"smi_extract"
+      "name": "smi_extract"
     }
   ],
-  "policies":[
+  "policies": [
     {
-      "vhost":"smi_extract",
-      "name":"deadLetterExtract",
-      "pattern":"",
-      "apply-to":"queues",
-      "definition":{
-        "dead-letter-exchange":"DLExchange"
+      "vhost": "smi_extract",
+      "name": "deadLetterExtract",
+      "pattern": "",
+      "apply-to": "queues",
+      "definition": {
+        "dead-letter-exchange": "DLExchange"
       },
-      "priority":0
+      "priority": 0
     }
   ],
-  "exchanges":[
+  "exchanges": [
     {
-      "name":"ControlExchange",
-      "vhost":"smi_extract",
-      "type":"topic",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "ControlExchange",
+      "vhost": "smi_extract",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"FileStatusExchange",
-      "vhost":"smi_extract",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "AnonStatusExchange",
+      "vhost": "smi_extract",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"FileCollectionInfoExchange",
-      "vhost":"smi_extract",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "VerificationStatusExchange",
+      "vhost": "smi_extract",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"ExtractFileExchange",
-      "vhost":"smi_extract",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "FileCollectionInfoExchange",
+      "vhost": "smi_extract",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"RequestExchange",
-      "vhost":"smi_extract",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "AnonFileExchange",
+      "vhost": "smi_extract",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"DLExchange",
-      "vhost":"smi_extract",
-      "type":"topic",
-      "durable":true,
-      "auto_delete":false,
-      "internal":true,
-      "arguments":{
-
-      }
+      "name": "RequestExchange",
+      "vhost": "smi_extract",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"RequestInfoExchange",
-      "vhost":"smi_extract",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "DLExchange",
+      "vhost": "smi_extract",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": true,
+      "arguments": {}
     },
     {
-      "name":"FatalLoggingExchange",
-      "vhost":"smi_extract",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
-    }
-  ],  
-  "queues":[
-    {
-      "name":"FileCollectionInfoQueue",
-      "vhost":"smi_extract",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "RequestInfoExchange",
+      "vhost": "smi_extract",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"RequestQueue",
-      "vhost":"smi_extract",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
-    },
-    {
-      "name":"FileStatusQueue",
-      "vhost":"smi_extract",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
-    },
-    {
-      "name":"ExtractFileQueue",
-      "vhost":"smi_extract",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
-    },
-    {
-      "name":"DLQueue",
-      "vhost":"smi_extract",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
-    },
-    {
-      "name":"RequestInfoQueue",
-      "vhost":"smi_extract",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
-    },
-    {
-      "name":"FatalLoggingQueue",
-      "vhost":"smi_extract",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "FatalLoggingExchange",
+      "vhost": "smi_extract",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     }
   ],
-  "bindings":[
+  "queues": [
     {
-      "source":"DLExchange",
-      "vhost":"smi_extract",
-      "destination":"DLQueue",
-      "destination_type":"queue",
-      "routing_key":"#",
-      "arguments":{
-
-      }
+      "name": "FileCollectionInfoQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "source":"FileCollectionInfoExchange",
-      "vhost":"smi_extract",
-      "destination":"FileCollectionInfoQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "name": "RequestQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "source":"ExtractFileExchange",
-      "vhost":"smi_extract",
-      "destination":"ExtractFileQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "name": "AnonSuccessQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "source":"FileStatusExchange",
-      "vhost":"smi_extract",
-      "destination":"FileStatusQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "name": "AnonFailedQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "source":"RequestExchange",
-      "vhost":"smi_extract",
-      "destination":"RequestQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "name": "AnonFileQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "source":"RequestInfoExchange",
-      "vhost":"smi_extract",
-      "destination":"RequestInfoQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "name": "DLQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "source":"FatalLoggingExchange",
-      "vhost":"smi_extract",
-      "destination":"FatalLoggingQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "name": "RequestInfoQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "VerificationStatusQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "FatalLoggingQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "DLExchange",
+      "vhost": "smi_extract",
+      "destination": "DLQueue",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "FileCollectionInfoExchange",
+      "vhost": "smi_extract",
+      "destination": "FileCollectionInfoQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "AnonFileExchange",
+      "vhost": "smi_extract",
+      "destination": "AnonFileQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "AnonStatusExchange",
+      "vhost": "smi_extract",
+      "destination": "AnonSuccessQueue",
+      "destination_type": "queue",
+      "routing_key": "success",
+      "arguments": {}
+    },
+    {
+      "source": "AnonStatusExchange",
+      "vhost": "smi_extract",
+      "destination": "AnonFailedQueue",
+      "destination_type": "queue",
+      "routing_key": "failure",
+      "arguments": {}
+    },
+    {
+      "source": "RequestExchange",
+      "vhost": "smi_extract",
+      "destination": "RequestQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "RequestInfoExchange",
+      "vhost": "smi_extract",
+      "destination": "RequestInfoQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "VerificationStatusExchange",
+      "vhost": "smi_extract",
+      "destination": "VerificationStatusQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "FatalLoggingExchange",
+      "vhost": "smi_extract",
+      "destination": "FatalLoggingQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
     }
   ]
 }

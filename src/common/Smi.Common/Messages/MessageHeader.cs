@@ -12,8 +12,6 @@ namespace Smi.Common.Messages
 {
     public class MessageHeader : IMessageHeader, IEquatable<MessageHeader>
     {
-        // FIXME: Pull out header property strings into const. variables
-
         public Guid MessageGuid { get; set; }
 
         public int ProducerProcessID { get; set; }
@@ -73,7 +71,7 @@ namespace Smi.Common.Messages
             ProducerProcessID = (int)encodedHeaders["ProducerProcessID"];
             ProducerExecutableName = enc.GetString((byte[])encodedHeaders["ProducerExecutableName"]);
             Parents = GetGuidArrayFromEncodedHeader(encodedHeaders["Parents"], enc);
-            OriginalPublishTimestamp = (long)encodedHeaders["OriginalPublishTimestamp"];
+            OriginalPublishTimestamp = Convert.ToInt64(encodedHeaders["OriginalPublishTimestamp"]); // XXX error casting from Int32 to Int64 using (long)
         }
 
         /// <summary>
@@ -133,10 +131,10 @@ namespace Smi.Common.Messages
             return sb.ToString();
         }
 
-        public static long UnixTimeNow()
-        {
-            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
-        }
+        // TODO(rkm 2020-03-08) Can't we just use the DateTime.UnixEpoch value here?
+        public static long UnixTimeNow() => UnixTime(DateTime.UtcNow);
+        public static long UnixTime(DateTime dateTime) => (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+        public static DateTime UnixTimeToDateTime(long unixTime) => new DateTime(1970, 1, 1, 0, 0, 0) + TimeSpan.FromSeconds(unixTime);
 
         public static Guid[] GetGuidArray(string str)
         {
@@ -181,7 +179,9 @@ namespace Smi.Common.Messages
                 hashCode = (hashCode * 397) ^ ProducerProcessID;
                 hashCode = (hashCode * 397) ^ (ProducerExecutableName != null ? ProducerExecutableName.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ OriginalPublishTimestamp.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Parents != null ? Parents.GetHashCode() : 0);
+                // NOTE(rkm 2020-03-04) GetHashCode for a struct[] uses reference equality, so instead we compute the hash
+                //                      code using the string representation of the Parents array
+                hashCode = (hashCode * 397) ^ (Parents != null ? string.Join(Splitter, Parents).GetHashCode() : 0);
                 return hashCode;
             }
         }

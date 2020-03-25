@@ -13,7 +13,7 @@ jobs:
       - $HOME/.nuget
       - $HOME/.m2
     addons:
-      postgresql: 10
+      postgresql: "10"
       apt:
         sources:
         - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic main universe multiverse restricted'
@@ -28,6 +28,7 @@ jobs:
           key_url: 'https://packages.microsoft.com/keys/microsoft.asc'
         - sourceline: 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/16.04/mssql-server-2017 xenial main'
         packages:
+        - rabbitmq-server
         - postgresql-10
         - postgresql-client-10
         - rabbitmq-server
@@ -67,12 +68,15 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
+
+    - ( cd data/tessdata && ./download.sh && cd - )
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
     - if [ -d src/microservices/uk.ac.dundee.hic.nerd/ ]; then mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test; fi
 
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
+    - mkdir -p ./dist
     - |
       for platform in linux win
       do
@@ -80,7 +84,6 @@ jobs:
       done
     - ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
     - mvn -f src/common/com.smi.microservices.parent/pom.xml assembly:single@create-deployable
-    - mkdir ./dist
     - |
       for filename in $(find ./src -name "*deploy-distribution.zip")
       do

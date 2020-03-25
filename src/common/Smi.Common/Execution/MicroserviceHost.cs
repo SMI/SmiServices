@@ -1,11 +1,13 @@
-﻿
+
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using DicomTypeTranslation;
 using DicomTypeTranslation.Helpers;
+using JetBrains.Annotations;
 using NLog;
+using RabbitMQ.Client;
 using Smi.Common.Events;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
@@ -24,7 +26,7 @@ namespace Smi.Common.Execution
         protected readonly GlobalOptions Globals;
         protected readonly ILogger Logger;
 
-        protected readonly RabbitMqAdapter RabbitMqAdapter;
+        protected readonly IRabbitMqAdapter RabbitMqAdapter;
 
 
         private readonly object _oAdapterLock = new object();
@@ -43,9 +45,18 @@ namespace Smi.Common.Execution
         /// Loads logging, sets up fatal behaviour, subscribes rabbit etc.
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
+        /// <param name="rabbitMqAdapter"></param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Smi.NLog.config" of the current directory)</param>
-        protected MicroserviceHost(GlobalOptions globals, bool loadSmiLogConfig = true, bool threaded=false)
+        /// <param name="threaded"></param>
+        protected MicroserviceHost(
+            [NotNull] GlobalOptions globals,
+            IRabbitMqAdapter rabbitMqAdapter = null,
+            bool loadSmiLogConfig = true,
+            bool threaded = false)
         {
+            if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.MicroserviceOptions == null)
+                throw new ArgumentException("All or part of the global options are null");
+
             HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
 
             string logConfigPath = null;
@@ -103,18 +114,19 @@ namespace Smi.Common.Execution
                 ExchangeName = Globals.RabbitOptions.FatalLoggingExchange
             };
 
-            if (!globals.RabbitOptions.Validate())
-                throw new ArgumentException("The given RabbitOptions contains invalid values");
-
             //TODO This won't pass for testing with mocked filesystems
             //if(!Directory.Exists(options.FileSystemRoot))
             //    throw new ArgumentException("Could not locate the FileSystemRoot \"" + options.FileSystemRoot + "\"");
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
-            RabbitMqAdapter = new RabbitMqAdapter(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
-
-            _controlMessageConsumer = new ControlMessageConsumer(this, globals.RabbitOptions, HostProcessName, HostProcessID);
+            RabbitMqAdapter = rabbitMqAdapter;
+            if (RabbitMqAdapter == null)
+            {
+                ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
+                RabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
+                _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, globals.RabbitOptions.RabbitMqControlExchangeName, this.Stop);
+            }
 
             ObjectFactory = new MicroserviceObjectFactory();
             ObjectFactory.FatalHandler = (s, e) => Fatal(e.Message, e.Exception);
@@ -146,8 +158,8 @@ namespace Smi.Common.Execution
                 if (RabbitMqAdapter.HasConsumers)
                     throw new ApplicationException("Rabbit adapter has consumers before aux. connections created");
 
-                _fatalLoggingProducer = RabbitMqAdapter.SetupProducer(_fatalLoggingProducerOptions);
-                RabbitMqAdapter.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer);
+                _fatalLoggingProducer = RabbitMqAdapter.SetupProducer(_fatalLoggingProducerOptions, isBatch: false);
+                RabbitMqAdapter.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer, isSolo: false);
             }
         }
 
@@ -181,7 +193,7 @@ namespace Smi.Common.Execution
 
             lock (_oAdapterLock)
             {
-                RabbitMqAdapter.Shutdown();
+                RabbitMqAdapter.Shutdown(Common.RabbitMqAdapter.DefaultOperationTimeout);
             }
 
             Logger.Info("Host stop completed");

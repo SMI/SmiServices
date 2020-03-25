@@ -157,7 +157,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
                 filter &= Builders<MongoDeadLetterDocument>.Filter.Lt(x => x.RetryAfter, DateTime.UtcNow);
 
             // If we have been passed a specific GUID, update the filter for that message
-            if (messageGuid != default)
+            if (messageGuid != default(Guid))
                 filter &= Builders<MongoDeadLetterDocument>.Filter.Eq(x => x.MessageGuid, messageGuid);
 
             List<BasicDeliverEventArgs> toReprocess;
