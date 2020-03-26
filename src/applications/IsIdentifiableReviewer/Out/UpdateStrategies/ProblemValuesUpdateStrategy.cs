@@ -18,8 +18,7 @@ namespace IsIdentifiableReviewer.Out.UpdateStrategies
 
             foreach (var part in failure.Parts)
             {
-
-                yield return GetUpdateWordSql(table, primaryKeys,syntax, failure, part.Word);
+                yield return GetUpdateWordSql(table, primaryKeys,syntax, failure, part.Word, part.Classification.ToString());
             }
         }
     }

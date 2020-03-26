@@ -22,14 +22,14 @@ namespace IsIdentifiableReviewer.Out.UpdateStrategies
         /// <param name="word">The word or collection of words that should be redacted</param>
         /// <returns></returns>
         protected string GetUpdateWordSql(DiscoveredTable table,
-            Dictionary<DiscoveredTable, DiscoveredColumn> primaryKeys, IQuerySyntaxHelper syntax, Failure failure,string word)
+            Dictionary<DiscoveredTable, DiscoveredColumn> primaryKeys, IQuerySyntaxHelper syntax, Failure failure, string word, string classification)
         {
             if(string.IsNullOrEmpty(failure.ResourcePrimaryKey))
                 throw new ArgumentException("Failure record's primary key is blank, cannot update database");
 
             return $@"update {table.GetFullyQualifiedName()} 
                 SET {syntax.EnsureWrapped(failure.ProblemField)} = 
-                REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(word)}', 'SMI_REDACTED')
+                REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(word)}', 'SMI_REDACTED_'+classification)
                 WHERE {primaryKeys[table].GetFullyQualifiedName()} = '{syntax.Escape(failure.ResourcePrimaryKey)}'";
         }
     }
