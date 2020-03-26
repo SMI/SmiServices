@@ -51,6 +51,9 @@ public final class SmiLogging {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String logroot = System.getenv("SMI_LOGS_ROOT");
         File logfile=new File(logroot+File.pathSeparator+getCaller()+File.pathSeparator+df.format(new Date())+"-"+getPid());
+        if (!logfile.getParentFile().isDirectory()) {
+            logfile.getParentFile().mkdirs();
+        }
 
         // Turn off log4j warnings from library code
         Logger l = Logger.getRootLogger();
