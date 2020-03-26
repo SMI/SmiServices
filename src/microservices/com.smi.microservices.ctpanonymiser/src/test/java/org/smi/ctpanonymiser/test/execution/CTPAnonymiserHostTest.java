@@ -55,7 +55,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 
 		super.setUp();
 
-		SmiLogging.Setup(0);
+		SmiLogging.Setup(true);
 		_logger = LoggerFactory.getLogger(Program.class);
 
 		_options = GlobalOptions.Load(true);
