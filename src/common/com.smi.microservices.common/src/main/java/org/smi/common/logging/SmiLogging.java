@@ -53,9 +53,10 @@ public final class SmiLogging {
             System.err.println("WARNING: SMI_LOGS_ROOT not set, logging to pwd instead");
             logroot=".";
         }
+        File logdir=new File(logroot+File.pathSeparator+getCaller());
         File logfile=new File(logroot+File.pathSeparator+getCaller()+File.pathSeparator+df.format(new Date())+"-"+getPid());
-        if (!logfile.getParentFile().isDirectory()) {
-            logfile.getParentFile().mkdirs();
+        if (!logdir.getParentFile().isDirectory()) {
+            logdir.mkdirs();
         }
 
         // Turn off log4j warnings from library code
