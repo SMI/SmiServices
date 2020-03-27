@@ -34,7 +34,6 @@ public final class SmiLogging {
             StackTraceElement ste = stElements[i];
             if (i<3)
                 prev=ste.getClassName();
-            System.err.println(ste.getClassName()+"."+ste.getMethodName());
             if (ste.getMethodName()=="main") {
                 prev=ste.getClassName();
                 return prev.substring(prev.lastIndexOf('.')+1);
@@ -50,6 +49,10 @@ public final class SmiLogging {
     public static void Setup(boolean testing) throws SmiLoggingException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String logroot = System.getenv("SMI_LOGS_ROOT");
+        if (logroot==null) {
+            System.err.println("WARNING: SMI_LOGS_ROOT not set, logging to pwd instead");
+            logroot=".";
+        }
         File logfile=new File(logroot+File.pathSeparator+getCaller()+File.pathSeparator+df.format(new Date())+"-"+getPid());
         if (!logfile.getParentFile().isDirectory()) {
             logfile.getParentFile().mkdirs();
