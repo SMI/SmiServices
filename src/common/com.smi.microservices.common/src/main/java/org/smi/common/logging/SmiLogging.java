@@ -64,7 +64,7 @@ public final class SmiLogging {
 
         Path logConfigPath;
 
-        if (!testing) {
+        if (testing) {
             logConfigPath = Paths.get(ConfigFileName);
         } else {
             try {
