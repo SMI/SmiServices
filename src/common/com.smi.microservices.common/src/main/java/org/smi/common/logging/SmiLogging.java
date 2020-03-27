@@ -30,8 +30,6 @@ import org.apache.log4j.spi.Filter;
  */
 public final class SmiLogging {
 
-    private static final String ConfigFileName = "SmiLogbackConfig.xml";
-
     private SmiLogging() {
     }
 
