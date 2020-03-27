@@ -114,7 +114,7 @@ public final class SmiLogging {
         }
 
         if (Files.notExists(logConfigPath) || Files.isDirectory(logConfigPath))
-            throw new SmiLoggingException("Could not find logback config file " + ConfigFileName);
+            throw new SmiLoggingException("Could not find logback config file " + logConfigPath);
 
         System.setProperty("logback.configurationFile", ConfigFileName);
 
