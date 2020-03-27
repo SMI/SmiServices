@@ -18,9 +18,12 @@ import java.util.Iterator;
 import java.util.Random;
 
 import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.spi.Filter;
 
 /**
  * Static helper class to setup the SMI logging
@@ -100,36 +103,22 @@ public final class SmiLogging {
         // Turn off log4j warnings from library code
         Logger l = Logger.getRootLogger();
         l.setLevel(Level.OFF);
+        
+        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%thread|%-5level|%-15(%logger{0})| %msg%n");
 
-        Path logConfigPath;
-
-        if (testing) {
-            logConfigPath = Paths.get(ConfigFileName);
-        } else {
-            try {
-                logConfigPath = Paths.get("./target", ConfigFileName);
-            } catch (InvalidPathException e) {
-                throw new SmiLoggingException("", e);
-            }
-        }
-
-        if (Files.notExists(logConfigPath) || Files.isDirectory(logConfigPath))
-            throw new SmiLoggingException("Could not find logback config file " + logConfigPath);
-
-        System.setProperty("logback.configurationFile", ConfigFileName);
-
-        @SuppressWarnings("unchecked")
-        Iterator<Appender> appenders = l.getAllAppenders().asIterator();
-        while(appenders.hasNext()) {
-            Appender app = appenders.next();
-            if (app instanceof FileAppender) {
-                FileAppender fa = (FileAppender)app;
-                fa.setFile(logfile.getAbsolutePath());
-                fa.setAppend(true);
-                fa.setBufferedIO(true);
-                fa.setImmediateFlush(false);
-                fa.activateOptions();
-            }
-        }
+        ConsoleAppender ca = new ConsoleAppender();
+        ca.setTarget("System.err");
+        ca.setThreshold(testing?Level.ALL:Level.ERROR);
+        l.addAppender(ca);
+        
+        FileAppender fa = new FileAppender();
+        fa.setFile(logfile.getAbsolutePath());
+        fa.setThreshold(Level.ALL);
+        fa.setAppend(true);
+        fa.setBufferedIO(true);
+        fa.setImmediateFlush(false);
+        fa.setLayout(pl);
+        fa.activateOptions();
+        l.addAppender(fa);
     }
 }
