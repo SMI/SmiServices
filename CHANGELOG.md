@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Added undo feature to IsIdentifiableReviewer
 
+### Changed
+
+- Upgraded HIC.DicomTypeTranslation from `2.1.2` to `2.2.0`
+  - This includes an upgrade to fo-dicom from `4.0.1` to `4.0.4`
+- Upgraded fo-dicom.Drawing from `4.0.1` to `4.0.4`
+
 ## [1.6.0] - 2020-03-17
 
 ### Changed

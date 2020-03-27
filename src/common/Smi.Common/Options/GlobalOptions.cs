@@ -268,9 +268,8 @@ namespace Smi.Common.Options
             {
                 var opt = (FileReadOption)Enum.Parse(typeof(FileReadOption), FileReadOption);
 
-                //TODO(Ruairidh 2019-08-28) Monitor the status of this
                 if (opt == Dicom.FileReadOption.SkipLargeTags)
-                    throw new ApplicationException("SkipLargeTags option is currently disabled due to issues in fo-dicom. See: https://github.com/fo-dicom/fo-dicom/issues/893");
+                    throw new ApplicationException("SkipLargeTags is disallowed here to ensure data consistency");
 
                 return opt;
             }
