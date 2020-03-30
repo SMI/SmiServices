@@ -60,6 +60,7 @@ namespace IsIdentifiableReviewer
         {
             //In RulesOnly mode this will be null
             var server = _target?.Discover();
+            List<Exception> errors = new List<Exception>();
             
             var storeReport = new FailureStoreReport(_outputFile.Name,100);
             
@@ -68,12 +69,26 @@ namespace IsIdentifiableReviewer
 
             using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), _outputFile))
             {
+                IsIdentifiableRule updateRule;
+
                 storeReport.AddDestination(storeReportDestination);
 
                 while(_reportReader.Next())
                 {
+                    bool noUpdate;
+ 
+                    try
+                    {
+                        noUpdate = _updater.OnLoad(server, _reportReader.Current, out  updateRule);
+                    }
+                    catch (Exception e)
+                    {
+                        errors.Add(e);
+                        continue;
+                    }
+                    
                     //is it novel for updater
-                    if(_updater.OnLoad(server,_reportReader.Current, out IsIdentifiableRule updateRule))
+                    if(noUpdate)
                         //is it novel for ignorer
                         if (_ignorer.OnLoad(_reportReader.Current,out IsIdentifiableRule ignoreRule))
                         {
@@ -105,7 +120,7 @@ namespace IsIdentifiableReviewer
 
                     if (Total % 10000 == 0 || sw.ElapsedMilliseconds > 5000)
                     {
-                        Log($"Done {Total:N0} u={Updates:N0} i={Ignores:N0} o={Unresolved:N0}",true);
+                        Log($"Done {Total:N0} u={Updates:N0} i={Ignores:N0} o={Unresolved:N0} err={errors.Count:N0}",true);
                         sw.Restart();
                     }
                 }
@@ -119,7 +134,9 @@ namespace IsIdentifiableReviewer
             Log($"Update Rules Used:" + Environment.NewLine + string.Join(Environment.NewLine,
                                        _updateRulesUsed.OrderBy(k=>k.Value).Select(k=>$"{k.Key.IfPattern} - {k.Value:N0}")),false);
 
-            Log($"Finished {Total:N0} updates={Updates:N0} ignored={Ignores:N0} out={Unresolved:N0}",true);
+            Log("Errors:" + Environment.NewLine + string.Join(Environment.NewLine,errors.Select(e=>e.ToString())),false);
+
+            Log($"Finished {Total:N0} updates={Updates:N0} ignored={Ignores:N0} out={Unresolved:N0} err={errors.Count:N0}",true);
             return 0;
         }
 
