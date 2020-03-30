@@ -60,7 +60,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             updater.UpdateStrategy = new ProblemValuesUpdateStrategy();
 
             //it should be novel i.e. require user decision
-            Assert.IsTrue(updater.OnLoad(db.Server,failure));
+            Assert.IsTrue(updater.OnLoad(db.Server,failure, out _));
 
             updater.Update(db.Server,failure,null);
 
@@ -75,7 +75,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
 ",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
             //it should be updated automatically and not require user decision
-            Assert.IsFalse(updater.OnLoad(db.Server,failure));
+            Assert.IsFalse(updater.OnLoad(db.Server,failure,out _));
             
         }
 
@@ -137,7 +137,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             updater.UpdateStrategy = new RegexUpdateStrategy();
             
             //it should be novel i.e. require user decision
-            Assert.IsTrue(updater.OnLoad(db.Server,failure));
+            Assert.IsTrue(updater.OnLoad(db.Server,failure,out _));
 
             updater.Update(db.Server,failure,null);//<- null here will trigger the rule pattern factory to prompt 'user' for pattern which is "(Toto)$"
 
@@ -149,7 +149,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
                 Assert.AreEqual("We aren't in SMI_REDACTED anymore SMI_REDACTED", result.Rows[0]["Narrative"],"Because regex had no capture group we expected the update strategy to fallback on Failure Part matching");
 
             //it should be updated automatically and not require user decision
-            Assert.IsFalse(updater.OnLoad(db.Server,failure));
+            Assert.IsFalse(updater.OnLoad(db.Server,failure,out _));
             
         }
     }

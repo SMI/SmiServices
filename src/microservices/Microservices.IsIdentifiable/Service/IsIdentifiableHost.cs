@@ -42,7 +42,7 @@ namespace Microservices.IsIdentifiable.Service
 
         public override void Start()
         {
-            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer);
+            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)

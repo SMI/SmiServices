@@ -95,15 +95,18 @@ namespace IsIdentifiableReviewer.Out
         /// </summary>
         /// <param name="server"></param>
         /// <param name="failure"></param>
+        /// <param name="rule">The first rule that covered the <paramref name="failure"/></param>
         /// <returns>True if <paramref name="failure"/> is novel and not seen before</returns>
-        public bool OnLoad(DiscoveredServer server,Failure failure)
+        public bool OnLoad(DiscoveredServer server,Failure failure, out IsIdentifiableRule rule)
         {
+            rule = null;
+
             //we have bigger problems than if this is novel!
             if (server == null)
                 return true;
 
             //if we have seen this before
-            if (IsCoveredByExistingRule(failure, out IsIdentifiableRule rule))
+            if (IsCoveredByExistingRule(failure, out rule))
             {
                 //since user has issued an update for this exact problem before we can update this one too
                 Update(server,failure,rule);

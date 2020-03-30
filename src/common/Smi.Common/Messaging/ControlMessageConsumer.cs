@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using Smi.Common.Events;
-using Smi.Common.Execution;
 using Smi.Common.Messages;
 using Smi.Common.Options;
 
@@ -29,30 +29,34 @@ namespace Smi.Common.Messaging
         private readonly string _processName;
         private readonly string _processId;
 
-        private readonly ConnectionFactory _factory;
+        private readonly IConnectionFactory _factory;
 
         private const string ControlQueueBindingKey = "smi.control.all.*";
 
 
-        public ControlMessageConsumer(MicroserviceHost host, RabbitOptions options, string processName, int processId)
+        public ControlMessageConsumer(
+            [NotNull] IConnectionFactory connectionFactory,
+            [NotNull] string processName,
+            int processId,
+            [NotNull] string controlExchangeName,
+            [NotNull] Action<string> stopEvent)
         {
+            if (processName == null)
+                throw new ArgumentNullException(nameof(processName));
             _processName = processName.ToLower();
             _processId = processId.ToString();
 
-            ControlConsumerOptions.QueueName = "Control." + _processName + _processId;
+            ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            _factory = new ConnectionFactory
-            {
-                HostName = options.RabbitMqHostName,
-                VirtualHost = options.RabbitMqVirtualHost,
-                Port = options.RabbitMqHostPort,
-                UserName = options.RabbitMqUserName,
-                Password = options.RabbitMqPassword
-            };
+            _factory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-            SetupControlQueueForHost(options);
+            if (controlExchangeName == null)
+                throw new ArgumentNullException(nameof(controlExchangeName));
+            SetupControlQueueForHost(controlExchangeName);
 
-            StopHost += () => host.Stop("Control message stop");
+            if (stopEvent == null)
+                throw new ArgumentNullException(nameof(stopEvent));
+            StopHost += () => stopEvent("Control message stop");
         }
 
 
@@ -77,7 +81,7 @@ namespace Smi.Common.Messaging
         /// <summary>
         /// Ensures the control queue is cleaned up on exit. Should have been deleted already, but this ensures it
         /// </summary>
-        public void Shutdown()
+        public override void Shutdown()
         {
             using (IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueShutdown"))
             using (IModel model = connection.CreateModel())
@@ -170,18 +174,18 @@ namespace Smi.Common.Messaging
         /// The connection is disposed and StartConsumer(...) can then be called on the parent RabbitMQAdapter with ControlConsumerOptions
         /// </summary>
         /// <param name="options"></param>
-        private void SetupControlQueueForHost(RabbitOptions options)
+        private void SetupControlQueueForHost(string controlExchangeName)
         {
             using (IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueSetup"))
             using (IModel model = connection.CreateModel())
             {
                 try
                 {
-                    model.ExchangeDeclarePassive(options.RabbitMqControlExchangeName);
+                    model.ExchangeDeclarePassive(controlExchangeName);
                 }
                 catch (OperationInterruptedException e)
                 {
-                    throw new ApplicationException("The given control exchange was not found on the server: \"" + options.RabbitMqControlExchangeName + "\"", e);
+                    throw new ApplicationException($"The given control exchange was not found on the server: \"{controlExchangeName}\"", e);
                 }
 
                 Logger.Debug("Creating control queue " + ControlConsumerOptions.QueueName);
@@ -192,17 +196,15 @@ namespace Smi.Common.Messaging
                 // autoDelete = true (queue will be deleted after a consumer connects and then disconnects)
                 model.QueueDeclare(ControlConsumerOptions.QueueName, durable: false, exclusive: false, autoDelete: true);
 
-                Logger.Debug("Creating binding " + options.RabbitMqControlExchangeName + "->" + ControlConsumerOptions.QueueName + " with key " + ControlQueueBindingKey);
-
                 // Binding for any control requests, i.e. "stop"
-                model.QueueBind(ControlConsumerOptions.QueueName, options.RabbitMqControlExchangeName, ControlQueueBindingKey);
+                Logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {ControlQueueBindingKey}");
+                model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, ControlQueueBindingKey);
 
                 // Specific microservice binding key, ignoring the id at the end of the process name
                 string bindingKey = "smi.control." + _processName + ".*";
 
-                Logger.Debug("Creating binding " + options.RabbitMqControlExchangeName + "->" + ControlConsumerOptions.QueueName + " with key " + bindingKey);
-
-                model.QueueBind(ControlConsumerOptions.QueueName, options.RabbitMqControlExchangeName, bindingKey);
+                Logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {bindingKey}");
+                model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, bindingKey);
             }
         }
 

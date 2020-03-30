@@ -71,14 +71,14 @@ namespace Microservices.CohortExtractor.Execution
             foreach (CheckEventArgs args in toMemory.Messages.Where(m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            IProducerModel fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions);
-            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions);
+            IProducerModel fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions, isBatch: false);
+            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 
             Consumer = new ExtractionRequestQueueConsumer(_fulfiller, _auditor,_pathResolver, fileMessageProducer, fileMessageInfoProducer);
 
-            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer);
+            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         /// <summary>

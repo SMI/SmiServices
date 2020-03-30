@@ -29,6 +29,9 @@ RabbitMQ message routing keys are used to control which services recieve the mes
 
 - `refresh` - Refreshes any caches in use
 
+### CohortPackager
+
+- `processjobs` - Checks if any in progress jobs are complete
 
 ## Sending a message
 
