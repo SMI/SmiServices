@@ -1,14 +1,9 @@
 dist: bionic
 os: linux
-language: csharp
+language: minimal
 
 jobs:
   include:
-  - language: csharp
-    mono: none
-    dotnet:
-      - 2.2.100
-      - 3.1.102
     cache:
       directories:
       - $HOME/.local/share/NuGet/
@@ -33,7 +28,6 @@ jobs:
         - rabbitmq-server
         - postgresql-10
         - postgresql-client-10
-        - rabbitmq-server
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
@@ -48,7 +42,7 @@ jobs:
     - ACCEPT_EULA=Y
     - MSSQL_PID='evaluation'
     before_install:
-    - sudo apt-get install -y mssql-tools mssql-server
+    - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server dotnet-runtime-2.2 dotnet-sdk-3.1
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
@@ -106,7 +100,6 @@ deploy:
         secure: DdirbOkYUePnKisYPlqYOpyti2HQFWmSIwY5spWflTUglzEZbnp+Q3sEltTebdlWo18i9skz6P5seAAXbX2ye1c3EZhqEyirWMxz1lvGdlNoQGHhWK6x+suM1DrG6Uun5dmcG/CEpWhDpcEbF8xQ/revtyCHEJj4xK9TXUHyFFG/KrzKSLGtsiBG1BOPkHJr4CoHjcpLzpmDB2hn+pYENtl3Nk0EeKmJgWdY/BWctEmUmRAXgfwsO/ejm9IbC5mIy5KBxbIUco/mf2JEKQB1drwdbINMxJXkbx+mWZYiDJBo5CWuWIzNOxv0Z3+Kg+N2cSwPX833v+W5YRTHyef/7Dum1yUrD3T7LMLY+3EIeCoGvARfRnQbi+BM9n1rFobPy/PWHWYxYRDnhDEfXrMcAyH/66InlQIhUh7XD01oZLEbsdZAbGnEsv5Ttz3F9LaEpk3EfoGqLxOWkL50OCxw6Jk6TfxsNtMoLpK1g7Jp8sI/EkjxYISer7S5myzLhKtgbtBwI0RcKh/sUo2m69QX++1JYy6CeN7/EwRmV4zJLk0WgalJuxgNFYrdzPLvg09okgxr1stHZQ7a5RkLH+r8KzA/Lmj6vTQG9HB44lHvX1hMiD0v8aCii+/wfr9AZZlNHjYq8RuHsP5uQ5U5F8G9uMqfiVb75MOPKY7qdYCZZZg=
       file_glob: true
       file: dist/*.*
-      skip-cleanup: true
       on:
         all_branches: true
         tags: true
