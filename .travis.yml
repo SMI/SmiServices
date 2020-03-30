@@ -9,6 +9,8 @@ jobs:
       - $HOME/.local/share/NuGet/
       - $HOME/.nuget
       - $HOME/.m2
+      - $HOME/rdmp-cli
+      - $HOME/data/tessdata/eng.traineddata
     addons:
       postgresql: "10"
       apt:
@@ -46,10 +48,14 @@ jobs:
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
-    - wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip
-    # RDMP 3.2.1 was packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
-    - unzip -d rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
-    - chmod +x rdmp-cli/rdmp
+    - |
+      if [ ! -d rdmp-cli ]
+      then
+        wget https://github.com/HicServices/RDMP/releases/download/v4.0.3/rdmp-cli-linux-x64.zip
+        # RDMP 3.2.1 was packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
+        unzip -d rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
+        chmod +x rdmp-cli/rdmp
+      fi
     - rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
     script:
     - dotnet build --verbosity quiet
