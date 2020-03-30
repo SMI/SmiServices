@@ -40,6 +40,7 @@ namespace Microservices.DicomReprocessor.Execution
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private bool _stopping;
 
+        private readonly bool _autoRun;
 
         public MongoDbReader(MongoDbOptions mongoOptions, DicomReprocessorCliOptions reprocessorOptions, string appId)
         {
@@ -57,10 +58,12 @@ namespace Microservices.DicomReprocessor.Execution
             // https://docs.mongodb.com/manual/reference/method/cursor.batchSize/
             if (reprocessorOptions.MongoDbBatchSize > 1)
                 _findOptionsBase.BatchSize = reprocessorOptions.MongoDbBatchSize;
+
+            _autoRun = reprocessorOptions.AutoRun;
         }
 
 
-        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, int sleepDuration, bool autoRun = false)
+        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorOptions options)
         {
             DateTime start;
 
@@ -68,11 +71,11 @@ namespace Microservices.DicomReprocessor.Execution
 
             using (IAsyncCursor<BsonDocument> cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, query))
             {
-                _logger.Info("Using MaxDegreeOfParallelism: " + _parallelOptions.MaxDegreeOfParallelism);
-                _logger.Info("Batch size is: " + (_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified"));
-                _logger.Info("Sleeping for " + sleepDuration + "ms between batches");
+                _logger.Info($"Using MaxDegreeOfParallelism: {_parallelOptions.MaxDegreeOfParallelism}");
+                _logger.Info($"Batch size is: {(_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified")}");
+                _logger.Info($"Sleeping for {options.SleepTime.TotalMilliseconds}ms between batches");
 
-                if (!autoRun)
+                if (!_autoRun)
                 {
                     LogManager.Flush();
 
@@ -83,7 +86,7 @@ namespace Microservices.DicomReprocessor.Execution
                     if (key == null || !key.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");
-                        return default;
+                        return default(TimeSpan);
                     }
 
                     _logger.Info("User chose to continue with query execution");
@@ -91,6 +94,7 @@ namespace Microservices.DicomReprocessor.Execution
 
                 _logger.Info("Starting reprocess operation");
                 start = DateTime.Now;
+                var totalBatches = 0;
 
                 //Note: Can only check for the cancellation request every time we start to process a new batch
                 while (await cursor.MoveNextAsync() && !_tokenSource.IsCancellationRequested)
@@ -111,8 +115,11 @@ namespace Microservices.DicomReprocessor.Execution
 
                     processor.SendMessages();
 
-                    _logger.Debug("Batch processed, sleeping for " + sleepDuration + "ms");
-                    Thread.Sleep(sleepDuration);
+                    if (++totalBatches % 100 == 0)
+                        processor.LogProgress();
+
+                    _logger.Debug($"Batch processed, sleeping for {options.SleepTime.TotalMilliseconds}ms");
+                    Thread.Sleep(options.SleepTime);
                 }
             }
 

@@ -1,6 +1,11 @@
 
 package org.smi.ctpanonymiser;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -14,15 +19,16 @@ import org.smi.common.execution.SmiShutdownHook;
 import org.smi.common.logging.SmiLogging;
 import org.smi.common.options.GlobalOptions;
 import org.smi.ctpanonymiser.execution.CTPAnonymiserHost;
+import org.yaml.snakeyaml.error.YAMLException;
 
 /*
  * Program entry point when run from the command line
  */
 public class Program {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws ParseException, YAMLException, URISyntaxException, IOException, TimeoutException {
 		
-		SmiLogging.Setup();
+		SmiLogging.Setup(false);
 		Logger logger = LoggerFactory.getLogger(Program.class);
 
 		//TODO Make this into a helper class
@@ -36,22 +42,6 @@ public class Program {
 		CTPAnonymiserHost host = new CTPAnonymiserHost(options, parsedArgs);
 
 		Runtime.getRuntime().addShutdownHook(new SmiShutdownHook(host));
-
-		Thread hostThread = new Thread(host);
-		hostThread.start();
-
-		try {
-
-			hostThread.join();
-
-		} catch (InterruptedException e) {
-
-			logger.error("Exception in host thread: " + e.getMessage());
-			e.printStackTrace();
-
-			System.exit(-1);
-			return;
-		}
 	}
 
 	public static CommandLine ParseOptions(String[] args) throws ParseException {

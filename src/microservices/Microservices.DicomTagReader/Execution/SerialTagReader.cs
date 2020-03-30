@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -15,11 +16,11 @@ namespace Microservices.DicomTagReader.Execution
             IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
             : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs) { }
 
-        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<string> dicomFilePaths, AccessionDirectoryMessage accMessage)
+        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths, AccessionDirectoryMessage accMessage)
         {
             var fileMessages = new List<DicomFileMessage>();
 
-            foreach (string dicomFilePath in dicomFilePaths)
+            foreach (FileInfo dicomFilePath in dicomFilePaths)
             {
                 Logger.Trace("TagReader: Processing " + dicomFilePath);
 

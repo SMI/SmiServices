@@ -1,14 +1,13 @@
 
-
-[![Build Status](https://travis-ci.org/SMI/SmiServices.svg?branch=master)](https://travis-ci.org/SMI/SmiServices)
+[![Build Status](https://travis-ci.com/SMI/SmiServices.svg?branch=master)](https://travis-ci.com/SMI/SmiServices)
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-Version: `1.2.0`
+Version: `1.7.0`
 
 # SMI Services
 
-![loaddiagram](./SmiFlow.svg)
+![loaddiagram](./docs/Images/SmiFlow.svg)
 
 A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scaleability) of [dicom] medical images to support medical research.
 
@@ -43,12 +42,12 @@ A control queue is provided for controlling Microservices during runtime.  It su
 
 | Microservice / Console App| Description |
 | ------------- | ------------- |
-| [ProcessDirectory](./src/applications/Applications.DicomDirectoryProcessor/Readme.md)  | Enumerates directories and generates `AccessionDirectoryMessage` for those that contain dicom files.|
-| [DicomTagReader](./src/microservices/Microservices.DicomTagReader/Readme.md)  | Opens dicom files found in `AccessionDirectoryMessage` directories and converts to JSON as a `DicomFileMessage`.  Also creates a summary record of the whole series as a `SeriesMessage`.|
+| [ProcessDirectory](./src/applications/Applications.DicomDirectoryProcessor/README.md)  | Enumerates directories and generates `AccessionDirectoryMessage` for those that contain dicom files.|
+| [DicomTagReader](./src/microservices/Microservices.DicomTagReader/README.md)  | Opens dicom files found in `AccessionDirectoryMessage` directories and converts to JSON as a `DicomFileMessage`.  Also creates a summary record of the whole series as a `SeriesMessage`.|
 | [IdentifierMapper](./src/microservices/Microservices.IdentifierMapper/Readme.md)  | Replaces the `PatientID` Dicom Tag in a `DicomFileMessage` using a specified mapping table.|
-| [MongoDBPopulator](./src/microservices/Microservices.MongoDBPopulator/Readme.md)  | Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a MongoDB database document store. |
+| [MongoDBPopulator](./src/microservices/Microservices.MongoDbPopulator/Readme.md)  | Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a MongoDB database document store. |
 | [DicomRelationalMapper](./src/microservices/Microservices.DicomRelationalMapper/Readme.md)  | Runs an RDMP data load configuration with a batch of `DicomFileMessage` to load Dicom Tag data into a relational database (MySql or Microsoft Sql Server).|
-| [DicomReprocessor](./src/microservices/Microservices.DicomReprocessor/Readme.md)  | Runs a MongoDB query on the database populated by `MongoDBPopulator` and converts the results back into `DicomFileMessage` for (re)loading by `DicomRelationalMapper`.|
+| [DicomReprocessor](./src/microservices/Microservices.DicomReprocessor/README.md)  | Runs a MongoDB query on the database populated by `MongoDBPopulator` and converts the results back into `DicomFileMessage` for (re)loading by `DicomRelationalMapper`.|
 
 ### Image Extraction Microservices
 
@@ -57,7 +56,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | Microservice / Console App| Description |
 | ------------- | ------------- |
 | [ExtractorCL](./src/applications/com.smi.applications.extractorcli/README.md)  | Reads SeriesInstanceUIDs from a CSV file and generates `ExtractionRequestMessage` and audit message `ExtractionRequestInfoMessage`.|
-| [CohortExtractor](./src/microservices/Microservices.CohortExtractor/Readme.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
+| [CohortExtractor](./src/microservices/Microservices.CohortExtractor/README.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
 | [CTPAnonymiser](./src/microservices/com.smi.microservices.ctpanonymiser/README.md)  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  `ExtractFileMessage` and copies to specified output directory.  Generates audit message `ExtractFileStatusMessage`.|
 | [CohortPackager](./src/microservices/Microservices.CohortPackager/README.md)  | Records all audit messages and determines when jobs are complete.|
 
@@ -91,10 +90,19 @@ Appart from the Microservices (documented above) the following library classes a
 Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
 
 ```bash
-dotnet build [-r RID]
+$ dotnet build [-r RID]
 ```
 
-_To build other OS substitute the respective [runtime identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) e.g. linux-x64_
+_The RID argument is optional. Use this if you want to build for a different platform e.g. `-r linux-x64` to build for Linux from a Windows machine. See [here](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) for more info on runtime identifiers._
+
+To build an individual sub-project:
+
+```bash
+$ cd src/microservices/Microservices.DicomTagReader/
+$ dotnet build
+```
+
+This will automatically rebuild any dependent projects which have changes as well.
 
 ### Building the Java Projects
 
@@ -104,25 +112,31 @@ The CTP dependency first needs to be manually installed:
 
 - Linux
 
-```shell
-> cd lib/java/
-> ./installDat.sh
+```bash
+$ cd lib/java/
+$ ./installDat.sh
 ```
 
 - Windows
 
-```shell
-> cd lib\java\
-> .\installDat.bat
+```bash
+$ cd lib\java\
+$ .\installDat.bat
 ```
 
-The projects can then be built by returning to the top level directory and running:
+The projects can then be built and tested by returning to the top level directory and running:
 
-```shell
-> mvn -f src/common/com.smi.microservices.parent/pom.xml clean install
+```bash
+$ mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
 ```
 
-This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test sutie can be skipped by passing `-DskipTests`.
+This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test suite can be skipped by instead running `compile`, or by passing `-DskipTests`.
+
+To build a single project and its dependencies, you can do:
+
+```bash
+$ mvn -f src/common/com.smi.microservices.parent/pom.xml test -pl com.smi.microservices:extractorcli -am
+```
 
 Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
 
@@ -131,6 +145,13 @@ Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above 
 ### C# Projects
 
 Development requires Visual Studio 2017 or later. Simply open the SmiServices.sln file.
+
+To run the tests for IsIdentifiable, the Stanford NER classifier is required. This can be downloaded with the included script:
+
+```bash
+$ cd data/stanford-ner
+$ ./download.sh
+```
 
 ### Java Projects
 
@@ -191,3 +212,4 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
 [Dicom]: ./Glossary.md#dicom
 [Dicom tags]: ./Glossary.md#dicom-tags
+

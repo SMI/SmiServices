@@ -17,6 +17,7 @@ import org.smi.ctpanonymiser.Program;
 import org.smi.ctpanonymiser.execution.CTPAnonymiserHost;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messages.ExtractFileStatusMessage;
+import org.smi.ctpanonymiser.util.ExtractFileStatus;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -25,232 +26,225 @@ import java.util.concurrent.TimeUnit;
 
 public class CTPAnonymiserHostTest extends TestCase {
 
-	private static Logger _logger;
+    private static Logger _logger;
 
-	private static final String _fsRoot = System.getProperty("user.dir") + "/src/test/resources";
-	private static final String _extractRoot = System.getProperty("user.dir") + "/src/test/resources";
+    private static final String _fsRoot = System.getProperty("user.dir") + "/src/test/resources";
+    private static final String _extractRoot = System.getProperty("user.dir") + "/src/test/resources";
 
-	private static final String _testFile = "image-000001.dcm";
+    private static final String _testFile = "image-000001.dcm";
 
-	private static final String _inputExchName = "TEST.ExtractFileExchange";
-	private static final String _outputQueueName = "TEST.FileStatusQueue";
+    private static final String _inputExchName = "TEST.ExtractFileExchange";
+    private static final String _outputQueueName = "TEST.FileStatusQueue";
 
-	private static String _producerExchangeName;
+    private static String _producerExchangeName;
 
-	private ProducerOptions _extractFileProducerOptions;
-	private ConsumerOptions _extractFileStatusConsumerOptions;
-	private IProducerModel _extractFileMessageProducer;
-	private AnyConsumer<ExtractFileStatusMessage> _anonFileStatusMessageConsumer;
+    private ProducerOptions _extractFileProducerOptions;
+    private ConsumerOptions _extractFileStatusConsumerOptions;
+    private IProducerModel _extractFileMessageProducer;
+    private AnyConsumer<ExtractFileStatusMessage> _anonFileStatusMessageConsumer;
 
-	private ConnectionFactory _factory;
-	private Connection _conn;
-	private Channel _channel;
+    private ConnectionFactory _factory;
+    private Connection _conn;
+    private Channel _channel;
 
-	private GlobalOptions _options;
-	private RabbitMqAdapter _testAdapter;
-	private CTPAnonymiserHost _ctpHost;
+    private GlobalOptions _options;
+    private RabbitMqAdapter _testAdapter;
+    private CTPAnonymiserHost _ctpHost;
 
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
 
-		super.setUp();
+        super.setUp();
 
-		SmiLogging.Setup(0);
-		_logger = LoggerFactory.getLogger(Program.class);
+        try {
+            SmiLogging.Setup(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        _logger = LoggerFactory.getLogger(Program.class);
 
-		_options = GlobalOptions.Load(true);
+        _options = GlobalOptions.Load(true);
 
-		_options.FileSystemOptions.setFileSystemRoot(_fsRoot);
-		_options.FileSystemOptions.setExtractRoot(_extractRoot);
+        _options.FileSystemOptions.setFileSystemRoot(_fsRoot);
+        _options.FileSystemOptions.setExtractRoot(_extractRoot);
 
-		if (!_options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName.startsWith("TEST."))
-			_options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName = "TEST."
-					+ _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
+        if (!_options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName.startsWith("TEST."))
+            _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName = "TEST."
+                    + _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
 
-		if (!_options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName.startsWith("TEST."))
-			_options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName = "TEST."
-					+ _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
+        if (!_options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName.startsWith("TEST."))
+            _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName = "TEST."
+                    + _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
 
-		String _consumerQueueName = _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
-		_producerExchangeName = _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
+        String _consumerQueueName = _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
+        _producerExchangeName = _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
 
-		// Set up RMQ
-		_testAdapter = new RabbitMqAdapter(_options.RabbitOptions, "CTPAnonymiserHostTest");
+        // Set up RMQ
+        _testAdapter = new RabbitMqAdapter(_options.RabbitOptions, "CTPAnonymiserHostTest");
 
-		// Set up test producers, consumers
+        // Set up test producers, consumers
 
-		_extractFileStatusConsumerOptions = new ConsumerOptions();
-		_extractFileStatusConsumerOptions.QueueName = _outputQueueName;
-		_extractFileStatusConsumerOptions.AutoAck = false;
-		_extractFileStatusConsumerOptions.QoSPrefetchCount = 1;
+        _extractFileStatusConsumerOptions = new ConsumerOptions();
+        _extractFileStatusConsumerOptions.QueueName = _outputQueueName;
+        _extractFileStatusConsumerOptions.AutoAck = false;
+        _extractFileStatusConsumerOptions.QoSPrefetchCount = 1;
 
-		_anonFileStatusMessageConsumer = new AnyConsumer<>(ExtractFileStatusMessage.class);
+        _anonFileStatusMessageConsumer = new AnyConsumer<>(ExtractFileStatusMessage.class);
 
-		_extractFileProducerOptions = new ProducerOptions();
-		_extractFileProducerOptions.ExchangeName = _inputExchName;
+        _extractFileProducerOptions = new ProducerOptions();
+        _extractFileProducerOptions.ExchangeName = _inputExchName;
 
-		_extractFileMessageProducer = _testAdapter.SetupProducer(_extractFileProducerOptions);
+        _extractFileMessageProducer = _testAdapter.SetupProducer(_extractFileProducerOptions);
 
-		_factory = new ConnectionFactory();
-		_conn = _factory.newConnection();
-		_channel = _conn.createChannel();
+        _factory = new ConnectionFactory();
+        _conn = _factory.newConnection();
+        _channel = _conn.createChannel();
 
-		// Setup the input exch. / queue pair
+        // Setup the input exch. / queue pair
 
-		_channel.exchangeDeclare(_inputExchName, "direct", true);
-		_channel.queueDeclare(_consumerQueueName, true, false, false, null);
-		_channel.queueBind(_consumerQueueName, _inputExchName, "");
-		System.out.println(String.format("Bound %s -> %s", _inputExchName, _consumerQueueName));
+        _channel.exchangeDeclare(_inputExchName, "direct", true);
+        _channel.queueDeclare(_consumerQueueName, true, false, false, null);
+        _channel.queueBind(_consumerQueueName, _inputExchName, "");
+        System.out.println(String.format("Bound %s -> %s", _inputExchName, _consumerQueueName));
 
-		// Setup the output exch. / queue pair
+        // Setup the output exch. / queue pair
 
-		_channel.exchangeDeclare(_producerExchangeName, "direct", true);
-		_channel.queueDeclare(_outputQueueName, true, false, false, null);
-		_channel.queueBind(_outputQueueName, _producerExchangeName, "");
-		System.out.println(String.format("Bound %s -> %s", _producerExchangeName, _outputQueueName));
+        _channel.exchangeDeclare(_producerExchangeName, "direct", true);
+        _channel.queueDeclare(_outputQueueName, true, false, false, null);
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "success");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "failure");
+        System.out.println(String.format("Bound %s -> %s", _producerExchangeName, _outputQueueName));
 
-		_channel.queuePurge(_consumerQueueName);
-		_channel.queuePurge(_outputQueueName);
+        _channel.queuePurge(_consumerQueueName);
+        _channel.queuePurge(_outputQueueName);
 
-		// Start our test consumer for receiving the anonymised message
-		_testAdapter.StartConsumer(_extractFileStatusConsumerOptions, _anonFileStatusMessageConsumer);
+        // Start our test consumer for receiving the anonymised message
+        _testAdapter.StartConsumer(_extractFileStatusConsumerOptions, _anonFileStatusMessageConsumer);
 
-		// Create the host for testing
-		String[] args = new String[]{"-a", _fsRoot + "/dicom-anonymizer.script"};
-		_ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(args));
+        // Create the host for testing
+        String[] args = new String[]{"-a", _fsRoot + "/dicom-anonymizer.script"};
+        _ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(args));
 
-		File inFile = new File(Paths.get(_fsRoot, _testFile).toString());
-		assertTrue(inFile.exists());
+        File inFile = new File(Paths.get(_fsRoot, _testFile).toString());
+        assertTrue(inFile.exists());
 
-		boolean ok = inFile.setWritable(false);
-		assertTrue(ok);
-	}
+        boolean ok = inFile.setWritable(false);
+        assertTrue(ok);
+    }
 
-	protected void tearDown() throws Exception {
+    protected void tearDown() throws Exception {
 
-		super.tearDown();
+        super.tearDown();
 
-		_ctpHost.Shutdown();
+        _ctpHost.Shutdown();
 
-		_testAdapter.Shutdown();
+        _testAdapter.Shutdown();
 
-		_channel.exchangeDelete(_inputExchName);
-		_channel.exchangeDelete(_producerExchangeName);
+        _channel.exchangeDelete(_inputExchName);
+        _channel.exchangeDelete(_producerExchangeName);
 
-		_channel.close();
-		_conn.close();
-	}
+        _channel.close();
+        _conn.close();
+    }
 
-	public void testBasicAnonymise_Success() throws InterruptedException
-	{
-		// Start the host
-		Thread hostThread = new Thread(_ctpHost);
-		hostThread.start();
+    public void testBasicAnonymise_Success() throws InterruptedException {
 
-		doTestBasicAnonymise_Success();
-	}
+        _logger.info("Starting basic anonymise test - should succeed");
 
-	private void doTestBasicAnonymise_Success() throws InterruptedException {
+        // Send a test message
+        ExtractFileMessage exMessage = new ExtractFileMessage();
 
-		_logger.info("Starting basic anonymise test - should succeed");
+        exMessage.ExtractionJobIdentifier = UUID.randomUUID();
+        exMessage.JobSubmittedAt = "";
+        exMessage.ExtractionDirectory = "";
+        exMessage.DicomFilePath = _testFile;
+        exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
+        exMessage.ProjectNumber = "123-456";
 
-		// Send a test message
-		ExtractFileMessage exMessage = new ExtractFileMessage();
+        TimeUnit.MILLISECONDS.sleep(1000);
 
-		exMessage.ExtractionJobIdentifier = UUID.randomUUID();
-		exMessage.JobSubmittedAt = "";
-		exMessage.ExtractionDirectory = "";
-		exMessage.DicomFilePath = _testFile;
-		exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
-		exMessage.ProjectNumber = "123-456";
+        _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
+        _extractFileMessageProducer.SendMessage(exMessage, "", null);
 
-		TimeUnit.MILLISECONDS.sleep(1000);
+        _logger.info("Waiting...");
 
-		_logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
-		_extractFileMessageProducer.SendMessage(exMessage, "", null);
+        int timeout = 10000;
+        final int deltaMs = 1000;
 
-		_logger.info("Waiting...");
+        while (!_anonFileStatusMessageConsumer.isMessageValid() && timeout > 0) {
 
-		int timeout = 10000;
-		final int deltaMs = 1000;
+            TimeUnit.MILLISECONDS.sleep(deltaMs);
+            timeout -= deltaMs;
+        }
 
-		while (!_anonFileStatusMessageConsumer.isMessageValid() && timeout > 0) {
+        if (timeout > 0) {
+            _logger.info("... message received, took " + (10000-timeout) + " milliseconds");
+        } else {
+            fail("Message not received in 10000 milliseconds");
+        }
 
-			TimeUnit.MILLISECONDS.sleep(deltaMs);
-			timeout -= deltaMs;
-		}
+        if (_anonFileStatusMessageConsumer.isMessageValid()) {
 
-		if (timeout > 0) {
-			_logger.info("... message received, took " + timeout + " milliseconds");
-		} else {
-			fail("Message not received in " + timeout + " milliseconds");
-		}
+            ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
 
-		if (_anonFileStatusMessageConsumer.isMessageValid()) {
+            _logger.info("Message received");
+            _logger.info("\n" + recvd.toString());
 
-			ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
+            assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.AnonymisedFileName);
+            assertEquals("Project numbers do not match", exMessage.ProjectNumber, recvd.ProjectNumber);
+            assertEquals(ExtractFileStatus.Anonymised, recvd.Status);
+        } else {
+            fail("Did not receive message");
+        }
+    }
 
-			_logger.info("Message received");
-			_logger.info("\n" + recvd.toString());
+    public void testBasicAnonymise_Failure() throws InterruptedException {
+        // TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
+        testBasicAnonymise_Success();
 
-			assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.AnonymisedFileName);
-			assertEquals("Project numbers do not match", exMessage.ProjectNumber, recvd.ProjectNumber);
-			assertEquals(0, recvd.Status);
-		} else {
-			fail("Did not receive message");
-		}
-	}
+        _logger.info("Starting basic anonymise test - failure handling");
 
-	public void testBasicAnonymise_Failure() throws InterruptedException {
+        // Send an invalid message - should fail
+        ExtractFileMessage exMessage = new ExtractFileMessage();
+        exMessage.ExtractionJobIdentifier = UUID.randomUUID();
+        exMessage.JobSubmittedAt = "";
+        exMessage.ExtractionDirectory = "";
+        exMessage.DicomFilePath = "missing.dcm";
+        exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
+        exMessage.ProjectNumber = "123-456";
 
-		_logger.info("Starting basic anonymise test - failure hadling");
+        _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
+        _extractFileMessageProducer.SendMessage(exMessage, "", null);
 
-		// Start the host
-		Thread hostThread = new Thread(_ctpHost);
-		hostThread.start();
+        _logger.info("Waiting...");
 
-		doTestBasicAnonymise_Success();
-		_logger.info("First message processed successfully");
+        int timeout = 10000;
+        final int deltaMs = 1000;
 
-		// Send an invalid message - should fail
-		ExtractFileMessage exMessage = new ExtractFileMessage();
-		exMessage.ExtractionJobIdentifier = UUID.randomUUID();
-		exMessage.JobSubmittedAt = "";
-		exMessage.ExtractionDirectory = "";
-		exMessage.DicomFilePath = "missing.dcm";
-		exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
-		exMessage.ProjectNumber = "123-456";
+        while (!_anonFileStatusMessageConsumer.isMessageValid() && timeout > 0) {
 
-		_logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
-		_extractFileMessageProducer.SendMessage(exMessage, "", null);
+            TimeUnit.MILLISECONDS.sleep(deltaMs);
+            timeout -= deltaMs;
+        }
 
-		_logger.info("Waiting...");
+        if (timeout > 0) {
+            _logger.info("... message received, took " + timeout + " milliseconds");
+        } else {
+            fail("Message not received in " + timeout + " milliseconds");
+        }
 
-		int timeout = 10000;
-		final int deltaMs = 1000;
+        if (_anonFileStatusMessageConsumer.isMessageValid()) {
 
-		while (!_anonFileStatusMessageConsumer.isMessageValid() && timeout > 0) {
+            ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
 
-			TimeUnit.MILLISECONDS.sleep(deltaMs);
-			timeout -= deltaMs;
-		}
+            _logger.info("Message received");
+            _logger.info("\n" + recvd.toString());
 
-		if (timeout > 0) {
-			_logger.info("... message received, took " + timeout + " milliseconds");
-		} else {
-			fail("Message not received in " + timeout + " milliseconds");
-		}
-
-		if (_anonFileStatusMessageConsumer.isMessageValid()) {
-
-			ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
-
-			_logger.info("Message received");
-			_logger.info("\n" + recvd.toString());
-
-			assertEquals("FilePaths do not match", null, recvd.AnonymisedFileName);
-			assertEquals(2, recvd.Status);
-		} else {
-			fail("Did not receive message");
-		}
-	}
+            assertEquals("FilePaths do not match", null, recvd.AnonymisedFileName);
+            assertEquals(ExtractFileStatus.ErrorWontRetry, recvd.Status);
+        } else {
+            fail("Did not receive message");
+        }
+    }
 }

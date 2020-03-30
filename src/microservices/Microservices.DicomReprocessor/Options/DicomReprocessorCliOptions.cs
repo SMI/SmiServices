@@ -46,12 +46,13 @@ namespace Microservices.DicomReprocessor.Options
         public int MongoDbBatchSize { get; set; }
 
         [Option(
-            "sleep-time",
+            "sleep-time-ms",
             Default = 0,
             Required = false,
             HelpText = "[Optional] Sleep this number of ms between batches"
         )]
-        public int SleepTime { get; set; }
+        public int SleepTimeMs { get; set; }
+
 
         /// <summary>
         /// Routing key to republish messages with. Must not be null, otherwise the messages will end up back in MongoDB.
@@ -88,7 +89,7 @@ namespace Microservices.DicomReprocessor.Options
                         SourceCollection = "image_CT",
                         QueryFile = "test",
                         MongoDbBatchSize = 123,
-                        SleepTime = 1000,
+                        SleepTimeMs = 1000,
                         ReprocessingRoutingKey = "test",
                         AutoRun = true
                     });

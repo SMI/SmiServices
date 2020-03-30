@@ -69,6 +69,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Tests.md = Tests.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IsIdentifiable", "src\microservices\Microservices.IsIdentifiable\Microservices.IsIdentifiable.csproj", "{1A27E9E8-F16E-43F9-927E-5FE92E2F97D8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IsIdentifiable.Tests", "tests\microservices\Microservices.IsIdentifiable.Tests\Microservices.IsIdentifiable.Tests.csproj", "{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiableReviewer", "src\applications\IsIdentifiableReviewer\IsIdentifiableReviewer.csproj", "{C2031E86-81B4-405A-A923-9B82E0CE196F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -163,6 +169,18 @@ Global
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155}.Debug|x64.Build.0 = Debug|x64
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155}.Release|x64.ActiveCfg = Release|x64
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155}.Release|x64.Build.0 = Release|x64
+		{1A27E9E8-F16E-43F9-927E-5FE92E2F97D8}.Debug|x64.ActiveCfg = Debug|x64
+		{1A27E9E8-F16E-43F9-927E-5FE92E2F97D8}.Debug|x64.Build.0 = Debug|x64
+		{1A27E9E8-F16E-43F9-927E-5FE92E2F97D8}.Release|x64.ActiveCfg = Release|x64
+		{1A27E9E8-F16E-43F9-927E-5FE92E2F97D8}.Release|x64.Build.0 = Release|x64
+		{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2}.Debug|x64.ActiveCfg = Debug|x64
+		{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2}.Debug|x64.Build.0 = Debug|x64
+		{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2}.Release|x64.ActiveCfg = Release|x64
+		{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2}.Release|x64.Build.0 = Release|x64
+		{C2031E86-81B4-405A-A923-9B82E0CE196F}.Debug|x64.ActiveCfg = Debug|x64
+		{C2031E86-81B4-405A-A923-9B82E0CE196F}.Debug|x64.Build.0 = Debug|x64
+		{C2031E86-81B4-405A-A923-9B82E0CE196F}.Release|x64.ActiveCfg = Release|x64
+		{C2031E86-81B4-405A-A923-9B82E0CE196F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -190,6 +208,9 @@ Global
 		{9AD4D861-F925-47A5-A827-B89409B7DD6E} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{12A9A968-9724-4770-9FD9-809BD1AF7431} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{9CC69AAC-2F7C-4F36-B35E-5007FC075155} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{1A27E9E8-F16E-43F9-927E-5FE92E2F97D8} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{C2031E86-81B4-405A-A923-9B82E0CE196F} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

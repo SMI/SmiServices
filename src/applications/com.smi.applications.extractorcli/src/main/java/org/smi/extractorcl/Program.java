@@ -5,15 +5,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smi.common.logging.SmiLogging;
 import org.smi.common.options.GlobalOptions;
+import org.smi.extractorcl.exceptions.FileProcessingException;
+import org.smi.extractorcl.exceptions.LineProcessingException;
 import org.smi.extractorcl.execution.ExtractorClHost;
+import org.yaml.snakeyaml.error.YAMLException;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 public class Program {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args)
+			throws FileNotFoundException, FileProcessingException, LineProcessingException, IOException, ParseException,
+			YAMLException, URISyntaxException, IllegalArgumentException, TimeoutException {
 
-		SmiLogging.Setup();
+		SmiLogging.Setup(false);
 		final Logger logger = LoggerFactory.getLogger(Program.class);
 
 		CommandLine parsedArgs = ParseOptions(args);
@@ -23,23 +32,18 @@ public class Program {
 		logger.debug("Loaded config options:\n" + options.toString());
 
 		ExtractorClHost host = new ExtractorClHost(options, parsedArgs, UUID.randomUUID());
-
+		
+		// TODO(rkm 2020-01-30) Something funky going on here with threads not exiting cleanly
 		try {
-
 			host.process();
-
 		} catch (Exception e) {
-
 			logger.error("Exception in host process: " + e.getMessage());
 			e.printStackTrace();
-
-			System.exit(-1);
-			return;
+			host.shutdown();
+			System.exit(1);
 		}
-
+		
 		host.shutdown();
-
-		logger.info("Host processing finished, exiting");
 		System.exit(0);
 	}
 
@@ -47,86 +51,76 @@ public class Program {
 
 		Options options = new Options();
 
-		// Set up help options only and parse
 		options.addOption("h", "help", false, "Print this message and exit");
 
 		CommandLineParser commLineParser = new DefaultParser();
 		CommandLine commandLine = commLineParser.parse(options, args, true);
 
-		// Add options - needed for both parsing command-line
-		// options and displaying help
+		if (commandLine.hasOption("h")) {
+			printUsage(options);
+			System.exit(0);
+		}
 
-		Option option = Option
-				.builder("y")
-				.argName("config file")
-				.hasArg()
-				.longOpt("yaml-file")
-				.desc("Name of the yaml file to load")
-				.build();
+		options.addOption(
+			Option
+			.builder("y")
+			.desc("Name of the yaml file to load")
+			.hasArg()
+			.argName("config file")
+			.longOpt("yaml-file")
+			.build());
 
-		options.addOption(option);
+		options.addOption(
+			Option
+			.builder("p")
+			.argName("project identifier")
+			.desc("[Required] Project identifier")
+			.hasArg()
+			.longOpt("project")
+			.required()
+			.build());
 
-		option = Option
-				.builder("p")
-				.argName("project identifier")
-				.hasArg()
-				.longOpt("project")
-				.desc("Project identifier")
-				.required()
-				.build();
+		options.addOption(
+			Option
+			.builder("e")
+			.argName("extraction directory")
+			.desc("Name of subdirectory within project folder to create the files. Defaults to the generated extraction identifier")
+			.hasArg()
+			.longOpt("subdirectory")
+			.build());
 
-		options.addOption(option);
-
-		option = Option
-				.builder("e")
-				.argName("extraction directory")
-				.hasArg()
-				.longOpt("subdirectory")
-				.desc("Name of subdirectory within project folder to create the files. Defaults to the generated extraction identifier")
-				.build();
-
-		options.addOption(option);
-
-		option = Option
-				.builder("c")
-				.argName("extraction key column")
-				.hasArg()
-				.longOpt("extraction-key-column")
-				.desc("Column in the csv file containing the extraction key (0-based). Defaults to 0")
-				.build();
-
-		options.addOption(option);
-		if (commandLine.hasOption("h"))
-			printUsageAndExit(options, 0);
-
+		options.addOption(
+			Option        
+			.builder("m")
+			.argName("modality")
+			.desc("Extraction modality. Should only be specified if extracting at the Study level")
+			.hasArg()
+			.longOpt("modality")
+			.build());
+		
 		try {
-
 			commandLine = commLineParser.parse(options, args);
-
 		} catch (ParseException e) {
-
 			System.err.println(e.getMessage());
-			printUsageAndExit(options, 1);
+			printUsage(options);
+			System.exit(1);
 		}
 
 		if (commandLine.getArgList().size() == 0) {
+			printUsage(options);
 			System.err.println("No data files given to process");
-			printUsageAndExit(options, 1);
+			System.exit(1);
 		}
 
 		return commandLine;
 	}
 
 	/**
-	 * Print usage information and exit.
+	 * Print usage information
 	 *
-	 * @param options  Command-line options used to display options to user.
-	 * @param exitCode Exit code.
+	 * @param options Command-line options used to display options to user
 	 */
-	private static void printUsageAndExit(Options options, int exitCode) {
-
-		new HelpFormatter().printHelp(ExtractorClHost.class.getName() + " [options] dataFile1 [dataFile2 ... dataFileN]", "Options:", options, "");
-
-		System.exit(exitCode);
+	private static void printUsage(Options options) {
+		new HelpFormatter().printHelp("[options] <id file>...", "Options:", options, "");
 	}
 }

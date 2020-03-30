@@ -1,11 +1,13 @@
 ﻿
+using System.Threading;
 using Microservices.IdentifierMapper.Execution.Swappers;
+using Smi.Common;
 using Smi.Common.Options;
 
 
 namespace Microservices.IdentifierMapper.Tests
 {
-    internal class SwapForFixedValueTester : ISwapIdentifiers
+    internal class SwapForFixedValueTester : SwapIdentifiers
     {
         private readonly string _swapForString;
 
@@ -16,14 +18,20 @@ namespace Microservices.IdentifierMapper.Tests
         }
 
 
-        public void Setup(IMappingTableOptions mappingTableOptions) { }
+        public override void Setup(IMappingTableOptions mappingTableOptions) { }
 
-        public string GetSubstitutionFor(string toSwap, out string reason)
+        public override string GetSubstitutionFor(string toSwap, out string reason)
         {
             reason = null;
+            Success++;
+            CacheHit++;
+            
+            using(new TimeTracker(DatabaseStopwatch))
+                Thread.Sleep(500);
+
             return _swapForString;
         }
 
-        public void ClearCache() { }
+        public override void ClearCache() { }
     }
 }

@@ -18,6 +18,15 @@ namespace Microservices.DicomRelationalMapper.Execution
             _messages = messages;
         }
 
+        /// <summary>
+        /// Resets the progress through the work list e.g. if half the list is consumed and you want to
+        /// start again.
+        /// </summary>
+        public void ResetProgress()
+        {
+            _progress = 0;
+        }
+
         public DicomDataset GetNextDatasetToProcess(out string filename, out Dictionary<string, string> otherValuesToStoreInRow)
         {
             otherValuesToStoreInRow = new Dictionary<string, string>();
@@ -32,6 +41,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             filename = toReturn.DicomFileMessage.DicomFilePath;
 
             otherValuesToStoreInRow.Add("MessageGuid", _messages[_progress].Header.MessageGuid.ToString());
+            otherValuesToStoreInRow.Add("DicomFileSize",toReturn.DicomFileMessage.DicomFileSize.ToString()); //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
 
             _progress++;
 

@@ -24,7 +24,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         public DicomRelationalMapperQueueConsumer Consumer { get; private set; }
 
         public DicomRelationalMapperHost(GlobalOptions globals, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig) { }
+            : base(globals, loadSmiLogConfig: loadSmiLogConfig) { }
 
 
         //TODO Should most of this not be in the constructor?
@@ -69,7 +69,7 @@ namespace Microservices.DicomRelationalMapper.Execution
                 RunChecks = Globals.DicomRelationalMapperOptions.RunChecks
             };
 
-            RabbitMqAdapter.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer);
+            RabbitMqAdapter.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer, isSolo: false);
         }
 
         private void Startup_DatabaseFound(object sender, PlatformDatabaseFoundEventArgs e)

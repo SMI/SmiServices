@@ -1,10 +1,11 @@
 ﻿
 using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
+using Smi.Common.Messaging;
 
 namespace Microservices.IdentifierMapper.Messaging
 {
-    public class IdentifierMapperControlMessageHandler
+    public class IdentifierMapperControlMessageHandler : IControlMessageHandler
     {
         private readonly ILogger _logger;
 

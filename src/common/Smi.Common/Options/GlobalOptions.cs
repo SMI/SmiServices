@@ -7,11 +7,11 @@ using System.Reflection;
 using System.Text;
 using Dicom;
 using FAnsi.Discovery;
-using Smi.Common.Messages;
+using JetBrains.Annotations;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
-using ReusableLibraryCode.Annotations;
+using Smi.Common.Messages;
 using YamlDotNet.Serialization;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -88,6 +88,8 @@ namespace Smi.Common.Options
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
         public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
 
+        public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
+
         #endregion
 
         public static string GenerateToString(object o)
@@ -107,6 +109,23 @@ namespace Smi.Common.Options
         {
             return GenerateToString(this);
         }
+    }
+    
+    [UsedImplicitly]
+    public class IsIdentifiableOptions : ConsumerOptions
+    {
+        /// <summary>
+        /// The full name of the classifier you want to run
+        /// </summary>
+        public string ClassifierType { get; set; }
+
+        /// <summary>
+        /// The root location in which subfolders must exist containing all data files required by any classifiers
+        /// (typically 1 sub-directory per classifier)
+        /// </summary>
+        public string DataDirectory { get; set; }
+
+        public ProducerOptions IsIdentifiableProducerOptions {get; set;}
     }
 
     [UsedImplicitly]
@@ -176,6 +195,14 @@ namespace Smi.Common.Options
         /// </summary>
         public bool AllowRegexMatching { get; set; }
 
+        /// <summary>
+        /// Optional, if set then your <see cref="SwapperType"/> will be wrapped and it's answers cached in this Redis database.
+        /// The Redis database will always be consulted for a known answer first and <see cref="SwapperType"/> used
+        /// as a fallback.
+        /// See https://stackexchange.github.io/StackExchange.Redis/Configuration.html#basic-configuration-strings for the format.
+        /// </summary>
+        public string RedisConnectionString { get; set; }
+
         public override string ToString()
         {
             return GlobalOptions.GenerateToString(this);
@@ -186,8 +213,8 @@ namespace Smi.Common.Options
             var server = new DiscoveredServer(MappingConnectionString, MappingDatabaseType);
 
             var idx = MappingTableName.LastIndexOf('.');
-            var tableNameUnqualified = MappingTableName.Substring(idx +1);
-            
+            var tableNameUnqualified = MappingTableName.Substring(idx + 1);
+
             idx = MappingTableName.IndexOf('.');
             if (idx == -1)
                 throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
@@ -242,9 +269,8 @@ namespace Smi.Common.Options
             {
                 var opt = (FileReadOption)Enum.Parse(typeof(FileReadOption), FileReadOption);
 
-                //TODO(Ruairidh 2019-08-28) Monitor the status of this
                 if (opt == Dicom.FileReadOption.SkipLargeTags)
-                    throw new ApplicationException("SkipLargeTags option is currently disabled due to issues in fo-dicom. See: https://github.com/fo-dicom/fo-dicom/issues/893");
+                    throw new ApplicationException("SkipLargeTags is disallowed here to ensure data consistency");
 
                 return opt;
             }
@@ -273,10 +299,9 @@ namespace Smi.Common.Options
 
         public ProducerOptions ReprocessingProducerOptions { get; set; }
 
-        public override string ToString()
-        {
-            return GlobalOptions.GenerateToString(this);
-        }
+        public TimeSpan SleepTime { get; set; }
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
     /// <summary>
@@ -304,9 +329,12 @@ namespace Smi.Common.Options
     public class CohortPackagerOptions
     {
         public ConsumerOptions ExtractRequestInfoOptions { get; set; }
-        public ConsumerOptions ExtractFilesInfoOptions { get; set; }
-        public ConsumerOptions AnonImageStatusOptions { get; set; }
-        public uint JobWatcherTickrate { get; set; }
+        public ConsumerOptions FileCollectionInfoOptions { get; set; }
+        public ConsumerOptions AnonFailedOptions { get; set; }
+        public ConsumerOptions VerificationStatusOptions { get; set; }
+        public uint JobWatcherTimeoutInSeconds { get; set; }
+        public string ReporterType { get; set; }
+        public string NotifierType { get; set; }
 
         public override string ToString()
         {
@@ -334,6 +362,23 @@ namespace Smi.Common.Options
         /// The Type of a class implementing IExtractionRequestFulfiller which is responsible for mapping requested image identifiers to image file paths.  Mandatory
         /// </summary>
         public string RequestFulfillerType { get; set; }
+        
+        /// <summary>
+        /// The Type of a class implementing IProjectPathResolver which is responsible for deciding the folder hierarchy to output into
+        /// </summary>
+        public string ProjectPathResolverType { get; set; }
+
+        /// <summary>
+        /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which
+        /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result
+        /// in Modalities being routed based on the start of the table name e.g. CT => CT_MyTable and MR=> MR_MyTable
+        /// </summary>
+        public string ModalityRoutingRegex { get; set; } = "^([A-Z]+)_.*$";
+
+        /// <summary>
+        /// The Type of a class implementing IRejector which is responsible for deciding individual records/images are not extractable (after fetching from database)
+        /// </summary>
+        public string RejectorType { get; set; }
 
         public bool AllCatalogues { get; private set; }
         public List<int> OnlyCatalogues { get; private set; }
@@ -495,7 +540,7 @@ namespace Smi.Common.Options
             [UsedImplicitly]
             set { _extractRoot = value.TrimEnd('/', '\\'); }
         }
-        
+
         public override string ToString()
         {
             return GlobalOptions.GenerateToString(this);
@@ -514,12 +559,7 @@ namespace Smi.Common.Options
         public string RabbitMqPassword { get; set; }
         public string FatalLoggingExchange { get; set; }
         public string RabbitMqControlExchangeName { get; set; }
-
-        public bool Validate()
-        {
-            return RabbitMqHostPort > 0 &&
-                   !string.IsNullOrWhiteSpace(RabbitMqVirtualHost);
-        }
+        public bool ThreadReceivers { get; set; }
 
         public override string ToString()
         {

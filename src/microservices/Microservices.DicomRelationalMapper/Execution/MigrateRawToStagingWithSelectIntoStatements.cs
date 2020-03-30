@@ -12,6 +12,7 @@ using ReusableLibraryCode.Progress;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using ReusableLibraryCode;
 
@@ -28,12 +29,32 @@ namespace Microservices.DicomRelationalMapper.Execution
             var configuration = job.Configuration;
             var namer = configuration.DatabaseNamer;
 
-            // To be on the safe side, we will create/destroy the staging tables on a per-load basis
-            var cloner = new DatabaseCloner(configuration);
-            job.CreateTablesInStage(cloner, LoadBubble.Staging);
-
             DiscoveredServer server = job.LoadMetadata.GetDistinctLiveDatabaseServer();
             server.EnableAsync();
+
+            //Drop any STAGING tables that already exist
+            foreach (var table in job.RegularTablesToLoad)
+            {
+                string stagingDbName = table.GetDatabaseRuntimeName(LoadStage.AdjustStaging, namer);
+                string stagingTableName = table.GetRuntimeName(LoadStage.AdjustStaging, namer);
+                
+                var stagingDb = server.ExpectDatabase(stagingDbName);
+                var stagingTable = stagingDb.ExpectTable(stagingTableName);
+
+                if (stagingDb.Exists())
+                {
+                    if (stagingTable.Exists())
+                    {
+                        job.OnNotify(this,new NotifyEventArgs(ProgressEventType.Information,$"Dropping existing STAGING table remnant {stagingTable.GetFullyQualifiedName()}"));
+                        stagingTable.Drop();
+                    }   
+                }
+            }
+
+            //Now create STAGING tables (empty)
+            var cloner = new DatabaseCloner(configuration);
+            job.CreateTablesInStage(cloner, LoadBubble.Staging);
+            
 
             using (DbConnection con = server.GetConnection())
             {
@@ -53,9 +74,16 @@ namespace Microservices.DicomRelationalMapper.Execution
 
                     IQuerySyntaxHelper syntaxHelper = table.GetQuerySyntaxHelper();
 
-                    string sql = string.Format(@"INSERT INTO {1} SELECT DISTINCT * FROM {0}",
+                    var fromCols = server.ExpectDatabase(fromDb).ExpectTable(fromTable).DiscoverColumns();
+                    var toCols = server.ExpectDatabase(toDb).ExpectTable(toTable).DiscoverColumns();
+
+                    //Migrate only columns that appear in both tables
+                    var commonColumns = fromCols.Select(f => f.GetRuntimeName()).Intersect(toCols.Select(t => t.GetRuntimeName())).ToArray();
+
+                    string sql = string.Format(@"INSERT INTO {1}({2}) SELECT DISTINCT {2} FROM {0}",
                         syntaxHelper.EnsureFullyQualified(fromDb, null, fromTable),
-                        syntaxHelper.EnsureFullyQualified(toDb, null, toTable));
+                        syntaxHelper.EnsureFullyQualified(toDb, null, toTable),
+                        string.Join(",",commonColumns.Select(c=>syntaxHelper.EnsureWrapped(c))));
 
                     job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "About to send SQL:" + sql));
 

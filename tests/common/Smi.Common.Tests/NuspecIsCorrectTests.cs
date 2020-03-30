@@ -32,6 +32,7 @@ namespace Smi.Common.Tests
         [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj",null,null)]
         [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj",null,null)]
         [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj",null,null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.IsIdentifiable/Microservices.IsIdentifiable.csproj",null,null)]
 
         public void TestDependencyCorrect(string csproj, string nuspec, string packagesMarkdown)
         {
@@ -68,6 +69,10 @@ namespace Smi.Common.Tests
                 string package = p.Groups[1].Value;
                 string version = p.Groups[2].Value;
 
+                // NOTE(rkm 2020-02-14) Fix for specifiers which contain lower or upper bounds
+                if (version.Contains("[") || version.Contains("("))
+                    version = version.Substring(1,5);
+ 
                 bool found = false;
 
                 //analyzers do not have to be listed as a dependency in nuspec (but we should document them in packages.md)
