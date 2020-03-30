@@ -83,7 +83,7 @@ jobs:
         dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
       done
     - ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
-    - mvn -f src/common/com.smi.microservices.parent/pom.xml assembly:single@create-deployable
+    - mvn -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable
     - |
       for filename in $(find ./src -name "*deploy-distribution.zip")
       do
