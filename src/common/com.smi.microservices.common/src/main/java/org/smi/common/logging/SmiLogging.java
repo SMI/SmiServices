@@ -1,45 +1,122 @@
 
 package org.smi.common.logging;
 
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Random;
+
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.spi.Filter;
 
 /**
  * Static helper class to setup the SMI logging
  */
 public final class SmiLogging {
 
-	private static final String ConfigFileName = "SmiLogbackConfig.xml";
+    private SmiLogging() {
+    }
 
-	private SmiLogging() {
-	}
+    public static String getCaller() {
+        String prev=null;
+        StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+        for (int i=1; i<stElements.length; i++) {
+            StackTraceElement ste = stElements[i];
+            if (i<3)
+                prev=ste.getClassName();
+            if (ste.getMethodName()=="main") {
+                prev=ste.getClassName();
+                return prev.substring(prev.lastIndexOf('.')+1);
+            }
+        }
+        return prev==null?null:prev.substring(prev.lastIndexOf('.')+1);
+    }
+    
+    /**
+     * Get the current PID (on Java 9 or later)
+     * @return
+     */
+    public static long getPid() {
+        try {
+            Class<?> phclass = Class.forName("java.lang.ProcessHandle");
+            Method phcurrent = phclass.getMethod("current", new Class<?>[] {});
+            Method getpid=phclass.getMethod("pid", new Class<?>[] {});
+            Object self=phcurrent.invoke(null, new Object[] {});
+            Object pid=getpid.invoke(self, new Object[] {});
+            if (pid instanceof Long) {
+                Long lpid=(Long) pid;
+                return lpid.longValue();
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        // Fallback for elderly JVMs:
+        try {
+            RuntimeMXBean rt=ManagementFactory.getRuntimeMXBean();
+            Field jvm=rt.getClass().getField("jvm");
+            jvm.setAccessible(true);
+            Object mgmt = jvm.get(rt);
+            Method getpid = mgmt.getClass().getDeclaredMethod("getProcessId");
+            getpid.setAccessible(true);
+            int pid=(Integer)getpid.invoke(mgmt);
+            return pid;
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        
+        return new Random().nextLong();
+    }
 
-	public static void Setup() {
-		Setup(-1);
-	}
+    public static void Setup(boolean testing) throws SmiLoggingException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        String logroot = System.getenv("SMI_LOGS_ROOT");
+        if (logroot==null) {
+            System.err.println("WARNING: SMI_LOGS_ROOT not set, logging to pwd instead");
+            logroot=".";
+        }
+        File logdir=new File(logroot+File.pathSeparator+getCaller());
+        File logfile=new File(logroot+File.pathSeparator+getCaller()+File.pathSeparator+df.format(new Date())+"-"+getPid());
+        if (!logdir.isDirectory()) {
+            logdir.mkdirs();
+        }
 
-	public static void Setup(int env) throws SmiLoggingException {
+        // Turn off log4j warnings from library code
+        Logger l = Logger.getRootLogger();
+        l.setLevel(Level.OFF);
+        
+        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%thread|%-5level|%-15(%logger{0})| %msg%n");
 
-		// Turn off log4j warnings from library code
-		org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
-
-		Path logConfigPath;
-
-		if (env == -1) {
-			logConfigPath = Paths.get(ConfigFileName);
-		} else {
-			try {
-				logConfigPath = Paths.get("./target", ConfigFileName);
-			} catch (InvalidPathException e) {
-				throw new SmiLoggingException("", e);
-			}
-		}
-
-		if (Files.notExists(logConfigPath) || Files.isDirectory(logConfigPath))
-			throw new SmiLoggingException("Could not find logback config file " + ConfigFileName);
-
-		System.setProperty("logback.configurationFile", ConfigFileName);
-	}
+        ConsoleAppender ca = new ConsoleAppender();
+        ca.setTarget("System.err");
+        ca.setThreshold(testing?Level.ALL:Level.ERROR);
+        l.addAppender(ca);
+        
+        FileAppender fa = new FileAppender();
+        fa.setFile(logfile.getAbsolutePath());
+        fa.setThreshold(Level.ALL);
+        fa.setAppend(true);
+        fa.setBufferedIO(true);
+        fa.setImmediateFlush(false);
+        fa.setLayout(pl);
+        fa.activateOptions();
+        l.addAppender(fa);
+    }
 }

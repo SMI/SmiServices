@@ -16,7 +16,6 @@
     <None Include="DicomReprocessor.cd" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="HIC.RDMP.Dicom" Version="2.0.7" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
   </ItemGroup>
   <ItemGroup>

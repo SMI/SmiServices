@@ -3,24 +3,29 @@ using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
 {
-    public class IsIdentifiableMessage : ExtractMessage,IFileReferenceMessage,IEquatable<IsIdentifiableMessage>
+    // TODO(rkm 2020-02-04) Rename to AnonVerificationMessage
+    public class IsIdentifiableMessage : ExtractMessage, IFileReferenceMessage, IEquatable<IsIdentifiableMessage>
     {
+        [JsonProperty(Required = Required.Always)]
         public bool IsIdentifiable { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public string Report { get; set; }
 
         /// <summary>
         /// The originally sourced origin (identifiable file path).
         /// </summary>
+        [JsonProperty(Required = Required.Always)]
         public string DicomFilePath { get; set; }
 
         /// <summary>
         /// Anonymised file name. Only required if a file has been anonymised
         /// </summary>
-        [JsonProperty(Required = Required.DisallowNull)]
+        [JsonProperty(Required = Required.Always)]
         public string AnonymisedFileName { get; set; }
-        
+
         [JsonConstructor]
-        protected IsIdentifiableMessage() { }
+        public IsIdentifiableMessage() { }
 
         public IsIdentifiableMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
             : this()
@@ -57,7 +62,7 @@ namespace Smi.Common.Messages.Extraction
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IsIdentifiableMessage) obj);
+            return Equals((IsIdentifiableMessage)obj);
         }
 
         public override int GetHashCode()

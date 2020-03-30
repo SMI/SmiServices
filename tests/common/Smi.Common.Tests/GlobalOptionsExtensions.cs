@@ -59,8 +59,9 @@ namespace Smi.Common.Tests
             g.DicomRelationalMapperOptions.QoSPrefetchCount = 1;
             g.CohortExtractorOptions.QoSPrefetchCount = 1;
             g.CohortPackagerOptions.ExtractRequestInfoOptions.QoSPrefetchCount = 1;
-            g.CohortPackagerOptions.ExtractFilesInfoOptions.QoSPrefetchCount = 1;
-            g.CohortPackagerOptions.AnonImageStatusOptions.QoSPrefetchCount = 1;
+            g.CohortPackagerOptions.FileCollectionInfoOptions.QoSPrefetchCount = 1;
+            g.CohortPackagerOptions.AnonFailedOptions.QoSPrefetchCount = 1;
+            g.CohortPackagerOptions.VerificationStatusOptions.QoSPrefetchCount = 1;
             g.DicomTagReaderOptions.QoSPrefetchCount = 1;
             g.IdentifierMapperOptions.QoSPrefetchCount = 1;
             g.MongoDbPopulatorOptions.SeriesQueueConsumerOptions.QoSPrefetchCount = 1;

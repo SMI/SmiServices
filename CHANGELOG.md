@@ -6,7 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-...
+- Get Java microservices logging to SMI\_LOGS\_ROOT
+
+### Added
+
+- Added undo feature to IsIdentifiableReviewer
+
+### Changed
+
+- Upgraded HIC.DicomTypeTranslation from `2.1.2` to `2.2.0`
+  - This includes an upgrade to fo-dicom from `4.0.1` to `4.0.4`
+- Upgraded fo-dicom.Drawing from `4.0.1` to `4.0.4`
+
+## [1.6.0] - 2020-03-17
+
+### Changed
+
+- Update CohortPackager for new extraction design
+  - Consume messages from CTP (failed anonymisation) and IsIdentifiable (verification)
+  - Add support for extraction by modality
+  - Remove the final check for the anonymised file. IsIdentifiable handles this already
+  - Refactor tests
+
+- Start to refactor core RabbitMqAdapter code to allow unit testing
 
 ## [1.5.2] - 2020-03-12
 
@@ -16,7 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  - IsIdentifiableReviewer adds comment with time/user to rules file e.g. `#TZNind - 3/10/2020 1:17:17 PM`
  - IsIdentifiableReviewer checks custom patterns match the original Failure
  - IsIdentifiable microservice was started with --service but can now be started with the service verb allowing it to take additional options. It should now be started with `service -y file.yaml`
- - IsIdentifiable no longer reads Rules.yaml from the current directory. It now has a command line option --RulesDirectory, to go with the already existing --RulesFile. That will read all *.yaml files in the given directory. However when run as a microservice the yaml file specifies a DataDirectory; the RulesDirectory will implicitly be a subdirectory called IsIdentifiableRules from which all *.yaml files will be read.
+ - IsIdentifiable no longer reads Rules.yaml from the current directory. It now has a command line option --RulesDirectory, to go with the already existing --RulesFile. That will read all \*.yaml files in the given directory. However when run as a microservice the yaml file specifies a DataDirectory; the RulesDirectory will implicitly be a subdirectory called IsIdentifiableRules from which all \*.yaml files will be read.
 
 ### Changed
   - IsIdentifiableReviewer now tries to isolate 'Problem Words' when generating it's suggested Updater Regex rules (e.g. now suggests `^Ninewells` instead of `^Ninewells\ Spike\ CT$`.)
@@ -217,7 +239,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.5.2...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.6.0...develop
+[1.6.0]:  https://github.com/SMI/SmiServices/compare/v1.5.2...v1.6.0
 [1.5.2]:  https://github.com/SMI/SmiServices/compare/v1.5.1...v1.5.2
 [1.5.1]:  https://github.com/SMI/SmiServices/compare/v1.5.0...v1.5.1
 [1.5.0]:  https://github.com/SMI/SmiServices/compare/v1.4.5...v1.5.0
@@ -235,7 +258,6 @@ First stable release after importing the repository from the private [SMIPlugin]
 [1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
-
 
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
 [SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules
