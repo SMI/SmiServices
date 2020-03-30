@@ -13,10 +13,12 @@ namespace IsIdentifiableReviewer.Out
 {
     public abstract class OutBase
     {
-        protected List<IsIdentifiableRule> Rules { get;}
+        public List<IsIdentifiableRule> Rules { get;}
         public FileInfo RulesFile { get; }
         
         public IRulePatternFactory RulesFactory { get; set; } = new MatchWholeStringRulePatternFactory();
+
+        public Stack<OutBaseHistory> History = new Stack<OutBaseHistory>();
 
         protected OutBase(FileInfo rulesFile)
         {
@@ -72,13 +74,41 @@ namespace IsIdentifiableReviewer.Out
 
             var serializer = new Serializer();
             var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
-            File.AppendAllText(RulesFile.FullName,
-                $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
-                yaml);
+
+            var contents = $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
+                           yaml;
+
+            File.AppendAllText(RulesFile.FullName,contents);
+            History.Push(new OutBaseHistory(rule,contents));
 
             return rule;
         }
-        
+
+        public void Undo()
+        {
+            if(History.Count == 0)
+                return;
+
+            var popped = History.Pop();
+
+            if (popped != null)
+            {
+                //clear the rule from the serialized text file
+                var oldText = File.ReadAllText(RulesFile.FullName);
+                var newText = oldText.Replace(popped.Yaml, "");
+
+                //write to a new temp file
+                File.WriteAllText(RulesFile.FullName + ".tmp",newText);
+                
+                //then hot swap them
+                File.Delete(RulesFile.FullName);
+                File.Move(RulesFile.FullName + ".tmp",RulesFile.FullName);
+                
+                //clear the rule from memory
+                Rules.Remove(popped.Rule);
+            }
+        }
+
         /// <summary>
         /// Returns true if there are any rules that already exactly cover the given <paramref name="failure"/>
         /// </summary>

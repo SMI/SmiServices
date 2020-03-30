@@ -34,6 +34,8 @@ namespace IsIdentifiableReviewer
         private Label _updateRuleLabel;
         private CheckBox _cbRulesOnly;
 
+        Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
+
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
@@ -116,6 +118,13 @@ namespace IsIdentifiableReviewer
                 Clicked = ()=>GoToRelative(1)
             });
 
+            frame.Add(new Button("unDo")
+            {
+                X = 11,
+                Y = 2,
+                Clicked = ()=>Undo()
+            });
+
             frame.Add(new Label(0,4,"Default Patterns"));
 
             _ignoreRuleLabel = new Label(0,5,"Ignore:");
@@ -144,6 +153,23 @@ namespace IsIdentifiableReviewer
 
             if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
                 OpenReport(opts.FailuresCsv,(e)=>throw e, (t)=>throw new Exception("Mode only supported when a single Target is configured"));
+        }
+
+        private void Undo()
+        {
+            if (History.Count == 0)
+            {
+                ShowMessage("History Empty","Cannot undo, history is empty");
+                return;
+            }
+
+            var popped = History.Pop();
+
+            //undo file history
+            popped.OutputBase.Undo();
+
+            //wind back UI
+            GoTo(popped.Index);
         }
 
         private void GoToRelative(int offset)
@@ -216,7 +242,7 @@ namespace IsIdentifiableReviewer
                     var next = CurrentReport.Current;
 
                     //prefer rules that say we should update the database with redacted over rules that say we should ignore the problem
-                    if (!Updater.OnLoad(CurrentTarget?.Discover(),next))
+                    if (!Updater.OnLoad(CurrentTarget?.Discover(),next, out _))
                         updated++;
                     else if (!Ignorer.OnLoad(next,out _))
                         skipped++;
@@ -253,7 +279,16 @@ namespace IsIdentifiableReviewer
             if(_valuePane.CurrentFailure == null)
                 return;
 
-            Ignorer.Add(_valuePane.CurrentFailure);
+            try
+            {
+                Ignorer.Add(_valuePane.CurrentFailure);
+                History.Push(new MainWindowHistory(CurrentReport.CurrentIndex,Ignorer));
+            }
+            catch (OperationCanceledException)
+            {
+                //if user cancels adding the ignore then stay on the same record
+                return;
+            }
             Next();
         }
         private void Update()
@@ -264,7 +299,14 @@ namespace IsIdentifiableReviewer
             try
             {
                 Updater.Update(_cbRulesOnly.Checked ? null : CurrentTarget?.Discover()
-                    ,_valuePane.CurrentFailure,null /*create one yourself*/);
+                    , _valuePane.CurrentFailure, null /*create one yourself*/);
+
+                History.Push(new MainWindowHistory(CurrentReport.CurrentIndex,Updater));
+            }
+            catch (OperationCanceledException)
+            {
+                //if user cancels updating then stay on the same record
+                return;
             }
             catch (Exception e)
             {
@@ -411,7 +453,8 @@ namespace IsIdentifiableReviewer
             chosen = result;
             return optionChosen;
         }
-         private bool GetText(string title, string message, string initialValue, out string chosen)
+         private bool GetText(string title, string message, string initialValue, out string chosen,
+             Dictionary<string, string> buttons)
          {
             bool optionChosen = false;
 
@@ -462,13 +505,17 @@ namespace IsIdentifiableReviewer
             };
             dlg.Add(btn);
 
-            var btnClear = new Button(15, line, "Clear")
-            {
-                Clicked = () => { txt.Text = ""; }
-            };
-            dlg.Add(btnClear);
-
-            
+            int x = 10;
+            if(buttons != null)
+                foreach (var kvp in buttons)
+                {
+                    var button = new Button(x, line,kvp.Key)
+                    {
+                        Clicked = () => { txt.Text = kvp.Value; }
+                    };
+                    dlg.Add(button);
+                    x += kvp.Key.Length + 5;
+                }
 
             dlg.FocusFirst();
         
@@ -490,8 +537,15 @@ namespace IsIdentifiableReviewer
              var defaultFactory = sender == Updater ? _origUpdaterRulesFactory : _origIgnorerRulesFactory;
 
              var recommendedPattern = defaultFactory.GetPattern(sender,failure);
+            
+             Dictionary<string,string> buttons = new Dictionary<string, string>();
+             buttons.Add("Clear","");
+             buttons.Add("Full",_origIgnorerRulesFactory.GetPattern(sender,failure));
+             buttons.Add("Captures",_origUpdaterRulesFactory.GetPattern(sender,failure));
+             
+             buttons.Add("Symbols",new SymbolsRulesFactory().GetPattern(sender,failure));
 
-             if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen))
+             if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen,buttons))
              {
                  Regex regex;
 
@@ -521,7 +575,7 @@ namespace IsIdentifiableReviewer
              }
                 
             
-             throw new Exception("User chose not to enter a pattern");
+             throw new OperationCanceledException("User chose not to enter a pattern");
          }
 
     }

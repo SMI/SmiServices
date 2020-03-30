@@ -120,7 +120,10 @@ namespace Microservices.IsIdentifiable.Runners
                     ValidateDicomItem(fi, dicomFile, dataSet, dicomItem);
             }
             else
+            {
                 _logger.Info("File does not contain valid preamble and header: " + fi.FullName);
+                throw new ApplicationException("File does not contain valid preamble and header: " + fi.FullName);
+            }
 
             DoneRows(1);
         }
@@ -244,7 +247,7 @@ namespace Microservices.IsIdentifiable.Runners
             {
                 // An internal error should cause IsIdentifiable to exit
                 _logger.Info(e, "Could not run Tesseract on '" + fi.FullName + "'");
-                throw new Exception ("Could not run Tesseract on '" + fi.FullName + "'", e);
+                throw new ApplicationException ("Could not run Tesseract on '" + fi.FullName + "'", e);
 
                 // OR add a message to the report saying we failed to run OCR
                 //string problemField = "PixelData";
