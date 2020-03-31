@@ -65,7 +65,7 @@ jobs:
     - dotnet build --verbosity quiet
     - find ./tests -iname "*.csproj" -exec dotnet test {} \;
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
-    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test; fi
+    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
 
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
