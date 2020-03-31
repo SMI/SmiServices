@@ -1,3 +1,4 @@
+merge_mode: replace
 dist: bionic
 os: linux
 language: minimal
@@ -10,7 +11,7 @@ jobs:
       - $HOME/.nuget
       - $HOME/.m2
       - $HOME/rdmp-cli
-      - $HOME/data/tessdata/eng.traineddata
+      - $HOME/data
     addons:
       postgresql: "10"
       apt:
@@ -49,14 +50,14 @@ jobs:
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
     - |
-      if [ ! -d rdmp-cli ]
+      if [ ! -x $HOME/rdmp-cli/rdmp ]
       then
         wget https://github.com/HicServices/RDMP/releases/download/v4.0.3/rdmp-cli-linux-x64.zip
         # RDMP 3.2.1 was packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
-        unzip -d rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
-        chmod +x rdmp-cli/rdmp
+        unzip -d $HOME/rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
+        chmod +x $HOME/rdmp-cli/rdmp
       fi
-    - rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
+    - $HOME/rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
     script:
     - dotnet build --verbosity quiet
     - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
@@ -71,7 +72,8 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
 
-    - ( cd data/tessdata && ./download.sh && cd - )
+    - if [ -e $HOME/data/eng.traineddata ]; then ln $HOME/data/eng.traineddata data/tessdata/
+    - ( cd data/tessdata && ./download.sh && ln -f eng.traineddata $HOME/data/ && cd - )
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
     - if [ -d src/microservices/uk.ac.dundee.hic.nerd/ ]; then mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test; fi
