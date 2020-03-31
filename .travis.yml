@@ -72,7 +72,7 @@ jobs:
     - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
 
-    - if [ -e $HOME/data/eng.traineddata ]; then ln $HOME/data/eng.traineddata data/tessdata/
+    - if [ -e $HOME/data/eng.traineddata ]; then ln $HOME/data/eng.traineddata data/tessdata/; fi
     - ( cd data/tessdata && ./download.sh && ln -f eng.traineddata $HOME/data/ && cd - )
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
