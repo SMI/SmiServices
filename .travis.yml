@@ -44,9 +44,11 @@ jobs:
     - MSSQL_SA_PASSWORD="YourStrong!Passw0rd"
     - ACCEPT_EULA=Y
     - MSSQL_PID='evaluation'
+
     before_install:
     - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server dotnet-runtime-2.2 dotnet-sdk-3.1
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
+
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
     - |
@@ -67,7 +69,6 @@ jobs:
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
     - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
 
-    after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
     - mkdir -p ./dist
     - |
@@ -77,20 +78,15 @@ jobs:
       done
     - ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
     - mvn -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable
+    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package
     - |
       for filename in $(find ./src -name "*deploy-distribution.zip")
       do
         base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
         mv $filename dist/$base-${TRAVIS_TAG}.zip
       done
-    - |
-      if [ -d src/microservices/uk.ac.dundee.hic.nerd/ ]
-      then
-      mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package
-      mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
-      fi
+    - mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
 
-# NOTE: This is inherited by both jobs, so actually runs twice
 deploy:
       provider: releases
       token:
