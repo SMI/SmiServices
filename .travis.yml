@@ -58,25 +58,14 @@ jobs:
         chmod +x $HOME/rdmp-cli/rdmp
       fi
     - $HOME/rdmp-cli/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
-    script:
-    - dotnet build --verbosity quiet
-    - dotnet test ./tests/common/Smi.Common.Tests/Smi.Common.Tests.csproj
-    - dotnet test ./tests/common/Smi.Common.MongoDb.Tests/Smi.Common.MongoDb.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.CohortExtractor.Tests/Microservices.CohortExtractor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.CohortPackager.Tests/Microservices.CohortPackager.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DeadLetterReprocessor.Tests/Microservices.DeadLetterReprocessor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomRelationalMapper.Tests/Microservices.DicomRelationalMapper.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomReprocessor.Tests/Microservices.DicomReprocessor.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.DicomTagReader.Tests/Microservices.DicomTagReader.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.IdentifierMapper.Tests/Microservices.IdentifierMapper.Tests.csproj
-    - dotnet test ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj
-    - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
-
     - if [ -e $HOME/data/eng.traineddata ]; then ln $HOME/data/eng.traineddata data/tessdata/; fi
     - ( cd data/tessdata && ./download.sh && ln -f eng.traineddata $HOME/data/ && cd - )
-    - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
+
+    script:
+    - dotnet build --verbosity quiet
+    - find ./tests -iname "*.csproj" -exec dotnet test {} \;
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
-    - if [ -d src/microservices/uk.ac.dundee.hic.nerd/ ]; then mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test; fi
+    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test; fi
 
     after_success:
     - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
