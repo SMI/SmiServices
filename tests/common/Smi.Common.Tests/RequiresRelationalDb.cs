@@ -16,7 +16,7 @@ namespace Smi.Common.Tests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
                     AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresRelationalDb : CategoryAttribute, IApplyToContext
+    public class RequiresRelationalDb : RequiresExternalService, IApplyToContext
     {
         private readonly DatabaseType _type;
         private const string Filename = "RelationalDatabases.yaml";
@@ -36,8 +36,13 @@ namespace Smi.Common.Tests
             var connectionStrings = GetRelationalDatabaseConnectionStrings();
             var server = connectionStrings.GetServer(_type);
 
-            if(!server.Exists())
-                Assert.Ignore(_type + " is not running at '" + server.Name +"'");
+            if (server.Exists())
+                return;
+
+            if (!FailIfUnavailable)
+                Assert.Ignore(_type + " is not running at '" + server.Name + "'");
+            else
+                Assert.Fail(_type + " is not running at '" + server.Name + "'");
         }
 
         public static ConStrs GetRelationalDatabaseConnectionStrings()
@@ -73,8 +78,8 @@ namespace Smi.Common.Tests
                         throw new ArgumentOutOfRangeException();
                 }
 
-                if(string.IsNullOrEmpty(str))
-                    Assert.Ignore("No connection string configured in "+ Filename +" for DatabaseType " + dbType);
+                if (string.IsNullOrEmpty(str))
+                    Assert.Ignore("No connection string configured in " + Filename + " for DatabaseType " + dbType);
 
                 return new DiscoveredServer(str, dbType);
             }
