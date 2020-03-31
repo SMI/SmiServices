@@ -15,9 +15,6 @@
     <None Include="ProcessDirectory.cd" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.IO.Abstractions" Version="7.0.7" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
 </Project>

@@ -199,8 +199,9 @@ namespace Smi.Common.Options
         /// Optional, if set then your <see cref="SwapperType"/> will be wrapped and it's answers cached in this Redis database.
         /// The Redis database will always be consulted for a known answer first and <see cref="SwapperType"/> used
         /// as a fallback.
+        /// See https://stackexchange.github.io/StackExchange.Redis/Configuration.html#basic-configuration-strings for the format.
         /// </summary>
-        public string RedisHost { get; set; }
+        public string RedisConnectionString { get; set; }
 
         public override string ToString()
         {
