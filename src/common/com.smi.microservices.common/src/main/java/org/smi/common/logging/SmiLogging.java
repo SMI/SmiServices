@@ -102,7 +102,7 @@ public final class SmiLogging {
         Logger l = Logger.getRootLogger();
         l.setLevel(Level.OFF);
         
-        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%thread|%-5level|%-15(%logger{0})| %msg%n");
+        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C{1}| %m%n");
 
         ConsoleAppender ca = new ConsoleAppender();
         ca.setTarget("System.err");
