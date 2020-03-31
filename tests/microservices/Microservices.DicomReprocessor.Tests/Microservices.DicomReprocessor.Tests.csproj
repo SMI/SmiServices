@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NUnit" Version="3.12.0" />

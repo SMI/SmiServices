@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
 	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="TestDatabases.txt" />

@@ -7,6 +7,7 @@
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <Platforms>x64</Platforms>
 	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />

@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
 	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
