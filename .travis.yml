@@ -1,7 +1,7 @@
 merge_mode: replace
 dist: bionic
 os: linux
-language: minimal
+language: generic
 
 jobs:
   include:
