@@ -65,7 +65,7 @@ jobs:
 
     script:
     - dotnet build --verbosity quiet
-    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test --verbosity normal --no-build
+    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 --verbosity=normal --no-build
     - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
     - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
