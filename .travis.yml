@@ -70,7 +70,7 @@ jobs:
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
     - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
 
-    - if [ -z "$TRAVIS_TAG" ]; then travis_terminate 0; fi
+    - if [ -z "$TRAVIS_TAG" ]; then travis_terminate $TRAVIS_TEST_RESULT; fi
     - mkdir -p ./dist
     - |
       for platform in linux win
