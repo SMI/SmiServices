@@ -1,31 +1,29 @@
-﻿
+﻿using System;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
-using RabbitMQ.Client.Events;
-using System;
+
 
 namespace Microservices.CohortPackager.Messaging
 {
     /// <summary>
     /// Consumer for <see cref="ExtractFileStatusMessage"/>(s)
     /// </summary>
-    public class ExtractFileStatusMessageConsumer : Consumer
+    public class AnonFailedMessageConsumer : Consumer
     {
         private readonly IExtractJobStore _store;
 
 
-        public ExtractFileStatusMessageConsumer(IExtractJobStore store)
+        public AnonFailedMessageConsumer(IExtractJobStore store)
         {
             _store = store;
         }
 
-
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs ea)
         {
-            ExtractFileStatusMessage message;
-            if (!SafeDeserializeToMessage(header, ea, out message))
+            if (!SafeDeserializeToMessage(header, ea, out ExtractFileStatusMessage message))
                 return;
 
             try
@@ -35,7 +33,6 @@ namespace Microservices.CohortPackager.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-
                 ErrorAndNack(header, ea, "Error while processing ExtractFileStatusMessage", e);
                 return;
             }

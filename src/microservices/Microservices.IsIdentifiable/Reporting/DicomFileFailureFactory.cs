@@ -15,7 +15,7 @@ namespace Microservices.IsIdentifiable.Reporting
                 // Some DICOM files do not have SOPInstanceUID
                 resourcePrimaryKey = dcm.Dataset.GetSingleValue<string>(DicomTag.SOPInstanceUID);
             }
-            catch (DicomDataException e)
+            catch (DicomDataException)
             {
                 resourcePrimaryKey = "UnknownPrimaryKey";
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
 using Microservices.IsIdentifiable.Reporting;
@@ -23,6 +24,9 @@ namespace IsIdentifiableReviewer.Out.UpdateStrategies
         protected string GetUpdateWordSql(DiscoveredTable table,
             Dictionary<DiscoveredTable, DiscoveredColumn> primaryKeys, IQuerySyntaxHelper syntax, Failure failure,string word)
         {
+            if(string.IsNullOrEmpty(failure.ResourcePrimaryKey))
+                throw new ArgumentException("Failure record's primary key is blank, cannot update database");
+
             return $@"update {table.GetFullyQualifiedName()} 
                 SET {syntax.EnsureWrapped(failure.ProblemField)} = 
                 REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(word)}', 'SMI_REDACTED')

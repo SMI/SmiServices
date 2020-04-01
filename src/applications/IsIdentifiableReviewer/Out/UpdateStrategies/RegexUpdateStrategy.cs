@@ -33,7 +33,7 @@ namespace IsIdentifiableReviewer.Out.UpdateStrategies
                     var syntax = table.GetQuerySyntaxHelper();
 
                     //update the capture groups of the Regex
-                    return match.Groups.Skip(1).Select(m=>GetUpdateWordSql(table,primaryKeys,syntax,failure,m.Value));
+                    return match.Groups.Cast<Group>().Skip(1).Select(m=>GetUpdateWordSql(table,primaryKeys,syntax,failure,m.Value));
                 }
 
                 //The Regex did not have capture groups or did not match the failure
