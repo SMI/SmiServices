@@ -1,8 +1,13 @@
-﻿
+
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Microservices.CohortExtractor.Audit;
+using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
 using NLog;
+using RabbitMQ.Client.Exceptions;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.Repositories;
@@ -12,10 +17,6 @@ using Smi.Common.Execution;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 
 namespace Microservices.CohortExtractor.Execution
 {
@@ -38,6 +39,7 @@ namespace Microservices.CohortExtractor.Execution
         private IAuditExtractions _auditor;
         private IExtractionRequestFulfiller _fulfiller;
         private IProjectPathResolver _pathResolver;
+        private IProducerModel _fileMessageProducer;
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -71,14 +73,26 @@ namespace Microservices.CohortExtractor.Execution
             foreach (CheckEventArgs args in toMemory.Messages.Where(m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            IProducerModel fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions, isBatch: false);
+            _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions, isBatch: true);
             IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(_fulfiller, _auditor,_pathResolver, fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(_fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
+        }
+
+        public override void Stop(string reason)
+        {
+            if (_fileMessageProducer != null)
+                try
+                {
+                    _fileMessageProducer.WaitForConfirms();
+                }
+                catch (AlreadyClosedException) { /* Ignored */ }
+
+            base.Stop(reason);
         }
 
         /// <summary>

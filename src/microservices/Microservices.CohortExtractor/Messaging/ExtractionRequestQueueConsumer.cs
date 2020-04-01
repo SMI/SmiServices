@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
@@ -73,6 +73,9 @@ namespace Microservices.CohortExtractor.Messaging
                     // Record that we sent it
                     infoMessage.ExtractFileMessagesDispatched.Add(sentHeader, extractFileMessage.OutputPath);
                 }
+
+                // Wait for confirms from the batched messages
+                _fileMessageProducer.WaitForConfirms();
 
                 //for all the rejected messages log why (in the info message)
                 foreach (var rejectedResults in answers.Rejected)
