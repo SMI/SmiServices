@@ -94,6 +94,8 @@ namespace Microservices.CohortExtractor.Messaging
                 infoMessage.KeyValue = matchedFiles.KeyValue;
                 _fileMessageInfoProducer.SendMessage(infoMessage);
 
+                if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel))
+                    _fileMessageInfoProducer.WaitForConfirms();
 
                 Logger.Info($"All messages sent and acknowledged for {matchedFiles.KeyValue}");
             }
