@@ -12,6 +12,7 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using NLog;
 using RabbitMQ.Client.Exceptions;
+using StackExchange.Redis;
 
 
 namespace Microservices.IdentifierMapper.Execution
@@ -50,9 +51,19 @@ namespace Microservices.IdentifierMapper.Execution
                 _swapper = swapper;
             }
 
-            //if we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
-            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisHost))
-                _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisHost, _swapper);
+            // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
+            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisConnectionString))
+                try
+                {
+                    _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisConnectionString, _swapper);
+                }
+                catch (RedisConnectionException e)
+                {
+                    // NOTE(rkm 2020-03-30) Log & throw! I hate this, but if we don't log here using NLog, then the exception will bubble-up
+                    //                      and only be printed to STDERR instead of to the log file and may be lost
+                    Logger.Error(e, "Could not connect to Redis");
+                    throw;
+                }
 
             _swapper.Setup(_consumerOptions);
             Logger.Info($"Swapper of type {_swapper.GetType()} created");

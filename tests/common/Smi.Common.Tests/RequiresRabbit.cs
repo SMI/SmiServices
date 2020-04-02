@@ -12,11 +12,11 @@ namespace Smi.Common.Tests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
                     AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresRabbit : CategoryAttribute, IApplyToContext
+    public class RequiresRabbit : RequiresExternalService, IApplyToContext
     {
         public void ApplyToContext(TestExecutionContext context)
         {
-            
+
             var factory = GetConnectionFactory();
 
             try
@@ -34,14 +34,18 @@ namespace Smi.Common.Tests
             catch (Exception e)
             {
                 StringBuilder sb = new StringBuilder();
-                
-                sb.AppendLine("Rabbit Uri:" + factory.Uri);
-                sb.AppendLine("Rabbit Host:" + factory.HostName);
-                sb.AppendLine("Rabbit VirtualHost:" + factory.VirtualHost);
-                sb.AppendLine("Rabbit UserName:" + factory.UserName);
-                sb.AppendLine("Rabbit Port:" + factory.Port);
 
-                Assert.Ignore($"Could not connect to RabbitMQ {Environment.NewLine + sb + Environment.NewLine} : {e.Message}");
+                sb.AppendLine("Uri:         " + factory.Uri);
+                sb.AppendLine("Host:        " + factory.HostName);
+                sb.AppendLine("VirtualHost: " + factory.VirtualHost);
+                sb.AppendLine("UserName:    " + factory.UserName);
+                sb.AppendLine("Port:        " + factory.Port);
+
+                string msg = $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
+                if (!FailIfUnavailable)
+                    Assert.Ignore(msg);
+                else
+                    Assert.Fail(msg);
             }
         }
 

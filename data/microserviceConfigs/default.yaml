@@ -138,6 +138,7 @@ IdentifierMapperOptions:
     ReplacementColumnName: 'ECHI'
     SwapperType: 'Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper'
     AllowRegexMatching: false
+    RedisConnectionString: ''
 
 MongoDbPopulatorOptions:
     SeriesQueueConsumerOptions:
