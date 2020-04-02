@@ -26,7 +26,7 @@ public class ExtractFileMessageTest extends TestCase {
 
 		super.setUp();
 
-		SmiLogging.Setup(0);
+		SmiLogging.Setup(true);
 		
 		_exMessage = new ExtractFileMessage();
 
