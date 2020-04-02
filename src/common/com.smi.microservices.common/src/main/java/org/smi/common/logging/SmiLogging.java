@@ -37,12 +37,18 @@ public final class SmiLogging {
                 prev=ste.getClassName();
             if (ste.getMethodName()=="main") {
                 prev=ste.getClassName();
-                return prev.substring(prev.lastIndexOf('.')+1);
+                while (prev.indexOf('.')!=-1 && prev.indexOf('.')!=prev.lastIndexOf('.')) {
+                    prev=prev.substring(prev.indexOf('.')+1);
+                }
+                if (prev.indexOf('.')!=-1)
+                    prev=prev.substring(0,prev.indexOf('.'));
+                return prev;
             }
         }
         return prev==null?null:prev.substring(prev.lastIndexOf('.')+1);
     }
-    
+
+
     /**
      * Get the current PID (on Java 9 or later)
      * @return
@@ -62,7 +68,7 @@ public final class SmiLogging {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         // Fallback for elderly JVMs:
         try {
             RuntimeMXBean rt=ManagementFactory.getRuntimeMXBean();
@@ -76,7 +82,7 @@ public final class SmiLogging {
         } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             e.printStackTrace();
         }
-        
+
         return new Random().nextLong();
     }
 
@@ -96,13 +102,13 @@ public final class SmiLogging {
         // Turn off log4j warnings from library code
         Logger l = Logger.getRootLogger();
         l.setLevel(Level.OFF);
-        
+
         PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C{1}| %m%n");
 
         ConsoleAppender ca = new ConsoleAppender();
         ca.setThreshold(testing?Level.ALL:Level.ERROR);
         l.addAppender(ca);
- 
+
         WriterAppender fa = new WriterAppender(pl,new FileWriter(logfile.getAbsolutePath(),true));
         fa.setThreshold(Level.ALL);
         fa.setImmediateFlush(false);
