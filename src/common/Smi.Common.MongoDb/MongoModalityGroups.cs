@@ -22,10 +22,11 @@ namespace Smi.Common.MongoDB
             "NM",
             "OT",
             "PR",
+            "PT",
             "RF",
             "SR",
             "US",
-            "XA"
+            "XA",
         };
 
         /// <summary>

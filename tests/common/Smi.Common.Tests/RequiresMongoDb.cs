@@ -11,7 +11,7 @@ using YamlDotNet.Serialization;
 namespace Smi.Common.Tests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresMongoDb : CategoryAttribute, IApplyToContext
+    public class RequiresMongoDb : RequiresExternalService, IApplyToContext
     {
         public void ApplyToContext(TestExecutionContext context)
         {
@@ -27,7 +27,10 @@ namespace Smi.Common.Tests
             }
             catch (Exception)
             {
-                Assert.Ignore("MongoDb is not running");
+                if (!FailIfUnavailable)
+                    Assert.Ignore("Could not connect to MongoDB");
+                else
+                    Assert.Fail("Could not connect to MongoDB");
             }
         }
 

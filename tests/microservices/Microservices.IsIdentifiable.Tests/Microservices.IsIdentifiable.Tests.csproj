@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>Microservices.IsIdentifiable.Tests</AssemblyTitle>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <Platforms>x64</Platforms>
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>  
   <ItemGroup>
     <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.0.2" />
