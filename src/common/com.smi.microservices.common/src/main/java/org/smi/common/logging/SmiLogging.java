@@ -93,8 +93,9 @@ public final class SmiLogging {
             System.err.println("WARNING: SMI_LOGS_ROOT not set, logging to pwd instead");
             logroot=".";
         }
-        File logdir=new File(logroot+File.separator+getCaller());
-        File logfile=new File(logroot+File.separator+getCaller()+File.separator+df.format(new Date())+"-"+getPid());
+        String caller=getCaller();
+        File logdir=new File(logroot+File.separator+caller);
+        File logfile=new File(logroot+File.separator+caller+File.separator+df.format(new Date())+"-"+getPid());
         if (!logdir.isDirectory()) {
             logdir.mkdirs();
         }
