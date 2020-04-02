@@ -6,8 +6,7 @@ import junit.framework.TestCase;
 
 public class GlobalOptionsTest extends TestCase {
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void testLoad() throws Exception {
         GlobalOptions.Load(true);
     }
 }
