@@ -28,7 +28,7 @@ public class Program {
 
 	public static void main(String[] args) throws ParseException, YAMLException, URISyntaxException, IOException, TimeoutException {
 		
-		SmiLogging.Setup();
+		SmiLogging.Setup(false);
 		Logger logger = LoggerFactory.getLogger(Program.class);
 
 		//TODO Make this into a helper class

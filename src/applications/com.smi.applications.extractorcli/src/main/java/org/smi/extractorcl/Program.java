@@ -22,7 +22,7 @@ public class Program {
 			throws FileNotFoundException, FileProcessingException, LineProcessingException, IOException, ParseException,
 			YAMLException, URISyntaxException, IllegalArgumentException, TimeoutException {
 
-		SmiLogging.Setup();
+		SmiLogging.Setup(false);
 		final Logger logger = LoggerFactory.getLogger(Program.class);
 
 		CommandLine parsedArgs = ParseOptions(args);

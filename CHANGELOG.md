@@ -6,15 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- \[Breaking\] Promote the PT modality to its own collection in MongoDB
+- \[Breaking\] Renamed `RedisHost` to `RedisConnectionString` in the config options for clarity
+- Update to .Net Core 3.1 (supported until Dec 2022) since 2.2 support ended last year
+
+## [1.7.0] - 2020-03-30
+
 ### Added
 
 - Added undo feature to IsIdentifiableReviewer
+- Java microservices now log to SMI_LOGS_ROOT
 
 ### Changed
 
 - Upgraded HIC.DicomTypeTranslation from `2.1.2` to `2.2.0`
   - This includes an upgrade to fo-dicom from `4.0.1` to `4.0.4`
 - Upgraded fo-dicom.Drawing from `4.0.1` to `4.0.4`
+- Upgraded HIC.RdmpDicom from `2.0.7` to `2.0.8`
 
 ## [1.6.0] - 2020-03-17
 
@@ -237,7 +245,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.6.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.7.0...develop
+[1.7.0]:  https://github.com/SMI/SmiServices/compare/v1.6.0...v1.7.0
 [1.6.0]:  https://github.com/SMI/SmiServices/compare/v1.5.2...v1.6.0
 [1.5.2]:  https://github.com/SMI/SmiServices/compare/v1.5.1...v1.5.2
 [1.5.1]:  https://github.com/SMI/SmiServices/compare/v1.5.0...v1.5.1
