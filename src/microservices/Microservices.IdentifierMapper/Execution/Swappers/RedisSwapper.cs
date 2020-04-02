@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
@@ -23,13 +23,18 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         {
             SizeLimit = 1024
         });
+
         private ConcurrentDictionary<object, SemaphoreSlim> _locks = new ConcurrentDictionary<object, SemaphoreSlim>();
+
+        private readonly ILogger _logger;
 
         public RedisSwapper(string redisHost, ISwapIdentifiers wrappedSwapper)
         {
+            _logger = LogManager.GetCurrentClassLogger();
             _redis = ConnectionMultiplexer.Connect(redisHost);
             _hostedSwapper = wrappedSwapper;
         }
+
         public override void Setup(IMappingTableOptions mappingTableOptions)
         {
             _hostedSwapper.Setup(mappingTableOptions);
@@ -56,12 +61,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                         if (val.HasValue)
                         {
                             result = val.ToString();
-                            CacheHit++;
+                            Interlocked.Increment(ref CacheHit);
                         }
                         else
                         {
                             //we have no cached answer from Redis
-                            CacheMiss++;
+                            Interlocked.Increment(ref CacheMiss);
 
                             //Go to the hosted swapper
                             lock(_hostedSwapper)
@@ -85,7 +90,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             }
             else
             {
-                CacheHit++;
+                Interlocked.Increment(ref CacheHit);
             }
 
             if (string.Equals(NullString, result))
@@ -95,9 +100,13 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             }
 
             if (result == null)
-                Fail++;
+                Interlocked.Increment(ref Fail);
             else
-                Success++;
+            {
+                int res = Interlocked.Increment(ref Success);
+                if (res % 1000 == 0)
+                    LogProgress(_logger, LogLevel.Info);
+            }
 
             return result;
         }

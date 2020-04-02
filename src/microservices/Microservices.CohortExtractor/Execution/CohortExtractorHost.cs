@@ -14,6 +14,8 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 
 namespace Microservices.CohortExtractor.Execution
 {
@@ -35,6 +37,7 @@ namespace Microservices.CohortExtractor.Execution
 
         private IAuditExtractions _auditor;
         private IExtractionRequestFulfiller _fulfiller;
+        private IProjectPathResolver _pathResolver;
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -44,7 +47,7 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Microservices.NLog.config" of the current directory)</param>
         public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = options.CohortExtractorOptions;
             _consumerOptions.Validate();
@@ -68,14 +71,14 @@ namespace Microservices.CohortExtractor.Execution
             foreach (CheckEventArgs args in toMemory.Messages.Where(m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            IProducerModel fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions);
-            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions);
+            IProducerModel fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions, isBatch: false);
+            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(_fulfiller, _auditor, fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(_fulfiller, _auditor,_pathResolver, fileMessageProducer, fileMessageInfoProducer);
 
-            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer);
+            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         /// <summary>
@@ -108,6 +111,17 @@ namespace Microservices.CohortExtractor.Execution
 
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
+                _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
+                _fulfiller.Rejector = ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly);
+
+            if(!string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType))
+                _pathResolver = ObjectFactory.CreateInstance<IProjectPathResolver>(_consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly,repositoryLocator);
+            else
+                _pathResolver = new DefaultProjectPathResolver();
         }
     }
 }

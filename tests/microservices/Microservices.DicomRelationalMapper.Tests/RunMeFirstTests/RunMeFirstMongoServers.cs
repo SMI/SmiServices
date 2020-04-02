@@ -25,7 +25,7 @@ namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + rabbitOptions);
             try
             {
-                var adapter = new RabbitMqAdapter(rabbitOptions, "TestHost");
+                var adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
             }
             catch (Exception)
             {

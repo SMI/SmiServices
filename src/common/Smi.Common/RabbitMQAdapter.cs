@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace Smi.Common
     /// <summary>
     /// Adapter for the RabbitMQ API.
     /// </summary>
-    public class RabbitMqAdapter
+    public class RabbitMqAdapter : IRabbitMqAdapter
     {
         /// <summary>
         /// Used to ensure we can't create any new connections after we have called Shutdown()
@@ -40,13 +40,14 @@ namespace Smi.Common
         public const string RabbitMqRoutingKey_MatchAnything = "#";
         public const string RabbitMqRoutingKey_MatchOneWord = "*";
 
+        public static TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly HostFatalHandler _hostFatalHandler;
         private readonly string _hostId;
 
-        private readonly ConnectionFactory _factory;
+        private readonly IConnectionFactory _factory;
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new Dictionary<Guid, RabbitResources>();
         private readonly object _oResourceLock = new object();
 
@@ -56,35 +57,33 @@ namespace Smi.Common
 
         private const int MaxSubscriptionAttempts = 5;
 
-        private bool threaded;
+        private readonly bool _threaded;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="options">Connection parameters to a RabbitMQ server</param>
+        /// <param name="connectionFactory"></param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
-        public RabbitMqAdapter(RabbitOptions options, string hostId, HostFatalHandler hostFatalHandler = null)
+        /// <param name="threaded"></param>
+        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
         {
-            threaded = options.ThreadReceivers;
-            if (threaded)
+            //_threaded = options.ThreadReceivers;
+            _threaded = threaded;
+
+            if (_threaded)
             {
                 int minWorker, minIOC;
                 ThreadPool.GetMinThreads(out minWorker, out minIOC);
                 int workers = Math.Max(50, minWorker);
-                ThreadPool.SetMaxThreads(workers, 50);
-                _logger.Info($"Set Rabbit event concurrency to {workers}");
+                if (ThreadPool.SetMaxThreads(workers, 50))
+                    _logger.Info($"Set Rabbit event concurrency to ({workers},50)");
+                else
+                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
             }
 
-            _factory = new ConnectionFactory
-            {
-                HostName = options.RabbitMqHostName,
-                VirtualHost = options.RabbitMqVirtualHost,
-                Port = options.RabbitMqHostPort,
-                UserName = options.RabbitMqUserName,
-                Password = options.RabbitMqPassword
-            };
-
+            _factory = connectionFactory;
+            
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("hostId");
 
@@ -111,6 +110,9 @@ namespace Smi.Common
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
+            if (consumerOptions == null)
+                throw new ArgumentNullException(nameof(consumerOptions));
+
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
@@ -119,8 +121,8 @@ namespace Smi.Common
 
             IConnection connection = _factory.CreateConnection(label);
 
-            connection.ConnectionBlocked += (s, a) => _logger.Warn("ConnectionBlocked for " + consumerOptions.QueueName + " ( Reason: " + a.Reason + ")");
-            connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked for " + consumerOptions.QueueName);
+            connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked for {consumerOptions.QueueName} ( Reason: {a.Reason})");
+            connection.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked for {consumerOptions.QueueName}");
 
             IModel model = connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
@@ -137,7 +139,7 @@ namespace Smi.Common
                 model.Close(200, "StartConsumer - Queue missing");
                 connection.Close(200, "StartConsumer - Queue missing");
 
-                throw new ApplicationException("Expected queue \"" + consumerOptions.QueueName + "\" to exist", e);
+                throw new ApplicationException($"Expected queue \"{consumerOptions.QueueName}\" to exist", e);
             }
 
             if (isSolo && model.ConsumerCount(consumerOptions.QueueName) > 0)
@@ -145,7 +147,7 @@ namespace Smi.Common
                 model.Close(200, "StartConsumer - Already a consumer on the queue");
                 connection.Close(200, "StartConsumer - Already a consumer on the queue");
 
-                throw new ApplicationException("Already a consumer on queue " + consumerOptions.QueueName + " and solo consumer was specified");
+                throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
             Subscription subscription = null;
@@ -173,7 +175,7 @@ namespace Smi.Common
                 catch (OperationInterruptedException e)
                 {
                     throw new ApplicationException(
-                        "Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
+                        $"Error when creating subscription on queue \"{consumerOptions.QueueName}\"", e);
                 }
                 finally
                 {
@@ -206,22 +208,22 @@ namespace Smi.Common
 
             consumer.OnFatal += (s, e) =>
             {
-                resources.Shutdown();
+                resources.Shutdown(DefaultOperationTimeout);
                 _hostFatalHandler(s, e);
             };
 
             consumerTask.Start();
-            _logger.Debug($"Consumer task started [ID={consumerTask.Id}]");
+            _logger.Debug($"Consumer task started [QueueName={subscription?.QueueName}]");
 
             return taskId;
         }
-
+        
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="taskId"></param>
         /// <param name="timeout"></param>
-        public void StopConsumer(Guid taskId, int timeout = 5000)
+        public void StopConsumer(Guid taskId, TimeSpan timeout)
         {
             if (ShutdownCalled)
                 return;
@@ -234,7 +236,7 @@ namespace Smi.Common
                 var res = (ConsumerResources)_rabbitResources[taskId];
 
                 if (!res.Shutdown(timeout))
-                    throw new ApplicationException("Consume task did not exit in time: " + res.Subscription.ConsumerTag);
+                    throw new ApplicationException($"Consume task did not exit in time: {res.Subscription.ConsumerTag}");
 
                 _rabbitResources.Remove(taskId);
             }
@@ -272,7 +274,7 @@ namespace Smi.Common
                 model.Close(200, "SetupProducer - Exchange missing");
                 connection.Close(200, "SetupProducer - Exchange missing");
 
-                throw new ApplicationException("Expected exchange \"" + producerOptions.ExchangeName + "\" to exist", e);
+                throw new ApplicationException($"Expected exchange \"{producerOptions.ExchangeName}\" to exist", e);
             }
 
             IBasicProperties props = model.CreateBasicProperties();
@@ -348,7 +350,7 @@ namespace Smi.Common
         /// Close all open connections and stop any consumers
         /// </summary>
         /// <param name="timeout">Max time given for each consumer to exit</param>
-        public void Shutdown(int timeout = 5000)
+        public void Shutdown(TimeSpan timeout)
         {
             if (ShutdownCalled)
                 return;
@@ -376,7 +378,7 @@ namespace Smi.Common
                 }
 
                 if (!exitOk)
-                    throw new ApplicationException("Some consumer tasks did not exit in time: " + string.Join(", ", failedToExit));
+                    throw new ApplicationException($"Some consumer tasks did not exit in time: {string.Join(", ", failedToExit)}");
 
                 _rabbitResources.Clear();
             }
@@ -390,6 +392,7 @@ namespace Smi.Common
         /// <param name="cancellationToken"></param>
         private void Consume(ISubscription subscription, IConsumer consumer, CancellationToken cancellationToken)
         {
+            ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
             IModel m = subscription.Model;
             consumer.SetModel(m);
 
@@ -399,12 +402,36 @@ namespace Smi.Common
 
                 if (subscription.Next(500, out e))
                 {
-                    if (threaded)
-                        Task.Run(() => consumer.ProcessMessage(e));
+                    if (_threaded)
+                    {
+                        Task.Run(() =>
+                        {
+                            worklock.EnterReadLock();
+                            try
+                            {
+                                consumer.ProcessMessage(e);
+                            }
+                            finally
+                            {
+                                worklock.ExitReadLock();
+                            }
+                        }, cancellationToken);
+                    }
                     else
                         consumer.ProcessMessage(e);
                 }
             }
+            if (_threaded)
+            {
+                // Taking a write lock means waiting for all read locks to
+                // release, i.e. all workers have finished
+                worklock.EnterWriteLock();
+
+                // Now there are no *new* messages being processed, flush the queue
+                consumer.Shutdown();
+                worklock.ExitWriteLock();
+            }
+            worklock.Dispose();
 
             string reason = "unknown";
 
@@ -442,14 +469,13 @@ namespace Smi.Common
                         version, MinRabbitServerVersionMajor, MinRabbitServerVersionMinor, MinRabbitServerVersionPatch));
                     }
 
-                    _logger.Debug("Connected to RabbitMQ server version " + version);
+                    _logger.Debug($"Connected to RabbitMQ server version {version}");
                 }
             }
             catch (BrokerUnreachableException e)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine($"    HostName:                       {_factory.HostName}");
-                sb.AppendLine($"    Port:                           {_factory.Port}");
+                sb.AppendLine($"    URI:                            {_factory.Uri}");
                 sb.AppendLine($"    UserName:                       {_factory.UserName}");
                 sb.AppendLine($"    VirtualHost:                    {_factory.VirtualHost}");
                 sb.AppendLine($"    HandshakeContinuationTimeout:   {_factory.HandshakeContinuationTimeout}");
@@ -503,7 +529,7 @@ namespace Smi.Common
             public ISubscription Subscription { get; set; }
 
 
-            public bool Shutdown(int timeout = 5000)
+            public bool Shutdown(TimeSpan timeout)
             {
                 bool exitOk;
                 lock (OResourceLock)
@@ -518,7 +544,7 @@ namespace Smi.Common
                     Dispose();
                 }
 
-                Logger.Debug($"Consumer task shutdown [ID={ConsumerTask.Id}]");
+                Logger.Debug($"Consumer task shutdown [QueueName={Subscription.QueueName}]");
 
                 return exitOk;
             }

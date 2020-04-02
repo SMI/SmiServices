@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting;
 using NLog;
@@ -49,7 +49,10 @@ namespace Microservices.IsIdentifiable.Runners
 
                 var reader = cmd.ExecuteReader();
 
-                foreach (Reporting.Failure failure in reader.Cast<DbDataRecord>().AsParallel().SelectMany(GetFailuresIfAny))
+                // The query can run in parallel, configure using ISIDENTIFIABLE_NUMTHREADS env var
+                // XXX default is single-threaded because it breaks during NERd otherwise.
+                int numThreads = int.Parse(Environment.GetEnvironmentVariable("ISIDENTIFIABLE_NUMTHREADS") ?? "1");
+                foreach (Reporting.Failure failure in reader.Cast<DbDataRecord>().AsParallel().WithDegreeOfParallelism(numThreads).SelectMany(GetFailuresIfAny))
                     AddToReports(failure);
 
                 CloseReports();
@@ -75,7 +78,12 @@ namespace Microservices.IsIdentifiable.Runners
                     var parts = new List<FailurePart>();
 
                     foreach (string part in asString.Split('\\'))
-                        parts.AddRange(Validate(_columnsNames[i], part));
+                    {
+                        // Some strings contain null characters?!  Remove them all.
+                        // XXX hopefully this won't break any special character encoding (eg. UTF)
+                        string partCleaned = part.Replace("\0", "");
+                        parts.AddRange(Validate(_columnsNames[i], partCleaned));
+                    }
 
                     if (parts.Any())
                         yield return _factory.Create(_columnsNames[i], asString, parts, primaryKey);

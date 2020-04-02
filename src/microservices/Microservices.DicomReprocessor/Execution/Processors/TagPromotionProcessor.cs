@@ -1,4 +1,4 @@
-﻿using Smi.Common.Messaging;
+using Smi.Common.Messaging;
 using Smi.Common.Options;
 using MongoDB.Bson;
 using NLog;
@@ -46,6 +46,11 @@ namespace Microservices.DicomReprocessor.Execution.Processors
         }
 
         public void SendMessages()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LogProgress()
         {
             throw new NotImplementedException();
         }

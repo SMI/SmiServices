@@ -1,6 +1,6 @@
 ﻿
-using Newtonsoft.Json;
 using System;
+using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
 {
@@ -12,9 +12,17 @@ namespace Smi.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public int KeyValueCount { get; set; }
 
+        [JsonProperty(Required = Required.Default)]
+        public string ExtractionModality { get; set; }
+
 
         [JsonConstructor]
         public ExtractionRequestInfoMessage() { }
+
+        public override string ToString()
+        {
+            return base.ToString() + $",KeyTag={KeyTag},KeyValueCount={KeyValueCount},ExtractionModality={ExtractionModality}";
+        }
 
 
         #region Equality Members
@@ -26,7 +34,8 @@ namespace Smi.Common.Messages.Extraction
 
             return base.Equals(other) &&
                    string.Equals(KeyTag, other.KeyTag) &&
-                   KeyValueCount == other.KeyValueCount;
+                   KeyValueCount == other.KeyValueCount &&
+                   ExtractionModality == other.ExtractionModality;
         }
 
         public override bool Equals(object obj)
@@ -44,6 +53,7 @@ namespace Smi.Common.Messages.Extraction
                 int hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ (KeyTag != null ? KeyTag.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ KeyValueCount;
+                hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
                 return hashCode;
             }
         }

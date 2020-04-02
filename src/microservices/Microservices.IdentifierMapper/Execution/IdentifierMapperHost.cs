@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -12,6 +12,7 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using NLog;
 using RabbitMQ.Client.Exceptions;
+using StackExchange.Redis;
 
 
 namespace Microservices.IdentifierMapper.Execution
@@ -30,7 +31,7 @@ namespace Microservices.IdentifierMapper.Execution
 
 
         public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = options.IdentifierMapperOptions;
 
@@ -50,26 +51,25 @@ namespace Microservices.IdentifierMapper.Execution
                 _swapper = swapper;
             }
 
-            //if we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
-            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisHost))
-                _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisHost, _swapper);
-            
-            Logger.Info("Calling Setup on swapper");
+            // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
+            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisConnectionString))
+                try
+                {
+                    _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisConnectionString, _swapper);
+                }
+                catch (RedisConnectionException e)
+                {
+                    // NOTE(rkm 2020-03-30) Log & throw! I hate this, but if we don't log here using NLog, then the exception will bubble-up
+                    //                      and only be printed to STDERR instead of to the log file and may be lost
+                    Logger.Error(e, "Could not connect to Redis");
+                    throw;
+                }
 
-            try
-            {
-                _swapper.Setup(_consumerOptions);
-            }
-            catch (Exception e)
-            {
-                Logger.Fatal(e, "Failed to setup swapper");
-                throw;
-            }
+            _swapper.Setup(_consumerOptions);
+            Logger.Info($"Swapper of type {_swapper.GetType()} created");
 
-            //TODO Probably want to run this in one of two modes:
-            //TODO 1) "Batch" -> Preload whole mapping table, process messages in batches (with batch consumer). Can't scale this horizontally (more services running)
-            //TODO 2) "Stream" -> Query the database for a swap value for each message as it comes in (with a small cache), produce single messages
-            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: false);
+            // Batching now handled implicitly as backlog demands
+            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: true);
 
             Consumer = new IdentifierMapperQueueConsumer(_producerModel, _swapper)
             {
@@ -82,13 +82,13 @@ namespace Microservices.IdentifierMapper.Execution
 
         public override void Start()
         {
-            _consumerId = RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer);
+            _consumerId = RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)
         {
             if (_consumerId != Guid.Empty)
-                RabbitMqAdapter.StopConsumer(_consumerId);
+                RabbitMqAdapter.StopConsumer(_consumerId, Smi.Common.RabbitMqAdapter.DefaultOperationTimeout);
             try
             {
                 // Wait for any unconfirmed messages before calling stop

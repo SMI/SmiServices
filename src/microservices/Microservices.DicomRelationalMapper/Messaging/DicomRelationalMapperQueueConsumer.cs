@@ -78,7 +78,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             _minimumBatchSize = options.MinimumBatchSize;
             _useInsertIntoForRawMigration = options.UseInsertIntoForRAWMigration;
             _retryOnFailureCount = options.RetryOnFailureCount;
-            _retryDelayInSeconds = options.RetryDelayInSeconds;
+            _retryDelayInSeconds = Math.Max(10,options.RetryDelayInSeconds);
             _maximumRunDelayInSeconds = new TimeSpan(0, 0, 0, options.MaximumRunDelayInSeconds <= 0 ? 15 : 0);
 
             StartDleRunnerTask();
@@ -220,6 +220,9 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
                 // We last ran now!
                 _lastRanDle = DateTime.Now;
+                
+                //reset the progress e.g. if we crashed later on in the load
+                datasetProvider.ResetProgress();
 
                 try
                 {
@@ -233,8 +236,13 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
                     if (remainingRetries > 0)
                     {
-                        Logger.Info("Sleeping " + _retryDelayInSeconds + "s after failure");
-                        Task.Delay(new TimeSpan(0, 0, 0, _retryDelayInSeconds)).Wait();
+                        //wait a random length of time averaging the _retryDelayInSeconds to avoid retrying at the same time as other processes
+                        //where there is resource contention that results in simultaneous failures.
+                        var r = new Random();
+                        var wait = r.Next(_retryDelayInSeconds * 2);
+                        
+                        Logger.Info("Sleeping " + wait + "s after failure");
+                        Task.Delay(new TimeSpan(0, 0, 0, wait)).Wait();
 
                         if (RunChecks)
                         {

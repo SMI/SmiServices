@@ -6,6 +6,7 @@
     <Platforms>x64</Platforms>
     <IsPublishable>false</IsPublishable>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />

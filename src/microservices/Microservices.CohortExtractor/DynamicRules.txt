@@ -1,0 +1,20 @@
+﻿// This script is run when the IRejector is set to DynamicRejector ('#' symbols are not supported in this script, use CSharp syntax)
+
+if (!System.Convert.ToBoolean(row["IsOriginal"]))
+{
+    return "ImageType is not ORIGINAL";
+}
+
+if (!System.Convert.ToBoolean(row["IsPrimary"]))
+{
+    return "ImageType is not PRIMARY";
+}
+
+//if the image is not extractable
+if (!System.Convert.ToBoolean(row["IsExtractableToDisk"]))
+{
+    //tell them why and reject it
+    return row["IsExtractableToDisk_Reason"] as string;
+}
+
+return null;

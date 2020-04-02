@@ -5,9 +5,9 @@ using Microservices.IsIdentifiable.Reporting.Destinations;
 
 namespace Microservices.IsIdentifiable.Reporting.Reports
 {
-    internal abstract class FailureReport : IFailureReport
+    public abstract class FailureReport : IFailureReport
     {
-        private readonly string _reportName;
+        public readonly string _reportName;
 
         public List<IReportDestination> Destinations = new List<IReportDestination>();
 

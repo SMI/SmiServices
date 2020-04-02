@@ -1,4 +1,4 @@
-﻿
+
 using Dicom;
 using DicomTypeTranslation;
 using MongoDB.Bson;
@@ -128,6 +128,8 @@ namespace Microservices.DicomReprocessor.Execution.Processors
                 _messageBuffer.Clear();
             }
         }
+
+        public void LogProgress() => _logger.Info($"Total messages sent: {TotalProcessed}. Total failed to reprocess: {TotalFailed}");
 
         private void LogUnprocessedDocument(string documentId, Exception e)
         {
