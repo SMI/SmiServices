@@ -37,20 +37,12 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
 
             // TODO Pull out common parts of test setup/teardown into separate class that all runner tests can use
 
-            
-            var f = new FileInfo(NerEngineTests.ClassifierPath);
-
-            if (!f.Exists)
-                Assert.Inconclusive("File did not exist " + f);
-
             _options = new IsIdentifiableMongoOptions()
             {
                 HostName = DEFAULT_HOSTNAME,
                 Port = DEFAULT_PORT,
                 DatabaseName = "IsIdentifiableTests",
-
-                PathToNerClassifier = f.FullName,
-
+                
                 StoreReport = true,
                 TreeReport = true,
 

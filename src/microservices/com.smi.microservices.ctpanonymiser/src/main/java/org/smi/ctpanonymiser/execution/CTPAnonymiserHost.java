@@ -63,12 +63,9 @@ public class CTPAnonymiserHost implements IMicroserviceHost {
 		// Build the SMI Anonymiser tool
 		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).buildDat();
 
-		final String routingKey = "";
-
 		_consumer = new CTPAnonymiserConsumer(
 				_producer,
 				anonTool,
-				routingKey,
 				fsRoot,
 				exRoot);
 

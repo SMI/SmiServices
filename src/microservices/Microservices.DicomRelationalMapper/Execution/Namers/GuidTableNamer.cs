@@ -13,7 +13,6 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
     public class GuidTableNamer : FixedStagingDatabaseNamer
     {
         private readonly string _guid;
-        private DiscoveredDatabase _stagingDatabase;
 
         /// <summary>
         /// Defines how to name RAW and Staging tables by appending a Guid.  You can pass a specific guid if you want or pass Guid.Empty to 

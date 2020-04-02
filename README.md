@@ -1,10 +1,9 @@
 
-
 [![Build Status](https://travis-ci.com/SMI/SmiServices.svg?branch=master)](https://travis-ci.com/SMI/SmiServices)
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-Version: `1.2.3`
+Version: `1.7.0`
 
 # SMI Services
 
@@ -91,10 +90,19 @@ Appart from the Microservices (documented above) the following library classes a
 Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
 
 ```bash
-dotnet build [-r RID]
+$ dotnet build [-r RID]
 ```
 
-_To build other OS substitute the respective [runtime identifier](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) e.g. linux-x64_
+_The RID argument is optional. Use this if you want to build for a different platform e.g. `-r linux-x64` to build for Linux from a Windows machine. See [here](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog) for more info on runtime identifiers._
+
+To build an individual sub-project:
+
+```bash
+$ cd src/microservices/Microservices.DicomTagReader/
+$ dotnet build
+```
+
+This will automatically rebuild any dependent projects which have changes as well.
 
 ### Building the Java Projects
 
@@ -104,25 +112,31 @@ The CTP dependency first needs to be manually installed:
 
 - Linux
 
-```shell
-> cd lib/java/
-> ./installDat.sh
+```bash
+$ cd lib/java/
+$ ./installDat.sh
 ```
 
 - Windows
 
-```shell
-> cd lib\java\
-> .\installDat.bat
+```bash
+$ cd lib\java\
+$ .\installDat.bat
 ```
 
-The projects can then be built by returning to the top level directory and running:
+The projects can then be built and tested by returning to the top level directory and running:
 
-```shell
-> mvn -f src/common/com.smi.microservices.parent/pom.xml clean install
+```bash
+$ mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
 ```
 
-This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test sutie can be skipped by passing `-DskipTests`.
+This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test suite can be skipped by instead running `compile`, or by passing `-DskipTests`.
+
+To build a single project and its dependencies, you can do:
+
+```bash
+$ mvn -f src/common/com.smi.microservices.parent/pom.xml test -pl com.smi.microservices:extractorcli -am
+```
 
 Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
 

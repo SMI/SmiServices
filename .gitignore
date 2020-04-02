@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# XXX abrooks added
+*.dll
+
 # User-specific files
 *.suo
 *.user
@@ -305,3 +308,9 @@ dist/
 
 global.json
 
+.settings/
+.project
+.classpath
+
+.vscode/
+venv/

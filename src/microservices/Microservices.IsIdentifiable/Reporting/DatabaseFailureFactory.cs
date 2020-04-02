@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Failure;
+using Microservices.IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Reporting
 {

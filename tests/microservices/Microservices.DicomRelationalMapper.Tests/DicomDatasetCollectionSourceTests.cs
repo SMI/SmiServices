@@ -55,8 +55,10 @@ namespace Microservices.Tests.RDMPTests
         public void TestStringTooLong(DataTooWideHandling strategy)
         {
             var ds = new DicomDataset();
-            
+
+#pragma warning disable CS0618 // Obsolete
             ds.AutoValidate = false;
+#pragma warning restore CS0618
 
             ds.AddOrUpdate(DicomTag.AccessionNumber, "1342340123129473279427572495349757459347839479375974");
             ds.GetValues<string>(DicomTag.AccessionNumber);

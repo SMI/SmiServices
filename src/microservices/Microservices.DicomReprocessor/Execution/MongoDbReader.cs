@@ -86,7 +86,7 @@ namespace Microservices.DicomReprocessor.Execution
                     if (key == null || !key.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");
-                        return default;
+                        return default(TimeSpan);
                     }
 
                     _logger.Info("User chose to continue with query execution");
@@ -94,6 +94,7 @@ namespace Microservices.DicomReprocessor.Execution
 
                 _logger.Info("Starting reprocess operation");
                 start = DateTime.Now;
+                var totalBatches = 0;
 
                 //Note: Can only check for the cancellation request every time we start to process a new batch
                 while (await cursor.MoveNextAsync() && !_tokenSource.IsCancellationRequested)
@@ -113,6 +114,9 @@ namespace Microservices.DicomReprocessor.Execution
                     _logger.Debug("Batch converted to messages, count was: " + batchCount);
 
                     processor.SendMessages();
+
+                    if (++totalBatches % 100 == 0)
+                        processor.LogProgress();
 
                     _logger.Debug($"Batch processed, sleeping for {options.SleepTime.TotalMilliseconds}ms");
                     Thread.Sleep(options.SleepTime);

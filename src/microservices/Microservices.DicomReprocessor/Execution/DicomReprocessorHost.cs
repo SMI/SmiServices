@@ -20,7 +20,7 @@ namespace Microservices.DicomReprocessor.Execution
 
 
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig)
+            : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             string key = cliOptions.ReprocessingRoutingKey;
 
@@ -66,11 +66,10 @@ namespace Microservices.DicomReprocessor.Execution
 
             if (_processor.TotalProcessed == 0)
                 Logger.Warn("Nothing reprocessed");
-
-            Logger.Info("Total messages sent: " + _processor.TotalProcessed);
-            Logger.Info("Total failed to reprocess : " + _processor.TotalFailed);
-
-            if (queryTime != default)
+            else
+                _processor.LogProgress();
+            
+            if (queryTime != default(TimeSpan))
                 Logger.Info("Average documents processed per second: " + Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds));
 
             // Only call stop if we exited normally

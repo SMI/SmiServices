@@ -18,7 +18,7 @@ namespace Microservices.DeadLetterReprocessor.Execution
         private readonly DeadLetterReprocessorCliOptions _cliOptions;
 
         public DeadLetterReprocessorHost(GlobalOptions globals, DeadLetterReprocessorCliOptions cliOptions, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig)
+            : base(globals, loadSmiLogConfig: loadSmiLogConfig)
         {
             var deadLetterStore = new MongoDeadLetterStore(globals.MongoDatabases.DeadLetterStoreOptions, Globals.RabbitOptions.RabbitMqVirtualHost);
 
@@ -41,7 +41,7 @@ namespace Microservices.DeadLetterReprocessor.Execution
                 
 
             Logger.Info("DLQ empty, stopping consumer");
-            RabbitMqAdapter.StopConsumer(consumerId);
+            RabbitMqAdapter.StopConsumer(consumerId, Smi.Common.RabbitMqAdapter.DefaultOperationTimeout);
 
             if (_cliOptions.StoreOnly)
             {

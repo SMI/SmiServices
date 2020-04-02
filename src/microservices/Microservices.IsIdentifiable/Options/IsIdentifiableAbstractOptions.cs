@@ -5,9 +5,7 @@ namespace Microservices.IsIdentifiable.Options
 {
     public abstract class IsIdentifiableAbstractOptions
     {
-        [Option('c', HelpText = "Path to the Stanford NER classifier data file used to find identifiable data in text (e.g. names).", Required = true)]
-        public string PathToNerClassifier { get; set; }
-
+        
         [Option(HelpText = "Optional. Full connection string to the database storing the whitelist of valid entries")]
         public string WhitelistConnectionString { get; set; }
 
@@ -58,7 +56,13 @@ namespace Microservices.IsIdentifiable.Options
 
         [Option(HelpText = "Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data", Default = 10000)]
         public int MaxCacheSize { get; set; }
-        
+
+        [Option(HelpText = "Optional. Filename of additional rules in yaml format.")]
+        public string RulesFile { get; set; }
+
+        [Option(HelpText = "Optional. Directory of additional rules in yaml format.")]
+        public string RulesDirectory { get; set; }
+
         /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
         /// for naming output reports e.g. "biochemistry" , "mydir" etc

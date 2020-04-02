@@ -1,4 +1,3 @@
-﻿
 using Dicom;
 using DicomTypeTranslation;
 using Microservices.IdentifierMapper.Execution.Swappers;
@@ -6,7 +5,10 @@ using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Microservices.IdentifierMapper.Messaging
 {
@@ -19,11 +21,57 @@ namespace Microservices.IdentifierMapper.Messaging
 
         private readonly Regex _patientIdRegex = new Regex("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
+        BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,BasicDeliverEventArgs>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, BasicDeliverEventArgs>>();
+        private Thread acker;
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
         {
             _producer = producer;
             _swapper = swapper;
+            acker=new Thread(() =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
+                        Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
+                        t = msgq.Take();
+
+                        lock (_producer)
+                        {
+                            _producer.SendMessage(t.Item1, t.Item2, "");
+                            done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                            while (msgq.TryTake(out t))
+                            {
+                                _producer.SendMessage(t.Item1, t.Item2, "");
+                                done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                            }
+                            _producer.WaitForConfirms();
+                            foreach (var ack in done)
+                            {
+                                Ack(ack.Item1, ack.Item2);
+                            }
+                        }
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    // The BlockingCollection will throw this exception when closed by Shutdown()
+                    return;
+                }
+            });
+            acker.IsBackground = true;
+            acker.Start();
+        }
+
+        /// <summary>
+        /// Cleanly shut this process down, draining the Ack queue and ending that thread
+        /// </summary>
+        public override void Shutdown()
+        {
+            msgq.CompleteAdding();
+            acker.Join();
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
@@ -69,10 +117,8 @@ namespace Microservices.IdentifierMapper.Messaging
             }
             else
             {
-                // Now ship it to the exchange
-                _producer.SendMessage(msg, header);
-
-                Ack(header, deliverArgs);
+                // Enqueue the outgoing message. Request will be acked by the queue handling thread above.
+                msgq.Add(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
             }
         }
 
