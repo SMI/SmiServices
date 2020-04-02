@@ -53,7 +53,7 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
                 _headerWritten = true;
 
                 var csvFile = new FileInfo(_reportPath);
-                _csvWriter = new CsvWriter(new StreamWriter(csvFile.FullName));
+                _csvWriter = new CsvWriter(new StreamWriter(csvFile.FullName),System.Globalization.CultureInfo.CurrentCulture);
 
                 // If there is an overriding separator and it's not a comma, then use the users desired delimiter string
                 string sep = Options.DestinationCsvSeparator;
