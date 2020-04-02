@@ -29,5 +29,5 @@
 | System.IO.FileSystem | [GitHub](https://github.com/dotnet/corefx) | [4.3.0](https://www.nuget.org/packages/System.IO.FileSystem/4.3.0) |[MIT](https://opensource.org/licenses/MIT)  | File I/O | |
 | System.Security.AccessControl | [GitHub](https://github.com/dotnet/corefx) | [4.7.0](https://www.nuget.org/packages/System.Security.AccessControl/4.7.0) |[MIT](https://opensource.org/licenses/MIT)  | File access perimssions| |
 | Tesseract | [GitHub](https://github.com/charlesw/tesseract/) | [4.1.0-beta1](https://www.nuget.org/packages/Tesseract/4.1.0-beta1) |[Apache License v2](https://github.com/charlesw/tesseract/blob/master/LICENSE.txt)  | Optical Character Recognition in Dicom Pixel data| |
-| YamlDotNet | [GitHub](https://github.com/aaubry/YamlDotNet)  | [6.0.0](https://www.nuget.org/packages/YamlDotNet/6.0.0) | [MIT](https://opensource.org/licenses/MIT) |Loading configuration files|
+| YamlDotNet | [GitHub](https://github.com/aaubry/YamlDotNet)  | [8.1.0](https://www.nuget.org/packages/YamlDotNet/8.1.0) | [MIT](https://opensource.org/licenses/MIT) |Loading configuration files|
 | fo-dicom.Drawing | [GitHub](https://github.com/fo-dicom/fo-dicom) | [4.0.4](https://www.nuget.org/packages/fo-Dicom.Drawing/4.0.4) | [MS-PL](https://opensource.org/licenses/MS-PL)| Support library for reading DICOM pixel data | |
