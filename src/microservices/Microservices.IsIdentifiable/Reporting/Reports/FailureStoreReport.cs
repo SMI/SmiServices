@@ -82,7 +82,7 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
         {
             int lineNumber = 0;
 
-            using (var r = new CsvReader(new StreamReader(File.OpenRead(oldFile.FullName))))
+            using (var r = new CsvReader(new StreamReader(File.OpenRead(oldFile.FullName)),System.Globalization.CultureInfo.CurrentCulture))
             {
                 if(r.Read())
                     r.ReadHeader();

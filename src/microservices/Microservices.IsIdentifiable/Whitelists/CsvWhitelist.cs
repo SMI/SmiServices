@@ -18,7 +18,7 @@ namespace Microservices.IsIdentifiable.Whitelists
             if(!File.Exists(filePath))
                 throw new Exception("Could not find whitelist file at '" + filePath +"'");
             
-            _reader = new CsvReader(new StreamReader(filePath));
+            _reader = new CsvReader(new StreamReader(filePath),System.Globalization.CultureInfo.CurrentCulture);
             _reader.Configuration.HasHeaderRecord = false;
         }
 
