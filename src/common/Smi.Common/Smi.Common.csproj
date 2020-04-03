@@ -36,5 +36,6 @@
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="System.IO.Abstractions" Version="10.0.6" />
     <PackageReference Include="YamlDotNet" Version="8.1.0" />
+    <PackageReference Include="MySqlConnector" Version="0.63.0" />
   </ItemGroup>
 </Project>
