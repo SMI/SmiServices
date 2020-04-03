@@ -27,7 +27,7 @@ public class SimpleConsumer extends SmiConsumer {
 			    .create();
 
 
-		JsonObject jObj = new JsonParser().parse(new String(body, "UTF-8")).getAsJsonObject();
+		JsonObject jObj = JsonParser.parseString(new String(body, "UTF-8")).getAsJsonObject();
 		SimpleMessage message = gson.fromJson(jObj, SimpleMessage.class);
 		
 		_message = message.Message;		

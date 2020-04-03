@@ -158,7 +158,7 @@ public abstract class SmiConsumer implements Consumer {
 		final Gson gson = new GsonBuilder().registerTypeAdapter(expectedClass, new JsonDeserializerWithOptions<T>())
 				.create();
 
-		JsonObject jObj = new JsonParser().parse(new String(body, "UTF-8")).getAsJsonObject();
+		JsonObject jObj = JsonParser.parseString(new String(body, "UTF-8")).getAsJsonObject();
 
 		message = gson.fromJson(jObj, expectedClass);
 
