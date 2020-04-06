@@ -168,7 +168,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             }
 
             public override ReplaceOneResult ReplaceOne(FilterDefinition<TVal> filter, TVal replacement,
-                UpdateOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+                ReplaceOptions options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 if (RejectChanges)
                     return ReplaceOneResult.Unacknowledged.Instance;

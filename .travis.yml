@@ -71,23 +71,23 @@ jobs:
     - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
 
     - |
-    if [ ! -z "$TRAVIS_TAG" ]
-    then
-      mkdir -p ./dist
-      for platform in linux win
-      do
-        dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
-      done
-    - ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
-    - mvn -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable
-    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package
-      for filename in $(find ./src -name "*deploy-distribution.zip")
-      do
-        base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
-        mv $filename dist/$base-${TRAVIS_TAG}.zip
-      done
-      mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
-    fi
+      if [ ! -z "$TRAVIS_TAG" ]
+      then
+        mkdir -p ./dist
+        for platform in linux win
+        do
+          dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
+        done
+        ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
+        mvn -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable
+        mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package
+        for filename in $(find ./src -name "*deploy-distribution.zip")
+        do
+          base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
+          mv $filename dist/$base-${TRAVIS_TAG}.zip
+        done
+        mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
+      fi
 
 deploy:
       provider: releases
