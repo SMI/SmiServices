@@ -105,6 +105,11 @@ namespace Microservices.CohortExtractor.Tests
             using(var dt = tbl.GetDataTable())
                 studies = dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct().ToList();
 
+            if (studies.Count!=2)
+            {
+                Console.Out.Write(tbl.GetDataTable().Rows.Cast<DataRow>());
+            }
+
             Assert.GreaterOrEqual(studies.Count,2,"Expected at least 2 studies to be randomly generated in database");
 
             //Create message to extract all the studies by StudyInstanceUID
