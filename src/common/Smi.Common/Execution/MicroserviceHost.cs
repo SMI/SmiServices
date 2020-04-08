@@ -101,7 +101,7 @@ namespace Smi.Common.Execution
                 throw new ApplicationException("Incorrect fo-dicom version for the current platform");
 
             HostProcessID = Process.GetCurrentProcess().Id;
-            Logger.Info($"Started {HostProcessName}:{HostProcessID} on host {Environment.MachineName}");
+            Logger.Info($"Starting {HostProcessName} (Host={Environment.MachineName} PID={HostProcessID} User={Environment.UserName})");
 
             Globals = globals;
             Logger.Debug("Loaded global options:\n" + globals);
