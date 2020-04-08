@@ -107,7 +107,7 @@ namespace Microservices.CohortExtractor.Tests
 
             if (studies.Count!=2)
             {
-                Console.Out.Write(tbl.GetDataTable().Rows.Cast<DataRow>());
+                tbl.GetDataTable().Rows.Cast<DataRow>().Each(r => { Console.Out.WriteLine(r); });
             }
 
             Assert.GreaterOrEqual(studies.Count,2,"Expected at least 2 studies to be randomly generated in database");
