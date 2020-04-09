@@ -122,12 +122,12 @@ namespace Microservices.IsIdentifiable.Rules
             if (_ifPattern!=null && !_ifPattern.Matches(fieldValue).Any())
                 return(RuleAction.None);
 
-            _logger.Debug("WhiteListing fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
+            /*_logger.Debug("WhiteListing fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
             + " due to rule: "
             + (_ifPattern == null ? "" : "Pattern: " + _ifPattern.ToString())
             + (IfPartPattern == null ? "" : " Part: " + IfPartPattern.ToString())
             + (IfColumn == null ? "" : " Column: " + IfColumn)
-            + (IfClassification == FailureClassification.None ? "" : " Classification: " + IfClassification));
+            + (IfClassification == FailureClassification.None ? "" : " Classification: " + IfClassification));*/
 
             return Action;
         }
