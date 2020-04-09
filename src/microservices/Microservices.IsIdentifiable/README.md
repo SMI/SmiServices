@@ -107,6 +107,7 @@ Some rules come out of the box (e.g. CHI/Postcode/Date) but for the rest you mus
 There are three classes of rule: BasicRules, SocketRules and WhiteListRules. See below for more details of each.
 They are applied in that order, so if a value is Ignored in a Basic rule it will not be passed to any further rules.
 If a value fails in a SocketRule (eg. the NER daemon labels it as a Person), then a subsequent WhiteList rule can Ignore it.
+Not all Ignore rules go into the WhiteListRules section; this is intended only for white-listing fragments which NERd has incorrectly reported as failures.
 
 Rules can be read from one or more yaml files. Each file can have zero or one set of BasicRules, plus zero or one set of WhiteListRules.
 All of the BasicRules from all of the files will be merged to form a single set of BasicRules; similarly for WhiteListRules.
