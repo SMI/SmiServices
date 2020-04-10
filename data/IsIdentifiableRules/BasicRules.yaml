@@ -218,6 +218,9 @@ BasicRules:
    IfPattern: ^LSSPINE$
  - Action: Ignore
    IfColumn: BodyPartExamined
+   IfPattern: ^sella turcica$
+ - Action: Ignore
+   IfColumn: BodyPartExamined
    IfPattern: ^WHOLESPINE$
 
  - Action: Ignore
@@ -491,6 +494,18 @@ BasicRules:
  # so filter out the obvious ones where we can.
  - Action: Ignore
    IfColumn: StudyDescription
+   IfPattern: ^CT Angiogram Upper Limb Lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Angiogram Upper Limb Rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Aorta Abdominal$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Aorta Thoracic$
+ - Action: Ignore
+   IfColumn: StudyDescription
    IfPattern: ^CT Chest$
  - Action: Ignore
    IfColumn: StudyDescription
@@ -504,6 +519,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^CT Spine Lumbar$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Spine Thoracic$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^CT Mandible$
@@ -525,6 +543,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^CT HeadAcute Stroke$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Wrist Lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^CT Wrist Rt$
 
  # Rules generated from testing the MySQL tables for CT and MR with Stanford CoreNLP.
  # (Different rules may be needed if using spaCy).
@@ -566,7 +590,10 @@ BasicRules:
    IfPattern: ^anche.generale$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^angio  carotid lt$
+   IfPattern: ^angio *carotid lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^angio *carotid rt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^angio_ce.venogram .diaphragm-knees.$
@@ -584,7 +611,10 @@ BasicRules:
    IfPattern: ^angio-tc de cr.neo$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^angio  upper limb rt$
+   IfPattern: ^angio *upper limb lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^angio *upper limb rt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^a.t..spine$
@@ -674,6 +704,9 @@ BasicRules:
    IfPattern: ^ct calcaneum lt$
  - Action: Ignore
    IfColumn: StudyDescription
+   IfPattern: ^ct calcaneum rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
    IfPattern: ^ct chest.abdomen.pelvi$
  - Action: Ignore
    IfColumn: StudyDescription
@@ -696,6 +729,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^ct clavicle lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct clavicle rt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^ct col. lombaire$
@@ -758,6 +794,9 @@ BasicRules:
    IfPattern: ^ct lower leg lt$
  - Action: Ignore
    IfColumn: StudyDescription
+   IfPattern: ^ct lower leg rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
    IfPattern: ^ct lumbar spine, lwr extremities$
  - Action: Ignore
    IfColumn: StudyDescription
@@ -785,13 +824,22 @@ BasicRules:
    IfPattern: ^ct sternum$
  - Action: Ignore
    IfColumn: StudyDescription
+   IfPattern: ^ct thorax$
+ - Action: Ignore
+   IfColumn: StudyDescription
    IfPattern: ^ct thorax abdo pelvis with contrast$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^ct toes lt$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^ct upper leg lt$
+   IfPattern: ^ct toes rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct upper leg *lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^ct upper leg *rt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^ct urogram$
@@ -932,10 +980,19 @@ BasicRules:
    IfPattern: ^mri axilla lt$
  - Action: Ignore
    IfColumn: StudyDescription
+   IfPattern: ^mri axilla rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
    IfPattern: ^mri clavicle lt$
  - Action: Ignore
    IfColumn: StudyDescription
+   IfPattern: ^mri clavicle rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
    IfPattern: ^mri hand lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri hand rt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^mri head, mra head$
@@ -951,6 +1008,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^mri scapula lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mri scapula rt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^mri shoulder rt, mri elbow rt, mri upper arm rt$
@@ -999,6 +1059,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^mrv upper limb lt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mrv upper limb rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^neck.ch.ab.pel$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^nh1ai nilkan kartiokeila-tt .oikea.$
@@ -1175,13 +1241,22 @@ BasicRules:
    IfPattern: ^us knee lt$
  - Action: Ignore
    IfColumn: StudyDescription
+   IfPattern: ^us knee rt$
+ - Action: Ignore
+   IfColumn: StudyDescription
    IfPattern: ^us pelvis transabdominal$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us shoulder lt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^us shoulder rt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^us testes$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^us wrist lt$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^us wrist rt$

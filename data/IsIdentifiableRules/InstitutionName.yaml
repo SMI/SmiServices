@@ -164,6 +164,15 @@ BasicRules:
  - Action: Report
    IfPattern: Raigmore
    As: Organization
+ - Action: Report
+   IfPattern: Gartnavel
+   As: Organization
+ - Action: Report
+   IfPattern: Dumfries.*Galloway.Royal
+   As: Organization
+ - Action: Report
+   IfPatternCaseSensitive: CRIC
+   As: Organization
 
 
 # ---------------------------------------------------------------------
