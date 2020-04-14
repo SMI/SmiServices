@@ -86,6 +86,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             testRulesDir.Create();
             options.IsIdentifiableOptions.DataDirectory = testRulesDir.Parent.FullName;
             var tessDir = new DirectoryInfo(Path.Combine(testRulesDir.Parent.FullName, "tessdata"));
+            tessDir.Create();
             var dest = Path.Combine(tessDir.FullName, "eng.traineddata");
             if (!File.Exists(dest))
                 File.Copy(Path.Combine(DataDirectory, "tessdata", "eng.traineddata"), dest);
