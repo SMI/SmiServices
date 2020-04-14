@@ -104,7 +104,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                 NationalPACSAccessionNumber = Path.GetFileName(dirPath)
             };
 
-            _directoriesProducerModel.SendMessage(message);
+            _directoriesProducerModel.SendMessage(message, null);
             ++TotalSent;
         }
 
