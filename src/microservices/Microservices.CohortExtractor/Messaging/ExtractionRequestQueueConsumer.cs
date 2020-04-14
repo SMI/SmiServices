@@ -86,7 +86,7 @@ namespace Microservices.CohortExtractor.Messaging
                 _auditor.AuditExtractFiles(request, answers);
 
                 infoMessage.KeyValue = answers.KeyValue;
-                _fileMessageInfoProducer.SendMessage(infoMessage);
+                _fileMessageInfoProducer.SendMessage(infoMessage, header);
             }
 
             Ack(header, deliverArgs);
