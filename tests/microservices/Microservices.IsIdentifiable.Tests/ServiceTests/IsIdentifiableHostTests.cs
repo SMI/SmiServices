@@ -86,9 +86,9 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             testRulesDir.Create();
             options.IsIdentifiableOptions.DataDirectory = testRulesDir.Parent.FullName;
             var tessDir = new DirectoryInfo(Path.Combine(testRulesDir.Parent.FullName, "tessdata"));
-            File.Copy(
-                new FileInfo(Path.Combine(DataDirectory, "tessData", "eng.traineddata")).FullName,
-                Path.Combine(tessDir.FullName, "eng.traineddata"));
+            var dest = Path.Combine(tessDir.FullName, "eng.traineddata");
+            if (!File.Exists(dest))
+                File.Copy(Path.Combine(DataDirectory, "tessdata", "eng.traineddata"), dest);
 
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier), "f1.dcm"));
 
