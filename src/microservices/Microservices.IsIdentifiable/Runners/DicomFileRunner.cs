@@ -147,7 +147,8 @@ namespace Microservices.IsIdentifiable.Runners
                 }
                 catch (System.FormatException)
                 {
-                    value = "Unknown value for "+dicomItem;
+                    // TODO(rkm 2020-04-14) Fix this - we shouldn't just validate the "unknown value" string...
+                    value = "Unknown value for " + dicomItem;
                 }
                 // Sometimes throws "Input string was not in a correct format"
                 //var value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
