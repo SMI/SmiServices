@@ -8,6 +8,8 @@ Primary Author: [Thomas](https://github.com/tznind)
  2. [Setup / Installation](#2-setup--installation)
  3. [Exchange and Queue Settings](#3-exchange-and-queue-settings)
  4. [Config](#4-config)
+    - [Fulfiller]
+    - [Rejector]
  5. [Expectations](#5-expectations)
  6. [Class Diagram](#6-class-diagram)
 
@@ -48,6 +50,35 @@ There can be mulitple datasets in which matching images should be sourced e.g. M
 | ------------- | ------------- |
 |CliOptions | Allows overriding of which yaml file is loaded. |
 
+#### Fulfiller
+
+The set of images that __could__ be extracted is controlled by the `IExtractionRequestFulfiller`.  
+
+The current recommended implementation is [FromCataloguesExtractionRequestFulfiller].  This fulfiller will look up one or more tables or multi table joins (Catalogues) and search for the provided extraction key (e.g. SeriesInstanceUID = x)
+
+The matched records are what will be reported on e.g. "for x UIDs we found y available images".  From this result set a subset will be rejected (because you have made row level decisions not to extract particular images).  This is handled by the [Rejector]
+
+Configure the fulfiller in your options yaml:
+
+```yaml
+OnlyCatalogues: 1,2,3
+RequestFulfillerType: Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller 
+```
+
+#### Rejector
+
+Records matched by the [Fulfiller] are passed to the `IRejector` (if any is configured).  This class can make last minute decisions on a row by row level to either extract or forbid (with a specific provided reason) the extraction of an image.
+
+The currently recommended implementation is [DynamicRejector]. To use the dynamic rejector edit your options yaml as follows:
+
+```yaml
+RejectorType: Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic.DynamicRejector
+```
+
+Using the [DynamicRejector] also requires you to configure a file [DynamicRules.txt] in the execution directory of your binary.  An example is provided (see [DynamicRules.txt]).
+
+Rules are written in C# and can only index fields that appear in the records returned by the [Fulfiller].
+
 ### 5. Expectations
 
 All matching of request criteria is handled by `IExtractionRequestFulfiller`.
@@ -75,3 +106,9 @@ The extraction destination is handled by `IProjectPathResolver`
 	
 ### 6. Class Diagram
 ![Class Diagram](./Images/ClassDiagram.png)
+
+[Rejector]: #rejector
+[Fulfiller]: #fulfiller
+[DynamicRules.txt]: ./DynamicRules.txt
+[DynamicRejector]: ./Execution/RequestFulfillers/Dynamic/DynamicRejector.cs
+[FromCataloguesExtractionRequestFulfiller]: ./Execution/RequestFulfillers/FromCataloguesExtractionRequestFulfiller.cs
