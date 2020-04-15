@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Microservices.IsIdentifiable.Service;
 using NUnit.Framework;
-using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
 using Smi.Common.Tests;
@@ -12,8 +9,14 @@ using Smi.Common.Tests;
 namespace Microservices.IsIdentifiable.Tests.ServiceTests
 {
     [TestFixture, RequiresRabbit]
-    class IsIdentifiableHostTests
+    public class IsIdentifiableHostTests
     {
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            TestLogger.Setup();
+        }
+
         /// <summary>
         /// The relative path to /data/ from the test bin directory
         /// </summary>
@@ -23,11 +26,12 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         public void TestClassifierName_NoClassifier()
         {
             var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
-            
+
             options.IsIdentifiableOptions.ClassifierType = "";
-            var ex = Assert.Throws<ArgumentException>(()=>new IsIdentifiableHost(options, false));
-            StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableOptions.ClassifierType),ex.Message);
+            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, false));
+            StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableOptions.ClassifierType), ex.Message);
         }
+
         [Test]
         public void TestClassifierName_NotRecognized()
         {
@@ -35,8 +39,8 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableOptions.ClassifierType = "HappyFunTimes";
-            var ex = Assert.Throws<TypeLoadException>(()=>new IsIdentifiableHost(options, false));
-            StringAssert.Contains("Could not load type 'HappyFunTimes' from",ex.Message);
+            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options, false));
+            StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex.Message);
         }
 
         [Test]
@@ -44,10 +48,10 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         {
             var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
-            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier),"f1.dcm"));Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier),"f1.dcm");
+            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
-            using(var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
+            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
             {
                 options.IsIdentifiableOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
                 options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
@@ -56,7 +60,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 Assert.IsNotNull(host);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions ,new ExtractFileStatusMessage()
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage()
                 {
                     DicomFilePath = "yay.dcm",
                     AnonymisedFileName = testDcm.FullName,
@@ -67,28 +71,39 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 });
 
                 var awaiter = new TestTimelineAwaiter();
-                awaiter.Await(()=>host.Consumer.AckCount == 1);
+                awaiter.Await(() => host.Consumer.AckCount == 1);
             }
         }
-        
+
         [Test]
         public void TestIsIdentifiable_TesseractStanfordDicomFileClassifier()
         {
             var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
-            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier),"f1.dcm"));Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier),"f1.dcm");
+            // Create a test data directory containing IsIdentifiableRules with 0 rules, and tessdata with the eng.traineddata classifier
+            // TODO(rkm 2020-04-14) This is a stop-gap solution until the tests are properly refactored
+            var testRulesDir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "data", "IsIdentifiableRules"));
+            testRulesDir.Create();
+            options.IsIdentifiableOptions.DataDirectory = testRulesDir.Parent.FullName;
+            var tessDir = new DirectoryInfo(Path.Combine(testRulesDir.Parent.FullName, "tessdata"));
+            tessDir.Create();
+            var dest = Path.Combine(tessDir.FullName, "eng.traineddata");
+            if (!File.Exists(dest))
+                File.Copy(Path.Combine(DataDirectory, "tessdata", "eng.traineddata"), dest);
+
+            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier), "f1.dcm"));
+
+            Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
-            using(var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
+            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
             {
                 options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
-                options.IsIdentifiableOptions.DataDirectory = DataDirectory;
 
                 var host = new IsIdentifiableHost(options, false);
-                Assert.IsNotNull(host);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions ,new ExtractFileStatusMessage()
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage
                 {
                     DicomFilePath = "yay.dcm",
                     AnonymisedFileName = testDcm.FullName,
@@ -99,11 +114,8 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 });
 
                 var awaiter = new TestTimelineAwaiter();
-                awaiter.Await(()=>host.Consumer.AckCount == 1);
+                awaiter.Await(() => host.Consumer.AckCount == 1);
             }
         }
-
-
-
     }
 }

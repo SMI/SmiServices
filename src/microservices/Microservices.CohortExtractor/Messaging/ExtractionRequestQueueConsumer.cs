@@ -92,7 +92,7 @@ namespace Microservices.CohortExtractor.Messaging
                 _auditor.AuditExtractFiles(request, matchedFiles);
 
                 infoMessage.KeyValue = matchedFiles.KeyValue;
-                _fileMessageInfoProducer.SendMessage(infoMessage);
+                _fileMessageInfoProducer.SendMessage(infoMessage, header);
 
                 if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel))
                     _fileMessageInfoProducer.WaitForConfirms();

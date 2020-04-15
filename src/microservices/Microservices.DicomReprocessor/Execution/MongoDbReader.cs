@@ -67,7 +67,7 @@ namespace Microservices.DicomReprocessor.Execution
         {
             DateTime start;
 
-            _logger.Debug("Performing query");
+            _logger.Info($"Performing query on {_collNamespace}");
 
             using (IAsyncCursor<BsonDocument> cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, query))
             {

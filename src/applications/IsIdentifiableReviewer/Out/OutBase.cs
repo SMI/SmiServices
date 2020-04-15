@@ -72,7 +72,9 @@ namespace IsIdentifiableReviewer.Out
 
             Rules.Add(rule);
 
-            var serializer = new Serializer();
+            var serializer = new SerializerBuilder()
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+                .Build();
             var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
 
             var contents = $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
