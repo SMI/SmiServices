@@ -1,0 +1,379 @@
+﻿# Rules are applied in this order: BasicRules, SocketRules, WhiteListRules
+
+# WhiteListRules specify the failures which can be ignored
+
+WhiteListRules:
+ # Things which NER classifies as a Person but clearly are not
+ - Action: Ignore
+   IfPartPattern: ^SAFIRE$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Topogram$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Urogram$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Pneumocolon$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Mesinteric$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^ABDO$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Angio$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^HRCT$
+   IfClassification: Person
+ - Action: Ignore
+   IfPattern: Circle of Willis
+   IfPartPattern: ^Willis$
+ - Action: Ignore
+   IfPartPattern: ^Surestart$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Kidneys$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Angiogram$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^CT$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^CT$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^CTPA$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^CTPA$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^(IAM|IAMS)$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^ISO$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^Pel$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Pelvis$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^Colo$
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: ^SEC$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^SPECT$
+   IfClassification: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^AIF$
+ - Action: Ignore
+   IfColumn: Organization
+   IfPartPattern: ^AIF$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Abbvie$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Abd$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Art$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Chest$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^ASIR$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^PETCR$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^ARI$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^CIC$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^DYN$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^WB$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^WIP$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^PETCT$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPartPattern: ^PETNHL$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPartPattern: ^PETOTH$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPartPattern: ^PETCRC$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^EISAI$
+ - Action: Ignore
+   IfPattern: CT Cone
+   IfPartPattern: ^Cone$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^CRIC$
+   IfClassification: Organization
+ # These have no Column or Class qualifiers because they are so common and clearly not a Person or Organization
+ - Action: Ignore
+   IfPartPattern: ^AC$
+ - Action: Ignore
+   IfPartPattern: ^ADC$
+ - Action: Ignore
+   IfPartPattern: ^AIF$
+ - Action: Ignore
+   IfPartPattern: ^AML$
+ - Action: Ignore
+   IfPartPattern: ^AVM$
+ - Action: Ignore
+   IfPartPattern: ^Axilla$
+ - Action: Ignore
+   IfPartPattern: ^Bolustrak$
+ - Action: Ignore
+   IfPartPattern: ^Bone$
+ - Action: Ignore
+   IfPartPattern: ^Cholesteatoma$
+ - Action: Ignore
+   IfPartPattern: ^KUB$
+ - Action: Ignore
+   IfPartPattern: ^ECLS$
+ - Action: Ignore
+   IfPartPattern: ^CRC$
+ - Action: Ignore
+   IfPartPattern: ^NCAP$
+ - Action: Ignore
+   IfPartPattern: ^LGE$
+ - Action: Ignore
+   IfPartPattern: ^GSI$
+ - Action: Ignore
+   IfPartPattern: ^CCTA$
+ - Action: Ignore
+   IfPartPattern: ^CHA$
+ - Action: Ignore
+   IfPartPattern: ^CTA$
+ - Action: Ignore
+   IfPartPattern: ^CTAC$
+ - Action: Ignore
+   IfPartPattern: ^CTV$
+ - Action: Ignore
+   IfPartPattern: ^EORTCMERCK$
+ - Action: Ignore
+   IfPartPattern: ^FFE$
+ - Action: Ignore
+   IfPartPattern: ^GRE$
+ - Action: Ignore
+   IfPartPattern: ^HFDR$
+ - Action: Ignore
+   IfPartPattern: ^INS$
+ - Action: Ignore
+   IfPartPattern: ^IRFSPGR$
+ - Action: Ignore
+   IfPartPattern: ^LowerLimbAngio$
+ - Action: Ignore
+   IfPartPattern: ^Lt$
+ - Action: Ignore
+   IfPartPattern: ^Rt$
+ - Action: Ignore
+   IfPartPattern: ^MCSC$
+ - Action: Ignore
+   IfPartPattern: ^MLSC$
+ - Action: Ignore
+   IfPartPattern: ^MPR$
+ - Action: Ignore
+   IfPartPattern: ^NHSH$
+ - Action: Ignore
+   IfPartPattern: ^NVSI$
+ - Action: Ignore
+   IfPartPattern: ^NCA$
+ - Action: Ignore
+   IfPartPattern: ^IAC$
+ - Action: Ignore
+   IfPartPattern: ^IVP$
+ - Action: Ignore
+   IfPartPattern: ^PE$
+ - Action: Ignore
+   IfPartPattern: ^PULM$
+ - Action: Ignore
+   IfPartPattern: ^Pelv$
+ - Action: Ignore
+   IfPartPattern: ^SPO$
+ - Action: Ignore
+   IfPartPattern: ^SPAIR$
+ - Action: Ignore
+   IfPartPattern: ^TAAA$
+ - Action: Ignore
+   IfPartPattern: ^Abdomen$
+ - Action: Ignore
+   IfPartPattern: ^AbdoBiopsy$
+ - Action: Ignore
+   IfPartPattern: ^AIDR$
+ - Action: Ignore
+   IfPartPattern: ^Brainlab$
+ - Action: Ignore
+   IfPartPattern: ^Baseline$
+ - Action: Ignore
+   IfPartPattern: ^Clavicle$
+ - Action: Ignore
+   IfPartPattern: ^Curved$
+ - Action: Ignore
+   IfPartPattern: ^Cystogram$
+ - Action: Ignore
+   IfPartPattern: ^Handwrist$
+ - Action: Ignore
+   IfPartPattern: ^Leg(s)?$
+ - Action: Ignore
+   IfPartPattern: ^Length$
+ - Action: Ignore
+   IfPartPattern: ^Mesenteric$
+ - Action: Ignore
+   IfPartPattern: ^Neck$
+ - Action: Ignore
+   IfPartPattern: ^Non.Contrast$
+ - Action: Ignore
+   IfPartPattern: ^Petrous$
+ - Action: Ignore
+   IfPartPattern: ^QCLEAR$
+ - Action: Ignore
+   IfPartPattern: ^Recon$
+ - Action: Ignore
+   IfPartPattern: ^Scapula$
+ - Action: Ignore
+   IfPartPattern: ^Schockraum$
+ - Action: Ignore
+   IfPartPattern: ^Thorax$
+ - Action: Ignore
+   IfPartPattern: ^Urogram$
+ - Action: Ignore
+   IfPartPattern: ^Venegram$
+ - Action: Ignore
+   IfPartPattern: ^VCT$
+ - Action: Ignore
+   IfPartPattern: ^Wrist$
+ - Action: Ignore
+   IfPartPattern: ^WB$
+ - Action: Ignore
+   IfPartPattern: ^-$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Bones$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^TAVI$
+ # Rules which require surrounding context:
+ - Action: Ignore
+   IfPattern: LE_
+   IfPartPattern: ^LE$
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Vertex$
+   IfClassification: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^Vertex$
+   IfClassification: Organization
+ - Action: Ignore
+   IfPartPattern: ^TOSH$
+   IfPattern: CT TOSH
+ - Action: Ignore
+   IfPartPattern: ^Sharp$
+   IfPattern: Bone.Sharp
+ - Action: Ignore
+   IfPartPattern: ^S(o)?ft$
+   IfPattern: S(o)?ft.Tissue
+ - Action: Ignore
+   IfPartPattern: ^Tissue$
+   IfPattern: S(o)?ft.Tissue
+ - Action: Ignore
+   IfPartPattern: ^Brian$
+   IfPattern: Brian.and.Neck
+ - Action: Ignore
+   IfPartPattern: ^(Non|Contrast)$
+   IfPattern: Non.Contrast
+
+ # Why on earth does it pick up & and / as Organizations?!
+ - Action: Ignore
+   IfPartPattern: ^\&$
+ - Action: Ignore
+   IfPartPattern: ^/$
+
+ # When every word is capitalised then all words are flagged as Person
+ # To filter out Low and Dose when they occur together as Low Dose:
+ # XXX Warning if Low is found twice, once as Low Dose and another as a person name, in the same string, the latter won't be flagged
+ - Action: Ignore
+   IfPattern: Low Dose
+   IfPartPattern: Low
+   IfClassification: Person
+ - Action: Ignore
+   IfPartPattern: Dose
+   IfClassification: Person
+ - Action: Ignore
+   IfPattern: Body Low Dose
+   IfPartPattern: ^Body$
+ - Action: Ignore
+   IfPattern: Hi.res
+   IfPartPattern: ^Hi$
+ - Action: Ignore
+   IfPattern: Hi.res
+   IfPartPattern: ^Res$
+
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPartPattern: MCSC
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPartPattern: MCTS
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPartPattern: MLSC
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPartPattern: MTLS
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPartPattern: MTS
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPartPattern: NP
+ - Action: Ignore
+   IfColumn: BodyPartExamined
+   IfPartPattern: MRV
+
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: MCSCS
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: MLSCS
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: MCTS
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: MOLLI
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: MOLLI
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: Pha
+
