@@ -1,4 +1,4 @@
-﻿
+
 using NUnit.Framework;
 using System.IO;
 using System.Linq;
@@ -11,28 +11,36 @@ namespace Smi.Common.Tests
     /// Tests to confirm that the dependencies in csproj files (NuGet packages) match those in the .nuspec files and that packages.md 
     /// lists the correct versions (in documentation)
     /// </summary>
-    class NuspecIsCorrectTests
+    [TestFixture]
+    public class NuspecIsCorrectTests
     {
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            TestLogger.Setup();
+        }
+
         private const string RelativePackagesRoot = "../../../../../../../PACKAGES.md";
-        private static readonly string[] _analyzers = {"SecurityCodeScan"};
+        private static readonly string[] _analyzers = { "SecurityCodeScan" };
 
         // Applications
-        [TestCase(
-            "../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj",null, null)]
+        [TestCase("../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj", null, null)]
+        [TestCase("../../../../../../../src/applications/IsIdentifiableReviewer/IsIdentifiableReviewer.csproj", null, null)]
+
         // Common
-        [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null,null)]
-        [TestCase("../../../../../../../src/common/Smi.Common.MongoDb/Smi.Common.MongoDb.csproj", null,null)]
+        [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null, null)]
+        [TestCase("../../../../../../../src/common/Smi.Common.MongoDb/Smi.Common.MongoDb.csproj", null, null)]
 
         // Microservices
-        [TestCase("../../../../../../../src/microservices/Microservices.CohortExtractor/Microservices.CohortExtractor.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DeadLetterReprocessor/Microservices.DeadLetterReprocessor.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj",null,null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.IsIdentifiable/Microservices.IsIdentifiable.csproj",null,null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.CohortExtractor/Microservices.CohortExtractor.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DeadLetterReprocessor/Microservices.DeadLetterReprocessor.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj", null, null)]
+        [TestCase("../../../../../../../src/microservices/Microservices.IsIdentifiable/Microservices.IsIdentifiable.csproj", null, null)]
 
         public void TestDependencyCorrect(string csproj, string nuspec, string packagesMarkdown)
         {
@@ -71,8 +79,8 @@ namespace Smi.Common.Tests
 
                 // NOTE(rkm 2020-02-14) Fix for specifiers which contain lower or upper bounds
                 if (version.Contains("[") || version.Contains("("))
-                    version = version.Substring(1,5);
- 
+                    version = version.Substring(1, 5);
+
                 bool found = false;
 
                 //analyzers do not have to be listed as a dependency in nuspec (but we should document them in packages.md)
@@ -126,31 +134,23 @@ namespace Smi.Common.Tests
             }
         }
 
-        private object BuildRecommendedDependencyLine(string package, string version)
-        {
-            return string.Format("<dependency id=\"{0}\" version=\"{1}\" />", package, version);
-        }
-
-        private object BuildRecommendedMarkdownLine(string package, string version)
-        {
-            return string.Format("| {0} | [GitHub]() | [{1}](https://www.nuget.org/packages/{0}/{1}) | | | |", package,
-                version);
-        }
-
         [Test]
         public void VersionIsCorrectTest()
         {
             var readmeMd = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../README.md"));
-            var m = Regex.Match(readmeMd,"Version: `(.*)`");
-            Assert.IsTrue(m.Success,"README.md in root did not list the version in the expected format");
-            
+            var m = Regex.Match(readmeMd, "Version: `(.*)`");
+            Assert.IsTrue(m.Success, "README.md in root did not list the version in the expected format");
+
             var readmeMdVersion = m.Groups[1].Value;
 
             var sharedAssemblyInfo = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../src/SharedAssemblyInfo.cs"));
-            var version = Regex.Match(sharedAssemblyInfo,@"AssemblyInformationalVersion\(""(.*)""\)").Groups[1].Value;
+            var version = Regex.Match(sharedAssemblyInfo, @"AssemblyInformationalVersion\(""(.*)""\)").Groups[1].Value;
 
-            Assert.AreEqual(version,readmeMdVersion,"README.md in root did not match version in SharedAssemblyInfo.cs");
-
+            Assert.AreEqual(version, readmeMdVersion, "README.md in root did not match version in SharedAssemblyInfo.cs");
         }
+
+        private static object BuildRecommendedDependencyLine(string package, string version) => $"<dependency id=\"{package}\" version=\"{version}\" />";
+
+        private static object BuildRecommendedMarkdownLine(string package, string version) => $"| {package} | [GitHub]() | [{version}](https://www.nuget.org/packages/{package}/{version}) | | | |";
     }
 }
