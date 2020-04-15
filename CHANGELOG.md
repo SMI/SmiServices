@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - \[Breaking\] Promote the PT modality to its own collection in MongoDB
 - \[Breaking\] Renamed `RedisHost` to `RedisConnectionString` in the config options for clarity
 - Update to .Net Core 3.1 (supported until Dec 2022) since 2.2 support ended last year
+- Switch CohortExtractor to use batched message producers
 
 ## [1.7.0] - 2020-03-30
 

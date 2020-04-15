@@ -1,15 +1,13 @@
-﻿
+
+using System.ComponentModel;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
-using RabbitMQ.Client.Events;
-using System;
-using System.ComponentModel;
-using System.Linq;
 
 namespace Microservices.CohortExtractor.Messaging
 {
@@ -21,7 +19,7 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IProducerModel _fileMessageInfoProducer;
 
         private readonly IProjectPathResolver _resolver;
-        
+
         public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
             IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
             IProducerModel fileMessageInfoProducer)
@@ -36,36 +34,40 @@ namespace Microservices.CohortExtractor.Messaging
         protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
         {
             ExtractionRequestMessage request;
-
             if (!SafeDeserializeToMessage(header, deliverArgs, out request))
                 return;
 
-            Logger.Info("Received message for job " + request.ExtractionJobIdentifier);
+            Logger.Info($"Received message: {request}");
 
             _auditor.AuditExtractionRequest(request);
 
-            if (!CheckValidRequest(request, header, deliverArgs))
-                return;
-
-            foreach (ExtractImageCollection answers in _fulfiller.GetAllMatchingFiles(request, _auditor))
+            if (!request.ExtractionDirectory.StartsWith(request.ProjectNumber))
             {
+                Logger.Debug("ExtractionDirectory did not start with the project number, doing ErrorAndNack");
+                ErrorAndNack(header, deliverArgs, "", new InvalidEnumArgumentException("ExtractionDirectory"));
+            }
+
+            string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
+
+            foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request, _auditor))
+            {
+                Logger.Info($"Matched {matchedFiles.Accepted.Count} files with {matchedFiles.Rejected.Count} for KeyValue {matchedFiles.KeyValue}");
+
                 var infoMessage = new ExtractFileCollectionInfoMessage(request);
 
-                foreach (QueryToExecuteResult accepted in answers.Accepted)
+                foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
                     var extractFileMessage = new ExtractFileMessage(request)
                     {
                         // Path to the original file
                         DicomFilePath = accepted.FilePathValue.TrimStart('/', '\\'),
                         // Extraction directory relative to the extract root
-                        ExtractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\'),
+                        ExtractionDirectory = extractionDirectory,
                         // Output path for the anonymised file, relative to the extraction directory
-                        OutputPath = _resolver.GetOutputPath(accepted,request).Replace('\\', '/')
+                        OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/')
                     };
 
-                    Logger.Debug("DicomFilePath: " + extractFileMessage.DicomFilePath);
-                    Logger.Debug("ExtractionDirectory: " + extractFileMessage.ExtractionDirectory);
-                    Logger.Debug("OutputPath: " + extractFileMessage.OutputPath);
+                    Logger.Debug($"DicomFilePath={extractFileMessage.DicomFilePath}, OutputPath={extractFileMessage.OutputPath}");
 
                     // Send the extract file message
                     var sentHeader = (MessageHeader)_fileMessageProducer.SendMessage(extractFileMessage, header);
@@ -74,35 +76,32 @@ namespace Microservices.CohortExtractor.Messaging
                     infoMessage.ExtractFileMessagesDispatched.Add(sentHeader, extractFileMessage.OutputPath);
                 }
 
-                //for all the rejected messages log why (in the info message)
-                foreach (var rejectedResults in answers.Rejected)
+                // Wait for confirms from the batched messages
+                Logger.Debug($"All file messages sent for {request.ExtractionJobIdentifier}, calling WaitForConfirms");
+                _fileMessageProducer.WaitForConfirms();
+
+                // For all the rejected messages log why (in the info message)
+                foreach (QueryToExecuteResult rejectedResults in matchedFiles.Rejected)
                 {
-                    if(!infoMessage.RejectionReasons.ContainsKey(rejectedResults.RejectReason))
-                        infoMessage.RejectionReasons.Add(rejectedResults.RejectReason,0);
+                    if (!infoMessage.RejectionReasons.ContainsKey(rejectedResults.RejectReason))
+                        infoMessage.RejectionReasons.Add(rejectedResults.RejectReason, 0);
 
                     infoMessage.RejectionReasons[rejectedResults.RejectReason]++;
                 }
 
-                _auditor.AuditExtractFiles(request, answers);
+                _auditor.AuditExtractFiles(request, matchedFiles);
 
-                infoMessage.KeyValue = answers.KeyValue;
+                infoMessage.KeyValue = matchedFiles.KeyValue;
                 _fileMessageInfoProducer.SendMessage(infoMessage, header);
+
+                if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel))
+                    _fileMessageInfoProducer.WaitForConfirms();
+
+                Logger.Info($"All messages sent and acknowledged for {matchedFiles.KeyValue}");
             }
 
+            Logger.Info("Finished processing message");
             Ack(header, deliverArgs);
-        }
-
-
-        private bool CheckValidRequest(ExtractionRequestMessage request, IMessageHeader header, BasicDeliverEventArgs deliverArgs)
-        {
-            if (!request.ExtractionDirectory.StartsWith(request.ProjectNumber))
-            {
-                Logger.Debug("ExtractionDirectory did not start with the project number, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-                ErrorAndNack(header, deliverArgs, "", new InvalidEnumArgumentException("ExtractionDirectory"));
-                return false;
-            }
-
-            return true;
         }
     }
 }
