@@ -166,7 +166,7 @@ namespace Smi.Common.Tests
         {
             IProducerModel pm = _testAdapter.SetupProducer(_testProducerOptions, true);
 
-            pm.SendMessage(new TestMessage());
+            pm.SendMessage(new TestMessage(), null);
 
             for (var i = 0; i < 10; ++i)
                 pm.WaitForConfirms();

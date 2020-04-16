@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,9 +35,10 @@ namespace Smi.Common.Messages.Extraction
         }
 
         public override string ToString()
-        {
-            return $"KeyTag='{KeyTag}' Modality={Modality??"Any"} ({ExtractionIdentifiers.Count} Identifiers)";
-        }
+            => base.ToString() + ", " +
+               $"KeyTag={KeyTag}, " +
+               $"Modality={Modality ?? "Unspecified"}, " +
+               $"nIdentifiers={ExtractionIdentifiers.Count}";
 
         #region Equality Members
 

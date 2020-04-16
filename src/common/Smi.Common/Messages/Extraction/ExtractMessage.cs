@@ -38,6 +38,12 @@ namespace Smi.Common.Messages.Extraction
             : this(request.ExtractionJobIdentifier, request.ProjectNumber, request.ExtractionDirectory, request.JobSubmittedAt)
         { }
 
+        public override string ToString()
+            => $"ExtractionJobIdentifier={ExtractionJobIdentifier}, " +
+               $"ProjectNumber={ProjectNumber}, " +
+               $"ExtractionDirectory={ExtractionDirectory}, " +
+               $"JobSubmittedAt={JobSubmittedAt}";
+
         #region Equality Members
 
         public bool Equals(ExtractMessage other)

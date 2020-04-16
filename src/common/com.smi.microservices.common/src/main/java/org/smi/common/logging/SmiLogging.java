@@ -2,28 +2,23 @@
 package org.smi.common.logging;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Random;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.Filter;
+import org.apache.log4j.WriterAppender;
 
 /**
  * Static helper class to setup the SMI logging
@@ -42,12 +37,18 @@ public final class SmiLogging {
                 prev=ste.getClassName();
             if (ste.getMethodName()=="main") {
                 prev=ste.getClassName();
-                return prev.substring(prev.lastIndexOf('.')+1);
+                while (prev.indexOf('.')!=-1 && prev.indexOf('.')!=prev.lastIndexOf('.')) {
+                    prev=prev.substring(prev.indexOf('.')+1);
+                }
+                if (prev.indexOf('.')!=-1)
+                    prev=prev.substring(0,prev.indexOf('.'));
+                return prev;
             }
         }
         return prev==null?null:prev.substring(prev.lastIndexOf('.')+1);
     }
-    
+
+
     /**
      * Get the current PID (on Java 9 or later)
      * @return
@@ -67,7 +68,7 @@ public final class SmiLogging {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         // Fallback for elderly JVMs:
         try {
             RuntimeMXBean rt=ManagementFactory.getRuntimeMXBean();
@@ -81,19 +82,20 @@ public final class SmiLogging {
         } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             e.printStackTrace();
         }
-        
+
         return new Random().nextLong();
     }
 
-    public static void Setup(boolean testing) throws SmiLoggingException {
+    public static void Setup(boolean testing) throws SmiLoggingException, IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String logroot = System.getenv("SMI_LOGS_ROOT");
         if (logroot==null) {
             System.err.println("WARNING: SMI_LOGS_ROOT not set, logging to pwd instead");
             logroot=".";
         }
-        File logdir=new File(logroot+File.pathSeparator+getCaller());
-        File logfile=new File(logroot+File.pathSeparator+getCaller()+File.pathSeparator+df.format(new Date())+"-"+getPid());
+        String caller=getCaller();
+        File logdir=new File(logroot+File.separator+caller);
+        File logfile=new File(logroot+File.separator+caller+File.separator+df.format(new Date())+"-"+getPid());
         if (!logdir.isDirectory()) {
             logdir.mkdirs();
         }
@@ -101,19 +103,15 @@ public final class SmiLogging {
         // Turn off log4j warnings from library code
         Logger l = Logger.getRootLogger();
         l.setLevel(Level.OFF);
-        
-        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%thread|%-5level|%-15(%logger{0})| %msg%n");
+
+        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C{1}| %m%n");
 
         ConsoleAppender ca = new ConsoleAppender();
-        ca.setTarget("System.err");
         ca.setThreshold(testing?Level.ALL:Level.ERROR);
         l.addAppender(ca);
-        
-        FileAppender fa = new FileAppender();
-        fa.setFile(logfile.getAbsolutePath());
+
+        WriterAppender fa = new WriterAppender(pl,new FileWriter(logfile.getAbsolutePath(),true));
         fa.setThreshold(Level.ALL);
-        fa.setAppend(true);
-        fa.setBufferedIO(true);
         fa.setImmediateFlush(false);
         fa.setLayout(pl);
         fa.activateOptions();

@@ -72,7 +72,9 @@ namespace IsIdentifiableReviewer.Out
 
             Rules.Add(rule);
 
-            var serializer = new Serializer();
+            var serializer = new SerializerBuilder()
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+                .Build();
             var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
 
             var contents = $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
@@ -99,10 +101,9 @@ namespace IsIdentifiableReviewer.Out
 
                 //write to a new temp file
                 File.WriteAllText(RulesFile.FullName + ".tmp",newText);
-                
-                //then hot swap them
-                File.Delete(RulesFile.FullName);
-                File.Move(RulesFile.FullName + ".tmp",RulesFile.FullName);
+
+                //then hot swap them using in-place replacement added in .Net 3.0
+                File.Move(RulesFile.FullName + ".tmp", RulesFile.FullName, true);
                 
                 //clear the rule from memory
                 Rules.Remove(popped.Rule);
