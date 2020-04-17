@@ -59,9 +59,11 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoD
 
         public long UnixTimestamp { get; set; }
 
+        private IBasicProperties _props;
 
         public MongoBasicPropertiesDocument(IBasicProperties props)
         {
+            _props = props;
             ContentEncoding = props.ContentEncoding;
             ContentType = props.ContentType;
             MessageHeader = new MessageHeader(props.Headers, Encoding.UTF8);
@@ -71,19 +73,8 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoD
 
 
         public IBasicProperties GetBasicProperties()
-        {
-            var props = new BasicProperties
-            {
-                ContentEncoding = ContentEncoding,
-                ContentType = ContentType,
-                Timestamp = new AmqpTimestamp(UnixTimestamp),
-                Headers = new Dictionary<string, object>()
-            };
-
-            MessageHeader.Populate(props.Headers);
-            XDeathHeaders.Populate(props.Headers);
-            
-            return props;
+        {            
+            return _props;
         }
     }
 }

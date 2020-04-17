@@ -91,10 +91,10 @@ namespace Smi.Common.Messaging
 
             try
             {
-                if (deliverArgs.BasicProperties.ContentEncoding != null)
+                if (deliverArgs.BasicProperties != null && deliverArgs.BasicProperties.ContentEncoding != null)
                     enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
-                header = new MessageHeader(deliverArgs.BasicProperties.Headers, enc);
+                header = new MessageHeader(deliverArgs.BasicProperties==null?new Dictionary<string,object>():deliverArgs.BasicProperties.Headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
             }
             catch (Exception e)

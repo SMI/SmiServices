@@ -23,9 +23,9 @@ namespace Smi.Common.Tests
             {
                 factory.ContinuationTimeout = new TimeSpan(0, 0, 5);
                 factory.HandshakeContinuationTimeout = new TimeSpan(0, 0, 5);
-                factory.RequestedConnectionTimeout = 5000;
-                factory.SocketReadTimeout = 5000;
-                factory.SocketWriteTimeout = 5000;
+                factory.RequestedConnectionTimeout = System.TimeSpan.FromSeconds(5);
+                factory.SocketReadTimeout = System.TimeSpan.FromSeconds(5);
+                factory.SocketWriteTimeout = System.TimeSpan.FromSeconds(5);
 
                 IConnection conn = factory.CreateConnection();
                 conn.Close();
