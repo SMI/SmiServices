@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.8.1] - 2020-04-17
+
+### Fixed
+
+- Fix null check bug in CohortPackager when no files match the extraction filter
+
 ## [1.8.0] - 2020-04-16
 
 ### Added
@@ -273,7 +279,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.8.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.8.1...develop
+[1.8.1]:  https://github.com/SMI/SmiServices/compare/v1.8.0...v1.8.1
 [1.8.0]:  https://github.com/SMI/SmiServices/compare/v1.7.0...v1.8.0
 [1.7.0]:  https://github.com/SMI/SmiServices/compare/v1.6.0...v1.7.0
 [1.6.0]:  https://github.com/SMI/SmiServices/compare/v1.5.2...v1.6.0
