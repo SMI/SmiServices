@@ -32,7 +32,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoD
             RetryAfter = retryAfter;
             RoutingKey = deliverArgs.RoutingKey;
             Props = new MongoBasicPropertiesDocument(deliverArgs.BasicProperties);
-            Payload = Encoding.UTF8.GetString(deliverArgs.Body);
+            Payload = Encoding.UTF8.GetString(deliverArgs.Body.ToArray());
         }
 
 

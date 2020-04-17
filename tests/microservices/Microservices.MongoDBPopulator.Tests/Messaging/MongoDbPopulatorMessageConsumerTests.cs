@@ -41,12 +41,6 @@ namespace Microservices.MongoDBPopulator.Tests.Messaging
             //TODO: Refactor this to a helper function in Smi.Common.Tests
             var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>();
             mockDeliverArgs.DeliveryTag = 1;
-            mockDeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
-            var header = new MessageHeader();
-            header.Populate(mockDeliverArgs.BasicProperties.Headers);
-            mockDeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
-            mockDeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
-            mockDeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
 
             var consumer = new MongoDbPopulatorMessageConsumer<DicomFileMessage>(_helper.Globals.MongoDatabases.DicomStoreOptions, _helper.Globals.MongoDbPopulatorOptions, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions);
 
