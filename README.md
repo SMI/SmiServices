@@ -35,7 +35,7 @@ The following  microservices have been written.  Microservices are loosely coupl
 
 Microservices can be configured through [the configuration file](./data/microserviceConfigs/default.yaml).
 
-A control queue is provided for controlling Microservices during runtime.  It supports a [limited number of commands](./src/common/Smi.Common/README.md)..
+A control queue is provided for controlling Microservices during runtime.  It supports a [limited number of commands](./docs/control-queues.md).
 
 ### Data Load Microservices
 
