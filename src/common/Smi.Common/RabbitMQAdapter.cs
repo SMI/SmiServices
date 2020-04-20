@@ -149,6 +149,7 @@ namespace Smi.Common
 
             EventingBasicConsumer _consumer = new EventingBasicConsumer(model);
             ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
+            var taskTokenSource = new CancellationTokenSource();
             _consumer.Received += (model, ea) => {
                 if (_threaded)
                 {
@@ -180,11 +181,15 @@ namespace Smi.Common
                     worklock.ExitWriteLock();
                 }
                 worklock.Dispose();
-                _logger.Debug("Consumer for {0} exiting ({1})", consumerOptions.QueueName, sender);
+                string reason = "shutdown was called";
+                if (model.IsClosed)
+                    reason += ", channel is closed";
+                if (taskTokenSource.IsCancellationRequested)
+                    reason += ", cancellation was requested";
+                _logger.Debug("Consumer for {0} exiting ({1})", consumerOptions.QueueName, reason);
             };
 
             Guid taskId = Guid.NewGuid();
-            var taskTokenSource = new CancellationTokenSource();
 
             var consumerTask = new Task(() => { model.BasicConsume(consumerOptions.QueueName, consumerOptions.AutoAck, _consumer); });
 

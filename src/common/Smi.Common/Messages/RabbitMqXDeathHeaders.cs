@@ -20,7 +20,7 @@ namespace Smi.Common.Messages
         public const string XDeathKey = "x-death";
         public const string XFirstDeathExchangeKey = "x-first-death-exchange";
         public const string XFirstDeathQueueKey = "x-first-death-queue";
-        public const string XFristDeathReasonKey = "x-first-death-reason";
+        public const string XFirstDeathReasonKey = "x-first-death-reason";
 
 
         private static readonly List<string> _requiredKeys;
@@ -36,7 +36,7 @@ namespace Smi.Common.Messages
                 XDeathKey,
                 XFirstDeathExchangeKey,
                 XFirstDeathQueueKey,
-                XFristDeathReasonKey
+                XFirstDeathReasonKey
             };
         }
 
@@ -59,7 +59,7 @@ namespace Smi.Common.Messages
 
             XFirstDeathExchange = enc.GetString((byte[])encodedHeaders[XFirstDeathExchangeKey]);
             XFirstDeathQueue = enc.GetString((byte[])encodedHeaders[XFirstDeathQueueKey]);
-            XFirstDeathReason = enc.GetString((byte[])encodedHeaders[XFristDeathReasonKey]);
+            XFirstDeathReason = enc.GetString((byte[])encodedHeaders[XFirstDeathReasonKey]);
         }
 
 
@@ -82,7 +82,7 @@ namespace Smi.Common.Messages
             headers.Add(XDeathKey, xDeaths);
             headers.Add(XFirstDeathExchangeKey, XFirstDeathExchange);
             headers.Add(XFirstDeathQueueKey, XFirstDeathQueue);
-            headers.Add(XFristDeathReasonKey, XFirstDeathReason);
+            headers.Add(XFirstDeathReasonKey, XFirstDeathReason);
         }
 
         public static void CopyHeaders(IDictionary<string, object> from, IDictionary<string, object> to)

@@ -30,7 +30,6 @@ namespace Smi.Common.Tests
 
             consumer.ProcessMessage(mockDeliverArgs);
 
-            Thread.Sleep(1000);
             Assert.True(fatalCalled);
         }
 

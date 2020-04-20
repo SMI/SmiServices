@@ -87,15 +87,18 @@ namespace Smi.Common.Messaging
             // Control messages (no header) are handled in their own ProcessMessage implementation
 
             Encoding enc = Encoding.UTF8;
-            MessageHeader header;
+            MessageHeader header=null;
 
             try
             {
-                if (deliverArgs.BasicProperties != null && deliverArgs.BasicProperties.ContentEncoding != null)
-                    enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
+                if (deliverArgs.BasicProperties != null)
+                {
+                    if (deliverArgs.BasicProperties.ContentEncoding != null)
+                        enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
-                header = new MessageHeader(deliverArgs.BasicProperties==null?new Dictionary<string,object>():deliverArgs.BasicProperties.Headers, enc);
-                header.Log(Logger, LogLevel.Trace, "Received");
+                    header = new MessageHeader(deliverArgs.BasicProperties == null ? new Dictionary<string, object>() : deliverArgs.BasicProperties.Headers, enc);
+                    header.Log(Logger, LogLevel.Trace, "Received");
+                }
             }
             catch (Exception e)
             {
