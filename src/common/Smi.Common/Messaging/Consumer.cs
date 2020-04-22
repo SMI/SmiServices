@@ -210,7 +210,7 @@ namespace Smi.Common.Messaging
 
                 if (onFatal != null)
                 {
-                    Task.Run(() => onFatal.Invoke(this, new FatalErrorEventArgs(msg, exception)));
+                    onFatal.Invoke(this, new FatalErrorEventArgs(msg, exception));
                 }
                 else
                 {

@@ -148,6 +148,7 @@ namespace Smi.Common
             }
 
             EventingBasicConsumer _consumer = new EventingBasicConsumer(model);
+            consumer.SetModel(model);
             ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
             var taskTokenSource = new CancellationTokenSource();
             _consumer.Received += (model, ea) => {

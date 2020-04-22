@@ -23,12 +23,9 @@ namespace Microservices.IsIdentifiable.Tests
             report.CloseReport();
 
             string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
-            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
+            fileCreatedContents = fileCreatedContents.Replace("\r\n", "\n");
 
-            Assert.AreEqual(@"col1,col2
-""cell1 with some new 
- lines and 	 tabs"",cell2
-", fileCreatedContents);
+            Assert.AreEqual("col1,col2\n\"cell1 with some new \n lines and 	 tabs\",cell2\n", fileCreatedContents);
         }
 
         [Test]
@@ -44,11 +41,9 @@ namespace Microservices.IsIdentifiable.Tests
             report.CloseReport();
 
             var fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
-            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
+            fileCreatedContents = fileCreatedContents.Replace("\r\n", "\n");
 
-            Assert.AreEqual(@"col1,col2
-cell1 with some new lines and tabs,cell2
-", fileCreatedContents);
+            Assert.AreEqual("col1,col2\ncell1 with some new lines and tabs,cell2\n", fileCreatedContents);
         }
 
         [Test]
@@ -71,11 +66,9 @@ cell1 with some new lines and tabs,cell2
             report.CloseReport();
 
             string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
-            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
+            fileCreatedContents = fileCreatedContents.Replace("\r\n", "\n");
 
-            Assert.AreEqual(@"col1	col2
-cell1 with some new lines and tabs	cell2
-", fileCreatedContents);
+            Assert.AreEqual("col1	col2\ncell1 with some new lines and tabs	cell2\n", fileCreatedContents);
         }
     }
 
