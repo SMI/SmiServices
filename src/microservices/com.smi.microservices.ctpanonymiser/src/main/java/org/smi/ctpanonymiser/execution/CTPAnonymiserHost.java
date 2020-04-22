@@ -1,8 +1,7 @@
 package org.smi.ctpanonymiser.execution;
 
 import org.apache.commons.cli.CommandLine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.smi.common.execution.IMicroserviceHost;
 import org.smi.common.messaging.IProducerModel;
 import org.smi.common.options.GlobalOptions;
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 
 public class CTPAnonymiserHost implements IMicroserviceHost {
 
-	private static final Logger _logger = LoggerFactory.getLogger(CTPAnonymiserHost.class);
+	private static final Logger _logger = Logger.getRootLogger();
 
 	private final RabbitMqAdapter _rabbitMqAdapter;
 	private final CTPAnonymiserConsumer _consumer;
