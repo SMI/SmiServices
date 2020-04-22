@@ -151,7 +151,7 @@ namespace Microservices.DicomTagReader.Execution
 
             _fileMessageProducerModel.WaitForConfirms();
 
-            headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {header.MessageGuid}"));
+            headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {x.MessageGuid}"));
 
             Logger.Info($"Sending {seriesMessages.Count} SeriesMessage(s)");
 
