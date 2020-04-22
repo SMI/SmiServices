@@ -35,7 +35,7 @@ The following  microservices have been written.  Microservices are loosely coupl
 
 Microservices can be configured through [the configuration file](./data/microserviceConfigs/default.yaml).
 
-A control queue is provided for controlling Microservices during runtime.  It supports a [limited number of commands](./src/common/Smi.Common/README.md)..
+A control queue is provided for controlling Microservices during runtime.  It supports a [limited number of commands](./docs/control-queues.md).
 
 ### Data Load Microservices
 
@@ -81,10 +81,10 @@ The following environment variables are expected by the program:
 
 | Name | Purpose | Example |
 |------|---------|---------|
-| SMI_LOGS_ROOT     |   Required variable used by all microservices, determines where log files are outputted    |  `/var/log`       |
+| SMI_LOGS_ROOT     |   Required to be set if `ForceSmiLogsRoot` is set to `true` in the service config. Determines where log files are written to | `/var/log/smi` |
 | MONGO_SERVICE_PASSWORD  | Password that should be used to access the MongoDb database used by ETL pipeline services | MyPassword|
 | ISIDENTIFIABLE_NUMTHREADS | Optional (defaults to 1).  The number of threads to use when looking for identifiable data in extraction pipeline | 1|
-| CI  | Allows tests to behave differently on CI server than running locally (rly?) | 1|
+| CI  | When running tests in a CI, this ensures that integration tests are failed instead of skipped | 1|
 
 ## Solution Overview
 

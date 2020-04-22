@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- Adjust log handling in CTP anonymiser to use SMIlogging setup
+
 ## [1.8.1] - 2020-04-17
 
 ### Fixed
