@@ -168,7 +168,8 @@ namespace Smi.Common
                     });
                 }
                 else
-                    consumer.ProcessMessage(ea);
+                    lock(consumer)
+                        consumer.ProcessMessage(ea);
             };
             _consumer.Shutdown +=(sender,ea)=>{
                 if (_threaded)
