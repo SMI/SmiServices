@@ -193,7 +193,7 @@ namespace Smi.Common
 
             Guid taskId = Guid.NewGuid();
 
-            var consumerTask = new Task(() => { model.BasicConsume(consumerOptions.QueueName, consumerOptions.AutoAck, _consumer); });
+            var consumerTask = new Task(() => { model.BasicConsume(consumerOptions.QueueName, consumerOptions.AutoAck, _consumer); },taskTokenSource.Token);
 
             var resources = new ConsumerResources
             {
