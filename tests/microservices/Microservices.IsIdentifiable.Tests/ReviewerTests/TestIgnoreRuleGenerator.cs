@@ -40,7 +40,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
                 @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+".Replace("\r\n", "\n"), File.ReadAllText(newRules.FullName).Replace("\r\n", "\n")); //btw slash space is a 'literal space' so legit
 
             //it should be no longer be novel
             Assert.IsFalse(ignorer.OnLoad(failure, out _));
@@ -86,7 +86,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
                 @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+".Replace("\r\n", "\n"), File.ReadAllText(newRules.FullName).Replace("\r\n", "\n")); //btw slash space is a 'literal space' so legit
 
             //it should be no longer be novel
             Assert.IsFalse(ignorer.OnLoad(failure, out _));
@@ -103,7 +103,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             Assert.AreEqual(@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
-",File.ReadAllText(newRules.FullName));
+".Replace("\r\n", "\n"), File.ReadAllText(newRules.FullName).Replace("\r\n", "\n"));
 
             //repeated undo calls do nothing
             ignorer.Undo();

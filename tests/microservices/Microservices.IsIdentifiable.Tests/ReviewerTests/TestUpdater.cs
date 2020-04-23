@@ -72,7 +72,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
   IfColumn: Narrative
   As: Location
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+".Replace("\r\n","\n"),File.ReadAllText(newRules.FullName).Replace("\r\n", "\n")); //btw slash space is a 'literal space' so legit
 
             //it should be updated automatically and not require user decision
             Assert.IsFalse(updater.OnLoad(db.Server,failure,out _));

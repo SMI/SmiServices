@@ -112,7 +112,7 @@ Anonymised file | Failure reason
 
 ";
 
-            Assert.AreEqual(expected, reporter.Report);
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), reporter.Report.Replace("\r\n", "\n"));
             Assert.True(reporter.Disposed);
         }
 
