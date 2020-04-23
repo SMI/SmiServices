@@ -462,8 +462,16 @@ namespace Smi.Common
                     TokenSource.Cancel();
 
                     // Consumer task can't directly shut itself down, as it will block here
-                    exitOk = ConsumerTask.Wait(timeout);
-
+                    try
+                    {
+                        exitOk = ConsumerTask.Wait(timeout);
+                    } catch (AggregateException e)
+                    {
+                        if (e.InnerException is TaskCanceledException)
+                            exitOk = true;
+                        else
+                            throw e;
+                    }
                     Dispose();
                 }
 
