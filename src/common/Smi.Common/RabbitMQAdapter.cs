@@ -470,7 +470,7 @@ namespace Smi.Common
                         if (e.InnerException is TaskCanceledException)
                             exitOk = true;
                         else
-                            throw e;
+                            throw;
                     }
                     Dispose();
                 }
