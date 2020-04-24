@@ -115,7 +115,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             _cliOptions.FlushMessages = true;
             host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
             host.Start();
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(1000);
 
             // Check the message has been sent back to the exchange and received by the consumer
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 0);
