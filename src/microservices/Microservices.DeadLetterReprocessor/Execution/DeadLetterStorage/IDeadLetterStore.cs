@@ -3,6 +3,7 @@ using Smi.Common.Messages;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
+using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoDocuments;
 
 namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
 {
@@ -27,7 +28,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
         /// 
         /// </summary>
         /// <returns></returns>
-        List<BasicDeliverEventArgs> GetMessagesForReprocessing(string queueFilter, bool forceProcess, Guid messageGuid = new Guid());
+        List<MongoDeadLetterDocument> GetMessagesForReprocessing(string queueFilter, bool forceProcess, Guid messageGuid = new Guid());
 
         /// <summary>
         /// Send a message which already exists in the store to the graveyard

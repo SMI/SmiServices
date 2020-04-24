@@ -41,7 +41,6 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoD
             return new BasicDeliverEventArgs
             {
                 RoutingKey = RoutingKey,
-                BasicProperties = Props.GetBasicProperties(),
                 Body = Encoding.UTF8.GetBytes(Payload)
             };
         }
@@ -57,13 +56,20 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoD
 
         public RabbitMqXDeathHeaders XDeathHeaders { get; set; }
 
-        public long UnixTimestamp { get; set; }
+        public Dictionary<string,object> Headers { get; set;  }
 
-        private IBasicProperties _props;
+        public long UnixTimestamp { get; set; }
 
         public MongoBasicPropertiesDocument(IBasicProperties props)
         {
-            _props = props;
+            Headers = new Dictionary<string,object>(props.Headers);
+            foreach (string key in new string[] { "MessageGuid", "ProducerProcessID", "ProducerExecutableName","Parents","OriginalPublishTimestamp" }) {
+                Headers.Remove(key);
+            }
+            foreach (string key in RabbitMqXDeathHeaders._requiredKeys)
+            {
+                Headers.Remove(key);
+            }
             ContentEncoding = props.ContentEncoding;
             ContentType = props.ContentType;
             MessageHeader = new MessageHeader(props.Headers, Encoding.UTF8);
@@ -71,10 +77,5 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoD
             UnixTimestamp = props.Timestamp.UnixTime;
         }
 
-
-        public IBasicProperties GetBasicProperties()
-        {            
-            return _props;
-        }
     }
 }

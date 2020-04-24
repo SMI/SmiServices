@@ -23,22 +23,13 @@ namespace Smi.Common.Messages
         public const string XFirstDeathReasonKey = "x-first-death-reason";
 
 
-        private static readonly List<string> _requiredKeys;
-
-
-        /// <summary>
-        /// Static constructor
-        /// </summary>
-        static RabbitMqXDeathHeaders()
-        {
-            _requiredKeys = new List<string>
+        public static readonly List<string> _requiredKeys = new List<string>
             {
                 XDeathKey,
                 XFirstDeathExchangeKey,
                 XFirstDeathQueueKey,
                 XFirstDeathReasonKey
             };
-        }
 
         public RabbitMqXDeathHeaders() { }
 

@@ -143,7 +143,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
         }
 
         //TODO This should return an enumerator
-        public List<BasicDeliverEventArgs> GetMessagesForReprocessing(string queueFilter, bool forceProcess, Guid messageGuid = new Guid())
+        public List<MongoDeadLetterDocument> GetMessagesForReprocessing(string queueFilter, bool forceProcess, Guid messageGuid = new Guid())
         {
             _logger.Debug("Getting messages for republishing (forceProcess=" + forceProcess + ", Guid="
                           + (messageGuid == Guid.Empty ? "<all>" : messageGuid.ToString()) + ")");
@@ -160,7 +160,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
             if (messageGuid != default(Guid))
                 filter &= Builders<MongoDeadLetterDocument>.Filter.Eq(x => x.MessageGuid, messageGuid);
 
-            List<BasicDeliverEventArgs> toReprocess;
+            List<MongoDeadLetterDocument> toReprocess;
 
             lock (_oDbLock)
                 toReprocess = GetMessagesToReprocess(filter).Result;
@@ -231,7 +231,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
             return mongoExtractJob != null;
         }
 
-        private async Task<List<BasicDeliverEventArgs>> GetMessagesToReprocess(FilterDefinition<MongoDeadLetterDocument> filter)
+        private async Task<List<MongoDeadLetterDocument>> GetMessagesToReprocess(FilterDefinition<MongoDeadLetterDocument> filter)
         {
             _logger.Debug("Getting messages to reprocess with filter " + ToJson(filter));
             var docs = new List<MongoDeadLetterDocument>();
@@ -244,7 +244,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
 
             _logger.Debug("Received {0} messages to reprocess", docs.Count);
 
-            return docs.Select(x => x.GetBasicDeliverEventArgs()).ToList();
+            return docs.ToList();
         }
 
         private void InsertToGraveyard(MongoDeadLetterGraveyardDocument graveyardDoc)

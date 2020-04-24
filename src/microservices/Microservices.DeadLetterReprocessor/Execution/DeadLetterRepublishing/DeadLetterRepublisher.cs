@@ -9,6 +9,8 @@ using RabbitMQ.Client.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoDocuments;
+using System.Text;
 
 namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
 {
@@ -72,9 +74,9 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
                 .ForEach(RepublishMessage);
         }
 
-        private void RepublishMessage(BasicDeliverEventArgs deliverArgs)
+        private void RepublishMessage(MongoDeadLetterDocument deliverArgs)
         {
-            var exchangeForRepublish = (string)deliverArgs.BasicProperties.Headers[RabbitMqXDeathHeaders.XFirstDeathExchangeKey];
+            var exchangeForRepublish = deliverArgs.Props.XDeathHeaders.XFirstDeathExchange;
 
             try
             {
@@ -92,11 +94,15 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
             ClearMessageHeaders(_props.Headers);
 
             // Update the new message props with the existing data from the deliverArgs
-            var existingHeader = new MessageHeader(deliverArgs.BasicProperties.Headers);
-            new MessageHeader(existingHeader).Populate(_props.Headers);
-            RabbitMqXDeathHeaders.CopyHeaders(deliverArgs.BasicProperties.Headers, _props.Headers);
+            new MessageHeader(deliverArgs.Props.MessageHeader).Populate(_props.Headers);
+            foreach (KeyValuePair<string,object> header in deliverArgs.Props.Headers)
+            {
+                _props.Headers.Add(header.Key, header.Value);
+            }
+            deliverArgs.Props.XDeathHeaders.Populate(_props.Headers);
 
-            _model.BasicPublish(exchangeForRepublish, deliverArgs.RoutingKey, true, _props, deliverArgs.Body);
+
+            _model.BasicPublish(exchangeForRepublish, deliverArgs.RoutingKey, true, _props, Encoding.UTF8.GetBytes(deliverArgs.Payload.ToCharArray()));
 
             try
             {
@@ -106,11 +112,11 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
             {
                 // If we can't republish a certain message, send it to graveyard
                 _logger.Error(e, "WaitForConfirmsOrDie Died");
-                _deadLetterStore.SendToGraveyard(existingHeader.MessageGuid, "Couldn't republish", e);
+                _deadLetterStore.SendToGraveyard(deliverArgs.Props.MessageHeader.MessageGuid, "Couldn't republish", e);
                 return;
             }
 
-            _deadLetterStore.NotifyMessageRepublished(existingHeader.MessageGuid);
+            _deadLetterStore.NotifyMessageRepublished(deliverArgs.Props.MessageHeader.MessageGuid);
             ++TotalRepublished;
         }
 
