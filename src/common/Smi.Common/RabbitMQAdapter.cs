@@ -360,7 +360,11 @@ namespace Smi.Common
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
                 BasicDeliverEventArgs e;
-                var r=m.BasicGet(queuename, false);
+                BasicGetResult r=null;
+                try { m.BasicGet(queuename, false); }
+                catch (OperationInterruptedException)
+                {
+                }
                 if (r == null)
                     Thread.Sleep(500);
                 else
