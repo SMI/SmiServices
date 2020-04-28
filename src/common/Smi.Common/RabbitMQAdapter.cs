@@ -1,8 +1,6 @@
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -31,7 +29,10 @@ namespace Smi.Common
         {
             get
             {
-                return _rabbitResources.Any(x => x.Value as ConsumerResources != null);
+                lock (_oResourceLock)
+                {
+                    return _rabbitResources.Any(x => x.Value as ConsumerResources != null);
+                }
             }
         }
 
@@ -46,8 +47,9 @@ namespace Smi.Common
         private readonly string _hostId;
 
         private readonly IConnectionFactory _factory;
-        private readonly ConcurrentDictionary<Guid, RabbitResources> _rabbitResources = new ConcurrentDictionary<Guid, RabbitResources>();
-        
+        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new Dictionary<Guid, RabbitResources>();
+        private readonly object _oResourceLock = new object();
+
         private const int MinRabbitServerVersionMajor = 3;
         private const int MinRabbitServerVersionMinor = 7;
         private const int MinRabbitServerVersionPatch = 0;
@@ -147,63 +149,24 @@ namespace Smi.Common
                 throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
-            EventingBasicConsumer _consumer = new EventingBasicConsumer(model);
-            consumer.SetModel(model);
-            ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
-            var taskTokenSource = new CancellationTokenSource();
-            _consumer.Received += (model, ea) => {
-                if (_threaded)
-                {
-                    Task.Run(() =>
-                    {
-                        worklock.EnterReadLock();
-                        try
-                        {
-                            consumer.ProcessMessage(ea);
-                        }
-                        finally
-                        {
-                            worklock.ExitReadLock();
-                        }
-                    });
-                }
-                else
-                    lock(consumer)
-                        consumer.ProcessMessage(ea);
-            };
-            _consumer.Shutdown +=(sender,ea)=>{
-                if (_threaded)
-                {
-                    // Taking a write lock means waiting for all read locks to
-                    // release, i.e. all workers have finished
-                    worklock.EnterWriteLock();
-
-                    // Now there are no *new* messages being processed, flush the queue
-                    consumer.Shutdown();
-                    worklock.ExitWriteLock();
-                }
-                worklock.Dispose();
-                string reason = "shutdown was called";
-                if (model.IsClosed)
-                    reason += ", channel is closed";
-                if (taskTokenSource.IsCancellationRequested)
-                    reason += ", cancellation was requested";
-                _logger.Debug("Consumer for {0} exiting ({1})", consumerOptions.QueueName, reason);
-            };
-
             Guid taskId = Guid.NewGuid();
+            var taskTokenSource = new CancellationTokenSource();
 
-            var consumerTask = new Task(() => { model.BasicConsume(consumerOptions.QueueName, consumerOptions.AutoAck, _consumer); },taskTokenSource.Token);
+            var consumerTask = new Task(() => Consume(model, consumerOptions.QueueName, consumer, taskTokenSource.Token));
 
             var resources = new ConsumerResources
             {
                 Connection = connection,
                 Model = model,
                 ConsumerTask = consumerTask,
-                TokenSource = taskTokenSource
+                TokenSource = taskTokenSource,
+                QueueName = consumerOptions.QueueName
             };
 
-            Debug.Assert(_rabbitResources.TryAdd(taskId, resources));
+            lock (_oResourceLock)
+            {
+                _rabbitResources.Add(taskId, resources);
+            }
 
             consumer.OnFatal += (s, e) =>
             {
@@ -216,7 +179,7 @@ namespace Smi.Common
 
             return taskId;
         }
-
+        
         /// <summary>
         ///
         /// </summary>
@@ -227,15 +190,17 @@ namespace Smi.Common
             if (ShutdownCalled)
                 return;
 
-            RabbitResources res;
-            if (!_rabbitResources.TryRemove(taskId, out res))
-                throw new ApplicationException("Guid was not found in the task register");
-
-            if (res is ConsumerResources)
+            lock (_oResourceLock)
             {
-                var cr = (ConsumerResources)res;
-                if (!cr.Shutdown(timeout))
-                    throw new ApplicationException($"Consume task did not exit in time: {cr.QueueName}");
+                if (!_rabbitResources.ContainsKey(taskId))
+                    throw new ApplicationException("Guid was not found in the task register");
+
+                var res = (ConsumerResources)_rabbitResources[taskId];
+
+                if (!res.Shutdown(timeout))
+                    throw new ApplicationException($"Consume task did not exit in time: {res.QueueName}");
+
+                _rabbitResources.Remove(taskId);
             }
         }
 
@@ -302,7 +267,10 @@ namespace Smi.Common
                 ProducerModel = producerModel,
             };
 
-            Debug.Assert(_rabbitResources.TryAdd(Guid.NewGuid(), resources));
+            lock (_oResourceLock)
+            {
+                _rabbitResources.Add(Guid.NewGuid(), resources);
+            }
 
             producerModel.OnFatal += (s, ra) =>
             {
@@ -328,11 +296,14 @@ namespace Smi.Common
             IConnection connection = _factory.CreateConnection(connectionName);
             IModel model = connection.CreateModel();
 
-            Debug.Assert(_rabbitResources.TryAdd(Guid.NewGuid(), new RabbitResources
+            lock (_oResourceLock)
             {
-                Connection = connection,
-                Model = model
-            }));
+                _rabbitResources.Add(Guid.NewGuid(), new RabbitResources
+                {
+                    Connection = connection,
+                    Model = model
+                });
+            }
 
             return model;
         }
@@ -351,25 +322,91 @@ namespace Smi.Common
             var exitOk = true;
             var failedToExit = new List<string>();
 
-            foreach (RabbitResources res in _rabbitResources.Values)
+            lock (_oResourceLock)
             {
-                var asConsumerRes = res as ConsumerResources;
-
-                if (asConsumerRes != null)
+                foreach (RabbitResources res in _rabbitResources.Values)
                 {
-                    exitOk &= asConsumerRes.Shutdown(timeout);
-                    failedToExit.Add(asConsumerRes.QueueName);
+                    var asConsumerRes = res as ConsumerResources;
+
+                    if (asConsumerRes != null)
+                    {
+                        exitOk &= asConsumerRes.Shutdown(timeout);
+                        failedToExit.Add(asConsumerRes.QueueName);
+                    }
+                    else
+                    {
+                        res.Dispose();
+                    }
                 }
+
+                if (!exitOk)
+                    throw new ApplicationException($"Some consumer tasks did not exit in time: {string.Join(", ", failedToExit)}");
+
+                _rabbitResources.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Receives any messages sent to the subscription and passes on to the consumer object.
+        /// </summary>
+        /// <param name="subscription">Subscription to monitor for messages on.</param>
+        /// <param name="consumer">Consumer to send messages on to.</param>
+        /// <param name="cancellationToken"></param>
+        private void Consume(IModel m, string queuename, IConsumer consumer, CancellationToken cancellationToken)
+        {
+            ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
+            consumer.SetModel(m);
+
+            while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
+            {
+                BasicDeliverEventArgs e;
+                var r=m.BasicGet(queuename, false);
+                if (r == null)
+                    Thread.Sleep(500);
                 else
                 {
-                    res.Dispose();
+                    e = new BasicDeliverEventArgs("", r.DeliveryTag, r.Redelivered, r.Exchange, r.RoutingKey, r.BasicProperties, r.Body);
+                    if (_threaded)
+                    {
+                        Task.Run(() =>
+                        {
+                            worklock.EnterReadLock();
+                            try
+                            {
+                                consumer.ProcessMessage(e);
+                            }
+                            finally
+                            {
+                                worklock.ExitReadLock();
+                            }
+                        }, cancellationToken);
+                    }
+                    else
+                        consumer.ProcessMessage(e);
                 }
             }
+            if (_threaded)
+            {
+                // Taking a write lock means waiting for all read locks to
+                // release, i.e. all workers have finished
+                worklock.EnterWriteLock();
 
-            if (!exitOk)
-                throw new ApplicationException($"Some consumer tasks did not exit in time: {string.Join(", ", failedToExit)}");
+                // Now there are no *new* messages being processed, flush the queue
+                consumer.Shutdown();
+                worklock.ExitWriteLock();
+            }
+            worklock.Dispose();
 
-            _rabbitResources.Clear();
+            string reason = "unknown";
+
+            if (cancellationToken.IsCancellationRequested)
+                reason = "cancellation was requested";
+            else if (ShutdownCalled)
+                reason = "shutdown was called";
+            else if (!m.IsOpen)
+                reason = "channel is closed";
+
+            _logger.Debug("Consumer for {0} exiting ({1})", queuename, reason);
         }
 
         /// <summary>
@@ -435,9 +472,9 @@ namespace Smi.Common
                 {
                     if (Model.IsOpen)
                         Model.Close(200, "Disposed");
-                    
+
                     if (Connection.IsOpen)
-                        Connection.Close(200, "Disposed", System.TimeSpan.FromSeconds(10));
+                        Connection.Close(200, "Disposed", TimeSpan.FromSeconds(10));
                 }
             }
         }
@@ -452,7 +489,8 @@ namespace Smi.Common
             public Task ConsumerTask { get; set; }
 
             public CancellationTokenSource TokenSource { get; set; }
-            public string QueueName { get; private set; }
+
+            public string QueueName { get; set; }
 
             public bool Shutdown(TimeSpan timeout)
             {
@@ -462,16 +500,10 @@ namespace Smi.Common
                     TokenSource.Cancel();
 
                     // Consumer task can't directly shut itself down, as it will block here
-                    try
-                    {
-                        exitOk = ConsumerTask.Wait(timeout);
-                    } catch (AggregateException e)
-                    {
-                        if (e.InnerException is TaskCanceledException)
-                            exitOk = true;
-                        else
-                            throw;
-                    }
+                    exitOk = ConsumerTask.Wait(timeout);
+
+                    Model.Close();
+
                     Dispose();
                 }
 
