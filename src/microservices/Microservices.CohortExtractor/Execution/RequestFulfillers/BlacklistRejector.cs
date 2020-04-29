@@ -32,19 +32,25 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         private void Initialize()
         {
+            //Figure out which UID columns exist in the Catalogue, do not require file path to be in Catalogue
             _columnSet = QueryToExecuteColumnSet.Create(_catalogue,false);
-            var syntax = _catalogue.GetQuerySyntaxHelper();
 
+            //Tells us the DBMS type
+            var syntax = _catalogue.GetQuerySyntaxHelper();
+            
+            //For storing the OR container and filter(s)
             var memory = new MemoryCatalogueRepository();
             
+            //builds SQL we will run in lookup stage
             _queryBuilder = new QueryBuilder(null,null);
             
             //all we care about is if the uid appears if it does then we are rejecting it
             _queryBuilder.TopX = 1;
 
+            //Filter is OR i.e. StudyInstanceUID = @StudyInstanceUID OR SeriesInstanceUID = @SeriesInstanceUID
             var container = _queryBuilder.RootFilterContainer = new SpontaneouslyInventedFilterContainer(memory,null,null,FilterContainerOperation.OR);
 
-            //Build SELECT and WHERE columns
+            //Build SELECT and WHERE bits of the query
             if (_columnSet.StudyTagColumn != null)
             {
                 _queryBuilder.AddColumn(_columnSet.StudyTagColumn);
@@ -79,11 +85,13 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 container.AddChild(_instanceFilter);
             }
 
+            // Make sure the query builder looks valid
             if(!_queryBuilder.SelectColumns.Any())
                 throw new NotSupportedException($"Blacklist Catalogue {_catalogue} (ID={_catalogue.ID}) did not have any Core ExtractionInformation columns corresponding to any of the image UID tags (e.g. StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID).");
 
             try
             {
+                // make sure we can connect to the server
                 _server = _catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, true);
                 _server.TestConnection();
             }
@@ -92,9 +100,17 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 throw new Exception($"Failed to test connection for Catalogue {_catalogue}",e);
             }
 
+            // run a test lookup query against the remote database
             DoLookup("test1", "test2", "test3");            
         }
 
+        /// <summary>
+        /// Looks up data stored in the Catalogue with a query matching on any of the provided uids.  All values must be supplied if the Catalogue has a column of the corresponding name (i.e. if Catalogue has SeriesInstanceUID you must supply <paramref name="seriesuid"/>)
+        /// </summary>
+        /// <param name="studyuid"></param>
+        /// <param name="seriesuid"></param>
+        /// <param name="imageuid"></param>
+        /// <returns></returns>
         public bool DoLookup(string studyuid, string seriesuid, string imageuid)
         {
             string sql = _queryBuilder.SQL;
@@ -104,6 +120,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 con.Open();
                 using (var cmd = _server.GetCommand(sql, con))
                 {
+                    //Add the current row UIDs to the parameters of the command
                     if(_studyFilter != null)
                         _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultStudyIdColumnName, cmd, studyuid);
 
@@ -115,12 +132,19 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                     using (var r = cmd.ExecuteReader())
                     {
+                        //if we can read a record then we have an entry in the blacklist
                         return r.Read();
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Rejects the <paramref name="row"/> if it appears in the blacklisting Catalogue
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
         public bool Reject(DbDataReader row, out string reason)
         {
             //row is bad if the query matches any records (in the blacklist)

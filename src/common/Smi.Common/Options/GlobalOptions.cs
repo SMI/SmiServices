@@ -384,7 +384,7 @@ namespace Smi.Common.Options
         public List<int> OnlyCatalogues { get; private set; }
 
         /// <summary>
-        /// Optional list of datasets which contain information about when NOT to extract an image.  This should be a manually curated blacklist - not just general rules (for those use <see cref="RejectorType"/>). First column must be SOPInstanceUID and second must be a column describing why an image is not extractable
+        /// Optional list of datasets which contain information about when NOT to extract an image.  This should be a manually curated blacklist - not just general rules (for those use <see cref="RejectorType"/>). Referenced datasets must include one or more of the UID columns (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID)
         /// </summary>
         public List<int> Blacklists { get; set; }
 
