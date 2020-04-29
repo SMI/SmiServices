@@ -58,7 +58,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 string whereSql =
                     $"{_columnSet.StudyTagColumn.SelectSQL} = {syntax.ParameterSymbol}{QueryToExecuteColumnSet.DefaultStudyIdColumnName}";
                     
-                _studyFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Series UID Filter","",null);
+                _studyFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Study UID Filter","",null);
                 container.AddChild(_studyFilter);
             }
                 
