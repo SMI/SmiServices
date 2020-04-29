@@ -116,7 +116,7 @@ namespace Microservices.CohortExtractor.Tests
             
             //The strategy pattern implementation that goes to the database but also considers reason
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cata});
-            fulfiller.Rejector = useDynamic? (IRejector) new DynamicRejector():new TestRejector();
+            fulfiller.Rejectors.Add(useDynamic? (IRejector) new DynamicRejector():new TestRejector());
             
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {

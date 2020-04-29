@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using MapsDirectlyToDatabaseTable;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
@@ -99,7 +100,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <param name="valueToLookup"></param>
         /// <param name="rejector">Required, determines whether records are returned as good or bad</param>
         /// <returns></returns>
-        public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup, IRejector rejector)
+        public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup, List<IRejector> rejectors)
         {
             if(_sql == null)
                 lock (_oLockExecute)
@@ -128,13 +129,26 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     if (imagePath == DBNull.Value)
                         continue;
 
-                    yield return new QueryToExecuteResult((string) imagePath,
-                        study == null ? null : (string)r[study],
-                        series == null ? null : (string)(string) r[series],
-                        instance == null ? null : (string)(string) r[instance],
-
-                        //Ask the rejector how good this record is
-                        rejector.Reject(r,out string reason),reason);
+                    bool reject = false;
+                    string rejectReason = null;
+                    
+                    //Ask the rejectors how good this record is
+                    foreach (IRejector rejector in rejectors)
+                    {
+                        if (rejector.Reject(r, out rejectReason))
+                        {
+                            reject = true;
+                            break;
+                        }
+                    }
+                    
+                    yield return 
+                    new QueryToExecuteResult((string) imagePath,
+                        study == null ? null : (string) r[study],
+                        series == null ? null : (string) (string) r[series],
+                        instance == null ? null : (string) (string) r[instance],
+                        reject,
+                        rejectReason);
                 }
             }
         }
