@@ -48,20 +48,22 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             ExtractionInformation filePathColumn,
             ExtractionInformation studyTagColumn,
             ExtractionInformation seriesTagColumn,
-            ExtractionInformation instanceTagColumn)
+            ExtractionInformation instanceTagColumn,
+            bool requireFilePath = true)
         {
             Catalogue = catalogue ?? throw new ArgumentNullException(nameof(catalogue));
 
             AllColumns = new ReadOnlyCollection<ExtractionInformation>(Catalogue.GetAllExtractionInformation(ExtractionCategory.Any));Catalogue.GetAllExtractionInformation(ExtractionCategory.Any);
 
-            FilePathColumn = filePathColumn ?? throw new ArgumentNullException(nameof(filePathColumn));
+            if (filePathColumn == null && requireFilePath)
+                throw new ArgumentNullException(nameof(filePathColumn));
+
+            FilePathColumn = filePathColumn;
             StudyTagColumn = studyTagColumn;
             SeriesTagColumn = seriesTagColumn;
             InstanceTagColumn = instanceTagColumn;
         }
-
         
-
         /// <summary>
         /// Generates a column set based on columns found in <paramref name="catalogue"/> (using the default expected column names
         /// e.g. <see cref="DefaultSeriesIdColumnName"/>).  Returns null if the <paramref name="catalogue"/> does not have all the required
@@ -69,6 +71,18 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         /// <param name="catalogue"></param>
         public static QueryToExecuteColumnSet Create(ICatalogue catalogue)
+        {
+            return Create(catalogue, true);
+        }
+
+        /// <summary>
+        /// Generates a column set based on columns found in <paramref name="catalogue"/> (using the default expected column names
+        /// e.g. <see cref="DefaultSeriesIdColumnName"/>).  Returns null if the <paramref name="catalogue"/> does not have all the required
+        /// columns
+        /// </summary>
+        /// <param name="catalogue"></param>
+        /// <param name="requireFilePath"></param>
+        public static QueryToExecuteColumnSet Create(ICatalogue catalogue, bool requireFilePath)
         {
             if(catalogue == null)
                 throw new ArgumentNullException(nameof(catalogue));
@@ -80,7 +94,11 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             var seriesTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultSeriesIdColumnName, StringComparison.CurrentCultureIgnoreCase));
             var instanceTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultInstanceIdColumnName, StringComparison.CurrentCultureIgnoreCase));
 
-            return filePathColumn != null ? new QueryToExecuteColumnSet(catalogue,filePathColumn,studyTagColumn,seriesTagColumn,instanceTagColumn) : null;
+            if (filePathColumn == null && requireFilePath)
+                return null;
+            
+            return new QueryToExecuteColumnSet(catalogue,filePathColumn,studyTagColumn,seriesTagColumn,instanceTagColumn,requireFilePath);
+            
         }
 
         /// <summary>

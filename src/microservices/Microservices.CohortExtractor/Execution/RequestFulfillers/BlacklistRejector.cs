@@ -13,7 +13,7 @@ using ReusableLibraryCode.DataAccess;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
-    class BlacklistRejector : IRejector
+    public class BlacklistRejector : IRejector
     {
         private readonly ICatalogue _catalogue;
         private QueryToExecuteColumnSet _columnSet;
@@ -32,7 +32,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         private void Initialize()
         {
-            _columnSet = QueryToExecuteColumnSet.Create(_catalogue);
+            _columnSet = QueryToExecuteColumnSet.Create(_catalogue,false);
             var syntax = _catalogue.GetQuerySyntaxHelper();
 
             var memory = new MemoryCatalogueRepository();
