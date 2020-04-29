@@ -94,7 +94,7 @@ namespace Microservices.CohortExtractor.Tests
 
             var fulfiller = CreateRequestFulfiller(opts);
             
-            Assert.IsInstanceOf(supplyRejectorName ? typeof(TestRejector): typeof(RejectNone),fulfiller.Rejector);
+            Assert.IsInstanceOf(supplyRejectorName ? typeof(TestRejector): typeof(RejectNone),fulfiller.Rejectors.Single());
         }
 
         private IExtractionRequestFulfiller CreateRequestFulfiller(CohortExtractorOptions opts)
@@ -126,7 +126,7 @@ namespace Microservices.CohortExtractor.Tests
                 new object[] {new[] {c}});
             
             if(fulfiller != null)
-                fulfiller.Rejector = f.CreateInstance<IRejector>(opts.RejectorType,typeof(TestRejector).Assembly) ?? new RejectNone();
+                fulfiller.Rejectors.Add(f.CreateInstance<IRejector>(opts.RejectorType,typeof(TestRejector).Assembly) ?? new RejectNone());
 
             return fulfiller;
 

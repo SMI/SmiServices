@@ -130,7 +130,15 @@ namespace Microservices.CohortExtractor.Execution
                 _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
 
             if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
-                _fulfiller.Rejector = ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly);
+                _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly));
+
+            if(_consumerOptions.Blacklists != null)
+                foreach (int id in _consumerOptions.Blacklists)
+                {
+                    var cata = repositoryLocator.CatalogueRepository.GetObjectByID<Catalogue>(id);
+                    var rejector = new BlacklistRejector(cata);
+                    _fulfiller.Rejectors.Add(rejector);
+                }
 
             if(!string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType))
                 _pathResolver = ObjectFactory.CreateInstance<IProjectPathResolver>(_consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly,repositoryLocator);
