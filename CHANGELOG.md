@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Adjust log handling in CTP anonymiser to use SMIlogging setup
+- IsIdentifiable case-sensitive rules now use IfPatternIsCaseSensitive:bool preceding the IfPattern. Fixes serialization bug, and is neater as no need for IfPatternCaseSensitive.
 
 ## [1.8.1] - 2020-04-17
 
