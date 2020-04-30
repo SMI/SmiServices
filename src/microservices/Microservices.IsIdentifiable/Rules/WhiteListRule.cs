@@ -21,9 +21,7 @@ namespace Microservices.IsIdentifiable.Rules
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        // NB. This has two set methods
         private Regex _ifPattern;
-        // NB. This has two set methods
         private Regex _ifPartPattern;
 
         /// <summary>
@@ -50,17 +48,12 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfPattern
         {
             get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            set => _ifPattern = value == null ? null : new Regex(value, (IfPatternIsCaseSensitive ? 0 : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
         }
         /// <summary>
-        /// The Regex pattern which should be used to match values with;
-        /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
+        /// Whether the IfPattern match is case sensitive or not (default is false)
         /// </summary>
-        public string IfPatternCaseSensitive
-        {
-            get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.Compiled);
-        }
+        public bool IfPatternIsCaseSensitive  { get; set; }
         /// <summary>
         /// The Regex pattern which should be used to match values with;
         /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
@@ -68,17 +61,12 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfPartPattern
         {
             get => _ifPartPattern?.ToString();
-            set => _ifPartPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            set => _ifPartPattern = value == null ? null : new Regex(value, (IfPartPatternIsCaseSensitive ? 0 : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
         }
         /// <summary>
-        /// The Regex pattern which should be used to match values with;
-        /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
+        /// Whether the IfPartPattern match is case sensitive or not (default is false)
         /// </summary>
-        public string IfPartPatternCaseSensitive
-        {
-            get => _ifPartPattern?.ToString();
-            set => _ifPartPattern = value == null ? null : new Regex(value, RegexOptions.Compiled);
-        }
+        public bool IfPartPatternIsCaseSensitive  { get; set; }
 
         /// <summary>
         /// A fake method due to inheriting ICustomRule; never called.

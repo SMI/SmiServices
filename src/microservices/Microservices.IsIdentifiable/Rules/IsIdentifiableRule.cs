@@ -18,7 +18,6 @@ namespace Microservices.IsIdentifiable.Rules
     /// </summary>
     public class IsIdentifiableRule : ICustomRule
     {
-        // NB. This has two set methods
         private Regex _ifPattern;
 
         /// <summary>
@@ -43,17 +42,13 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfPattern
         {
             get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        }
-        /// <summary>
-        /// The Regex pattern which should be used to match values with
-        /// </summary>
-        public string IfPatternCaseSensitive
-        {
-            get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.Compiled);
+            set => _ifPattern = value == null ? null : new Regex(value, (IfPatternIsCaseSensitive ? 0 : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
         }
 
+        /// <summary>
+        /// Whether the IfPattern match is case sensitive or not (default is false)
+        /// </summary>
+        public bool IfPatternIsCaseSensitive  { get; set; }
 
         public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {

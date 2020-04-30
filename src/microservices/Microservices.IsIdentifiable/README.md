@@ -118,7 +118,7 @@ When running in file or database mode the yaml file option -y is not used so the
 
 ### Basic Rules
 
-These can either result in a value being Reported or Ignored (i.e. not passed to any downstream classifiers).  Rules can apply to all columns (e.g. Ignore the Modality column) or only those values that match a Regex. The regex is specified using `IfPattern` and is not case sensitive. The keyword `IfPatternCaseSensitive` can be used instead if the regex must be case sensitive. Likewise for PartPattern.
+These can either result in a value being Reported or Ignored (i.e. not passed to any downstream classifiers).  Rules can apply to all columns (e.g. Ignore the Modality column) or only those values that match a Regex. The regex is specified using `IfPattern` and is not case sensitive. The keyword `IfPatternIsCaseSensitive` can be set to `true` for a case-sensitive match, but *must* be specified *before* the IfPattern. Likewise for PartPattern, and IfPartPatternIsCaseSensitive.
 
 ```yaml
 BasicRules: 
