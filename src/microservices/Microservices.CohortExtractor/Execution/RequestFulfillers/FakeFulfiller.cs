@@ -11,7 +11,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
     {
         protected readonly Logger Logger;
 
-        public IRejector Rejector { get; set; } = new RejectNone();
+        public List<IRejector> Rejectors { get; set; } = new List<IRejector>();
         public Regex ModalityRoutingRegex { get; set; }
 
         public FakeFulfiller()

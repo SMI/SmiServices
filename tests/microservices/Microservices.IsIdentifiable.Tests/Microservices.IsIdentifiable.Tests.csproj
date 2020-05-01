@@ -11,12 +11,6 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>  
   <ItemGroup>
-    <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.0.2" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
-  </ItemGroup>  
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\applications\IsIdentifiableReviewer\IsIdentifiableReviewer.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.IsIdentifiable\Microservices.IsIdentifiable.csproj" />
     <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
