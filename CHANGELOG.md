@@ -16,6 +16,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Adjust log handling in CTP anonymiser to use SMIlogging setup
+- IsIdentifiable case-sensitive rules now implemented with property 
+
+### Changed
+
+- Refactored `WhiteListRule` to inherit from `IsIdentifiableRule` (affects serialization).  
+  - Parent property `As` replaces `IfClassification`
+  - `CaseSensitive` replaces `IfPatternCaseSensitive` and `IfPartPatternCaseSensitive` (Also fixes serialization bug)
 
 ## [1.8.1] - 2020-04-17
 

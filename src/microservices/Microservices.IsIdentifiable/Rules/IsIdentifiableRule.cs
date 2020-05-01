@@ -18,8 +18,6 @@ namespace Microservices.IsIdentifiable.Rules
     /// </summary>
     public class IsIdentifiableRule : ICustomRule
     {
-        // NB. This has two set methods
-        private Regex _ifPattern;
 
         /// <summary>
         /// What to do if the rule is found to match the values being examined (e.g.
@@ -36,26 +34,43 @@ namespace Microservices.IsIdentifiable.Rules
         /// What you are trying to classify (if <see cref="Action"/> is <see cref="RuleAction.Report"/>)
         /// </summary>
         public FailureClassification As { get; set; }
+        
+        protected Regex IfPatternRegex;
+        private string _ifPatternString;
+        private bool _caseSensitive;
 
         /// <summary>
         /// The Regex pattern which should be used to match values with
         /// </summary>
         public string IfPattern
         {
-            get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            get => _ifPatternString;
+            set
+            {
+                _ifPatternString = value;
+                RebuildRegex();
+            }
         }
+
         /// <summary>
-        /// The Regex pattern which should be used to match values with
+        /// Whether the IfPattern match is case sensitive (default is false)
         /// </summary>
-        public string IfPatternCaseSensitive
+        public virtual bool CaseSensitive
         {
-            get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.Compiled);
+            get => _caseSensitive;
+            set
+            {
+                _caseSensitive = value;
+                RebuildRegex();
+            }
         }
 
+        private void RebuildRegex()
+        {
+            IfPatternRegex = _ifPatternString == null ? null : new Regex(_ifPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+        }
 
-        public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+        public virtual RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
             badParts = new List<FailurePart>();
 
@@ -82,7 +97,7 @@ namespace Microservices.IsIdentifiable.Rules
                 }
                     
                 // if the pattern matches the string we examined
-                var matches = _ifPattern.Matches(fieldValue);
+                var matches = IfPatternRegex.Matches(fieldValue);
                 if (matches.Any())
                 {
                     //if we are reporting all failing regexes
