@@ -4,8 +4,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import junit.framework.TestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.log4j.Logger;
 import org.smi.common.logging.SmiLogging;
 import org.smi.common.messaging.AnyConsumer;
 import org.smi.common.messaging.IProducerModel;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CTPAnonymiserHostTest extends TestCase {
 
-    private static Logger _logger;
+    private static final Logger _logger=Logger.getRootLogger();
 
     private static final String _fsRoot = System.getProperty("user.dir") + "/src/test/resources";
     private static final String _extractRoot = System.getProperty("user.dir") + "/src/test/resources";
@@ -61,7 +61,6 @@ public class CTPAnonymiserHostTest extends TestCase {
             e.printStackTrace();
             throw e;
         }
-        _logger = LoggerFactory.getLogger(Program.class);
 
         _options = GlobalOptions.Load(true);
 

@@ -118,7 +118,7 @@ When running in file or database mode the yaml file option -y is not used so the
 
 ### Basic Rules
 
-These can either result in a value being Reported or Ignored (i.e. not passed to any downstream classifiers).  Rules can apply to all columns (e.g. Ignore the Modality column) or only those values that match a Regex. The regex is specified using `IfPattern` and is not case sensitive. The keyword `IfPatternCaseSensitive` can be used instead if the regex must be case sensitive. Likewise for PartPattern.
+These can either result in a value being Reported or Ignored (i.e. not passed to any downstream classifiers).  Rules can apply to all columns (e.g. Ignore the Modality column) or only those values that match a Regex. The regex is specified using `IfPattern`.  Regex case sensitivity is determined by the `CaseSensitive` property (defaults to false).
 
 ```yaml
 BasicRules: 
@@ -162,8 +162,12 @@ Responder: \0\0
 
 ### White List Rules
 
+White list rules are a last chance filter on the final output of all other rules.  They allow discarding rules based on the whole string or the specific failing part.
+
 The Action for a White List rule must be Ignore because it is intended to allow values previously reported to be ignored as false positives.
+
 All of the constraints must match in order for the rule to Ignore the value.
+
 As soon as a value matches a white list rule no further white list rules are needed.
 Unlike a BasicRule whose Pattern matches the full value of a field (column or DICOM tag) the whitelist rule has two Patterns, IfPattern which has the same behaviour and IfPartPattern which matches only the substring that failed. This feature allows context to be specified, see the second example below.
 A whitelist rule can also match the failure classification (`PrivateIdentifier`, `Location`, `Person`, `Organization`, `Money`, `Percent`, `Date`, `Time`, `PixelText`, `Postcode`).
@@ -172,7 +176,7 @@ For example, if SIEMENS has been reported as a Person found in the the Manufactu
 ```yaml
 WhiteListRules:
  - Action: Ignore
-   IfClassification: Person
+   As: Person
    IfColumn: Manufacturer
    IfPartPattern: ^SIEMENS$
 ```

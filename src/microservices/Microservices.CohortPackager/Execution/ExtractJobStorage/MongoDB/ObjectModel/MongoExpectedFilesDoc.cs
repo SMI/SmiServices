@@ -42,7 +42,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             Key = (!string.IsNullOrWhiteSpace(key)) ? key : throw new ArgumentNullException(nameof(key));
-            ExpectedFiles = (expectedFiles.Count > 0) ? expectedFiles : throw new ArgumentNullException(nameof(expectedFiles));
+            ExpectedFiles = expectedFiles ?? throw new ArgumentNullException(nameof(expectedFiles));
             RejectedKeys = rejectedKeys ?? throw new ArgumentNullException(nameof(rejectedKeys));
         }
 

@@ -171,7 +171,8 @@ BasicRules:
    IfPattern: Dumfries.*Galloway.Royal
    As: Organization
  - Action: Report
-   IfPatternCaseSensitive: CRIC
+   CaseSensitive: true
+   IfPattern: CRIC
    As: Organization
 
 
@@ -184,10 +185,10 @@ WhiteListRules:
  # Some like GJNH are reported by our own rule below but we filter them out here.
  - Action: Ignore
    IfColumn: InstitutionName
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfColumn: InstitutionName
-   IfClassification: Location
+   As: Location
  - Action: Ignore
    IfColumn: InstitutionName
    IfPartPattern: GJNH

@@ -6,10 +6,61 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Added image extraction blacklist rejector.
+  - Configure with `Blacklists` option (specify a list of Catalogue IDs)
+  - Catalogues listed must include one or more column(s) StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID.
+  - Records in the referenced table will blacklist where any UID is found (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID).  This allows blacklisting an entire study or only specific images.
+
+### Fixed
+
+- Adjust log handling in CTP anonymiser to use SMIlogging setup
+- IsIdentifiable case-sensitive rules now implemented with property 
+
+### Changed
+
+- Refactored `WhiteListRule` to inherit from `IsIdentifiableRule` (affects serialization).  
+  - Parent property `As` replaces `IfClassification`
+  - `CaseSensitive` replaces `IfPatternCaseSensitive` and `IfPartPatternCaseSensitive` (Also fixes serialization bug)
+
+## [1.8.1] - 2020-04-17
+
+### Fixed
+
+- Fix null check bug in CohortPackager when no files match the extraction filter
+
+## [1.8.0] - 2020-04-16
+
+### Added
+
+- Added Terminal.Gui at version 0.81.0
+- Added data/IsIdentifiableRules
+
+### Changed
+
 - \[Breaking\] Promote the PT modality to its own collection in MongoDB
 - \[Breaking\] Renamed `RedisHost` to `RedisConnectionString` in the config options for clarity
 - Update to .Net Core 3.1 (supported until Dec 2022) since 2.2 support ended last year
 - Switch CohortExtractor to use batched message producers
+- Simplify the Travis build script
+- Fail any integration tests in CI if a required service is not available (instead of skipping)
+- Specified LangVersion 8.0 in all project files
+- Upgraded CommandLineParser from 2.5.0 to 2.7.82
+- Upgraded CsvHelper from 12.1.2 to 15.0.4
+- Upgraded HIC.Rdmp.Dicom from 2.0.8 to 2.0.9
+- Upgraded JetBrains.Annotations from 2019.1.3 to 2020.1.0
+- Upgraded Magick.NET-Q16-AnyCPU from 7.15.1 to 7.16.0
+- Upgraded Microsoft.CodeAnalysis.CSharp.Scripting from 3.5.0-beta2-final to 3.5.0
+- Upgraded MongoDB.Driver from 2.9.3 to 2.10.3
+- Upgraded StackExchange.Redis from 2.0.601 to 2.1.30
+- Upgraded System.Drawing.Common from 4.6.0 to 4.7.0
+- Upgraded System.IO.Abstractions from 7.0.7 to 10.0.8
+- Upgraded YamlDotNet from 6.0.0 to 8.1.0
+
+### Fixed
+
+- Fixed logging to directories in the Java services
 
 ## [1.7.0] - 2020-03-30
 
@@ -246,7 +297,9 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.7.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.8.1...develop
+[1.8.1]:  https://github.com/SMI/SmiServices/compare/v1.8.0...v1.8.1
+[1.8.0]:  https://github.com/SMI/SmiServices/compare/v1.7.0...v1.8.0
 [1.7.0]:  https://github.com/SMI/SmiServices/compare/v1.6.0...v1.7.0
 [1.6.0]:  https://github.com/SMI/SmiServices/compare/v1.5.2...v1.6.0
 [1.5.2]:  https://github.com/SMI/SmiServices/compare/v1.5.1...v1.5.2
