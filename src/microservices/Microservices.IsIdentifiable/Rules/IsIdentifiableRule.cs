@@ -36,6 +36,7 @@ namespace Microservices.IsIdentifiable.Rules
         public FailureClassification As { get; set; }
         
         protected Regex IfPatternRegex;
+        private string _ifPatternString;
         private bool _caseSensitive;
 
         /// <summary>
@@ -43,8 +44,12 @@ namespace Microservices.IsIdentifiable.Rules
         /// </summary>
         public string IfPattern
         {
-            get => IfPatternRegex?.ToString();
-            set => IfPatternRegex = value == null ? null : new Regex(value, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+            get => _ifPatternString;
+            set
+            {
+                _ifPatternString = value;
+                RebuildRegex();
+            }
         }
 
         /// <summary>
@@ -56,10 +61,13 @@ namespace Microservices.IsIdentifiable.Rules
             set
             {
                 _caseSensitive = value;
-
-                //refresh the Regex now that the case sensitivity has changed
-                IfPattern = IfPattern;
+                RebuildRegex();
             }
+        }
+
+        private void RebuildRegex()
+        {
+            IfPatternRegex = _ifPatternString == null ? null : new Regex(_ifPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
         }
 
         public virtual RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)

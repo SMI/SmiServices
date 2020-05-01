@@ -17,14 +17,18 @@ namespace Microservices.IsIdentifiable.Rules
     public class WhiteListRule : IsIdentifiableRule
     {
         protected Regex IfPartPatternRegex;
-
+        private string _ifPartPatternString;
         /// <summary>
         /// The Regex pattern which should be used to match values a specific failing part
         /// </summary>
         public string IfPartPattern
         {
-            get => IfPartPatternRegex?.ToString();
-            set => IfPartPatternRegex = value == null ? null : new Regex(value, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+            get => _ifPartPatternString;
+            set
+            {
+                _ifPartPatternString = value; 
+                RebuildPartRegex();
+            }
         }
 
         /// <summary>
@@ -36,8 +40,8 @@ namespace Microservices.IsIdentifiable.Rules
             set
             {
                 base.CaseSensitive = value;
-                //refresh the Regex now that the case sensitivity has changed
-                IfPartPattern = IfPartPattern;
+
+                RebuildPartRegex();
             }
         }
 
@@ -48,6 +52,12 @@ namespace Microservices.IsIdentifiable.Rules
         {
             Action = RuleAction.Ignore;
         }
+
+        private void RebuildPartRegex()
+        {
+            IfPartPatternRegex = _ifPartPatternString == null ? null : new Regex(_ifPartPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+        }
+
         /// <summary>
         /// A fake method due to inheriting ICustomRule; never called.
         /// </summary>
