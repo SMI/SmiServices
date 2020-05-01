@@ -4,8 +4,8 @@ import com.google.common.io.Files;
 import com.google.gson.JsonSyntaxException;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Envelope;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.log4j.Logger;
 import org.smi.common.messages.MessageHeader;
 import org.smi.common.messaging.IProducerModel;
 import org.smi.common.messaging.SmiConsumer;
@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 
 public class CTPAnonymiserConsumer extends SmiConsumer {
 
-	private final static Logger _logger = LoggerFactory.getLogger(CTPAnonymiserConsumer.class);
+	private final static Logger _logger = Logger.getRootLogger();
 	private final static String _routingKey_failure = "failure";
 	private final static String _routingKey_success = "success";
 	private String _fileSystemRoot;

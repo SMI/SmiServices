@@ -3,8 +3,7 @@ package org.smi.ctpanonymiser.util;
 
 import java.io.File;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.smi.ctpanonymiser.execution.SmiCtpProcessor;
 
 /**
@@ -13,7 +12,7 @@ import org.smi.ctpanonymiser.execution.SmiCtpProcessor;
  */
 public class DicomAnonymizerToolBuilder {
 
-	private static Logger _logger = LoggerFactory.getLogger(DicomAnonymizerToolBuilder.class);;
+	private static final Logger _logger = Logger.getRootLogger();
 
 	/**
 	 * Anonymiser script file. No tag anonymisation will be performed if this is

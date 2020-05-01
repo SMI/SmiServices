@@ -321,6 +321,38 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         }
 
         [Test]
+        public void TestPersistMessageToStoreImpl_ExtractFileCollectionInfoMessage_NoIdentifiers()
+        {
+            Guid jobId = Guid.NewGuid();
+            var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
+            {
+                ExtractionJobIdentifier = jobId,
+                ProjectNumber = "1234-5678",
+                RejectionReasons = new Dictionary<string, int>
+                {
+                    {"ImageType is not ORIGINAL", 1 },
+                },
+                JobSubmittedAt = DateTime.UtcNow,
+                ExtractionDirectory = "1234-5678/testExtract",
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(), // No files were extractable for this key
+                KeyValue = "series-1",
+            };
+            var header = new MessageHeader
+            {
+                MessageGuid = Guid.NewGuid(),
+                OriginalPublishTimestamp = MessageHeader.UnixTimeNow(),
+                Parents = new[] { Guid.NewGuid(), },
+                ProducerExecutableName = "MongoExtractStoreTests",
+                ProducerProcessID = 1234,
+            };
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            Assert.DoesNotThrow(() => store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header));
+        }
+
+        [Test]
         public void TestPersistMessageToStoreImpl_ExtractFileStatusMessage()
         {
             var client = new TestMongoClient();
