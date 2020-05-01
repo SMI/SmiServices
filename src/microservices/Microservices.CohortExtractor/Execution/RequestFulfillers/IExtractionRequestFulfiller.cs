@@ -20,7 +20,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <summary>
         /// Controls what records that are fetched back should be reported as non extractable (including the reason why)
         /// </summary>
-        IRejector Rejector { get; set; }
+        List<IRejector> Rejectors { get; set; }
 
         /// <summary>
         /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which

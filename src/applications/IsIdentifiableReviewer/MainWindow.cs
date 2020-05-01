@@ -499,8 +499,11 @@ namespace IsIdentifiableReviewer
                 IsDefault = true,
                 Clicked = () =>
                 {
-                    dlg.Running = false;
-                    optionChosen = true;
+                    if (!string.IsNullOrWhiteSpace(txt.Text?.ToString()))
+                    {
+                        dlg.Running = false;
+                        optionChosen = true;
+                    }
                 }
             };
             dlg.Add(btn);
