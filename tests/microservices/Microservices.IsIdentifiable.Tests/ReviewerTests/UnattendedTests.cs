@@ -8,6 +8,7 @@ using FAnsi.Implementations.MicrosoftSQL;
 using IsIdentifiableReviewer;
 using IsIdentifiableReviewer.Out;
 using NUnit.Framework;
+using Smi.Common.Tests;
 
 namespace Microservices.IsIdentifiable.Tests.ReviewerTests
 {
@@ -116,7 +117,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             Assert.AreEqual(0,reviewer.Run());
             
             //all that we put in is unprocessed so should come out the same
-            StringAssert.AreEqualIgnoringCase(inputFile,File.ReadAllText(fiOut).TrimEnd());
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(inputFile,File.ReadAllText(fiOut).TrimEnd());
 
             Assert.AreEqual(1,reviewer.Total);
             Assert.AreEqual(0,reviewer.Ignores);
