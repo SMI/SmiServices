@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.rsna.ctp.objects.DicomObject;
 import org.rsna.ctp.stdstages.anonymizer.AnonymizerStatus;
 import org.rsna.ctp.stdstages.anonymizer.dicom.DAScript;
@@ -14,14 +15,12 @@ import org.rsna.ctp.stdstages.anonymizer.dicom.PixelScript;
 import org.rsna.ctp.stdstages.anonymizer.dicom.Regions;
 import org.rsna.ctp.stdstages.anonymizer.dicom.Signature;
 import org.rsna.ctp.stdstages.anonymizer.dicom.Transcoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smi.ctpanonymiser.util.CtpAnonymisationStatus;
 import org.smi.ctpanonymiser.util.SmiAnonymisationException;
 
 public class SmiCtpProcessor {
 
-	private static final Logger _logger = LoggerFactory.getLogger(SmiCtpProcessor.class);
+	private static final Logger _logger = Logger.getRootLogger();
 
 	private static final String JPEGBaseline = "1.2.840.10008.1.2.4.50";
 	private static final String JPEGLossLess = "1.2.840.10008.1.2.4.70";
