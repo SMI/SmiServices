@@ -9,64 +9,64 @@ BasicRules:
  # Most have a TITLE of MR, MRS, MS, MAST or MISS, but some don't.
  - Action: Report
    IfColumn: ProtocolName
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MR[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: ProtocolName
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MRS[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: ProtocolName
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MS[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: ProtocolName
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MAST[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: ProtocolName
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MISS[0-9]{1,2}$
    As: Person
  # Same for SeriesDescription
  - Action: Report
    IfColumn: SeriesDescription
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MR[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: SeriesDescription
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MRS[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: SeriesDescription
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MS[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: SeriesDescription
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MAST[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: SeriesDescription
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}MISS[0-9]{1,2}$
    As: Person
  # Now for the ones which don't have MR/MRS/etc
  - Action: Report
    IfColumn: ProtocolName
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}[0-9]{1,2}$
    As: Person
  - Action: Report
    IfColumn: SeriesDescription
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: ^[A-Z]{4,}[0-9]{1,2}$
    As: Person
 
@@ -76,11 +76,11 @@ WhiteListRules:
  # Things which our BasicFules classified as a Person but are not
  - Action: Ignore
    IfColumn: SeriesDescription
-   IfPartPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPartPattern: ^AXIAL
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfColumn: ProtocolName
-   IfPartPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPartPattern: ^AXIAL
-   IfClassification: Person
+   As: Person

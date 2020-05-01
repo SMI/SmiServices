@@ -171,7 +171,7 @@ BasicRules:
    IfPattern: Dumfries.*Galloway.Royal
    As: Organization
  - Action: Report
-   IfPatternIsCaseSensitive: true
+   CaseSensitive: true
    IfPattern: CRIC
    As: Organization
 
