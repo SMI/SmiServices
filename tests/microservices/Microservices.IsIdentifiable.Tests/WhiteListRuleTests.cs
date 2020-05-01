@@ -66,5 +66,24 @@ namespace Microservices.IsIdentifiable.Tests
 
         }
 
+        [Test]
+        public void TestCombiningPatternAndPart()
+        {
+            var rule = new WhiteListRule()
+            {
+                IfPartPattern = "^Brian$",
+                IfPattern = "MR Brian And Skull"
+            };
+
+            Assert.AreEqual(
+                RuleAction.Ignore,rule.ApplyWhiteListRule("aba", "MR Brian And Skull",
+                    new FailurePart("Brian", FailureClassification.Person, 0)),"Rule matches on both patterns");
+
+            Assert.AreEqual(
+                RuleAction.None,rule.ApplyWhiteListRule("aba", "MR Brian And Skull",
+                    new FailurePart("Skull", FailureClassification.Person, 0)),"Rule does not match on both whole string AND part so should not be ignored");
+        }
+
+
     }
 }
