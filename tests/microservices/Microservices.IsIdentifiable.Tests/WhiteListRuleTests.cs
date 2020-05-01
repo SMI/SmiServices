@@ -72,7 +72,7 @@ namespace Microservices.IsIdentifiable.Tests
             var rule = new WhiteListRule()
             {
                 IfPartPattern = "^Brian$",
-                IfPattern = "MR Brian And Skull"
+                IfPattern = "^MR Brian And Skull$"
             };
 
             Assert.AreEqual(
