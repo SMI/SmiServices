@@ -5,6 +5,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microservices.IsIdentifiable.Failures;
 
+// XXX using RegexOptions.Compiled may result in a large amount of static code
+// which is never freed during garbage collection, see
+// https://docs.microsoft.com/en-us/dotnet/standard/base-types/compilation-and-reuse-in-regular-expressions
+// Note that the Regex Cache is not used in instance methods.
+
 namespace Microservices.IsIdentifiable.Rules
 {
     /// <summary>
@@ -13,6 +18,7 @@ namespace Microservices.IsIdentifiable.Rules
     /// </summary>
     public class IsIdentifiableRule : ICustomRule
     {
+        // NB. This has two set methods
         private Regex _ifPattern;
 
         /// <summary>
@@ -37,7 +43,15 @@ namespace Microservices.IsIdentifiable.Rules
         public string IfPattern
         {
             get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value,RegexOptions.IgnoreCase);
+            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        }
+        /// <summary>
+        /// The Regex pattern which should be used to match values with
+        /// </summary>
+        public string IfPatternCaseSensitive
+        {
+            get => _ifPattern?.ToString();
+            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.Compiled);
         }
 
 

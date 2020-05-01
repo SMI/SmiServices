@@ -96,7 +96,7 @@ namespace Smi.Common.Tests
         /// <param name="msg"></param>
         public void SendMessage(ConsumerOptions toConsumer, IMessage msg)
         {
-            _sendToConsumers[toConsumer].SendMessage(msg);
+            _sendToConsumers[toConsumer].SendMessage(msg, null);
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
 

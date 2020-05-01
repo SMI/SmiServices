@@ -1,7 +1,6 @@
 
 package org.smi.ctpanonymiser;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeoutException;
@@ -13,8 +12,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.smi.common.execution.SmiShutdownHook;
 import org.smi.common.logging.SmiLogging;
 import org.smi.common.options.GlobalOptions;
@@ -29,7 +27,7 @@ public class Program {
 	public static void main(String[] args) throws ParseException, YAMLException, URISyntaxException, IOException, TimeoutException {
 		
 		SmiLogging.Setup(false);
-		Logger logger = LoggerFactory.getLogger(Program.class);
+		Logger logger = Logger.getRootLogger();
 
 		//TODO Make this into a helper class
 		CommandLine parsedArgs = ParseOptions(args);

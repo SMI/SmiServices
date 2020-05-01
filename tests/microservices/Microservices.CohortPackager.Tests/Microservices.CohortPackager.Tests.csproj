@@ -12,10 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="10.0.7" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="11.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />

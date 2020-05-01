@@ -21,7 +21,9 @@ namespace Microservices.IsIdentifiable.Rules
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
+        // NB. This has two set methods
         private Regex _ifPattern;
+        // NB. This has two set methods
         private Regex _ifPartPattern;
 
         /// <summary>
@@ -50,10 +52,32 @@ namespace Microservices.IsIdentifiable.Rules
             get => _ifPattern?.ToString();
             set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
+        /// <summary>
+        /// The Regex pattern which should be used to match values with;
+        /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
+        /// </summary>
+        public string IfPatternCaseSensitive
+        {
+            get => _ifPattern?.ToString();
+            set => _ifPattern = value == null ? null : new Regex(value, RegexOptions.Compiled);
+        }
+        /// <summary>
+        /// The Regex pattern which should be used to match values with;
+        /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
+        /// </summary>
         public string IfPartPattern
         {
             get => _ifPartPattern?.ToString();
             set => _ifPartPattern = value == null ? null : new Regex(value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        }
+        /// <summary>
+        /// The Regex pattern which should be used to match values with;
+        /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
+        /// </summary>
+        public string IfPartPatternCaseSensitive
+        {
+            get => _ifPartPattern?.ToString();
+            set => _ifPartPattern = value == null ? null : new Regex(value, RegexOptions.Compiled);
         }
 
         /// <summary>
@@ -98,12 +122,12 @@ namespace Microservices.IsIdentifiable.Rules
             if (_ifPattern!=null && !_ifPattern.Matches(fieldValue).Any())
                 return(RuleAction.None);
 
-            _logger.Debug("WhiteListing fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
+            /*_logger.Debug("WhiteListing fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
             + " due to rule: "
             + (_ifPattern == null ? "" : "Pattern: " + _ifPattern.ToString())
             + (IfPartPattern == null ? "" : " Part: " + IfPartPattern.ToString())
             + (IfColumn == null ? "" : " Column: " + IfColumn)
-            + (IfClassification == FailureClassification.None ? "" : " Classification: " + IfClassification));
+            + (IfClassification == FailureClassification.None ? "" : " Classification: " + IfClassification));*/
 
             return Action;
         }

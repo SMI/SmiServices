@@ -127,6 +127,7 @@ namespace Microservices.IsIdentifiable.Runners
                 DirectoryInfo di = new DirectoryInfo(opts.RulesDirectory);
                 foreach (var fi in di.GetFiles("*.yaml"))
                 {
+                    _logger.Info($"Loading rules from {fi.Name}");
                     LoadRules(File.ReadAllText(fi.FullName));
                 }
             }
