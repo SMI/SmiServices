@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microservices.IsIdentifiable.Failures;
-using NLog;
 
 // XXX using RegexOptions.Compiled may result in a large amount of static code
 // which is never freed during garbage collection, see
@@ -14,67 +12,49 @@ using NLog;
 namespace Microservices.IsIdentifiable.Rules
 {
     /// <summary>
-    /// A simple Regex based rule that allows flexible white listing of values.
-    /// Note that it implements ICustomRule but use ApplyWhiteListRule not Apply.
+    /// Expanded <see cref="IsIdentifiableRule"/> which works only for <see cref="RuleAction.Ignore"/>.  Should be run after main rules have picked up failures.  This class is designed to perform final checks on failures and discard based on <see cref="IsIdentifiableRule.IfPatternRegex"/> and/or <see cref="IfPartPatternRegex"/>
     /// </summary>
-    public class WhiteListRule : ICustomRule
+    public class WhiteListRule : IsIdentifiableRule
     {
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private Regex _ifPattern;
-        private Regex _ifPartPattern;
+        protected Regex IfPartPatternRegex;
 
         /// <summary>
-        /// What to do if the rule is found to match the values being examined (e.g.
-        /// whitelist the value or report the value as a validation failure)
-        /// </summary>
-        public RuleAction Action { get; set; }
-
-        /// <summary>
-        /// The column/tag in which to apply the rule.  If empty then the rule applies to all columns/tags.
-        /// </summary>
-        public string IfColumn { get; set; }
-
-        /// <summary>
-        /// A specific failure classification to match
-        /// eg. None, PrivateIdentifier, Location, Person, Organization, Money, Percent, Date, Time, PixelText, Postcode
-        /// </summary>
-        public FailureClassification IfClassification { get; set; }
-
-        /// <summary>
-        /// The Regex pattern which should be used to match values with;
-        /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
-        /// </summary>
-        public string IfPattern
-        {
-            get => _ifPattern?.ToString();
-            set => _ifPattern = value == null ? null : new Regex(value, (IfPatternIsCaseSensitive ? 0 : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
-        }
-        /// <summary>
-        /// Whether the IfPattern match is case sensitive or not (default is false)
-        /// </summary>
-        public bool IfPatternIsCaseSensitive  { get; set; }
-        /// <summary>
-        /// The Regex pattern which should be used to match values with;
-        /// IfPattern matches the whole field value, IfPartPattern matches the substring which raised a Failure.
+        /// The Regex pattern which should be used to match values a specific failing part
         /// </summary>
         public string IfPartPattern
         {
-            get => _ifPartPattern?.ToString();
-            set => _ifPartPattern = value == null ? null : new Regex(value, (IfPartPatternIsCaseSensitive ? 0 : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+            get => IfPartPatternRegex?.ToString();
+            set => IfPartPatternRegex = value == null ? null : new Regex(value, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
         }
-        /// <summary>
-        /// Whether the IfPartPattern match is case sensitive or not (default is false)
-        /// </summary>
-        public bool IfPartPatternIsCaseSensitive  { get; set; }
 
+        /// <summary>
+        /// Whether the IfPattern and IfPartPattern are case sensitive (default is false)
+        /// </summary>
+        public override bool CaseSensitive
+        {
+            get => base.CaseSensitive;
+            set
+            {
+                base.CaseSensitive = value;
+                //refresh the Regex now that the case sensitivity has changed
+                IfPartPattern = IfPartPattern;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new instance with the <see cref="Action"/> Ignore
+        /// </summary>
+        public WhiteListRule()
+        {
+            Action = RuleAction.Ignore;
+        }
         /// <summary>
         /// A fake method due to inheriting ICustomRule; never called.
         /// </summary>
-        public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+        /// <exception cref="NotSupportedException"></exception>
+        public override RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
-            badParts = new List<FailurePart>();
-            return RuleAction.None;
+            throw new NotSupportedException("This method should not be used for WhiteListRule, use ApplyWhiteListRule instead");
         }
 
 
@@ -99,15 +79,15 @@ namespace Microservices.IsIdentifiable.Rules
                 return RuleAction.None;
 
             // A failure classification specified (eg. a Location or a Person)
-            if ((IfClassification != FailureClassification.None) && (IfClassification != badPart.Classification))
+            if ((As != FailureClassification.None) && (As != badPart.Classification))
                 return(RuleAction.None);
 
             // A pattern to match the specific part (substring) which previously failed
-            if (_ifPartPattern!=null && !_ifPartPattern.Matches(badPart.Word).Any())
+            if (IfPartPatternRegex !=null && !IfPartPatternRegex.Matches(badPart.Word).Any())
                 return(RuleAction.None);
 
             // A pattern to match the whole of the field value, not just the bit which failed
-            if (_ifPattern!=null && !_ifPattern.Matches(fieldValue).Any())
+            if (IfPatternRegex!=null && !IfPatternRegex.Matches(fieldValue).Any())
                 return(RuleAction.None);
 
             /*_logger.Debug("WhiteListing fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
