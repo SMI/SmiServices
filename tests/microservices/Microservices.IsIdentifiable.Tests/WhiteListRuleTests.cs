@@ -82,6 +82,10 @@ namespace Microservices.IsIdentifiable.Tests
             Assert.AreEqual(
                 RuleAction.None,rule.ApplyWhiteListRule("aba", "MR Brian And Skull",
                     new FailurePart("Skull", FailureClassification.Person, 0)),"Rule does not match on both whole string AND part so should not be ignored");
+
+            Assert.AreEqual(
+                RuleAction.None,rule.ApplyWhiteListRule("aba", "MR Brian And Skull Dr Fisher",
+                    new FailurePart("Brian", FailureClassification.Person, 0)),"Rule does not match on both whole string AND part so should not be ignored");
         }
 
 
