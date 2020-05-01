@@ -56,7 +56,8 @@ namespace Smi.Common.Tests
 
         public class ConStrs
         {
-            public string MySql { get; set; }
+            private string _MySql;
+            public string MySql { get { return _MySql; } set { _MySql = value.Replace("ssl-mode","sslmode",StringComparison.OrdinalIgnoreCase); } }
             public string SqlServer { get; set; }
             public string Oracle { get; set; }
 
