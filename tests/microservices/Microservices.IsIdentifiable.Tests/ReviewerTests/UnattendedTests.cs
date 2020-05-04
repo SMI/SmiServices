@@ -216,7 +216,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             Assert.AreEqual(0,reviewer.Run());
             
             //it matches the UPDATE rule but since OnlyRules is true it didn't actually update the database! so the record should definitely be in the output
-            StringAssert.AreEqualIgnoringCase(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28",File.ReadAllText(fiOut).TrimEnd());
 
             Assert.AreEqual(1,reviewer.Total);
