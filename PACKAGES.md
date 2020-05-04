@@ -9,9 +9,10 @@
 
 | Package | Source Code | Version | License | Purpose | Additional Risk Assessment |
 | ------- | ------------| --------| ------- | ------- | -------------------------- |
-| CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.7.82](https://www.nuget.org/packages/CommandLineParser/2.7.82) | [MIT](https://opensource.org/licenses/MIT)| Command line argument parsing |  |
+| CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.8.0](https://www.nuget.org/packages/CommandLineParser/2.8.0) | [MIT](https://opensource.org/licenses/MIT)| Command line argument parsing |  |
 | CsvHelper | [GitHub](https://github.com/JoshClose/CsvHelper) | [15.0.5](https://www.nuget.org/packages/CsvHelper/15.0.5) | [MS-PL and Apache 2.0](https://github.com/JoshClose/CsvHelper/blob/master/LICENSE.txt)| Writting reports out to CSV reports | |
 | HIC.DicomTypeTranslation | [GitHub](https://github.com/HicServices/DicomTypeTranslation) | [2.2.2](https://www.nuget.org/packages/HIC.DicomTypeTranslation/2.2.2) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Translate dicom types into C# / database types | |
+| HIC.FAnsiSql | [GitHub](https://github.com/HicServices/FansiSql) | [0.11.1](https://www.nuget.org/packages/HIC.FAnsiSql/0.11.1) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Database abstraction layer | |
 | HIC.RDMP.Dicom | [GitHub](https://github.com/HicServices/RdmpDicom) | [2.0.9](https://www.nuget.org/packages/HIC.RDMP.Dicom/2.0.9) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | RDMP Plugin containing data load / pipeline components for imaging, reading dicom files etc | |
 | HIC.RDMP.Plugin | [GitHub](https://github.com/HicServices/RDMP) | [4.0.3](https://www.nuget.org/packages/HIC.RDMP.Plugin/4.0.3) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Interact with RDMP objects, base classes for plugin components etc | |
 | JetBrains.Annotations | | [2020.1.0](https://www.nuget.org/packages/JetBrains.Annotations/2020.1.0) |[MIT](https://opensource.org/licenses/MIT) | Static analysis tool | |
@@ -25,7 +26,7 @@
 | StackExchange.Redis | [GitHub](https://github.com/StackExchange/StackExchange.Redis) | [2.1.30](https://www.nuget.org/packages/StackExchange.Redis/2.1.30) |[MIT](https://opensource.org/licenses/MIT) | Required for RedisSwapper | |
 | Stanford.NLP.CoreNLP | [GitHub Pages](https://sergey-tihon.github.io/Stanford.NLP.NET/) | [3.9.2](https://www.nuget.org/packages/Stanford.NLP.CoreNLP/3.9.2) | [GNU v2](https://github.com/sergey-tihon/Stanford.NLP.NET/blob/master/LICENSE.txt)| Name / Organisation detection in text | |
 | System.Drawing.Common | [GitHub](https://github.com/dotnet/corefx) | [4.7.0](https://www.nuget.org/packages/System.Drawing.Common/4.7.0) | [MIT](https://opensource.org/licenses/MIT)  | Supports reading pixel data | |
-| System.IO.Abstractions | [GitHub](https://github.com/System-IO-Abstractions/System.IO.Abstractions) | [11.0.3](https://www.nuget.org/packages/System.IO.Abstractions/11.0.3) | [MIT](https://opensource.org/licenses/MIT) | Makes file system injectable in tests | |
+| System.IO.Abstractions | [GitHub](https://github.com/System-IO-Abstractions/System.IO.Abstractions) | [11.0.4](https://www.nuget.org/packages/System.IO.Abstractions/11.0.4) | [MIT](https://opensource.org/licenses/MIT) | Makes file system injectable in tests | |
 | System.IO.FileSystem | [GitHub](https://github.com/dotnet/corefx) | [4.3.0](https://www.nuget.org/packages/System.IO.FileSystem/4.3.0) |[MIT](https://opensource.org/licenses/MIT)  | File I/O | |
 | System.Security.AccessControl | [GitHub](https://github.com/dotnet/corefx) | [4.7.0](https://www.nuget.org/packages/System.Security.AccessControl/4.7.0) |[MIT](https://opensource.org/licenses/MIT)  | File access perimssions| |
 | Terminal.Gui | [GitHub](https://github.com/migueldeicaza/gui.cs/) | [0.81.0](https://www.nuget.org/packages/Terminal.Gui/0.81.0) |[MIT](https://opensource.org/licenses/MIT) | Console GUI library | |

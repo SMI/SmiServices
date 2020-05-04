@@ -2,6 +2,7 @@
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Failures;
 using NUnit.Framework;
+using Smi.Common.Tests;
 
 namespace Microservices.IsIdentifiable.Tests.ReviewerTests
 {
@@ -36,7 +37,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             //we tell it to ignore this value
             ignorer.Add(failure);
             
-            StringAssert.Contains(
+            TestHelpers.Contains(
                 @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
@@ -82,7 +83,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             //we tell it to ignore this value
             ignorer.Add(failure);
             
-            StringAssert.Contains(
+            TestHelpers.Contains(
                 @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$

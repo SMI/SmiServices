@@ -5,6 +5,7 @@ using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Destinations;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
+using Smi.Common.Tests;
 
 namespace Microservices.IsIdentifiable.Tests
 {
@@ -25,7 +26,10 @@ namespace Microservices.IsIdentifiable.Tests
             string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
             fileCreatedContents = fileCreatedContents.Replace("\r\n", "\n");
 
-            Assert.AreEqual("col1,col2\n\"cell1 with some new \n lines and 	 tabs\",cell2\n", fileCreatedContents);
+            TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
+""cell1 with some new 
+ lines and 	 tabs"",cell2
+", fileCreatedContents);
         }
 
         [Test]
@@ -43,7 +47,9 @@ namespace Microservices.IsIdentifiable.Tests
             var fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
             fileCreatedContents = fileCreatedContents.Replace("\r\n", "\n");
 
-            Assert.AreEqual("col1,col2\ncell1 with some new lines and tabs,cell2\n", fileCreatedContents);
+            TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
+cell1 with some new lines and tabs,cell2
+", fileCreatedContents);
         }
 
         [Test]
@@ -68,7 +74,9 @@ namespace Microservices.IsIdentifiable.Tests
             string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
             fileCreatedContents = fileCreatedContents.Replace("\r\n", "\n");
 
-            Assert.AreEqual("col1	col2\ncell1 with some new lines and tabs	cell2\n", fileCreatedContents);
+            TestHelpers.AreEqualIgnoringLineEndings(@"col1	col2
+cell1 with some new lines and tabs	cell2
+", fileCreatedContents);
         }
     }
 

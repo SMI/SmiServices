@@ -112,7 +112,7 @@ Anonymised file | Failure reason
 
 ";
 
-            Assert.AreEqual(expected.Replace("\r\n", "\n"), reporter.Report.Replace("\r\n", "\n"));
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
