@@ -92,10 +92,10 @@ namespace Microservices.CohortExtractor.Tests
         {
             var db = GetCleanedServer(dbType);
 
-            //create table with 100 rows
-            var tbl = BuildExampleExtractionTable(db, "CT", 100,true);
+            //create table with 1000 rows
+            var tbl = BuildExampleExtractionTable(db, "CT", 1000,true);
 
-            Assert.AreEqual(100,tbl.GetRowCount());
+            Assert.AreEqual(1000,tbl.GetRowCount());
 
             var cata = Import(tbl);
             
@@ -125,7 +125,7 @@ namespace Microservices.CohortExtractor.Tests
             }
 
             //currently all images are extractable
-            Assert.AreEqual(100,matches);
+            Assert.AreEqual(1000,matches);
 
             //now make 10 not extractable
             using (var con = tbl.Database.Server.GetConnection())
@@ -152,7 +152,7 @@ namespace Microservices.CohortExtractor.Tests
                 Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason.Equals("We decided NO!")));
             }
 
-            Assert.AreEqual(90,matches);
+            Assert.AreEqual(990,matches);
             Assert.AreEqual(10, rejections);
 
         }
