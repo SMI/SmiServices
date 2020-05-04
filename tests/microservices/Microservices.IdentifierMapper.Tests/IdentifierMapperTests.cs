@@ -213,7 +213,7 @@ namespace Microservices.IdentifierMapper.Tests
             }
         }
 
-        [Ignore("Slow, tests lookup scalability")]
+        [Explicit("Slow, tests lookup scalability")]
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
         public void TestIdentifierSwap_MillionsOfRows(DatabaseType type)
