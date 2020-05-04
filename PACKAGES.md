@@ -9,7 +9,7 @@
 
 | Package | Source Code | Version | License | Purpose | Additional Risk Assessment |
 | ------- | ------------| --------| ------- | ------- | -------------------------- |
-| CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.7.82](https://www.nuget.org/packages/CommandLineParser/2.7.82) | [MIT](https://opensource.org/licenses/MIT)| Command line argument parsing |  |
+| CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.8.0](https://www.nuget.org/packages/CommandLineParser/2.8.0) | [MIT](https://opensource.org/licenses/MIT)| Command line argument parsing |  |
 | CsvHelper | [GitHub](https://github.com/JoshClose/CsvHelper) | [15.0.5](https://www.nuget.org/packages/CsvHelper/15.0.5) | [MS-PL and Apache 2.0](https://github.com/JoshClose/CsvHelper/blob/master/LICENSE.txt)| Writting reports out to CSV reports | |
 | HIC.DicomTypeTranslation | [GitHub](https://github.com/HicServices/DicomTypeTranslation) | [2.2.2](https://www.nuget.org/packages/HIC.DicomTypeTranslation/2.2.2) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Translate dicom types into C# / database types | |
 | HIC.FAnsiSql | [GitHub](https://github.com/HicServices/FansiSql) | [0.11.1](https://www.nuget.org/packages/HIC.FAnsiSql/0.11.1) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Database abstraction layer | |
