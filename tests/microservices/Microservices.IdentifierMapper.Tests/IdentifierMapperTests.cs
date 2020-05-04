@@ -100,9 +100,9 @@ namespace Microservices.IdentifierMapper.Tests
                 Assert.Fail("Wrong test case?");
         }
 
-        [TestCase(DatabaseType.MicrosoftSQLServer, 100, 25), RequiresRabbit]
-        [TestCase(DatabaseType.MicrosoftSQLServer, 100, 0), RequiresRabbit]
-        [TestCase(DatabaseType.MySql, 100, 0), RequiresRabbit]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 25), RequiresRabbit]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 0), RequiresRabbit]
+        [TestCase(DatabaseType.MySql, 8, 0), RequiresRabbit]
         public void TestIdentifierSwap_RegexVsDeserialize(DatabaseType type, int batchSize, int numberOfRandomTagsPerDicom)
         {
 
