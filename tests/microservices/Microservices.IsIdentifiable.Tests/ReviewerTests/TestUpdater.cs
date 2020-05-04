@@ -8,6 +8,7 @@ using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Rules;
 using Moq;
 using NUnit.Framework;
+using Smi.Common.Tests;
 using Tests.Common;
 
 namespace Microservices.IsIdentifiable.Tests.ReviewerTests
@@ -67,7 +68,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var result = tbl.GetDataTable();
             Assert.AreEqual("We aren't in SMI_REDACTED anymore SMI_REDACTED",result.Rows[0]["Narrative"]);
 
-            StringAssert.Contains(
+            TestHelpers.Contains(
 @"- Action: Report
   IfColumn: Narrative
   As: Location
