@@ -22,6 +22,12 @@ BasicRules:
    IfColumn: SOPInstanceUID
    IfPattern: ^(\d+\.){5,12}\d+$
 
+# Ignore date/time of last calibration
+ - Action: Ignore
+   IfColumn: DateOfLastCalibration
+ - Action: Ignore
+   IfColumn: TimeOfLastCalibration
+
 # AccessionNumbers are in various formats but hopefully none are CHI
 # nnnnnnnnnn, nn-nnnnnn, nnnnnnnnn-nnn, etc.
 # Others seem to contain a reference to the hospital name.

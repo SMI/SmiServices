@@ -377,3 +377,27 @@ WhiteListRules:
    IfColumn: SeriesDescription
    IfPartPattern: Pha
 
+ # tnind added for NM modality 2020-05-05
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorGridName
+   IfPartPattern: ^LEHR$
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorType
+   IfPartPattern: ^ASTG$
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorType
+   IfPartPattern: ^PARA$
+ - Action: Ignore
+   IfPartPattern: ^UNKN$
+ - Action: Ignore
+   IfPartPattern: ^OSEM$
+ - Action: Ignore
+   IfPartPattern: ^HMPAO$
+ - Action: Ignore
+   IfPartPattern: ^VXHR$
+ - Action: Ignore
+   IfPartPattern: ^EVO$
+ - Action: Ignore
+   IfPartPattern: ^GE$
+ - Action: Ignore
+   IfPartPattern: ^SPOT\d$
