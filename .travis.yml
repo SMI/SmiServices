@@ -52,7 +52,7 @@ jobs:
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
     - |
-      if [ ! -x $HOME/rdmp-cli/rdmp || ! fgrep -q 4.1.0 $HOME/rdmp-cli/rdmp.dll ]
+      if [ ! -x $HOME/rdmp-cli/rdmp ] || ! fgrep -q 4.1.0 $HOME/rdmp-cli/rdmp.dll
       then
         rm -rf $HOME/rdmp-cli
         wget https://github.com/HicServices/RDMP/releases/download/v4.1.0/rdmp-cli-linux-x64.zip
