@@ -47,9 +47,11 @@ namespace Microservices.CohortExtractor.Tests
             {
                 var r = new Random(500);
 
-                DicomDataGenerator g = new DicomDataGenerator(r,null);
-                g.MaximumImages = recordCount;
-                
+                DicomDataGenerator g = new DicomDataGenerator(r, null)
+                {
+                    MaximumImages = recordCount
+                };
+
                 var persons =  new PersonCollection();
                 persons.GeneratePeople(500,r);
 
@@ -179,14 +181,16 @@ namespace Microservices.CohortExtractor.Tests
                 studies.AddRange(dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct());
             using(var dt = tblMR.GetDataTable())
                 studies.AddRange(dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct());
-            
+
             //Create message to extract all the series by StudyInstanceUID
-            var msgIn = new ExtractionRequestMessage();
-            msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
-            
-            //extract only MR (this is what we are actually testing).
-            msgIn.Modality = "MR";
-            msgIn.ExtractionIdentifiers = studies;
+            var msgIn = new ExtractionRequestMessage
+            {
+                KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword,
+
+                //extract only MR (this is what we are actually testing).
+                Modality = "MR",
+                ExtractionIdentifiers = studies
+            };
 
             int matches = 0;
             

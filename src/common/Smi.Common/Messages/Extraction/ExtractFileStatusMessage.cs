@@ -41,10 +41,10 @@ namespace Smi.Common.Messages.Extraction
 
         public bool Equals(ExtractFileStatusMessage other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return base.Equals(other) &&
+            if (other is null) return false;
+            return ReferenceEquals(this, other)
+                ? true
+                : base.Equals(other) &&
                    Status == other.Status &&
                    string.Equals(AnonymisedFileName, other.AnonymisedFileName) &&
                    string.Equals(StatusMessage, other.StatusMessage);

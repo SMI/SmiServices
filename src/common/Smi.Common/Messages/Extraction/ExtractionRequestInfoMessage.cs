@@ -29,7 +29,7 @@ namespace Smi.Common.Messages.Extraction
 
         public bool Equals(ExtractionRequestInfoMessage other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return base.Equals(other) &&

@@ -48,7 +48,7 @@ namespace Smi.Common.Messages.Extraction
 
         public bool Equals(ExtractMessage other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
