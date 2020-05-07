@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Microservices.DeadLetterReprocessor.Messaging
 {
-    public class DeadLetterQueueConsumer : Consumer
+    public class DeadLetterQueueConsumer : Consumer<IMessage>
     {
         private readonly IDeadLetterStore _deadLetterStore;
         private readonly string _deadLetterQueueName;
@@ -20,15 +20,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
         private readonly int _maxRetryLimit;
         private readonly TimeSpan _defaultRetryAfter;
 
-        private readonly Queue<Tuple<BasicDeliverEventArgs, IMessageHeader>> _storageQueue =
-            new Queue<Tuple<BasicDeliverEventArgs, IMessageHeader>>();
-        private readonly object _oQueueLock = new object();
-
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private Task _storageQueueTask;
-
-        private bool _stopCalled;
-
+        public BasicDeliverEventArgs LastArgs { get; private set; }
 
         public DeadLetterQueueConsumer(IDeadLetterStore deadLetterStore, DeadLetterReprocessorOptions options)
         {
@@ -45,9 +37,6 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             _deadLetterQueueName = options.DeadLetterConsumerOptions.QueueName;
             _maxRetryLimit = options.MaxRetryLimit;
             _defaultRetryAfter = TimeSpan.FromMinutes(options.DefaultRetryAfter);
-
-            //TODO
-            //StartStorageTask(TimeSpan.FromMinutes(options.DefaultRetryAfter));
         }
 
 
@@ -58,102 +47,72 @@ namespace Microservices.DeadLetterReprocessor.Messaging
 
         public void Stop()
         {
-            //TODO(RKM 04/07) Why is this here?
             return;
-
-            Logger.Info("Stop called");
-
-            if (_stopCalled)
-            {
-                Logger.Warn("Stop called twice");
-                return;
-            }
-
-            _stopCalled = true;
-
-            _cancellationTokenSource.Cancel();
-            _storageQueueTask.Wait();
         }
 
+        public override void ProcessMessage(BasicDeliverEventArgs ea)
+        {
+            LastArgs = ea;
+            Encoding enc = Encoding.UTF8;
+            MessageHeader header = null;
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
+            try
+            {
+                if (ea.BasicProperties != null)
+                {
+                    if (ea.BasicProperties.ContentEncoding != null)
+                        enc = Encoding.GetEncoding(ea.BasicProperties.ContentEncoding);
+
+                    header = new MessageHeader(ea.BasicProperties == null ? new Dictionary<string, object>() : ea.BasicProperties.Headers, enc);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
+                Model.BasicNack(ea.DeliveryTag, false, false);
+                return;
+            }
+            ProcessMessageImpl(header, null, ea.DeliveryTag);
+        }
+
+        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
         {
             //Bug: RabbitMQ lib doesn't properly handle the ReplyTo address being null, causing the mapping to MongoDB types to throw an exception
-            if (deliverArgs.BasicProperties.ReplyTo == null)
-                deliverArgs.BasicProperties.ReplyTo = "";
+            if (LastArgs.BasicProperties.ReplyTo == null)
+                LastArgs.BasicProperties.ReplyTo = "";
 
             RabbitMqXDeathHeaders deathHeaders;
 
             try
             {
-                deathHeaders = new RabbitMqXDeathHeaders(deliverArgs.BasicProperties.Headers, Encoding.UTF8);
+                deathHeaders = new RabbitMqXDeathHeaders(LastArgs.BasicProperties.Headers, Encoding.UTF8);
             }
             catch (ArgumentException)
             {
-                _deadLetterStore.SendToGraveyard(deliverArgs, header, "Message contained invalid x-death entries");
-
-                Ack(header, deliverArgs);
+                _deadLetterStore.SendToGraveyard(LastArgs, header, "Message contained invalid x-death entries");
+                Ack(header, tag);
                 return;
             }
 
             if (deathHeaders.XDeaths[0].Count - 1 >= _maxRetryLimit)
             {
-                _deadLetterStore.SendToGraveyard(deliverArgs, header, "MaxRetryCount exceeded");
-
-                Ack(header, deliverArgs);
+                _deadLetterStore.SendToGraveyard(LastArgs, header, "MaxRetryCount exceeded");
+                Ack(header, tag);
                 return;
             }
 
-            //TODO
-            //lock (_oQueueLock)
-            //{
-            //    _storageQueue.Enqueue(new Tuple<BasicDeliverEventArgs, IMessageHeader>(deliverArgs, header));
-            //}
-
             try
             {
-                _deadLetterStore.PersistMessageToStore(deliverArgs, header, _defaultRetryAfter);
+                _deadLetterStore.PersistMessageToStore(LastArgs, header, _defaultRetryAfter);
             }
             catch (Exception e)
             {
-                _deadLetterStore.SendToGraveyard(deliverArgs, header, "Exception when storing message", e);
+                _deadLetterStore.SendToGraveyard(LastArgs, header, "Exception when storing message", e);
             }
 
-            Ack(header, deliverArgs);
+            Ack(header, tag);
         }
 
 
-        private void StartStorageTask(TimeSpan retryAfter)
-        {
-            _storageQueueTask = Task.Factory.StartNew(() =>
-           {
-               while (!_cancellationTokenSource.IsCancellationRequested)
-               {
-                   try
-                   {
-                       lock (_oQueueLock)
-                       {
-                           foreach (Tuple<BasicDeliverEventArgs, IMessageHeader> item in _storageQueue)
-                           {
-
-                           }
-                       }
-
-                       Thread.Sleep(1000);
-                   }
-                   catch (Exception e)
-                   {
-                       Fatal("Error in storage task", e);
-                       Stop();
-
-                       break;
-                   }
-               }
-
-               Logger.Debug("Storage task exiting");
-           });
-
-            Logger.Debug("Storage task started");
-        }
     }
 }

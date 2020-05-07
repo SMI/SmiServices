@@ -11,7 +11,7 @@ using Smi.Common.Messaging;
 
 namespace Microservices.CohortExtractor.Messaging
 {
-    public class ExtractionRequestQueueConsumer : Consumer
+    public class ExtractionRequestQueueConsumer : Consumer<ExtractionRequestMessage>
     {
         private readonly IExtractionRequestFulfiller _fulfiller;
         private readonly IAuditExtractions _auditor;
@@ -31,12 +31,8 @@ namespace Microservices.CohortExtractor.Messaging
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header,ExtractionRequestMessage request, ulong deliveryTag)
         {
-            ExtractionRequestMessage request;
-            if (!SafeDeserializeToMessage(header, deliverArgs, out request))
-                return;
-
             Logger.Info($"Received message: {request}");
 
             _auditor.AuditExtractionRequest(request);
@@ -44,7 +40,7 @@ namespace Microservices.CohortExtractor.Messaging
             if (!request.ExtractionDirectory.StartsWith(request.ProjectNumber))
             {
                 Logger.Debug("ExtractionDirectory did not start with the project number, doing ErrorAndNack");
-                ErrorAndNack(header, deliverArgs, "", new InvalidEnumArgumentException("ExtractionDirectory"));
+                ErrorAndNack(header, deliveryTag, "", new InvalidEnumArgumentException("ExtractionDirectory"));
             }
 
             string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
@@ -101,7 +97,7 @@ namespace Microservices.CohortExtractor.Messaging
             }
 
             Logger.Info("Finished processing message");
-            Ack(header, deliverArgs);
+            Ack(header, deliveryTag);
         }
     }
 }

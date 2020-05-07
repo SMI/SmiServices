@@ -123,35 +123,22 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             //creates the queues, exchanges and bindings
             var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
             using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
                 host.Start();
-
-                using (var timeline = new TestTimeline(tester))
+                //send the message 10 times
+                for (int i = 0; i < numberOfMessagesToSend; i++)
                 {
-                    //send the message 10 times over a 10 second period
-                    for (int i = 0; i < numberOfMessagesToSend; i++)
-                    {
-                        timeline
-                            .SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi))
-                            .Wait(1000);
-                    }
-
-                    //start the timeline
-                    timeline.StartTimeline();
-
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
-
-                    Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                    host.Stop("Test end");
+                    host.Consumer.TestMessage(_helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi), new Smi.Common.Messages.MessageHeader());
                 }
-                
+
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
+                host.Stop("Test finished");
+
+                Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
             }
 
             tester.Shutdown();

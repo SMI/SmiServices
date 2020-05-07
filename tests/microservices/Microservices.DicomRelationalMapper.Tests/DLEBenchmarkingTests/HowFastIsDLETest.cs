@@ -102,13 +102,12 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             {
                 using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
-                    tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
-
                     Console.WriteLine("Starting Host");
                     host.Start();
+                    allImages.Select(GetFileMessageForDataset).Each(x => host.Consumer.TestMessage(x,new MessageHeader()));
 
                     Stopwatch sw = Stopwatch.StartNew();
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
+                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 180000); //3 minutes
 
                     Console.Write("Time For DLE:" + sw.Elapsed.TotalSeconds + "s");
                     host.Stop("Test finished");

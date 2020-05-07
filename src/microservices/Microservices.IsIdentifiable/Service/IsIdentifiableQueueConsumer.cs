@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace Microservices.IsIdentifiable.Service
 {
-    public class IsIdentifiableQueueConsumer : Consumer, IDisposable
+    public class IsIdentifiableQueueConsumer : Consumer<ExtractFileStatusMessage>, IDisposable
     {
         private readonly IProducerModel _producer;
         private readonly string _fileSystemRoot;
@@ -26,12 +26,8 @@ namespace Microservices.IsIdentifiable.Service
             _classifier = classifier;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header,ExtractFileStatusMessage message, ulong tag)
         {
-            // Deserialize the message from the delivery arguments
-            if (!SafeDeserializeToMessage(header, basicDeliverEventArgs, out ExtractFileStatusMessage message))
-                return;
-
             bool isClean = true;
             object resultObject;
 
@@ -58,7 +54,7 @@ namespace Microservices.IsIdentifiable.Service
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper
-                ErrorAndNack(header, basicDeliverEventArgs, "Error while processing AnonSuccessMessage", e);
+                ErrorAndNack(header, tag, "Error while processing AnonSuccessMessage", e);
                 return;
             }
 
@@ -68,7 +64,7 @@ namespace Microservices.IsIdentifiable.Service
                 Report = JsonConvert.SerializeObject(resultObject)
             }, header);
 
-            Ack(header, basicDeliverEventArgs);
+            Ack(header, tag);
         }
 
         public void Dispose()

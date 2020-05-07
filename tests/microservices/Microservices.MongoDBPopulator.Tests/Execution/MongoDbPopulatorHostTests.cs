@@ -11,7 +11,7 @@ using Smi.Common.Tests;
 using System;
 using System.Diagnostics;
 using System.Threading;
-
+using Tests.Common;
 
 namespace Microservices.MongoDBPopulator.Tests.Execution
 {
@@ -91,27 +91,8 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
                     timeline.SendMessage(_helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions, message);
 
                 timeline.StartTimeline();
-
-                var timeout = 30000;
-                const int stepSize = 500;
-
-                if (Debugger.IsAttached)
-                    timeout = int.MaxValue;
-
-                var nWritten = 0L;
-
-                while (nWritten < nMessages && timeout > 0)
-                {
-                    nWritten = _helper.TestDatabase.GetCollection<BsonDocument>(currentCollectionName).CountDocuments(new BsonDocument());
-
-                    Thread.Sleep(stepSize);
-                    timeout -= stepSize;
-                }
-
-                // Assert
-
-                if (timeout <= 0)
-                    Assert.Fail("Failed to process expected number of messages within the timeout");
+                int timeout = 30;
+                new TestTimelineAwaiter().Await(() => _helper.TestDatabase.GetCollection<BsonDocument>(currentCollectionName).CountDocuments(new BsonDocument()) < nMessages, $"Waited {timeout} seconds for {nMessages} messages to complete", timeout*1000);
 
                 host.Stop("Test end");
                 tester.Shutdown();

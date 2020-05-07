@@ -9,6 +9,7 @@ using Smi.Common.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 
 namespace Smi.Common.Tests
@@ -19,8 +20,10 @@ namespace Smi.Common.Tests
         [Test]
         public void Consumer_UnhandledException_TriggersFatal()
         {
+            var body = new ReadOnlyMemory<byte>(JsonSerializer.SerializeToUtf8Bytes(new NullMessage()));
             var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>();
             mockDeliverArgs.DeliveryTag = 1;
+            mockDeliverArgs.Body = body;
 
             var consumer = new TestConsumer();
             consumer.SetModel(Mock.Of<IModel>());
@@ -35,25 +38,30 @@ namespace Smi.Common.Tests
 
     }
 
-    public class TestConsumer : Consumer
+    public class NullMessage : IMessage
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+
+    }
+
+    public class TestConsumer : Consumer<NullMessage>
+    {
+        protected override void ProcessMessageImpl(IMessageHeader header, NullMessage msg, ulong tag)
         {
             throw new Exception("Throwing to trigger Fatal");
         }
     }
 
-    public class DoNothingConsumer : Consumer
+    public class DoNothingConsumer : Consumer<NullMessage>
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header, NullMessage msg, ulong tag)
         {
-            
+
         }
     }
 
-    public class SelfClosingConsumer : Consumer
+    public class SelfClosingConsumer : Consumer<NullMessage>
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header, NullMessage msg, ulong tag)
         {
             Model.Close();
         }

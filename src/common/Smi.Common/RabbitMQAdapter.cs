@@ -363,7 +363,7 @@ namespace Smi.Common
                 BasicGetResult r=null;
                 try { r=m.BasicGet(queuename, false); }
                 catch (OperationInterruptedException)
-                {
+                { // Do nothing: loop will exit if connection closed.
                 }
                 if (r == null)
                     Thread.Sleep(500);

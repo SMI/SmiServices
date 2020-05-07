@@ -10,7 +10,7 @@ namespace Microservices.DicomTagReader.Messaging
     /// <summary>
     /// Consumer class for AccessionDirectoryMessage(s)
     /// </summary>
-    public class DicomTagReaderConsumer : Consumer
+    public class DicomTagReaderConsumer : Consumer<AccessionDirectoryMessage>
     {
         private readonly TagReaderBase _reader;
 
@@ -30,13 +30,8 @@ namespace Microservices.DicomTagReader.Messaging
         /// </summary>
         /// <param name="header">The audit trail and origin of the IMessage contained in deliverArgs</param>
         /// <param name="deliverArgs">The message and associated information</param>
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header,AccessionDirectoryMessage message, ulong tag)
         {
-            AccessionDirectoryMessage message;
-
-            if (!SafeDeserializeToMessage(header, deliverArgs, out message))
-                return;
-
             lock (_reader.TagReaderProcessLock)
             {
                 if (_reader.IsExiting)
@@ -50,12 +45,12 @@ namespace Microservices.DicomTagReader.Messaging
                 {
                     // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
 
-                    ErrorAndNack(header, deliverArgs, "Error while processing AccessionDirectoryMessage", e);
+                    ErrorAndNack(header, tag, "Error while processing AccessionDirectoryMessage", e);
                     return;
                 }
             }
 
-            Ack(header, deliverArgs);
+            Ack(header, tag);
         }
     }
 }

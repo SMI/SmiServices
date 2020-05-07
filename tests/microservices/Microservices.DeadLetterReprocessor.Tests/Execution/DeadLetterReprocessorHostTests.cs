@@ -92,7 +92,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             new TestTimelineAwaiter().Await(() => _testHelper.MessageRejectorConsumer.NackCount == 1);
 
             IMessageHeader originalHeader = _testHelper.MessageRejectorConsumer.LastHeader;
-            BasicDeliverEventArgs originalArgs = _testHelper.MessageRejectorConsumer.LastArgs;
+            BasicDeliverEventArgs originalArgs = _testHelper.MessageRejectorConsumer.LastDeliverArgs;
 
             Assert.NotNull(originalHeader);
             Assert.NotNull(originalArgs);
@@ -122,7 +122,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             new TestTimelineAwaiter().Await(() => _testHelper.MessageRejectorConsumer.AckCount == 1);
 
             IMessageHeader reprocessedHeader = _testHelper.MessageRejectorConsumer.LastHeader;
-            BasicDeliverEventArgs reprocessedArgs = _testHelper.MessageRejectorConsumer.LastArgs;
+            BasicDeliverEventArgs reprocessedArgs = _testHelper.MessageRejectorConsumer.LastDeliverArgs;
 
             Assert.NotNull(reprocessedHeader);
             Assert.NotNull(reprocessedArgs);
@@ -232,7 +232,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             new TestTimelineAwaiter().Await(() => _testHelper.MessageRejectorConsumer.NackCount == 1);
 
             IMessageHeader originalHeader = _testHelper.MessageRejectorConsumer.LastHeader;
-            BasicDeliverEventArgs originalArgs = _testHelper.MessageRejectorConsumer.LastArgs;
+            BasicDeliverEventArgs originalArgs = _testHelper.MessageRejectorConsumer.LastDeliverArgs;
 
             Assert.NotNull(originalHeader);
             Assert.NotNull(originalArgs);
@@ -249,8 +249,8 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
             host.Start();
 
-            Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
-            Assert.True(_deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty) == 0);
+            Assert.AreEqual(1,_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty));
+            Assert.AreEqual(0,_deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty));
             Assert.AreEqual(0, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
             host.Stop("Test over 1");

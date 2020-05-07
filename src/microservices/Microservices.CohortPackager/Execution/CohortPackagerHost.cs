@@ -8,6 +8,9 @@ using Microservices.CohortPackager.Messaging;
 using MongoDB.Driver;
 using Smi.Common;
 using Smi.Common.Execution;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Messaging;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 
@@ -64,6 +67,27 @@ namespace Microservices.CohortPackager.Execution
             _fileCollectionMessageConsumer = new ExtractFileCollectionMessageConsumer(jobStore);
             _anonFailedMessageConsumer = new AnonFailedMessageConsumer(jobStore);
             _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore);
+        }
+
+        public void TestMessage(IMessage msg,IMessageHeader hdr=null)
+        {
+            switch (msg)
+            {
+                case ExtractionRequestInfoMessage _msg:
+                    _requestInfoMessageConsumer.TestMessage(_msg,hdr);
+                    break;
+                case ExtractFileCollectionInfoMessage _msg:
+                    _fileCollectionMessageConsumer.TestMessage(_msg, hdr);
+                    break;
+                case ExtractFileStatusMessage _msg:
+                    _anonFailedMessageConsumer.TestMessage(_msg, hdr);
+                    break;
+                case IsIdentifiableMessage _msg:
+                    _anonVerificationMessageConsumer.TestMessage(_msg, hdr);
+                    break;
+                default:
+                    throw new ArgumentException($"CohortPackager had no consumer for {msg}");
+            }
         }
 
         public override void Start()

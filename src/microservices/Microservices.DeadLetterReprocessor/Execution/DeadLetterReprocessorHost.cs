@@ -36,7 +36,7 @@ namespace Microservices.DeadLetterReprocessor.Execution
 
             do
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             } while (_deadLetterQueueConsumer.MessagesInQueue());
                 
 

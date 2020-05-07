@@ -132,25 +132,18 @@ namespace Microservices.CohortPackager.Tests.Execution
                 globals.CohortPackagerOptions.AnonFailedOptions,
                 globals.CohortPackagerOptions.VerificationStatusOptions))
             {
-                tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.AnonFailedOptions, new MessageHeader(), testExtractFileStatusMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage);
-
                 var reporter = new TestReporter();
                 var notifier = new TestLoggingNotifier();
                 var host = new CohortPackagerHost(globals, reporter, notifier, null, false);
                 host.Start();
+                host.TestMessage(testExtractionRequestInfoMessage, new MessageHeader());
+                host.TestMessage(testExtractFileCollectionInfoMessage, new MessageHeader());
+                host.TestMessage(testExtractFileStatusMessage, new MessageHeader());
+                host.TestMessage(testIsIdentifiableMessage, new MessageHeader());
 
                 var timeoutSecs = 30;
-                while (!notifier.JobCompleted && timeoutSecs > 0)
-                {
-                    --timeoutSecs;
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
-                }
-
-                host.Stop("Test end");
-                Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
+                new TestTimelineAwaiter().Await(() => notifier.JobCompleted, $"Cohort Packager not completing in {timeoutSecs} seconds", timeoutSecs * 1000);
+                host.Stop("Test finished");
             }
         }
 
