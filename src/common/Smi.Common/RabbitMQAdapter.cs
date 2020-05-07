@@ -124,6 +124,7 @@ namespace Smi.Common
             connection.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked for {consumerOptions.QueueName}");
 
             IModel model = connection.CreateModel();
+            consumer.SetModel(model);
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
             // Check queue exists
@@ -171,7 +172,7 @@ namespace Smi.Common
             consumer.OnFatal += (s, e) =>
             {
                 resources.Shutdown(DefaultOperationTimeout);
-                _hostFatalHandler(s, e);
+                if (_hostFatalHandler!=null) _hostFatalHandler(s, e);
             };
 
             consumerTask.Start();
@@ -355,13 +356,12 @@ namespace Smi.Common
         private void Consume(IModel m, string queuename, IConsumer consumer, CancellationToken cancellationToken)
         {
             ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
-            consumer.SetModel(m);
 
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
                 BasicDeliverEventArgs e;
                 BasicGetResult r=null;
-                try { m.BasicGet(queuename, false); }
+                try { r=m.BasicGet(queuename, false); }
                 catch (OperationInterruptedException)
                 {
                 }
