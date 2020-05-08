@@ -536,8 +536,8 @@ namespace Microservices.DicomRelationalMapper.Tests
                                 foreach (ArchivalFatalError e in dli.Errors)
                                     logger.Error(e.Date.TimeOfDay + ":" + e.Source + ":" + e.Description);
                     }
-                    
-                    Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
+
+                    new TestTimelineAwaiter().Await(() => numberOfExpectedRows == _helper.ImageTable.GetRowCount(), "All images should appear in the image table", 1000);
                     Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
                     Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
                     Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), _helper.SeriesTable.GetRowCount(), "There should be less studies than series (or equal)");
