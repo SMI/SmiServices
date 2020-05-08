@@ -129,7 +129,13 @@ namespace Smi.Common.Messaging
 
         public void TestMessage(TMessage message,IMessageHeader header=null)
         {
-            ProcessMessageImpl(header,message,0);
+            try
+            {
+                ProcessMessageImpl(header, message, 0);
+            } catch (Exception e)
+            {
+                Fatal("ProcessMessageImpl threw unhandled exception", e);
+            }
         }
 
         /// <summary>
