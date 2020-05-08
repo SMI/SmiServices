@@ -49,7 +49,8 @@ namespace Microservices.CohortExtractor.Tests
 
                 DicomDataGenerator g = new DicomDataGenerator(r, null)
                 {
-                    MaximumImages = recordCount
+                    MaximumImages = recordCount,
+                    NoPixels = true
                 };
 
                 var persons =  new PersonCollection();

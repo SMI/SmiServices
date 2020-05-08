@@ -15,6 +15,7 @@ using Rdmp.Core.Curation;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.TagPromotionSchema;
 using ReusableLibraryCode.Checks;
+using Smi.Common.Messages;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using Tests.Common;
@@ -28,8 +29,9 @@ namespace Microservices.DicomRelationalMapper.Tests
     {
         private DicomRelationalMapperTestHelper _helper;
         private GlobalOptions _globals;
+        private MicroserviceTester tester;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             BlitzMainDataTables();
@@ -40,6 +42,16 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource));
 
             TestLogger.Setup();
+
+            //creates the queues, exchanges and bindings
+            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
+        }
+
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            tester?.Shutdown();
         }
 
         [Test]
@@ -71,35 +83,20 @@ namespace Microservices.DicomRelationalMapper.Tests
             
             fi.Delete();
             File.Move(fi2.FullName,fi.FullName);
-            
-            //creates the queues, exchanges and bindings
-            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
             using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
                 host.Start();
+                host.Consumer.TestMessage(_helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi), new MessageHeader());
 
-                using (var timeline = new TestTimeline(tester))
-                {
-                    timeline.SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi));
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= 1, null, 30000, () => host.Consumer.DleErrors);
 
-                    //start the timeline
-                    timeline.StartTimeline();
+                Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
 
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= 1, null, 30000, () => host.Consumer.DleErrors);
-
-                    Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                    host.Stop("Test end");
-                }
-                
+                host.Stop("Test end");
             }
-
-            tester.Shutdown();
         }
 
 
@@ -121,9 +118,6 @@ namespace Microservices.DicomRelationalMapper.Tests
                 File.WriteAllLines(randomText.FullName, new[] { "I love dancing", "all around the world", "boy the world is a big place eh?" });
             }
 
-            //creates the queues, exchanges and bindings
-            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-
             using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
                 host.Start();
@@ -140,8 +134,6 @@ namespace Microservices.DicomRelationalMapper.Tests
                 Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
                 Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
             }
-
-            tester.Shutdown();
         }
 
         [Test]
@@ -187,10 +179,6 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             new TableInfoSynchronizer(_helper.ImageTableInfo).Synchronize(new AcceptAllCheckNotifier());
 
-            //creates the queues, exchanges and bindings
-            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
-
             using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
                 host.Start();
@@ -198,8 +186,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 using (var timeline = new TestTimeline(tester))
                 {
                     foreach (var f in files)
-                        timeline.SendMessage(_globals.DicomRelationalMapperOptions,
-                            _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, f));
+                        host.Consumer.TestMessage(_helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, f),new MessageHeader());
 
                     //start the timeline
                     timeline.StartTimeline();
@@ -213,9 +200,6 @@ namespace Microservices.DicomRelationalMapper.Tests
                     host.Stop("Test end");
                 }
             }
-
-            tester.Shutdown();
-            
         }
 
         /*
@@ -237,10 +221,6 @@ namespace Microservices.DicomRelationalMapper.Tests
             using (DicomGenerator g = new DicomGenerator(d.FullName, "Seed", 1000))
             {
                 g.GenerateTestSet(numberOfImges, 100, new TestTagDataGenerator(), 100, false);
-
-                //creates the queues, exchanges and bindings
-                var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-                tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
                 using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
                 {
@@ -269,8 +249,6 @@ namespace Microservices.DicomRelationalMapper.Tests
                     }
                     
                 }
-
-                tester.Shutdown();
             }
         }
         */
@@ -292,29 +270,21 @@ namespace Microservices.DicomRelationalMapper.Tests
             var msg1 = _helper.GetDicomFileMessage(ds, _globals.FileSystemOptions.FileSystemRoot, Path.Combine(_globals.FileSystemOptions.FileSystemRoot, "mydicom.dcm"));
             var msg2 = _helper.GetDicomFileMessage(ds, _globals.FileSystemOptions.FileSystemRoot, Path.Combine(_globals.FileSystemOptions.FileSystemRoot, "mydicom.dcm"));
 
+            _globals.DicomRelationalMapperOptions.RunChecks = true;
 
-            //creates the queues, exchanges and bindings
-            using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
+            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
-                tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
-                tester.SendMessage(_globals.DicomRelationalMapperOptions, msg1);
-                tester.SendMessage(_globals.DicomRelationalMapperOptions, msg2);
+                host.Start();
+                host.Consumer.TestMessage(msg1, new Smi.Common.Messages.MessageHeader());
+                host.Consumer.TestMessage(msg2, new Smi.Common.Messages.MessageHeader());
 
-                _globals.DicomRelationalMapperOptions.RunChecks = true;
+                new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 2, null, 30000, () => host.Consumer.DleErrors);
 
-                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
-                {
-                    host.Start();
+                Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 2, null, 30000, () => host.Consumer.DleErrors);
-
-                    Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                    host.Stop("Test end");
-                }
-                tester.Shutdown();
+                host.Stop("Test end");
             }
         }
     }

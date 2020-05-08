@@ -414,7 +414,9 @@ namespace Microservices.DicomRelationalMapper.Tests
             var r = new Random(500);
 
             //create a generator 
-            using (var generator = new DicomDataGenerator(r, dir, "CT"))
+            using (var generator = new DicomDataGenerator(r, dir, "CT") { 
+            NoPixels=true
+            })
             {
                 generator.GenerateImageFiles(40,r);
                 RunTest(dir, 40);
@@ -520,7 +522,6 @@ namespace Microservices.DicomRelationalMapper.Tests
                     
                     try
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(10));
                         new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
                         logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
                     }

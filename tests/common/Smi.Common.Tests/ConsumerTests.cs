@@ -20,18 +20,13 @@ namespace Smi.Common.Tests
         [Test]
         public void Consumer_UnhandledException_TriggersFatal()
         {
-            var body = new ReadOnlyMemory<byte>(JsonSerializer.SerializeToUtf8Bytes(new NullMessage()));
-            var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>();
-            mockDeliverArgs.DeliveryTag = 1;
-            mockDeliverArgs.Body = body;
-
             var consumer = new TestConsumer();
             consumer.SetModel(Mock.Of<IModel>());
 
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
 
-            consumer.ProcessMessage(mockDeliverArgs);
+            consumer.TestMessage(new NullMessage());
 
             Assert.True(fatalCalled);
         }
