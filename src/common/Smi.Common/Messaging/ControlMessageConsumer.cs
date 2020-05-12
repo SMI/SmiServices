@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Linq;
 using System.Text;
@@ -59,20 +59,82 @@ namespace Smi.Common.Messaging
             StopHost += () => stopEvent("Control message stop");
         }
 
-        private BasicDeliverEventArgs e;
-
         /// <summary>
         /// Recreate ProcessMessage to specifically handle control messages which wont have headers,
         /// and shouldn't be included in any Ack/Nack counts
         /// </summary>
-        /// <param name="model"></param>
         /// <param name="e"></param>
-        public override void ProcessMessage(BasicDeliverEventArgs _e)
+        public override void ProcessMessage(BasicDeliverEventArgs e)
         {
             try
             {
-                e = _e;
-                ProcessMessageImpl(null, null, e.DeliveryTag);
+                // For now we only deal with the simple case of "smi.control.<who>.<what>". Can expand later on depending on our needs
+                // Queues will be deleted when the connection is closed so don't need to worry about messages being leftover
+
+                Logger.Info("Control message received with routing key: " + e.RoutingKey);
+
+                string[] split = e.RoutingKey.ToLower().Split('.');
+                string body = GetBodyFromArgs(e);
+
+                if (split.Length < 4)
+                {
+                    Logger.Debug("Control command shorter than the minimum format");
+                    return;
+                }
+
+                // Who, what
+                string actor = string.Join(".", split.Skip(2).Take(split.Length - 3));
+                string action = split[split.Length - 1];
+
+                // If action contains a numeric and it's not our PID, then ignore
+                if (action.Any(char.IsDigit) && !action.EndsWith(_processId))
+                    return;
+
+                // Ignore any messages not meant for us
+                if (!actor.Equals("all") && !actor.Equals(_processName))
+                {
+                    Logger.Debug("Control command did not match this service");
+                    return;
+                }
+
+                // Handle any general actions - just stop and ping for now
+
+                if (action.StartsWith("stop"))
+                {
+                    if (StopHost == null)
+                    {
+                        // This should never really happen
+                        Logger.Info("Received stop command but no stop event registered");
+                        return;
+                    }
+
+                    Logger.Info("Stop request received, raising StopHost event");
+                    Task.Run(() => StopHost.Invoke());
+
+                    return;
+                }
+
+                if (action.StartsWith("ping"))
+                {
+                    Logger.Info("Pong!");
+                    return;
+                }
+
+                // Don't pass any unhandled broadcast (to "all") messages down to the hosts
+                if (actor.Equals("all"))
+                    return;
+
+                // Else raise the event if any hosts have specific control needs
+                if (ControlEvent != null)
+                {
+                    Logger.Debug("Control message not handled, raising registered ControlEvent(s)");
+                    ControlEvent(Regex.Replace(action, @"[\d]", ""), body);
+
+                    return;
+                }
+
+                // Else we should ignore it?
+                Logger.Warn("Unhandled control message with routing key: " + e.RoutingKey);
             }
             catch (Exception exception)
             {
@@ -93,83 +155,11 @@ namespace Smi.Common.Messaging
             }
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
-        {
-            // For now we only deal with the simple case of "smi.control.<who>.<what>". Can expand later on depending on our needs
-            // Queues will be deleted when the connection is closed so don't need to worry about messages being leftover
+        // NOTE(rkm 2020-05-12) Not used in this implementation
+        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag) => throw new NotImplementedException("ControlMessageConsumer does not implement ProcessMessageImpl");
 
-            Logger.Info("Control message received with routing key: " + e.RoutingKey);
-
-            string[] split = e.RoutingKey.ToLower().Split('.');
-            string body = GetBodyFromArgs(e);
-
-            if (split.Length < 4)
-            {
-                Logger.Debug("Control command shorter than the minimum format");
-                return;
-            }
-
-            // Who, what
-            string actor = string.Join(".", split.Skip(2).Take(split.Length - 3));
-            string action = split[split.Length - 1];
-
-            // If action contains a numeric and it's not our PID, then ignore
-            if (action.Any(char.IsDigit) && !action.EndsWith(_processId))
-                return;
-
-            // Ignore any messages not meant for us
-            if (!actor.Equals("all") && !actor.Equals(_processName))
-            {
-                Logger.Debug("Control command did not match this service");
-                return;
-            }
-
-            // Handle any general actions - just stop and ping for now
-
-            if (action.StartsWith("stop"))
-            {
-                if (StopHost == null)
-                {
-                    // This should never really happen
-                    Logger.Info("Received stop command but no stop event registered");
-                    return;
-                }
-
-                Logger.Info("Stop request received, raising StopHost event");
-                Task.Run(() => StopHost.Invoke());
-
-                return;
-            }
-
-            if (action.StartsWith("ping"))
-            {
-                Logger.Info("Pong!");
-                return;
-            }
-
-            // Don't pass any unhandled broadcast (to "all") messages down to the hosts
-            if (actor.Equals("all"))
-                return;
-
-            // Else raise the event if any hosts have specific control needs
-            if (ControlEvent != null)
-            {
-                Logger.Debug("Control message not handled, raising registered ControlEvent(s)");
-                ControlEvent(Regex.Replace(action, @"[\d]", ""), body);
-
-                return;
-            }
-
-            // Else we should ignore it?
-            Logger.Warn("Unhandled control message with routing key: " + e.RoutingKey);
-        }
-
-        protected override void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
-        {
-            // Can't Nack the message since it is automatically acknowledged!
-            // This shouldn't really be called for control messages
-            throw new Exception("ErrorAndNack called for control message {tag}");
-        }
+        // NOTE(rkm 2020-05-12) Control messages are automatically acknowledged, so nothing to do here
+        protected override void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exc) => throw new NotImplementedException($"ErrorAndNack called for control message {tag} ({exc})");
 
         /// <summary>
         /// Creates a one-time connection to set up the required control queue and bindings on the RabbitMQ server.
