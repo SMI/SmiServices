@@ -134,10 +134,9 @@ namespace Microservices.DeadLetterReprocessor.Messaging
 
             Ack(header, deliverArgs.DeliveryTag);
         }
-        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
-        {
-            // Dummy - actual code inlined above
-        }
+
+        // NOTE(jas 2020-05-12) Dummy - actual code inlined above
+        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag) => throw new NotImplementedException("DeadLetterQueueConsumer does not implement ProcessMessageImpl");
 
 
         private void StartStorageTask(TimeSpan retryAfter)
