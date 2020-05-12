@@ -14,6 +14,7 @@ before_build:
 - choco install rabbitmq
 
 build_script:
+  - PS: "echo \"BuildFolder Is:$APPVEYOR_BUILD_FOLDER\""
   - ps: Remove-Item "./tests/common/Smi.Common.Tests/TestDatabases.txt"
   - ps: Rename-Item -Path "./tests/common/Smi.Common.Tests/TestDatabases.appveyor.txt" -NewName "TestDatabases.txt"
   
@@ -23,7 +24,7 @@ build_script:
   
   
   - ps: 7z x rdmp-cli-win-x64.zip -o$APPVEYOR_BUILD_FOLDER/rdmp-cli
-  - ps: $APPVEYOR_BUILD_FOLDER/rdmp-cli/rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
+  - ps: $APPVEYOR_BUILD_FOLDER\rdmp-cli\rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
   - ps: dotnet test ./tests/run-all-tests.proj
  
