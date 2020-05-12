@@ -20,7 +20,7 @@ build_script:
   - ps: "[Net.ServicePointManager]::SecurityProtocol = \"tls12, tls11, tls\""
   - ps: "New-Item -Path \".\" -Name \"rdmp-cli\" -ItemType \"directory\""
   - ps:  Invoke-WebRequest https://github.com/HicServices/RDMP/releases/download/v4.1.1/rdmp-cli-win-x64.zip -OutFile rdmp-cli-win-x64.zip
-  - ps: 7z x rdmp-cli-win-x64.zip -o ./rdmp-cli
+  - ps: 7z x rdmp-cli-win-x64.zip -o./rdmp-cli
   - ps: ./rdmp-cli/rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
   - ps: dotnet test ./tests/run-all-tests.proj
@@ -30,3 +30,7 @@ build_script:
   #- cmd: packages\coveralls.io\1.4.2\tools\coveralls.net.exe --opencover coverage.xml -r %COVERALLS_REPO_TOKEN%
 
 test: off
+
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: 4Py1L+giHVs0VRP352yS9tn7pZhlli+8FhAGhxBrZrHqop6bu6W3UL/G3oKCFUVK
