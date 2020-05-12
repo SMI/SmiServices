@@ -43,13 +43,13 @@ namespace Smi.Common.Tests
             Assert.IsTrue(consumer.Passed);
         }
 
-        private class TestConsumer : Consumer<IMessage>
+        private class TestConsumer : Consumer<TestMessage>
         {
             public bool Passed { get; set; }
             public bool Failed { get; set; }
 
 
-            protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
+            protected override void ProcessMessageImpl(IMessageHeader header, TestMessage message, ulong tag)
             {
                 try
                 {
