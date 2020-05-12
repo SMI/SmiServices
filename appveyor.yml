@@ -17,7 +17,7 @@ build_script:
   - ps: Remove-Item "./tests/common/Smi.Common.Tests/TestDatabases.txt"
   - ps: Rename-Item -Path "./tests/common/Smi.Common.Tests/TestDatabases.appveyor.txt" -NewName "TestDatabases.txt"
   
-  - ps: [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+  - ps: "[Net.ServicePointManager]::SecurityProtocol = \"tls12, tls11, tls\""
   - ps: (Invoke-WebRequest https://github.com/HicServices/RDMP/releases/download/v4.1.1/rdmp-cli-win-x64.zip).Content | Expand-Archive -DestinationPath ./rdmp/
   - ps: ./rdmp/rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
