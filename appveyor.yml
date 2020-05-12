@@ -23,7 +23,7 @@ build_script:
   
   
   - ps: 7z x rdmp-cli-win-x64.zip -o$APPVEYOR_BUILD_FOLDER/rdmp-cli
-  - ps: ./rdmp-cli/rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
+  - ps: $APPVEYOR_BUILD_FOLDER/rdmp-cli/rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
   - ps: dotnet test ./tests/run-all-tests.proj
  
