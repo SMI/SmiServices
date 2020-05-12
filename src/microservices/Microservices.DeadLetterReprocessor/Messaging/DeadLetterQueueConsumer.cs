@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -92,7 +92,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             {
                 Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
 
-                BasicNack(deliverArgs.DeliveryTag, false, false);
+                DiscardSingleMessage(deliverArgs.DeliveryTag);
 
                 return;
             }

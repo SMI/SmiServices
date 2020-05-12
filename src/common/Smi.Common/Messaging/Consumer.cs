@@ -101,8 +101,8 @@ namespace Smi.Common.Messaging
             {
                 Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
 
-                BasicNack(deliverArgs.DeliveryTag, false, false);
-                
+                DiscardSingleMessage(deliverArgs.DeliveryTag);
+
                 return;
             }
 
@@ -151,9 +151,13 @@ namespace Smi.Common.Messaging
             }
         }
 
-        protected void BasicNack(ulong tag,bool multiple,bool requeue)
+        /// <summary>
+        /// Instructs RabbitMQ to discard a single message and not requeue it
+        /// </summary>
+        /// <param name="tag"></param>
+        protected void DiscardSingleMessage(ulong tag)
         {
-            Model.BasicNack(tag,multiple,requeue);
+            Model.BasicNack(tag, multiple: false, requeue: false);
             NackCount++;
         }
 
@@ -162,7 +166,7 @@ namespace Smi.Common.Messaging
             if (header != null)
                 header.Log(Logger, LogLevel.Error, message, exception);
 
-            BasicNack(tag, false, false);
+            DiscardSingleMessage(tag);
         }
 
         /// <summary>

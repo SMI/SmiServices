@@ -33,7 +33,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
             {
                 Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
 
-                BasicNack(ea.DeliveryTag, false, false);
+                DiscardSingleMessage(ea.DeliveryTag);
                 
                 return;
             }
