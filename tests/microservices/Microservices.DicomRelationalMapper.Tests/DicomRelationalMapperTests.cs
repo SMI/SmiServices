@@ -127,7 +127,8 @@ namespace Microservices.DicomRelationalMapper.Tests
                     host.Consumer.TestMessage(_helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi), new Smi.Common.Messages.MessageHeader());
                 }
 
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount+host.Consumer.NackCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
+                Assert.AreEqual(numberOfMessagesToSend,host.Consumer.AckCount,"Not all messages acked");
                 host.Stop("Test finished");
 
                 Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
