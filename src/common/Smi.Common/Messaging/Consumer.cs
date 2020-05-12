@@ -13,7 +13,7 @@ using RabbitMQ.Client.Events;
 
 namespace Smi.Common.Messaging
 {
-    public abstract class Consumer : IConsumer
+    public abstract class Consumer<TMessage> : IConsumer where TMessage : IMessage
     {
         /// <summary>
         /// Count of the messages Acknowledged by this Consumer, use <see cref="Ack"/> to increment this
@@ -101,9 +101,8 @@ namespace Smi.Common.Messaging
             {
                 Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
 
-                Model.BasicNack(deliverArgs.DeliveryTag, false, false);
-                ++NackCount;
-
+                BasicNack(deliverArgs.DeliveryTag, false, false);
+                
                 return;
             }
 
@@ -111,7 +110,9 @@ namespace Smi.Common.Messaging
 
             try
             {
-                ProcessMessageImpl(header, deliverArgs);
+                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage message))
+                    return;
+                ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
             }
             catch (Exception e)
             {
@@ -120,7 +121,7 @@ namespace Smi.Common.Messaging
         }
 
 
-        protected abstract void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs);
+        protected abstract void ProcessMessageImpl(IMessageHeader header, TMessage message, ulong tag);
 
         /// <summary>
         /// Safely deserialize a <see cref="BasicDeliverEventArgs"/> to an <see cref="IMessage"/>. Returns true if the deserialization
@@ -143,20 +144,25 @@ namespace Smi.Common.Messaging
                 // Deserialization exception - Can never process this message
 
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-                ErrorAndNack(header, deliverArgs, DeserializationMessage<T>(), e);
+                ErrorAndNack(header, deliverArgs.DeliveryTag, DeserializationMessage<T>(), e);
 
                 iMessage = default(T);
                 return false;
             }
         }
 
-        protected virtual void ErrorAndNack(IMessageHeader header, BasicDeliverEventArgs deliverEventArgs, string message, Exception exception)
+        protected void BasicNack(ulong tag,bool multiple,bool requeue)
+        {
+            Model.BasicNack(tag,multiple,requeue);
+            NackCount++;
+        }
+
+        protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
         {
             if (header != null)
                 header.Log(Logger, LogLevel.Error, message, exception);
 
-            Model.BasicNack(deliverEventArgs.DeliveryTag, false, false);
-            NackCount++;
+            BasicNack(tag, false, false);
         }
 
         /// <summary>
@@ -164,12 +170,12 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="header"></param>
         /// <param name="deliverEventArgs"></param>
-        protected void Ack(IMessageHeader header, BasicDeliverEventArgs deliverEventArgs)
+        protected void Ack(IMessageHeader header, ulong tag)
         {
             if (header != null)
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(deliverEventArgs.DeliveryTag, false);
+            Model.BasicAck(tag, false);
             AckCount++;
         }
 

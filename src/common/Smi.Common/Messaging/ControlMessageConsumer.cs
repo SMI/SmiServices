@@ -14,7 +14,7 @@ using Smi.Common.Options;
 
 namespace Smi.Common.Messaging
 {
-    public class ControlMessageConsumer : Consumer
+    public class ControlMessageConsumer : Consumer<IMessage>
     {
         public readonly ConsumerOptions ControlConsumerOptions = new ConsumerOptions
         {
@@ -59,6 +59,7 @@ namespace Smi.Common.Messaging
             StopHost += () => stopEvent("Control message stop");
         }
 
+        private BasicDeliverEventArgs e;
 
         /// <summary>
         /// Recreate ProcessMessage to specifically handle control messages which wont have headers,
@@ -66,11 +67,12 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="model"></param>
         /// <param name="e"></param>
-        public override void ProcessMessage(BasicDeliverEventArgs e)
+        public override void ProcessMessage(BasicDeliverEventArgs _e)
         {
             try
             {
-                ProcessMessageImpl(null, e);
+                e = _e;
+                ProcessMessageImpl(null, null, e.DeliveryTag);
             }
             catch (Exception exception)
             {
@@ -91,7 +93,7 @@ namespace Smi.Common.Messaging
             }
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs e)
+        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
         {
             // For now we only deal with the simple case of "smi.control.<who>.<what>". Can expand later on depending on our needs
             // Queues will be deleted when the connection is closed so don't need to worry about messages being leftover
@@ -162,11 +164,11 @@ namespace Smi.Common.Messaging
             Logger.Warn("Unhandled control message with routing key: " + e.RoutingKey);
         }
 
-        protected override void ErrorAndNack(IMessageHeader header, BasicDeliverEventArgs deliverEventArgs, string message, Exception exception)
+        protected override void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
         {
             // Can't Nack the message since it is automatically acknowledged!
             // This shouldn't really be called for control messages
-            throw new Exception("ErrorAndNack called for control message with routing key: " + deliverEventArgs.RoutingKey);
+            throw new Exception("ErrorAndNack called for control message {tag}");
         }
 
         /// <summary>

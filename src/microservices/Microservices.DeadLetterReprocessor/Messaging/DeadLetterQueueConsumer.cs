@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Microservices.DeadLetterReprocessor.Messaging
 {
-    public class DeadLetterQueueConsumer : Consumer
+    public class DeadLetterQueueConsumer : Consumer<IMessage>
     {
         private readonly IDeadLetterStore _deadLetterStore;
         private readonly string _deadLetterQueueName;
@@ -75,9 +75,28 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             _storageQueueTask.Wait();
         }
 
-
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
+        public override void ProcessMessage(BasicDeliverEventArgs deliverArgs)
         {
+            Encoding enc = Encoding.UTF8;
+            MessageHeader header;
+
+            try
+            {
+                if (deliverArgs.BasicProperties.ContentEncoding != null)
+                    enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
+
+                header = new MessageHeader(deliverArgs.BasicProperties.Headers, enc);
+                header.Log(Logger, NLog.LogLevel.Trace, "Received");
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
+
+                BasicNack(deliverArgs.DeliveryTag, false, false);
+
+                return;
+            }
+
             //Bug: RabbitMQ lib doesn't properly handle the ReplyTo address being null, causing the mapping to MongoDB types to throw an exception
             if (deliverArgs.BasicProperties.ReplyTo == null)
                 deliverArgs.BasicProperties.ReplyTo = "";
@@ -92,7 +111,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             {
                 _deadLetterStore.SendToGraveyard(deliverArgs, header, "Message contained invalid x-death entries");
 
-                Ack(header, deliverArgs);
+                Ack(header, deliverArgs.DeliveryTag);
                 return;
             }
 
@@ -100,15 +119,9 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             {
                 _deadLetterStore.SendToGraveyard(deliverArgs, header, "MaxRetryCount exceeded");
 
-                Ack(header, deliverArgs);
+                Ack(header, deliverArgs.DeliveryTag);
                 return;
             }
-
-            //TODO
-            //lock (_oQueueLock)
-            //{
-            //    _storageQueue.Enqueue(new Tuple<BasicDeliverEventArgs, IMessageHeader>(deliverArgs, header));
-            //}
 
             try
             {
@@ -119,7 +132,11 @@ namespace Microservices.DeadLetterReprocessor.Messaging
                 _deadLetterStore.SendToGraveyard(deliverArgs, header, "Exception when storing message", e);
             }
 
-            Ack(header, deliverArgs);
+            Ack(header, deliverArgs.DeliveryTag);
+        }
+        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
+        {
+            // Dummy - actual code inlined above
         }
 
 

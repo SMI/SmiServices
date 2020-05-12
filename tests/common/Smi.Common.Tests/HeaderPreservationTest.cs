@@ -43,13 +43,13 @@ namespace Smi.Common.Tests
             Assert.IsTrue(consumer.Passed);
         }
 
-        private class TestConsumer : Consumer
+        private class TestConsumer : Consumer<IMessage>
         {
             public bool Passed { get; set; }
             public bool Failed { get; set; }
 
 
-            protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+            protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
             {
                 try
                 {
@@ -58,7 +58,7 @@ namespace Smi.Common.Tests
                     Assert.AreEqual(header.Parents[2].ToString(), "5afce68f-c270-4bf3-b327-756f6038bb76");
 
                     Passed = true;
-                    Model.BasicAck(basicDeliverEventArgs.DeliveryTag, false);
+                    Ack(header,tag);
                 }
                 catch (Exception)
                 {

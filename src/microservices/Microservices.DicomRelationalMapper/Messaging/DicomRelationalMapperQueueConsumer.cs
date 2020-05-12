@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace Microservices.DicomRelationalMapper.Messaging
 {
-    public class DicomRelationalMapperQueueConsumer : Consumer, IDisposable
+    public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, IDisposable
     {
         //TODO This is literally only public for testing purposes
         public INameDatabasesAndTablesDuringLoads DatabaseNamer { get; private set; }
@@ -85,12 +85,8 @@ namespace Microservices.DicomRelationalMapper.Messaging
         }
 
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverEventArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage message, ulong tag)
         {
-            DicomFileMessage message;
-            if (!SafeDeserializeToMessage(header, deliverEventArgs, out message))
-                return;
-
             DicomDataset dataset;
 
             try
@@ -99,11 +95,11 @@ namespace Microservices.DicomRelationalMapper.Messaging
             }
             catch (Exception e)
             {
-                ErrorAndNack(header, deliverEventArgs, "Could not rebuild DicomDataset from message", e);
+                ErrorAndNack(header, tag, "Could not rebuild DicomDataset from message", e);
                 return;
             }
 
-            var toQueue = new QueuedImage(header, deliverEventArgs, message, dataset);
+            var toQueue = new QueuedImage(header, tag, message, dataset);
 
             lock (_oQueueLock)
                 _imageQueue.Enqueue(toQueue);
@@ -198,7 +194,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             if (duplicates.Any())
             {
                 Logger.Log(LogLevel.Warn, "Acking " + duplicates.Count + " duplicate Datasets");
-                duplicates.ForEach(x => Ack(x.Header, x.BasicDeliverEventArgs));
+                duplicates.ForEach(x => Ack(x.Header, x.tag));
             }
 
             var parallelDleHost = new ParallelDLEHost(_repositoryLocator, DatabaseNamer, _useInsertIntoForRawMigration);
@@ -264,12 +260,12 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 case ExitCodeType.OperationNotRequired:
                     {
                         foreach (QueuedImage corrupt in datasetProvider.CorruptMessages)
-                            ErrorAndNack(corrupt.Header, corrupt.BasicDeliverEventArgs, "Nacking Corrupt image", null);
+                            ErrorAndNack(corrupt.Header, corrupt.tag, "Nacking Corrupt image", null);
 
                         QueuedImage[] successes = toProcess.Except(datasetProvider.CorruptMessages).ToArray();
 
                         Ack(successes.Select(x => x.Header).ToList(),
-                            successes.Select(x => x.BasicDeliverEventArgs).Max(x => x.DeliveryTag));
+                            successes.Select(x => x.tag).Max(x => x));
 
                         break;
                     }
