@@ -20,8 +20,7 @@ build_script:
   - ps: "[Net.ServicePointManager]::SecurityProtocol = \"tls12, tls11, tls\""
   - ps: Install-Module -Name Microsoft.PowerShell.Archive -RequiredVersion 1.1.0.0
   - ps: "New-Item -Path \".\" -Name \"rdmp-cli\" -ItemType \"directory\""
-  - ps: curl -fsS -o rdmp-cli.zip https://github.com/HicServices/RDMP/releases/download/v4.1.1/rdmp-cli-win-x64.zip
-  - ps: 7z x rdmp-cli.zip -o ./rdmp-cli 
+  - ps: (Invoke-WebRequest https://github.com/HicServices/RDMP/releases/download/v4.1.1/rdmp-cli-win-x64.zip).Content | Expand-Archive -DestinationPath ./rdmp-cli
   - ps: ./rdmp-cli/rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
   - ps: dotnet test ./tests/run-all-tests.proj
