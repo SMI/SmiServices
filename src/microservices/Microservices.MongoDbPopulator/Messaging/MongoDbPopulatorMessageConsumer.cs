@@ -8,7 +8,7 @@ using System;
 
 namespace Microservices.MongoDBPopulator.Messaging
 {
-    public class MongoDbPopulatorMessageConsumer<T> : Consumer, IMongoDbPopulatorMessageConsumer
+    public class MongoDbPopulatorMessageConsumer<T> : Consumer<T>, IMongoDbPopulatorMessageConsumer
         where T : IMessage
     {
         public ConsumerOptions ConsumerOptions { get; }
@@ -54,7 +54,7 @@ namespace Microservices.MongoDBPopulator.Messaging
             Fatal("Processor threw an exception", e);
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header, T message, ulong tag)
         {
             // We are shutting down anyway
             if (Processor.IsStopping)
@@ -66,18 +66,15 @@ namespace Microservices.MongoDBPopulator.Messaging
                 Processor.Model = Model;
             }
 
-            if (!SafeDeserializeToMessage(header, deliverArgs, out T message))
-                return;
-
             try
             {
-                ((IMessageProcessor<T>)Processor).AddToWriteQueue(message, header, deliverArgs.DeliveryTag);
+                ((IMessageProcessor<T>)Processor).AddToWriteQueue(message, header, tag);
             }
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
 
-                ErrorAndNack(header, deliverArgs, "Error while processing " + typeof(T).Name, e);
+                ErrorAndNack(header, tag, "Error while processing " + typeof(T).Name, e);
 
                 // ReSharper disable once RedundantJumpStatement
                 return;

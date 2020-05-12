@@ -12,17 +12,17 @@ namespace Microservices.DicomRelationalMapper.Messaging
     {
         public IMessageHeader Header { get; set; }
 
-        public BasicDeliverEventArgs BasicDeliverEventArgs { get; set; }
+        public ulong tag { get; set; }
 
         public DicomFileMessage DicomFileMessage { get; set; }
 
         public DicomDataset DicomDataset { get; set; }
 
 
-        public QueuedImage(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs, DicomFileMessage dicomFileMessage, DicomDataset dataset)
+        public QueuedImage(IMessageHeader header, ulong _tag, DicomFileMessage dicomFileMessage, DicomDataset dataset)
         {
             Header = header;
-            BasicDeliverEventArgs = basicDeliverEventArgs;
+            tag = _tag;
             DicomFileMessage = dicomFileMessage;
             DicomDataset = dataset;
         }

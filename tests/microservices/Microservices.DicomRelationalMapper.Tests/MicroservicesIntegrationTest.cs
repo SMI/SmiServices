@@ -34,6 +34,7 @@ using Rdmp.Core.Logging.PastEvents;
 using Rdmp.Dicom.PipelineComponents;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using ReusableLibraryCode.Checks;
+using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -512,8 +513,8 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                     Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
                     Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
-                    Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[0]).NackCount);
-                    Assert.AreEqual(0, ((Consumer)mongoDbPopulatorHost.Consumers[1]).NackCount);
+                    Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount);
+                    Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount);
 
                     
                     try
