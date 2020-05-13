@@ -454,8 +454,8 @@ WhiteListRules:
  - Action: Ignore
    IfPartPattern: Infection
  - Action: Ignore
-   IsClassification: Organization
+   As: Organization
    IfPartPattern: Plane
  - Action: Ignore
-   IsClassification: Organization
+   As: Organization
    IfPartPattern: Slice
