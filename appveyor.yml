@@ -15,7 +15,7 @@ before_build:
 
 build_script:
   - PS: "echo \"BuildFolder Is:$APPVEYOR_BUILD_FOLDER\""
-  - ps: C:\projects\smiservices\data\tessdata\download.ps1
+  - ps:  Invoke-WebRequest "https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata" -OutFile data/tessdata/eng.traineddata
   - ps: Remove-Item "./tests/common/Smi.Common.Tests/TestDatabases.txt"
   - ps: Rename-Item -Path "./tests/common/Smi.Common.Tests/TestDatabases.appveyor.txt" -NewName "TestDatabases.txt"
     
