@@ -7,11 +7,13 @@
     <IsPublishable>false</IsPublishable>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <LangVersion>8.0</LangVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+  <ItemGroup>
     <None Include="..\..\..\data\microserviceConfigs\default.yaml" Link="default.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -29,11 +31,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="2.2.2" />
     <PackageReference Include="HIC.FAnsiSql" Version="0.11.1" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="4.1.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="11.0.6" />
     <PackageReference Include="YamlDotNet" Version="8.1.1" />
