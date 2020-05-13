@@ -55,6 +55,10 @@ BasicRules:
    IfColumn: ManufacturerModelName
    IfPattern: ^Asteion$
 
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^SIEMENS MUGA Acquisition \d{2}-Gated$
+
  # Philips
  - Action: Ignore
    IfColumn: PrivateCreator

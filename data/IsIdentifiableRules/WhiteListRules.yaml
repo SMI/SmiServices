@@ -382,8 +382,17 @@ WhiteListRules:
    IfColumn: DetectorInformation_CollimatorGridName
    IfPartPattern: ^LEHR$
  - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorGridName
+   IfPartPattern: ^LEPINH$  # NOTE(rkm 2020-05-13) Low energy pinhole
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorGridName
+   IfPartPattern: ^HEGP$  # NOTE(rkm 2020-05-13) High energy general purpose
+ - Action: Ignore
    IfColumn: DetectorInformation_CollimatorType
    IfPartPattern: ^ASTG$
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorType
+   IfPartPattern: ^PINH$  # NOTE(rkm 2020-05-13) Pinhole
  - Action: Ignore
    IfColumn: DetectorInformation_CollimatorType
    IfPartPattern: ^PARA$
@@ -431,4 +440,22 @@ WhiteListRules:
    IfPartPattern: Analysis
  - Action: Ignore
    IfPartPattern: DMSA\d\d
-    
+ - Action: Ignore
+   IfPartPattern: RAO  # NOTE(rkm 2020-05-13) Right Anterior Oblique Position
+ - Action: Ignore
+   IfPartPattern: LPO  # NOTE(rkm 2020-05-13) Left Posterior Oblique Position
+ - Action: Ignore
+   IfPartPattern: Muga  # NOTE(rkm 2020-05-13) Multi-Gated Acquisition
+ - Action: Ignore
+   IfColumn: ReconstructionMethod
+   IfPartPattern: Gauss
+ - Action: Ignore
+   IfColumn: LEHR  # NOTE(rkm 2020-05-13) Low-energy high-resolution
+ - Action: Ignore
+   IfPartPattern: Infection
+ - Action: Ignore
+   IsClassification: Organization
+   IfPartPattern: Plane
+ - Action: Ignore
+   IsClassification: Organization
+   IfPartPattern: Slice

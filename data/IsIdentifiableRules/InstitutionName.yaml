@@ -144,6 +144,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: InstitutionName
    IfPattern: ^NINEWELLS$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^Southern General Hos$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^VICTORIA INFIRMARY$
 
 # Additional failures which NERd did not pick up
 # These are hospitals so should not appear outside of InstitutionName
