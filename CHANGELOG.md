@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-- Bufix for fo-dicom image handling race condition in Release mode builds
+- Bufix for fo-dicom image handling race condition in Release mode builds (issue #238)
 
 ### Added
 
