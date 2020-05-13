@@ -419,11 +419,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 RunTest(dir, 40);
             }
         }
-        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows)
-        {
-            RunTest(dir, numberOfExpectedRows, null);
-        }
-        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions)
+        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions=null)
         { 
             TestLogger.Setup();
             var logger = LogManager.GetLogger("MicroservicesIntegrationTest");
