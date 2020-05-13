@@ -31,7 +31,7 @@ namespace Microservices.CohortExtractor.Messaging
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header,ExtractionRequestMessage request, ulong deliveryTag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
         {
             Logger.Info($"Received message: {request}");
 
@@ -40,7 +40,7 @@ namespace Microservices.CohortExtractor.Messaging
             if (!request.ExtractionDirectory.StartsWith(request.ProjectNumber))
             {
                 Logger.Debug("ExtractionDirectory did not start with the project number, doing ErrorAndNack");
-                ErrorAndNack(header, deliveryTag, "", new InvalidEnumArgumentException("ExtractionDirectory"));
+                ErrorAndNack(header, tag, "", new InvalidEnumArgumentException("ExtractionDirectory"));
             }
 
             string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
@@ -97,7 +97,7 @@ namespace Microservices.CohortExtractor.Messaging
             }
 
             Logger.Info("Finished processing message");
-            Ack(header, deliveryTag);
+            Ack(header, tag);
         }
     }
 }

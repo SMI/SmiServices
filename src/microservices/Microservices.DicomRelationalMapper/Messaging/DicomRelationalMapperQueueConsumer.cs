@@ -85,7 +85,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         }
 
 
-        protected override void ProcessMessageImpl(IMessageHeader header,DicomFileMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage message, ulong tag)
         {
             DicomDataset dataset;
 

@@ -1,10 +1,8 @@
-﻿using Smi.Common.Messages;
+﻿using System;
+using System.Text;
+using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using RabbitMQ.Client.Events;
-using System.Text;
-using System;
-using System.Collections.Generic;
-using NLog;
 
 namespace Smi.Common.Tests.DeadLetterMessagingTests
 {
@@ -16,47 +14,44 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
         public bool AcceptNext { get; set; }
 
         public IMessageHeader LastHeader { get; private set; }
-        public ulong LastTag { get; private set; }
-        public BasicDeliverEventArgs LastDeliverArgs { get; private set; }
+        public BasicDeliverEventArgs LastArgs { get; private set; }
 
-        public override void ProcessMessage(BasicDeliverEventArgs deliverArgs)
+        public override void ProcessMessage(BasicDeliverEventArgs ea)
         {
-            LastDeliverArgs = deliverArgs;
             Encoding enc = Encoding.UTF8;
-            MessageHeader header = null;
+            MessageHeader header;
 
             try
             {
-                if (deliverArgs.BasicProperties != null)
-                {
-                    if (deliverArgs.BasicProperties.ContentEncoding != null)
-                        enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
+                if (ea.BasicProperties.ContentEncoding != null)
+                    enc = Encoding.GetEncoding(ea.BasicProperties.ContentEncoding);
 
-                    header = new MessageHeader(deliverArgs.BasicProperties == null ? new Dictionary<string, object>() : deliverArgs.BasicProperties.Headers, enc);
-                }
+                header = new MessageHeader(ea.BasicProperties.Headers, enc);
+                header.Log(Logger, NLog.LogLevel.Trace, "Received");
             }
             catch (Exception e)
             {
                 Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
-                Model.BasicNack(deliverArgs.DeliveryTag, false, false);
+
+                DiscardSingleMessage(ea.DeliveryTag);
+                
                 return;
             }
-            ProcessMessageImpl(header, null, deliverArgs.DeliveryTag);
+
+            LastHeader = header;
+            LastArgs = ea;
+            if (AcceptNext)
+            {
+                Ack(header,ea.DeliveryTag);
+                AcceptNext = false;
+                return;
+            }
+            ErrorAndNack(header,ea.DeliveryTag,"Message rejected!",null);
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag)
         {
-            LastHeader = header;
-            LastTag = tag;
-
-            if (AcceptNext)
-            {
-                Ack(header, tag);
-                AcceptNext = false;
-                return;
-            }
-
-            ErrorAndNack(header, tag, "Message rejected!", null);
+            // Body now inlined above since this Consumer has non-standard behaviour
         }
     }
 }

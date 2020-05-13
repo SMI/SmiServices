@@ -28,41 +28,41 @@ namespace Microservices.IdentifierMapper.Messaging
         {
             _producer = producer;
             _swapper = swapper;
-            acker = new Thread(() =>
-              {
-                  try
-                  {
-                      while (true)
-                      {
-                          List<Tuple<IMessageHeader, ulong>> done = new List<Tuple<IMessageHeader, ulong>>();
-                          Tuple<DicomFileMessage, IMessageHeader, ulong> t;
-                          t = msgq.Take();
+            acker=new Thread(() =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        List<Tuple<IMessageHeader, ulong>> done = new List<Tuple<IMessageHeader, ulong>>();
+                        Tuple<DicomFileMessage, IMessageHeader, ulong> t;
+                        t = msgq.Take();
 
-                          lock (_producer)
-                          {
-                              _producer.SendMessage(t.Item1, t.Item2, "");
-                              done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
-                              while (msgq.TryTake(out t))
-                              {
-                                  _producer.SendMessage(t.Item1, t.Item2, "");
-                                  done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
-                              }
-                              _producer.WaitForConfirms();
-                              foreach (var ack in done)
-                              {
-                                  Ack(ack.Item1, ack.Item2);
-                              }
-                          }
-                      }
-                  }
-                  catch (InvalidOperationException)
-                  {
+                        lock (_producer)
+                        {
+                            _producer.SendMessage(t.Item1, t.Item2, "");
+                            done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
+                            while (msgq.TryTake(out t))
+                            {
+                                _producer.SendMessage(t.Item1, t.Item2, "");
+                                done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
+                            }
+                            _producer.WaitForConfirms();
+                            foreach (var ack in done)
+                            {
+                                Ack(ack.Item1, ack.Item2);
+                            }
+                        }
+                    }
+                }
+                catch (InvalidOperationException)
+                {
                     // The BlockingCollection will throw this exception when closed by Shutdown()
                     return;
-                  }
-              })
+                }
+            })
             {
-                IsBackground = true
+              IsBackground = true
             };
             acker.Start();
         }
@@ -76,7 +76,7 @@ namespace Microservices.IdentifierMapper.Messaging
             acker.Join();
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header,DicomFileMessage msg, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage msg, ulong tag)
         {
             string errorReason = null;
             var success = false;

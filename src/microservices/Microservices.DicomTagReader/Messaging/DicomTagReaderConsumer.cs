@@ -30,7 +30,7 @@ namespace Microservices.DicomTagReader.Messaging
         /// </summary>
         /// <param name="header">The audit trail and origin of the IMessage contained in deliverArgs</param>
         /// <param name="deliverArgs">The message and associated information</param>
-        protected override void ProcessMessageImpl(IMessageHeader header,AccessionDirectoryMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, AccessionDirectoryMessage message, ulong tag)
         {
             lock (_reader.TagReaderProcessLock)
             {

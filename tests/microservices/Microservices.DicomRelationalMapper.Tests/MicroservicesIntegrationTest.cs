@@ -19,7 +19,6 @@ using Microservices.DicomTagReader.Execution;
 using Microservices.IdentifierMapper.Execution;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.MongoDBPopulator.Execution;
-using Microservices.MongoDBPopulator.Messaging;
 using Microservices.Tests.RDMPTests;
 using MongoDB.Driver;
 using NLog;
@@ -414,15 +413,17 @@ namespace Microservices.DicomRelationalMapper.Tests
             var r = new Random(500);
 
             //create a generator 
-            using (var generator = new DicomDataGenerator(r, dir, "CT") { 
-            NoPixels=true
-            })
+            using (var generator = new DicomDataGenerator(r, dir, "CT"))
             {
                 generator.GenerateImageFiles(40,r);
                 RunTest(dir, 40);
             }
         }
-        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions=null)
+        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows)
+        {
+            RunTest(dir, numberOfExpectedRows, null);
+        }
+        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions)
         { 
             TestLogger.Setup();
             var logger = LogManager.GetLogger("MicroservicesIntegrationTest");
@@ -512,12 +513,13 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                     Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
                     Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
-                    Assert.AreEqual(0, ((MongoDbPopulatorMessageConsumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount);
-                    Assert.AreEqual(0, ((MongoDbPopulatorMessageConsumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount);
+                    Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount);
+                    Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount);
 
                     
                     try
                     {
+                        Thread.Sleep(TimeSpan.FromSeconds(10));
                         new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
                         logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
                     }
@@ -532,8 +534,8 @@ namespace Microservices.DicomRelationalMapper.Tests
                                 foreach (ArchivalFatalError e in dli.Errors)
                                     logger.Error(e.Date.TimeOfDay + ":" + e.Source + ":" + e.Description);
                     }
-
-                    new TestTimelineAwaiter().Await(() => numberOfExpectedRows == _helper.ImageTable.GetRowCount(), "All images should appear in the image table", 1000);
+                    
+                    Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
                     Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
                     Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
                     Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), _helper.SeriesTable.GetRowCount(), "There should be less studies than series (or equal)");

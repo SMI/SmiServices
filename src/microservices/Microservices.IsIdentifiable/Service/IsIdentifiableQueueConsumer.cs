@@ -26,7 +26,7 @@ namespace Microservices.IsIdentifiable.Service
             _classifier = classifier;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header,ExtractFileStatusMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractFileStatusMessage message, ulong tag)
         {
             bool isClean = true;
             object resultObject;

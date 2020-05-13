@@ -49,7 +49,7 @@ namespace Smi.Common.Tests
             public bool Failed { get; set; }
 
 
-            protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
+            protected override void ProcessMessageImpl(IMessageHeader header, TestMessage message, ulong tag)
             {
                 try
                 {
@@ -58,7 +58,7 @@ namespace Smi.Common.Tests
                     Assert.AreEqual(header.Parents[2].ToString(), "5afce68f-c270-4bf3-b327-756f6038bb76");
 
                     Passed = true;
-                    Model.BasicAck(tag, false);
+                    Ack(header,tag);
                 }
                 catch (Exception)
                 {
