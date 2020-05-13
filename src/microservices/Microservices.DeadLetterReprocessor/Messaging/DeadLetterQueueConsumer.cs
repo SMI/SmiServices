@@ -20,8 +20,6 @@ namespace Microservices.DeadLetterReprocessor.Messaging
         private readonly int _maxRetryLimit;
         private readonly TimeSpan _defaultRetryAfter;
 
-        public BasicDeliverEventArgs LastArgs { get; private set; }
-
         public DeadLetterQueueConsumer(IDeadLetterStore deadLetterStore, DeadLetterReprocessorOptions options)
         {
             if (string.IsNullOrWhiteSpace(options.DeadLetterConsumerOptions.QueueName))
@@ -50,30 +48,6 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             return;
         }
 
-        public override void ProcessMessage(BasicDeliverEventArgs ea)
-        {
-            LastArgs = ea;
-            Encoding enc = Encoding.UTF8;
-            MessageHeader header = null;
-
-            try
-            {
-                if (ea.BasicProperties != null)
-                {
-                    if (ea.BasicProperties.ContentEncoding != null)
-                        enc = Encoding.GetEncoding(ea.BasicProperties.ContentEncoding);
-
-                    header = new MessageHeader(ea.BasicProperties == null ? new Dictionary<string, object>() : ea.BasicProperties.Headers, enc);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
-                Model.BasicNack(ea.DeliveryTag, false, false);
-                return;
-            }
-            ProcessMessageImpl(header, null, ea.DeliveryTag);
-        }
 
         public override void ProcessMessage(BasicDeliverEventArgs deliverArgs)
         {
@@ -98,14 +72,14 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             }
 
             //Bug: RabbitMQ lib doesn't properly handle the ReplyTo address being null, causing the mapping to MongoDB types to throw an exception
-            if (LastArgs.BasicProperties.ReplyTo == null)
-                LastArgs.BasicProperties.ReplyTo = "";
+            if (deliverArgs.BasicProperties.ReplyTo == null)
+                deliverArgs.BasicProperties.ReplyTo = "";
 
             RabbitMqXDeathHeaders deathHeaders;
 
             try
             {
-                deathHeaders = new RabbitMqXDeathHeaders(LastArgs.BasicProperties.Headers, Encoding.UTF8);
+                deathHeaders = new RabbitMqXDeathHeaders(deliverArgs.BasicProperties.Headers, Encoding.UTF8);
             }
             catch (ArgumentException)
             {
@@ -125,11 +99,11 @@ namespace Microservices.DeadLetterReprocessor.Messaging
 
             try
             {
-                _deadLetterStore.PersistMessageToStore(LastArgs, header, _defaultRetryAfter);
+                _deadLetterStore.PersistMessageToStore(deliverArgs, header, _defaultRetryAfter);
             }
             catch (Exception e)
             {
-                _deadLetterStore.SendToGraveyard(LastArgs, header, "Exception when storing message", e);
+                _deadLetterStore.SendToGraveyard(deliverArgs, header, "Exception when storing message", e);
             }
 
             Ack(header, deliverArgs.DeliveryTag);

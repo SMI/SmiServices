@@ -14,7 +14,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
         public bool AcceptNext { get; set; }
 
         public IMessageHeader LastHeader { get; private set; }
-        public BasicDeliverEventArgs LastArgs { get; private set; }
+        public BasicDeliverEventArgs LastDeliverArgs { get; private set; }
 
         public override void ProcessMessage(BasicDeliverEventArgs ea)
         {
@@ -39,7 +39,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
             }
 
             LastHeader = header;
-            LastArgs = ea;
+            LastDeliverArgs = ea;
             if (AcceptNext)
             {
                 Ack(header,ea.DeliveryTag);
