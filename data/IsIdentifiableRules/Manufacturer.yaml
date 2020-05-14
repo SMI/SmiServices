@@ -55,15 +55,6 @@ BasicRules:
    IfColumn: ManufacturerModelName
    IfPattern: ^Asteion$
 
- - Action: Ignore
-   IfColumn: SeriesDescription
-   IfPartPattern: ^siemens$
-   IfPattern: ^siemens muga
- - Action: Ignore
-   IfColumn: ReconstructionMethod
-   IfPartPattern: ^siemens$
-   IfPattern: ^OSEM.*Butterworth.*$
-
  # Philips
  - Action: Ignore
    IfColumn: PrivateCreator
@@ -76,3 +67,15 @@ BasicRules:
  - Action: Ignore
    IfColumn: PrivateCreator
    IfPattern: TOSHIBA_MEC_CT
+
+WhiteListRules:
+
+# SIEMENS
+- Action: Ignore
+  IfColumn: SeriesDescription
+  IfPartPattern: ^siemens$
+  IfPattern: ^siemens muga
+- Action: Ignore
+  IfColumn: ReconstructionMethod
+  IfPartPattern: ^siemens$
+  IfPattern: ^OSEM.*Butterworth.*$
