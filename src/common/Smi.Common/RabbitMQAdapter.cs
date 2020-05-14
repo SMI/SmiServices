@@ -415,6 +415,7 @@ namespace Smi.Common
             ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
             IModel m = subscription.Model;
 
+            UpdateCounter(consumer, m, queuename);
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
                 BasicDeliverEventArgs e;
