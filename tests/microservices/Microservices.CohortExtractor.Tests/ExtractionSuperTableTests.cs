@@ -42,44 +42,50 @@ namespace Microservices.CohortExtractor.Tests
                     new DatabaseColumnRequest(SpecialFieldNames.DataLoadRunID, new DatabaseTypeRequest(typeof(int))),
                     new DatabaseColumnRequest(SpecialFieldNames.ValidFrom, new DatabaseTypeRequest(typeof(DateTime))),
                 });
+            Assert.IsTrue(tbl.IsEmpty());
 
             if (recordCount > 0)
             {
                 var r = new Random(500);
 
-                DicomDataGenerator g = new DicomDataGenerator(r,null);
+                DicomDataGenerator g = new DicomDataGenerator(r,null,new string[]{modality})
+                {
+                    NoPixels = true
+                };
                 g.MaximumImages = recordCount;
                 
                 var persons =  new PersonCollection();
                 persons.GeneratePeople(500,r);
 
-                while(recordCount > 0)
-                    foreach (var image in g.GenerateStudyImages(persons.People[r.Next(persons.People.Length)],out var study))
-                    {
-                        tbl.Insert(new Dictionary<string, object>()
+                using (var ins = tbl.BeginBulkInsert())
+                {
+                    while (recordCount > 0)
+                        foreach (var image in g.GenerateStudyImages(persons.People[r.Next(persons.People.Length)], out var study))
                         {
-                            {"StudyInstanceUID", image.GetSingleValue<string>(DicomTag.StudyInstanceUID)},
-                            {"SeriesInstanceUID", image.GetSingleValue<string>(DicomTag.SeriesInstanceUID)},
-                            {"SOPInstanceUID", image.GetSingleValue<string>(DicomTag.SOPInstanceUID)},
-                            
-                            {"IsExtractableToDisk", true},
-                            {"IsExtractableToDisk_Reason", DBNull.Value},
-                            {"RelativeFileArchiveURI", image.GetSingleValue<string>(DicomTag.SOPInstanceUID) + (useDcmFileExtension ? ".dcm" :"")},
-                            {"IsOriginal", image.GetValues<string>(DicomTag.ImageType)[0] == "ORIGINAL"},
-                            {"IsPrimary", image.GetValues<string>(DicomTag.ImageType)[1] == "PRIMARY"},
-                            
-                            {SpecialFieldNames.DataLoadRunID, 1},
-                            {SpecialFieldNames.ValidFrom, DateTime.Now},
+                            tbl.Insert(new Dictionary<string, object>()
+                            {
+                                {"StudyInstanceUID", image.GetSingleValue<string>(DicomTag.StudyInstanceUID)},
+                                {"SeriesInstanceUID", image.GetSingleValue<string>(DicomTag.SeriesInstanceUID)},
+                                {"SOPInstanceUID", image.GetSingleValue<string>(DicomTag.SOPInstanceUID)},
 
-                        });
-                        
-                        recordCount--;
-                        
-                        if(recordCount <=0)
-                            break;
-                    }
+                                {"IsExtractableToDisk", true},
+                                {"IsExtractableToDisk_Reason", DBNull.Value},
+                                {"RelativeFileArchiveURI", image.GetSingleValue<string>(DicomTag.SOPInstanceUID) + (useDcmFileExtension ? ".dcm" :"")},
+                                {"IsOriginal", image.GetValues<string>(DicomTag.ImageType)[0] == "ORIGINAL"},
+                                {"IsPrimary", image.GetValues<string>(DicomTag.ImageType)[1] == "PRIMARY"},
+
+                                {SpecialFieldNames.DataLoadRunID, 1},
+                                {SpecialFieldNames.ValidFrom, DateTime.Now},
+
+                            });
+
+                            recordCount--;
+
+                            if (recordCount <= 0)
+                                break;
+                        }
+                }
             }
-            
             return tbl;
         }
 
@@ -94,7 +100,8 @@ namespace Microservices.CohortExtractor.Tests
 
             //create table with 300 rows to ensure at least two studies
             const int testrows = 300;
-            var tbl = BuildExampleExtractionTable(db, "CT", testrows, true);
+            // Has to be a non-CT modality, since 3% of generated CT scans will be non-ORIGINAL and not extractable!
+            var tbl = BuildExampleExtractionTable(db, "MR", testrows, true);
 
             Assert.AreEqual(testrows, tbl.GetRowCount());
 

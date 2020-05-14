@@ -24,7 +24,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         public override string ToString()
         {
-            return $"{FilePathValue}(Reject={Reject})";
+            return $"{FilePathValue}(Reject={Reject},Reason={RejectReason})";
         }
 
         #region Equality
