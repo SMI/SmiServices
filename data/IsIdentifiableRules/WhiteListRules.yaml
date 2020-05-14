@@ -450,7 +450,7 @@ WhiteListRules:
    IfColumn: ReconstructionMethod
    IfPartPattern: Gauss
  - Action: Ignore
-   IfColumn: LEHR  # NOTE(rkm 2020-05-13) Low-energy high-resolution
+   IfPartPattern: ^LEHR$  # NOTE(rkm 2020-05-13) Low-energy high-resolution
  - Action: Ignore
    IfPartPattern: Infection
  - Action: Ignore

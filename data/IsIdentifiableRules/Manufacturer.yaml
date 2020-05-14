@@ -77,5 +77,5 @@ WhiteListRules:
   IfPattern: ^siemens muga
 - Action: Ignore
   IfColumn: ReconstructionMethod
-  IfPartPattern: ^siemens$
-  IfPattern: ^OSEM.*Butterworth.*$
+  IfPartPattern: ^(siemens|butterworth)$
+  IfPattern: ^osem.*siemens.*butterworth.*$
