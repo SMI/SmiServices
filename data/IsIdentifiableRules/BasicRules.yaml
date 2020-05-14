@@ -190,14 +190,18 @@ BasicRules:
    IfColumn: SeriesDescription
    IfPattern: ^[0-9 ]*INSPIRATIO$
  - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^AC CT WB$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^nm vq right sagittal images$
+
+ - Action: Ignore
    IfColumn: ProtocolName
    IfPattern: ^Thorax_Liv$
  - Action: Ignore
    IfColumn: ProtocolName
    IfPattern: ^COR FIESTA$
- - Action: Ignore
-   IfColumn: SeriesDescription
-   IfPattern: ^AC CT WB$
  - Action: Ignore
    IfColumn: ProtocolName
    IfPattern: ^Abdo Non Contrast$
