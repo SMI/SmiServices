@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
+using Microservices.IsIdentifiable.Rules;
 using Microservices.IsIdentifiable.Runners;
 using NUnit.Framework;
 
@@ -182,6 +183,59 @@ BasicRules:
 
             Assert.AreEqual("0101010101", w1.Word);
             Assert.AreEqual(43, w1.Offset);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestCaseSensitivity_BlackBox(bool caseSensitive)
+        {
+            var runner = new TestRunner("FF");
+
+            runner.CustomRules.Add( new IsIdentifiableRule()
+            {
+                IfPattern = "ff", 
+                Action = RuleAction.Ignore,
+                CaseSensitive = caseSensitive
+            });
+
+            runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
+            
+            runner.Run();
+            
+            if(caseSensitive)
+                Assert.AreEqual(1,runner.ResultsOfValidate.Count);
+            else
+                Assert.IsEmpty(runner.ResultsOfValidate);
+        }
+
+        /// <summary>
+        /// This tests that the rule order is irrelevant.  Ignore rules should always be applied before report rules
+        /// </summary>
+        /// <param name="ignoreFirst"></param>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestRuleOrdering_BlackBox(bool ignoreFirst)
+        {
+            var runner = new TestRunner("FF");
+
+            if (ignoreFirst)
+            {
+                //ignore the report
+                runner.CustomRules.Add( new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
+                runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
+            }
+            else
+            {
+                //report then ignore
+                runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
+                runner.CustomRules.Add( new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
+            }
+
+            runner.SortRules();
+
+            runner.Run();
+            
+            Assert.IsEmpty(runner.ResultsOfValidate);
         }
 
         [Test]

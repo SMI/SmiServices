@@ -9,6 +9,8 @@
     <IsPublishable>false</IsPublishable>
 	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <LangVersion>8.0</LangVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.1.0" />

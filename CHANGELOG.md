@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Bufix for fo-dicom image handling race condition in Release mode builds (issue #238)
+
 ### Added
 
 - Added image extraction blacklist rejector.
@@ -15,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- Fixed IsIdentifiable rule order being the order the files are detected in rules directory (Now goes IgnoreRules=>ReportRules=>SocketRules)
 - Adjust log handling in CTP anonymiser to use SMIlogging setup
 - IsIdentifiable case-sensitive rules now implemented with property 
 

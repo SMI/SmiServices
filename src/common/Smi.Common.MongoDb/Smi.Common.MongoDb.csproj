@@ -7,6 +7,8 @@
     <IsPublishable>false</IsPublishable>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <LangVersion>8.0</LangVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
