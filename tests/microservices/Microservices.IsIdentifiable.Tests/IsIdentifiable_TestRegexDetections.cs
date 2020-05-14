@@ -208,6 +208,36 @@ BasicRules:
                 Assert.IsEmpty(runner.ResultsOfValidate);
         }
 
+        /// <summary>
+        /// This tests that the rule order is irrelevant.  Ignore rules should always be applied before report rules
+        /// </summary>
+        /// <param name="ignoreFirst"></param>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestRuleOrdering_BlackBox(bool ignoreFirst)
+        {
+            var runner = new TestRunner("FF");
+
+            if (ignoreFirst)
+            {
+                //ignore the report
+                runner.CustomRules.Add( new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
+                runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
+            }
+            else
+            {
+                //report then ignore
+                runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
+                runner.CustomRules.Add( new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
+            }
+
+            runner.SortRules();
+
+            runner.Run();
+            
+            Assert.IsEmpty(runner.ResultsOfValidate);
+        }
+
         [Test]
         public void TestSopDoesNotMatch()
         {
