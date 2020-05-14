@@ -132,6 +132,8 @@ namespace Microservices.IsIdentifiable.Runners
                 }
             }
 
+            SortRules();
+
             IWhitelistSource source = null;
 
             try
@@ -157,6 +159,40 @@ namespace Microservices.IsIdentifiable.Runners
 
                 _logger.Info($"Whitelist built with {_whiteList.Count} exact strings");
             }
+        }
+
+        public void SortRules()
+        {
+            CustomRules = CustomRules.OrderByDescending(OrderWeight).ToList();
+        }
+
+        private int OrderWeight(ICustomRule arg)
+        {
+            if (arg is IsIdentifiableRule irule)
+            {
+                switch (irule.Action)
+                {
+                    case RuleAction.None:
+                        return -6000;
+
+                    //ignore rules float to the top
+                    case RuleAction.Ignore:
+                        return 100;
+
+                    //then consider the report explicit rules (by pattern)
+                    case RuleAction.Report:
+                        return 0;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            //socket rules sink to the bottom
+            if (arg is SocketRule)
+                return -5000;
+
+            //some odd custom rule type that is not a socket or basic rule, do them after the regular reports but before sockets
+            return -50;
         }
 
         /// <summary>
