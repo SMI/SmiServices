@@ -185,6 +185,9 @@ BasicRules:
    IfPattern: ^WB Standard$
  - Action: Ignore
    IfColumn: SeriesDescription
+   IfPattern: ^WB Immed$
+ - Action: Ignore
+   IfColumn: SeriesDescription
    IfPattern: ^[0-9 ]*INSPIRATIO$
  - Action: Ignore
    IfColumn: ProtocolName
@@ -1082,7 +1085,7 @@ BasicRules:
    IfPattern: ^nm bone pelvis and hips spect ct$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^nm hepatobiliary function scan and stim$
+   IfPattern: ^nm hepatobiliary function scan (and|&) stim$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^nm lymphoscintigram$
@@ -1113,6 +1116,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^nm white cell indium 111 scan spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm white cell hmpao injection & scan 1$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm sentinel node localisation & imaging$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^orthopaedic.knee .8 channel coil.$
@@ -1591,3 +1600,10 @@ BasicRules:
  - Action: Ignore
    IfColumn: PerformedProcedureStepDescription
    IfPattern: ^sch.del$
+
+ - Action: Ignore
+   As: Date
+   IfPattern: Octreoscan
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^RIE WB Bone$

@@ -57,7 +57,12 @@ BasicRules:
 
  - Action: Ignore
    IfColumn: SeriesDescription
-   IfPattern: ^SIEMENS MUGA Acquisition \d{2}-Gated$
+   IfPartPattern: ^siemens$
+   IfPattern: ^siemens muga
+ - Action: Ignore
+   IfColumn: ReconstructionMethod
+   IfPartPattern: ^siemens$
+   IfPattern: ^OSEM.*Butterworth.*$
 
  # Philips
  - Action: Ignore
