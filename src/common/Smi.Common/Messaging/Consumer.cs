@@ -30,6 +30,7 @@ namespace Smi.Common.Messaging
         /// </summary>
         public event ConsumerFatalHandler OnFatal;
 
+        public int Queuelen { get; set; } = -1;
 
         protected readonly ILogger Logger;
 

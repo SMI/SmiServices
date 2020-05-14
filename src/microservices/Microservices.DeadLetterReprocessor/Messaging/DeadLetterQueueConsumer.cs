@@ -53,7 +53,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
 
         public bool MessagesInQueue()
         {
-            return Model.MessageCount(_deadLetterQueueName) > 0;
+            return Queuelen != 0;
         }
 
         public void Stop()

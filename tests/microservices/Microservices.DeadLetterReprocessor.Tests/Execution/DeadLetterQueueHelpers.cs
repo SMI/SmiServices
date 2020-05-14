@@ -69,7 +69,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
         /// Helper test to run the MessageRejector consumer for some time
         /// </summary>
         [Test]
-        [TestCase(10)]
+        [TestCase(0)]
         public void RunMessageRejector(int nSeconds)
         {
             Thread.Sleep(nSeconds * 1000);

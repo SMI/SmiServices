@@ -190,7 +190,8 @@ namespace Smi.Common
             Guid taskId = Guid.NewGuid();
             var taskTokenSource = new CancellationTokenSource();
 
-            var consumerTask = new Task(() => Consume(subscription, consumer, taskTokenSource.Token));
+            consumer.SetModel(model);
+            var consumerTask = new Task(() => Consume(subscription, consumer, taskTokenSource.Token, consumerOptions.QueueName));
 
             var resources = new ConsumerResources
             {
@@ -385,16 +386,34 @@ namespace Smi.Common
         }
 
         /// <summary>
+        /// Update the pending message count for this consumer
+        /// </summary>
+        /// <param name="consumer"></param>
+        /// <param name="queuename"></param>
+        private void UpdateCounter(IConsumer consumer, IModel model,string queuename)
+        {
+            try
+            {
+                if (model.IsOpen)
+                    consumer.Queuelen = (int) model.MessageCount(queuename);
+                else consumer.Queuelen = 0;
+            }
+            catch (Exception e)
+            {
+                consumer.Queuelen = 0;
+            }
+        }
+
+        /// <summary>
         /// Receives any messages sent to the subscription and passes on to the consumer object.
         /// </summary>
         /// <param name="subscription">Subscription to monitor for messages on.</param>
         /// <param name="consumer">Consumer to send messages on to.</param>
         /// <param name="cancellationToken"></param>
-        private void Consume(ISubscription subscription, IConsumer consumer, CancellationToken cancellationToken)
+        private void Consume(ISubscription subscription, IConsumer consumer, CancellationToken cancellationToken, string queuename)
         {
             ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
             IModel m = subscription.Model;
-            consumer.SetModel(m);
 
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
@@ -418,7 +437,16 @@ namespace Smi.Common
                         }, cancellationToken);
                     }
                     else
-                        consumer.ProcessMessage(e);
+                    {
+                        try
+                        {
+                            consumer.ProcessMessage(e);
+                        }
+                        finally
+                        {
+                            UpdateCounter(consumer, m, queuename);
+                        }
+                    }
                 }
             }
             if (_threaded)

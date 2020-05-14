@@ -37,7 +37,7 @@ namespace Microservices.DeadLetterReprocessor.Execution
             do
             {
                 Thread.Sleep(1000);
-            } while (_deadLetterQueueConsumer.MessagesInQueue());
+            } while (_deadLetterQueueConsumer.Queuelen!=0);
                 
 
             Logger.Info("DLQ empty, stopping consumer");

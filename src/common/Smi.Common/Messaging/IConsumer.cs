@@ -31,5 +31,10 @@ namespace Smi.Common.Messaging
         /// Trigger a clean shutdown of worker threads etc
         /// </summary>
         void Shutdown();
+
+        /// <summary>
+        /// Number of items remaining in queue
+        /// </summary>
+        int Queuelen { get; set;  }
     }
 }
