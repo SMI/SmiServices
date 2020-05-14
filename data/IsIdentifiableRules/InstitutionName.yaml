@@ -32,7 +32,7 @@ BasicRules:
    IfPattern: ^Royal Alexandra Hospital$
  - Action: Ignore
    IfColumn: InstitutionName
-   IfPattern: ^LORN . ISLANDS$
+   IfPattern: ^LORN \. ISLANDS$
  - Action: Ignore
    IfColumn: InstitutionName
    IfPattern: ^GALLOWAY COMMUNITY HOSPITAL$
@@ -54,6 +54,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: InstitutionName
    IfPattern: ^Cumberland Infirmary, Carlisle$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^R\.M\.P\.D\. CARLISLE$
  - Action: Ignore
    IfColumn: InstitutionName
    IfPattern: ^John Radcliffe Hospital$

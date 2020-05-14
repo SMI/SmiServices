@@ -459,3 +459,38 @@ WhiteListRules:
  - Action: Ignore
    As: Organization
    IfPartPattern: Slice
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: SC
+   As: Organization
+ - Action: Ignore
+   IfPartPattern: Corrected
+   As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^rie$
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: Octreo
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^wbc$
+   As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^rie$
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^tektrotyd$
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^mibg$
+   As: Person
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: ^octreotide$
+   As: Organization

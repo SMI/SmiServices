@@ -78,4 +78,4 @@ WhiteListRules:
 - Action: Ignore
   IfColumn: ReconstructionMethod
   IfPartPattern: ^(siemens|butterworth)$
-  IfPattern: ^osem.*siemens.*butterworth.*$
+  IfPattern: ^osem.*siemens

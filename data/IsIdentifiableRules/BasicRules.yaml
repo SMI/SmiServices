@@ -114,6 +114,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^Lung *[0-9\.]* *Lung *HRCT *Sharp$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^FBP I123 DaTScan \[Photopeak\] Sharp$
 
  # MySQL results
  - Action: Ignore
@@ -181,6 +184,13 @@ BasicRules:
    IfColumn: ProcedureCodeSequence_CodeValue
    IfPattern: ^MTSPN$
  - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^nmren$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^nbknb$
+
+ - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^WB Standard$
  - Action: Ignore
@@ -195,6 +205,15 @@ BasicRules:
  - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^nm vq right sagittal images$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^scr wb bone$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^scr ge solid$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^mict cys$
 
  - Action: Ignore
    IfColumn: ProtocolName
@@ -1604,6 +1623,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: PerformedProcedureStepDescription
    IfPattern: ^sch.del$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^nm hepatobiliary function scan (and|&) stim$
 
  - Action: Ignore
    As: Date
@@ -1611,3 +1633,18 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^RIE WB Bone$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^mibi$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^tomo hmpao$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^plao$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^prpo$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^nora_20_summary$
