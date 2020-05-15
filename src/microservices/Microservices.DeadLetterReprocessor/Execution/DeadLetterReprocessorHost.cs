@@ -36,7 +36,9 @@ namespace Microservices.DeadLetterReprocessor.Execution
 
             do
             {
-                Thread.Sleep(1000);
+                lock (_deadLetterQueueConsumer)
+                    Monitor.Wait(_deadLetterQueueConsumer, 1000);
+                Thread.Sleep(100);
             } while (_deadLetterQueueConsumer.Queuelen!=0);
                 
 

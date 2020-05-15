@@ -38,8 +38,11 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             _testHelper.ResetSuite();
         }
 
-        [TearDown]
-        public void TearDown() { }
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            _testHelper.Dispose();
+        }
 
         #endregion
 

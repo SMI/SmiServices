@@ -78,8 +78,8 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
         [Test]
         public void TestBasicOperation()
         {
-            Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 0);
-            Assert.True(_deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty) == 0);
+            Assert.AreEqual(0, _deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty));
+            Assert.AreEqual(0, _deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty));
 
             // Setup a test message and send it, then wait for it to be rejected
             var testMessage = new AccessionDirectoryMessage
@@ -106,15 +106,17 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             // Start the host and check message has been read from DLQ into store
             var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
             host.Start();
-
-            Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
-            Assert.True(_deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty) == 0);
             Assert.AreEqual(0, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
+            host.Stop("Stage 1 tests done");
+
+            Assert.AreEqual(1, _deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty));
+            Assert.AreEqual(0, _deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty));
 
             // Now run the host again with the FlushMessages option set
             _cliOptions.FlushMessages = true;
             host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
             host.Start();
+            host.Stop("Test stage 2 done");
 
             // Check the message has been sent back to the exchange and received by the consumer
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 0);
@@ -168,8 +170,9 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
         [Test]
         public void TestMessageRejectLoop()
         {
-            Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 0);
-            Assert.True(_deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty) == 0);
+            Assert.AreEqual(0, _deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty));
+            Assert.AreEqual(0, _deadLetterGraveyard.CountDocuments(FilterDefinition<MongoDeadLetterGraveyardDocument>.Empty));
+            Assert.AreEqual(0, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
             // Setup a test message and send it, then wait for it to be rejected
             var testMessage = new AccessionDirectoryMessage
@@ -199,6 +202,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
                 host.Start();
 
                 Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 0);
+                host.Stop("Test part done");
             }
 
             // Message should now be in the graveyard

@@ -47,7 +47,7 @@ namespace Smi.Common
         private readonly HostFatalHandler _hostFatalHandler;
         private readonly string _hostId;
 
-        private readonly IConnectionFactory _factory;
+        private readonly IConnection _connection;
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new Dictionary<Guid, RabbitResources>();
         private readonly object _oResourceLock = new object();
 
@@ -82,8 +82,23 @@ namespace Smi.Common
                     _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
             }
 
-            _factory = connectionFactory;
-            
+            try
+            {
+                _connection = connectionFactory.CreateConnection();
+            }
+            catch (BrokerUnreachableException e)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"    URI:                            {connectionFactory.Uri}");
+                sb.AppendLine($"    UserName:                       {connectionFactory.UserName}");
+                sb.AppendLine($"    VirtualHost:                    {connectionFactory.VirtualHost}");
+                sb.AppendLine($"    HandshakeContinuationTimeout:   {connectionFactory.HandshakeContinuationTimeout}");
+                throw new ArgumentException($"Could not create a connection to RabbitMQ on startup:{Environment.NewLine}{sb}", e);
+            }
+
+            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
+            _connection.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked");
+
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("hostId");
 
@@ -119,12 +134,7 @@ namespace Smi.Common
             // Client label is the same for the IConnection and Subscription since we have a separate connection per consumer
             string label = string.Format("{0}::Consumer::{1}", _hostId, consumerOptions.QueueName);
 
-            IConnection connection = _factory.CreateConnection(label);
-
-            connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked for {consumerOptions.QueueName} ( Reason: {a.Reason})");
-            connection.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked for {consumerOptions.QueueName}");
-
-            IModel model = connection.CreateModel();
+            IModel model = _connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
             // Check queue exists
@@ -137,16 +147,12 @@ namespace Smi.Common
             catch (OperationInterruptedException e)
             {
                 model.Close(200, "StartConsumer - Queue missing");
-                connection.Close(200, "StartConsumer - Queue missing");
-
                 throw new ApplicationException($"Expected queue \"{consumerOptions.QueueName}\" to exist", e);
             }
 
             if (isSolo && model.ConsumerCount(consumerOptions.QueueName) > 0)
             {
                 model.Close(200, "StartConsumer - Already a consumer on the queue");
-                connection.Close(200, "StartConsumer - Already a consumer on the queue");
-
                 throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
@@ -182,7 +188,6 @@ namespace Smi.Common
                     if (!connected)
                     {
                         model.Close(200, "StartConsumer - Couldn't create subscription");
-                        connection.Close(200, "StartConsumer - Couldn't create subscription");
                     }
                 }
             }
@@ -195,7 +200,6 @@ namespace Smi.Common
 
             var resources = new ConsumerResources
             {
-                Connection = connection,
                 Model = model,
                 Subscription = subscription,
                 ConsumerTask = consumerTask,
@@ -258,11 +262,8 @@ namespace Smi.Common
                 throw new ArgumentException("The given producer options have invalid values");
 
             //TODO Should maybe refactor this so we have 1 IConnection per service
-            //NOTE: IConnection objects are thread safe
-            IConnection connection = _factory.CreateConnection(string.Format("{0}::Producer::{1}", _hostId, producerOptions.ExchangeName));
-
-            //NOTE: IModel objects are /not/ thread safe
-            IModel model = connection.CreateModel();
+            //NOTE: IConnection objects are thread safe, IModel objects are /not/ thread safe
+            IModel model = _connection.CreateModel();
             model.ConfirmSelect();
 
             try
@@ -273,8 +274,6 @@ namespace Smi.Common
             catch (OperationInterruptedException e)
             {
                 model.Close(200, "SetupProducer - Exchange missing");
-                connection.Close(200, "SetupProducer - Exchange missing");
-
                 throw new ApplicationException($"Expected exchange \"{producerOptions.ExchangeName}\" to exist", e);
             }
 
@@ -294,14 +293,11 @@ namespace Smi.Common
             catch (Exception)
             {
                 model.Close(200, "SetupProducer - Couldn't create ProducerModel");
-                connection.Close(200, "SetupProducer - Couldn't create ProducerModel");
-
                 throw;
             }
 
             var resources = new ProducerResources
             {
-                Connection = connection,
                 Model = model,
                 ProducerModel = producerModel,
             };
@@ -332,14 +328,12 @@ namespace Smi.Common
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
-            IConnection connection = _factory.CreateConnection(connectionName);
-            IModel model = connection.CreateModel();
+            IModel model = _connection.CreateModel();
 
             lock (_oResourceLock)
             {
                 _rabbitResources.Add(Guid.NewGuid(), new RabbitResources
                 {
-                    Connection = connection,
                     Model = model
                 });
             }
@@ -402,6 +396,9 @@ namespace Smi.Common
             {
                 consumer.Queuelen = 0;
             }
+            if (consumer.Queuelen == 0)
+                lock (consumer)
+                    Monitor.Pulse(consumer);
         }
 
         /// <summary>
@@ -418,7 +415,6 @@ namespace Smi.Common
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
                 BasicDeliverEventArgs e;
-
                 if (subscription.Next(500, out e))
                 {
                     if (_threaded)
@@ -447,6 +443,9 @@ namespace Smi.Common
                             UpdateCounter(consumer, m, queuename);
                         }
                     }
+                } else
+                {
+                    UpdateCounter(consumer, m, queuename);
                 }
             }
             if (_threaded)
@@ -478,47 +477,29 @@ namespace Smi.Common
         /// </summary>
         private void CheckValidServerSettings()
         {
-            try
+            if (!_connection.ServerProperties.ContainsKey("version"))
+                throw new ApplicationException("Could not get RabbitMQ server version");
+
+            string version = Encoding.UTF8.GetString((byte[])_connection.ServerProperties["version"]);
+            string[] split = version.Split('.');
+
+            if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||
+                int.Parse(split[1]) < MinRabbitServerVersionMinor ||
+                int.Parse(split[2]) < MinRabbitServerVersionPatch)
             {
-                using (IConnection connection = _factory.CreateConnection("ServerDiscovery"))
-                {
-                    if (!connection.ServerProperties.ContainsKey("version"))
-                        throw new ApplicationException("Could not get RabbitMQ server version");
 
-                    string version = Encoding.UTF8.GetString((byte[])connection.ServerProperties["version"]);
-                    string[] split = version.Split('.');
-
-                    if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||
-                        int.Parse(split[1]) < MinRabbitServerVersionMinor ||
-                        int.Parse(split[2]) < MinRabbitServerVersionPatch)
-                    {
-
-                        throw new ApplicationException(string.Format("Connected to RabbitMQ server version {0}, but minimum required is {1}.{2}.{3}",
-                        version, MinRabbitServerVersionMajor, MinRabbitServerVersionMinor, MinRabbitServerVersionPatch));
-                    }
-
-                    _logger.Debug($"Connected to RabbitMQ server version {version}");
-                }
+                throw new ApplicationException(string.Format("Connected to RabbitMQ server version {0}, but minimum required is {1}.{2}.{3}",
+                version, MinRabbitServerVersionMajor, MinRabbitServerVersionMinor, MinRabbitServerVersionPatch));
             }
-            catch (BrokerUnreachableException e)
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine($"    URI:                            {_factory.Uri}");
-                sb.AppendLine($"    UserName:                       {_factory.UserName}");
-                sb.AppendLine($"    VirtualHost:                    {_factory.VirtualHost}");
-                sb.AppendLine($"    HandshakeContinuationTimeout:   {_factory.HandshakeContinuationTimeout}");
-                throw new ArgumentException($"Could not create a connection to RabbitMQ on startup:{Environment.NewLine}{sb}", e);
-            }
+
+            _logger.Debug($"Connected to RabbitMQ server version {version}");
         }
 
         #region Resource Classes
 
         private class RabbitResources : IDisposable
         {
-            public IConnection Connection { get; set; }
-
             public IModel Model { get; set; }
-
 
             protected readonly object OResourceLock = new object();
 
@@ -536,9 +517,6 @@ namespace Smi.Common
                 {
                     if (Model.IsOpen)
                         Model.Close(200, "Disposed");
-
-                    if (Connection.IsOpen)
-                        Connection.Close(200, "Disposed", 10000);
                 }
             }
         }
@@ -555,7 +533,6 @@ namespace Smi.Common
             public CancellationTokenSource TokenSource { get; set; }
 
             public ISubscription Subscription { get; set; }
-
 
             public bool Shutdown(TimeSpan timeout)
             {
