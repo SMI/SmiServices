@@ -59,13 +59,5 @@ namespace Microservices.DeadLetterReprocessor.Execution
                 Stop("Reprocess completed");
             }
         }
-
-        public override void Stop(string reason)
-        {
-            if (_deadLetterQueueConsumer != null)
-                _deadLetterQueueConsumer.Stop();
-
-            base.Stop(reason);
-        }
     }
 }
