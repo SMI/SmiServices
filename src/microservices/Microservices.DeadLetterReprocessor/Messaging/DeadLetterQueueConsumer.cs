@@ -24,9 +24,6 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             new Queue<Tuple<BasicDeliverEventArgs, IMessageHeader>>();
         private readonly object _oQueueLock = new object();
 
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private Task _storageQueueTask;
-
         private bool _stopCalled;
 
 
@@ -45,35 +42,8 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             _deadLetterQueueName = options.DeadLetterConsumerOptions.QueueName;
             _maxRetryLimit = options.MaxRetryLimit;
             _defaultRetryAfter = TimeSpan.FromMinutes(options.DefaultRetryAfter);
-
-            //TODO
-            //StartStorageTask(TimeSpan.FromMinutes(options.DefaultRetryAfter));
         }
 
-
-        public bool MessagesInQueue()
-        {
-            return Queuelen != 0;
-        }
-
-        public void Stop()
-        {
-            //TODO(RKM 04/07) Why is this here?
-            return;
-
-            Logger.Info("Stop called");
-
-            if (_stopCalled)
-            {
-                Logger.Warn("Stop called twice");
-                return;
-            }
-
-            _stopCalled = true;
-
-            _cancellationTokenSource.Cancel();
-            _storageQueueTask.Wait();
-        }
 
         public override void ProcessMessage(BasicDeliverEventArgs deliverArgs)
         {
@@ -137,39 +107,5 @@ namespace Microservices.DeadLetterReprocessor.Messaging
 
         // NOTE(jas 2020-05-12) Dummy - actual code inlined above
         protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag) => throw new NotImplementedException("DeadLetterQueueConsumer does not implement ProcessMessageImpl");
-
-
-        private void StartStorageTask(TimeSpan retryAfter)
-        {
-            _storageQueueTask = Task.Factory.StartNew(() =>
-           {
-               while (!_cancellationTokenSource.IsCancellationRequested)
-               {
-                   try
-                   {
-                       lock (_oQueueLock)
-                       {
-                           foreach (Tuple<BasicDeliverEventArgs, IMessageHeader> item in _storageQueue)
-                           {
-
-                           }
-                       }
-
-                       Thread.Sleep(1000);
-                   }
-                   catch (Exception e)
-                   {
-                       Fatal("Error in storage task", e);
-                       Stop();
-
-                       break;
-                   }
-               }
-
-               Logger.Debug("Storage task exiting");
-           });
-
-            Logger.Debug("Storage task started");
-        }
     }
 }
