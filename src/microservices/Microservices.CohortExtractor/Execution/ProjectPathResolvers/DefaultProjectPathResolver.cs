@@ -19,6 +19,7 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
             string anonFilename = GetAnonymousDicomFilename(Path.GetFileName(result.FilePathValue));
             return Path.Combine(
                 requestOutputDir,
+                "image-requests",
                 result.StudyTagValue ?? "unknown", 
                 result.SeriesTagValue ?? "unknown", 
                 anonFilename);
