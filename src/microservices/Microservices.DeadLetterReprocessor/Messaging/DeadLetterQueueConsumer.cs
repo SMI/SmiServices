@@ -20,8 +20,6 @@ namespace Microservices.DeadLetterReprocessor.Messaging
         private readonly int _maxRetryLimit;
         private readonly TimeSpan _defaultRetryAfter;
 
-        private readonly Queue<Tuple<BasicDeliverEventArgs, IMessageHeader>> _storageQueue =
-            new Queue<Tuple<BasicDeliverEventArgs, IMessageHeader>>();
         private readonly object _oQueueLock = new object();
 
         private bool _stopCalled;
