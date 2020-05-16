@@ -90,7 +90,7 @@ public final class SmiLogging {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String logroot = System.getenv("SMI_LOGS_ROOT");
         if (logroot==null) {
-            System.err.println("WARNING: SMI_LOGS_ROOT not set, logging to pwd instead");
+            System.err.println("WARNING: SMI_LOGS_ROOT not set, logging to cwd instead");
             logroot=".";
         }
         String caller=getCaller();

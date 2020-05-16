@@ -49,6 +49,7 @@ public class ExtractFileStatusMessage extends ExtractMessage implements IMessage
 	public ExtractFileStatusMessage(ExtractFileMessage request) {
 
 		ExtractionJobIdentifier = request.ExtractionJobIdentifier;
+        ExtractionIdsFilePath = request.ExtractionIdsFilePath;
 		ExtractionDirectory = request.ExtractionDirectory;
 		DicomFilePath = request.DicomFilePath;
 		ProjectNumber = request.ProjectNumber;
@@ -61,6 +62,7 @@ public class ExtractFileStatusMessage extends ExtractMessage implements IMessage
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("ExtractionJobIdentifier: " + ExtractionJobIdentifier + "\n");
+		sb.append("ExtractionIdsFilePath: " + ExtractionIdsFilePath + "\n");
 		sb.append("ExtractionDirectory: " + ExtractionDirectory + "\n");
 		sb.append("DicomFilePath: " + DicomFilePath + "\n");
 		sb.append("ProjectNumber: " + ProjectNumber + "\n");

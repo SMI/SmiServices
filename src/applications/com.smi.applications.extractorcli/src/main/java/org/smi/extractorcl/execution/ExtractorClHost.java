@@ -70,27 +70,13 @@ public class ExtractorClHost {
 
 		fullExtractionDirectory.toFile().mkdirs();
 
-		List<String> toProcessArgs = commandLineOptions.getArgList();
-
-		if (toProcessArgs.size() == 0)
-			throw new IllegalArgumentException("No files given to process");
-
-		// Find the data files
-		_filesToProcess = new LinkedList<Path>();
-
-		_logger.debug("Data files to process: ");
-
-		for (String arg : toProcessArgs) {
-
-			Path path = Paths.get(arg);
-
-			if (Files.notExists(path) || Files.isDirectory(path))
-				throw new FileNotFoundException("Cannot find data file: " + arg);
-
-			_filesToProcess.add(path);
-
-			_logger.debug("\t" + path);
-		}
+        // NOTE(rkm 2020-05-16) For supporting multiple extractions per project, we now only allow 1 input file
+        String csvFile = commandLineOptions.getArgList().get(0);
+        Path path = Paths.get(csvFile);        
+		if (Files.notExists(path) || Files.isDirectory(path))
+			throw new FileNotFoundException("Cannot find data file: " + path);
+		_filesToProcess.add(path);
+		_logger.debug("Loaded csv file" + path);
 
 		RabbitMqAdapter rabbitMQAdapter = new RabbitMqAdapter(options.RabbitOptions, "ExtractorCL");
 		_logger.debug("Connected to RabbitMQ server version " + rabbitMQAdapter.getRabbitMqServerVersion());

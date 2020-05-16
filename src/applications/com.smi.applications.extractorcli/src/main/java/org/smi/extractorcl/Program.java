@@ -106,9 +106,9 @@ public class Program {
 			System.exit(1);
 		}
 
-		if (commandLine.getArgList().size() == 0) {
+		if (commandLine.getArgList().size() != 1) {
 			printUsage(options);
-			System.err.println("No data files given to process");
+			System.err.println("Need exactly one CSV file to process");
 			System.exit(1);
 		}
 
