@@ -71,6 +71,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
                 ExtractionModality = "MR",
+                ExtractionIdsFilePath = "ids.csv",
                 JobSubmittedAt = DateTime.UtcNow,
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
