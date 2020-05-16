@@ -36,9 +36,6 @@ namespace Smi.Common.Messages.Extraction
         {
             ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
         }
-        
-        public ExtractFileCollectionInfoMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
-            : base(extractionJobIdentifier, projectNumber, extractionDirectory, jobSubmittedAt) { }
 
         public ExtractFileCollectionInfoMessage(ExtractionRequestMessage request)
             : base(request)

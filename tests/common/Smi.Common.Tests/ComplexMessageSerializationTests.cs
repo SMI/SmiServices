@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Smi.Common.Messages;
@@ -17,10 +17,11 @@ namespace Smi.Common.Tests
             var msg = new ExtractFileCollectionInfoMessage
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
+                ExtractionIdsFilePath = "foo",
                 KeyValue = "f",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string> {{new MessageHeader(), "dave"}},
                 ExtractionDirectory = "C:\\fish",
-                ProjectNumber = "1234-5678"
+                ProjectNumber = "1234-5678",
             };
 
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
@@ -33,12 +34,16 @@ namespace Smi.Common.Tests
         [Test]
         public void ExtractFileCollectionInfoMessage_WithParents()
         {
-            var msg = new ExtractFileCollectionInfoMessage(Guid.NewGuid(),"123","C:\\fish", DateTime.Now);
-            msg.ExtractionJobIdentifier = Guid.NewGuid();
-            msg.KeyValue = "f";
-            msg.ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
-            msg.ExtractionDirectory = "C:\\fish";
-            msg.ProjectNumber = "123";
+            var msg = new ExtractFileCollectionInfoMessage
+            {
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ExtractionIdsFilePath = "foo",
+                KeyValue = "f",
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(),
+                ExtractionDirectory = "C:\\fish",
+                ProjectNumber = "123",
+                JobSubmittedAt = DateTime.UtcNow,
+            };
 
             var grandparent = new MessageHeader();
             var parent = new MessageHeader(grandparent);
@@ -70,6 +75,7 @@ namespace Smi.Common.Tests
             var message = new ExtractionRequestMessage
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
+                ExtractionIdsFilePath = "foo",
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "C:\\fish",
                 KeyTag = "SeriesInstanceUID",

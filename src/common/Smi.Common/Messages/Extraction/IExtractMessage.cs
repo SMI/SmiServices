@@ -1,4 +1,5 @@
 ﻿
+using JetBrains.Annotations;
 using System;
 
 namespace Smi.Common.Messages.Extraction
@@ -14,13 +15,21 @@ namespace Smi.Common.Messages.Extraction
         Guid ExtractionJobIdentifier { get; }
 
         /// <summary>
+        /// Full path of the file containing the extraction identifiers
+        /// </summary>
+        [NotNull]
+        string ExtractionIdsFilePath { get; }
+
+        /// <summary>
         /// Project number used by eDRIS for reference, and for the base extraction output relative to the ExtractRoot
         /// </summary>
+        [NotNull]
         string ProjectNumber { get; }
 
         /// <summary>
         /// Directory relative to the ExtractRoot to place anonymised files into
         /// </summary>
+        [NotNull]
         string ExtractionDirectory { get; }
 
         /// <summary>
