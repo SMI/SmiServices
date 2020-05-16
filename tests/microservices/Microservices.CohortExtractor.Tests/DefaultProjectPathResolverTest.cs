@@ -28,7 +28,12 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.AreEqual(
-                Path.Combine(ExtractionIdsFileName, study ?? "", series ?? "", "foo-an.dcm"),
+                Path.Combine(
+                    ExtractionIdsFileName,
+                    "image-requests",
+                    study ?? "unknown",
+                    series ?? "unknown",
+                    "foo-an.dcm"),
                 new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
         }
 
@@ -47,7 +52,12 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.AreEqual(
-                Path.Combine(ExtractionIdsFileName, "study", "series", expectedOutput),
+                Path.Combine(
+                    ExtractionIdsFileName,
+                    "image-requests",
+                    "study",
+                    "series",
+                    expectedOutput),
                 new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
         }
 
@@ -63,7 +73,12 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.AreEqual(
-                Path.Combine(ExtractionIdsFileName, "study", "", "file-an.dcm"),
+                Path.Combine(
+                    ExtractionIdsFileName,
+                    "image-requests",
+                    "study",
+                    "unknown",
+                    "file-an.dcm"),
                 new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
         }
     }
