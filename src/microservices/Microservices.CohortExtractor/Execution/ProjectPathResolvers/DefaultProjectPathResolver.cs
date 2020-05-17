@@ -12,7 +12,12 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
 
         private static readonly string[] _replaceableExtensions = { ".dcm", ".dicom" };
 
-
+        /// <summary>
+        /// Returns the output path for the anonymised file, relative to the ExtractionDirectory
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="_"></param>
+        /// <returns></returns>
         public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage _)
         {
             // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output (anonymised) file name to be -an.dcm
