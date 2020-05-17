@@ -29,7 +29,7 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(
                 Path.Combine(
-                    ExtractionIdsFileName,
+                    ExtractionName,
                     "image-requests",
                     study ?? "unknown",
                     series ?? "unknown",
@@ -53,7 +53,7 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(
                 Path.Combine(
-                    ExtractionIdsFileName,
+                    ExtractionName,
                     "image-requests",
                     "study",
                     "series",
@@ -74,7 +74,7 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(
                 Path.Combine(
-                    ExtractionIdsFileName,
+                    ExtractionName,
                     "image-requests",
                     "study",
                     "unknown",
