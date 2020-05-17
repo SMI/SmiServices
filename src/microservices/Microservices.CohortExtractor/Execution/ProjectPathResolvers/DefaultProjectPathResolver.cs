@@ -13,32 +13,29 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
         private static readonly string[] _replaceableExtensions = { ".dcm", ".dicom" };
 
 
-        public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage request)
+        public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage _)
         {
-            string anonFilename = GetAnonymousDicomFilename(Path.GetFileName(result.FilePathValue));
-            return Path.Combine(
-                request.ExtractionName,
-                "image-requests",
-                result.StudyTagValue ?? "unknown", 
-                result.SeriesTagValue ?? "unknown", 
-                anonFilename);
-        }
-
-        /// <summary>
-        /// The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output (anonymised) file name to be -an.dcm
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        private static string GetAnonymousDicomFilename(string fileName)
-        {
+            // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output (anonymised) file name to be -an.dcm
+            string fileName = Path.GetFileName(result.FilePathValue);
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException(nameof(fileName));
 
+            var replaced = false;
             foreach (string ext in _replaceableExtensions)
                 if (fileName.EndsWith(ext))
-                    return fileName.Replace(ext, AnonExt);
+                {
+                    fileName = fileName.Replace(ext, AnonExt);
+                    replaced = true;
+                    break;
+                }
 
-            return fileName + AnonExt;
+            if (!replaced)
+                fileName += AnonExt;
+
+            return Path.Combine(
+                result.StudyTagValue ?? "unknown",
+                result.SeriesTagValue ?? "unknown",
+                fileName);
         }
     }
 }

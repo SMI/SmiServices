@@ -71,7 +71,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
                 ExtractionModality = "MR",
-                ExtractionName = "extractionName",
                 JobSubmittedAt = DateTime.UtcNow,
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
@@ -82,7 +81,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
             {
                 JobSubmittedAt = DateTime.UtcNow,
-                ExtractionName = "extractionName",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = "test",
@@ -100,7 +98,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             var testExtractFileStatusMessage = new ExtractFileStatusMessage
             {
                 JobSubmittedAt = DateTime.UtcNow,
-                ExtractionName = "extractionName",
                 AnonymisedFileName = "study-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
@@ -112,7 +109,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             var testIsIdentifiableMessage = new IsIdentifiableMessage
             {
                 JobSubmittedAt = DateTime.UtcNow,
-                ExtractionName = "extractionName",
                 AnonymisedFileName = "study-1-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,

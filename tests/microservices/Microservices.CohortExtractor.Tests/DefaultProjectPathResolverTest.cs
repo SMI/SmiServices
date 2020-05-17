@@ -2,7 +2,6 @@
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
-using Smi.Common.Messages.Extraction;
 using System.IO;
 
 namespace Microservices.CohortExtractor.Tests
@@ -10,9 +9,6 @@ namespace Microservices.CohortExtractor.Tests
     [TestFixture]
     public class DefaultProjectPathResolverTest
     {
-        private const string ExtractionName = "extractName";
-        private readonly ExtractionRequestMessage _requestMessage = new ExtractionRequestMessage { ExtractionName = Path.Combine("root", "foo", ExtractionName) };
-
         [TestCase("study", "series")]
         [TestCase("study", null)]
         [TestCase(null, "series")]
@@ -29,12 +25,10 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(
                 Path.Combine(
-                    ExtractionName,
-                    "image-requests",
                     study ?? "unknown",
                     series ?? "unknown",
                     "foo-an.dcm"),
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+                new DefaultProjectPathResolver().GetOutputPath(result, null));
         }
 
         [TestCase("file-an.dcm", "file.dcm")]
@@ -53,12 +47,10 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(
                 Path.Combine(
-                    ExtractionName,
-                    "image-requests",
                     "study",
                     "series",
                     expectedOutput),
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+                new DefaultProjectPathResolver().GetOutputPath(result, null));
         }
 
         [Test]
@@ -74,12 +66,10 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.AreEqual(
                 Path.Combine(
-                    ExtractionName,
-                    "image-requests",
                     "study",
                     "unknown",
                     "file-an.dcm"),
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+                new DefaultProjectPathResolver().GetOutputPath(result, null));
         }
     }
 }

@@ -13,9 +13,6 @@ namespace Smi.Common.Messages.Extraction
         public Guid ExtractionJobIdentifier { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public string ExtractionName { get; set; }
-
-        [JsonProperty(Required = Required.Always)]
         public string ProjectNumber { get; set; }
 
         [JsonProperty(Required = Required.Always)]
@@ -28,11 +25,10 @@ namespace Smi.Common.Messages.Extraction
         [JsonConstructor]
         protected ExtractMessage() { }
 
-        protected ExtractMessage(Guid extractionJobIdentifier, string extractionName,  string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
+        protected ExtractMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
             : this()
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
-            ExtractionName = extractionName;
             ProjectNumber = projectNumber;
             ExtractionDirectory = extractionDirectory;
             JobSubmittedAt = jobSubmittedAt;
@@ -40,16 +36,14 @@ namespace Smi.Common.Messages.Extraction
 
         protected ExtractMessage(IExtractMessage request)
             : this(
-                request.ExtractionJobIdentifier, 
-                request.ExtractionName, 
-                request.ProjectNumber, 
-                request.ExtractionDirectory, 
+                request.ExtractionJobIdentifier,
+                request.ProjectNumber,
+                request.ExtractionDirectory,
                 request.JobSubmittedAt)
         { }
 
         public override string ToString()
             => $"ExtractionJobIdentifier={ExtractionJobIdentifier}, " +
-               $"ExtractionName={ExtractionName}, " +
                $"ProjectNumber={ProjectNumber}, " +
                $"ExtractionDirectory={ExtractionDirectory}, " +
                $"JobSubmittedAt={JobSubmittedAt}";
@@ -61,9 +55,8 @@ namespace Smi.Common.Messages.Extraction
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
-                ExtractionName.Equals(other.ExtractionName) &&
                 string.Equals(ProjectNumber, other.ProjectNumber) &&
                 string.Equals(ExtractionDirectory, other.ExtractionDirectory) &&
                 JobSubmittedAt.Equals(other.JobSubmittedAt);
@@ -82,7 +75,6 @@ namespace Smi.Common.Messages.Extraction
             unchecked
             {
                 int hashCode = ExtractionJobIdentifier.GetHashCode();
-                hashCode = (hashCode * 397) ^ (ExtractionName != null ? ExtractionName.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ProjectNumber != null ? ProjectNumber.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ExtractionDirectory != null ? ExtractionDirectory.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();

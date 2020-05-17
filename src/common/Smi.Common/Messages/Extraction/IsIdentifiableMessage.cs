@@ -44,8 +44,6 @@ namespace Smi.Common.Messages.Extraction
             : this(request.ExtractionJobIdentifier, request.ProjectNumber, request.ExtractionDirectory,
                 request.JobSubmittedAt)
         {
-            // TODO(rkm 2020-05-16) This should be in the base class, but the inheritance here is a bit odd for the moment
-            ExtractionName = request.ExtractionName;
             DicomFilePath = request.DicomFilePath;
             AnonymisedFileName = request.AnonymisedFileName;
         }

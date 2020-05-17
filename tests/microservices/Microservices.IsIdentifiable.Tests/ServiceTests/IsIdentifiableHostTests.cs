@@ -63,7 +63,6 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage()
                 {
                     DicomFilePath = "yay.dcm",
-                    ExtractionName = "extractionName",
                     AnonymisedFileName = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
@@ -107,7 +106,6 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage
                 {
                     DicomFilePath = "yay.dcm",
-                    ExtractionName = "extractionName",
                     AnonymisedFileName = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
