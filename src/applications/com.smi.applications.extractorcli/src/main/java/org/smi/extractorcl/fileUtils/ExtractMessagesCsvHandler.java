@@ -27,6 +27,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 	private UUID _extractionJobID;
 	private HashSet<String> _identifierSet = new HashSet<>();
 	private String _projectID;
+    private String _extractionName;
 	private String _extractionDir;
 	private String _extractionModality;
 	private ExtractionKey _extractionKey;
@@ -50,12 +51,13 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 	 * @param extractRequestInfoMessageProducerModel Producer model used to write
 	 *                                               ExtractRequestInfo messages
 	 */
-	public ExtractMessagesCsvHandler(UUID extractionJobID, String projectID, String extractionDir,
+	public ExtractMessagesCsvHandler(UUID extractionJobID, String extractionName, String projectID, String extractionDir,
 			String extractionModality, IProducerModel extractRequestMessageProducerModel,
 			IProducerModel extractRequestInfoMessageProducerModel) {
 
 		_extractionJobID = extractionJobID;
 		_projectID = projectID;
+        _extractionName = extractionName;
 		_extractionDir = extractionDir;
 		_extractRequestMessageProducerModel = extractRequestMessageProducerModel;
 		_extractRequestInfoMessageProducerModel = extractRequestInfoMessageProducerModel;
@@ -143,6 +145,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 
 		ExtractionRequestMessage erm = new ExtractionRequestMessage();
 		erm.ExtractionJobIdentifier = _extractionJobID;
+        erm.ExtractionName = _extractionName;
 		erm.ProjectNumber = _projectID;
 		erm.ExtractionDirectory = _extractionDir;
 		erm.JobSubmittedAt = now;
@@ -153,6 +156,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		// Only need to send 1 of these
 		ExtractionRequestInfoMessage erim = new ExtractionRequestInfoMessage();
 		erim.ExtractionJobIdentifier = _extractionJobID;
+        erim.ExtractionName = _extractionName;
 		erim.ProjectNumber = _projectID;
 		erim.ExtractionDirectory = _extractionDir;
 		erim.JobSubmittedAt = now;
@@ -163,6 +167,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("    ExtractionJobIdentifier:               " + _extractionJobID + System.lineSeparator());
+		sb.append("    ExtractionName:                        " + _extractionName + System.lineSeparator());
 		sb.append("    ProjectNumber:                         " + _projectID + System.lineSeparator());
 		sb.append("    ExtractionDirectory:                   " + _extractionDir + System.lineSeparator());
 		sb.append("    ExtractionKey:                         " + _extractionKey + System.lineSeparator());

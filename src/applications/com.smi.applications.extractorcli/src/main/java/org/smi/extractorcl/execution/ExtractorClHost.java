@@ -77,13 +77,14 @@ public class ExtractorClHost {
 			throw new FileNotFoundException("Cannot find data file: " + path);
 		_filesToProcess.add(path);
 		_logger.debug("Loaded csv file" + path);
+        String extractionName = csvFile.replaceFirst("[.][^.]+$", "");
 
 		RabbitMqAdapter rabbitMQAdapter = new RabbitMqAdapter(options.RabbitOptions, "ExtractorCL");
 		_logger.debug("Connected to RabbitMQ server version " + rabbitMQAdapter.getRabbitMqServerVersion());
 
 		String extractionModality = commandLineOptions.getOptionValue("modality", null);
 
-		_csvHandler = new ExtractMessagesCsvHandler(jobIdentifier, projectID, extractionDir, extractionModality,
+		_csvHandler = new ExtractMessagesCsvHandler(jobIdentifier, extractionName, projectID, extractionDir, extractionModality,
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestProducerOptions),
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestInfoProducerOptions));
 	}
