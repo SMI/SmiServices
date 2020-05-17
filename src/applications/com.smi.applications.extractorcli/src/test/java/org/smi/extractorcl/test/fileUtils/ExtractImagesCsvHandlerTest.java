@@ -27,7 +27,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "extractName", "MyProjectID", "MyProjectFolder", null,
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
@@ -83,7 +83,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "extractName", "MyProjectID", "MyProjectFolder", null,
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
@@ -138,7 +138,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "extractionName", "MyProjectID", "MyProjectFolder", null,
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
@@ -205,7 +205,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		UUID extractionUid = UUID.randomUUID();
 
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(extractionUid, "extractName", "MyProjectID",
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(extractionUid, "MyProjectID",
 				"MyProjectFolder", null, extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
@@ -251,14 +251,14 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		boolean thrown = false;
 
 		try {
-			handler = new ExtractMessagesCsvHandler(uuid, "extractName", "MyProjectID", "MyProjectFolder", "aaaaa",
+			handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "aaaaa",
 					extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 		} catch (IllegalArgumentException e) {
 			thrown = true;
 		}
 		assertTrue(thrown);
 
-		handler = new ExtractMessagesCsvHandler(uuid, "extractName", "MyProjectID", "MyProjectFolder", null,
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		thrown = false;
@@ -269,7 +269,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		}
 		assertTrue(thrown);
 
-		handler = new ExtractMessagesCsvHandler(uuid, "extractName", "MyProjectID", "MyProjectFolder", "MR",
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 		handler.processHeader(new String[] { "StudyInstanceUID" });
 
@@ -283,7 +283,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		// Happy path
 
-		handler = new ExtractMessagesCsvHandler(uuid, "extractName", "MyProjectID", "MyProjectFolder", "MR",
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 		handler.processHeader(new String[] { "StudyInstanceUID" });
 		handler.processLine(1, new String[] { "s1" });

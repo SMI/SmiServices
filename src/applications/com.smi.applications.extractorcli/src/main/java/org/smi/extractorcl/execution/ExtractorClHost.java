@@ -85,7 +85,7 @@ public class ExtractorClHost {
 
 		String extractionModality = commandLineOptions.getOptionValue("modality", null);
 
-		_csvHandler = new ExtractMessagesCsvHandler(jobIdentifier, extractionName, projectID, extractionDir, extractionModality,
+		_csvHandler = new ExtractMessagesCsvHandler(jobIdentifier, projectID, extractionDir, extractionModality,
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestProducerOptions),
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestInfoProducerOptions));
 	}

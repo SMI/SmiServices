@@ -87,7 +87,6 @@ public class ExtractImagesTest extends TestCase {
 
 		ExtractMessagesCsvHandler csvHandler = new ExtractMessagesCsvHandler(
 				jobIdentifier,
-                "extractionName",
 				"MyProjectID",
 				"MyProjectFolder",
 				null,
@@ -150,7 +149,6 @@ public class ExtractImagesTest extends TestCase {
 
 		ExtractMessagesCsvHandler csvHandler = new ExtractMessagesCsvHandler(
 				jobIdentifier,
-                "extractionName",
 				"MyProjectID",
 				"MyProjectFolder",
 				null,
@@ -213,7 +211,6 @@ public class ExtractImagesTest extends TestCase {
 
 		ExtractMessagesCsvHandler csvHandler = new ExtractMessagesCsvHandler(
 				UUID.randomUUID(),
-                "extractionName",
 				"MyProjectID",
 				"MyProjectFolder",
 				null,
@@ -242,7 +239,6 @@ public class ExtractImagesTest extends TestCase {
 
 		ExtractMessagesCsvHandler csvHandler = new ExtractMessagesCsvHandler(
 				UUID.randomUUID(),
-                "extractionName",
 				"MyProjectID",
 				"MyProjectFolder",
 				null,
