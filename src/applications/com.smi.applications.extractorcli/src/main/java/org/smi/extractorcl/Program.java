@@ -81,15 +81,6 @@ public class Program {
 			.build());
 
 		options.addOption(
-			Option
-			.builder("e")
-			.argName("extraction directory")
-			.desc("Name of subdirectory within project folder to create the files. Defaults to the generated extraction identifier")
-			.hasArg()
-			.longOpt("subdirectory")
-			.build());
-
-		options.addOption(
 			Option        
 			.builder("m")
 			.argName("modality")

@@ -54,8 +54,18 @@ public class ExtractorClHost {
 
 		_logger.debug("Setting up ExtractorClHost for job " + jobIdentifier);
 
+        // NOTE(rkm 2020-05-16) For supporting multiple extractions per project, we now only allow 1 input file        
+        String csvFile = commandLineOptions.getArgList().get(0);
+        Path path = Paths.get(csvFile);        
+		if (Files.notExists(path) || Files.isDirectory(path))
+			throw new FileNotFoundException("Cannot find data file: " + path);
+        _filesToProcess = new LinkedList<Path>();
+		_filesToProcess.add(path);
+		_logger.debug("Loaded csv file" + path);
+        String extractionName = path.getFileName().toString().replaceFirst("[.][^.]+$", "");
+
 		final String projectID = commandLineOptions.getOptionValue("p");
-		final String extractionDir = projectID + "/"				+ commandLineOptions.getOptionValue("e", _jobIdentifier.toString() + "/");
+		final String extractionDir = projectID + "/image-requests/" + extractionName;
 
 		_logger.debug("projectID: " + projectID);
 		_logger.debug("extractionDirectory: " + extractionDir);
@@ -69,15 +79,6 @@ public class ExtractorClHost {
 		}
 
 		fullExtractionDirectory.toFile().mkdirs();
-
-        // NOTE(rkm 2020-05-16) For supporting multiple extractions per project, we now only allow 1 input file
-        String csvFile = commandLineOptions.getArgList().get(0);
-        Path path = Paths.get(csvFile);        
-		if (Files.notExists(path) || Files.isDirectory(path))
-			throw new FileNotFoundException("Cannot find data file: " + path);
-		_filesToProcess.add(path);
-		_logger.debug("Loaded csv file" + path);
-        String extractionName = csvFile.replaceFirst("[.][^.]+$", "");
 
 		RabbitMqAdapter rabbitMQAdapter = new RabbitMqAdapter(options.RabbitOptions, "ExtractorCL");
 		_logger.debug("Connected to RabbitMQ server version " + rabbitMQAdapter.getRabbitMqServerVersion());
