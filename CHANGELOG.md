@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Configure with `Blacklists` option (specify a list of Catalogue IDs)
   - Catalogues listed must include one or more column(s) StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID.
   - Records in the referenced table will blacklist where any UID is found (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID).  This allows blacklisting an entire study or only specific images.
-- Added `ExtractionName` to the extraction messages, which tracks the name of the input file in order to build the output paths. Fixes [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
+- Change the extraction directory generation to be `<projname>/image-requests/<extractname>`. Fixes [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
 
 ### Fixed
 
