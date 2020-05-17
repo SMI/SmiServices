@@ -15,7 +15,7 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
 
         public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage request)
         {
-            string requestOutputDir = Path.GetFileNameWithoutExtension(request.ExtractionIdsFilePath);
+            string requestOutputDir = Path.GetFileNameWithoutExtension(request.ExtractionName);
             string anonFilename = GetAnonymousDicomFilename(Path.GetFileName(result.FilePathValue));
             return Path.Combine(
                 requestOutputDir,

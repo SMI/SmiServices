@@ -11,7 +11,7 @@ namespace Microservices.CohortExtractor.Tests
     public class DefaultProjectPathResolverTest
     {
         private const string ExtractionIdsFileName = "ids";
-        private readonly ExtractionRequestMessage _requestMessage = new ExtractionRequestMessage { ExtractionIdsFilePath = Path.Combine("root", "foo", ExtractionIdsFileName + ".csv") };
+        private readonly ExtractionRequestMessage _requestMessage = new ExtractionRequestMessage { ExtractionName = Path.Combine("root", "foo", ExtractionIdsFileName + ".csv") };
 
         [TestCase("study", "series")]
         [TestCase("study", null)]

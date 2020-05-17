@@ -18,7 +18,7 @@ namespace Smi.Common.Messages.Extraction
         /// Full path of the file containing the extraction identifiers
         /// </summary>
         [NotNull]
-        string ExtractionIdsFilePath { get; }
+        string ExtractionName { get; }
 
         /// <summary>
         /// Project number used by eDRIS for reference, and for the base extraction output relative to the ExtractRoot

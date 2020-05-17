@@ -17,7 +17,7 @@ public abstract class ExtractMessage implements IMessage {
      * Full path of the file containing the extraction identifiers
      */ 
     @FieldRequired
-    public String ExtractionIdsFilePath;
+    public String ExtractionName;
 
 	/**
 	 * Project number for reference and base of extracted files

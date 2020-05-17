@@ -17,7 +17,7 @@ namespace Smi.Common.Tests
             var msg = new ExtractFileCollectionInfoMessage
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
-                ExtractionIdsFilePath = "foo",
+                ExtractionName = "foo",
                 KeyValue = "f",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string> {{new MessageHeader(), "dave"}},
                 ExtractionDirectory = "C:\\fish",
@@ -37,7 +37,7 @@ namespace Smi.Common.Tests
             var msg = new ExtractFileCollectionInfoMessage
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
-                ExtractionIdsFilePath = "foo",
+                ExtractionName = "foo",
                 KeyValue = "f",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(),
                 ExtractionDirectory = "C:\\fish",
@@ -75,7 +75,7 @@ namespace Smi.Common.Tests
             var message = new ExtractionRequestMessage
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
-                ExtractionIdsFilePath = "foo",
+                ExtractionName = "foo",
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "C:\\fish",
                 KeyTag = "SeriesInstanceUID",

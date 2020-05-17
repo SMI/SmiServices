@@ -13,7 +13,7 @@ namespace Smi.Common.Messages.Extraction
         public Guid ExtractionJobIdentifier { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public string ExtractionIdsFilePath { get; set; }
+        public string ExtractionName { get; set; }
 
         [JsonProperty(Required = Required.Always)]
         public string ProjectNumber { get; set; }
@@ -28,11 +28,11 @@ namespace Smi.Common.Messages.Extraction
         [JsonConstructor]
         protected ExtractMessage() { }
 
-        protected ExtractMessage(Guid extractionJobIdentifier, string extractionIdsFilePath,  string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
+        protected ExtractMessage(Guid extractionJobIdentifier, string extractionName,  string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
             : this()
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
-            ExtractionIdsFilePath = extractionIdsFilePath;
+            ExtractionName = extractionName;
             ProjectNumber = projectNumber;
             ExtractionDirectory = extractionDirectory;
             JobSubmittedAt = jobSubmittedAt;
@@ -41,7 +41,7 @@ namespace Smi.Common.Messages.Extraction
         protected ExtractMessage(IExtractMessage request)
             : this(
                 request.ExtractionJobIdentifier, 
-                request.ExtractionIdsFilePath, 
+                request.ExtractionName, 
                 request.ProjectNumber, 
                 request.ExtractionDirectory, 
                 request.JobSubmittedAt)
@@ -49,7 +49,7 @@ namespace Smi.Common.Messages.Extraction
 
         public override string ToString()
             => $"ExtractionJobIdentifier={ExtractionJobIdentifier}, " +
-               $"ExtractionIdsFilePath={ExtractionIdsFilePath}, " +
+               $"ExtractionName={ExtractionName}, " +
                $"ProjectNumber={ProjectNumber}, " +
                $"ExtractionDirectory={ExtractionDirectory}, " +
                $"JobSubmittedAt={JobSubmittedAt}";
@@ -63,7 +63,7 @@ namespace Smi.Common.Messages.Extraction
 
             return 
                 ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
-                ExtractionIdsFilePath.Equals(other.ExtractionIdsFilePath) &&
+                ExtractionName.Equals(other.ExtractionName) &&
                 string.Equals(ProjectNumber, other.ProjectNumber) &&
                 string.Equals(ExtractionDirectory, other.ExtractionDirectory) &&
                 JobSubmittedAt.Equals(other.JobSubmittedAt);
@@ -82,7 +82,7 @@ namespace Smi.Common.Messages.Extraction
             unchecked
             {
                 int hashCode = ExtractionJobIdentifier.GetHashCode();
-                hashCode = (hashCode * 397) ^ (ExtractionIdsFilePath != null ? ExtractionIdsFilePath.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ExtractionName != null ? ExtractionName.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ProjectNumber != null ? ProjectNumber.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ExtractionDirectory != null ? ExtractionDirectory.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();
