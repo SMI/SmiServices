@@ -10,8 +10,8 @@ namespace Microservices.CohortExtractor.Tests
     [TestFixture]
     public class DefaultProjectPathResolverTest
     {
-        private const string ExtractionIdsFileName = "ids";
-        private readonly ExtractionRequestMessage _requestMessage = new ExtractionRequestMessage { ExtractionName = Path.Combine("root", "foo", ExtractionIdsFileName + ".csv") };
+        private const string ExtractionName = "extractName";
+        private readonly ExtractionRequestMessage _requestMessage = new ExtractionRequestMessage { ExtractionName = Path.Combine("root", "foo", ExtractionName) };
 
         [TestCase("study", "series")]
         [TestCase("study", null)]

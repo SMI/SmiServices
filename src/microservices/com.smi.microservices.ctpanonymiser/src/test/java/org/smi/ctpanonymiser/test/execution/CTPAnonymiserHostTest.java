@@ -155,7 +155,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         ExtractFileMessage exMessage = new ExtractFileMessage();
 
         exMessage.ExtractionJobIdentifier = UUID.randomUUID();
-        exMessage.ExtractionName = "ids.csv";
+        exMessage.ExtractionName = "extractName";
         exMessage.JobSubmittedAt = "";
         exMessage.ExtractionDirectory = "";
         exMessage.DicomFilePath = _testFile;
@@ -208,7 +208,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         // Send an invalid message - should fail
         ExtractFileMessage exMessage = new ExtractFileMessage();
         exMessage.ExtractionJobIdentifier = UUID.randomUUID();
-        exMessage.ExtractionName = "ids.csv";
+        exMessage.ExtractionName = "extractName";
         exMessage.JobSubmittedAt = "";
         exMessage.ExtractionDirectory = "";
         exMessage.DicomFilePath = "missing.dcm";

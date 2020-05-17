@@ -564,7 +564,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 var extract = new ExtractionRequestMessage
                 {
                     ExtractionJobIdentifier = Guid.NewGuid(),
-                    ExtractionName = "ids.csv",
+                    ExtractionName = "extractionName",
                     ProjectNumber = "1234-5678",
                     ExtractionDirectory = "1234-5678_P1",
                     KeyTag = "SeriesInstanceUID",
