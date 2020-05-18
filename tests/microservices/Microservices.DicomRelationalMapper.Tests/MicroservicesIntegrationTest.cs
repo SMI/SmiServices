@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -34,6 +35,7 @@ using Rdmp.Core.Logging.PastEvents;
 using Rdmp.Dicom.PipelineComponents;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using ReusableLibraryCode.Checks;
+using Smi.Common.Execution;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -52,6 +54,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         private DicomRelationalMapperTestHelper _helper;
         private GlobalOptions _globals;
         private const string MongoTestDbName = "nUnitTestDb";
+        private readonly List<MicroserviceHost> hosts = new List<MicroserviceHost>();
 
         public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
         {
@@ -92,6 +95,8 @@ namespace Microservices.DicomRelationalMapper.Tests
             foreach (var t in new Type[] { typeof(Catalogue), typeof(TableInfo), typeof(LoadMetadata), typeof(Pipeline) })
                 foreach (IDeleteable o in CatalogueRepository.GetAllObjects(t))
                     o.DeleteInDatabase();
+
+            hosts.Each<MicroserviceHost>(x => x.Stop("Test concluded"));
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer, typeof(GuidDatabaseNamer))]
@@ -456,8 +461,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _globals.RDMPOptions.DataExportConnectionString = ((TableRepository)RepositoryLocator.DataExportRepository).DiscoveredServer.Builder.ConnectionString;
             _globals.DicomRelationalMapperOptions.RunChecks = true;
 
-            if (_globals.DicomRelationalMapperOptions.MinimumBatchSize < 1)
-                _globals.DicomRelationalMapperOptions.MinimumBatchSize = 1;
+            _globals.DicomRelationalMapperOptions.MinimumBatchSize = 1;
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.CohortExtractorOptions))
             {
@@ -479,15 +483,15 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 var dicomTagReaderHost = new DicomTagReaderHost(_globals, loadSmiLogConfig: false);
                 dicomTagReaderHost.Start();
-                tester.StopOnDispose.Add(dicomTagReaderHost);
+                hosts.Add(dicomTagReaderHost);
 
                 var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals, loadSmiLogConfig: false);
                 mongoDbPopulatorHost.Start();
-                tester.StopOnDispose.Add(mongoDbPopulatorHost);
+                hosts.Add(mongoDbPopulatorHost);
 
                 var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"), loadSmiLogConfig: false);
                 identifierMapperHost.Start();
-                tester.StopOnDispose.Add(identifierMapperHost);
+                hosts.Add(identifierMapperHost);
 
                 new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
                 logger.Info("\n### DicomTagReader has processed its messages ###\n");
@@ -508,7 +512,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
                     logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
 
-                    new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
+                    new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1, lockobj:identifierMapperHost.Consumer);//number of series
                     logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
                     Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
@@ -519,8 +523,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     
                     try
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(10));
-                        new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
+                        new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 60000, () => relationalMapperHost.Consumer.DleErrors, relationalMapperHost.Consumer); //number of image files 
                         logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
                     }
                     finally
