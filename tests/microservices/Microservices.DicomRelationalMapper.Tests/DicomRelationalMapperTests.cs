@@ -131,19 +131,18 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 using (var timeline = new TestTimeline(tester))
                 {
-                    //send the message 10 times over a 10 second period
+                    //send the message N times over a 10 second period
                     for (int i = 0; i < numberOfMessagesToSend; i++)
                     {
                         timeline
                             .SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi))
-                            .Wait(1000);
+                            .Wait(100);
                     }
 
                     //start the timeline
                     timeline.StartTimeline();
 
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
+                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 60000, () => host.Consumer.DleErrors);
 
                     Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");

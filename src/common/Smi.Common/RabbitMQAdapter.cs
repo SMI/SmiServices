@@ -392,7 +392,7 @@ namespace Smi.Common
                     consumer.Queuelen = (int) model.MessageCount(queuename);
                 else consumer.Queuelen = 0;
             }
-            catch ()
+            catch (Exception)
             {
                 consumer.Queuelen = 0;
             }
