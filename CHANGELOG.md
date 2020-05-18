@@ -6,17 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+
 ### Added
 
 - Added image extraction blacklist rejector.
   - Configure with `Blacklists` option (specify a list of Catalogue IDs)
   - Catalogues listed must include one or more column(s) StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID.
   - Records in the referenced table will blacklist where any UID is found (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID).  This allows blacklisting an entire study or only specific images.
+- Change the extraction directory generation to be `<projname>/image-requests/<extractname>`. Fixes [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
 
 ### Fixed
 
+- Fixed IsIdentifiable rule order being the order the files are detected in rules directory (Now goes IgnoreRules=>ReportRules=>SocketRules)
 - Adjust log handling in CTP anonymiser to use SMIlogging setup
 - IsIdentifiable case-sensitive rules now implemented with property 
+- Bufix for fo-dicom image handling race condition in Release mode builds (issue #238)
 
 ### Changed
 

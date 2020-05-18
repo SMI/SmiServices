@@ -81,15 +81,6 @@ public class Program {
 			.build());
 
 		options.addOption(
-			Option
-			.builder("e")
-			.argName("extraction directory")
-			.desc("Name of subdirectory within project folder to create the files. Defaults to the generated extraction identifier")
-			.hasArg()
-			.longOpt("subdirectory")
-			.build());
-
-		options.addOption(
 			Option        
 			.builder("m")
 			.argName("modality")
@@ -106,9 +97,9 @@ public class Program {
 			System.exit(1);
 		}
 
-		if (commandLine.getArgList().size() == 0) {
+		if (commandLine.getArgList().size() != 1) {
 			printUsage(options);
-			System.err.println("No data files given to process");
+			System.err.println("Need exactly one CSV file to process");
 			System.exit(1);
 		}
 
