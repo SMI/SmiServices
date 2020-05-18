@@ -18,6 +18,8 @@ namespace Smi.Common.Tests
         /// <summary>
         /// Blocks until <paramref name="condition"/> is met or the <paramref name="timeout"/> is reached.  Polls <paramref name="throwIfAnyFunc"/>
         /// (if provided) to check for Exceptions (which will break the wait).
+        /// Can be made more efficient by providing an object lockobj
+        /// which will be Monitor.Pulse()d on state changes, as in Consumer.
         ///
         /// <para>During debugging <paramref name="timeout"/> is ignored </para>
         /// </summary>
@@ -25,6 +27,7 @@ namespace Smi.Common.Tests
         /// <param name="timeoutMessage"></param>
         /// <param name="timeout"></param>
         /// <param name="throwIfAnyFunc"></param>
+        /// <param name="lockobj"</param>
         public void Await(Func<bool> condition,string timeoutMessage= null,int timeout = 30000, Func<IEnumerable<Exception>> throwIfAnyFunc = null, object lockobj=null)
         {
             if (Debugger.IsAttached)
