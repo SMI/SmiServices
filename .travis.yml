@@ -29,8 +29,6 @@ jobs:
         - sourceline: 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/16.04/mssql-server-2017 xenial main'
         packages:
         - rabbitmq-server
-        - postgresql-10
-        - postgresql-client-10
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
