@@ -500,3 +500,14 @@ WhiteListRules:
  - Action: Ignore
    IfPartPattern: ^mra$
    As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^sc$
+   As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^gad$
+   As: Person
+ - Action: Ignore  # NOTE(rkm 2020-05-19) Matches a specific date-like format which looks like some other reference
+   IfColumn: StudyDescription
+   IfPattern: ^\(\d{5}\/\d+\/\d+(..\d+)?\)-\(\d{5}\/\d+\/\d+(..\d+)?\)$
