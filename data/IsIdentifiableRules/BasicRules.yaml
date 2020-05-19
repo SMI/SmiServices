@@ -1648,3 +1648,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^nora_20_summary$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr (pelvis|pituitary|prostate|prostate|pelvis gynaecological|rectum|liver|spine|spine cervical|lumbar|lumbar spine|right knee)$

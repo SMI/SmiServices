@@ -494,3 +494,9 @@ WhiteListRules:
    IfColumn: SeriesDescription
    IfPartPattern: ^octreotide$
    As: Organization
+ - Action: Ignore
+   IfPartPattern: ^osteomylitis$
+   As: Person
+ - Action: Ignore
+   IfPartPattern: ^mra$
+   As: Organization
