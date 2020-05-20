@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.9.0] - 2020-05-20
 
 ### Added
 
@@ -301,7 +302,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.8.1...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.9.0...develop
+[1.9.0]:  https://github.com/SMI/SmiServices/compare/v1.8.1...v1.9.0
 [1.8.1]:  https://github.com/SMI/SmiServices/compare/v1.8.0...v1.8.1
 [1.8.0]:  https://github.com/SMI/SmiServices/compare/v1.7.0...v1.8.0
 [1.7.0]:  https://github.com/SMI/SmiServices/compare/v1.6.0...v1.7.0
