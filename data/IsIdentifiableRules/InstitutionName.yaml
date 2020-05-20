@@ -162,6 +162,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: InstitutionName
    IfPattern: ^western general edinburgh$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^prince charles hospital$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPattern: ^bmi cavell$
 
 # Additional failures which NERd did not pick up
 # These are hospitals so should not appear outside of InstitutionName
@@ -209,10 +215,13 @@ WhiteListRules:
    As: Location
  - Action: Ignore
    IfColumn: InstitutionName
-   IfPartPattern: GJNH
+   IfPartPattern: gjnh  # NOTE(rkm 2020-05-20) Golden Jubilee National Hospital
  - Action: Ignore
    IfColumn: InstitutionName
-   IfPartPattern: Western General
+   IfPartPattern: western general
  - Action: Ignore
    IfColumn: InstitutionName
-   IfPartPattern: ^LAMBOO$
+   IfPartPattern: ^lamboo$
+ - Action: Ignore
+   IfColumn: InstitutionName
+   IfPartPattern: ^hosp$

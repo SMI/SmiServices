@@ -461,7 +461,7 @@ WhiteListRules:
    IfPartPattern: Slice
  - Action: Ignore
    IfColumn: SeriesDescription
-   IfPartPattern: SC
+   IfPartPattern: ^(sa|sc)$
    As: Organization
  - Action: Ignore
    IfPartPattern: Corrected
@@ -508,6 +508,13 @@ WhiteListRules:
    IfColumn: ProtocolName
    IfPartPattern: ^gad$
    As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: mr$
+   As: Person
  - Action: Ignore  # NOTE(rkm 2020-05-19) Matches a specific date-like format which looks like some other reference
    IfColumn: StudyDescription
    IfPattern: ^\(\d{5}\/\d+\/\d+(..\d+)?\)-\(\d{5}\/\d+\/\d+(..\d+)?\)$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: ^multiplanar reconstruction$

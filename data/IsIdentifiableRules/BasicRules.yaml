@@ -1653,4 +1653,4 @@ BasicRules:
    IfPattern: ^mr$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^mr (pelvis|pituitary|prostate|prostate|pelvis gynaecological|rectum|liver|spine|spine cervical|lumbar|lumbar spine|right knee)$
+   IfPattern: ^mr( |\\_)(pelvis|pituitary|prostate|prostate|pelvis gynaecological|rectum|liver|spine|spine cervical|lumbar|lumbar spine|right knee)$
