@@ -11,6 +11,7 @@
 | ------- | ------------| --------| ------- | ------- | -------------------------- |
 | CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.8.0](https://www.nuget.org/packages/CommandLineParser/2.8.0) | [MIT](https://opensource.org/licenses/MIT)| Command line argument parsing |  |
 | CsvHelper | [GitHub](https://github.com/JoshClose/CsvHelper) | [15.0.5](https://www.nuget.org/packages/CsvHelper/15.0.5) | [MS-PL and Apache 2.0](https://github.com/JoshClose/CsvHelper/blob/master/LICENSE.txt)| Writting reports out to CSV reports | |
+| fo-dicom.NetCore | [GitHub](https://github.com/fo-dicom/fo-dicom) | [4.0.5](https://www.nuget.org/packages/fo-dicom.NetCore/4.0.5) | [MS-PL](https://opensource.org/licenses/MS-PL) | | |
 | HIC.DicomTypeTranslation | [GitHub](https://github.com/HicServices/DicomTypeTranslation) | [2.3.0](https://www.nuget.org/packages/HIC.DicomTypeTranslation/2.3.0) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Translate dicom types into C# / database types | |
 | HIC.FAnsiSql | [GitHub](https://github.com/HicServices/FansiSql) | [0.11.1](https://www.nuget.org/packages/HIC.FAnsiSql/0.11.1) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Database abstraction layer | |
 | HIC.RDMP.Dicom | [GitHub](https://github.com/HicServices/RdmpDicom) | [2.1.3](https://www.nuget.org/packages/HIC.RDMP.Dicom/2.1.3) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | RDMP Plugin containing data load / pipeline components for imaging, reading dicom files etc | |
