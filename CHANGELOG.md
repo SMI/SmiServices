@@ -6,7 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-
 ### Added
 
 - Added image extraction blacklist rejector.
@@ -31,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Bump HIC.RDMP.Dicom from 2.1.0 to 2.1.3
 - Bump fo-dicom.Drawing from 4.0.4 to 4.0.5
 - Bump HIC.BadMedicine.Dicom from 0.0.5 to 0.0.6
+- Pinned fo-dicom.NetCore to 4.0.5
 
 ## [1.8.1] - 2020-04-17
 
