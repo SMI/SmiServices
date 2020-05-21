@@ -28,6 +28,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Refactored `WhiteListRule` to inherit from `IsIdentifiableRule` (affects serialization).  
   - Parent property `As` replaces `IfClassification`
   - `CaseSensitive` replaces `IfPatternCaseSensitive` and `IfPartPatternCaseSensitive` (Also fixes serialization bug)
+- Bump HIC.DicomTypeTranslation from 2.2.2 to 2.3.0
+- Bump HIC.RDMP.Dicom from 2.1.0 to 2.1.3
+- Bump fo-dicom.Drawing from 4.0.4 to 4.0.5
+- Bump HIC.BadMedicine.Dicom from 0.0.5 to 0.0.6
+- Pinned fo-dicom.NetCore to 4.0.5
 
 ## [1.8.1] - 2020-04-17
 
