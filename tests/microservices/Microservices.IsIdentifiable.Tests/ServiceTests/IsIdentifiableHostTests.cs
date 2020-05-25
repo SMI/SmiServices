@@ -96,27 +96,25 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
-            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
+            options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
+
+            var host = new IsIdentifiableHost(options, false);
+            host.Start();
+
+            host.Consumer.TestMessage(new ExtractFileStatusMessage
             {
-                options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
+                DicomFilePath = "yay.dcm",
+                AnonymisedFileName = testDcm.FullName,
+                ProjectNumber = "100",
+                ExtractionDirectory = "./fish",
+                StatusMessage = "yay!",
+                Status = ExtractFileStatus.Anonymised
+            });
 
-                var host = new IsIdentifiableHost(options, false);
-                host.Start();
-
-                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage
-                {
-                    DicomFilePath = "yay.dcm",
-                    AnonymisedFileName = testDcm.FullName,
-                    ProjectNumber = "100",
-                    ExtractionDirectory = "./fish",
-                    StatusMessage = "yay!",
-                    Status = ExtractFileStatus.Anonymised
-                });
-
-                var awaiter = new TestTimelineAwaiter();
-                awaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
-                Assert.AreEqual(1, host.Consumer.AckCount, "Tesseract not acking");
-            }
+            var awaiter = new TestTimelineAwaiter();
+            awaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
+            Assert.AreEqual(1, host.Consumer.AckCount, "Tesseract not acking");
+            host.Stop("Test concluded");
         }
     }
 }

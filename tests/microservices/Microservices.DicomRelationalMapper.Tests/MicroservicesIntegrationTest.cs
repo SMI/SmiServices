@@ -477,6 +477,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 dicomTagReaderHost.Start();
                 tester.StopOnDispose.Add(dicomTagReaderHost);
 
+                _globals.MongoDbPopulatorOptions.MongoDbFlushTime = 1;  // Ensure the worker flushes quickly for tests
                 var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals, loadSmiLogConfig: false);
                 mongoDbPopulatorHost.Start();
                 tester.StopOnDispose.Add(mongoDbPopulatorHost);
@@ -515,8 +516,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     
                     try
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(10));
-                        new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
+                        new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 40000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
                         logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
                     }
                     finally
