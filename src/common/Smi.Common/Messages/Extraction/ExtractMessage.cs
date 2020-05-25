@@ -35,7 +35,11 @@ namespace Smi.Common.Messages.Extraction
         }
 
         protected ExtractMessage(IExtractMessage request)
-            : this(request.ExtractionJobIdentifier, request.ProjectNumber, request.ExtractionDirectory, request.JobSubmittedAt)
+            : this(
+                request.ExtractionJobIdentifier,
+                request.ProjectNumber,
+                request.ExtractionDirectory,
+                request.JobSubmittedAt)
         { }
 
         public override string ToString()
@@ -51,10 +55,11 @@ namespace Smi.Common.Messages.Extraction
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
-                   string.Equals(ProjectNumber, other.ProjectNumber) &&
-                   string.Equals(ExtractionDirectory, other.ExtractionDirectory) &&
-                   JobSubmittedAt.Equals(other.JobSubmittedAt);
+            return
+                ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
+                string.Equals(ProjectNumber, other.ProjectNumber) &&
+                string.Equals(ExtractionDirectory, other.ExtractionDirectory) &&
+                JobSubmittedAt.Equals(other.JobSubmittedAt);
         }
 
         public override bool Equals(object obj)
@@ -77,15 +82,9 @@ namespace Smi.Common.Messages.Extraction
             }
         }
 
-        public static bool operator ==(ExtractMessage left, ExtractMessage right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(ExtractMessage left, ExtractMessage right) => Equals(left, right);
 
-        public static bool operator !=(ExtractMessage left, ExtractMessage right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(ExtractMessage left, ExtractMessage right) => !Equals(left, right);
 
         #endregion
     }

@@ -29,8 +29,6 @@ jobs:
         - sourceline: 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/16.04/mssql-server-2017 xenial main'
         packages:
         - rabbitmq-server
-        - postgresql-10
-        - postgresql-client-10
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
@@ -50,12 +48,14 @@ jobs:
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
     install:
+    - |
+      export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - ( cd ./lib/java && ./installDat.sh && cd - )
     - |
-      if [ ! -x $HOME/rdmp-cli/rdmp ] || ! fgrep -q 4.1.0 $HOME/rdmp-cli/rdmp.dll
+      if [ ! -x $HOME/rdmp-cli/rdmp ] || ! fgrep -q $RDMPVERSION $HOME/rdmp-cli/rdmp.dll
       then
         rm -rf $HOME/rdmp-cli
-        wget https://github.com/HicServices/RDMP/releases/download/v4.1.0/rdmp-cli-linux-x64.zip
+        wget https://github.com/HicServices/RDMP/releases/download/v${RDMPVERSION}/rdmp-cli-linux-x64.zip
         # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
         unzip -d $HOME/rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
         chmod +x $HOME/rdmp-cli/rdmp
