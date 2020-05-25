@@ -171,18 +171,16 @@ namespace Microservices.IdentifierMapper.Tests
             {
                 tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, null);
 
-                Console.WriteLine("Pushing good messages to Rabbit...");
-                tester.SendMessages(options.IdentifierMapperOptions, goodChis, true);
-
-                var host = new IdentifierMapperHost(options, swapper, false);
-                tester.StopOnDispose.Add(host);
-
                 Console.WriteLine("Starting host");
 
                 Stopwatch sw = Stopwatch.StartNew();
+                var host = new IdentifierMapperHost(options, swapper, false);
+                tester.StopOnDispose.Add(host);
                 host.Start();
+                goodChis.ForEach(x => { host.Consumer.TestMessage(x); });
 
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == batchSize);
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount+ host.Consumer.NackCount == batchSize);
+                Assert.AreEqual(0, host.Consumer.NackCount,"IdentifierMapper Nack count");
 
                 Console.WriteLine("Good message processing (" + batchSize + ") took:" + sw.ElapsedMilliseconds + "ms");
                 host.Stop("Test finished");
@@ -194,18 +192,19 @@ namespace Microservices.IdentifierMapper.Tests
             {
                 tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, null);
 
-                Console.WriteLine("Pushing bad messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, badChis, true);
 
-                var host = new IdentifierMapperHost(options, swapper,loadSmiLogConfig:false);
-                tester.StopOnDispose.Add(host);
 
                 Console.WriteLine("Starting host");
 
                 Stopwatch sw = Stopwatch.StartNew();
+                var host = new IdentifierMapperHost(options, swapper, loadSmiLogConfig: false);
+                tester.StopOnDispose.Add(host);
                 host.Start();
+                badChis.ForEach(x => { host.Consumer.TestMessage(x); });
 
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == batchSize);
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount + host.Consumer.NackCount == batchSize);
+                Assert.AreEqual(0, host.Consumer.NackCount, "IdentifierMapper Nack count");
 
                 Console.WriteLine("Bad message processing (" + batchSize + ") took:" + sw.ElapsedMilliseconds + "ms");
 
@@ -472,7 +471,9 @@ namespace Microservices.IdentifierMapper.Tests
             Random r = new Random(123);
 
             
-            using (var generator = new DicomDataGenerator(r, null, "CT"))
+            using (var generator = new DicomDataGenerator(r, null, "MR") {
+                NoPixels=true
+            })
                 ds = generator.GenerateTestDataset(new Person(r), r);
 
             ds.AddOrUpdate(DicomTag.AccessionNumber, "1234");
