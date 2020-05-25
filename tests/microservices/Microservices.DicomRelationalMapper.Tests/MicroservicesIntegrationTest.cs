@@ -413,12 +413,15 @@ namespace Microservices.DicomRelationalMapper.Tests
             var r = new Random(500);
 
             //create a generator 
-            using (var generator = new DicomDataGenerator(r, dir, "CT"))
+            using (var generator = new DicomDataGenerator(r, dir, "MR") {
+                NoPixels=true
+            })
             {
                 generator.GenerateImageFiles(40,r);
                 RunTest(dir, 40);
             }
         }
+
         private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions=null)
         { 
             TestLogger.Setup();
@@ -508,10 +511,10 @@ namespace Microservices.DicomRelationalMapper.Tests
                     new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
                     logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
-                    Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
-                    Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
-                    Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount);
-                    Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount);
+                    Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount, "AccessionDirectoryMessageConsumer Nacks");
+                    Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount, "identifierMapperHost Nacks");
+                    Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount, "Mongo SeriesMessage Nacks");
+                    Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount, "Mongo DicomFileMessage Nacks");
 
                     
                     try
