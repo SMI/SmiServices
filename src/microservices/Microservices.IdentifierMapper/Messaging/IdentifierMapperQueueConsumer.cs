@@ -44,7 +44,8 @@ namespace Microservices.IdentifierMapper.Messaging
                             done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
                             while (msgq.TryTake(out t))
                             {
-                                _producer.SendMessage(t.Item1, t.Item2, "");
+                                if (!(t.Item2 is null)) // Dummy (test) messages go nowhere, process and discard
+                                    _producer.SendMessage(t.Item1, t.Item2, "");
                                 done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
                             }
                             _producer.WaitForConfirms();

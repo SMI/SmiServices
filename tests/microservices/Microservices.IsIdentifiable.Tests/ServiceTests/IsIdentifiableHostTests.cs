@@ -99,8 +99,6 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
 
             var host = new IsIdentifiableHost(options, false);
-            host.Start();
-
             host.Consumer.TestMessage(new ExtractFileStatusMessage
             {
                 DicomFilePath = "yay.dcm",
@@ -111,10 +109,8 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 Status = ExtractFileStatus.Anonymised
             });
 
-            var awaiter = new TestTimelineAwaiter();
-            awaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
+            new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
             Assert.AreEqual(1, host.Consumer.AckCount, "Tesseract not acking");
-            host.Stop("Test concluded");
         }
     }
 }
