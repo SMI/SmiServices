@@ -6,26 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-- Bufix for fo-dicom image handling race condition in Release mode builds (issue #238)
-
 ### Added
 
 - Added image extraction blacklist rejector.
   - Configure with `Blacklists` option (specify a list of Catalogue IDs)
   - Catalogues listed must include one or more column(s) StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID.
   - Records in the referenced table will blacklist where any UID is found (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID).  This allows blacklisting an entire study or only specific images.
+- Change the extraction directory generation to be `<projname>/image-requests/<extractname>`. Fixes [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
 
 ### Fixed
 
 - Fixed IsIdentifiable rule order being the order the files are detected in rules directory (Now goes IgnoreRules=>ReportRules=>SocketRules)
 - Adjust log handling in CTP anonymiser to use SMIlogging setup
 - IsIdentifiable case-sensitive rules now implemented with property 
+- Bufix for fo-dicom image handling race condition in Release mode builds (issue #238)
 
 ### Changed
 
 - Refactored `WhiteListRule` to inherit from `IsIdentifiableRule` (affects serialization).  
   - Parent property `As` replaces `IfClassification`
   - `CaseSensitive` replaces `IfPatternCaseSensitive` and `IfPartPatternCaseSensitive` (Also fixes serialization bug)
+- Bump HIC.DicomTypeTranslation from 2.2.2 to 2.3.0
+- Bump HIC.RDMP.Dicom from 2.1.0 to 2.1.3
+- Bump fo-dicom.Drawing from 4.0.4 to 4.0.5
+- Bump HIC.BadMedicine.Dicom from 0.0.5 to 0.0.6
+- Pinned fo-dicom.NetCore to 4.0.5
 
 ## [1.8.1] - 2020-04-17
 

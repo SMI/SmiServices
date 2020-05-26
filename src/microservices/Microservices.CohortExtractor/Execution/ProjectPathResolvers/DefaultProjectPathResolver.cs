@@ -1,43 +1,46 @@
 ﻿
-using System;
-using System.IO;
-using MathNet.Numerics;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Smi.Common.Messages.Extraction;
+using System;
+using System.IO;
 
 namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
 {
     public class DefaultProjectPathResolver : IProjectPathResolver
     {
-        public virtual string GetAnonymousDicomFilename(string fileName)
+        public const string AnonExt = "-an.dcm";
+
+        private static readonly string[] _replaceableExtensions = { ".dcm", ".dicom" };
+
+        /// <summary>
+        /// Returns the output path for the anonymised file, relative to the ExtractionDirectory
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="_"></param>
+        /// <returns></returns>
+        public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage _)
         {
+            // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output (anonymised) file name to be -an.dcm
+            string fileName = Path.GetFileName(result.FilePathValue);
             if (string.IsNullOrWhiteSpace(fileName))
-                throw new ArgumentNullException("fileName");
+                throw new ArgumentNullException(nameof(fileName));
 
-            //Dicom is flexible about file extensions.  It can be .dcm .dicom or nothing at all.  Lets standardise our output at least to -an.dcm
-                        
-            if(fileName.EndsWith(".dicom"))
-                return fileName.Replace(".dicom", "-an.dcm");
+            var replaced = false;
+            foreach (string ext in _replaceableExtensions)
+                if (fileName.EndsWith(ext))
+                {
+                    fileName = fileName.Replace(ext, AnonExt);
+                    replaced = true;
+                    break;
+                }
 
-            if (fileName.EndsWith(".dcm"))
-                return fileName.Replace(".dcm", "-an.dcm");
+            if (!replaced)
+                fileName += AnonExt;
 
-            return fileName+"-an.dcm";
-        }
-        
-        public string GetOutputPath(QueryToExecuteResult result,ExtractionRequestMessage request)
-        {
-            string anonFilename = GetAnonymousDicomFilename(Path.GetFileName(result.FilePathValue));
-
-            //if all we know is the path
-            if (result.StudyTagValue == null && result.SeriesTagValue == null)
-                return anonFilename;
-
-            if (result.StudyTagValue != null && result.SeriesTagValue != null)
-                return Path.Combine(result.StudyTagValue, result.SeriesTagValue, anonFilename);
-
-            //output it under study or series UID only then filename
-            return Path.Combine(result.StudyTagValue ?? result.SeriesTagValue, anonFilename);
+            return Path.Combine(
+                result.StudyTagValue ?? "unknown",
+                result.SeriesTagValue ?? "unknown",
+                fileName);
         }
     }
 }
