@@ -17,6 +17,7 @@ namespace Smi.Common.MessageSerialization
 
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
         {
+            StringEscapeHandling = StringEscapeHandling.EscapeNonAscii,
             Error = delegate (object sender, ErrorEventArgs args)
             {
                 _errors.Add(args.ErrorContext.Error.Message);
@@ -44,7 +45,7 @@ namespace Smi.Common.MessageSerialization
             if (_errors.Count == 0)
                 return messageObj;
 
-            var e = new JsonSerializationException("Couldn't deserialize message to " + typeof(T).FullName + ". See exception data.");
+            var e = new JsonSerializationException($"Couldn't deserialize message '{ message }' to { typeof(T).FullName } due to { _errors.Count } errors including '{ _errors[0] }'. See exception data.");
 
             for (var i = 0; i < _errors.Count; i++)
                 e.Data.Add(i, _errors[i]);
