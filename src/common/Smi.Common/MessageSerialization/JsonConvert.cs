@@ -18,6 +18,7 @@ namespace Smi.Common.MessageSerialization
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
         {
             StringEscapeHandling = StringEscapeHandling.EscapeNonAscii,
+            CheckAdditionalContent = false,
             Error = delegate (object sender, ErrorEventArgs args)
             {
                 _errors.Add(args.ErrorContext.Error.Message);
