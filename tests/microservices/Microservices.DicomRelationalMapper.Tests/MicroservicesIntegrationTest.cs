@@ -512,7 +512,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
                     Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount, "AccessionDirectoryMessageConsumer Nacks");
-                    Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount, "identifierMapperHost Nacks");
+                    Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount, $"identifierMapperHost Nacks ({identifierMapperHost.Consumer.lastnackreason})");
                     Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount, "Mongo SeriesMessage Nacks");
                     Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount, "Mongo DicomFileMessage Nacks");
 
