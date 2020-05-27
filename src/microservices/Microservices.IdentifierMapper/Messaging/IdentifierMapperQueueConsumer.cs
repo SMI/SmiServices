@@ -24,8 +24,6 @@ namespace Microservices.IdentifierMapper.Messaging
         private readonly BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,ulong>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, ulong>>();
         private Thread acker;
 
-        public string? lastnackreason { get; private set; }
-
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
         {
             _producer = producer;
@@ -105,14 +103,13 @@ namespace Microservices.IdentifierMapper.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-                lastnackreason = $"Exception processing DicomFileMessage: {e}";
                 ErrorAndNack(header, tag, "Error while processing DicomFileMessage", e);
                 return;
             }
 
             if (!success)
             {
-                Logger.Info(lastnackreason=$"Could not swap identifiers for message {header.MessageGuid}. Reason was: {errorReason}");
+                Logger.Info($"Could not swap identifiers for message {header.MessageGuid}. Reason was: {errorReason}");
                 ErrorAndNack(header, tag, errorReason, null);
             }
             else

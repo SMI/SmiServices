@@ -30,6 +30,11 @@ namespace Smi.Common.Messaging
         /// </summary>
         public event ConsumerFatalHandler OnFatal;
 
+        /// <summary>
+        /// Why the last Nack was sent
+        /// </summary>
+        public string? lastnackreason { get; private set; }
+
 
         protected readonly ILogger Logger;
 
@@ -177,6 +182,7 @@ namespace Smi.Common.Messaging
 
         protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
         {
+            lastnackreason = message;
             if (header != null)
                 header.Log(Logger, LogLevel.Error, message, exception);
 
