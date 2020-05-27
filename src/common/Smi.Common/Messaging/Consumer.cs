@@ -163,7 +163,7 @@ namespace Smi.Common.Messaging
                 // Deserialization exception - Can never process this message
 
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-                ErrorAndNack(header, deliverArgs.DeliveryTag, $"{DeserializationMessage<T>()} ('{ deliverArgs.Body.ToArray() }', due to '{e}')", e);
+                ErrorAndNack(header, deliverArgs.DeliveryTag, $"{DeserializationMessage<T>()} ('{ deliverArgs.Body.ToArray() }', due to '{e}' - {e.Data})", e);
 
                 iMessage = default(T);
                 return false;
