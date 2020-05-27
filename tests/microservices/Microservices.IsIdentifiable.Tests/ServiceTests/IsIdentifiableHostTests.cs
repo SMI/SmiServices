@@ -98,7 +98,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
 
             options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
 
-            var host = new IsIdentifiableHost(options, false);
+            var host = new IsIdentifiableHost(options, false, true);
             host.Consumer.TestMessage(new ExtractFileStatusMessage
             {
                 DicomFilePath = "yay.dcm",
