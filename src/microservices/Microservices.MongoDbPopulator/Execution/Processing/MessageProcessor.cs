@@ -115,7 +115,14 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
             // Ensures no more messages are added to the queue
             _processTimer.Stop();
             IsStopping = true;
-            ProcessQueue();
+            try
+            {
+                ProcessQueue();
+            }
+            catch(Exception e)
+            {
+                Logger.Warn($"Ignoring exception {e} during StopProcessing");
+            }
 
             // Forces process to wait until any current processing is finished
             lock (LockObj)
