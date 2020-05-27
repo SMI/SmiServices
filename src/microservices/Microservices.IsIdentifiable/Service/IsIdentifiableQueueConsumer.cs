@@ -58,7 +58,7 @@ namespace Microservices.IsIdentifiable.Service
                 return;
             }
 
-            _producer.SendMessage(new IsIdentifiableMessage(message)
+            _producer?.SendMessage(new IsIdentifiableMessage(message)
             {
                 IsIdentifiable = ! isClean,
                 Report = JsonConvert.SerializeObject(resultObject)

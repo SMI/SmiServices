@@ -16,7 +16,7 @@ namespace Microservices.IsIdentifiable.Service
 
         private IProducerModel _producerModel;
 
-        public IsIdentifiableHost(GlobalOptions globals, bool loadSmiLogConfig = true)
+        public IsIdentifiableHost(GlobalOptions globals, bool loadSmiLogConfig = true, bool testmode=false)
             : base(globals, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = globals.IsIdentifiableOptions;
@@ -35,7 +35,7 @@ namespace Microservices.IsIdentifiable.Service
             if(classifier == null)
                 throw new TypeLoadException($"Could not find IClassifier Type { classifierTypename }");
 
-            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableOptions.IsIdentifiableProducerOptions, isBatch: false);
+            _producerModel = testmode?null:RabbitMqAdapter.SetupProducer(globals.IsIdentifiableOptions.IsIdentifiableProducerOptions, isBatch: false);
 
             Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions.FileSystemRoot, globals.FileSystemOptions.ExtractRoot, classifier);
         }
