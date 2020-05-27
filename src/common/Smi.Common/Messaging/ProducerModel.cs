@@ -31,6 +31,10 @@ namespace Smi.Common.Messaging
         // Used to stop messages being produced if we are in the process of crashing out
         private readonly object _oSendLock = new object();
 
+        private readonly JsonSerializerSettings convertoptions = new JsonSerializerSettings()
+        {
+            StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
+        };
 
         /// <summary>
         /// 
@@ -124,9 +128,7 @@ namespace Smi.Common.Messaging
         {
             lock (_oSendLock)
             {
-                byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message,new JsonSerializerSettings() {
-                    StringEscapeHandling=StringEscapeHandling.EscapeNonAscii
-                }));
+                byte[] body = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(message); // Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message,convertoptions));
 
                 _messageBasicProperties.Timestamp = new AmqpTimestamp(MessageHeader.UnixTimeNow());
                 _messageBasicProperties.Headers = new Dictionary<string, object>();
