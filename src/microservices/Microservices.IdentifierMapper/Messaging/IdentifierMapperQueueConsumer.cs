@@ -24,7 +24,7 @@ namespace Microservices.IdentifierMapper.Messaging
         private readonly BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,ulong>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, ulong>>();
         private Thread acker;
 
-        public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
+        public IdentifierMapperQueueConsumer(IProducerModel? producer, ISwapIdentifiers swapper)
         {
             _producer = producer;
             _swapper = swapper;
@@ -38,17 +38,17 @@ namespace Microservices.IdentifierMapper.Messaging
                         Tuple<DicomFileMessage, IMessageHeader, ulong> t;
                         t = msgq.Take();
 
-                        lock (_producer)
+                        lock (swapper)  // Just using swapper as the mutex, since producer is null in unit testing
                         {
-                            _producer.SendMessage(t.Item1, t.Item2, "");
+                            _producer?.SendMessage(t.Item1, t.Item2, "");
                             done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
                             while (msgq.TryTake(out t))
                             {
                                 if (!(t.Item2 is null)) // Dummy (test) messages go nowhere, process and discard
-                                    _producer.SendMessage(t.Item1, t.Item2, "");
+                                    _producer?.SendMessage(t.Item1, t.Item2, "");
                                 done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
                             }
-                            _producer.WaitForConfirms();
+                            _producer?.WaitForConfirms();
                             foreach (var ack in done)
                             {
                                 Ack(ack.Item1, ack.Item2);

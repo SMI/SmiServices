@@ -30,7 +30,7 @@ namespace Microservices.IdentifierMapper.Execution
 
 
 
-        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null, bool loadSmiLogConfig = true)
+        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null, bool loadSmiLogConfig = true, bool testmode=false)
             : base(options, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = options.IdentifierMapperOptions;
@@ -69,7 +69,7 @@ namespace Microservices.IdentifierMapper.Execution
             Logger.Info($"Swapper of type {_swapper.GetType()} created");
 
             // Batching now handled implicitly as backlog demands
-            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: true);
+            _producerModel = testmode?null:RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: true);
 
             Consumer = new IdentifierMapperQueueConsumer(_producerModel, _swapper)
             {

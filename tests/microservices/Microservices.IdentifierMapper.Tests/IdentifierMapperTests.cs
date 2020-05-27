@@ -20,6 +20,8 @@ using BadMedicine;
 using BadMedicine.Dicom;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace Microservices.IdentifierMapper.Tests
 {
@@ -100,9 +102,9 @@ namespace Microservices.IdentifierMapper.Tests
                 Assert.Fail("Wrong test case?");
         }
 
-        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 25), RequiresRabbit]
-        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 0), RequiresRabbit]
-        [TestCase(DatabaseType.MySql, 8, 0), RequiresRabbit]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 25)]
+        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 0)]
+        [TestCase(DatabaseType.MySql, 8, 0)]
         public void TestIdentifierSwap_RegexVsDeserialize(DatabaseType type, int batchSize, int numberOfRandomTagsPerDicom)
         {
 
@@ -128,13 +130,12 @@ namespace Microservices.IdentifierMapper.Tests
             var swapper = new PreloadTableSwapper();
             swapper.Setup(options.IdentifierMapperOptions);
 
-            var goodChis = new List<DicomFileMessage>();
-            var badChis = new List<DicomFileMessage>();
+            var goodChis = new ConcurrentBag<DicomFileMessage>();
+            var badChis = new ConcurrentBag<DicomFileMessage>();
 
             Console.WriteLine("Generating Test data...");
 
             List<Task> tasks = new List<Task>();
-            object oTaskLock = new object();
 
             for (int i = 0; i < batchSize; i++)
             {
@@ -142,11 +143,8 @@ namespace Microservices.IdentifierMapper.Tests
                 {
                     var a = GetTestDicomFileMessage(Test.ProperlyFormatedChi, numberOfRandomTagsPerDicom);
                     var b = GetTestDicomFileMessage(Test.ProperlyFormatedChi, numberOfRandomTagsPerDicom);
-                    lock (oTaskLock)
-                    {
-                        goodChis.Add(a);
-                        badChis.Add(b);
-                    }
+                    goodChis.Add(a);
+                    badChis.Add(b);
                 });
 
                 t.Start();
@@ -174,16 +172,13 @@ namespace Microservices.IdentifierMapper.Tests
                 Console.WriteLine("Starting host");
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var host = new IdentifierMapperHost(options, swapper, false);
-                tester.StopOnDispose.Add(host);
-                host.Start();
-                goodChis.ForEach(x => { host.Consumer.TestMessage(x); });
+                var host = new IdentifierMapperHost(options, swapper, false, true);
+                goodChis.ToList().ForEach(x => { host.Consumer.TestMessage(x); });
 
                 new TestTimelineAwaiter().Await(() => host.Consumer.AckCount+ host.Consumer.NackCount == batchSize);
-                Assert.AreEqual(0, host.Consumer.NackCount,"IdentifierMapper Nack count");
+                Assert.AreEqual(0, host.Consumer.NackCount,$"IdentifierMapper Nack count {host.Consumer.lastnackreason}");
 
                 Console.WriteLine("Good message processing (" + batchSize + ") took:" + sw.ElapsedMilliseconds + "ms");
-                host.Stop("Test finished");
             }
 
             options.IdentifierMapperOptions.AllowRegexMatching = false;
@@ -198,17 +193,13 @@ namespace Microservices.IdentifierMapper.Tests
                 Console.WriteLine("Starting host");
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var host = new IdentifierMapperHost(options, swapper, loadSmiLogConfig: false);
-                tester.StopOnDispose.Add(host);
-                host.Start();
-                badChis.ForEach(x => { host.Consumer.TestMessage(x); });
+                var host = new IdentifierMapperHost(options, swapper, loadSmiLogConfig: false, true);
+                badChis.ToList().ForEach(x => { host.Consumer.TestMessage(x); });
 
                 new TestTimelineAwaiter().Await(() => host.Consumer.AckCount + host.Consumer.NackCount == batchSize);
-                Assert.AreEqual(0, host.Consumer.NackCount, "IdentifierMapper Nack count");
+                Assert.AreEqual(0, host.Consumer.NackCount, $"IdentifierMapper Nack count {host.Consumer.lastnackreason}");
 
                 Console.WriteLine("Bad message processing (" + batchSize + ") took:" + sw.ElapsedMilliseconds + "ms");
-
-                host.Stop("Test finished");
             }
         }
 
