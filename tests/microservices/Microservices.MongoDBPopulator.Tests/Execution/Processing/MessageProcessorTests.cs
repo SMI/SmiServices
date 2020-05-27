@@ -49,7 +49,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             Assert.False(processor.IsStopping);
 
-            Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) + 100);
+            Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) + 1000);
 
             Assert.True(callbackUsed);
             Assert.True(processor.IsStopping);

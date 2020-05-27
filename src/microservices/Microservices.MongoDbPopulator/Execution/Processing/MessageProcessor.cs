@@ -105,7 +105,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
             }
             catch (Exception ex)
             {
-                StopProcessing("Timed ProcessQueue threw an exception");
+                StopProcessing($"Timed ProcessQueue threw an exception '{ex}'");
                 _exceptionCallback(ex);
             }
         }
