@@ -61,7 +61,8 @@ namespace Smi.Common.MessageSerialization
         public static T DeserializeObject<T>(BasicDeliverEventArgs deliverArgs) where T : IMessage
         {
             //TODO This might crash if for some reason we have invalid Unicode points
-            return DeserializeObject<T>(deliverArgs.Body.ToString());
+            var a = deliverArgs.Body.ToArray();
+            return DeserializeObject<T>(Encoding.UTF8.GetString(a));
         }
     }
 }
