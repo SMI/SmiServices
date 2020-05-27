@@ -124,7 +124,9 @@ namespace Smi.Common.Messaging
         {
             lock (_oSendLock)
             {
-                byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+                byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message,new JsonSerializerSettings() {
+                    StringEscapeHandling=StringEscapeHandling.EscapeNonAscii
+                }));
 
                 _messageBasicProperties.Timestamp = new AmqpTimestamp(MessageHeader.UnixTimeNow());
                 _messageBasicProperties.Headers = new Dictionary<string, object>();
