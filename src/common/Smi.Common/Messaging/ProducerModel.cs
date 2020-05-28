@@ -97,7 +97,9 @@ namespace Smi.Common.Messaging
             while (keepTrying)
             {
                 bool timedOut;
-                bool ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out timedOut);
+                bool ok;
+                lock (_oSendLock)
+                    ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out timedOut);
 
                 if (timedOut)
                 {
@@ -126,20 +128,21 @@ namespace Smi.Common.Messaging
         /// <returns></returns>
         protected IMessageHeader SendMessageImpl(IMessage message, IMessageHeader inResponseTo = null, string routingKey = "")
         {
+            byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message,convertoptions));
+
+            /* Temporary round-trip corruption check JS 2020-05-28 */
+            JsonConvert.DeserializeObject(Encoding.UTF8.GetString(body));
+
+            _messageBasicProperties.Timestamp = new AmqpTimestamp(MessageHeader.UnixTimeNow());
+            _messageBasicProperties.Headers = new Dictionary<string, object>();
+
+            IMessageHeader header = inResponseTo != null ? new MessageHeader(inResponseTo) : new MessageHeader();
+            header.Populate(_messageBasicProperties.Headers);
+
             lock (_oSendLock)
-            {
-                byte[] body = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(message); // Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message,convertoptions));
-
-                _messageBasicProperties.Timestamp = new AmqpTimestamp(MessageHeader.UnixTimeNow());
-                _messageBasicProperties.Headers = new Dictionary<string, object>();
-
-                IMessageHeader header = inResponseTo != null ? new MessageHeader(inResponseTo) : new MessageHeader();
-                header.Populate(_messageBasicProperties.Headers);
-
                 _model.BasicPublish(_exchangeName, routingKey, true, _messageBasicProperties, body);
 
-                return header;
-            }
+            return header;
         }
 
         private void Fatal(BasicReturnEventArgs a)

@@ -489,7 +489,10 @@ namespace Microservices.DicomRelationalMapper.Tests
                 identifierMapperHost.Start();
                 tester.StopOnDispose.Add(identifierMapperHost);
 
-                new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
+                new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount+ dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount >= 1);
+                if (dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount > 0)
+                    Assert.Fail($"AccessionDirectoryMessageConsumer failed: {dicomTagReaderHost.AccessionDirectoryMessageConsumer.lastnackreason}");
+
                 logger.Info("\n### DicomTagReader has processed its messages ###\n");
 
                 // FIXME: This isn't exactly how the pipeline runs
