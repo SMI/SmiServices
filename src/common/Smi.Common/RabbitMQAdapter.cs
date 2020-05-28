@@ -358,9 +358,16 @@ namespace Smi.Common
 
             while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
             {
+                byte[] msgbody=null;
                 BasicDeliverEventArgs e;
                 BasicGetResult r=null;
-                try { r=m.BasicGet(queuename, false); }
+                try {
+                    lock(m)
+                    {
+                        r = m.BasicGet(queuename, false);
+                        msgbody = r.Body.ToArray();
+                    }
+                }
                 catch (OperationInterruptedException)
                 { // Do nothing: loop will exit if connection closed.
                 }
@@ -368,7 +375,6 @@ namespace Smi.Common
                     Thread.Sleep(500);
                 else
                 {
-                    Trace.Assert(r.Body.Length==r.Body.ToArray().Length);
                     e = new BasicDeliverEventArgs("", r.DeliveryTag, r.Redelivered, r.Exchange, r.RoutingKey, r.BasicProperties, r.Body);
                     if (_threaded)
                     {
@@ -377,7 +383,7 @@ namespace Smi.Common
                             worklock.EnterReadLock();
                             try
                             {
-                                consumer.ProcessMessage(e);
+                                consumer.ProcessMessage(e, msgbody);
                             }
                             finally
                             {
@@ -386,7 +392,7 @@ namespace Smi.Common
                         }, cancellationToken);
                     }
                     else
-                        consumer.ProcessMessage(e);
+                        consumer.ProcessMessage(e, msgbody);
                 }
             }
             if (_threaded)

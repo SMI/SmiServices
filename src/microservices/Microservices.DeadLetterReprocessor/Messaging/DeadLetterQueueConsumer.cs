@@ -49,7 +49,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
         }
 
 
-        public override void ProcessMessage(BasicDeliverEventArgs deliverArgs)
+        public override void ProcessMessage(BasicDeliverEventArgs deliverArgs, byte[] b)
         {
             Encoding enc = Encoding.UTF8;
             MessageHeader header;

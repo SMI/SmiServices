@@ -16,7 +16,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
         public IMessageHeader LastHeader { get; private set; }
         public BasicDeliverEventArgs LastDeliverArgs { get; private set; }
 
-        public override void ProcessMessage(BasicDeliverEventArgs ea)
+        public override void ProcessMessage(BasicDeliverEventArgs ea, byte[] b)
         {
             Encoding enc = Encoding.UTF8;
             MessageHeader header;

@@ -59,16 +59,9 @@ namespace Microservices.DicomTagReader.Tests.Messaging
 
         private void CheckAckNackCounts(DicomTagReaderConsumer consumer, int desiredAckCount, int desiredNackCount)
         {
-            var mockdeliverArgs = Mock.Of<BasicDeliverEventArgs>();
-            mockdeliverArgs.DeliveryTag = 1;
-            mockdeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_helper.TestAccessionDirectoryMessage));
-
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
-
-            consumer.SetModel(_mockModel);
-            consumer.ProcessMessage(mockdeliverArgs);
-
+            consumer.TestMessage(_helper.TestAccessionDirectoryMessage);
             Assert.AreEqual(desiredAckCount, consumer.AckCount);
             Assert.AreEqual(desiredNackCount, consumer.NackCount);
             Assert.False(fatalCalled);

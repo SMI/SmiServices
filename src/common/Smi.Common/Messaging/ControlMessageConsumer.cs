@@ -64,7 +64,7 @@ namespace Smi.Common.Messaging
         /// and shouldn't be included in any Ack/Nack counts
         /// </summary>
         /// <param name="e"></param>
-        public override void ProcessMessage(BasicDeliverEventArgs e)
+        public override void ProcessMessage(BasicDeliverEventArgs e, byte[] b)
         {
             try
             {

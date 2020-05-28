@@ -60,10 +60,9 @@ namespace Smi.Common.MessageSerialization
         /// <typeparam name="T">The type of <see cref="IMessage"/> to deserialize into.</typeparam>
         /// <param name="deliverArgs">The message and all associated information.</param>
         /// <returns></returns>
-        public static T DeserializeObject<T>(BasicDeliverEventArgs deliverArgs) where T : IMessage
+        public static T DeserializeObject<T>(byte[] a) where T : IMessage
         {
             //TODO This might crash if for some reason we have invalid Unicode points
-            var a = deliverArgs.Body.ToArray();
             return DeserializeObject<T>(Encoding.UTF8.GetString(a));
         }
     }

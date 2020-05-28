@@ -76,7 +76,7 @@ namespace Smi.Common.Messaging
             Model = model;
         }
 
-        public virtual void ProcessMessage(BasicDeliverEventArgs deliverArgs)
+        public virtual void ProcessMessage(BasicDeliverEventArgs deliverArgs, byte[] msg)
         {
             lock (_oConsumeLock)
             {
@@ -118,7 +118,7 @@ namespace Smi.Common.Messaging
 
             try
             {
-                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage message))
+                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, msg, out TMessage message))
                     return;
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
             }
@@ -151,11 +151,11 @@ namespace Smi.Common.Messaging
         /// <param name="iMessage"></param>
         /// <returns></returns>
         /// </summary>
-        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, out T iMessage) where T : IMessage
+        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, byte[] msg, out T iMessage) where T : IMessage
         {
             try
             {
-                iMessage = JsonConvert.DeserializeObject<T>(deliverArgs);
+                iMessage = JsonConvert.DeserializeObject<T>(msg);
                 return true;
             }
             catch (Newtonsoft.Json.JsonSerializationException e)

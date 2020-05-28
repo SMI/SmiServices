@@ -20,7 +20,7 @@ namespace Smi.Common.Messaging
         /// Process a message received by the adapter.
         /// </summary>
         /// <param name="basicDeliverEventArgs">The message and all associated information.</param>
-        void ProcessMessage(BasicDeliverEventArgs basicDeliverEventArgs);
+        void ProcessMessage(BasicDeliverEventArgs basicDeliverEventArgs, byte[] b);
 
         /// <summary>
         /// 
