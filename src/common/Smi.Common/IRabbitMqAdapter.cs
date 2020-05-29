@@ -19,6 +19,8 @@ namespace Smi.Common
 
         void Shutdown(TimeSpan timeout);
 
+        IConnection Conn { get; }
+
         // Dreams of .NET Core 3.0...
         // void Shutdown() => Shutdown(TimeSpan.FromSeconds(5));
     }

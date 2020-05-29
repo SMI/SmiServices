@@ -29,13 +29,13 @@ namespace Smi.Common.Messaging
         private readonly string _processName;
         private readonly string _processId;
 
-        private readonly IConnectionFactory _factory;
+        private readonly IConnection _conn;
 
         private const string ControlQueueBindingKey = "smi.control.all.*";
 
 
         public ControlMessageConsumer(
-            [NotNull] IConnectionFactory connectionFactory,
+            [NotNull] IConnection conn,
             [NotNull] string processName,
             int processId,
             [NotNull] string controlExchangeName,
@@ -48,7 +48,7 @@ namespace Smi.Common.Messaging
 
             ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            _factory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _conn = conn ?? throw new ArgumentNullException(nameof(conn));
 
             if (controlExchangeName == null)
                 throw new ArgumentNullException(nameof(controlExchangeName));
@@ -147,8 +147,7 @@ namespace Smi.Common.Messaging
         /// </summary>
         public override void Shutdown()
         {
-            using (IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueShutdown"))
-            using (IModel model = connection.CreateModel())
+            using (IModel model = _conn.CreateModel())
             {
                 Logger.Debug("Deleting control queue: " + ControlConsumerOptions.QueueName);
                 model.QueueDelete(ControlConsumerOptions.QueueName);
@@ -168,8 +167,7 @@ namespace Smi.Common.Messaging
         /// <param name="options"></param>
         private void SetupControlQueueForHost(string controlExchangeName)
         {
-            using (IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueSetup"))
-            using (IModel model = connection.CreateModel())
+            using (IModel model = _conn.CreateModel())
             {
                 try
                 {

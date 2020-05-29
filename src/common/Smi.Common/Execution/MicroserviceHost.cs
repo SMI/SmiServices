@@ -125,7 +125,7 @@ namespace Smi.Common.Execution
             {
                 ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
                 RabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
-                _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, globals.RabbitOptions.RabbitMqControlExchangeName, this.Stop);
+                _controlMessageConsumer = new ControlMessageConsumer(RabbitMqAdapter.Conn, HostProcessName, HostProcessID, globals.RabbitOptions.RabbitMqControlExchangeName, this.Stop);
             }
 
             ObjectFactory = new MicroserviceObjectFactory();

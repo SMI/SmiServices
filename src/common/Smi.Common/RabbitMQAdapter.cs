@@ -47,7 +47,7 @@ namespace Smi.Common
         private readonly HostFatalHandler _hostFatalHandler;
         private readonly string _hostId;
 
-        private readonly IConnection _conn;
+        public IConnection Conn { get; private set; }
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new Dictionary<Guid, RabbitResources>();
         private readonly object _oResourceLock = new object();
 
@@ -82,9 +82,9 @@ namespace Smi.Common
                     _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
             }
 
-            _conn = connectionFactory.CreateConnection();
-            _conn.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
-            _conn.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked");
+            Conn = connectionFactory.CreateConnection();
+            Conn.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
+            Conn.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked");
 
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("hostId");
@@ -96,10 +96,10 @@ namespace Smi.Common
 
             _hostFatalHandler = hostFatalHandler;
 
-            if (!_conn.ServerProperties.ContainsKey("version"))
+            if (!Conn.ServerProperties.ContainsKey("version"))
                 throw new ApplicationException("Could not get RabbitMQ server version");
 
-            string version = Encoding.UTF8.GetString((byte[])_conn.ServerProperties["version"]);
+            string version = Encoding.UTF8.GetString((byte[])Conn.ServerProperties["version"]);
             string[] split = version.Split('.');
 
             // TODO: This check is actually wrong. It'll reject 4.0.0 as being lower than 3.7.0...
@@ -138,7 +138,7 @@ namespace Smi.Common
             string label = string.Format("{0}::Consumer::{1}", _hostId, consumerOptions.QueueName);
 
 
-            IModel model = _conn.CreateModel();
+            IModel model = Conn.CreateModel();
             consumer.SetModel(model);
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
@@ -230,7 +230,7 @@ namespace Smi.Common
                 throw new ArgumentException("The given producer options have invalid values");
 
             //NOTE: IModel objects are /not/ thread safe
-            IModel model = _conn.CreateModel();
+            IModel model = Conn.CreateModel();
             model.ConfirmSelect();
 
             try
@@ -295,7 +295,7 @@ namespace Smi.Common
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
-            IModel model = _conn.CreateModel();
+            IModel model = Conn.CreateModel();
 
             lock (_oResourceLock)
             {
@@ -365,7 +365,7 @@ namespace Smi.Common
                     lock(m)
                     {
                         r = m.BasicGet(queuename, false);
-                        msgbody = r.Body.ToArray();
+                        msgbody = r?.Body.ToArray();
                     }
                 }
                 catch (OperationInterruptedException)
