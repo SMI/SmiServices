@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Bump fo-dicom.Drawing from 4.0.4 to 4.0.5
 - Bump HIC.BadMedicine.Dicom from 0.0.5 to 0.0.6
 - Pinned fo-dicom.NetCore to 4.0.5
+- IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
 
 ## [1.8.1] - 2020-04-17
 
