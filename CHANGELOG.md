@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Catalogues listed must include one or more column(s) StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID.
   - Records in the referenced table will blacklist where any UID is found (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID).  This allows blacklisting an entire study or only specific images.
 - Change the extraction directory generation to be `<projname>/image-requests/<extractname>`. Fixes [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
+- IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
 
 ### Fixed
 

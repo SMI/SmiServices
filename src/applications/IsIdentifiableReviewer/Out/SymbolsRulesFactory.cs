@@ -6,8 +6,30 @@ using Microservices.IsIdentifiable.Reporting;
 
 namespace IsIdentifiableReviewer.Out
 {
+    /// <summary>
+    /// Determines which bits of a failure get converted to corresponding symbols
+    /// </summary>
+    public enum SymbolsRuleFactoryMode
+    {
+        /// <summary>
+        /// Generates rules that match characters [A-Z]/[a-z] (depending on capitalization of input string) and digits \d
+        /// </summary>
+        Full,
+        /// <summary>
+        /// Generates rules that match any digits using \d
+        /// </summary>
+        DigitsOnly,
+
+        /// <summary>
+        /// Generates rules that match any characters with [A-Z]/[a-z] (depending on capitalization of input string)
+        /// </summary>
+        CharactersOnly
+    }
+
     public class SymbolsRulesFactory : IRulePatternFactory
     {
+        public SymbolsRuleFactoryMode Mode { get; set; }
+
         /// <summary>
         /// Returns just the failing parts expressed as digits and wrapped in capture group(s) e.g. ^(\d\d-\d\d-\d\d).*([A-Z][A-Z])
         /// </summary>
@@ -31,10 +53,10 @@ namespace IsIdentifiableReviewer.Out
 
                 foreach (char cur in p.Word)
                 {
-                    if (char.IsDigit(cur))
+                    if (char.IsDigit(cur) && Mode != SymbolsRuleFactoryMode.CharactersOnly)
                         sb.Append("\\d");
                     else
-                    if (char.IsLetter(cur))
+                    if (char.IsLetter(cur) && Mode != SymbolsRuleFactoryMode.DigitsOnly)
                         sb.Append(char.IsUpper(cur) ? "[A-Z]" : "[a-z]");
                     else
                         sb.Append(Regex.Escape(cur.ToString()));

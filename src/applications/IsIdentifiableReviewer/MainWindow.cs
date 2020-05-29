@@ -542,11 +542,13 @@ namespace IsIdentifiableReviewer
              var recommendedPattern = defaultFactory.GetPattern(sender,failure);
             
              Dictionary<string,string> buttons = new Dictionary<string, string>();
-             buttons.Add("Clear","");
-             buttons.Add("Full",_origIgnorerRulesFactory.GetPattern(sender,failure));
-             buttons.Add("Captures",_origUpdaterRulesFactory.GetPattern(sender,failure));
+             buttons.Add("x","");
+             buttons.Add("F",_origIgnorerRulesFactory.GetPattern(sender,failure));
+             buttons.Add("G",_origUpdaterRulesFactory.GetPattern(sender,failure));
              
-             buttons.Add("Symbols",new SymbolsRulesFactory().GetPattern(sender,failure));
+             buttons.Add(@"\d",new SymbolsRulesFactory {Mode= SymbolsRuleFactoryMode.DigitsOnly}.GetPattern(sender,failure));
+             buttons.Add(@"\c",new SymbolsRulesFactory{Mode= SymbolsRuleFactoryMode.CharactersOnly}.GetPattern(sender,failure));
+             buttons.Add(@"\d\c",new SymbolsRulesFactory().GetPattern(sender,failure));
 
              if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen,buttons))
              {
