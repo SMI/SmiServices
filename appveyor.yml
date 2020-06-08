@@ -9,7 +9,6 @@ services:
   - mongodb
   
 before_build:
-- dotnet restore --packages ./packages
 - choco install opencover.portable
 - choco install rabbitmq
 
