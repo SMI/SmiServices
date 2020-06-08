@@ -47,7 +47,7 @@ namespace Microservices.DicomTagReader.Tests
             tester.CreateExchange(Options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, new ConsumerOptions { QueueName = TestSeriesQueueName });
             tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, new ConsumerOptions { QueueName = TestImageQueueName });
             tester.CreateExchange(Options.RabbitOptions.FatalLoggingExchange, null);
-            tester.CreateExchange(Options.RabbitOptions.RabbitMqControlExchangeName, null);
+            tester.CreateExchange(Options.RabbitOptions.RabbitMqControlExchangeName, null, false, ExchangeType.Topic);
             tester.Shutdown();
 
             _testConnection = new ConnectionFactory

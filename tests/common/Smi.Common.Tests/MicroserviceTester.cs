@@ -18,7 +18,6 @@ namespace Smi.Common.Tests
 
         private readonly List<string> _declaredExchanges = new List<string>();
         private readonly List<string> _declaredQueues = new List<string>();
-        private readonly ConnectionFactory _factory;
 
         /// <summary>
         /// When true, will delete any created queues/exchanges when Dispose is called. Can set to false to inspect
@@ -41,17 +40,7 @@ namespace Smi.Common.Tests
 
             _adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
 
-            _factory = new ConnectionFactory
-            {
-                HostName = rabbitOptions.RabbitMqHostName,
-                Port = rabbitOptions.RabbitMqHostPort,
-                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
-                UserName = rabbitOptions.RabbitMqUserName,
-                Password = rabbitOptions.RabbitMqPassword
-            };
-
-            using (var con = _factory.CreateConnection())
-            using (var model = con.CreateModel())
+            using (var model = _adapter.Conn.CreateModel())
             {
                 //get rid of old exchanges
                 model.ExchangeDelete(rabbitOptions.RabbitMqControlExchangeName);
@@ -137,15 +126,14 @@ namespace Smi.Common.Tests
         /// <param name="isSecondaryBinding">false to create an entirely new Exchange=>Queue (including deleting any existing queue/exchange). False to simply declare the 
         /// queue and bind it to the exchange which is assumed to already exist (this allows you to set up exchange=>multiple queues).  If you are setting up multiple queues
         /// from a single exchange the first call should be isSecondaryBinding = false and all further calls after that for the same exchange should be isSecondaryBinding=true </param>
-        public void CreateExchange(string exchangeName, ConsumerOptions consumerIfAny, bool isSecondaryBinding = false)
+        public void CreateExchange(string exchangeName, ConsumerOptions consumerIfAny, bool isSecondaryBinding = false, string exchangetype=ExchangeType.Direct)
         {
             if (!exchangeName.Contains("TEST."))
                 exchangeName = exchangeName.Insert(0, "TEST.");
 
             string queueName = consumerIfAny != null ? consumerIfAny.QueueName : exchangeName;
 
-            using (var con = _factory.CreateConnection())
-            using (var model = con.CreateModel())
+            using (var model = _adapter.Conn.CreateModel())
             {
                 //setup a sender channel for each of the consumers you want to test sending messages to
 
@@ -157,7 +145,7 @@ namespace Smi.Common.Tests
 
                 //Create a binding between the exchange and the queue
                 if (!isSecondaryBinding)
-                    model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
+                    model.ExchangeDeclare(exchangeName, exchangetype, true);//durable seems to be needed because RabbitMQAdapter wants it?
 
                 model.QueueDeclare(queueName, true, false, false); //shared with other users
                 model.QueueBind(queueName, exchangeName, "");
@@ -186,8 +174,7 @@ namespace Smi.Common.Tests
 
             if (CleanUpAfterTest)
             {
-                using (IConnection conn = _factory.CreateConnection())
-                using (IModel model = conn.CreateModel())
+                using (IModel model = _adapter.Conn.CreateModel())
                 {
                     _declaredExchanges.ForEach(x => model.ExchangeDelete(x));
                     _declaredQueues.ForEach(x => model.QueueDelete(x));
