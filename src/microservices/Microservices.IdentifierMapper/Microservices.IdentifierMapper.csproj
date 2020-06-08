@@ -18,7 +18,7 @@
     <None Include="IdentifierMapper.cd" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.1.30" />
+    <PackageReference Include="StackExchange.Redis" Version="2.1.50" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.4" />
   </ItemGroup>
   <ItemGroup>
