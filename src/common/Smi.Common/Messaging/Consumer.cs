@@ -214,7 +214,7 @@ namespace Smi.Common.Messaging
             foreach (IMessageHeader header in batchHeaders)
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(latestDeliveryTag, true);
+            Model?.BasicAck(latestDeliveryTag, true);
             AckCount += batchHeaders.Count;
         }
 
