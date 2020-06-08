@@ -1,4 +1,4 @@
-
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +28,7 @@ namespace Smi.Common.Messaging
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
-        public event ConsumerFatalHandler OnFatal;
+        public event ConsumerFatalHandler? OnFatal;
 
         /// <summary>
         /// Why the last Nack was sent
@@ -41,7 +41,7 @@ namespace Smi.Common.Messaging
         private readonly object _oConsumeLock = new object();
         private bool _exiting;
 
-        protected IModel Model;
+        protected IModel? Model;
 
         public virtual void Shutdown()
         {
@@ -92,7 +92,7 @@ namespace Smi.Common.Messaging
             // Control messages (no header) are handled in their own ProcessMessage implementation
 
             Encoding enc = Encoding.UTF8;
-            MessageHeader header=null;
+            MessageHeader? header=null;
 
             try
             {
@@ -118,9 +118,14 @@ namespace Smi.Common.Messaging
 
             try
             {
-                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, msg, out TMessage message))
-                    return;
+                SafeDeserializeToMessage<TMessage>(header, deliverArgs, msg, out TMessage message);
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
+            }
+            catch (Newtonsoft.Json.JsonSerializationException e)
+            {
+                // Deserialization exception - Can never process this message
+                Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
+                ErrorAndNack(header, deliverArgs.DeliveryTag, $"JSON error '{ deliverArgs.Body.ToArray() }', due to '{e}' - {e.Data})", e);
             }
             catch (Exception e)
             {
@@ -129,9 +134,9 @@ namespace Smi.Common.Messaging
         }
 
 
-        protected abstract void ProcessMessageImpl(IMessageHeader header, TMessage message, ulong tag);
+        protected abstract void ProcessMessageImpl(IMessageHeader? header, TMessage message, ulong tag);
 
-        public void TestMessage(TMessage message,IMessageHeader header=null)
+        public void TestMessage(TMessage message,IMessageHeader? header=null)
         {
             try
             {
@@ -151,23 +156,9 @@ namespace Smi.Common.Messaging
         /// <param name="iMessage"></param>
         /// <returns></returns>
         /// </summary>
-        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, byte[] msg, out T iMessage) where T : IMessage
+        protected void SafeDeserializeToMessage<T>(IMessageHeader? header, BasicDeliverEventArgs deliverArgs, byte[] msg, out T iMessage) where T : IMessage?
         {
-            try
-            {
-                iMessage = JsonConvert.DeserializeObject<T>(msg);
-                return true;
-            }
-            catch (Newtonsoft.Json.JsonSerializationException e)
-            {
-                // Deserialization exception - Can never process this message
-
-                Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-                ErrorAndNack(header, deliverArgs.DeliveryTag, $"{DeserializationMessage<T>()} ('{ deliverArgs.Body.ToArray() }', due to '{e}' - {e.Data})", e);
-
-                iMessage = default(T);
-                return false;
-            }
+            iMessage = JsonConvert.DeserializeObject<T>(msg);
         }
 
         /// <summary>
@@ -176,11 +167,11 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void DiscardSingleMessage(ulong tag)
         {
-            Model.BasicNack(tag, multiple: false, requeue: false);
+            Model?.BasicNack(tag, multiple: false, requeue: false);
             NackCount++;
         }
 
-        protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
+        protected virtual void ErrorAndNack(IMessageHeader? header, ulong tag, string message, Exception exception)
         {
             lastnackreason = message;
             if (header != null)
@@ -233,7 +224,7 @@ namespace Smi.Common.Messaging
 
                 _exiting = true;
 
-                ConsumerFatalHandler onFatal = OnFatal;
+                ConsumerFatalHandler? onFatal = OnFatal;
 
                 if (onFatal != null)
                 {
