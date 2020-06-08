@@ -29,7 +29,6 @@ namespace Microservices.DicomRelationalMapper.Tests
     {
         private DicomRelationalMapperTestHelper _helper;
         private GlobalOptions _globals;
-        private MicroserviceTester tester;
 
         [OneTimeSetUp]
         public void Setup()
@@ -46,12 +45,6 @@ namespace Microservices.DicomRelationalMapper.Tests
             //creates the queues, exchanges and bindings
             var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
             tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
-        }
-
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-            tester?.Shutdown();
         }
 
         [Test]
@@ -183,23 +176,16 @@ namespace Microservices.DicomRelationalMapper.Tests
             using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
             {
                 host.Start();
+                foreach (var f in files)
+                    host.Consumer.TestMessage(_helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, f), new MessageHeader());
 
-                using (var timeline = new TestTimeline(tester))
-                {
-                    foreach (var f in files)
-                        host.Consumer.TestMessage(_helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, f),new MessageHeader());
+                new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1, null, 30000, () => host.Consumer.DleErrors);
 
-                    //start the timeline
-                    timeline.StartTimeline();
+                Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1, null, 30000, () => host.Consumer.DleErrors);
-
-                    Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                    host.Stop("Test end");
-                }
+                host.Stop("Test end");
             }
         }
 
