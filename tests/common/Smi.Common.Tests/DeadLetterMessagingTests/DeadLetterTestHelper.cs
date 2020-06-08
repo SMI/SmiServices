@@ -20,7 +20,6 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
 
         private RabbitMqAdapter _testAdapter;
 
-        private IConnection _testConnection;
         public IModel TestModel;
 
         public ProducerModel TestProducer;
@@ -35,19 +34,9 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
         {
             TestLogger.Setup();
             GlobalOptions = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _testAdapter = new RabbitMqAdapter(GlobalOptions.RabbitOptions.CreateConnectionFactory(), "TestHost");
 
-            var testConnectionFactory = new ConnectionFactory
-            {
-                HostName = GlobalOptions.RabbitOptions.RabbitMqHostName,
-                Port = GlobalOptions.RabbitOptions.RabbitMqHostPort,
-                VirtualHost = GlobalOptions.RabbitOptions.RabbitMqVirtualHost,
-                UserName = GlobalOptions.RabbitOptions.RabbitMqUserName,
-                Password = GlobalOptions.RabbitOptions.RabbitMqPassword
-            };
-
-            _testConnection = testConnectionFactory.CreateConnection("TestConnection");
-
-            TestModel = _testConnection.CreateModel();
+            TestModel = _testAdapter.Conn.CreateModel();
             TestModel.ConfirmSelect();
 
             IBasicProperties props = TestModel.CreateBasicProperties();
@@ -81,8 +70,6 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
             };
 
             PurgeQueues();
-
-            _testAdapter = new RabbitMqAdapter(GlobalOptions.RabbitOptions.CreateConnectionFactory(), "TestHost");
         }
 
         public void ResetSuite()
@@ -105,7 +92,6 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
             }
 
             TestModel.Close();
-            _testConnection.Close();
 
             _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
         }
