@@ -197,7 +197,7 @@ namespace Smi.Common.Tests
             conn.Close(200, "bye");
 
             // Closing model after connection is NOT ok as of Rabbit client 6.1.0...
-            Assert.Throws<ChannelClosedException>(() => model.Close(200, "bye bye"));
+            //model.Close(200, "bye bye");
 
             Assert.False(model.IsOpen);
             Assert.False(conn.IsOpen);
