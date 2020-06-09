@@ -17,12 +17,14 @@ namespace Smi.Common.Messaging
 
         public void BasicAck(ulong n,bool multiple=false)
         {
-            m.BasicAck(n, multiple);
+            lock(m)
+                m.BasicAck(n, multiple);
         }
 
         public void BasicNack(ulong n,bool multiple=false,bool requeue=false)
         {
-            m.BasicNack(n, multiple, requeue);
+            lock(m)
+                m.BasicNack(n, multiple, requeue);
         }
 
         // Only used in unit testing, in the SelfClosing test case.
