@@ -34,14 +34,14 @@ namespace Smi.Common.Messaging
         /// Why the last Nack was sent
         /// </summary>
         public string? lastnackreason { get; private set; }
-
+        public uint MessageCount { get; set; }
 
         protected readonly ILogger Logger;
 
         private readonly object _oConsumeLock = new object();
         private bool _exiting;
 
-        protected IModel? Model;
+        protected Acker? Model;
 
         public virtual void Shutdown()
         {
@@ -68,11 +68,8 @@ namespace Smi.Common.Messaging
         }
 
 
-        public void SetModel(IModel model)
+        public void SetModel(Acker model)
         {
-            if (model.IsClosed)
-                throw new ArgumentException("Model is closed");
-
             Model = model;
         }
 

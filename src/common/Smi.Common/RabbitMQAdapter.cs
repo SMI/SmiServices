@@ -139,7 +139,7 @@ namespace Smi.Common
 
 
             IModel model = Conn.CreateModel();
-            consumer.SetModel(model);
+            consumer.SetModel(new Acker(model));
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
             // Check queue exists
@@ -372,7 +372,10 @@ namespace Smi.Common
                 { // Do nothing: loop will exit if connection closed.
                 }
                 if (r == null)
+                {
+                    consumer.MessageCount = 0;
                     Thread.Sleep(500);
+                }
                 else
                 {
                     e = new BasicDeliverEventArgs("", r.DeliveryTag, r.Redelivered, r.Exchange, r.RoutingKey, r.BasicProperties, r.Body);
@@ -392,7 +395,10 @@ namespace Smi.Common
                         }, cancellationToken);
                     }
                     else
+                    {
                         consumer.ProcessMessage(e, msgbody);
+                        consumer.MessageCount = r.MessageCount;
+                    }
                 }
             }
             if (_threaded)

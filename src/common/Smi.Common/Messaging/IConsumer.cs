@@ -10,11 +10,13 @@ namespace Smi.Common.Messaging
     /// </summary>
     public interface IConsumer
     {
+        public uint MessageCount { get; set; }
+
         /// <summary>
         /// Set the <see cref="IModel"/> which messages will be processed with
         /// </summary>
         /// <param name="model"></param> 
-        void SetModel(IModel model);
+        void SetModel(Acker model);
 
         /// <summary>
         /// Process a message received by the adapter.

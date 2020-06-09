@@ -46,7 +46,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
         {
             _deadLetterStore = deadLetterStore;
 
-            _model = model;
+            _model = model ?? throw new ArgumentNullException("model");
             _model.ConfirmSelect();
 
             _props = _model.CreateBasicProperties();
@@ -54,12 +54,6 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
             _props.ContentType = "application/json";
             _props.Persistent = true;
             _props.Headers = new Dictionary<string, object>();
-
-            if(model == null)
-                throw new ArgumentNullException("model");
-
-            _model = model;
-            _model.ConfirmSelect();
 
             //TODO Add this to RabbitOptions & implement in RabbitAdapter
             _confirmTimeout = TimeSpan.FromMilliseconds(5000);

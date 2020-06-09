@@ -1,6 +1,7 @@
 ﻿
 using RabbitMQ.Client;
 using Smi.Common.Messages;
+using Smi.Common.Messaging;
 
 namespace Microservices.MongoDBPopulator.Execution.Processing
 {
@@ -29,7 +30,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         /// <summary>
         /// Model to acknowledge messages on
         /// </summary>
-        IModel Model { get; set; }
+        Acker Model { get; set; }
 
         /// <summary>
         /// Count of the total number of acknowledged messages during this processors lifetime

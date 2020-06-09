@@ -202,18 +202,6 @@ namespace Smi.Common.Tests
             Assert.False(conn.IsOpen);
         }
 
-        [Test]
-        public void TestWaitAfterChannelClosed()
-        {
-            IModel model = _testAdapter.GetModel("TestConnection");
-            model.ConfirmSelect();
-
-            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
-
-            Assert.True(model.IsClosed);
-            Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
-        }
-
         [TestCase(typeof(SelfClosingConsumer))]
         [TestCase(typeof(DoNothingConsumer))]
         public void Test_Shutdown(Type consumerType)
