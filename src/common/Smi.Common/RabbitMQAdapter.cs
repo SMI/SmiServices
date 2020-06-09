@@ -134,10 +134,6 @@ namespace Smi.Common
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
-            // Client label is the same for the IConnection and Subscription since we have a separate connection per consumer
-            string label = string.Format("{0}::Consumer::{1}", _hostId, consumerOptions.QueueName);
-
-
             IModel model = Conn.CreateModel();
             consumer.SetModel(new Acker(model));
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);

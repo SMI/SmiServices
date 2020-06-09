@@ -122,7 +122,7 @@ namespace Smi.Common.Messaging
             {
                 // Deserialization exception - Can never process this message
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-                ErrorAndNack(header, deliverArgs.DeliveryTag, $"JSON error '{ deliverArgs.Body.ToArray() }', due to '{e}' - {e.Data})", e);
+                ErrorAndNack(header, deliverArgs.DeliveryTag, $"JSON error '{e}' - {e.Data})", e);
             }
             catch (Exception e)
             {
