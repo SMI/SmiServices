@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using NLog;
 using RabbitMQ.Client;
 using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         /// <summary>
         /// Model to use when sending ACK for messages
         /// </summary>
-        public IModel Model { get; set; }
+        public Acker Model { get; set; }
 
         /// <inheritdoc />
         /// <summary>

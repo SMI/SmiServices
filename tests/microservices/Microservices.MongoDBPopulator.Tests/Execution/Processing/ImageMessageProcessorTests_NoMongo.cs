@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
@@ -52,7 +53,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             mockModel.Setup(x => x.BasicAck(It.Is<ulong>(y => y == ulong.MaxValue), It.IsAny<bool>()))
                 .Callback(() => throw new Exception("BasicAck called with delivery tag for CT message"));
 
-            processor.Model = mockModel.Object;
+            processor.Model = new Acker(mockModel.Object);
 
             var ds = new DicomDataset();
             var msg = new DicomFileMessage

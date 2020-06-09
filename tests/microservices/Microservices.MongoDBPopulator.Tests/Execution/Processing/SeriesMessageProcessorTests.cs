@@ -9,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
@@ -73,7 +74,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
                 .Setup(x => x.WriteMany(It.IsAny<IList<BsonDocument>>(), It.IsAny<string>()))
                 .Returns(WriteResult.Failure);
 
-            var processor = new SeriesMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { }) { Model = Mock.Of<IModel>() };
+            var processor = new SeriesMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { }) { Model = new Acker(Mock.Of<IModel>()) };
 
             Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(_helper.TestSeriesMessage, new MessageHeader(), 1));
         }
@@ -95,7 +96,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             var processor = new SeriesMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback)
             {
-                Model = Mock.Of<IModel>()
+                Model = new Acker(Mock.Of<IModel>())
             };
 
             // Max queue size set to 1 so will immediately process this
