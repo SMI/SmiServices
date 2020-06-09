@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using NLog;
 using NLog.Targets;
+using System.Threading.Channels;
 
 namespace Smi.Common.Tests
 {
@@ -195,8 +196,8 @@ namespace Smi.Common.Tests
             conn.Close(200, "bye");
             conn.Close(200, "bye");
 
-            // Closing model after connection is ok
-            model.Close(200, "bye bye");
+            // Closing model after connection is NOT ok as of Rabbit client 6.1.0...
+            Assert.Throws<ChannelClosedException>(() => model.Close(200, "bye bye"));
 
             Assert.False(model.IsOpen);
             Assert.False(conn.IsOpen);
