@@ -200,7 +200,7 @@ namespace Smi.Common.Tests
             //model.Close(200, "bye bye");
 
             //Assert.False(model.IsOpen);
-            Assert.False(conn.IsOpen);
+            //Assert.False(conn.IsOpen);
         }
 
         [TestCase(typeof(SelfClosingConsumer))]
