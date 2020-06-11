@@ -28,9 +28,6 @@ namespace Smi.Common.Messaging
         private readonly int _maxRetryAttempts;
         private const int ConfirmTimeoutMs = 5000;
 
-        // Used to stop messages being produced if we are in the process of crashing out
-        private readonly object _oSendLock = new object();
-
         private readonly JsonSerializerSettings convertoptions = new JsonSerializerSettings()
         {
             StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
@@ -101,7 +98,7 @@ namespace Smi.Common.Messaging
             {
                 bool timedOut;
                 bool ok;
-                lock (_oSendLock)
+                lock (_model)
                     ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out timedOut);
 
                 if (timedOut)
@@ -142,7 +139,7 @@ namespace Smi.Common.Messaging
             IMessageHeader header = inResponseTo != null ? new MessageHeader(inResponseTo) : new MessageHeader();
             header.Populate(_messageBasicProperties.Headers);
 
-            lock (_oSendLock)
+            lock (_model)
                 _model.BasicPublish(_exchangeName, routingKey, true, _messageBasicProperties, body);
 
             return header;
@@ -150,7 +147,7 @@ namespace Smi.Common.Messaging
 
         private void Fatal(BasicReturnEventArgs a)
         {
-            lock (_oSendLock)
+            lock (_model)
             {
                 if (OnFatal != null)
                     OnFatal.Invoke(this, a);
