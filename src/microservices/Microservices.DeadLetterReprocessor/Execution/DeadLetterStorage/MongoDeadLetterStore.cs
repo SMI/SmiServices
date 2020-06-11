@@ -75,7 +75,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
 
             try
             {
-                Ping();
+                Ping(5000);
             }
             catch (ApplicationException e)
             {
