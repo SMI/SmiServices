@@ -12,7 +12,8 @@ namespace Smi.Common
                 VirtualHost = options.RabbitMqVirtualHost,
                 Port = options.RabbitMqHostPort,
                 UserName = options.RabbitMqUserName,
-                Password = options.RabbitMqPassword
+                Password = options.RabbitMqPassword,
+                AutomaticRecoveryEnabled = true
             };
     }
 }
