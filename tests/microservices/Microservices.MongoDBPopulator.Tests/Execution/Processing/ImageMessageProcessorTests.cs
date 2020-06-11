@@ -187,7 +187,10 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions, "largeDocumentTest");
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 2, null);
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 2, null)
+            {
+                Model = new Acker(Mock.Of<IModel>())
+            };
 
             var dataset = new DicomDataset
             {
