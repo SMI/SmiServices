@@ -192,15 +192,15 @@ namespace Smi.Common.Tests
             model.Close(200, "bye");
             model.Close(200, "bye");
 
-            // Closing connection twice is ok
+            // Closing connection twice is NOT ok any more
             conn.Close(200, "bye");
-            conn.Close(200, "bye");
+            //conn.Close(200, "bye");
 
-            // Closing model after connection is NOT ok as of Rabbit client 6.1.0...
-            //model.Close(200, "bye bye");
+            // Closing model after connection is still ok
+            model.Close(200, "bye bye");
 
-            //Assert.False(model.IsOpen);
-            //Assert.False(conn.IsOpen);
+            Assert.False(model.IsOpen);
+            Assert.False(conn.IsOpen);
         }
 
         [TestCase(typeof(SelfClosingConsumer))]
