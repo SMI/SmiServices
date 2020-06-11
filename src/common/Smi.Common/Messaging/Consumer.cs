@@ -173,7 +173,7 @@ namespace Smi.Common.Messaging
             NackCount++;
         }
 
-        protected virtual void ErrorAndNack(IMessageHeader? header, ulong tag, string message, Exception exception)
+        protected virtual void ErrorAndNack(IMessageHeader? header, ulong tag, string? message, Exception? exception)
         {
             lastnackreason = message;
             if (header != null)
@@ -187,7 +187,7 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="header"></param>
         /// <param name="deliverEventArgs"></param>
-        protected void Ack(IMessageHeader header, ulong tag)
+        protected void Ack(IMessageHeader? header, ulong tag)
         {
             if (header != null)
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
