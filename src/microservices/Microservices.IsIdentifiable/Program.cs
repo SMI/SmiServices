@@ -57,7 +57,7 @@ namespace Microservices.IsIdentifiable
                     return -5;
                 }
 
-                var config = new NLog.Config.XmlLoggingConfiguration(location, false);
+                var config = new NLog.Config.XmlLoggingConfiguration(location);
                 LogManager.Configuration = config;
 
                 return GetParser()
