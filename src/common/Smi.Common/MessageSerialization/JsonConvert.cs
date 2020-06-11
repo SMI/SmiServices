@@ -2,7 +2,6 @@
 using Smi.Common.Messages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using RabbitMQ.Client.Events;
 using System.Collections.Generic;
 using System.Text;
 
