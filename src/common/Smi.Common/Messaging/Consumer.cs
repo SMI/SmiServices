@@ -36,6 +36,8 @@ namespace Smi.Common.Messaging
         public string? lastnackreason { get; private set; }
         public uint MessageCount { get; set; }
 
+        private readonly List<ulong> _retriedtags = new List<ulong>();
+
         protected readonly ILogger Logger;
 
         private readonly object _oConsumeLock = new object();
@@ -81,10 +83,6 @@ namespace Smi.Common.Messaging
                     return;
             }
 
-            // Handled by RabbitMQ adapter in normal operation - only an issue in testing I think
-            if (Model == null)
-                throw new NullReferenceException("Model not set - use SetModel before processing messages");
-
             // If we did not receive a valid header, ditch the message and continue.
             // Control messages (no header) are handled in their own ProcessMessage implementation
 
@@ -122,7 +120,14 @@ namespace Smi.Common.Messaging
             {
                 // Deserialization exception - Can never process this message
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
+                if (_retriedtags.Contains(deliverArgs.DeliveryTag)) 
                 ErrorAndNack(header, deliverArgs.DeliveryTag, $"JSON error '{e}' - {e.Data})", e);
+                else
+                {
+                    // Trigger a single retry to guard against Rabbit frame corruption.
+                    _retriedtags.Add(deliverArgs.DeliveryTag);
+                    Model?.BasicNack(deliverArgs.DeliveryTag, false, true);
+                }
             }
             catch (Exception e)
             {
