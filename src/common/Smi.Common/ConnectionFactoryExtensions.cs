@@ -13,7 +13,8 @@ namespace Smi.Common
                 Port = options.RabbitMqHostPort,
                 UserName = options.RabbitMqUserName,
                 Password = options.RabbitMqPassword,
-                AutomaticRecoveryEnabled = true
+                AutomaticRecoveryEnabled = true,
+                UseBackgroundThreadsForIO = true
             };
     }
 }
