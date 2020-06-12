@@ -60,6 +60,23 @@ namespace Smi.Common
         private readonly bool _threaded;
 
         /// <summary>
+		/// Get a new Model object from the connection, retrying if necessary
+		/// </summary>
+        internal IModel GetModel(uint attempts=3)
+        {
+            try
+            {
+                return Conn.CreateModel();
+            } catch(Exception)
+            {
+                if (attempts > 0)
+                    return GetModel(attempts - 1);
+                throw;
+            }
+        }
+
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="connectionFactory"></param>
@@ -134,7 +151,7 @@ namespace Smi.Common
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
-            IModel model = Conn.CreateModel();
+            IModel model = GetModel();
             consumer.SetModel(new Acker(model));
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
@@ -226,7 +243,7 @@ namespace Smi.Common
                 throw new ArgumentException("The given producer options have invalid values");
 
             //NOTE: IModel objects are /not/ thread safe
-            IModel model = Conn.CreateModel();
+            IModel model = GetModel();
             model.ConfirmSelect();
 
             try
@@ -291,7 +308,7 @@ namespace Smi.Common
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
-            IModel model = Conn.CreateModel();
+            IModel model = GetModel();
 
             lock (_oResourceLock)
             {
