@@ -99,7 +99,14 @@ namespace Smi.Common.Messaging
                 bool timedOut;
                 bool ok;
                 lock (_model)
+                    try
+                    {
                     ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out timedOut);
+                    } catch (Exception)
+                    {
+                        ok = false;
+                        timedOut = true;
+                    }
 
                 if (timedOut)
                 {
