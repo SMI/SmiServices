@@ -114,6 +114,9 @@ BasicRules:
  - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^Lung *[0-9\.]* *Lung *HRCT *Sharp$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^FBP I123 DaTScan \[Photopeak\] Sharp$
 
  # MySQL results
  - Action: Ignore
@@ -181,20 +184,43 @@ BasicRules:
    IfColumn: ProcedureCodeSequence_CodeValue
    IfPattern: ^MTSPN$
  - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^nmren$
+ - Action: Ignore
+   IfColumn: ProcedureCodeSequence_CodeValue
+   IfPattern: ^nbknb$
+
+ - Action: Ignore
    IfColumn: SeriesDescription
    IfPattern: ^WB Standard$
  - Action: Ignore
    IfColumn: SeriesDescription
+   IfPattern: ^WB Immed$
+ - Action: Ignore
+   IfColumn: SeriesDescription
    IfPattern: ^[0-9 ]*INSPIRATIO$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^AC CT WB$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^nm vq right sagittal images$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^scr wb bone$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^scr ge solid$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^mict cys$
+
  - Action: Ignore
    IfColumn: ProtocolName
    IfPattern: ^Thorax_Liv$
  - Action: Ignore
    IfColumn: ProtocolName
    IfPattern: ^COR FIESTA$
- - Action: Ignore
-   IfColumn: SeriesDescription
-   IfPattern: ^AC CT WB$
  - Action: Ignore
    IfColumn: ProtocolName
    IfPattern: ^Abdo Non Contrast$
@@ -1082,7 +1108,7 @@ BasicRules:
    IfPattern: ^nm bone pelvis and hips spect ct$
  - Action: Ignore
    IfColumn: StudyDescription
-   IfPattern: ^nm hepatobiliary function scan and stim$
+   IfPattern: ^nm hepatobiliary function scan (and|&) stim$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^nm lymphoscintigram$
@@ -1113,6 +1139,12 @@ BasicRules:
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^nm white cell indium 111 scan spect ct$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm white cell hmpao injection & scan 1$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^nm sentinel node localisation & imaging$
  - Action: Ignore
    IfColumn: StudyDescription
    IfPattern: ^orthopaedic.knee .8 channel coil.$
@@ -1591,3 +1623,34 @@ BasicRules:
  - Action: Ignore
    IfColumn: PerformedProcedureStepDescription
    IfPattern: ^sch.del$
+ - Action: Ignore
+   IfColumn: PerformedProcedureStepDescription
+   IfPattern: ^nm hepatobiliary function scan (and|&) stim$
+
+ - Action: Ignore
+   As: Date
+   IfPattern: Octreoscan
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^RIE WB Bone$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^mibi$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^tomo hmpao$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^plao$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^prpo$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPattern: ^nora_20_summary$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr$
+ - Action: Ignore
+   IfColumn: StudyDescription
+   IfPattern: ^mr( |\\_)(pelvis|pituitary|prostate|prostate|pelvis gynaecological|rectum|liver|spine|spine cervical|lumbar|lumbar spine|right knee)$

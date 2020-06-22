@@ -67,3 +67,15 @@ BasicRules:
  - Action: Ignore
    IfColumn: PrivateCreator
    IfPattern: TOSHIBA_MEC_CT
+
+WhiteListRules:
+
+# SIEMENS
+- Action: Ignore
+  IfColumn: SeriesDescription
+  IfPartPattern: ^siemens$
+  IfPattern: ^siemens muga
+- Action: Ignore
+  IfColumn: ReconstructionMethod
+  IfPartPattern: ^(siemens|butterworth)$
+  IfPattern: ^osem.*siemens
