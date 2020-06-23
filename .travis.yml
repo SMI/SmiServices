@@ -69,8 +69,8 @@ jobs:
     - for i in `find . -type d -name netcoreapp3.1`; do if [ ! -e $i/default.yaml ]; then ln data/microserviceConfigs/default.yaml $i/ ; fi ; done
     - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build
     - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
-    - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
-    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
+    - mvn -ntp -f src/common/com.smi.microservices.parent/pom.xml clean test
+    - mvn -ntp -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
 
     - |
       if [ ! -z "$TRAVIS_TAG" ]
@@ -81,8 +81,8 @@ jobs:
           dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
         done
         ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
-        mvn -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable -DskipTests
-        mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package -DskipTests
+        mvn -ntp -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable -DskipTests
+        mvn -ntp -f src/microservices/uk.ac.dundee.hic.nerd/ package -DskipTests
         for filename in $(find ./src -name "*deploy-distribution.zip")
         do
           base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
