@@ -27,7 +27,7 @@ namespace Smi.Common.Tests
 
         private MicroserviceTester _tester;
 
-        private Consumer _mockConsumer;
+        private Consumer<IMessage> _mockConsumer;
         private GlobalOptions _testOptions;
 
 
@@ -54,7 +54,7 @@ namespace Smi.Common.Tests
                 AutoAck = false
             };
 
-            _mockConsumer = Mock.Of<Consumer>();
+            _mockConsumer = Mock.Of<Consumer<IMessage>>();
 
             _testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
 

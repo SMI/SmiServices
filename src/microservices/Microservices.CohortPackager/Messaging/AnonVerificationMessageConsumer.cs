@@ -11,7 +11,7 @@ namespace Microservices.CohortPackager.Messaging
     /// <summary>
     /// Consumer for <see cref="IsIdentifiableMessage"/>(s)
     /// </summary>
-    public class AnonVerificationMessageConsumer : Consumer
+    public class AnonVerificationMessageConsumer : Consumer<IsIdentifiableMessage>
     {
         private readonly IExtractJobStore _store;
 
@@ -22,11 +22,8 @@ namespace Microservices.CohortPackager.Messaging
         }
 
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs ea)
+        protected override void ProcessMessageImpl(IMessageHeader header, IsIdentifiableMessage message, ulong tag)
         {
-            if (!SafeDeserializeToMessage(header, ea, out IsIdentifiableMessage message))
-                return;
-
             try
             {
                 _store.PersistMessageToStore(message, header);
@@ -34,11 +31,11 @@ namespace Microservices.CohortPackager.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-                ErrorAndNack(header, ea, "Error while processing IsIdentifiableMessage", e);
+                ErrorAndNack(header, tag, "Error while processing IsIdentifiableMessage", e);
                 return;
             }
 
-            Ack(header, ea);
+            Ack(header, tag);
         }
     }
 }

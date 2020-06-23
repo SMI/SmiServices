@@ -43,25 +43,31 @@ namespace Smi.Common.Tests
 
     }
 
-    public class TestConsumer : Consumer
+    // Dummy IMessage for message testing purposes
+    public class TestMessage : IMessage
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+
+    }
+
+    public class TestConsumer : Consumer<TestMessage>
+    {
+        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
         {
             throw new Exception("Throwing to trigger Fatal");
         }
     }
 
-    public class DoNothingConsumer : Consumer
+    public class DoNothingConsumer : Consumer<TestMessage>
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
         {
-            
+
         }
     }
 
-    public class SelfClosingConsumer : Consumer
+    public class SelfClosingConsumer : Consumer<TestMessage>
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs basicDeliverEventArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
         {
             Model.Close();
         }

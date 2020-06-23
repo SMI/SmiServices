@@ -1,2 +1,2 @@
-﻿MySql: 'server=127.0.0.1;Uid=root;Pwd=;Ssl-Mode=None'
+﻿MySql: 'server=127.0.0.1;Uid=root;Pwd=;sslmode=None'
 SqlServer: 'Server=localhost;User Id=sa;Password=YourStrong!Passw0rd;'

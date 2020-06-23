@@ -92,10 +92,11 @@ namespace Microservices.CohortExtractor.Tests
         {
             var db = GetCleanedServer(dbType);
 
-            //create table with 100 rows
-            var tbl = BuildExampleExtractionTable(db, "CT", 100,true);
+            //create table with 300 rows to ensure at least two studies
+            const int testrows = 300;
+            var tbl = BuildExampleExtractionTable(db, "CT", testrows, true);
 
-            Assert.AreEqual(100,tbl.GetRowCount());
+            Assert.AreEqual(testrows, tbl.GetRowCount());
 
             var cata = Import(tbl);
             
@@ -116,7 +117,7 @@ namespace Microservices.CohortExtractor.Tests
             
             //The strategy pattern implementation that goes to the database but also considers reason
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cata});
-            fulfiller.Rejector = useDynamic? (IRejector) new DynamicRejector():new TestRejector();
+            fulfiller.Rejectors.Add(useDynamic? (IRejector) new DynamicRejector():new TestRejector());
             
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
@@ -125,7 +126,7 @@ namespace Microservices.CohortExtractor.Tests
             }
 
             //currently all images are extractable
-            Assert.AreEqual(100,matches);
+            Assert.AreEqual(testrows, matches);
 
             //now make 10 not extractable
             using (var con = tbl.Database.Server.GetConnection())
@@ -152,7 +153,7 @@ namespace Microservices.CohortExtractor.Tests
                 Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason.Equals("We decided NO!")));
             }
 
-            Assert.AreEqual(90,matches);
+            Assert.AreEqual(testrows-10, matches);
             Assert.AreEqual(10, rejections);
 
         }

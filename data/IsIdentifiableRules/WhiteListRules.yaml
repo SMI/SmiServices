@@ -6,73 +6,73 @@ WhiteListRules:
  # Things which NER classifies as a Person but clearly are not
  - Action: Ignore
    IfPartPattern: ^SAFIRE$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Topogram$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Urogram$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Pneumocolon$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Mesinteric$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^ABDO$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Angio$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^HRCT$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPattern: Circle of Willis
    IfPartPattern: ^Willis$
  - Action: Ignore
    IfPartPattern: ^Surestart$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Kidneys$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Angiogram$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^CT$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^CT$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^CTPA$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^CTPA$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^(IAM|IAMS)$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^ISO$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^Pel$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Pelvis$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Colo$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^SEC$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^SPECT$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^AIF$
@@ -133,7 +133,7 @@ WhiteListRules:
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^CRIC$
-   IfClassification: Organization
+   As: Organization
  # These have no Column or Class qualifiers because they are so common and clearly not a Person or Organization
  - Action: Ignore
    IfPartPattern: ^AC$
@@ -286,11 +286,11 @@ WhiteListRules:
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^Vertex$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^Vertex$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^TOSH$
    IfPattern: CT TOSH
@@ -322,10 +322,10 @@ WhiteListRules:
  - Action: Ignore
    IfPattern: Low Dose
    IfPartPattern: Low
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: Dose
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPattern: Body Low Dose
    IfPartPattern: ^Body$
@@ -377,3 +377,236 @@ WhiteListRules:
    IfColumn: SeriesDescription
    IfPartPattern: Pha
 
+ # tnind added for NM modality 2020-05-05
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorGridName
+   IfPartPattern: ^LEHR$
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorGridName
+   IfPartPattern: ^LEPINH$  # NOTE(rkm 2020-05-13) Low energy pinhole
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorGridName
+   IfPartPattern: ^HEGP$  # NOTE(rkm 2020-05-13) High energy general purpose
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorType
+   IfPartPattern: ^ASTG$
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorType
+   IfPartPattern: ^PINH$  # NOTE(rkm 2020-05-13) Pinhole
+ - Action: Ignore
+   IfColumn: DetectorInformation_CollimatorType
+   IfPartPattern: ^PARA$
+ - Action: Ignore
+   IfPartPattern: ^UNKN$
+ - Action: Ignore
+   IfPartPattern: ^OSEM$
+ - Action: Ignore
+   IfPartPattern: ^HMPAO$
+ - Action: Ignore
+   IfPartPattern: ^VXHR$
+ - Action: Ignore
+   IfPartPattern: ^EVO$
+ - Action: Ignore
+   IfPartPattern: ^GE$
+ - Action: Ignore
+   IfPartPattern: ^SPOT\d+$
+ - Action: Ignore
+   IfPartPattern: ^RRACSC$
+ - Action: Ignore
+   IfPartPattern: ^FBP$
+ - Action: Ignore
+   IfPartPattern: ^SPET$
+ - Action: Ignore
+   IfPartPattern: Indium
+ - Action: Ignore
+   IfPartPattern: ^Krypton$
+ - Action: Ignore
+   IfPartPattern: YORKHILL
+ - Action: Ignore
+   IfPartPattern: RHSC
+ - Action: Ignore
+   IfPartPattern: Renogram
+ - Action: Ignore
+   IfPartPattern: Motility
+ - Action: Ignore
+   IfPartPattern: Review
+ - Action: Ignore
+   IfPartPattern: GRI
+ - Action: Ignore
+   IfPartPattern: Lymph
+ - Action: Ignore
+   IfPartPattern: Sentinel
+ - Action: Ignore
+   IfPartPattern: Analysis
+ - Action: Ignore
+   IfPartPattern: DMSA\d\d
+ - Action: Ignore
+   IfPartPattern: RAO  # NOTE(rkm 2020-05-13) Right Anterior Oblique Position
+ - Action: Ignore
+   IfPartPattern: LPO  # NOTE(rkm 2020-05-13) Left Posterior Oblique Position
+ - Action: Ignore
+   IfPartPattern: Muga  # NOTE(rkm 2020-05-13) Multi-Gated Acquisition
+ - Action: Ignore
+   IfColumn: ReconstructionMethod
+   IfPartPattern: Gauss
+ - Action: Ignore
+   IfPartPattern: ^LEHR$  # NOTE(rkm 2020-05-13) Low-energy high-resolution
+ - Action: Ignore
+   IfPartPattern: Infection
+ - Action: Ignore
+   As: Organization
+   IfPartPattern: Plane
+ - Action: Ignore
+   As: Organization
+   IfPartPattern: Slice
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: ^(sa|sc)$
+   As: Organization
+ - Action: Ignore
+   IfPartPattern: Corrected
+   As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^rie$
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: Octreo
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^wbc$
+   As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^rie$
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^tektrotyd$
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^mibg$
+   As: Person
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: ^octreotide$
+   As: Organization
+ - Action: Ignore
+   IfPartPattern: ^osteomylitis$
+   As: Person
+ - Action: Ignore
+   IfPartPattern: ^mra$
+   As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^sc$
+   As: Organization
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: ^gad$
+   As: Person
+ - Action: Ignore
+   IfColumn: ProtocolName
+   IfPartPattern: mr$
+   As: Person
+ - Action: Ignore  # NOTE(rkm 2020-05-19) Matches a specific date-like format which looks like some other reference
+   IfColumn: StudyDescription
+   IfPattern: ^\(\d{5}\/\d+\/\d+(..\d+)?\)-\(\d{5}\/\d+\/\d+(..\d+)?\)$
+ - Action: Ignore
+   IfColumn: SeriesDescription
+   IfPartPattern: ^multiplanar reconstruction$
+ - Action: Ignore
+   IfPartPattern: ^Cor$
+ - Action: Ignore
+   IfPartPattern: ^Gad$
+ - Action: Ignore
+   IfPartPattern: ^Upper$
+ - Action: Ignore
+   IfPartPattern: ^Ortho$
+ - Action: Ignore
+   IfPartPattern: ^SEG$
+ - Action: Ignore
+   IfPartPattern: ^PMA$
+ - Action: Ignore
+   IfPartPattern: ^Vena$
+ - Action: Ignore
+   IfPartPattern: ^Axial Dixon$
+ - Action: Ignore
+   IfPartPattern: ^Cor Dixon$
+ - Action: Ignore
+   IfPartPattern: ^Knee$
+ - Action: Ignore
+   IfPartPattern: ^Dixon$
+ - Action: Ignore
+   IfPartPattern: ^DTI$
+ - Action: Ignore
+   IfPartPattern: ^DSC$
+ - Action: Ignore
+   IfPartPattern: ^SAG$
+ - Action: Ignore
+   IfPartPattern: ^Post$
+ - Action: Ignore
+   IfPartPattern: ^LA$
+ - Action: Ignore
+   IfPartPattern: ^FS$
+ - Action: Ignore
+   IfPartPattern: ^SA$
+ - Action: Ignore
+   IfPartPattern: ^DESS$
+ - Action: Ignore
+   IfPartPattern: ^ABER$
+ - Action: Ignore
+   IfPartPattern: ^Bolus$
+ - Action: Ignore
+   IfPartPattern: ^MVO$
+ - Action: Ignore
+   IfPartPattern: ^LPA$
+ - Action: Ignore
+   IfPartPattern: ^Upper$
+ - Action: Ignore
+   IfPartPattern: ^Lower$
+ - Action: Ignore
+   IfPartPattern: ^PRI$
+ - Action: Ignore
+   IfPartPattern: ^AP$
+ - Action: Ignore
+   IfPartPattern: ^Lumbar$
+ - Action: Ignore
+   IfPartPattern: ^Localiser$
+ - Action: Ignore
+   IfPartPattern: ^AX Post$
+ - Action: Ignore
+   IfPartPattern: ^EC$
+ - Action: Ignore
+   IfPartPattern: ^ARI$
+ - Action: Ignore
+   IfPartPattern: ^SA$
+ - Action: Ignore
+   IfPartPattern: ^CSP$
+ - Action: Ignore
+   IfPartPattern: ^Ven$
+ - Action: Ignore
+   IfPartPattern: ^Ven moco$
+ - Action: Ignore
+   IfPartPattern: ^MoCo$
+ - Action: Ignore
+   IfPartPattern: ^DTI$
+ - Action: Ignore
+   IfPartPattern: ^VLA$
+ - Action: Ignore
+   IfPartPattern: ^LMS$
+ - Action: Ignore
+   IfPartPattern: ^LG$
+ - Action: Ignore
+   IfPartPattern: ^DESC$
+ - Action: Ignore
+   IfPartPattern: ^ASC$
+ - Action: Ignore
+   IfPartPattern: ^CSPAMM$
+ - Action: Ignore
+   IfPartPattern: ^Tossi$
+ - Action: Ignore
+   IfPartPattern: ^DTI$

@@ -11,7 +11,7 @@ namespace Microservices.CohortPackager.Messaging
 {    /// <summary>
      /// Consumer for <see cref="ExtractionRequestInfoMessage"/>(s)
      /// </summary>
-    public class ExtractionRequestInfoMessageConsumer : Consumer
+    public class ExtractionRequestInfoMessageConsumer : Consumer<ExtractionRequestInfoMessage>
     {
         private readonly IExtractJobStore _store;
 
@@ -21,11 +21,8 @@ namespace Microservices.CohortPackager.Messaging
             _store = store;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs ea)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestInfoMessage message, ulong tag)
         {
-            if (!SafeDeserializeToMessage(header, ea, out ExtractionRequestInfoMessage message))
-                return;
-
             try
             {
                 _store.PersistMessageToStore(message, header);
@@ -33,11 +30,11 @@ namespace Microservices.CohortPackager.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-                ErrorAndNack(header, ea, "Error while processing ExtractionRequestInfoMessage", e);
+                ErrorAndNack(header, tag, "Error while processing ExtractionRequestInfoMessage", e);
                 return;
             }
 
-            Ack(header, ea);
+            Ack(header, tag);
         }
     }
 }

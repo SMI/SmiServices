@@ -30,7 +30,6 @@ namespace Microservices.DicomRelationalMapper.Execution
             var namer = configuration.DatabaseNamer;
 
             DiscoveredServer server = job.LoadMetadata.GetDistinctLiveDatabaseServer();
-            server.EnableAsync();
 
             //Drop any STAGING tables that already exist
             foreach (var table in job.RegularTablesToLoad)
@@ -60,8 +59,6 @@ namespace Microservices.DicomRelationalMapper.Execution
             {
                 con.Open();
 
-                var running = new List<Task>();
-
                 Stopwatch sw = Stopwatch.StartNew();
 
                 foreach (TableInfo table in job.RegularTablesToLoad)
@@ -88,22 +85,19 @@ namespace Microservices.DicomRelationalMapper.Execution
                     job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "About to send SQL:" + sql));
 
                     DbCommand cmd = server.GetCommand(sql, con);
-                    running.Add(cmd.ExecuteNonQueryAsync());
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Error, "Failed to migrate rows", ex));
+                        throw;
+                    }
                 }
 
                 sw.Stop();
-
-                try
-                {
-                    Task.WaitAll(running.ToArray());
-                }
-                catch (AggregateException e)
-                {
-                    foreach(Exception ex in e.InnerExceptions)
-                        job.OnNotify(this,new NotifyEventArgs(ProgressEventType.Error,"Failed to migrate rows",ex));
-
-                    throw;
-                }
                 
                 job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "Migrated all rows using INSERT INTO in " + sw.ElapsedMilliseconds + "ms"));
             }

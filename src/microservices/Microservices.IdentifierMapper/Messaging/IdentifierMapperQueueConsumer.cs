@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Microservices.IdentifierMapper.Messaging
 {
-    public class IdentifierMapperQueueConsumer : Consumer
+    public class IdentifierMapperQueueConsumer : Consumer<DicomFileMessage>
     {
         public bool AllowRegexMatching { get; set; }
 
@@ -21,7 +21,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
         private readonly Regex _patientIdRegex = new Regex("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
-        BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,BasicDeliverEventArgs>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, BasicDeliverEventArgs>>();
+        private readonly BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,ulong>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, ulong>>();
         private Thread acker;
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
@@ -34,18 +34,18 @@ namespace Microservices.IdentifierMapper.Messaging
                 {
                     while (true)
                     {
-                        List<Tuple<IMessageHeader, BasicDeliverEventArgs>> done = new List<Tuple<IMessageHeader, BasicDeliverEventArgs>>();
-                        Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs> t;
+                        List<Tuple<IMessageHeader, ulong>> done = new List<Tuple<IMessageHeader, ulong>>();
+                        Tuple<DicomFileMessage, IMessageHeader, ulong> t;
                         t = msgq.Take();
 
                         lock (_producer)
                         {
                             _producer.SendMessage(t.Item1, t.Item2, "");
-                            done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                            done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
                             while (msgq.TryTake(out t))
                             {
                                 _producer.SendMessage(t.Item1, t.Item2, "");
-                                done.Add(new Tuple<IMessageHeader, BasicDeliverEventArgs>(t.Item2, t.Item3));
+                                done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
                             }
                             _producer.WaitForConfirms();
                             foreach (var ack in done)
@@ -74,13 +74,8 @@ namespace Microservices.IdentifierMapper.Messaging
             acker.Join();
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, BasicDeliverEventArgs deliverArgs)
+        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage msg, ulong tag)
         {
-            DicomFileMessage msg;
-
-            if (!SafeDeserializeToMessage(header, deliverArgs, out msg))
-                return;
-
             string errorReason = null;
             var success = false;
 
@@ -106,19 +101,19 @@ namespace Microservices.IdentifierMapper.Messaging
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
 
-                ErrorAndNack(header, deliverArgs, "Error while processing DicomFileMessage", e);
+                ErrorAndNack(header, tag, "Error while processing DicomFileMessage", e);
                 return;
             }
 
             if (!success)
             {
                 Logger.Info("Could not swap identifiers for message " + header.MessageGuid + ". Reason was: " + errorReason);
-                ErrorAndNack(header, deliverArgs, errorReason, null);
+                ErrorAndNack(header, tag, errorReason, null);
             }
             else
             {
                 // Enqueue the outgoing message. Request will be acked by the queue handling thread above.
-                msgq.Add(new Tuple<DicomFileMessage, IMessageHeader, BasicDeliverEventArgs>(msg, header, deliverArgs));
+                msgq.Add(new Tuple<DicomFileMessage, IMessageHeader, ulong>(msg, header, tag));
             }
         }
 
