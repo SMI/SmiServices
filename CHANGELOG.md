@@ -6,12 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Bump System.IO.Abstractions from 12.0.1 to 12.0.2
+- Bump System.IO.Abstractions.TestingHelpers from 12.0.1 to 12.0.2
+
+## [1.9.0] - 2020-06-22
+
 ### Added
 
 - Added image extraction blacklist rejector.
   - Configure with `Blacklists` option (specify a list of Catalogue IDs)
   - Catalogues listed must include one or more column(s) StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID.
   - Records in the referenced table will blacklist where any UID is found (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID).  This allows blacklisting an entire study or only specific images.
+  - [breaking] Config on live system may need updated
 - Change the extraction directory generation to be `<projname>/image-requests/<extractname>`. Fixes [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
 
 ### Fixed
@@ -26,10 +34,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Refactored `WhiteListRule` to inherit from `IsIdentifiableRule` (affects serialization).  
   - Parent property `As` replaces `IfClassification`
   - `CaseSensitive` replaces `IfPatternCaseSensitive` and `IfPartPatternCaseSensitive` (Also fixes serialization bug)
-- Bump HIC.DicomTypeTranslation from 2.2.2 to 2.3.0
-- Bump HIC.RDMP.Dicom from 2.1.0 to 2.1.3
-- Bump fo-dicom.Drawing from 4.0.4 to 4.0.5
+- Bump CommandLineParser from 2.7.82 to 2.8.0
+- Bump CsvHelper from 15.0.4 to 15.0.5
 - Bump HIC.BadMedicine.Dicom from 0.0.5 to 0.0.6
+- Bump HIC.DicomTypeTranslation from 2.2.2 to 2.3.0
+- Bump HIC.RDMP.Dicom from 2.0.9 to 2.1.5
+- Bump HIC.RDMP.Plugin from 4.0.2 to 4.1.3
+- Bump Magick.NET-Q16-AnyCPU from 7.16.0 to 7.20.0
+- Bump Microsoft.CodeAnalysis.CSharp.Scripting from 3.5.0 to 3.6.0
+- Bump Microsoft.Extensions.Caching.Memory from 3.1.3 to 3.1.5
+- Bump MongoDB.Driver from 2.10.3 to 2.10.4
+- Bump StackExchange.Redis from 2.1.30 to 2.1.58
+- Bump System.IO.Abstractions from 10.0.8 to 12.0.1
+- Bump YamlDotNet from 8.1.0 to 8.1.2
+- Bump fo-dicom.Drawing from 4.0.4 to 4.0.5
 - Pinned fo-dicom.NetCore to 4.0.5
 
 ## [1.8.1] - 2020-04-17
@@ -305,7 +323,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.8.1...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.9.0...develop
+[1.9.0]:  https://github.com/SMI/SmiServices/compare/v1.8.1...v1.9.0
 [1.8.1]:  https://github.com/SMI/SmiServices/compare/v1.8.0...v1.8.1
 [1.8.0]:  https://github.com/SMI/SmiServices/compare/v1.7.0...v1.8.0
 [1.7.0]:  https://github.com/SMI/SmiServices/compare/v1.6.0...v1.7.0
