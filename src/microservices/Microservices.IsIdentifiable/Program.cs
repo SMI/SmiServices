@@ -27,12 +27,6 @@ namespace Microservices.IsIdentifiable
 
         public static int Main(string[] args)
         {
-            if (!DicomDatasetHelpers.CorrectFoDicomVersion())
-            {
-                Console.WriteLine("Incorrect fo-dicom version for the current platform");
-                return 1;
-            }
-
             ImplementationManager.Load<MicrosoftSQLImplementation>();
             ImplementationManager.Load<MySqlImplementation>();
             ImplementationManager.Load<OracleImplementation>();
