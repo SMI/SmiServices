@@ -63,10 +63,10 @@ namespace Microservices.DicomRelationalMapper.Tests
                 dcm.Save(fi2.FullName);
             }
             
-            var adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.Date,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
+            var adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.Date,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
             adder.Execute();
 
-            adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.PrintRETIRED,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
+            adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.PrintRETIRED,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
             adder.Execute();
             
             fi.Delete();
@@ -193,7 +193,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 if (existingColumns.Any(c => c.GetRuntimeName().Equals(tag)))
                     continue;
 
-                var adder = new TagColumnAdder(tag, dataType, _helper.ImageTableInfo, new AcceptAllCheckNotifier(), false);
+                var adder = new TagColumnAdder(tag, dataType, _helper.ImageTableInfo, new AcceptAllCheckNotifier());
                 adder.SkipChecksAndSynchronization = true;
                 adder.Execute();
             }
