@@ -44,7 +44,7 @@ jobs:
     - MSSQL_PID='evaluation'
 
     before_install:
-    - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1=3.1.5-1
+    - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server dotnet-runtime-2.2 dotnet-sdk-3.1=3.1.5-1 dotnet-runtime-3.1=3.1.5-1
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
     install:
