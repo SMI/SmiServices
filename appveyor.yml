@@ -7,9 +7,16 @@ services:
   - mysql
   - postgresql101
   - mongodb
-  
+ 
+skip_commits:
+  files:
+    - '**/*.md'
+
+cache:
+  - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
+
 before_build:
-- cmd: if not defined COVERALLS_REPO_TOKEN appveyor exit
+- cmd: if not defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
 - choco install opencover.portable
 - choco install rabbitmq
 
