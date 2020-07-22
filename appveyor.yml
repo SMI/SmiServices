@@ -8,10 +8,6 @@ services:
   - postgresql101
   - mongodb
  
-skip_commits:
-  files:
-    - '**/*.md'
-
 cache:
   - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
 
