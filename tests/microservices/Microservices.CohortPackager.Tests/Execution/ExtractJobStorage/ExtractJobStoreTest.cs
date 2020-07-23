@@ -95,20 +95,34 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         public void TestPersistMessageToStore_IsIdentifiableMessage()
         {
             var testExtractJobStore = new TestExtractJobStore();
-            var message = new IsIdentifiableMessage();
             var header = new MessageHeader();
 
             // Must have AnonymisedFileName
+            var message = new IsIdentifiableMessage();
             message.AnonymisedFileName = "";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
-            // Must have report
+            // Report shouldn't be an empty string or null
+            message = new IsIdentifiableMessage();
             message.AnonymisedFileName = "anon.dcm";
             message.Report = "";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
-            // Otherwise ok
-            message.Report = "report";
+            // Report needs to contain content if marked as IsIdentifiable
+            message = new IsIdentifiableMessage();
+            message.AnonymisedFileName = "anon.dcm";
+            message.IsIdentifiable = true;
+            message.Report = "[]";
+            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
+            // NOTE(rkm 2020-07-23) The actual report content is verified to be valid the message consumer, so don't need to re-check here
+            message.Report = "['foo': 'bar']";
+            testExtractJobStore.PersistMessageToStore(message, header);
+
+            // Report can be empty if not marked as IsIdentifiable
+            message = new IsIdentifiableMessage();
+            message.AnonymisedFileName = "anon.dcm";
+            message.IsIdentifiable = false;
+            message.Report = "[]";
             testExtractJobStore.PersistMessageToStore(message, header);
         }
 

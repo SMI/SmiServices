@@ -59,6 +59,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
             if (string.IsNullOrWhiteSpace(message.Report))
                 throw new ApplicationException("Null or empty report data");
+            if (message.IsIdentifiable && message.Report == "[]")
+                throw new ApplicationException("No report data for message marked as identifiable");
 
             PersistMessageToStoreImpl(message, header);
         }
