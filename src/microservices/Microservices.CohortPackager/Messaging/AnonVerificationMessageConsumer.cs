@@ -30,7 +30,7 @@ namespace Microservices.CohortPackager.Messaging
             try
             {
                 // Check the report contents are valid, but don't do anything else with it for now
-                var _ = JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report);
+                JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report);
             }
             catch (JsonException e)
             {
