@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microservices.IsIdentifiable.Failures;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -34,20 +35,21 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             streamWriter.WriteLine();
 
             streamWriter.WriteLine("## Rejected files");
+            streamWriter.WriteLine();
             foreach ((string data, int count) in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
                 WriteJobRejections(streamWriter, data, count);
             streamWriter.WriteLine();
 
             streamWriter.WriteLine("## Anonymisation failures");
-            streamWriter.WriteLine("Expected anonymised file | Failure reason");
+            streamWriter.WriteLine();
             foreach ((string expectedAnonFile, string failureReason) in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
-                streamWriter.WriteLine($"{expectedAnonFile} {failureReason}");
+                WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
             streamWriter.WriteLine();
 
             streamWriter.WriteLine("## Verification failures");
-            streamWriter.WriteLine("Problem Field | Problem Value | Parts");
-            foreach ((string anonymisedFile, string failureReason) in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
-                WriteJobVerificationFailures(streamWriter, anonymisedFile, failureReason);
+            streamWriter.WriteLine();
+            foreach ((string anonymisedFile, string failureData) in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
+                WriteJobVerificationFailures(streamWriter, anonymisedFile, failureData);
             streamWriter.WriteLine();
 
             streamWriter.Flush();
@@ -75,17 +77,38 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         {
             // NOTE(rkm 2020-07-23) Cheekily using a count of -1 to indicate this is a new key, and avoid changing the method APIs
             if (count == -1)
-                streamWriter.WriteLine($"Key: {data}");
+                streamWriter.WriteLine($"- ID '{data}':");
             else
-                streamWriter.WriteLine($"    {data} x{count}");
+                streamWriter.WriteLine($"    - {count}x '{data}'");
         }
 
-        private static void WriteJobVerificationFailures(TextWriter streamWriter, string anonymisedFile, string failureReason)
+        private static void WriteAnonFailure(TextWriter streamWriter, string expectedAnonFile, string failureReason)
         {
-            streamWriter.WriteLine($"{anonymisedFile}:");
-            foreach (Failure failure in JsonConvert.DeserializeObject<IEnumerable<Failure>>(failureReason))
+            streamWriter.WriteLine($"- file '{expectedAnonFile}': '{failureReason}'");
+        }
+
+        private static void WriteJobVerificationFailures(TextWriter streamWriter, string anonymisedFile, string failureData)
+        {
+            IEnumerable<Failure> failures;
+            try
             {
-                streamWriter.WriteLine($"{failure.ProblemField} | {failure.ProblemValue} | {failure.Parts}");
+                failures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(failureData);
+            }
+            catch (JsonException e)
+            {
+                throw new ApplicationException("Could not deserialize report to IEnumerable<Failure>", e);
+            }
+
+            streamWriter.WriteLine($"- file '{anonymisedFile}':");
+            foreach (Failure failure in failures)
+            {
+                streamWriter.WriteLine("      (Problem Field | Problem Value)");
+                streamWriter.WriteLine($"    - {failure.ProblemField} | {failure.ProblemValue}");
+                streamWriter.WriteLine("         (Classification | Offset | Word)");
+                foreach (FailurePart part in failure.Parts)
+                {
+                    streamWriter.WriteLine($"       - {part.Classification} | {part.Offset} | {part.Word}");
+                }
             }
             streamWriter.WriteLine();
         }
