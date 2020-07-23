@@ -1,8 +1,10 @@
+using JetBrains.Annotations;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.IsIdentifiable.Reporting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using JetBrains.Annotations;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -23,38 +25,35 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         {
             ExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
 
-            using (Stream stream = GetStream(jobId))
-            {
-                using (var streamWriter = new StreamWriter(stream))
-                {
-                    streamWriter.WriteLine();
-                    foreach (string line in JobHeader(jobInfo))
-                        streamWriter.WriteLine(line);
-                    streamWriter.WriteLine();
+            using Stream stream = GetStream(jobId);
+            using var streamWriter = new StreamWriter(stream);
 
-                    streamWriter.WriteLine("Rejected files:");
-                    foreach ((string rejectReason, int count) in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
-                        streamWriter.WriteLine($"{rejectReason} x{count}");
-                    streamWriter.WriteLine();
+            streamWriter.WriteLine();
+            foreach (string line in JobHeader(jobInfo))
+                streamWriter.WriteLine(line);
+            streamWriter.WriteLine();
 
-                    streamWriter.WriteLine("Anonymisation failures:");
-                    streamWriter.WriteLine("Expected anonymised file | Failure reason");
-                    foreach ((string expectedAnonFile, string failureReason) in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
-                        streamWriter.WriteLine($"{expectedAnonFile} {failureReason}");
-                    streamWriter.WriteLine();
+            streamWriter.WriteLine("## Rejected files");
+            foreach ((string data, int count) in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
+                WriteJobRejections(streamWriter, data, count);
+            streamWriter.WriteLine();
 
-                    streamWriter.WriteLine("Verification failures:");
-                    streamWriter.WriteLine("Anonymised file | Failure reason");
-                    foreach ((string anonymisedFile, string failureReason) in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
-                        streamWriter.WriteLine($"{anonymisedFile} {failureReason}");
-                    streamWriter.WriteLine();
+            streamWriter.WriteLine("## Anonymisation failures");
+            streamWriter.WriteLine("Expected anonymised file | Failure reason");
+            foreach ((string expectedAnonFile, string failureReason) in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
+                streamWriter.WriteLine($"{expectedAnonFile} {failureReason}");
+            streamWriter.WriteLine();
 
-                    streamWriter.Flush();
+            streamWriter.WriteLine("## Verification failures");
+            streamWriter.WriteLine("Problem Field | Problem Value | Parts");
+            foreach ((string anonymisedFile, string failureReason) in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
+                WriteJobVerificationFailures(streamWriter, anonymisedFile, failureReason);
+            streamWriter.WriteLine();
 
-                    stream.Position = 0;
-                    FinishReport(stream);
-                }
-            }
+            streamWriter.Flush();
+
+            stream.Position = 0;
+            FinishReport(stream);
         }
 
         protected abstract Stream GetStream(Guid jobId);
@@ -64,13 +63,32 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private static IEnumerable<string> JobHeader(ExtractJobInfo jobInfo)
             => new[]
             {
-                $"Extraction completion report for job {jobInfo.ExtractionJobIdentifier}:",
+                $"# SMI file extraction report for {jobInfo.ProjectNumber}",
                 $"    Job submitted at:              {jobInfo.JobSubmittedAt}",
-                $"    Project number:                {jobInfo.ProjectNumber}",
+                $"    Job extraction id:             {jobInfo.ExtractionJobIdentifier}",
                 $"    Extraction tag:                {jobInfo.KeyTag}",
                 $"    Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",
                 $"    Requested identifier count:    {jobInfo.KeyValueCount}",
             };
+
+        private static void WriteJobRejections(TextWriter streamWriter, string data, int count)
+        {
+            // NOTE(rkm 2020-07-23) Cheekily using a count of -1 to indicate this is a new key, and avoid changing the method APIs
+            if (count == -1)
+                streamWriter.WriteLine($"Key: {data}");
+            else
+                streamWriter.WriteLine($"    {data} x{count}");
+        }
+
+        private static void WriteJobVerificationFailures(TextWriter streamWriter, string anonymisedFile, string failureReason)
+        {
+            streamWriter.WriteLine($"{anonymisedFile}:");
+            foreach (Failure failure in JsonConvert.DeserializeObject<IEnumerable<Failure>>(failureReason))
+            {
+                streamWriter.WriteLine($"{failure.ProblemField} | {failure.ProblemValue} | {failure.Parts}");
+            }
+            streamWriter.WriteLine();
+        }
 
         protected abstract void ReleaseUnmanagedResources();
         public abstract void Dispose();

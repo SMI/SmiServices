@@ -1,10 +1,13 @@
 ﻿
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.IsIdentifiable.Reporting;
+using Newtonsoft.Json;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
-using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
+
 
 namespace Microservices.CohortPackager.Messaging
 {
@@ -26,6 +29,17 @@ namespace Microservices.CohortPackager.Messaging
         {
             try
             {
+                // Check the report contents are valid, but don't do anything else with it for now
+                var _ = JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report);
+            }
+            catch (JsonException e)
+            {
+                ErrorAndNack(header, tag, "Could not deserialize message report to Failure object", e);
+                return;
+            }
+
+            try
+            {
                 _store.PersistMessageToStore(message, header);
             }
             catch (ApplicationException e)
@@ -35,6 +49,7 @@ namespace Microservices.CohortPackager.Messaging
                 return;
             }
 
+            // TODO(rkm 2020-07-23) Forgetting the "return" in either case above could mean that the message gets ackd - can we rearrange the logic to avoid this?
             Ack(header, tag);
         }
     }

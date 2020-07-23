@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Driver;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
@@ -311,8 +311,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             IAsyncCursor<MongoExpectedFilesDoc> cursor = _completedExpectedFilesCollection.FindSync(Builders<MongoExpectedFilesDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId));
             while (cursor.MoveNext())
                 foreach (MongoExpectedFilesDoc expectedFilesDoc in cursor.Current)
+                {
+                    yield return new Tuple<string, int>(expectedFilesDoc.Key, -1);
                     foreach ((string rejectReason, int count) in expectedFilesDoc.RejectedKeys.RejectionInfo)
                         yield return new Tuple<string, int>(rejectReason, count);
+                }
         }
 
         protected override IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId)

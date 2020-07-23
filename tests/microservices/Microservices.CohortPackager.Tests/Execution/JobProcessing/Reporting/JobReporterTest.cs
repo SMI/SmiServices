@@ -1,10 +1,11 @@
-﻿using System;
-using System.IO;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
@@ -83,9 +84,12 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 123,
                 "ZZ",
                 ExtractJobStatus.Completed);
-
-            var mockJobStore = new Mock<IExtractJobStore>();
+            
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, int>>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
 
             TestJobReporter reporter;
             using (reporter = new TestJobReporter(mockJobStore.Object))
@@ -95,20 +99,20 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string nl = Environment.NewLine;
             string expected = $@"
-Extraction completion report for job {jobId}:
+# SMI file extraction report for 1234
     Job submitted at:              {provider.UtcNow()}
-    Project number:                1234
+    Job extraction id:             {jobId}
     Extraction tag:                keyTag
     Extraction modality:           ZZ
     Requested identifier count:    123
 
-Rejected files:
+## Rejected files
 
-Anonymisation failures:
+## Anonymisation failures
 Expected anonymised file | Failure reason
 
-Verification failures:
-Anonymised file | Failure reason
+## Verification failures
+Problem Field | Problem Value | Parts
 
 ";
 
