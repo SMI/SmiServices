@@ -7,8 +7,12 @@ services:
   - mysql
   - postgresql101
   - mongodb
-  
+ 
+cache:
+  - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
+
 before_build:
+- cmd: if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
 - choco install opencover.portable
 - choco install rabbitmq
 
@@ -29,7 +33,7 @@ build_script:
   - ps: 7z x rdmp-cli-win-x64.zip -oC:\projects\smiservices\rdmp-cli
   - ps: C:\projects\smiservices\rdmp-cli\rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
-  - cmd: "\"C:/ProgramData/chocolatey/bin/OpenCover.Console.exe\" -target:\"c:/program files/dotnet/dotnet.exe\" -targetargs:\"test ./tests/run-all-tests.proj -c Release -p:BuildInParallel=false\" -filter:\"+[CohortExtractor]* +[CohortPackager]* +[DeadLetterReprocessor]* +[DicomRelationalMapper]* +[DicomReprocessor]* +[DicomTagReader]* +[IdentifierMapper]* +[IsIdentifiable]* +[MongoDbPopulator]* +[DicomDirectoryProcessor]* +[IsIdentifiableReviewer]* +[Smi.Common]* +[Smi.Common.MongoDb]* -[*NUnit*]*\"  -output:coverage.xml -register:appveyor -oldStyle -hideskipped:File"
+  - cmd: "\"C:/ProgramData/chocolatey/bin/OpenCover.Console.exe\" -returntargetcode -target:\"c:/program files/dotnet/dotnet.exe\" -targetargs:\"test ./tests/run-all-tests.proj -c Release -p:BuildInParallel=false\" -filter:\"+[CohortExtractor]* +[CohortPackager]* +[DeadLetterReprocessor]* +[DicomRelationalMapper]* +[DicomReprocessor]* +[DicomTagReader]* +[IdentifierMapper]* +[IsIdentifiable]* +[MongoDbPopulator]* +[DicomDirectoryProcessor]* +[IsIdentifiableReviewer]* +[Smi.Common]* +[Smi.Common.MongoDb]* -[*NUnit*]*\"  -output:coverage.xml -register:appveyor -oldStyle -hideskipped:File"
   - cmd: 'if defined COVERALLS_REPO_TOKEN %USERPROFILE%\\.nuget\\packages\\coveralls.io\\1.4.2\\tools\\coveralls.net.exe --opencover coverage.xml -r %COVERALLS_REPO_TOKEN%'
 
 test: off
