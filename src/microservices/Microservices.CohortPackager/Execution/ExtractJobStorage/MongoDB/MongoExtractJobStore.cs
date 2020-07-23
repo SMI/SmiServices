@@ -300,10 +300,15 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId)
         {
-            return _completedJobCollection
+            MongoCompletedExtractJobDoc jobDoc =
+                _completedJobCollection
                 .FindSync(Builders<MongoCompletedExtractJobDoc>.Filter.Eq(x => x.ExtractionJobIdentifier, jobId))
-                .Single()
-                .ToExtractJobInfo();
+                .SingleOrDefault();
+
+            if (jobDoc == null)
+                throw new ApplicationException($"No completed document for job {jobId}");
+
+            return jobDoc.ToExtractJobInfo();
         }
 
         protected override IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId)

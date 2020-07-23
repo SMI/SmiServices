@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Updated the extraction report to be more human-readable
+- Add CLI option to CohortPackager to allow an existing report to be recreated
 
 ### Dependencies
 
