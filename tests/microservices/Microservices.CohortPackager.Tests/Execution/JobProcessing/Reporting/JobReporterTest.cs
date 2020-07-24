@@ -87,7 +87,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, int>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
 
@@ -136,11 +136,15 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 "ZZ",
                 ExtractJobStatus.Completed);
 
-            var rejections = new List<Tuple<string, int>>
+            var rejections = new List<Tuple<string, Dictionary<string, int>>>
             {
-                new Tuple<string, int>("1.2.3.4", -1),
-                new Tuple<string, int>("image is in the deny list for extraction", 123),
-                new Tuple<string, int>("foo bar", 456),
+                new Tuple<string, Dictionary<string, int>>(
+                    "1.2.3.4",
+                    new Dictionary<string, int>
+                    {
+                        {"image is in the deny list for extraction", 123},
+                        {"foo bar", 456},
+                    }),
             };
 
             var anonFailures = new List<Tuple<string, string>>
@@ -254,7 +258,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, int>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
