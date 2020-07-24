@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- Updated the extraction report to be more human-readable
+
+### Dependencies
+
 - Bump System.IO.Abstractions from 12.0.1 to 12.0.2
 - Bump System.IO.Abstractions.TestingHelpers from 12.0.1 to 12.0.2
 
