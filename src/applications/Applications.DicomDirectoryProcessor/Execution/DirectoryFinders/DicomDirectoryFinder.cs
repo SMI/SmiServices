@@ -101,7 +101,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             var message = new AccessionDirectoryMessage
             {
                 DirectoryPath = dirPath,
-                NationalPACSAccessionNumber = Path.GetFileName(dirPath)
+                NationalPACSAccessionNumber = GetNationalPACSAccessionNumberFrom(dirPath)
             };
 
             _directoriesProducerModel.SendMessage(message, null);
@@ -114,6 +114,16 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             StringBuilder.Append(tl + "=" + elapsed + "ms ");
             Times[(int)tl].Add(elapsed);
             Stopwatch.Restart();
+        }
+
+        /// <summary>
+        /// Returns the accession directory for the supplied directory or null if accession number is not modelled in the file system layout
+        /// </summary>
+        /// <param name="dirPath">Subdirectories under root (not including root) e.g. sub_dir/sub_sub_dir</param>
+        /// <returns></returns>
+        protected virtual string GetNationalPACSAccessionNumberFrom(string dirPath)
+        {
+            return Path.GetFileName(dirPath);
         }
 
         protected string CalcAverages()
@@ -130,6 +140,11 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             }
 
             return sb.ToString();
+        }
+
+        protected virtual IEnumerable<IFileInfo> GetEnumerator(IDirectoryInfo dirInfo)
+        {
+            return dirInfo.EnumerateFiles(SearchPattern);
         }
     }
 }
