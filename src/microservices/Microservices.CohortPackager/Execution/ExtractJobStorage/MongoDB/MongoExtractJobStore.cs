@@ -311,16 +311,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             return jobDoc.ToExtractJobInfo();
         }
 
-        protected override IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId)
+        protected override IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejectionsImpl(Guid jobId)
         {
             IAsyncCursor<MongoExpectedFilesDoc> cursor = _completedExpectedFilesCollection.FindSync(Builders<MongoExpectedFilesDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId));
             while (cursor.MoveNext())
                 foreach (MongoExpectedFilesDoc expectedFilesDoc in cursor.Current)
-                {
-                    yield return new Tuple<string, int>(expectedFilesDoc.Key, -1);
-                    foreach ((string rejectReason, int count) in expectedFilesDoc.RejectedKeys.RejectionInfo)
-                        yield return new Tuple<string, int>(rejectReason, count);
-                }
+                    yield return new Tuple<string, Dictionary<string, int>>(expectedFilesDoc.Key, expectedFilesDoc.RejectedKeys.RejectionInfo);
         }
 
         protected override IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId)

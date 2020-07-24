@@ -101,7 +101,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobInfoImpl(jobId) ?? throw new ApplicationException("The job store implementation returned a null ExtractJobInfo object");
         }
 
-        public IEnumerable<Tuple<string, int>> GetCompletedJobRejections(Guid jobId)
+        public IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejections(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -133,7 +133,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract void CompleteJobImpl(Guid jobId);
         protected abstract void MarkJobFailedImpl(Guid jobId, Exception e);
         protected abstract ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
-        protected abstract IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId);
+        protected abstract IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejectionsImpl(Guid jobId);
         protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId);
 

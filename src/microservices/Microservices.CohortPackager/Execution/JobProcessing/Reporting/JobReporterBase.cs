@@ -36,8 +36,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             streamWriter.WriteLine("## Rejected files");
             streamWriter.WriteLine();
-            foreach ((string data, int count) in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
-                WriteJobRejections(streamWriter, data, count);
+            foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
+                WriteJobRejections(streamWriter, rejection);
             streamWriter.WriteLine();
 
             streamWriter.WriteLine("## Anonymisation failures");
@@ -73,13 +73,12 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"    Requested identifier count:    {jobInfo.KeyValueCount}",
             };
 
-        private static void WriteJobRejections(TextWriter streamWriter, string data, int count)
+        private static void WriteJobRejections(TextWriter streamWriter, Tuple<string, Dictionary<string, int>> rejection)
         {
-            // NOTE(rkm 2020-07-23) Cheekily using a count of -1 to indicate this is a new key, and avoid changing the method APIs
-            if (count == -1)
-                streamWriter.WriteLine($"- ID '{data}':");
-            else
-                streamWriter.WriteLine($"    - {count}x '{data}'");
+            (string rejectionKey, Dictionary<string, int> rejectionItems) = rejection;
+            streamWriter.WriteLine($"- ID '{rejectionKey}':");
+            foreach((string reason, int count) in rejectionItems)
+                streamWriter.WriteLine($"    - {count}x '{reason}'");
         }
 
         private static void WriteAnonFailure(TextWriter streamWriter, string expectedAnonFile, string failureReason)
