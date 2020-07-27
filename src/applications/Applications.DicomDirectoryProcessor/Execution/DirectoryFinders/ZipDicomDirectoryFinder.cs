@@ -1,4 +1,5 @@
 ﻿
+using Smi.Common;
 using Smi.Common.Messaging;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -24,7 +25,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 
         protected override IEnumerable<IFileInfo> GetEnumerator(IDirectoryInfo dirInfo)
         {
-            return dirInfo.EnumerateFiles().Where(f=>f.Extension == ".dcm" || f.Extension == ".zip" || f.Extension == ".tar");
+            return dirInfo.EnumerateFiles().Where(f=>f.Extension == ".dcm" || ZipHelper.IsZip(f));
         }
 
         /// <inheritdoc/>

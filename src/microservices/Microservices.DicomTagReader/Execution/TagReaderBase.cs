@@ -13,6 +13,7 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using NLog;
 using System.IO.Compression;
+using Smi.Common;
 
 namespace Microservices.DicomTagReader.Execution
 {
@@ -88,7 +89,7 @@ namespace Microservices.DicomTagReader.Execution
                                                _filesystemRoot + ")");
             long beginEnumerate = _stopwatch.ElapsedTicks;
             string[] dicomFilePaths = _fs.Directory.EnumerateFiles(dirPath, _searchPattern).ToArray();
-            string[] zipFilePaths =  _fs.Directory.EnumerateFiles(dirPath).Where(f=>Path.GetExtension(f) == ".zip" || Path.GetExtension(f) == ".tar").ToArray();
+            string[] zipFilePaths =  _fs.Directory.EnumerateFiles(dirPath).Where(ZipHelper.IsZip).ToArray();
 
             _swTotals[0] += _stopwatch.ElapsedTicks - beginEnumerate;
             Logger.Debug("TagReader: Found " + dicomFilePaths.Length + " dicom files to process");
