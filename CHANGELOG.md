@@ -9,7 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - DicomDirectoryProcessor and TagReader support for zip archives
-  - Expressed in notation `/mydrive/myfolder/myzip!somesubdir/my.dcm`
+  - Expressed in notation `/mydrive/myfolder/myzip.zip!somesubdir/my.dcm`
+  - Requires command line `-f zips`
 
 ### Changed
 

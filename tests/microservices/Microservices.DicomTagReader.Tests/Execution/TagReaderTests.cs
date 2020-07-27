@@ -164,9 +164,21 @@ namespace Microservices.DicomTagReader.Tests.Execution
             File.Copy($"{_helper.TestDir.FullName}/MyTestFile.dcm", $"{_helper.TestDir.FullName}/MyTestFile2.dcm");
             Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
 
+            // Where we want to put it
             var zipFilePath = Path.Combine(_helper.TestDir.FullName,"my.zip");
 
-            ZipFile.CreateFromDirectory(_helper.TestDir.FullName,zipFilePath);
+            //create the zip file in a temporary directory outside of the working directory to avoid file access errors
+            var tempDir = _helper.TestDir.Parent.CreateSubdirectory("temppp");
+            var tempPath = Path.Combine(tempDir.FullName,"my.zip");
+                        
+            //zip everything in the working dir to the temp path zip file
+            ZipFile.CreateFromDirectory(_helper.TestDir.FullName,tempPath);
+
+            //then move the zip file where we actually want it (in the working path)
+            File.Move(tempPath,zipFilePath);
+            
+            Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
+            Assert.True(_helper.TestDir.EnumerateFiles("*.zip").Count() == 1);
 
             IMessage message = null;
 
