@@ -9,6 +9,7 @@ using Moq;
 using Smi.Common.Messages;
 using Smi.Common.Tests;
 using System.IO.Compression;
+using System.Collections.Generic;
 
 namespace Microservices.DicomTagReader.Tests.Execution
 {
@@ -181,9 +182,11 @@ namespace Microservices.DicomTagReader.Tests.Execution
             Assert.True(_helper.TestDir.EnumerateFiles("*.zip").Count() == 1);
 
             IMessage message = null;
+            List<IMessage> fileImages = new List<IMessage>();
 
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
+                .Callback<IMessage, IMessageHeader, string>((m, h, s) => fileImages.Add(m))
                 .Returns(new MessageHeader());
 
             _helper.TestSeriesModel
@@ -201,6 +204,12 @@ namespace Microservices.DicomTagReader.Tests.Execution
             
             Assert.True(seriesMessage.ImagesInSeries == 4, "Expected 4, 2 in the zip archive and 2 in the root");
 
+            Assert.AreEqual(4,fileImages.Count,"Expected 4 file messages to be sent and recorded by TestImageModel Callback");
+
+            Assert.Contains("MyTestFile.dcm",fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray());
+            Assert.Contains("MyTestFile2.dcm",fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray());
+            Assert.Contains("my.zip!MyTestFile.dcm",fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray());
+            Assert.Contains("my.zip!MyTestFile2.dcm",fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray());
         }
 
         /// <summary>
