@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Driver;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
@@ -306,13 +306,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 .ToExtractJobInfo();
         }
 
-        protected override IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId)
+        protected override IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejectionsImpl(Guid jobId)
         {
             IAsyncCursor<MongoExpectedFilesDoc> cursor = _completedExpectedFilesCollection.FindSync(Builders<MongoExpectedFilesDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId));
             while (cursor.MoveNext())
                 foreach (MongoExpectedFilesDoc expectedFilesDoc in cursor.Current)
-                    foreach ((string rejectReason, int count) in expectedFilesDoc.RejectedKeys.RejectionInfo)
-                        yield return new Tuple<string, int>(rejectReason, count);
+                    yield return new Tuple<string, Dictionary<string, int>>(expectedFilesDoc.Key, expectedFilesDoc.RejectedKeys.RejectionInfo);
         }
 
         protected override IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId)
