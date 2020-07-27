@@ -8,7 +8,7 @@ using Microservices.DicomTagReader.Execution;
 using Moq;
 using Smi.Common.Messages;
 using Smi.Common.Tests;
-
+using System.IO.Compression;
 
 namespace Microservices.DicomTagReader.Tests.Execution
 {
@@ -150,6 +150,45 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var seriesMessage = message as SeriesMessage;
             Assert.True(seriesMessage != null);
             Assert.True(seriesMessage.ImagesInSeries == 2);
+        }
+
+        /// <summary>
+        /// Tests that we can read a mixture of zip files and dcm files using <see cref="TagReaderBase"/>
+        /// </summary>
+        [Test]
+        public void TestSeriesMessageImagesInSeriesCorrect_WhenUsingZips()
+        {
+            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
+
+            File.Copy($"{_helper.TestDir.FullName}/MyTestFile.dcm", $"{_helper.TestDir.FullName}/MyTestFile2.dcm");
+            Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
+
+            var zipFilePath = Path.Combine(_helper.TestDir.FullName,"my.zip");
+
+            ZipFile.CreateFromDirectory(_helper.TestDir.FullName,zipFilePath);
+
+            IMessage message = null;
+
+            _helper.TestImageModel
+                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
+                .Returns(new MessageHeader());
+
+            _helper.TestSeriesModel
+                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
+                .Callback<IMessage, IMessageHeader, string>((m, h, s) => message = m)
+                .Returns(new MessageHeader());
+
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
+
+            Assert.True(message != null);
+
+            var seriesMessage = message as SeriesMessage;
+            Assert.True(seriesMessage != null);
+            
+            Assert.True(seriesMessage.ImagesInSeries == 4, "Expected 4, 2 in the zip archive and 2 in the root");
+
         }
 
         /// <summary>
