@@ -1,9 +1,5 @@
-﻿using Microsoft.VisualBasic;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
+﻿using NUnit.Framework;
 using System.IO;
-using System.Text;
 
 namespace Smi.Common.Tests
 {
