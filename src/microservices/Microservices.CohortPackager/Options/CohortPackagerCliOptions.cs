@@ -24,7 +24,8 @@ namespace Microservices.CohortPackager.Options
         {
             get
             {
-                yield return new Example("Normal Scenario", new CohortPackagerCliOptions { ExtractionId = Guid.NewGuid() });
+                yield return new Example("Normal scenario - run as a service", new CohortPackagerCliOptions { ExtractionId = Guid.Empty });
+                yield return new Example("Recreate a single report", new CohortPackagerCliOptions { ExtractionId = Guid.NewGuid() });
             }
         }
     }
