@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microservices.IsIdentifiable.Failures;
+using System.Linq;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -16,7 +16,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         protected JobReporterBase(
             [NotNull] IExtractJobStore jobStore,
-            [CanBeNull] string _ // NOTE(rkm 2020-03-17) Required to force matching constructors for all derived types for construction via reflection
+            // NOTE(rkm 2020-03-17) Required to force matching constructors for all derived types for construction via reflection
+            // ReSharper disable once UnusedParameter.Local
+            [CanBeNull] string _ 
         )
         {
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
@@ -34,6 +36,11 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine(line);
             streamWriter.WriteLine();
 
+            streamWriter.WriteLine("## Verification failures");
+            streamWriter.WriteLine();
+            WriteJobVerificationFailures(streamWriter, _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier));
+            streamWriter.WriteLine();
+
             streamWriter.WriteLine("## Rejected files");
             streamWriter.WriteLine();
             foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
@@ -44,12 +51,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             streamWriter.WriteLine();
             foreach ((string expectedAnonFile, string failureReason) in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
                 WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
-            streamWriter.WriteLine();
-
-            streamWriter.WriteLine("## Verification failures");
-            streamWriter.WriteLine();
-            foreach ((string anonymisedFile, string failureData) in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
-                WriteJobVerificationFailures(streamWriter, anonymisedFile, failureData);
             streamWriter.WriteLine();
 
             streamWriter.Flush();
@@ -76,8 +77,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private static void WriteJobRejections(TextWriter streamWriter, Tuple<string, Dictionary<string, int>> rejection)
         {
             (string rejectionKey, Dictionary<string, int> rejectionItems) = rejection;
-            streamWriter.WriteLine($"- ID '{rejectionKey}':");
-            foreach((string reason, int count) in rejectionItems)
+            streamWriter.WriteLine($"- ID: {rejectionKey}");
+            foreach ((string reason, int count) in rejectionItems.OrderByDescending(x => x.Value))
                 streamWriter.WriteLine($"    - {count}x '{reason}'");
         }
 
@@ -86,30 +87,53 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             streamWriter.WriteLine($"- file '{expectedAnonFile}': '{failureReason}'");
         }
 
-        private static void WriteJobVerificationFailures(TextWriter streamWriter, string anonymisedFile, string failureData)
+        private static void WriteJobVerificationFailures(TextWriter streamWriter, IEnumerable<Tuple<string, string>> verificationFailures)
         {
-            IEnumerable<Failure> failures;
-            try
+            // For each problem field, we build a dict of problem values with a list of each file containing that value. This allows
+            // grouping & ordering by occurrence in the following section.
+            var groupedFailures = new Dictionary<string, Dictionary<string, List<string>>>();
+            foreach ((string anonFile, string failureData) in verificationFailures)
             {
-                failures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(failureData);
-            }
-            catch (JsonException e)
-            {
-                throw new ApplicationException("Could not deserialize report to IEnumerable<Failure>", e);
-            }
-
-            streamWriter.WriteLine($"- file '{anonymisedFile}':");
-            foreach (Failure failure in failures)
-            {
-                streamWriter.WriteLine("      (Problem Field | Problem Value)");
-                streamWriter.WriteLine($"    - {failure.ProblemField} | {failure.ProblemValue}");
-                streamWriter.WriteLine("         (Classification | Offset | Word)");
-                foreach (FailurePart part in failure.Parts)
+                IEnumerable<Failure> fileFailures;
+                try
                 {
-                    streamWriter.WriteLine($"       - {part.Classification} | {part.Offset} | {part.Word}");
+                    fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(failureData);
+                }
+                catch (JsonException e)
+                {
+                    throw new ApplicationException("Could not deserialize report to IEnumerable<Failure>", e);
+                }
+
+                foreach (Failure failure in fileFailures)
+                {
+                    string tag = failure.ProblemField;
+                    string value = failure.ProblemValue;
+
+                    if (!groupedFailures.ContainsKey(tag))
+                        groupedFailures.Add(tag, new Dictionary<string, List<string>>
+                        {
+                            { value, new List<string> { anonFile } },
+                        });
+                    else if (!groupedFailures[tag].ContainsKey(value))
+                        groupedFailures[tag].Add(value, new List<string> { anonFile });
+                    else
+                        groupedFailures[tag][value].Add(anonFile);
                 }
             }
-            streamWriter.WriteLine();
+
+            // Now write-out the groupings, ordered by descending count
+            foreach ((string tag, Dictionary<string, List<string>> failures) in groupedFailures.OrderByDescending(x => x.Value.Sum(y => y.Value.Count)))
+            {
+                int totalOccurrences = failures.Sum(x => x.Value.Count);
+                streamWriter.WriteLine($"- Tag: {tag} ({totalOccurrences} total occurrence(s))");
+                foreach ((string problemVal, List<string> relatedFiles) in failures.OrderByDescending(x => x.Value.Count))
+                {
+                    streamWriter.WriteLine($"    - Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))");
+                    foreach (string file in relatedFiles)
+                        streamWriter.WriteLine($"        - {file}");
+                    streamWriter.WriteLine();
+                }
+            }
         }
 
         protected abstract void ReleaseUnmanagedResources();
