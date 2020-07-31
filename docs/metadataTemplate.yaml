@@ -1,0 +1,4 @@
+# usage: run this file with rdmp cmd -f path
+
+Commands:
+  - ExtractMetadata Catalogue:*edris* "C:/temp/deleteme" "D:/SmiServices/docs/metadataTemplate.md" $Name.md False " "
