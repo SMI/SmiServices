@@ -10,14 +10,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- Updated the extraction report to be more human-readable
-- Add CLI option to CohortPackager to allow an existing report to be recreated
+- Updated the extraction report to be more human-readable #320, #328
+- Add CLI option to CohortPackager to allow an existing report to be recreated #321
 - Added a runsettings file for NUnit to allow configuration of test output. Fixes an issue with TravisCI and NUnit3TestAdapter v3.17.0, which caused the test output to spill to over 20k lines.
 
 ### Dependencies
 
+- Bump HIC.FAnsiSql from 0.11.1 to 1.0.2
+- Bump HIC.RDMP.Dicom from 2.1.5 to 2.1.6
+- Bump HIC.RDMP.Plugin from 4.1.3 to 4.1.5
+- Bump Magick.NET-Q16-AnyCPU from 7.20.0 to 7.21.1
+- Bump Microsoft.Extensions.Caching.Memory from 3.1.5 to 3.1.6
+- Bump System.IO.Abstractions from 12.0.1 to 12.0.10
 - Bump System.IO.Abstractions from 12.0.1 to 12.0.2
 - Bump System.IO.Abstractions.TestingHelpers from 12.0.1 to 12.0.2
+- Bump com.fasterxml.jackson.dataformat.jackson-dataformat-yaml from 2.11.0 to 2.11.1
+- Bump org.mockito.mockito-core from 3.3.3 to 3.4.6
 
 ## [1.9.0] - 2020-06-22
 
