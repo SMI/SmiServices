@@ -106,5 +106,9 @@ namespace Smi.Common.MongoDB.Tests
         public virtual IMongoCollection<TVal> WithReadConcern(ReadConcern readConcern) => throw new NotImplementedException();
         public virtual IMongoCollection<TVal> WithReadPreference(ReadPreference readPreference) => throw new NotImplementedException();
         public virtual IMongoCollection<TVal> WithWriteConcern(WriteConcern writeConcern) => throw new NotImplementedException();
+        public void AggregateToCollection<TResult>(PipelineDefinition<TVal, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TVal, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TVal, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TVal, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 }
