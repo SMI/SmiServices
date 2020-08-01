@@ -11,6 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 -   Improved the extraction report by summarising verification failures
+-   Start MongoDB in replication mode in the Travis builds
+
+### Dependencies
+
+-   Bump MongoDB.Driver from 2.10.4 to 2.11.0
+-   Bump System.IO.Abstractions from 12.0.10 to 12.1.1
+-   Bump System.IO.Abstractions.TestingHelpers from 12.0.10 to 12.1.1
+-   Bump jackson-dataformat-yaml from 2.11.1 to 2.11.2
 
 ## [1.10.0] - 2020-07-31
 
