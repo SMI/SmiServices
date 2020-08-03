@@ -49,7 +49,11 @@ jobs:
 
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
-    - echo -e '\nreplication:\n  replSetName:rs0\n' | sudo tee -a /etc/mongod.conf && sudo service mongod restart && sleep 20 && service mongod status && cat /var/log/mongodb/mongod.log && cat /var/log/syslog && mongo --eval 'rs.initiate()'
+    - |
+      echo -e '\nreplication:\n  replSetName: rs0' | sudo tee -a /etc/mongod.conf &&
+      sudo systemctl restart mongod &&
+      sleep 10 &&
+      mongo --eval 'rs.initiate()'
     - export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - |
       if [ ! -x $HOME/rdmp-cli/rdmp ] || ! fgrep -q $RDMPVERSION $HOME/rdmp-cli/rdmp.dll
