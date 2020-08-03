@@ -71,7 +71,7 @@ namespace Smi.Common.MongoDB.Tests
         public virtual Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TVal> filter, UpdateDefinition<TVal> update, FindOneAndUpdateOptions<TVal, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual void InsertOne(TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual void InsertOne(IClientSessionHandle session, TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
-        public virtual Task InsertOneAsync(TVal document, CancellationToken _cancellationToken) => throw new NotImplementedException();
+        public virtual Task InsertOneAsync(TVal document, CancellationToken cancellationToken) => throw new NotImplementedException();
         public virtual Task InsertOneAsync(TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task InsertOneAsync(IClientSessionHandle session, TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual void InsertMany(IEnumerable<TVal> documents, InsertManyOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

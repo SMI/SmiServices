@@ -48,9 +48,9 @@ jobs:
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
     install:
-    - |
-      export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - ( cd ./lib/java && ./installDat.sh && cd - )
+    - echo 'replSet = rs0' | sudo tee -a /etc/mongodb.conf && sudo service mongodb restart && sleep 5 && mongo eval 'rs.initiate()'
+    - export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - |
       if [ ! -x $HOME/rdmp-cli/rdmp ] || ! fgrep -q $RDMPVERSION $HOME/rdmp-cli/rdmp.dll
       then
@@ -65,6 +65,7 @@ jobs:
     - ( cd data/tessdata && ./download.sh && ln -f eng.traineddata $HOME/data/ && cd - )
 
     script:
+    - mongo --eval 'rs.config()' && false  # Testing
     - dotnet build -c Release --verbosity quiet
     - for i in `find . -type d -name netcoreapp3.1`; do if [ ! -e $i/default.yaml ]; then ln data/microserviceConfigs/default.yaml $i/ ; fi ; done
     - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
