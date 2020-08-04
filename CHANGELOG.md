@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Bump System.IO.Abstractions from 12.0.10 to 12.1.1
 -   Bump System.IO.Abstractions.TestingHelpers from 12.0.10 to 12.1.1
 -   Bump jackson-dataformat-yaml from 2.11.1 to 2.11.2
+-   Bump HIC.RDMP.Plugin from 4.1.5 to 4.1.6
 
 ## [1.10.0] - 2020-07-31
 
