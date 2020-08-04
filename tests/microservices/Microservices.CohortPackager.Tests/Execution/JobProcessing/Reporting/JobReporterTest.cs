@@ -115,6 +115,11 @@ Report contents:
 
 ## Verification failures
 
+Summary:
+
+
+Full details:
+
 
 ## Rejected files
 
@@ -203,6 +208,14 @@ Report contents:
 -    Anonymisation failures
 
 ## Verification failures
+
+Summary:
+
+- Tag: ScanOptions (1 total occurrence(s))
+    - Value: 'FOO' (1 occurrence(s))
+
+
+Full details:
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
@@ -365,11 +378,22 @@ Report contents:
 
 ## Verification failures
 
+Summary:
+
+- Tag: ScanOptions (3 total occurrence(s))
+    - Value: 'FOO' (2 occurrence(s))
+    - Value: 'BAR' (1 occurrence(s))
+
+- Tag: SomeOtherTag (2 total occurrence(s))
+    - Value: 'BAZ' (2 occurrence(s))
+
+
+Full details:
+
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))
         - aaa/bbb/foo1.dcm
         - aaa/bbb/foo2.dcm
-
     - Value: 'BAR' (1 occurrence(s))
         - aaa/bbb/foo2.dcm
 

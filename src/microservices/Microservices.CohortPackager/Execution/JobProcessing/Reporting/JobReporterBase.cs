@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -131,19 +132,37 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 }
             }
 
-            // Now write-out the groupings, ordered by descending count
-            foreach ((string tag, Dictionary<string, List<string>> failures) in groupedFailures.OrderByDescending(x => x.Value.Sum(y => y.Value.Count)))
+            streamWriter.WriteLine("Summary:");
+            streamWriter.WriteLine();
+
+            var sb = new StringBuilder();
+
+            // Write-out the groupings, ordered by descending count, as a summary without the list of associated files
+            List<KeyValuePair<string, Dictionary<string, List<string>>>> grouped = groupedFailures.OrderByDescending(x => x.Value.Sum(y => y.Value.Count)).ToList();
+            foreach ((string tag, Dictionary<string, List<string>> failures) in grouped)
             {
                 int totalOccurrences = failures.Sum(x => x.Value.Count);
-                streamWriter.WriteLine($"- Tag: {tag} ({totalOccurrences} total occurrence(s))");
+                string line = $"- Tag: {tag} ({totalOccurrences} total occurrence(s))";
+                streamWriter.WriteLine(line);
+                sb.AppendLine(line);
                 foreach ((string problemVal, List<string> relatedFiles) in failures.OrderByDescending(x => x.Value.Count))
                 {
-                    streamWriter.WriteLine($"    - Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))");
+                    line = $"    - Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))";
+                    streamWriter.WriteLine(line);
+                    sb.AppendLine(line);
                     foreach (string file in relatedFiles)
-                        streamWriter.WriteLine($"        - {file}");
-                    streamWriter.WriteLine();
+                        sb.AppendLine($"        - {file}");
                 }
+
+                streamWriter.WriteLine();
+                sb.AppendLine();
             }
+
+            // Now write-out the same, but with the file listing
+            streamWriter.WriteLine();
+            streamWriter.WriteLine("Full details:");
+            streamWriter.WriteLine();
+            streamWriter.Write(sb);
         }
 
         protected abstract void ReleaseUnmanagedResources();
