@@ -28,7 +28,7 @@ jobs:
     - cat *.asc | sudo -E apt-key add -
     - sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null <apt.sources
     - sudo apt-get update
-    - sudo apt-get install -y --no-install-recommands rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
+    - sudo apt-get install -y --no-install-recommends rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
     - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
