@@ -35,7 +35,15 @@ jobs:
     - ( cd ./lib/java && ./installDat.sh && cd - )
     - |
       echo -e '\nreplication:\n  replSetName: rs0' | sudo tee -a /etc/mongod.conf >/dev/null &&
-      sudo systemctl start mongod &&
+      sudo systemctl start mongod
+      COUNTER=0
+      grep -q 'waiting for connections on port' /var/log/mongodb.log
+      while [[ $? -ne 0 && $COUNTER -lt 60 ]] ; do
+          sleep 1
+          let COUNTER+=1
+          echo "Waiting for mongo to initialize... ($COUNTER seconds so far)"
+          grep -q 'waiting for connections on port' /var/log/mongodb.log
+      done
       mongo --eval 'rs.initiate()'
     - export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - |
