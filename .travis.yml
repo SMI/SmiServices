@@ -17,7 +17,6 @@ jobs:
     services:
     - postgresql
     - mysql
-    - mongodb
     - redis
     env:
     - MSSQL_SA_PASSWORD="YourStrong!Passw0rd"
@@ -27,17 +26,16 @@ jobs:
     before_install:
     - cat *.asc | sudo -E apt-key add -
     - sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null <apt.sources
-    - sudo apt-get update
-    - sudo apt-get install -y --no-install-recommends pigz rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
-    - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server
+    - sudo apt-get -q update
+    - sudo apt-get -q install -y --no-install-recommends pigz rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
+    - sudo apt-get -q install -y --no-install-recommends mssql-tools mssql-server
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
     - |
-      echo -e '\nreplication:\n  replSetName: rs0' | sudo tee -a /etc/mongod.conf &&
-      sudo systemctl restart mongod &&
-      sleep 10 &&
+      echo -e '\nreplication:\n  replSetName: rs0' | sudo tee -a /etc/mongod.conf >/dev/null &&
+      sudo systemctl start mongod &&
       mongo --eval 'rs.initiate()'
     - export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - |
@@ -58,8 +56,8 @@ jobs:
     - for i in `find . -type d -name netcoreapp3.1`; do if [ ! -e $i/default.yaml ]; then ln data/microserviceConfigs/default.yaml $i/ ; fi ; done
     - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 echo dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
     - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
-    - mvn -ntp -qf src/common/com.smi.microservices.parent/pom.xml test
-    - mvn -ntp -qf src/microservices/uk.ac.dundee.hic.nerd/ test
+    - mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml test
+    - mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ test
 
     - |
       if [  -z "$TRAVIS_TAG" ]
@@ -70,8 +68,8 @@ jobs:
           dotnet publish --self-contained true -p:PublishTrimmed=true -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 -nologo -v q
         done
         ( cd dist && zip -9r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar cf - ./linux-x64 | pigz -11 > smi-services-linux-x64-$TRAVIS_TAG.tar.gz && cd - )
-        mvn -ntp -qf src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable -DskipTests
-        mvn -ntp -qf src/microservices/uk.ac.dundee.hic.nerd/ package -DskipTests
+        mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable -DskipTests
+        mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ package -DskipTests
         for filename in $(find ./src -name "*deploy-distribution.zip")
         do
           base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
