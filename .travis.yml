@@ -25,7 +25,7 @@ jobs:
 
     before_install:
     - cat *.asc | sudo -E apt-key add -
-    - sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null <apt.sources
+    - sort ${TRAVIS_ROOT}/etc/apt/sources.list apt.sources | uniq | sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null
     - sudo apt-get -q update
     - sudo apt-get -q install -y --no-install-recommends pigz rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
     - sudo apt-get -q install -y --no-install-recommends mssql-tools mssql-server
