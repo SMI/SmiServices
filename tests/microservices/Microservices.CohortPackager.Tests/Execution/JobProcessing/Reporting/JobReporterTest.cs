@@ -100,11 +100,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
 
 ## Verification failures
 
@@ -115,6 +122,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 ## Anonymisation failures
 
 
+--- end of report ---
 ";
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
@@ -181,11 +189,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
 
 ## Verification failures
 
@@ -204,6 +219,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
 - file 'foo1.dcm': 'image was corrupt'
 
+--- end of report ---
 ";
 
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
@@ -334,11 +350,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
 
 ## Verification failures
 
@@ -362,6 +385,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 ## Anonymisation failures
 
 
+--- end of report ---
 ";
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);

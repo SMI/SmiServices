@@ -19,7 +19,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IExtractJobStore jobStore,
             // NOTE(rkm 2020-03-17) Required to force matching constructors for all derived types for construction via reflection
             // ReSharper disable once UnusedParameter.Local
-            [CanBeNull] string _ 
+            [CanBeNull] string _
         )
         {
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
@@ -54,6 +54,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
             streamWriter.WriteLine();
 
+            streamWriter.WriteLine("--- end of report ---");
+
             streamWriter.Flush();
 
             stream.Position = 0;
@@ -68,11 +70,18 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             => new[]
             {
                 $"# SMI file extraction report for {jobInfo.ProjectNumber}",
-                $"    Job submitted at:              {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
-                $"    Job extraction id:             {jobInfo.ExtractionJobIdentifier}",
-                $"    Extraction tag:                {jobInfo.KeyTag}",
-                $"    Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",
-                $"    Requested identifier count:    {jobInfo.KeyValueCount}",
+                "",
+                "Job info:",
+                $"-    Job submitted at:              {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
+                $"-    Job extraction id:             {jobInfo.ExtractionJobIdentifier}",
+                $"-    Extraction tag:                {jobInfo.KeyTag}",
+                $"-    Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",
+                $"-    Requested identifier count:    {jobInfo.KeyValueCount}",
+                "",
+                "Report contents:",
+                "-    Verification failures",
+                "-    Rejected failures",
+                "-    Anonymisation failures",
             };
 
         private static void WriteJobRejections(TextWriter streamWriter, Tuple<string, Dictionary<string, int>> rejection)
