@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 
@@ -99,7 +100,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
+    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
     Job extraction id:             {jobId}
     Extraction tag:                keyTag
     Extraction modality:           ZZ
@@ -180,7 +181,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
+    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
     Job extraction id:             {jobId}
     Extraction tag:                keyTag
     Extraction modality:           ZZ
@@ -333,7 +334,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
+    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
     Job extraction id:             {jobId}
     Extraction tag:                keyTag
     Extraction modality:           ZZ

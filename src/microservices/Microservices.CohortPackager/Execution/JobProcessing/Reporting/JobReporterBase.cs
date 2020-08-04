@@ -4,6 +4,7 @@ using Microservices.IsIdentifiable.Reporting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -67,7 +68,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             => new[]
             {
                 $"# SMI file extraction report for {jobInfo.ProjectNumber}",
-                $"    Job submitted at:              {jobInfo.JobSubmittedAt}",
+                $"    Job submitted at:              {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
                 $"    Job extraction id:             {jobInfo.ExtractionJobIdentifier}",
                 $"    Extraction tag:                {jobInfo.KeyTag}",
                 $"    Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",
