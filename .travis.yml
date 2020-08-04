@@ -37,12 +37,12 @@ jobs:
       echo -e '\nreplication:\n  replSetName: rs0' | sudo tee -a /etc/mongod.conf >/dev/null &&
       sudo systemctl start mongod
       COUNTER=0
-      grep -q 'waiting for connections on port' /var/log/mongodb.log
+      grep -q 'waiting for connections on port' /var/log/mongodb/mongod.log
       while [[ $? -ne 0 && $COUNTER -lt 60 ]] ; do
           sleep 1
           let COUNTER+=1
           echo "Waiting for mongo to initialize... ($COUNTER seconds so far)"
-          grep -q 'waiting for connections on port' /var/log/mongodb.log
+          grep -q 'waiting for connections on port' /var/log/mongodb/mongod.log
       done
       mongo --eval 'rs.initiate()'
     - export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
@@ -62,7 +62,7 @@ jobs:
     script:
     - dotnet build -c Release --verbosity quiet
     - for i in `find . -type d -name netcoreapp3.1`; do if [ ! -e $i/default.yaml ]; then ln data/microserviceConfigs/default.yaml $i/ ; fi ; done
-    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 echo dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
+    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
     - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
     - mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml test
     - mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ test
@@ -81,11 +81,10 @@ jobs:
         for filename in $(find ./src -name "*deploy-distribution.zip")
         do
           base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
-          ls -lh $filename
           mv $filename dist/$base-${TRAVIS_TAG}.zip
         done
-        ls -lh src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar
         mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
+        ls -lh dist/
       fi
 
 deploy:
