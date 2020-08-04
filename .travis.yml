@@ -75,7 +75,7 @@ jobs:
         do
           dotnet publish -p:PublishTrimmed=true -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 -nologo -v q
         done
-        ( cd dist && zip -9r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar cf - ./linux-x64 | pigz -11 > smi-services-linux-x64-$TRAVIS_TAG.tar.gz && cd - )
+        ( cd dist && zip -9r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar cf - ./linux-x64 | pigz -3 > smi-services-linux-x64-$TRAVIS_TAG.tar.gz && cd - )
         mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable -DskipTests
         mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ package -DskipTests
         for filename in $(find ./src -name "*deploy-distribution.zip")
