@@ -22,13 +22,13 @@ jobs:
     env:
     - MSSQL_SA_PASSWORD="YourStrong!Passw0rd"
     - ACCEPT_EULA=Y
-    - MSSQL_PID='evaluation'
+    - MSSQL_PID='developer'
 
     before_install:
     - cat *.asc | sudo -E apt-key add -
     - sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null <apt.sources
     - sudo apt-get update
-    - sudo apt-get install -y --no-install-recommends rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
+    - sudo apt-get install -y --no-install-recommends pigz rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
     - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
@@ -67,16 +67,18 @@ jobs:
         mkdir -p ./dist
         for platform in linux win
         do
-          dotnet publish --self-contained true -p:PublishTrimmed=true -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
+          dotnet publish --self-contained true -p:PublishTrimmed=true -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 -nologo -v q
         done
-        ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
+        ( cd dist && zip -9r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar cf - ./linux-x64 | pigz -11 > smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
         mvn -ntp -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable -DskipTests
         mvn -ntp -f src/microservices/uk.ac.dundee.hic.nerd/ package -DskipTests
         for filename in $(find ./src -name "*deploy-distribution.zip")
         do
           base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
+          ls -lh $filename
           mv $filename dist/$base-${TRAVIS_TAG}.zip
         done
+        ls -lh src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar
         mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
       fi
 
