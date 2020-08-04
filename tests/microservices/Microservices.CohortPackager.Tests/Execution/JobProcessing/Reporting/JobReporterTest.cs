@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 
@@ -99,13 +100,25 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
 
 ## Verification failures
+
+Summary:
+
+
+Full details:
 
 
 ## Rejected files
@@ -114,6 +127,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 ## Anonymisation failures
 
 
+--- end of report ---
 ";
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
@@ -180,13 +194,28 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
 
 ## Verification failures
+
+Summary:
+
+- Tag: ScanOptions (1 total occurrence(s))
+    - Value: 'FOO' (1 occurrence(s))
+
+
+Full details:
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
@@ -203,6 +232,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
 - file 'foo1.dcm': 'image was corrupt'
 
+--- end of report ---
 ";
 
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
@@ -333,19 +363,37 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
 
 ## Verification failures
+
+Summary:
+
+- Tag: ScanOptions (3 total occurrence(s))
+    - Value: 'FOO' (2 occurrence(s))
+    - Value: 'BAR' (1 occurrence(s))
+
+- Tag: SomeOtherTag (2 total occurrence(s))
+    - Value: 'BAZ' (2 occurrence(s))
+
+
+Full details:
 
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))
         - aaa/bbb/foo1.dcm
         - aaa/bbb/foo2.dcm
-
     - Value: 'BAR' (1 occurrence(s))
         - aaa/bbb/foo2.dcm
 
@@ -361,6 +409,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 ## Anonymisation failures
 
 
+--- end of report ---
 ";
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
