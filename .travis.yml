@@ -14,25 +14,6 @@ jobs:
       - $HOME/data
     addons:
       postgresql: "10"
-      apt:
-        sources:
-        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic main universe multiverse restricted'
-        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic-backports main universe'
-        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic-updates main universe multiverse restricted'
-        - sourceline: 'deb http://security.ubuntu.com/ubuntu bionic-security main multiverse restricted universe'
-        - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
-          key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
-        - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
-          key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
-        - sourceline: 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main'
-          key_url: 'https://packages.microsoft.com/keys/microsoft.asc'
-        - sourceline: 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/16.04/mssql-server-2017 xenial main'
-        packages:
-        - rabbitmq-server
-        - libgdiplus
-        - tesseract-ocr
-        - libtesseract-dev
-        - maven
     services:
     - postgresql
     - mysql
@@ -44,7 +25,11 @@ jobs:
     - MSSQL_PID='evaluation'
 
     before_install:
-    - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
+    - cat *.asc | sudo -E apt-key add -
+    - sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null <apt.sources
+    - sudo apt-get update
+    - sudo apt-get install -y --no-install-recommands rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
+    - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
     install:
@@ -71,13 +56,13 @@ jobs:
     script:
     - dotnet build -c Release --verbosity quiet
     - for i in `find . -type d -name netcoreapp3.1`; do if [ ! -e $i/default.yaml ]; then ln data/microserviceConfigs/default.yaml $i/ ; fi ; done
-    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
+    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 echo dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
     - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
-    - mvn -ntp -f src/common/com.smi.microservices.parent/pom.xml clean test
-    - mvn -ntp -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
+    - mvn -ntp -f src/common/com.smi.microservices.parent/pom.xml clean ; echo test
+    - mvn -ntp -f src/microservices/uk.ac.dundee.hic.nerd/ clean ; echo test
 
     - |
-      if [ ! -z "$TRAVIS_TAG" ]
+      if [  -z "$TRAVIS_TAG" ]
       then
         mkdir -p ./dist
         for platform in linux win
