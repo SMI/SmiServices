@@ -68,7 +68,7 @@ jobs:
     - mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ test
 
     - |
-      if [  -z "$TRAVIS_TAG" ]
+      if [ ! -z "$TRAVIS_TAG" ]
       then
         mkdir -p ./dist
         for platform in linux win
