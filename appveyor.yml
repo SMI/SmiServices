@@ -6,13 +6,15 @@ services:
   - mssql2017
   - mysql
   - postgresql101
-  - mongodb
  
 cache:
   - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
 
 before_build:
 - cmd: if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
+- ps: "Add-Content c:\\mongodb\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
+- cmd: "net start mongodb"
+- cmd: "c:\\mongodb\\bin\\mongo --eval 'rs.initiate()'"
 - choco install opencover.portable
 - choco install rabbitmq
 

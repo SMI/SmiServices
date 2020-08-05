@@ -8,19 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.10.1] - 2020-08-05
 
+### Added
+
+- DicomDirectoryProcessor and TagReader support for zip archives
+  - Expressed in notation `/mydrive/myfolder/myzip.zip!somesubdir/my.dcm`
+  - Requires command line `-f zips`
+
 ### Changed
 
 -   Improved the extraction report by summarising verification failures
 -   Start MongoDB in replication mode in the Travis builds
 -   Switch to self-contained .Net binaries to avoid dependency on host runtime package
+-   NationalPACSAccessionNumber is now allowed to be null in all messages
 
 ### Dependencies
 
+-   Bump HIC.RDMP.Plugin from 4.1.5 to 4.1.6
 -   Bump MongoDB.Driver from 2.10.4 to 2.11.0
 -   Bump System.IO.Abstractions from 12.0.10 to 12.1.1
 -   Bump System.IO.Abstractions.TestingHelpers from 12.0.10 to 12.1.1
 -   Bump jackson-dataformat-yaml from 2.11.1 to 2.11.2
--   Bump HIC.RDMP.Plugin from 4.1.5 to 4.1.6
 
 ## [1.10.0] - 2020-07-31
 

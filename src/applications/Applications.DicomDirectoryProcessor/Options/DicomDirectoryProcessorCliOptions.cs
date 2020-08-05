@@ -15,7 +15,7 @@ namespace Applications.DicomDirectoryProcessor.Options
         public string ToProcess { get; set; }
 
         [UsedImplicitly]
-        [Option('f', "directory-format", Required = false, HelpText = "The specific directory search format to use", Default = "Default")]
+        [Option('f', "directory-format", Required = false, HelpText = "The specific directory search format to use (case insensitive).  Options include PACS,LIST,ZIPS and DEFAULT", Default = "Default")]
         public string DirectoryFormat { get; set; }
 
 

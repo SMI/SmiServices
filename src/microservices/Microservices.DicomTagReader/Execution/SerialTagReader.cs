@@ -29,8 +29,6 @@ namespace Microservices.DicomTagReader.Execution
                 try
                 {
                     fileMessage = ReadTagsFromFile(dicomFilePath);
-
-                    //TODO Need to check nationalPACSAccessionNumber consistent with file directory? At the moment we just take it from the Accession message and pass it on!
                     fileMessage.NationalPACSAccessionNumber = accMessage.NationalPACSAccessionNumber;
                 }
                 catch (Exception e)
