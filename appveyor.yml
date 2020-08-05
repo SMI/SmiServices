@@ -14,6 +14,8 @@ before_build:
 - cmd: if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
 - ps: "Add-Content c:\\mongodb\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
 - cmd: "net start mongodb"
+- cmd: "cd \"
+- cmd: "dir mongo.exe /s/b"
 - cmd: "c:\\mongodb\\mongo --eval 'rs.initiate()'"
 - choco install opencover.portable
 - choco install rabbitmq
