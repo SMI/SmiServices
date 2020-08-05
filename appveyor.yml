@@ -16,7 +16,7 @@ before_build:
 - cmd: "net start mongodb"
 - cmd: "cd \\"
 - cmd: "dir mongo.exe /s/b"
-- cmd: "c:\\mongodb\\mongo --eval 'rs.initiate()'"
+- cmd: "c:\\mongodb\\bin\\mongo --eval 'rs.initiate()'"
 - choco install opencover.portable
 - choco install rabbitmq
 
