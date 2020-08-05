@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - DicomDirectoryProcessor and TagReader support for zip archives
   - Expressed in notation `/mydrive/myfolder/myzip.zip!somesubdir/my.dcm`
   - Requires command line `-f zips`
+- NationalPACSAccessionNumber is now allowed to be null in all messages
 - Switch to self-contained .Net binaries to avoid dependency on host runtime package
 
 ## [1.10.0] - 2020-07-31
