@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 -   Improved the extraction report by summarising verification failures
 -   Start MongoDB in replication mode in the Travis builds
+-   Switch to self-contained .Net binaries to avoid dependency on host runtime package
 
 ### Dependencies
 
