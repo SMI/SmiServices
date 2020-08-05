@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 
@@ -97,14 +98,28 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            string nl = Environment.NewLine;
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
+
+## Verification failures
+
+Summary:
+
+
+Full details:
+
 
 ## Rejected files
 
@@ -112,17 +127,14 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 ## Anonymisation failures
 
 
-## Verification failures
-
-
+--- end of report ---
 ";
-
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
         [Test]
-        public void Test_JobReporterBase_CreateReport_WithData()
+        public void Test_JobReporterBase_CreateReport_WithBasicData()
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
@@ -150,25 +162,13 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             var anonFailures = new List<Tuple<string, string>>
             {
                 new Tuple<string, string>("foo1.dcm", "image was corrupt"),
-                new Tuple<string, string>("foo2.dcm", "could not be anonymised"),
             };
 
             const string report = @"
 [
     {
-        'Parts': [
-            {
-                'Classification': 1,
-                'Offset': 0,
-                'Word': 'FOO'
-            },
-            {
-                'Classification': 3,
-                'Offset': 1,
-                'Word': 'BAR'
-            }
-        ],
-        'Resource': '/foo.dcm',
+        'Parts': [],
+        'Resource': '/foo1.dcm',
         'ResourcePrimaryKey': '1.2.3.4',
         'ProblemField': 'ScanOptions',
         'ProblemValue': 'FOO'
@@ -178,7 +178,6 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             var verificationFailures = new List<Tuple<string, string>>
             {
                 new Tuple<string, string>("foo1.dcm", report),
-                new Tuple<string, string>("foo2.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -193,45 +192,49 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            string nl = Environment.NewLine;
             string expected = $@"
 # SMI file extraction report for 1234
-    Job submitted at:              {provider.UtcNow()}
-    Job extraction id:             {jobId}
-    Extraction tag:                keyTag
-    Extraction modality:           ZZ
-    Requested identifier count:    123
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
+
+## Verification failures
+
+Summary:
+
+- Tag: ScanOptions (1 total occurrence(s))
+    - Value: 'FOO' (1 occurrence(s))
+
+
+Full details:
+
+- Tag: ScanOptions (1 total occurrence(s))
+    - Value: 'FOO' (1 occurrence(s))
+        - foo1.dcm
+
 
 ## Rejected files
 
-- ID '1.2.3.4':
-    - 123x 'image is in the deny list for extraction'
+- ID: 1.2.3.4
     - 456x 'foo bar'
+    - 123x 'image is in the deny list for extraction'
 
 ## Anonymisation failures
 
 - file 'foo1.dcm': 'image was corrupt'
-- file 'foo2.dcm': 'could not be anonymised'
 
-## Verification failures
-
-- file 'foo1.dcm':
-      (Problem Field | Problem Value)
-    - ScanOptions | FOO
-         (Classification | Offset | Word)
-       - PrivateIdentifier | 0 | FOO
-       - Person | 1 | BAR
-
-- file 'foo2.dcm':
-      (Problem Field | Problem Value)
-    - ScanOptions | FOO
-         (Classification | Offset | Word)
-       - PrivateIdentifier | 0 | FOO
-       - Person | 1 | BAR
-
-
+--- end of report ---
 ";
-            Console.WriteLine(reporter.Report);
+
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
@@ -271,6 +274,147 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             Assert.True(reporter.Disposed);
         }
 
-        #endregion
+        [Test]
+        public void Test_JobReporterBase_CreateReport_AggregateData()
+        {
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "test/dir",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed);
+
+            var verificationFailures = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("ccc/ddd/foo1.dcm", @"
+                    [
+                        {
+                             'Parts': [],
+                            'Resource': 'unused',
+                            'ResourcePrimaryKey': 'unused',
+                            'ProblemField': 'SomeOtherTag',
+                            'ProblemValue': 'BAZ'
+                        }
+                    ]"
+                ),
+                new Tuple<string, string>("ccc/ddd/foo2.dcm", @"
+                    [
+                        {
+                             'Parts': [],
+                            'Resource': 'unused',
+                            'ResourcePrimaryKey': 'unused',
+                            'ProblemField': 'SomeOtherTag',
+                            'ProblemValue': 'BAZ'
+                        }
+                    ]"
+                ),
+                new Tuple<string, string>("aaa/bbb/foo1.dcm", @"
+                    [
+                        {
+                            'Parts': [],
+                            'Resource': 'unused',
+                            'ResourcePrimaryKey': 'unused',
+                            'ProblemField': 'ScanOptions',
+                            'ProblemValue': 'FOO'
+                        }
+                    ]"
+                ),
+                new Tuple<string, string>("aaa/bbb/foo2.dcm", @"
+                    [
+                        {
+                            'Parts': [],
+                            'Resource': 'unused',
+                            'ResourcePrimaryKey': 'unused',
+                            'ProblemField': 'ScanOptions',
+                            'ProblemValue': 'FOO'
+                        }
+                    ]"
+                ),
+                new Tuple<string, string>("aaa/bbb/foo2.dcm", @"
+                    [
+                         {
+                            'Parts': [],
+                            'Resource': 'unused',
+                            'ResourcePrimaryKey': 'unused',
+                            'ProblemField': 'ScanOptions',
+                            'ProblemValue': 'BAR'
+                        }
+                    ]"
+                ),
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>()))
+                .Returns(verificationFailures);
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            string expected = $@"
+# SMI file extraction report for 1234
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+
+Report contents:
+-    Verification failures
+-    Rejected failures
+-    Anonymisation failures
+
+## Verification failures
+
+Summary:
+
+- Tag: ScanOptions (3 total occurrence(s))
+    - Value: 'FOO' (2 occurrence(s))
+    - Value: 'BAR' (1 occurrence(s))
+
+- Tag: SomeOtherTag (2 total occurrence(s))
+    - Value: 'BAZ' (2 occurrence(s))
+
+
+Full details:
+
+- Tag: ScanOptions (3 total occurrence(s))
+    - Value: 'FOO' (2 occurrence(s))
+        - aaa/bbb/foo1.dcm
+        - aaa/bbb/foo2.dcm
+    - Value: 'BAR' (1 occurrence(s))
+        - aaa/bbb/foo2.dcm
+
+- Tag: SomeOtherTag (2 total occurrence(s))
+    - Value: 'BAZ' (2 occurrence(s))
+        - ccc/ddd/foo1.dcm
+        - ccc/ddd/foo2.dcm
+
+
+## Rejected files
+
+
+## Anonymisation failures
+
+
+--- end of report ---
+";
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+        }
     }
+
+    #endregion
 }
