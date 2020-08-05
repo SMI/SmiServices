@@ -12,7 +12,7 @@ cache:
 
 before_build:
 - cmd: if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
-- ps: Add-Content c:\mongodb\mongod.cfg "`r`nreplication:`r`n  replSetName: rs0`r`n"
+ps: "Add-Content c:\\mongodb\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
 - cmd: net start mongodb
 - choco install opencover.portable
 - choco install rabbitmq
