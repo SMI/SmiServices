@@ -29,7 +29,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         }
 
         /// <inheritdoc/>
-        protected override string GetNationalPACSAccessionNumberFrom(string dirPath)
+        protected override string GetNationalPacsAccessionNumberFrom(string dirPath)
         {
             return null;
         }
