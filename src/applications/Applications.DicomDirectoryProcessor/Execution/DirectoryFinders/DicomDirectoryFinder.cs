@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using NLog;
@@ -101,7 +102,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             var message = new AccessionDirectoryMessage
             {
                 DirectoryPath = dirPath,
-                NationalPACSAccessionNumber = Path.GetFileName(dirPath)
+                NationalPACSAccessionNumber = GetNationalPacsAccessionNumberFrom(dirPath)
             };
 
             _directoriesProducerModel.SendMessage(message, null);
@@ -115,6 +116,14 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             Times[(int)tl].Add(elapsed);
             Stopwatch.Restart();
         }
+
+        /// <summary>
+        /// Returns the accession directory for the supplied directory or null if accession number is not modelled in the file system layout
+        /// </summary>
+        /// <param name="dirPath">Subdirectories under root (not including root) e.g. sub_dir/sub_sub_dir</param>
+        /// <returns></returns>
+        [CanBeNull]
+        protected virtual string GetNationalPacsAccessionNumberFrom(string dirPath) => Path.GetFileName(dirPath);
 
         protected string CalcAverages()
         {
@@ -130,6 +139,11 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
             }
 
             return sb.ToString();
+        }
+
+        protected virtual IEnumerable<IFileInfo> GetEnumerator(IDirectoryInfo dirInfo)
+        {
+            return dirInfo.EnumerateFiles(SearchPattern);
         }
     }
 }

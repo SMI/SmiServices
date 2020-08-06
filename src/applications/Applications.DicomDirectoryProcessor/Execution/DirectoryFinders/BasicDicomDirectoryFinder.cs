@@ -11,6 +11,12 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 {
     public class BasicDicomDirectoryFinder : DicomDirectoryFinder
     {
+        /// <summary>
+        /// True - Always go to bottom of directory structure
+        /// False - If a directory contains dicom files do not enumerate it's subdirectories
+        /// </summary>
+        public bool AlwaysSearchSubdirectories {get;set; }
+
         public BasicDicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
         : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel) { }
 
@@ -64,7 +70,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                 IEnumerable<IFileInfo> fileEnumerator;
                 try
                 {
-                    fileEnumerator = dirInfo.EnumerateFiles(SearchPattern);
+                    fileEnumerator = GetEnumerator(dirInfo);
                     LogTime(TimeLabel.EnumFiles);
                 }
                 catch (Exception e)
@@ -82,7 +88,8 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                     FoundNewDicomDirectory(dir);
                     LogTime(TimeLabel.FoundNewDir);
                 }
-                else
+                
+                if(!hasDicom || AlwaysSearchSubdirectories)
                 {
                     Logger.Debug($"Enumerating subdirectories of {dir}");
 

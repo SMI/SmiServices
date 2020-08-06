@@ -70,6 +70,13 @@ namespace Applications.DicomDirectoryProcessor.Execution
                 _ddf = new BasicDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
                     globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
             }
+            else if (cliOptions.DirectoryFormat.ToLower().Equals("zips"))
+            {
+                Logger.Info("Creating zip directory finder");
+
+                _ddf = new ZipDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
+                    globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
+            }
             else
             {
                 throw new ArgumentException("Could not match directory format " + cliOptions.DirectoryFormat + " to an directory scan implementation");
