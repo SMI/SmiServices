@@ -15,6 +15,9 @@ before_build:
 - ps: "Add-Content c:\\mongodb\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
 - cmd: "net start mongodb"
 - cmd: "c:\\mongodb\\bin\\mongo --eval 'rs.initiate()'"
+- cmd: "c:\\mongodb\\bin\\mongo --eval 'rs.conf()'"
+- cmd: "c:\\mongodb\\bin\\mongo --eval 'rs.status()'"
+- cmd: "appveyor exit"
 - choco install opencover.portable
 - choco install rabbitmq
 
