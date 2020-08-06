@@ -35,12 +35,12 @@
     <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="2.3.0" />
     <PackageReference Include="HIC.FAnsiSql" Version="1.0.2" />
-    <PackageReference Include="HIC.RDMP.Plugin" Version="4.1.5" />
+    <PackageReference Include="HIC.RDMP.Plugin" Version="4.1.6" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
-    <PackageReference Include="System.IO.Abstractions" Version="12.0.10" />
+    <PackageReference Include="System.IO.Abstractions" Version="12.1.1" />
     <PackageReference Include="YamlDotNet" Version="8.1.2" />
   </ItemGroup>
 </Project>
