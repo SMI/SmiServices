@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.11.1] - 2020-08-12
+
+-   Set PublishTrimmed to false to fix bug with missing assemblies in prod.
+
 ## [1.11.0] - 2020-08-06
 
 ### Added
@@ -362,7 +366,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.11.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.11.1...develop
+[1.11.1]:  https://github.com/SMI/SmiServices/compare/v1.11.0...v1.11.1
 [1.11.0]:  https://github.com/SMI/SmiServices/compare/v1.10.0...v1.11.0
 [1.10.0]:  https://github.com/SMI/SmiServices/compare/v1.9.0...v1.10.0
 [1.9.0]:  https://github.com/SMI/SmiServices/compare/v1.8.1...v1.9.0
