@@ -9,6 +9,9 @@ updates:
   reviewers:
   - rkm
   - tznind
+  ignored_updates:
+  - match:
+      dependency_name: "fo-dicom*"
 - package-ecosystem: maven
   directory: "/src/common/com.smi.microservices.parent"
   schedule:
