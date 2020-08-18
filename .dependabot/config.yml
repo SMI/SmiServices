@@ -7,6 +7,9 @@ update_configs:
     default_reviewers:
     - rkm
     - tznind
+    ignored_updates:
+        - match:
+            dependency_name: "fo-dicom*"
   - package_manager: "java:maven"
     directory: "/src/common/com.smi.microservices.parent/"
     update_schedule: "daily"
