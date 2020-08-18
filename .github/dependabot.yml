@@ -1,0 +1,22 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  target-branch: develop
+  reviewers:
+  - rkm
+  - tznind
+  ignore:
+  - dependency-name: "fo-dicom*"
+- package-ecosystem: maven
+  directory: "/src/common/com.smi.microservices.parent"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  target-branch: develop
+  reviewers:
+  - rkm
+  - tznind
