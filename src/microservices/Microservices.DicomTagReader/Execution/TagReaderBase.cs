@@ -12,6 +12,8 @@ using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using NLog;
+using System.IO.Compression;
+using Smi.Common;
 
 namespace Microservices.DicomTagReader.Execution
 {
@@ -85,11 +87,13 @@ namespace Microservices.DicomTagReader.Execution
             if (!dirPath.StartsWith(_filesystemRoot, StringComparison.CurrentCultureIgnoreCase))
                 throw new ApplicationException("Directory " + dirPath + " is not below the given FileSystemRoot (" +
                                                _filesystemRoot + ")");
-
             long beginEnumerate = _stopwatch.ElapsedTicks;
             string[] dicomFilePaths = _fs.Directory.EnumerateFiles(dirPath, _searchPattern).ToArray();
+            string[] zipFilePaths =  _fs.Directory.EnumerateFiles(dirPath).Where(ZipHelper.IsZip).ToArray();
+
             _swTotals[0] += _stopwatch.ElapsedTicks - beginEnumerate;
             Logger.Debug("TagReader: Found " + dicomFilePaths.Length + " dicom files to process");
+            Logger.Debug("TagReader: Found " + zipFilePaths.Length + " zip files to process");
 
             if (dicomFilePaths.Length == 0)
                 throw new ApplicationException("No dicom files found in " + dirPath);
@@ -99,6 +103,7 @@ namespace Microservices.DicomTagReader.Execution
             long beginRead = _stopwatch.ElapsedTicks;
 
             List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(p=>new FileInfo(p)), message);
+            fileMessages.AddRange(ReadZipFilesImpl(zipFilePaths.Select(p=>new FileInfo(p)), message));
 
             _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / dicomFilePaths.Length;
 
@@ -170,24 +175,52 @@ namespace Microservices.DicomTagReader.Execution
                 LogRates();
         }
 
-        protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
-            AccessionDirectoryMessage accMessage);
+        /// <summary>
+        /// Opens all zip files <paramref name="zipFilePaths"/> and generates a <see cref="DicomFileMessage"/> for each dcm file in the archive
+        /// </summary>
+        /// <param name="zipFilePaths">All the zip files that must be explored for dcm files</param>
+        /// <param name="accMessage">The upstream message that suggested we look for dicom files in a given directory</param>
+        /// <returns></returns>
+        protected virtual IEnumerable<DicomFileMessage> ReadZipFilesImpl(IEnumerable<FileInfo> zipFilePaths,AccessionDirectoryMessage accMessage)
+        {
+            foreach(FileInfo zipFilePath in zipFilePaths)
+            {
+                using(var archive = ZipFile.Open(zipFilePath.FullName,ZipArchiveMode.Read))
+                {
+                    foreach(var entry in archive.Entries)
+                    {
+                        if(entry.FullName.EndsWith(".dcm",StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            byte[] buffer = null;
+                    
+                            buffer = ReadFully(entry.Open());
+                            
+                            using (var memoryStream = new MemoryStream(buffer))
+                            {
+                                var dicom = DicomFile.Open(memoryStream);
+
+                                yield return DicomFileToMessage(dicom.Dataset,zipFilePath.FullName + "!" + entry.FullName,null);
+                            }      
+                        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
-        /// Builds a <see cref="DicomFileMessage"/> from a single dicom file
+        /// Creates a new <see cref="DicomFileMessage"/> by reading <paramref name="ds"/> tags
         /// </summary>
-        /// <param name="dicomFilePath"></param>
+        /// <param name="ds"></param>
+        /// <param name="dicomFilePath">The full path that <paramref name="ds"/> was read from</param>
+        /// <param name="fileSize">File size if known otherwise null</param>
         /// <returns></returns>
-        protected static DicomFileMessage ReadTagsFromFile(FileInfo dicomFilePath)
+        /// <exception cref="ApplicationException">If <paramref name="ds"/> is missing required UIDS or serializing the dataset went wrong</exception>
+        protected DicomFileMessage DicomFileToMessage(DicomDataset ds, string dicomFilePath, long? fileSize)
         {
-            DicomDataset ds;
             var IDs = new string[3];
 
             try
             {
-                //TODO(Ruairidh 04/07) Check if we can mock this out now
-                ds = DicomFile.Open(dicomFilePath.FullName, _fileReadOption).Dataset;
-
                 // Pre-fetch these to ensure they exist before we go further
                 IDs[0] = ds.GetValue<string>(DicomTag.StudyInstanceUID, 0);
                 IDs[1] = ds.GetValue<string>(DicomTag.SeriesInstanceUID, 0);
@@ -195,10 +228,6 @@ namespace Microservices.DicomTagReader.Execution
 
                 if (IDs.Any(string.IsNullOrWhiteSpace))
                     throw new DicomDataException("A required ID tag existed but its value was invalid");
-            }
-            catch (DicomFileException dfe)
-            {
-                throw new ApplicationException("Could not open dicom file: " + dicomFilePath, dfe);
             }
             catch (DicomDataException dde)
             {
@@ -224,8 +253,43 @@ namespace Microservices.DicomTagReader.Execution
                 SOPInstanceUID = IDs[2],
 
                 DicomDataset = serializedDataset,
-                DicomFileSize = dicomFilePath.Length
+                DicomFileSize = fileSize ?? -1
             };
+            
+        }
+
+        private byte[] ReadFully(Stream stream)
+        {
+            var buffer = new byte[32768];
+            using (var ms = new MemoryStream())
+            {
+                while (true)
+                {
+                    var read = stream.Read(buffer, 0, buffer.Length);
+                    if (read <= 0)
+                        return ms.ToArray();
+                    ms.Write(buffer, 0, read);
+                }
+            }
+        }
+        protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
+            AccessionDirectoryMessage accMessage);
+
+        /// <summary>
+        /// Builds a <see cref="DicomFileMessage"/> from a single dicom file
+        /// </summary>
+        /// <param name="dicomFilePath"></param>
+        /// <returns></returns>
+        protected DicomFileMessage ReadTagsFromFile(FileInfo dicomFilePath)
+        {
+            try
+            {
+                return DicomFileToMessage(DicomFile.Open(dicomFilePath.FullName, _fileReadOption).Dataset,dicomFilePath.FullName,dicomFilePath.Length);
+            }
+            catch (DicomFileException dfe)
+            {
+                throw new ApplicationException("Could not open dicom file: " + dicomFilePath, dfe);
+            }
         }
 
         private void LogRates()

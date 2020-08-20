@@ -59,6 +59,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
             if (string.IsNullOrWhiteSpace(message.Report))
                 throw new ApplicationException("Null or empty report data");
+            if (message.IsIdentifiable && message.Report == "[]")
+                throw new ApplicationException("No report data for message marked as identifiable");
 
             PersistMessageToStoreImpl(message, header);
         }
@@ -99,7 +101,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobInfoImpl(jobId) ?? throw new ApplicationException("The job store implementation returned a null ExtractJobInfo object");
         }
 
-        public IEnumerable<Tuple<string, int>> GetCompletedJobRejections(Guid jobId)
+        public IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejections(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -131,7 +133,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract void CompleteJobImpl(Guid jobId);
         protected abstract void MarkJobFailedImpl(Guid jobId, Exception e);
         protected abstract ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
-        protected abstract IEnumerable<Tuple<string, int>> GetCompletedJobRejectionsImpl(Guid jobId);
+        protected abstract IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejectionsImpl(Guid jobId);
         protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId);
 

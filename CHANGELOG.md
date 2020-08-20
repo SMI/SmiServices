@@ -6,10 +6,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.11.1] - 2020-08-12
+
+-   Set PublishTrimmed to false to fix bug with missing assemblies in prod.
+
+## [1.11.0] - 2020-08-06
+
+### Added
+
+- DicomDirectoryProcessor and TagReader support for zip archives
+  - Expressed in notation `/mydrive/myfolder/myzip.zip!somesubdir/my.dcm`
+  - Requires command line `-f zips`
+
 ### Changed
 
+-   Improved the extraction report by summarising verification failures
+-   Start MongoDB in replication mode in the Travis builds
+-   Switch to self-contained .Net binaries to avoid dependency on host runtime package
+-   NationalPACSAccessionNumber is now allowed to be null in all messages
+
+### Dependencies
+
+-   Bump HIC.RDMP.Plugin from 4.1.5 to 4.1.6
+-   Bump MongoDB.Driver from 2.10.4 to 2.11.0
+-   Bump System.IO.Abstractions from 12.0.10 to 12.1.1
+-   Bump System.IO.Abstractions.TestingHelpers from 12.0.10 to 12.1.1
+-   Bump jackson-dataformat-yaml from 2.11.1 to 2.11.2
+
+## [1.10.0] - 2020-07-31
+
+### Changed
+
+- Updated the extraction report to be more human-readable #320, #328
+- Add CLI option to CohortPackager to allow an existing report to be recreated #321
+- Added a runsettings file for NUnit to allow configuration of test output. Fixes an issue with TravisCI and NUnit3TestAdapter v3.17.0, which caused the test output to spill to over 20k lines.
+
+### Dependencies
+
+- Bump HIC.FAnsiSql from 0.11.1 to 1.0.2
+- Bump HIC.RDMP.Dicom from 2.1.5 to 2.1.6
+- Bump HIC.RDMP.Plugin from 4.1.3 to 4.1.5
+- Bump Magick.NET-Q16-AnyCPU from 7.20.0 to 7.21.1
+- Bump Microsoft.Extensions.Caching.Memory from 3.1.5 to 3.1.6
+- Bump System.IO.Abstractions from 12.0.1 to 12.0.10
 - Bump System.IO.Abstractions from 12.0.1 to 12.0.2
 - Bump System.IO.Abstractions.TestingHelpers from 12.0.1 to 12.0.2
+- Bump com.fasterxml.jackson.dataformat.jackson-dataformat-yaml from 2.11.0 to 2.11.1
+- Bump org.mockito.mockito-core from 3.3.3 to 3.4.6
 
 ## [1.9.0] - 2020-06-22
 
@@ -323,7 +366,10 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.9.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.11.1...develop
+[1.11.1]:  https://github.com/SMI/SmiServices/compare/v1.11.0...v1.11.1
+[1.11.0]:  https://github.com/SMI/SmiServices/compare/v1.10.0...v1.11.0
+[1.10.0]:  https://github.com/SMI/SmiServices/compare/v1.9.0...v1.10.0
 [1.9.0]:  https://github.com/SMI/SmiServices/compare/v1.8.1...v1.9.0
 [1.8.1]:  https://github.com/SMI/SmiServices/compare/v1.8.0...v1.8.1
 [1.8.0]:  https://github.com/SMI/SmiServices/compare/v1.7.0...v1.8.0

@@ -15,7 +15,7 @@ namespace Smi.Common.Tests
     {
         public void ApplyToContext(TestExecutionContext context)
         {
-            var address = GetMongoClientSettings();
+            MongoClientSettings address = GetMongoClientSettings();
             
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
 
@@ -25,12 +25,13 @@ namespace Smi.Common.Tests
             {
                 IAsyncCursor<BsonDocument> dbs = client.ListDatabases();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                var msg = $"Could not connect to MongoDB at {address}: {e}";
                 if (!FailIfUnavailable)
-                    Assert.Ignore("Could not connect to MongoDB");
+                    Assert.Ignore(msg);
                 else
-                    Assert.Fail("Could not connect to MongoDB");
+                    Assert.Fail(msg);
             }
         }
 

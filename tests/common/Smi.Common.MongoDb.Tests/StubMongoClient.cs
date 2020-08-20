@@ -22,8 +22,12 @@ namespace Smi.Common.MongoDb.Tests
         public virtual IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null) => throw new NotImplementedException();
         public virtual IAsyncCursor<string> ListDatabaseNames(CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<string> ListDatabaseNames(IClientSessionHandle session, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        public IAsyncCursor<string> ListDatabaseNames(ListDatabaseNamesOptions options, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public IAsyncCursor<string> ListDatabaseNames(IClientSessionHandle session, ListDatabaseNamesOptions options, CancellationToken cancellationToken = default) => throw new NotImplementedException();
         public virtual Task<IAsyncCursor<string>> ListDatabaseNamesAsync(CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task<IAsyncCursor<string>> ListDatabaseNamesAsync(IClientSessionHandle session, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(ListDatabaseNamesOptions options, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(IClientSessionHandle session, ListDatabaseNamesOptions options, CancellationToken cancellationToken = default) => throw new NotImplementedException();
         public virtual IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<BsonDocument> ListDatabases(ListDatabasesOptions options, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<BsonDocument> ListDatabases(IClientSessionHandle session, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
