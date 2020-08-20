@@ -102,7 +102,7 @@ namespace Smi.Common.Messaging
                     try
                     {
                     ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out timedOut);
-                    } catch (Exception)
+                    } catch (System.TimeoutException)
                     {
                         ok = false;
                         timedOut = true;
