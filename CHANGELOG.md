@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Add SecurityCodeScan tool to build chain for .Net code
+
 ## [1.11.1] - 2020-08-12
 
 -   Set PublishTrimmed to false to fix bug with missing assemblies in prod.
