@@ -98,7 +98,7 @@ namespace Microservices.Tests.RDMPTests
             globalOptions.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
 
             //Image table now needs all the UIDs in order to be extractable
-            var adder = new TagColumnAdder("StudyInstanceUID", "varchar(100)", ImageTableInfo, new AcceptAllCheckNotifier(), false);
+            var adder = new TagColumnAdder("StudyInstanceUID", "varchar(100)", ImageTableInfo, new AcceptAllCheckNotifier());
             adder.Execute();
         }
 

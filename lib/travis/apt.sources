@@ -1,0 +1,8 @@
+deb http://archive.ubuntu.com/ubuntu bionic main universe multiverse restricted
+deb http://archive.ubuntu.com/ubuntu bionic-backports main universe
+deb http://archive.ubuntu.com/ubuntu bionic-updates main universe multiverse restricted
+deb http://security.ubuntu.com/ubuntu bionic-security main multiverse restricted universe
+deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang
+deb https://dl.bintray.com/rabbitmq/debian/ bionic main
+deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main
+deb [arch=amd64] https://packages.microsoft.com/ubuntu/16.04/mssql-server-2017 xenial main

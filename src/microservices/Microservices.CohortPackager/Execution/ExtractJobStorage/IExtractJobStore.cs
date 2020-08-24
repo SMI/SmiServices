@@ -71,7 +71,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<string, int>> GetCompletedJobRejections(Guid jobId);
+        IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejections(Guid jobId);
 
         /// <summary>
         /// Returns the anonymisation failures for a completed job. This is a tuple of "expected anonymised file path" and "failure reason"

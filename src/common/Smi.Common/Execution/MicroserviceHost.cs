@@ -96,10 +96,6 @@ namespace Smi.Common.Execution
 
             Logger.Trace("Trace logging enabled!");
 
-            //FIXME: Check this is still valid
-            if (!DicomDatasetHelpers.CorrectFoDicomVersion())
-                throw new ApplicationException("Incorrect fo-dicom version for the current platform");
-
             HostProcessID = Process.GetCurrentProcess().Id;
             Logger.Info($"Starting {HostProcessName} (Host={Environment.MachineName} PID={HostProcessID} User={Environment.UserName})");
 
