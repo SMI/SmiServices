@@ -36,6 +36,14 @@ namespace IsIdentifiableReviewer
 
         Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
 
+        ColorScheme _greyOnBlack = new ColorScheme()
+        {
+            Normal = Attribute.Make(Color.Black,Color.Gray),
+            HotFocus = Attribute.Make(Color.Black,Color.Gray),
+            Disabled = Attribute.Make(Color.Black,Color.Gray),
+            Focus = Attribute.Make(Color.Black,Color.Gray),
+        };
+
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _targets = targets;
@@ -66,7 +74,7 @@ namespace IsIdentifiableReviewer
                 Height = 1
             };
             
-            _info.TextColor = Attribute.Make(Color.Black,Color.Gray);
+            _info.ColorScheme = _greyOnBlack;
             
             _valuePane = new ValuePane()
             {
@@ -101,7 +109,7 @@ namespace IsIdentifiableReviewer
                 X=28,
                 Width = 5
             };
-            _gotoTextField.Changed += (s,e) => GoTo();
+            _gotoTextField.TextChanged = (s) => GoTo();
             frame.Add(_gotoTextField);
             frame.Add(new Label(23,0,"GoTo:"));
 
@@ -133,7 +141,7 @@ namespace IsIdentifiableReviewer
             frame.Add(_updateRuleLabel);
 
             var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
-            cbCustomPattern.Toggled += (c, s) =>
+            cbCustomPattern.Toggled = (b) =>
             {
                 Updater.RulesFactory = cbCustomPattern.Checked ? this : _origUpdaterRulesFactory;
                 Ignorer.RulesFactory = cbCustomPattern.Checked ? this : _origIgnorerRulesFactory;
@@ -143,7 +151,7 @@ namespace IsIdentifiableReviewer
             _cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
             Updater.RulesOnly = opts.OnlyRules;
 
-            _cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
+            _cbRulesOnly.Toggled += (b) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
             frame.Add(_cbRulesOnly);
             
             top.Add (menu);
