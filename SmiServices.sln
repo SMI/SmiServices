@@ -75,8 +75,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IsIdentifiabl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiableReviewer", "src\applications\IsIdentifiableReviewer\IsIdentifiableReviewer.csproj", "{C2031E86-81B4-405A-A923-9B82E0CE196F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.FileCopier", "src\microservices\Microservices.FileCopier\Microservices.FileCopier.csproj", "{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.FileCopier", "src\microservices\Microservices.FileCopier\Microservices.FileCopier.csproj", "{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.FileCopier.Tests", "tests\microservices\Microservices.FileCopier.Tests\Microservices.FileCopier.Tests.csproj", "{D61F6BF9-E857-457C-B745-40489A8CFE65}"
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -187,6 +188,10 @@ Global
 		{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}.Debug|x64.Build.0 = Debug|x64
 		{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}.Release|x64.ActiveCfg = Release|x64
 		{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}.Release|x64.Build.0 = Release|x64
+		{D61F6BF9-E857-457C-B745-40489A8CFE65}.Debug|x64.ActiveCfg = Debug|x64
+		{D61F6BF9-E857-457C-B745-40489A8CFE65}.Debug|x64.Build.0 = Debug|x64
+		{D61F6BF9-E857-457C-B745-40489A8CFE65}.Release|x64.ActiveCfg = Release|x64
+		{D61F6BF9-E857-457C-B745-40489A8CFE65}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,6 +223,7 @@ Global
 		{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{C2031E86-81B4-405A-A923-9B82E0CE196F} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{D4E52707-FFF7-41E6-8057-C6DB344B8CD7} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{D61F6BF9-E857-457C-B745-40489A8CFE65} = {421CCD37-3817-4748-B184-A134E19DD75C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}
