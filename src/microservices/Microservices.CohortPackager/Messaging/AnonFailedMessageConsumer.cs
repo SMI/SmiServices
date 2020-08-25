@@ -8,6 +8,7 @@ using Smi.Common.Messaging;
 
 namespace Microservices.CohortPackager.Messaging
 {
+    // TODO Naming
     /// <summary>
     /// Consumer for <see cref="ExtractFileStatusMessage"/>(s)
     /// </summary>
