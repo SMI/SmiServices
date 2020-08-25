@@ -151,7 +151,7 @@ namespace IsIdentifiableReviewer
             _cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
             Updater.RulesOnly = opts.OnlyRules;
 
-            _cbRulesOnly.Toggled += (b) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
+            _cbRulesOnly.Toggled = (b) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
             frame.Add(_cbRulesOnly);
             
             top.Add (menu);
