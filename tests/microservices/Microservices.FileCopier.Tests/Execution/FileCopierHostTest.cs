@@ -27,9 +27,9 @@ namespace Microservices.FileCopier.Tests.Execution
         #region Tests
 
         [Test]
-        public void ExampleTest()
+        public void Test_FileCopierHost_HappyPath()
         {
-            Assert.Fail();
+            Assert.Inconclusive();
         }
 
         #endregion

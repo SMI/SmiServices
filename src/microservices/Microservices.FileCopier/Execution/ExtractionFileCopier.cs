@@ -8,7 +8,7 @@ using System.IO.Abstractions;
 
 namespace Microservices.FileCopier.Execution
 {
-    public class FileCopier : IFileCopier
+    public class ExtractionFileCopier : IFileCopier
     {
         [NotNull] private readonly IProducerModel _copyStatusProducerModel;
 
@@ -18,7 +18,7 @@ namespace Microservices.FileCopier.Execution
         [NotNull] private readonly ILogger _logger;
 
 
-        public FileCopier(
+        public ExtractionFileCopier(
             [NotNull] IProducerModel copyStatusCopyStatusProducerModel,
             [NotNull] string fileSystemRoot,
             [CanBeNull] IFileSystem fileSystem = null)
@@ -35,7 +35,7 @@ namespace Microservices.FileCopier.Execution
             [NotNull] ExtractFileMessage message,
             [NotNull] IMessageHeader header)
         {
-            string fullSrc = _fileSystem.Path.Join(_fileSystemRoot, message.DicomFilePath);
+            string fullSrc = _fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath);
 
             ExtractFileStatusMessage statusMessage;
 
@@ -47,11 +47,11 @@ namespace Microservices.FileCopier.Execution
                     Status = ExtractFileStatus.FileMissing,
                     StatusMessage = $"Could not find '{fullSrc}'"
                 };
-                _copyStatusProducerModel.SendMessage(statusMessage, header);
+                _ = _copyStatusProducerModel.SendMessage(statusMessage, header, MessagingConstants.RMQ_EXTRACT_FILE_NOVERIFY_ROUTING_KEY);
                 return;
             }
 
-            string fullDest = _fileSystem.Path.Join(_fileSystemRoot, message.OutputPath);
+            string fullDest = _fileSystem.Path.Combine(_fileSystemRoot, message.ExtractionDirectory, message.OutputPath);
 
             if (_fileSystem.File.Exists(fullDest))
                 _logger.Warn($"Output file '{fullDest}' already exists. Will overwrite.");
@@ -72,7 +72,7 @@ namespace Microservices.FileCopier.Execution
                 Status = ExtractFileStatus.Copied,
                 AnonymisedFileName = message.OutputPath,
             };
-            _copyStatusProducerModel.SendMessage(statusMessage, header);
+            _ = _copyStatusProducerModel.SendMessage(statusMessage, header, MessagingConstants.RMQ_EXTRACT_FILE_NOVERIFY_ROUTING_KEY);
         }
     }
 }

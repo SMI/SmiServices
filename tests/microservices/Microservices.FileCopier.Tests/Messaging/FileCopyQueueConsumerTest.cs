@@ -27,9 +27,29 @@ namespace Microservices.FileCopier.Tests.Messaging
         #region Tests
 
         [Test]
-        public void ExampleTest()
+        public void Test_FileCopyQueueConsumer_ValidMessage_IsAcked()
         {
-            Assert.Fail();
+            // There's a ridiculous amount of boilerplate required to test this at the moment...
+            //var mockFileCopier = new Mock<IFileCopier>(MockBehavior.Strict);
+            //var consumer = new FileCopyQueueConsumer(mockFileCopier.Object);
+            //consumer.ProcessMessage();
+            
+            // TODO(rkm 2020-08-25) Test Ack / not Nack
+            Assert.Inconclusive();
+        }
+
+        [Test]
+        public void Test_FileCopyQueueConsumer_ApplicationException_IsNacked()
+        {
+            // TODO(rkm 2020-08-25) Test Nack / not Ack
+            Assert.Inconclusive();
+        }
+
+        [Test]
+        public void Test_FileCopyQueueConsumer_UnknownException_CallsFatalCallback()
+        {
+            // TODO(rkm 2020-08-25) Test not ack / not nack / Fatal called
+            Assert.Inconclusive();
         }
 
         #endregion

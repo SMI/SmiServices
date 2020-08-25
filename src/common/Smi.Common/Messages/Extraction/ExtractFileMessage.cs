@@ -24,7 +24,7 @@ namespace Smi.Common.Messages.Extraction
 
 
         [JsonConstructor]
-        private ExtractFileMessage() { }
+        public ExtractFileMessage() { }
 
         public ExtractFileMessage(ExtractionRequestMessage request)
             : base(request) { }

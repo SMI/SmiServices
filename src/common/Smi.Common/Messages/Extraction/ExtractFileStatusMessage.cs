@@ -40,6 +40,13 @@ namespace Smi.Common.Messages.Extraction
         public ExtractFileStatusMessage(IExtractMessage request)
             : base(request) { }
 
+        public override string ToString() =>
+            $"{base.ToString()}," +
+            $"DicomFilePath={DicomFilePath}," +
+            $"ExtractFileStatus={Status}," +
+            $"AnonymisedFileName={AnonymisedFileName}," +
+            $"StatusMessage={StatusMessage}," +
+            "";
 
         #region Equality Members
 
