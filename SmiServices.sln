@@ -78,6 +78,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.FileCopier", "src\microservices\Microservices.FileCopier\Microservices.FileCopier.csproj", "{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.FileCopier.Tests", "tests\microservices\Microservices.FileCopier.Tests\Microservices.FileCopier.Tests.csproj", "{D61F6BF9-E857-457C-B745-40489A8CFE65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
