@@ -1,6 +1,7 @@
 ﻿using CommandLine;
+using Microservices.FileCopier.Execution;
+using Smi.Common.Execution;
 using Smi.Common.Options;
-
 
 namespace Microservices.FileCopier
 {
@@ -17,11 +18,10 @@ namespace Microservices.FileCopier
                 {
                     GlobalOptions options = GlobalOptions.Load(o);
 
-                    //var bootstrapper = new MicroserviceHostBootstrapper(() => new DicomTagReaderHost(options));
-                    //return bootstrapper.Main();
-                    return 0;
+                    var bootstrapper = new MicroserviceHostBootstrapper(() => new FileCopierHost(options));
+                    return bootstrapper.Main();
                 },
-                err => -100);
+                err => 1);
         }
     }
 }

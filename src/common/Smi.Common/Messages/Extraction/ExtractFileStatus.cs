@@ -19,6 +19,18 @@ namespace Smi.Common.Messages.Extraction
         /// <summary>
         /// The file could not be anonymised and will not be retired
         /// </summary>
-        ErrorWontRetry
+        ErrorWontRetry,
+        
+        // TODO Java
+        /// <summary>
+        /// The source file could not be found under the given filesystem root
+        /// </summary>
+        FileMissing,
+
+        // TODO Java
+        /// <summary>
+        /// The source file was successfully copied to the destination
+        /// </summary>
+        Copied,
     }
 }

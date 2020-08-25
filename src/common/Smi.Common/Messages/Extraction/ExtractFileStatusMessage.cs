@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using Newtonsoft.Json;
 
@@ -20,6 +20,7 @@ namespace Smi.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public ExtractFileStatus Status { get; set; }
 
+        // TODO Consider renaming
         /// <summary>
         /// Anonymised file name. Only required if a file has been anonymised
         /// </summary>
@@ -35,6 +36,9 @@ namespace Smi.Common.Messages.Extraction
 
         [JsonConstructor]
         public ExtractFileStatusMessage() { }
+
+        public ExtractFileStatusMessage(IExtractMessage request)
+            : base(request) { }
 
 
         #region Equality Members

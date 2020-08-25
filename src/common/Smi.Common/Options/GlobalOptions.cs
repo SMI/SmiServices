@@ -83,6 +83,7 @@ namespace Smi.Common.Options
         public CohortPackagerOptions CohortPackagerOptions { get; set; }
         public DicomReprocessorOptions DicomReprocessorOptions { get; set; }
         public DicomTagReaderOptions DicomTagReaderOptions { get; set; }
+        public FileCopierOptions FileCopierOptions { get; set; }
         public IdentifierMapperOptions IdentifierMapperOptions { get; set; }
         public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; }
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
@@ -284,6 +285,14 @@ namespace Smi.Common.Options
         {
             return GlobalOptions.GenerateToString(this);
         }
+    }
+
+    [UsedImplicitly]
+    public class FileCopierOptions : ConsumerOptions
+    {
+        public ProducerOptions CopyStatusProducerOptions { get; set; }
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
     public enum TagProcessorMode
