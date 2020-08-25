@@ -110,15 +110,17 @@ Job info:
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 
-Full details:
+### Full details
 
 
 ## Rejected files
@@ -204,18 +206,20 @@ Job info:
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
 
 
-Full details:
+### Full details
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
@@ -373,12 +377,14 @@ Job info:
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))
@@ -388,7 +394,7 @@ Summary:
     - Value: 'BAZ' (2 occurrence(s))
 
 
-Full details:
+### Full details
 
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))

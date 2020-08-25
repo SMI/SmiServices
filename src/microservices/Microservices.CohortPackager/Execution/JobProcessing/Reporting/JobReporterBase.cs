@@ -81,6 +81,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 "",
                 "Report contents:",
                 "-    Verification failures",
+                "    -    Summary",
+                "    -    Full Details",
                 "-    Rejected failures",
                 "-    Anonymisation failures",
             };
@@ -132,7 +134,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 }
             }
 
-            streamWriter.WriteLine("Summary:");
+            streamWriter.WriteLine("### Summary");
             streamWriter.WriteLine();
 
             var sb = new StringBuilder();
@@ -160,7 +162,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             // Now write-out the same, but with the file listing
             streamWriter.WriteLine();
-            streamWriter.WriteLine("Full details:");
+            streamWriter.WriteLine("### Full details");
             streamWriter.WriteLine();
             streamWriter.Write(sb);
         }
