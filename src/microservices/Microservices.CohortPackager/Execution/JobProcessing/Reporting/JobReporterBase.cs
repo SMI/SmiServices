@@ -140,24 +140,24 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             var sb = new StringBuilder();
 
             // Write-out the groupings, ordered by descending count, as a summary without the list of associated files
-            List<KeyValuePair<string, Dictionary<string, List<string>>>> grouped = groupedFailures.OrderByDescending(x => x.Value.Sum(y => y.Value.Count)).ToList();
+            // Ignore the pixel data here since we deal with it separately below
+            const string pixelData = "PixelData";
+            List<KeyValuePair<string, Dictionary<string, List<string>>>> grouped = groupedFailures
+                .Where(x => x.Key != pixelData)
+                .OrderByDescending(x => x.Value.Sum(y => y.Value.Count))
+                .ToList();
+
             foreach ((string tag, Dictionary<string, List<string>> failures) in grouped)
             {
-                int totalOccurrences = failures.Sum(x => x.Value.Count);
-                string line = $"- Tag: {tag} ({totalOccurrences} total occurrence(s))";
-                streamWriter.WriteLine(line);
-                sb.AppendLine(line);
-                foreach ((string problemVal, List<string> relatedFiles) in failures.OrderByDescending(x => x.Value.Count))
-                {
-                    line = $"    - Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))";
-                    streamWriter.WriteLine(line);
-                    sb.AppendLine(line);
-                    foreach (string file in relatedFiles)
-                        sb.AppendLine($"        - {file}");
-                }
+                WriteVerificationValuesTag(tag, failures, streamWriter, sb);
+                WriteVerificationValues(failures.OrderByDescending(x => x.Value.Count), streamWriter, sb);
+            }
 
-                streamWriter.WriteLine();
-                sb.AppendLine();
+            // Now list the pixel data, which we instead order by decreasing length
+            if (groupedFailures.TryGetValue(pixelData, out Dictionary<string, List<string>> pixelFailures))
+            {
+                WriteVerificationValuesTag(pixelData, pixelFailures, streamWriter, sb);
+                WriteVerificationValues(pixelFailures.OrderByDescending(x => x.Key.Length), streamWriter, sb);
             }
 
             // Now write-out the same, but with the file listing
@@ -165,6 +165,30 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             streamWriter.WriteLine("### Full details");
             streamWriter.WriteLine();
             streamWriter.Write(sb);
+        }
+
+        private static void WriteVerificationValuesTag(string tag, Dictionary<string, List<string>> failures, TextWriter streamWriter, StringBuilder sb)
+        {
+            int totalOccurrences = failures.Sum(x => x.Value.Count);
+            string line = $"- Tag: {tag} ({totalOccurrences} total occurrence(s))";
+            streamWriter.WriteLine(line);
+            sb.AppendLine(line);
+        }
+
+        private static void WriteVerificationValues(IEnumerable<KeyValuePair<string, List<string>>> values, TextWriter streamWriter, StringBuilder sb)
+        {
+
+            foreach ((string problemVal, List<string> relatedFiles) in values)
+            {
+                string line = $"    - Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))";
+                streamWriter.WriteLine(line);
+                sb.AppendLine(line);
+                foreach (string file in relatedFiles)
+                    sb.AppendLine($"        - {file}");
+            }
+
+            streamWriter.WriteLine();
+            sb.AppendLine();
         }
 
         protected abstract void ReleaseUnmanagedResources();
