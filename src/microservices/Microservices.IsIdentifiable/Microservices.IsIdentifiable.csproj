@@ -39,7 +39,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="CsvHelper" Version="15.0.5" />
     <PackageReference Include="fo-dicom.Drawing" Version="[4.0.6]" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
