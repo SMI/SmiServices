@@ -53,6 +53,8 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
 
             using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
             {
+                tester.CreateExchange(options.IsIdentifiableOptions.IsIdentifiableProducerOptions.ExchangeName, null);
+
                 options.IsIdentifiableOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
                 options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
