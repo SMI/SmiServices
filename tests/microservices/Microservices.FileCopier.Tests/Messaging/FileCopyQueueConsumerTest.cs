@@ -52,6 +52,12 @@ namespace Microservices.FileCopier.Tests.Messaging
             Assert.Inconclusive();
         }
 
+        [Test]
+        public void Test_FileCopyQueueConsumer_AnonExtraction_ThrowsException()
+        {
+            Assert.Inconclusive();
+        }
+
         #endregion
     }
 }

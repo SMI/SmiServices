@@ -22,6 +22,9 @@ namespace Microservices.FileCopier.Messaging
             [NotNull] ExtractFileMessage message,
             ulong tag)
         {
+            if (!message.IsIdentifiableExtraction)
+                throw new ArgumentException("Received a message with IsIdentifiableExtraction not set");
+
             try
             {
                 _fileCopier.ProcessMessage(message, header);
