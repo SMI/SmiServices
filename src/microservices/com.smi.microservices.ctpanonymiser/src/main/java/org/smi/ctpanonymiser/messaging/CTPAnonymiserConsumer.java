@@ -72,6 +72,13 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			return;
 		}
 
+		if (extractFileMessage.IsIdentifiableExtraction) {
+			// We should only receive these messages if the queue configuration is wrong, so ok just to crash-out
+			String msg = "Received a message with IsIdentifiableExtraction set";
+			_logger.error(msg);
+			throw new RuntimeException(msg);
+		}
+
 		ExtractFileStatusMessage statusMessage = new ExtractFileStatusMessage(extractFileMessage);
 
 		// Got the message, now apply the anonymisation
