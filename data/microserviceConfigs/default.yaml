@@ -72,6 +72,8 @@ CohortExtractorOptions:
     AuditorType: 'Microservices.CohortExtractor.Audit.NullAuditExtractions'
     RequestFulfillerType: 'Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller'
     ProjectPathResolverType: 'Microservices.CohortExtractor.Execution.ProjectPathResolvers.DefaultProjectPathResolver'
+    ExtractAnonRoutingKey: anon
+    ExtractIdentRoutingKey: ident
     # Writes (Producer) to this exchange
     ExtractFilesProducerOptions: 
         ExchangeName: 'TEST.ExtractFileExchange'
@@ -158,6 +160,8 @@ ProcessDirectoryOptions:
         MaxConfirmAttempts: 1
 
 CTPAnonymiserOptions:
+    VerifyRoutingKey: verify
+    NoVerifyRoutingKey: noverify
     AnonFileConsumerOptions:
         QueueName: 'TEST.ExtractFileAnonQueue'
         QoSPrefetchCount: 1
@@ -167,6 +171,7 @@ CTPAnonymiserOptions:
         MaxConfirmAttempts: 1
 
 FileCopierOptions:
+    NoVerifyRoutingKey: noverify
     CopyFileConsumerOptions:
         QueueName: 'TEST.ExtractFileIdentQueue'
         QoSPrefetchCount: 1

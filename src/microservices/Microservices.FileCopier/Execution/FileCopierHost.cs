@@ -24,7 +24,7 @@ namespace Microservices.FileCopier.Execution
 
             IProducerModel copyStatusProducerModel = RabbitMqAdapter.SetupProducer(Globals.FileCopierOptions.CopyStatusProducerOptions, isBatch: false);
 
-            var fileCopier = new ExtractionFileCopier(copyStatusProducerModel, Globals.FileSystemOptions.FileSystemRoot);
+            var fileCopier = new ExtractionFileCopier(Globals.FileCopierOptions, copyStatusProducerModel, Globals.FileSystemOptions.FileSystemRoot);
             _consumer = new FileCopyQueueConsumer(fileCopier);
         }
 

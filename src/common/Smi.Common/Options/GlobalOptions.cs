@@ -291,6 +291,7 @@ namespace Smi.Common.Options
     public class FileCopierOptions : ConsumerOptions
     {
         public ProducerOptions CopyStatusProducerOptions { get; set; }
+        public string NoVerifyRoutingKey { get; set; }
 
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
@@ -396,6 +397,9 @@ namespace Smi.Common.Options
         /// Optional list of datasets which contain information about when NOT to extract an image.  This should be a manually curated blacklist - not just general rules (for those use <see cref="RejectorType"/>). Referenced datasets must include one or more of the UID columns (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID)
         /// </summary>
         public List<int> Blacklists { get; set; }
+
+        public string ExtractAnonRoutingKey { get; set; }
+        public string ExtractIdentRoutingKey { get; set; }
 
         public ProducerOptions ExtractFilesProducerOptions { get; set; }
         public ProducerOptions ExtractFilesInfoProducerOptions { get; set; }

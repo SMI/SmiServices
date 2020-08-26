@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
+using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.IO.Abstractions.TestingHelpers;
@@ -12,6 +13,8 @@ namespace Microservices.FileCopier.Tests.Execution
 {
     public class FileCopierTest
     {
+        private FileCopierOptions _options;
+
         private MockFileSystem _mockFileSystem;
         private const string FileSystemRoot = "smi";
         private string _relativeSrc;
@@ -24,6 +27,11 @@ namespace Microservices.FileCopier.Tests.Execution
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
+
+            _options = new FileCopierOptions
+            {
+                NoVerifyRoutingKey = "noverify",
+            };
 
             _mockFileSystem = new MockFileSystem();
             _mockFileSystem.Directory.CreateDirectory(FileSystemRoot);
@@ -78,7 +86,7 @@ namespace Microservices.FileCopier.Tests.Execution
 
             var requestHeader = new MessageHeader();
 
-            var copier = new ExtractionFileCopier(mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractFileStatusMessage(_requestMessage)
@@ -88,7 +96,7 @@ namespace Microservices.FileCopier.Tests.Execution
                 AnonymisedFileName = _requestMessage.OutputPath,
             };
             Assert.AreEqual(expectedStatusMessage, sentStatusMessage);
-            Assert.AreEqual(MessagingConstants.RMQ_EXTRACT_FILE_NOVERIFY_ROUTING_KEY, sentRoutingKey);
+            Assert.AreEqual(_options.NoVerifyRoutingKey, sentRoutingKey);
 
             string expectedDest = _mockFileSystem.Path.Combine("smi", "extract", "out.dcm");
             Assert.True(_mockFileSystem.File.Exists(expectedDest));
@@ -113,7 +121,7 @@ namespace Microservices.FileCopier.Tests.Execution
             _requestMessage.DicomFilePath = "missing.dcm";
             var requestHeader = new MessageHeader();
 
-            var copier = new ExtractionFileCopier(mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractFileStatusMessage(_requestMessage)
@@ -124,7 +132,7 @@ namespace Microservices.FileCopier.Tests.Execution
                 StatusMessage = $"Could not find '{_mockFileSystem.Path.Combine(FileSystemRoot, "missing.dcm")}'"
             };
             Assert.AreEqual(expectedStatusMessage, sentStatusMessage);
-            Assert.AreEqual(MessagingConstants.RMQ_EXTRACT_FILE_NOVERIFY_ROUTING_KEY, sentRoutingKey);
+            Assert.AreEqual(_options.NoVerifyRoutingKey, sentRoutingKey);
         }
 
         [Test]
@@ -147,7 +155,7 @@ namespace Microservices.FileCopier.Tests.Execution
             _mockFileSystem.Directory.GetParent(expectedDest).Create();
             _mockFileSystem.File.WriteAllBytes(expectedDest, new byte[] { 0b0 });
 
-            var copier = new ExtractionFileCopier(mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractFileStatusMessage(_requestMessage)
@@ -158,7 +166,7 @@ namespace Microservices.FileCopier.Tests.Execution
                 StatusMessage = null,
             };
             Assert.AreEqual(expectedStatusMessage, sentStatusMessage);
-            Assert.AreEqual(MessagingConstants.RMQ_EXTRACT_FILE_NOVERIFY_ROUTING_KEY, sentRoutingKey);
+            Assert.AreEqual(_options.NoVerifyRoutingKey, sentRoutingKey);
             Assert.AreEqual(_expectedContents, _mockFileSystem.File.ReadAllBytes(expectedDest));
         }
 

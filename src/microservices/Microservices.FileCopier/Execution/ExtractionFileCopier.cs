@@ -3,6 +3,7 @@ using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
+using Smi.Common.Options;
 using System.IO.Abstractions;
 
 
@@ -10,6 +11,8 @@ namespace Microservices.FileCopier.Execution
 {
     public class ExtractionFileCopier : IFileCopier
     {
+        [NotNull] private readonly FileCopierOptions _options;
+
         [NotNull] private readonly IProducerModel _copyStatusProducerModel;
 
         [NotNull] private readonly string _fileSystemRoot;
@@ -19,10 +22,12 @@ namespace Microservices.FileCopier.Execution
 
 
         public ExtractionFileCopier(
+            [NotNull] FileCopierOptions options,
             [NotNull] IProducerModel copyStatusCopyStatusProducerModel,
             [NotNull] string fileSystemRoot,
             [CanBeNull] IFileSystem fileSystem = null)
         {
+            _options = options;
             _copyStatusProducerModel = copyStatusCopyStatusProducerModel;
             _fileSystemRoot = fileSystemRoot;
             _fileSystem = fileSystem ?? new FileSystem();
@@ -47,7 +52,7 @@ namespace Microservices.FileCopier.Execution
                     Status = ExtractFileStatus.FileMissing,
                     StatusMessage = $"Could not find '{fullSrc}'"
                 };
-                _ = _copyStatusProducerModel.SendMessage(statusMessage, header, MessagingConstants.RMQ_EXTRACT_FILE_NOVERIFY_ROUTING_KEY);
+                _ = _copyStatusProducerModel.SendMessage(statusMessage, header, _options.NoVerifyRoutingKey);
                 return;
             }
 
@@ -72,7 +77,7 @@ namespace Microservices.FileCopier.Execution
                 Status = ExtractFileStatus.Copied,
                 AnonymisedFileName = message.OutputPath,
             };
-            _ = _copyStatusProducerModel.SendMessage(statusMessage, header, MessagingConstants.RMQ_EXTRACT_FILE_NOVERIFY_ROUTING_KEY);
+            _ = _copyStatusProducerModel.SendMessage(statusMessage, header, _options.NoVerifyRoutingKey);
         }
     }
 }
