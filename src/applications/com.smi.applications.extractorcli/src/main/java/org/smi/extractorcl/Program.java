@@ -88,6 +88,15 @@ public class Program {
 			.hasArg()
 			.longOpt("modality")
 			.build());
+
+		options.addOption(
+			Option        
+			.builder("i")
+			.type(boolean.class)
+			.argName("identifiable extraction")
+			.desc("This is an identifiable extraction")
+			.longOpt("identifiable-extraction")
+			.build());
 		
 		try {
 			commandLine = commLineParser.parse(options, args);
