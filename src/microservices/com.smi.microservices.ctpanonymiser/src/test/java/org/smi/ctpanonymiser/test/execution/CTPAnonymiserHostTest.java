@@ -67,15 +67,15 @@ public class CTPAnonymiserHostTest extends TestCase {
         _options.FileSystemOptions.setFileSystemRoot(_fsRoot);
         _options.FileSystemOptions.setExtractRoot(_extractRoot);
 
-        if (!_options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName.startsWith("TEST."))
-            _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName = "TEST."
-                    + _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
+        if (!_options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName.startsWith("TEST."))
+            _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName = "TEST."
+                    + _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName;
 
         if (!_options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName.startsWith("TEST."))
             _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName = "TEST."
                     + _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
 
-        String _consumerQueueName = _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
+        String _consumerQueueName = _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName;
         _producerExchangeName = _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
 
         // Set up RMQ

@@ -129,12 +129,12 @@ namespace Microservices.CohortPackager.Tests.Execution
                 globals.RabbitOptions,
                 globals.CohortPackagerOptions.ExtractRequestInfoOptions,
                 globals.CohortPackagerOptions.FileCollectionInfoOptions,
-                globals.CohortPackagerOptions.AnonFailedOptions,
+                globals.CohortPackagerOptions.NoVerifyStatusOptions,
                 globals.CohortPackagerOptions.VerificationStatusOptions))
             {
                 tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
                 tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.AnonFailedOptions, new MessageHeader(), testExtractFileStatusMessage);
+                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage);
                 tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage);
 
                 var reporter = new TestReporter();

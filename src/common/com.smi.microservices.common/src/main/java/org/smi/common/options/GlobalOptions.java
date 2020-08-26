@@ -130,7 +130,7 @@ public class GlobalOptions {
 
 	public class CTPAnonymiserOptions {
 
-		public ConsumerOptions ExtractFileConsumerOptions;
+		public ConsumerOptions AnonFileConsumerOptions;
 		public ProducerOptions ExtractFileStatusProducerOptions;
 	}
 

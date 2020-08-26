@@ -71,7 +71,7 @@ public class CTPAnonymiserHost implements IMicroserviceHost {
 		_logger.info("CTPAnonymiserHost created successfully");
 
 		// Start the consumer
-		_rabbitMqAdapter.StartConsumer(_options.CTPAnonymiserOptions.ExtractFileConsumerOptions, _consumer);
+		_rabbitMqAdapter.StartConsumer(_options.CTPAnonymiserOptions.AnonFileConsumerOptions, _consumer);
 	}
 
 	public IProducerModel getProducer() {

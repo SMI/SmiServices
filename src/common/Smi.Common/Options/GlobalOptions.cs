@@ -339,7 +339,7 @@ namespace Smi.Common.Options
     {
         public ConsumerOptions ExtractRequestInfoOptions { get; set; }
         public ConsumerOptions FileCollectionInfoOptions { get; set; }
-        public ConsumerOptions AnonFailedOptions { get; set; }
+        public ConsumerOptions NoVerifyStatusOptions { get; set; }
         public ConsumerOptions VerificationStatusOptions { get; set; }
         public uint JobWatcherTimeoutInSeconds { get; set; }
         public string ReporterType { get; set; }

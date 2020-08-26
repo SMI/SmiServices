@@ -93,12 +93,12 @@ CohortPackagerOptions:
         QueueName: 'TEST.FileCollectionInfoQueue'
         QoSPrefetchCount: 1
         AutoAck: false
-    AnonFailedOptions:
-        QueueName: 'TEST.AnonFailedQueue'
+    NoVerifyStatusOptions:
+        QueueName: 'TEST.ExtractedFileNoVerifyQueue'
         QoSPrefetchCount: 1
         AutoAck: false
     VerificationStatusOptions:
-        QueueName: 'TEST.VerificationStatusQueue'
+        QueueName: 'TEST.ExtractedFileVerifiedQueue'
         QoSPrefetchCount: 1
         AutoAck: false
 
@@ -158,11 +158,20 @@ ProcessDirectoryOptions:
         MaxConfirmAttempts: 1
 
 CTPAnonymiserOptions:
-    ExtractFileConsumerOptions:
-        QueueName: 'TEST.ExtractFileQueue'
+    AnonFileConsumerOptions:
+        QueueName: 'TEST.ExtractFileAnonQueue'
         QoSPrefetchCount: 1
         AutoAck: false
     ExtractFileStatusProducerOptions:
+        ExchangeName: 'TEST.FileStatusExchange'
+        MaxConfirmAttempts: 1
+
+FileCopierOptions:
+    CopyFileConsumerOptions:
+        QueueName: 'TEST.ExtractFileIdentQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    CopyStatusProducerOptions:
         ExchangeName: 'TEST.FileStatusExchange'
         MaxConfirmAttempts: 1
 
@@ -176,11 +185,11 @@ ExtractorClOptions:
         MaxConfirmAttempts: 1
 
 IsIdentifiableOptions:
-    QueueName: 'TEST.IsIdentifiableQueue'
+    QueueName: 'TEST.ExtractedFileToVerifyQueue'
     QoSPrefetchCount: 1
     AutoAck: false
     IsIdentifiableProducerOptions:
-        ExchangeName: 'TEST.IsIdentifiableExchange'
+        ExchangeName: 'TEST.ExtractedFileVerifiedExchange'
         MaxConfirmAttempts: 1
     ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
     DataDirectory: ''
