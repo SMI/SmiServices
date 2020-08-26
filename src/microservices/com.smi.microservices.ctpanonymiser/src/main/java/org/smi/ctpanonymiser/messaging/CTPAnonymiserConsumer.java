@@ -13,6 +13,7 @@ import org.smi.ctpanonymiser.execution.SmiCtpProcessor;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messages.ExtractFileStatusMessage;
 import org.smi.ctpanonymiser.util.CtpAnonymisationStatus;
+import org.smi.common.options.GlobalOptions;
 import org.smi.ctpanonymiser.util.ExtractFileStatus;
 
 import java.io.File;
@@ -23,8 +24,12 @@ import java.nio.file.Paths;
 public class CTPAnonymiserConsumer extends SmiConsumer {
 
 	private final static Logger _logger = Logger.getRootLogger();
-	private final static String _routingKey_failure = "failure";
-	private final static String _routingKey_success = "success";
+	
+	private GlobalOptions _options;
+	
+	private String _routingKey_failure;
+	private String _routingKey_success;
+
 	private String _fileSystemRoot;
 	private String _extractFileSystemRoot;
 
@@ -35,8 +40,11 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 	private boolean _foundAFile = false;
 
 
-	public CTPAnonymiserConsumer(IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
+	public CTPAnonymiserConsumer(GlobalOptions options, IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
 								 String extractFileSystemRoot) {
+
+		_routingKey_failure = options.CTPAnonymiserOptions.NoVerifyRoutingKey;
+		_routingKey_success = options.CTPAnonymiserOptions.VerifyRoutingKey;
 
 		_statusMessageProducer = producer;
 		_anonTool = anonTool;
@@ -136,7 +144,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 		if (!tempFile.delete() || tempFile.exists())
 			_logger.warn("Could not delete temp file " + tempFile.getAbsolutePath());
 
-		String routingKey = _routingKey_failure;
+		String routingKey;
 
 		if (status == CtpAnonymisationStatus.Anonymised) {
 

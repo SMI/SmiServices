@@ -23,7 +23,7 @@ public class CTPAnonymiserHost implements IMicroserviceHost {
 	private final CTPAnonymiserConsumer _consumer;
 	private IProducerModel _producer;
 
-	private final GlobalOptions _options;
+private final GlobalOptions _options;
 
 	public CTPAnonymiserHost(GlobalOptions options, CommandLine cliOptions) throws IOException, TimeoutException {
 
@@ -63,6 +63,7 @@ public class CTPAnonymiserHost implements IMicroserviceHost {
 		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).buildDat();
 
 		_consumer = new CTPAnonymiserConsumer(
+				_options,
 				_producer,
 				anonTool,
 				fsRoot,

@@ -129,7 +129,8 @@ public class GlobalOptions {
 	}
 
 	public class CTPAnonymiserOptions {
-
+		public String VerifyRoutingKey;
+		public String NoVerifyRoutingKey;
 		public ConsumerOptions AnonFileConsumerOptions;
 		public ProducerOptions ExtractFileStatusProducerOptions;
 	}
