@@ -167,7 +167,7 @@ CTPAnonymiserOptions:
         QoSPrefetchCount: 1
         AutoAck: false
     ExtractFileStatusProducerOptions:
-        ExchangeName: 'TEST.FileStatusExchange'
+        ExchangeName: 'TEST.ExtractedFileStatusExchange'
         MaxConfirmAttempts: 1
 
 FileCopierOptions:

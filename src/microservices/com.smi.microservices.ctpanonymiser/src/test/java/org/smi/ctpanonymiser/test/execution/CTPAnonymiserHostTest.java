@@ -103,7 +103,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         _channel.exchangeDeclare(_inputExchName, "direct", true);
         _channel.queueDeclare(_consumerQueueName, true, false, false, null);
-        _channel.queueBind(_consumerQueueName, _inputExchName, "");
+        _channel.queueBind(_consumerQueueName, _inputExchName, "anon");
         System.out.println(String.format("Bound %s -> %s", _inputExchName, _consumerQueueName));
 
         // Setup the output exch. / queue pair
@@ -111,8 +111,8 @@ public class CTPAnonymiserHostTest extends TestCase {
         _channel.exchangeDeclare(_producerExchangeName, "direct", true);
         _channel.queueDeclare(_outputQueueName, true, false, false, null);
         _channel.queueBind(_outputQueueName, _producerExchangeName, "");
-        _channel.queueBind(_outputQueueName, _producerExchangeName, "success");
-        _channel.queueBind(_outputQueueName, _producerExchangeName, "failure");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "verify");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "noverify");
         System.out.println(String.format("Bound %s -> %s", _producerExchangeName, _outputQueueName));
 
         _channel.queuePurge(_consumerQueueName);
@@ -164,7 +164,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         TimeUnit.MILLISECONDS.sleep(1000);
 
         _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
-        _extractFileMessageProducer.SendMessage(exMessage, "", null);
+        _extractFileMessageProducer.SendMessage(exMessage, "anon", null);
 
         _logger.info("Waiting...");
 
@@ -214,7 +214,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         exMessage.ProjectNumber = "123-456";
 
         _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
-        _extractFileMessageProducer.SendMessage(exMessage, "", null);
+        _extractFileMessageProducer.SendMessage(exMessage, "anon", null);
 
         _logger.info("Waiting...");
 
