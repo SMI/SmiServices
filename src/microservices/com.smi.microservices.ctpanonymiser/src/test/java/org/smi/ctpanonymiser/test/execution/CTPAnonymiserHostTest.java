@@ -16,7 +16,7 @@ import org.smi.common.rabbitMq.RabbitMqAdapter;
 import org.smi.ctpanonymiser.Program;
 import org.smi.ctpanonymiser.execution.CTPAnonymiserHost;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
-import org.smi.ctpanonymiser.messages.ExtractFileStatusMessage;
+import org.smi.ctpanonymiser.messages.ExtractedFileStatusMessage;
 import org.smi.ctpanonymiser.util.ExtractFileStatus;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class CTPAnonymiserHostTest extends TestCase {
     private ProducerOptions _extractFileProducerOptions;
     private ConsumerOptions _extractFileStatusConsumerOptions;
     private IProducerModel _extractFileMessageProducer;
-    private AnyConsumer<ExtractFileStatusMessage> _anonFileStatusMessageConsumer;
+    private AnyConsumer<ExtractedFileStatusMessage> _anonFileStatusMessageConsumer;
 
     private ConnectionFactory _factory;
     private Connection _conn;
@@ -88,7 +88,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         _extractFileStatusConsumerOptions.AutoAck = false;
         _extractFileStatusConsumerOptions.QoSPrefetchCount = 1;
 
-        _anonFileStatusMessageConsumer = new AnyConsumer<>(ExtractFileStatusMessage.class);
+        _anonFileStatusMessageConsumer = new AnyConsumer<>(ExtractedFileStatusMessage.class);
 
         _extractFileProducerOptions = new ProducerOptions();
         _extractFileProducerOptions.ExchangeName = _inputExchName;
@@ -185,12 +185,12 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         if (_anonFileStatusMessageConsumer.isMessageValid()) {
 
-            ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
+            ExtractedFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
 
             _logger.info("Message received");
             _logger.info("\n" + recvd.toString());
 
-            assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.AnonymisedFileName);
+            assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.OutputFilePath);
             assertEquals("Project numbers do not match", exMessage.ProjectNumber, recvd.ProjectNumber);
             assertEquals(ExtractFileStatus.Anonymised, recvd.Status);
         } else {
@@ -235,12 +235,12 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         if (_anonFileStatusMessageConsumer.isMessageValid()) {
 
-            ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
+            ExtractedFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
 
             _logger.info("Message received");
             _logger.info("\n" + recvd.toString());
 
-            assertEquals("FilePaths do not match", null, recvd.AnonymisedFileName);
+            assertEquals("FilePaths do not match", null, recvd.OutputFilePath);
             assertEquals(ExtractFileStatus.ErrorWontRetry, recvd.Status);
         } else {
             fail("Did not receive message");

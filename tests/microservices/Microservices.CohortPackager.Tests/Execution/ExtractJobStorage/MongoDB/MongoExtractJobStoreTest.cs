@@ -360,9 +360,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
-            var testExtractFileStatusMessage = new ExtractFileStatusMessage
+            var testExtractFileStatusMessage = new ExtractedFileStatusMessage
             {
-                AnonymisedFileName = "anon.dcm",
+                OutputFilePath = "anon.dcm",
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 Status = ExtractFileStatus.ErrorWontRetry,
                 ProjectNumber = "1234",
@@ -399,7 +399,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Guid jobId = Guid.NewGuid();
             var testIsIdentifiableMessage = new IsIdentifiableMessage
             {
-                AnonymisedFileName = "anon.dcm",
+                OutputFilePath = "anon.dcm",
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "1234",
                 ExtractionJobIdentifier = jobId,

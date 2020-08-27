@@ -62,10 +62,10 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 Assert.IsNotNull(host);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage()
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage()
                 {
                     DicomFilePath = "yay.dcm",
-                    AnonymisedFileName = testDcm.FullName,
+                    OutputFilePath = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",
@@ -105,10 +105,10 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 var host = new IsIdentifiableHost(options, false);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage
                 {
                     DicomFilePath = "yay.dcm",
-                    AnonymisedFileName = testDcm.FullName,
+                    OutputFilePath = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",

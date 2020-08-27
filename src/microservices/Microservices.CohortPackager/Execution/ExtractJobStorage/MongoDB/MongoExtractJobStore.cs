@@ -70,14 +70,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 .InsertOne(expectedFilesForKey);
         }
 
-        protected override void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header)
+        protected override void PersistMessageToStoreImpl(ExtractedFileStatusMessage message, IMessageHeader header)
         {
             if (InCompletedJobCollection(message.ExtractionJobIdentifier))
-                throw new ApplicationException("Received an ExtractFileStatusMessage for a job that is already completed");
+                throw new ApplicationException("Received an ExtractedFileStatusMessage for a job that is already completed");
 
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
-                message.AnonymisedFileName,
+                message.OutputFilePath,
                 wasAnonymised: false,
                 isIdentifiable: true,
                 statusMessage: message.StatusMessage);
@@ -94,7 +94,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
             var newStatus = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
-                message.AnonymisedFileName,
+                message.OutputFilePath,
                 wasAnonymised: true,
                 isIdentifiable: message.IsIdentifiable,
                 statusMessage: message.Report);

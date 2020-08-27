@@ -11,7 +11,7 @@ import org.smi.common.messaging.IProducerModel;
 import org.smi.common.messaging.SmiConsumer;
 import org.smi.ctpanonymiser.execution.SmiCtpProcessor;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
-import org.smi.ctpanonymiser.messages.ExtractFileStatusMessage;
+import org.smi.ctpanonymiser.messages.ExtractedFileStatusMessage;
 import org.smi.ctpanonymiser.util.CtpAnonymisationStatus;
 import org.smi.common.options.GlobalOptions;
 import org.smi.ctpanonymiser.util.ExtractFileStatus;
@@ -79,7 +79,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			throw new RuntimeException(msg);
 		}
 
-		ExtractFileStatusMessage statusMessage = new ExtractFileStatusMessage(extractFileMessage);
+		ExtractedFileStatusMessage statusMessage = new ExtractedFileStatusMessage(extractFileMessage);
 
 		// Got the message, now apply the anonymisation
 
@@ -155,7 +155,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 
 		if (status == CtpAnonymisationStatus.Anonymised) {
 
-			statusMessage.AnonymisedFileName = extractFileMessage.OutputPath;
+			statusMessage.OutputFilePath = extractFileMessage.OutputPath;
 			statusMessage.Status = ExtractFileStatus.Anonymised;
 			routingKey = _routingKey_success;
 

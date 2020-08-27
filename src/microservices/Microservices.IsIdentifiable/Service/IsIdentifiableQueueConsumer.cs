@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace Microservices.IsIdentifiable.Service
 {
-    public class IsIdentifiableQueueConsumer : Consumer<ExtractFileStatusMessage>, IDisposable
+    public class IsIdentifiableQueueConsumer : Consumer<ExtractedFileStatusMessage>, IDisposable
     {
         private readonly IProducerModel _producer;
         private readonly string _fileSystemRoot;
@@ -26,7 +26,7 @@ namespace Microservices.IsIdentifiable.Service
             _classifier = classifier;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, ExtractFileStatusMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileStatusMessage message, ulong tag)
         {
             bool isClean = true;
             object resultObject;
@@ -37,7 +37,7 @@ namespace Microservices.IsIdentifiable.Service
                 if (message.Status != ExtractFileStatus.Anonymised)
                     throw new ApplicationException($"Received a message with anonymised status of {message.Status}");
 
-                var toProcess = new FileInfo( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.AnonymisedFileName) );
+                var toProcess = new FileInfo( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputFilePath) );
 
                 if(!toProcess.Exists)
                     throw new ApplicationException("IsIdentifiable service cannot find file "+toProcess.FullName);

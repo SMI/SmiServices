@@ -40,7 +40,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         }
 
         public void PersistMessageToStore(
-            [NotNull] ExtractFileStatusMessage message,
+            [NotNull] ExtractedFileStatusMessage message,
             [NotNull] IMessageHeader header)
         {
             if (message.Status == ExtractFileStatus.Unknown)
@@ -55,7 +55,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] IsIdentifiableMessage message,
             [NotNull] IMessageHeader header)
         {
-            if (string.IsNullOrWhiteSpace(message.AnonymisedFileName))
+            if (string.IsNullOrWhiteSpace(message.OutputFilePath))
                 throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
             if (string.IsNullOrWhiteSpace(message.Report))
                 throw new ApplicationException("Null or empty report data");
@@ -127,7 +127,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         protected abstract void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
-        protected abstract void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header);
+        protected abstract void PersistMessageToStoreImpl(ExtractedFileStatusMessage message, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(IsIdentifiableMessage message, IMessageHeader header);
         protected abstract List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid());
         protected abstract void CompleteJobImpl(Guid jobId);

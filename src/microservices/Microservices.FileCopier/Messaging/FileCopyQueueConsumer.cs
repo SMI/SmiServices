@@ -32,7 +32,7 @@ namespace Microservices.FileCopier.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-                ErrorAndNack(header, tag, "Error while processing ExtractFileStatusMessage", e);
+                ErrorAndNack(header, tag, "Error while processing ExtractedFileStatusMessage", e);
                 return;
             }
 

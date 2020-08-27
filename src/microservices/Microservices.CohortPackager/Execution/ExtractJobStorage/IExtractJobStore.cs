@@ -26,14 +26,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         void PersistMessageToStore(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
 
         /// <summary>
-        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// Serializes a <see cref="ExtractedFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
         /// </summary>
         /// <param name="fileStatusMessage"></param>
         /// <param name="header"></param>
-        void PersistMessageToStore(ExtractFileStatusMessage fileStatusMessage, IMessageHeader header);
+        void PersistMessageToStore(ExtractedFileStatusMessage fileStatusMessage, IMessageHeader header);
 
         /// <summary>
-        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// Serializes a <see cref="ExtractedFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
         /// </summary>
         /// <param name="anonVerificationMessage"></param>
         /// <param name="header"></param>

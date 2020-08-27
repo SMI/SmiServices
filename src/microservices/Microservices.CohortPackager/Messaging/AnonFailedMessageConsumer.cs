@@ -10,9 +10,9 @@ namespace Microservices.CohortPackager.Messaging
 {
     // TODO Naming
     /// <summary>
-    /// Consumer for <see cref="ExtractFileStatusMessage"/>(s)
+    /// Consumer for <see cref="ExtractedFileStatusMessage"/>(s)
     /// </summary>
-    public class AnonFailedMessageConsumer : Consumer<ExtractFileStatusMessage>
+    public class AnonFailedMessageConsumer : Consumer<ExtractedFileStatusMessage>
     {
         private readonly IExtractJobStore _store;
 
@@ -22,7 +22,7 @@ namespace Microservices.CohortPackager.Messaging
             _store = store;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, ExtractFileStatusMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileStatusMessage message, ulong tag)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace Microservices.CohortPackager.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-                ErrorAndNack(header, tag, "Error while processing ExtractFileStatusMessage", e);
+                ErrorAndNack(header, tag, "Error while processing ExtractedFileStatusMessage", e);
                 return;
             }
 

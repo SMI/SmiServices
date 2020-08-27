@@ -65,7 +65,7 @@ namespace Microservices.CohortPackager.Tests.Execution
         }
 
         [Test]
-        public void TestCohortPackagerHost_HappyPath()
+        public void Test_CohortPackagerHost_HappyPath()
         {
             Guid jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -95,10 +95,10 @@ namespace Microservices.CohortPackager.Tests.Execution
                 },
                 KeyValue = "study-1",
             };
-            var testExtractFileStatusMessage = new ExtractFileStatusMessage
+            var testExtractFileStatusMessage = new ExtractedFileStatusMessage
             {
                 JobSubmittedAt = DateTime.UtcNow,
-                AnonymisedFileName = "study-1-anon-1.dcm",
+                OutputFilePath = "study-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = "test",
@@ -109,7 +109,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             var testIsIdentifiableMessage = new IsIdentifiableMessage
             {
                 JobSubmittedAt = DateTime.UtcNow,
-                AnonymisedFileName = "study-1-anon-2.dcm",
+                OutputFilePath = "study-1-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = "test",

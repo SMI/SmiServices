@@ -34,7 +34,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         {
             protected override void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header) { }
             protected override void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header) => throw new NotImplementedException();
-            protected override void PersistMessageToStoreImpl(ExtractFileStatusMessage message, IMessageHeader header) { }
+            protected override void PersistMessageToStoreImpl(ExtractedFileStatusMessage message, IMessageHeader header) { }
             protected override void PersistMessageToStoreImpl(IsIdentifiableMessage message, IMessageHeader header) { }
             protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid()) => throw new NotImplementedException();
             protected override void CompleteJobImpl(Guid jobId) { }
@@ -77,7 +77,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         public void TestPersistMessageToStore_ExtractFileStatusMessage()
         {
             var testExtractJobStore = new TestExtractJobStore();
-            var message = new ExtractFileStatusMessage();
+            var message = new ExtractedFileStatusMessage();
             var header = new MessageHeader();
 
             message.Status = ExtractFileStatus.Unknown;
@@ -99,18 +99,18 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
             // Must have AnonymisedFileName
             var message = new IsIdentifiableMessage();
-            message.AnonymisedFileName = "";
+            message.OutputFilePath = "";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
             // Report shouldn't be an empty string or null
             message = new IsIdentifiableMessage();
-            message.AnonymisedFileName = "anon.dcm";
+            message.OutputFilePath = "anon.dcm";
             message.Report = "";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
             // Report needs to contain content if marked as IsIdentifiable
             message = new IsIdentifiableMessage();
-            message.AnonymisedFileName = "anon.dcm";
+            message.OutputFilePath = "anon.dcm";
             message.IsIdentifiable = true;
             message.Report = "[]";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
@@ -120,7 +120,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
             // Report can be empty if not marked as IsIdentifiable
             message = new IsIdentifiableMessage();
-            message.AnonymisedFileName = "anon.dcm";
+            message.OutputFilePath = "anon.dcm";
             message.IsIdentifiable = false;
             message.Report = "[]";
             testExtractJobStore.PersistMessageToStore(message, header);

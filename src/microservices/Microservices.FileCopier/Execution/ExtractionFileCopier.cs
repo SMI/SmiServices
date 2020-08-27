@@ -42,11 +42,11 @@ namespace Microservices.FileCopier.Execution
         {
             string fullSrc = _fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath);
 
-            ExtractFileStatusMessage statusMessage;
+            ExtractedFileStatusMessage statusMessage;
 
             if (!_fileSystem.File.Exists(fullSrc))
             {
-                statusMessage = new ExtractFileStatusMessage(message)
+                statusMessage = new ExtractedFileStatusMessage(message)
                 {
                     DicomFilePath = message.DicomFilePath,
                     Status = ExtractFileStatus.FileMissing,
@@ -71,11 +71,11 @@ namespace Microservices.FileCopier.Execution
             _logger.Debug($"Copying source file to '{message.OutputPath}'");
             _fileSystem.File.Copy(fullSrc, fullDest, overwrite: true);
 
-            statusMessage = new ExtractFileStatusMessage(message)
+            statusMessage = new ExtractedFileStatusMessage(message)
             {
                 DicomFilePath = message.DicomFilePath,
                 Status = ExtractFileStatus.Copied,
-                AnonymisedFileName = message.OutputPath,
+                OutputFilePath = message.OutputPath,
             };
             _ = _copyStatusProducerModel.SendMessage(statusMessage, header, _options.NoVerifyRoutingKey);
         }
