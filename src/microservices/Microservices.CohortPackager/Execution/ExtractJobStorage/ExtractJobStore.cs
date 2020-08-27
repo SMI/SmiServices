@@ -43,13 +43,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] ExtractFileStatusMessage message,
             [NotNull] IMessageHeader header)
         {
-            // TODO
             if (message.Status == ExtractFileStatus.Unknown)
                 throw new ApplicationException("ExtractFileStatus was unknown");
             if (message.Status == ExtractFileStatus.Anonymised)
                 throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 
-            // TODO
             PersistMessageToStoreImpl(message, header);
         }
 

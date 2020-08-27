@@ -5,13 +5,14 @@ using Newtonsoft.Json;
 namespace Smi.Common.Messages.Extraction
 {
     /// <summary>
-    /// Status message received from the anonymisation service
+    /// Status message sent by services which extract files (CTP, FileCopier)
     /// </summary>
     public class ExtractFileStatusMessage : ExtractMessage, IFileReferenceMessage, IEquatable<ExtractFileStatusMessage>
     {
         /// <summary>
         /// Original file path
         /// </summary>
+        [JsonProperty(Required = Required.Always)]
         public string DicomFilePath { get; set; }
 
         /// <summary>
@@ -20,7 +21,6 @@ namespace Smi.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public ExtractFileStatus Status { get; set; }
 
-        // TODO Consider renaming
         /// <summary>
         /// Anonymised file name. Only required if a file has been anonymised
         /// </summary>

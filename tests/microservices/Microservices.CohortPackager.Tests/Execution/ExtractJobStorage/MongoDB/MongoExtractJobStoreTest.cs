@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
@@ -16,6 +12,10 @@ using Smi.Common.MessageSerialization;
 using Smi.Common.MongoDb.Tests;
 using Smi.Common.MongoDB.Tests;
 using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 {
@@ -253,6 +253,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "StudyInstanceUID",
                 1,
                 "CT",
+                isIdentifiableExtraction: false,
                 null);
 
             Assert.AreEqual(expected, extractJob);
@@ -439,6 +440,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "SeriesInstanceUID",
                 1,
                 "MR",
+                isIdentifiableExtraction: false,
                 null);
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -514,6 +516,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "SeriesInstanceUID",
                 1,
                 "MR",
+                isIdentifiableExtraction: false,
                 null);
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -620,6 +623,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "1.2.3.4",
                 123,
                 "MR",
+                isIdentifiableExtraction: false,
                 null);
 
             var client = new TestMongoClient();

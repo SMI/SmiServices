@@ -24,6 +24,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             "test",
             1,
             null,
+            isIdentifiableExtraction: false,
             null);
 
         #region Fixture Methods 

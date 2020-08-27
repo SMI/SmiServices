@@ -45,6 +45,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [CanBeNull]
         public string ExtractionModality { get; set; }
 
+        [BsonElement("isIdentifiableExtraction")]
+        public bool IsIdentifiableExtraction { get; set; }
+
         [BsonElement("failedJobInfo")]
         [CanBeNull]
         public MongoFailedJobInfoDoc FailedJobInfoDoc { get; set; }
@@ -60,6 +63,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             [NotNull] string keyTag,
             uint keyCount,
             [CanBeNull] string extractionModality,
+            bool isIdentifiableExtraction,
             [CanBeNull] MongoFailedJobInfoDoc failedJobInfoDoc)
         {
             ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentException(nameof(extractionJobIdentifier));
@@ -72,8 +76,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             KeyCount = (keyCount > 0) ? keyCount : throw new ArgumentNullException(nameof(keyCount));
             if (extractionModality != null)
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
+            IsIdentifiableExtraction = isIdentifiableExtraction;
             FailedJobInfoDoc = failedJobInfoDoc;
         }
+
 
         /// <summary>
         /// Copy constructor
@@ -107,6 +113,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 message.KeyTag,
                 (uint)message.KeyValueCount,
                 message.ExtractionModality,
+                message.IsIdentifiableExtraction,
                 null
             );
         }
@@ -124,6 +131,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                    KeyTag == other.KeyTag &&
                    KeyCount == other.KeyCount &&
                    ExtractionModality == other.ExtractionModality &&
+                   IsIdentifiableExtraction == other.IsIdentifiableExtraction &&
                    Equals(FailedJobInfoDoc, other.FailedJobInfoDoc);
         }
 
@@ -146,12 +154,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 int hashCode = ExtractionJobIdentifier.GetHashCode();
                 hashCode = (hashCode * 397) ^ Header.GetHashCode();
                 hashCode = (hashCode * 397) ^ ProjectNumber.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)JobStatus;
+                hashCode = (hashCode * 397) ^ (int) JobStatus;
                 hashCode = (hashCode * 397) ^ ExtractionDirectory.GetHashCode();
                 hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();
                 hashCode = (hashCode * 397) ^ KeyTag.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)KeyCount;
+                hashCode = (hashCode * 397) ^ (int) KeyCount;
                 hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsIdentifiableExtraction.GetHashCode();
                 hashCode = (hashCode * 397) ^ (FailedJobInfoDoc != null ? FailedJobInfoDoc.GetHashCode() : 0);
                 return hashCode;
             }
