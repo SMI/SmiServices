@@ -34,7 +34,6 @@ namespace Smi.Common.Messages.Extraction
         public string StatusMessage { get; set; }
 
 
-        // TODO
         [JsonConstructor]
         public ExtractedFileStatusMessage() { }
 
