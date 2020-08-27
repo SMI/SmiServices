@@ -69,7 +69,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",
-                    Status = ExtractFileStatus.Anonymised
+                    Status = ExtractedFileStatus.Anonymised
                 });
 
                 var awaiter = new TestTimelineAwaiter();
@@ -112,7 +112,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",
-                    Status = ExtractFileStatus.Anonymised
+                    Status = ExtractedFileStatus.Anonymised
                 });
 
                 var awaiter = new TestTimelineAwaiter();

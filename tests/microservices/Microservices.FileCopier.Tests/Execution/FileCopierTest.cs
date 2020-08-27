@@ -92,7 +92,7 @@ namespace Microservices.FileCopier.Tests.Execution
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
             {
                 DicomFilePath = _requestMessage.DicomFilePath,
-                Status = ExtractFileStatus.Copied,
+                Status = ExtractedFileStatus.Copied,
                 OutputFilePath = _requestMessage.OutputPath,
             };
             Assert.AreEqual(expectedStatusMessage, sentStatusMessage);
@@ -127,7 +127,7 @@ namespace Microservices.FileCopier.Tests.Execution
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
             {
                 DicomFilePath = _requestMessage.DicomFilePath,
-                Status = ExtractFileStatus.FileMissing,
+                Status = ExtractedFileStatus.FileMissing,
                 OutputFilePath = null,
                 StatusMessage = $"Could not find '{_mockFileSystem.Path.Combine(FileSystemRoot, "missing.dcm")}'"
             };
@@ -161,7 +161,7 @@ namespace Microservices.FileCopier.Tests.Execution
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
             {
                 DicomFilePath = _requestMessage.DicomFilePath,
-                Status = ExtractFileStatus.Copied,
+                Status = ExtractedFileStatus.Copied,
                 OutputFilePath = _requestMessage.OutputPath,
                 StatusMessage = null,
             };

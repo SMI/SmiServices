@@ -49,7 +49,7 @@ namespace Microservices.FileCopier.Execution
                 statusMessage = new ExtractedFileStatusMessage(message)
                 {
                     DicomFilePath = message.DicomFilePath,
-                    Status = ExtractFileStatus.FileMissing,
+                    Status = ExtractedFileStatus.FileMissing,
                     StatusMessage = $"Could not find '{fullSrc}'"
                 };
                 _ = _copyStatusProducerModel.SendMessage(statusMessage, header, _options.NoVerifyRoutingKey);
@@ -74,7 +74,7 @@ namespace Microservices.FileCopier.Execution
             statusMessage = new ExtractedFileStatusMessage(message)
             {
                 DicomFilePath = message.DicomFilePath,
-                Status = ExtractFileStatus.Copied,
+                Status = ExtractedFileStatus.Copied,
                 OutputFilePath = message.OutputPath,
             };
             _ = _copyStatusProducerModel.SendMessage(statusMessage, header, _options.NoVerifyRoutingKey);

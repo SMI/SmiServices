@@ -1,9 +1,11 @@
-﻿using System;
-using System.Reflection;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using NUnit.Framework;
+using Smi.Common.Helpers;
 using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
+using System;
+using System.Reflection;
 
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -40,6 +42,29 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         #region Tests
 
         [Test]
+        public void Test_MongoFileStatusDoc_IsIdentifiable_StatusMessage()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new MongoFileStatusDoc(
+                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+                    "input.dcm",
+                    "anon.dcm",
+                    true,
+                    false,
+                    ExtractedFileStatus.Anonymised,
+                    null));
+            Assert.DoesNotThrow(() =>
+                new MongoFileStatusDoc(
+                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+                    "input.dcm",
+                    "anon.dcm",
+                    true,
+                    true,
+                    ExtractedFileStatus.Anonymised,
+                    null));
+        }
+
+        [Test]
         public void TestMongoFileStatusDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoFileStatusDoc).GetProperties())
@@ -52,16 +77,20 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Guid guid = Guid.NewGuid();
             var doc1 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+                "input.dcm",
                 "anon.dcm",
                 true,
                 false,
+                ExtractedFileStatus.Anonymised,
                 "anonymised");
 
             var doc2 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+                "input.dcm",
                 "anon.dcm",
                 true,
                 false,
+                ExtractedFileStatus.Anonymised,
                 "anonymised");
 
             Assert.AreEqual(doc1, doc2);
@@ -73,16 +102,20 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Guid guid = Guid.NewGuid();
             var doc1 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+                "input.dcm",
                 "anon.dcm",
                 true,
                 false,
+                ExtractedFileStatus.Anonymised,
                 "anonymised");
 
             var doc2 = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+                "input.dcm",
                 "anon.dcm",
                 true,
                 false,
+                ExtractedFileStatus.Anonymised,
                 "anonymised");
 
             Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());

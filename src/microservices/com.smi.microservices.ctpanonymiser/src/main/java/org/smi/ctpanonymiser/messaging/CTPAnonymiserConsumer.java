@@ -14,7 +14,7 @@ import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messages.ExtractedFileStatusMessage;
 import org.smi.ctpanonymiser.util.CtpAnonymisationStatus;
 import org.smi.common.options.GlobalOptions;
-import org.smi.ctpanonymiser.util.ExtractFileStatus;
+import org.smi.ctpanonymiser.util.ExtractedFileStatus;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -98,7 +98,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			}
 
 			statusMessage.StatusMessage = msg;
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+			statusMessage.Status = ExtractedFileStatus.FileMissing;
 
 			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
@@ -134,7 +134,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			_logger.error(msg);
 
 			statusMessage.StatusMessage = msg;
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+			statusMessage.Status = ExtractedFileStatus.FileMissing;
 
 			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
@@ -156,13 +156,13 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 		if (status == CtpAnonymisationStatus.Anonymised) {
 
 			statusMessage.OutputFilePath = extractFileMessage.OutputPath;
-			statusMessage.Status = ExtractFileStatus.Anonymised;
+			statusMessage.Status = ExtractedFileStatus.Anonymised;
 			routingKey = _routingKey_success;
 
 		} else {
 
 			statusMessage.StatusMessage = _anonTool.getLastStatus();
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+			statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
 			routingKey = _routingKey_failure;
 		}
 

@@ -12,9 +12,9 @@ using System.Collections.Generic;
 namespace Microservices.CohortPackager.Messaging
 {
     /// <summary>
-    /// Consumer for <see cref="IsIdentifiableMessage"/>(s)
+    /// Consumer for <see cref="ExtractedFileVerificationMessage"/>(s)
     /// </summary>
-    public class AnonVerificationMessageConsumer : Consumer<IsIdentifiableMessage>
+    public class AnonVerificationMessageConsumer : Consumer<ExtractedFileVerificationMessage>
     {
         private readonly IExtractJobStore _store;
 
@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager.Messaging
         }
 
 
-        protected override void ProcessMessageImpl(IMessageHeader header, IsIdentifiableMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileVerificationMessage message, ulong tag)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace Microservices.CohortPackager.Messaging
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
-                ErrorAndNack(header, tag, "Error while processing IsIdentifiableMessage", e);
+                ErrorAndNack(header, tag, "Error while processing ExtractedFileVerificationMessage", e);
                 return;
             }
 

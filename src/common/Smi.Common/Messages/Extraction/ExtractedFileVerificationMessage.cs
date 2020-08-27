@@ -3,8 +3,7 @@ using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
 {
-    // TODO(rkm 2020-02-04) Rename to AnonVerificationMessage
-    public class IsIdentifiableMessage : ExtractMessage, IFileReferenceMessage, IEquatable<IsIdentifiableMessage>
+    public class ExtractedFileVerificationMessage : ExtractMessage, IFileReferenceMessage, IEquatable<ExtractedFileVerificationMessage>
     {
         [JsonProperty(Required = Required.Always)]
         public bool IsIdentifiable { get; set; }
@@ -25,9 +24,9 @@ namespace Smi.Common.Messages.Extraction
         public string OutputFilePath { get; set; }
 
         [JsonConstructor]
-        public IsIdentifiableMessage() { }
+        public ExtractedFileVerificationMessage() { }
 
-        public IsIdentifiableMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
+        public ExtractedFileVerificationMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
             : this()
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
@@ -40,7 +39,7 @@ namespace Smi.Common.Messages.Extraction
         /// Creates a new instance copying all values from the given origin message
         /// </summary>
         /// <param name="request"></param>
-        public IsIdentifiableMessage(ExtractedFileStatusMessage request)
+        public ExtractedFileVerificationMessage(ExtractedFileStatusMessage request)
             : this(request.ExtractionJobIdentifier, request.ProjectNumber, request.ExtractionDirectory,
                 request.JobSubmittedAt)
         {
@@ -50,7 +49,7 @@ namespace Smi.Common.Messages.Extraction
 
         #region Equality Members
 
-        public bool Equals(IsIdentifiableMessage other)
+        public bool Equals(ExtractedFileVerificationMessage other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -62,7 +61,7 @@ namespace Smi.Common.Messages.Extraction
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IsIdentifiableMessage)obj);
+            return Equals((ExtractedFileVerificationMessage)obj);
         }
 
         public override int GetHashCode()

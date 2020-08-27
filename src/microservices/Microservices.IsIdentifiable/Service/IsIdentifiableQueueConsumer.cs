@@ -34,7 +34,7 @@ namespace Microservices.IsIdentifiable.Service
             try
             {
                 // We should only ever receive messages regarding anonymised images
-                if (message.Status != ExtractFileStatus.Anonymised)
+                if (message.Status != ExtractedFileStatus.Anonymised)
                     throw new ApplicationException($"Received a message with anonymised status of {message.Status}");
 
                 var toProcess = new FileInfo( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputFilePath) );
@@ -58,7 +58,7 @@ namespace Microservices.IsIdentifiable.Service
                 return;
             }
 
-            _producer.SendMessage(new IsIdentifiableMessage(message)
+            _producer.SendMessage(new ExtractedFileVerificationMessage(message)
             {
                 IsIdentifiable = ! isClean,
                 Report = JsonConvert.SerializeObject(resultObject)

@@ -48,7 +48,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                true);
             var info2 = new ExtractJobInfo(
                 guid,
                 _dateTimeProvider.UtcNow(),
@@ -57,7 +58,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                true);
 
             Assert.AreEqual(info1, info2);
         }
@@ -74,7 +76,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                true);
             var info2 = new ExtractJobInfo(
                 guid,
                 _dateTimeProvider.UtcNow(),
@@ -83,7 +86,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                true);
 
             Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
         }

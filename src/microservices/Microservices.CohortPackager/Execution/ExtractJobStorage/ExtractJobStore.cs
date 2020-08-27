@@ -43,16 +43,16 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] ExtractedFileStatusMessage message,
             [NotNull] IMessageHeader header)
         {
-            if (message.Status == ExtractFileStatus.Unknown)
-                throw new ApplicationException("ExtractFileStatus was unknown");
-            if (message.Status == ExtractFileStatus.Anonymised)
+            if (message.Status == ExtractedFileStatus.Unused)
+                throw new ApplicationException("ExtractedFileStatus was the default unused value");
+            if (message.Status == ExtractedFileStatus.Anonymised)
                 throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 
             PersistMessageToStoreImpl(message, header);
         }
 
         public void PersistMessageToStore(
-            [NotNull] IsIdentifiableMessage message,
+            [NotNull] ExtractedFileVerificationMessage message,
             [NotNull] IMessageHeader header)
         {
             if (string.IsNullOrWhiteSpace(message.OutputFilePath))
@@ -125,10 +125,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobVerificationFailuresImpl(jobId);
         }
 
+        public IEnumerable<string> GetCompletedJobMissingFileList(Guid jobId)
+        {
+            if (jobId == default)
+                throw new ArgumentNullException(nameof(jobId));
+
+            return GetCompletedJobMissingFileListImpl(jobId);
+        }
+
         protected abstract void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractedFileStatusMessage message, IMessageHeader header);
-        protected abstract void PersistMessageToStoreImpl(IsIdentifiableMessage message, IMessageHeader header);
+        protected abstract void PersistMessageToStoreImpl(ExtractedFileVerificationMessage message, IMessageHeader header);
         protected abstract List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid());
         protected abstract void CompleteJobImpl(Guid jobId);
         protected abstract void MarkJobFailedImpl(Guid jobId, Exception e);
@@ -136,7 +144,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejectionsImpl(Guid jobId);
         protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId);
-
-
+        protected abstract IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId);
     }
 }
