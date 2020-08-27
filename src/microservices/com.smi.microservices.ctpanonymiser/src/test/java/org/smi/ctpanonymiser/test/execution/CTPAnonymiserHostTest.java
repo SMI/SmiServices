@@ -241,7 +241,7 @@ public class CTPAnonymiserHostTest extends TestCase {
             _logger.info("\n" + recvd.toString());
 
             assertEquals("FilePaths do not match", null, recvd.OutputFilePath);
-            assertEquals(ExtractedFileStatus.ErrorWontRetry, recvd.Status);
+            assertEquals(ExtractedFileStatus.FileMissing, recvd.Status);
         } else {
             fail("Did not receive message");
         }
