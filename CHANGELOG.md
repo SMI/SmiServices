@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 -   Add SecurityCodeScan tool to build chain for .Net code
+-   Extraction report: Group PixelData separately and sort by length
+-   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
 -   Add identifiable extraction support
     -   [breaking] RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
     -   [breaking] Changes to MongoDB extraction schema. Existing databases need to be updated

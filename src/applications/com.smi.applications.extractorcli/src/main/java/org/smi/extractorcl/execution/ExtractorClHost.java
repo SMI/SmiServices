@@ -65,7 +65,7 @@ public class ExtractorClHost {
         String extractionName = path.getFileName().toString().replaceFirst("[.][^.]+$", "");
 
 		final String projectID = commandLineOptions.getOptionValue("p");
-		final String extractionDir = projectID + "/image-requests/" + extractionName;
+		final String extractionDir = projectID + "/extractions/" + extractionName;
 
 		final boolean isIdentifiableExtraction = commandLineOptions.hasOption("i");
 

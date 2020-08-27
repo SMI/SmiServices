@@ -99,15 +99,17 @@ Job info:
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 
-Full details:
+### Full details
 
 
 ## Rejected files
@@ -195,18 +197,20 @@ Job info:
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
 
 
-Full details:
+### Full details
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
@@ -367,12 +371,14 @@ Job info:
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))
@@ -382,7 +388,7 @@ Summary:
     - Value: 'BAZ' (2 occurrence(s))
 
 
-Full details:
+### Full details
 
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))
@@ -410,6 +416,130 @@ Full details:
         }
 
         [Test]
+        public void Test_JobReporterBase_CreateReport_WithPixelData()
+        {
+            // NOTE(rkm 2020-08-25) Tests that the "Z" tag is ordered before PixelData, and that PixelData items are ordered by decreasing length not by occurrence
+
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "test/dir",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed,
+                false);
+
+
+            const string report = @"
+[
+     {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'aaaaaaaaaaa'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'Z',
+        'ProblemValue': 'bar'
+    },
+]";
+
+            var verificationFailures = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("foo1.dcm", report),
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            string expected = $@"
+# SMI file extraction report for 1234
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+-    Identifiable extraction:       No
+
+Report contents:
+-    Verification failures
+    -    Summary
+    -    Full Details
+-    Rejected failures
+-    Anonymisation failures
+
+## Verification failures
+
+### Summary
+
+- Tag: Z (1 total occurrence(s))
+    - Value: 'bar' (1 occurrence(s))
+
+- Tag: PixelData (3 total occurrence(s))
+    - Value: 'aaaaaaaaaaa' (1 occurrence(s))
+    - Value: 'a' (2 occurrence(s))
+
+
+### Full details
+
+- Tag: Z (1 total occurrence(s))
+    - Value: 'bar' (1 occurrence(s))
+        - foo1.dcm
+
+- Tag: PixelData (3 total occurrence(s))
+    - Value: 'aaaaaaaaaaa' (1 occurrence(s))
+        - foo1.dcm
+    - Value: 'a' (2 occurrence(s))
+        - foo1.dcm
+        - foo1.dcm
+
+
+## Rejected files
+
+
+## Anonymisation failures
+
+
+--- end of report ---
+";
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+        }
+
+    [Test]
         public void Test_JobReporterBase_CreateReport_IdentifiableExtraction()
         {
             Guid jobId = Guid.NewGuid();

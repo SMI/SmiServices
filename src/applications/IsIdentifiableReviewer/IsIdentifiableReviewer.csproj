@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Terminal.Gui" Version="0.81.0" />
+    <PackageReference Include="Terminal.Gui" Version="0.89.4" />
   </ItemGroup>
 
   <ItemGroup>
