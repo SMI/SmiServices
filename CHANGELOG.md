@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 -   Add SecurityCodeScan tool to build chain for .Net code
 -   Extraction report: Group PixelData separately and sort by length
+-   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
 
 ## [1.11.1] - 2020-08-12
 
