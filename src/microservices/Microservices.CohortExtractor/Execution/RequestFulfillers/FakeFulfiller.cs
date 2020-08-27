@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
+    // TODO(rkm 2020-08-27) What is this used for?
     public class FakeFulfiller : IExtractionRequestFulfiller
     {
         protected readonly Logger Logger;

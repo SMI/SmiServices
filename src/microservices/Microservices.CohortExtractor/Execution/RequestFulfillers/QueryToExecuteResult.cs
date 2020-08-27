@@ -1,4 +1,6 @@
+using JetBrains.Annotations;
 using System;
+
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
@@ -20,6 +22,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             InstanceTagValue = instanceTagValue;
             Reject = rejection;
             RejectReason = rejectionReason;
+            if (Reject && string.IsNullOrWhiteSpace(RejectReason))
+                 throw new ArgumentException("RejectReason must be specified if Reject=true");
         }
 
         public override string ToString()
