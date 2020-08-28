@@ -30,6 +30,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 	private String _extractionDir;
 	private String _extractionModality;
 	private boolean _isIdentifiableExtraction;
+	private boolean _isNoFilterExtraction;
 	private ExtractionKey _extractionKey;
 	private static final Pattern _chiPattern = Pattern.compile("^\\d{10}$");
 	private static final Pattern _eupiPattern = Pattern.compile("^([A-Z]|[0-9]){32}$");
@@ -52,7 +53,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 	 *                                               ExtractRequestInfo messages
 	 */
 	public ExtractMessagesCsvHandler(UUID extractionJobID, String projectID, String extractionDir,
-			String extractionModality, boolean isIdentifiableExtraction, IProducerModel extractRequestMessageProducerModel,
+			String extractionModality, boolean isIdentifiableExtraction, boolean isNoFilterExtraction, IProducerModel extractRequestMessageProducerModel,
 			IProducerModel extractRequestInfoMessageProducerModel) {
 
 		_extractionJobID = extractionJobID;
@@ -62,6 +63,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		_extractRequestInfoMessageProducerModel = extractRequestInfoMessageProducerModel;
 		_extractionModality = extractionModality;
 		_isIdentifiableExtraction = isIdentifiableExtraction;
+		_isNoFilterExtraction = isNoFilterExtraction;
 
         // TODO(rkm 2020-01-30) Properly handle parsing of the supported modalities
         if (_extractionModality != null && (!_extractionModality.equals("CT") && !_extractionModality.equals("MR"))) {
@@ -149,7 +151,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		erm.ExtractionDirectory = _extractionDir;
 		erm.JobSubmittedAt = now;
 		erm.KeyTag = _extractionKey.toString();
-		erm.IsIdentifiableExtraction = _isIdentifiableExtraction;
+        erm.IsIdentifiableExtraction = _isIdentifiableExtraction;
+        erm.IsNoFilterExtraction = _isNoFilterExtraction;
 		if (_extractionKey == ExtractionKey.StudyInstanceUID)
 			erm.ExtractionModality = _extractionModality;
 
@@ -161,7 +164,9 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		erim.JobSubmittedAt = now;
 		erim.KeyValueCount = _identifierSet.size();
 		erim.KeyTag = _extractionKey.toString();
-		erim.IsIdentifiableExtraction = _isIdentifiableExtraction;
+        erim.IsIdentifiableExtraction = _isIdentifiableExtraction;
+        erim.IsNoFilterExtraction = _isNoFilterExtraction;
+        
 		if (_extractionKey == ExtractionKey.StudyInstanceUID)
 			erim.ExtractionModality = _extractionModality;
 
@@ -170,7 +175,8 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		sb.append("    ProjectNumber:                         " + _projectID + System.lineSeparator());
 		sb.append("    ExtractionDirectory:                   " + _extractionDir + System.lineSeparator());
 		sb.append("    ExtractionKey:                         " + _extractionKey + System.lineSeparator());
-		sb.append("    IsIdentifiableExtraction:                         " + _isIdentifiableExtraction + System.lineSeparator());
+		sb.append("    IsIdentifiableExtraction:              " + _isIdentifiableExtraction + System.lineSeparator());
+		sb.append("    IsNoFilterExtraction:                  " + _isNoFilterExtraction + System.lineSeparator());
 		if (_extractionKey == ExtractionKey.StudyInstanceUID)
 			sb.append("    ExtractionModality:                    " + _extractionModality + System.lineSeparator());
 		sb.append("    KeyValueCount:                         " + _identifierSet.size() + System.lineSeparator());
