@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     -   New service "FileCopier" which sits in place of CTP for identifiable extractions and copies source files to their output dirs
     -   Changes to MongoDB extraction schema, but backwards compatibility has been tested
     -   [breaking] RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
+-   Add "no filters" extraction support. If specified when running ExtractorCLI, no file rejection filters will be applied by CohortExtractor. True by default for identifiable extractions
 
 ## [1.11.1] - 2020-08-12
 
