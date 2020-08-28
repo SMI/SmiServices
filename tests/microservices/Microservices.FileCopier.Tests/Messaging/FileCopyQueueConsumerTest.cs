@@ -1,4 +1,20 @@
-﻿using NUnit.Framework;
+﻿using Microservices.FileCopier.Execution;
+using Microservices.FileCopier.Messaging;
+using Moq;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Framing;
+using Smi.Common.Events;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+
 
 namespace Microservices.FileCopier.Tests.Messaging
 {
@@ -6,8 +22,15 @@ namespace Microservices.FileCopier.Tests.Messaging
     {
         #region Fixture Methods 
 
+        private ExtractFileMessage _message;
+        private Mock<IModel> _mockModel;
+        private Mock<IFileCopier> _mockFileCopier;
+
         [OneTimeSetUp]
-        public void OneTimeSetUp() { }
+        public void OneTimeSetUp()
+        {
+            TestLogger.Setup();
+        }
 
         [OneTimeTearDown]
         public void OneTimeTearDown() { }
@@ -17,10 +40,44 @@ namespace Microservices.FileCopier.Tests.Messaging
         #region Test Methods
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _message = new ExtractFileMessage
+            {
+                JobSubmittedAt = DateTime.UtcNow,
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ProjectNumber = "1234",
+                ExtractionDirectory = "foo",
+                DicomFilePath = "foo.dcm",
+                IsIdentifiableExtraction = true,
+                OutputPath = "bar",
+            };
+            _mockModel = new Mock<IModel>(MockBehavior.Strict);
+            _mockModel.Setup(x => x.IsClosed).Returns(false);
+            _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
+            _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
+
+            _mockFileCopier = new Mock<IFileCopier>(MockBehavior.Strict);
+            _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>()));
+        }
 
         [TearDown]
         public void TearDown() { }
+
+        private static BasicDeliverEventArgs GetMockDeliverArgs(ExtractFileMessage message)
+        {
+            var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>(MockBehavior.Strict);
+            mockDeliverArgs.DeliveryTag = 1;
+            mockDeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+            mockDeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
+            var header = new MessageHeader();
+            header.Populate(mockDeliverArgs.BasicProperties.Headers);
+            // Have to convert these to bytes since RabbitMQ normally does that when sending
+            mockDeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
+            mockDeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
+            mockDeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
+            return mockDeliverArgs;
+        }
 
         #endregion
 
@@ -29,33 +86,97 @@ namespace Microservices.FileCopier.Tests.Messaging
         [Test]
         public void Test_FileCopyQueueConsumer_ValidMessage_IsAcked()
         {
-            // There's a ridiculous amount of boilerplate required to test this at the moment...
-            //var mockFileCopier = new Mock<IFileCopier>(MockBehavior.Strict);
-            //var consumer = new FileCopyQueueConsumer(mockFileCopier.Object);
-            //consumer.ProcessMessage();
-            
-            // TODO(rkm 2020-08-25) Test Ack / not Nack
-            Assert.Inconclusive();
+            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+
+            var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
+            consumer.SetModel(_mockModel.Object);
+
+            var fatalCalled = false;
+            FatalErrorEventArgs fatalErrorEventArgs = null;
+            consumer.OnFatal += (sender, args) =>
+            {
+                fatalCalled = true;
+                fatalErrorEventArgs = args;
+            };
+
+            consumer.ProcessMessage(mockDeliverArgs);
+
+            Thread.Sleep(500); // Fatal is race-y
+            Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");
+            Assert.AreEqual(1, consumer.AckCount);
+            Assert.AreEqual(0, consumer.NackCount);
         }
 
         [Test]
         public void Test_FileCopyQueueConsumer_ApplicationException_IsNacked()
         {
-            // TODO(rkm 2020-08-25) Test Nack / not Ack
-            Assert.Inconclusive();
+            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+
+            _mockFileCopier.Reset();
+            _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<ApplicationException>();
+
+            var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
+            consumer.SetModel(_mockModel.Object);
+
+            var fatalCalled = false;
+            FatalErrorEventArgs fatalErrorEventArgs = null;
+            consumer.OnFatal += (sender, args) =>
+            {
+                fatalCalled = true;
+                fatalErrorEventArgs = args;
+            };
+
+            consumer.ProcessMessage(mockDeliverArgs);
+
+            Thread.Sleep(500); // Fatal is race-y
+            Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");
+            Assert.AreEqual(0, consumer.AckCount);
+            Assert.AreEqual(1, consumer.NackCount);
         }
 
         [Test]
         public void Test_FileCopyQueueConsumer_UnknownException_CallsFatalCallback()
         {
-            // TODO(rkm 2020-08-25) Test not ack / not nack / Fatal called
-            Assert.Inconclusive();
+            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+
+            _mockFileCopier.Reset();
+            _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();
+
+            var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
+            consumer.SetModel(_mockModel.Object);
+
+            var fatalCalled = false;
+            consumer.OnFatal += (sender, _) => fatalCalled = true;
+
+            consumer.ProcessMessage(mockDeliverArgs);
+
+            Thread.Sleep(500); // Fatal is race-y
+            Assert.True(fatalCalled, "Expected Fatal to be called");
+            Assert.AreEqual(0, consumer.AckCount);
+            Assert.AreEqual(0, consumer.NackCount);
         }
 
         [Test]
         public void Test_FileCopyQueueConsumer_AnonExtraction_ThrowsException()
         {
-            Assert.Inconclusive();
+            _message.IsIdentifiableExtraction = false;
+            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+
+            _mockFileCopier.Reset();
+            _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();
+
+            var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
+            consumer.SetModel(_mockModel.Object);
+
+            var fatalCalled = false;
+            consumer.OnFatal += (sender, _) => fatalCalled = true;
+
+            consumer.ProcessMessage(mockDeliverArgs);
+
+            Thread.Sleep(500); // Fatal is race-y
+            Assert.True(fatalCalled, "Expected Fatal to be called");
+            Assert.AreEqual(0, consumer.AckCount);
+            Assert.AreEqual(0, consumer.NackCount);
         }
 
         #endregion
