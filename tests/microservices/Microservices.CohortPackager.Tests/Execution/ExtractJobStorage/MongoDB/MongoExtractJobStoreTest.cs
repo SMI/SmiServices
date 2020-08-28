@@ -225,6 +225,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 ExtractionModality = "CT",
+                IsIdentifiableExtraction = true,
+                IsNoFilterExtraction = true,
             };
             var testHeader = new MessageHeader
             {
@@ -254,7 +256,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "StudyInstanceUID",
                 1,
                 "CT",
-                isIdentifiableExtraction: false,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
 
             Assert.AreEqual(expected, extractJob);
@@ -444,7 +447,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "SeriesInstanceUID",
                 1,
                 "MR",
-                isIdentifiableExtraction: false,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -522,7 +526,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "SeriesInstanceUID",
                 1,
                 "MR",
-                isIdentifiableExtraction: false,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -631,7 +636,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "1.2.3.4",
                 123,
                 "MR",
-                isIdentifiableExtraction: false,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
 
             var client = new TestMongoClient();

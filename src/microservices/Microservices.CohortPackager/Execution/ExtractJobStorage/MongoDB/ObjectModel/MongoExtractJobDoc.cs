@@ -1,10 +1,10 @@
-using System;
 using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using System;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -48,6 +48,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [BsonElement("isIdentifiableExtraction")]
         public bool IsIdentifiableExtraction { get; set; }
 
+        [BsonElement("IsNoFilterExtraction")]
+        public bool IsNoFilterExtraction { get; set; }
+
         [BsonElement("failedJobInfo")]
         [CanBeNull]
         public MongoFailedJobInfoDoc FailedJobInfoDoc { get; set; }
@@ -64,6 +67,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             uint keyCount,
             [CanBeNull] string extractionModality,
             bool isIdentifiableExtraction,
+            bool isNoFilterExtraction,
             [CanBeNull] MongoFailedJobInfoDoc failedJobInfoDoc)
         {
             ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentException(nameof(extractionJobIdentifier));
@@ -77,6 +81,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             if (extractionModality != null)
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
             IsIdentifiableExtraction = isIdentifiableExtraction;
+            IsNoFilterExtraction = isNoFilterExtraction;
             FailedJobInfoDoc = failedJobInfoDoc;
         }
 
@@ -96,6 +101,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             KeyCount = existing.KeyCount;
             ExtractionModality = existing.ExtractionModality;
             FailedJobInfoDoc = existing.FailedJobInfoDoc;
+            IsNoFilterExtraction = existing.IsNoFilterExtraction;
         }
 
         public static MongoExtractJobDoc FromMessage(
@@ -114,6 +120,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 (uint)message.KeyValueCount,
                 message.ExtractionModality,
                 message.IsIdentifiableExtraction,
+                message.IsNoFilterExtraction,
                 null
             );
         }
@@ -132,6 +139,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                    KeyCount == other.KeyCount &&
                    ExtractionModality == other.ExtractionModality &&
                    IsIdentifiableExtraction == other.IsIdentifiableExtraction &&
+                   IsNoFilterExtraction == other.IsNoFilterExtraction &&
                    Equals(FailedJobInfoDoc, other.FailedJobInfoDoc);
         }
 
@@ -154,13 +162,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 int hashCode = ExtractionJobIdentifier.GetHashCode();
                 hashCode = (hashCode * 397) ^ Header.GetHashCode();
                 hashCode = (hashCode * 397) ^ ProjectNumber.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) JobStatus;
+                hashCode = (hashCode * 397) ^ (int)JobStatus;
                 hashCode = (hashCode * 397) ^ ExtractionDirectory.GetHashCode();
                 hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();
                 hashCode = (hashCode * 397) ^ KeyTag.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) KeyCount;
+                hashCode = (hashCode * 397) ^ (int)KeyCount;
                 hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ IsIdentifiableExtraction.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsNoFilterExtraction.GetHashCode();
                 hashCode = (hashCode * 397) ^ (FailedJobInfoDoc != null ? FailedJobInfoDoc.GetHashCode() : 0);
                 return hashCode;
             }

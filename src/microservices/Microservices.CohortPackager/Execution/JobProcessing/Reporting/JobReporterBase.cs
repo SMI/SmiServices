@@ -84,6 +84,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private static IEnumerable<string> JobHeader(ExtractJobInfo jobInfo)
         {
             string identExtraction = jobInfo.IsIdentifiableExtraction ? "Yes" : "No";
+            string filteredExtraction = !jobInfo.IsNoFilterExtraction ? "Yes" : "No";
             var header = new List<string>
             {
                 $"# SMI file extraction report for {jobInfo.ProjectNumber}",
@@ -95,6 +96,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"-    Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",
                 $"-    Requested identifier count:    {jobInfo.KeyValueCount}",
                 $"-    Identifiable extraction:       {identExtraction}",
+                $"-    Filtered extraction:           {filteredExtraction}",
                 "",
             };
 
