@@ -3,14 +3,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Messages.Extraction;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    [BsonIgnoreExtraElements]
-    public class MongoFileStatusDoc
+    [BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
+    public class MongoFileStatusDoc : ISupportInitialize
     {
         [BsonElement("header")]
         [NotNull]
@@ -41,6 +41,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [CanBeNull]
         public string StatusMessage { get; set; }
 
+        /// <summary>
+        /// Used only to handle old-format documents when deserializing
+        /// </summary>
+        [BsonExtraElements]
+        [UsedImplicitly]
+        public IDictionary<string, object> ExtraElements { get; set; }
+
+
         public MongoFileStatusDoc(
             [NotNull] MongoExtractionMessageHeaderDoc header,
             [NotNull] string dicomFilePath,
@@ -59,6 +67,20 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             StatusMessage = statusMessage;
             if (!IsIdentifiable && string.IsNullOrWhiteSpace(statusMessage))
                 throw new ArgumentNullException(nameof(statusMessage));
+        }
+
+        // ^ISupportInitialize
+        public void BeginInit() { }
+
+        // ^ISupportInitialize
+        public void EndInit()
+        {
+            if (!ExtraElements.ContainsKey("anonymisedFileName"))
+                return;
+
+            OutputFileName = (string)ExtraElements["anonymisedFileName"];
+            DicomFilePath = "<unknown>";
+            ExtractedFileStatus = OutputFileName == null ? ExtractedFileStatus.ErrorWontRetry : ExtractedFileStatus.Anonymised;
         }
 
         #region Equality Methods
