@@ -5,6 +5,8 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.IO;
+using System.IO.Abstractions;
+
 
 namespace Microservices.FileCopier.Execution
 {
@@ -14,17 +16,19 @@ namespace Microservices.FileCopier.Execution
 
         public FileCopierHost(
             [NotNull] GlobalOptions options,
-            bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig: loadSmiLogConfig)
+            [CanBeNull]IFileSystem fileSystem = null,
+            bool loadSmiLogConfig = true
+            )
+        : base(
+            options,
+            loadSmiLogConfig: loadSmiLogConfig
+            )
         {
-            if (!Directory.Exists(Globals.FileSystemOptions.FileSystemRoot))
-                throw new ArgumentException($"Cannot find the specified FileSystemRoot: '{Globals.FileSystemOptions.FileSystemRoot}'");
-
             Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions.FileSystemRoot);
 
             IProducerModel copyStatusProducerModel = RabbitMqAdapter.SetupProducer(Globals.FileCopierOptions.CopyStatusProducerOptions, isBatch: false);
 
-            var fileCopier = new ExtractionFileCopier(Globals.FileCopierOptions, copyStatusProducerModel, Globals.FileSystemOptions.FileSystemRoot);
+            var fileCopier = new ExtractionFileCopier(Globals.FileCopierOptions, copyStatusProducerModel, Globals.FileSystemOptions.FileSystemRoot, fileSystem);
             _consumer = new FileCopyQueueConsumer(fileCopier);
         }
 

@@ -172,10 +172,9 @@ CTPAnonymiserOptions:
 
 FileCopierOptions:
     NoVerifyRoutingKey: noverify
-    CopyFileConsumerOptions:
-        QueueName: 'TEST.ExtractFileIdentQueue'
-        QoSPrefetchCount: 1
-        AutoAck: false
+    QueueName: 'TEST.ExtractFileIdentQueue'
+    QoSPrefetchCount: 1
+    AutoAck: false
     CopyStatusProducerOptions:
         ExchangeName: 'TEST.FileStatusExchange'
         MaxConfirmAttempts: 1

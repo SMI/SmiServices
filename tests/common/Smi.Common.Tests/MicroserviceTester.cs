@@ -18,7 +18,7 @@ namespace Smi.Common.Tests
 
         private readonly List<string> _declaredExchanges = new List<string>();
         private readonly List<string> _declaredQueues = new List<string>();
-        private readonly ConnectionFactory _factory;
+        public readonly ConnectionFactory Factory;
 
         /// <summary>
         /// When true, will delete any created queues/exchanges when Dispose is called. Can set to false to inspect
@@ -41,7 +41,7 @@ namespace Smi.Common.Tests
 
             _adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
 
-            _factory = new ConnectionFactory
+            Factory = new ConnectionFactory
             {
                 HostName = rabbitOptions.RabbitMqHostName,
                 Port = rabbitOptions.RabbitMqHostPort,
@@ -50,7 +50,7 @@ namespace Smi.Common.Tests
                 Password = rabbitOptions.RabbitMqPassword
             };
 
-            using (var con = _factory.CreateConnection())
+            using (var con = Factory.CreateConnection())
             using (var model = con.CreateModel())
             {
                 //get rid of old exchanges
@@ -144,7 +144,7 @@ namespace Smi.Common.Tests
 
             string queueNameToUse = queueName ?? exchangeName.Replace("Exchange", "Queue");
 
-            using (var con = _factory.CreateConnection())
+            using (var con = Factory.CreateConnection())
             using (var model = con.CreateModel())
             {
                 //setup a sender channel for each of the consumers you want to test sending messages to
@@ -186,7 +186,7 @@ namespace Smi.Common.Tests
 
             if (CleanUpAfterTest)
             {
-                using (IConnection conn = _factory.CreateConnection())
+                using (IConnection conn = Factory.CreateConnection())
                 using (IModel model = conn.CreateModel())
                 {
                     _declaredExchanges.ForEach(x => model.ExchangeDelete(x));

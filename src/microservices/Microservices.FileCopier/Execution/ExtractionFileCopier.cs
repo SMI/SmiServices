@@ -4,6 +4,7 @@ using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using System;
 using System.IO.Abstractions;
 
 
@@ -31,6 +32,9 @@ namespace Microservices.FileCopier.Execution
             _copyStatusProducerModel = copyStatusCopyStatusProducerModel;
             _fileSystemRoot = fileSystemRoot;
             _fileSystem = fileSystem ?? new FileSystem();
+
+            if (!_fileSystem.Directory.Exists(_fileSystemRoot))
+                throw new ArgumentException($"Cannot find the specified fileSystemRoot: '{_fileSystemRoot}'");
 
             _logger = LogManager.GetLogger(GetType().Name);
 

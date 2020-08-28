@@ -1,11 +1,24 @@
 ﻿using Microservices.CohortExtractor.Audit;
+using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Framing;
+using Smi.Common.Events;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 
 
 namespace Microservices.CohortExtractor.Tests.Messaging
@@ -15,7 +28,10 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         #region Fixture Methods 
 
         [OneTimeSetUp]
-        public void OneTimeSetUp() { }
+        public void OneTimeSetUp()
+        {
+            TestLogger.Setup();
+        }
 
         [OneTimeTearDown]
         public void OneTimeTearDown() { }
@@ -37,32 +53,118 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         [Test]
         public void Test_ExtractionRequestQueueConsumer_AnonExtraction_RoutingKey()
         {
-            var options = new CohortExtractorOptions();
-
-            var mockFulfiller = new Mock<IExtractionRequestFulfiller>(MockBehavior.Strict);
-            var mockAuditor = new Mock<IAuditExtractions>(MockBehavior.Strict);
-            var mockPathResolver = new Mock<IProjectPathResolver>(MockBehavior.Strict);
-
-            var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            var mockFileInfoMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-
-            var consumer = new ExtractionRequestQueueConsumer(
-                options,
-                mockFulfiller.Object,
-                mockAuditor.Object, mockPathResolver.Object,
-                mockFileMessageProducerModel.Object,
-                mockFileInfoMessageProducerModel.Object);
-            
-            // TODO
-            //consumer.ProcessMessage();
-            
-            Assert.Inconclusive();
+            GlobalOptions globals = GlobalOptions.Load();
+            globals.CohortExtractorOptions.ExtractAnonRoutingKey = "anon";
+            globals.CohortExtractorOptions.ExtractIdentRoutingKey = "";
+            TestRoutingKeys(globals, false, "anon");
         }
 
         [Test]
         public void Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKey()
         {
-            Assert.Inconclusive();
+            GlobalOptions globals = GlobalOptions.Load();
+            globals.CohortExtractorOptions.ExtractAnonRoutingKey = "";
+            globals.CohortExtractorOptions.ExtractIdentRoutingKey = "ident";
+            TestRoutingKeys(globals, true, "ident");
+        }
+
+        private static void TestRoutingKeys(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
+        {
+            // TODO(rkm 2020-08-28) Why do we need this much boilerplate to test a string & a bool?
+
+            var mockFulfiller = new Mock<IExtractionRequestFulfiller>(MockBehavior.Strict);
+            mockFulfiller
+                .Setup(x => x.GetAllMatchingFiles(It.IsAny<ExtractionRequestMessage>(), It.IsAny<IAuditExtractions>()))
+                .Returns(() => new List<ExtractImageCollection>
+                {
+                    new ExtractImageCollection("foo")
+                    {
+                        {
+                            "bar", new HashSet<QueryToExecuteResult>
+                            {
+                                new QueryToExecuteResult(
+                                    "file.dcm",
+                                    "study",
+                                    "series",
+                                    "instance",
+                                    false,
+                                    "")
+                            }
+                        }
+                    }
+                });
+
+            var mockAuditor = new Mock<IAuditExtractions>(MockBehavior.Strict);
+            mockAuditor.Setup(x => x.AuditExtractionRequest(It.IsAny<ExtractionRequestMessage>()));
+            mockAuditor.Setup(x => x.AuditExtractFiles(It.IsAny<ExtractionRequestMessage>(), It.IsAny<ExtractImageCollection>()));
+
+            var mockPathResolver = new Mock<IProjectPathResolver>(MockBehavior.Strict);
+            mockPathResolver
+                .Setup(x => x.GetOutputPath(It.IsAny<QueryToExecuteResult>(), It.IsAny<ExtractionRequestMessage>()))
+                .Returns("path");
+
+            var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
+            string fileMessageRoutingKey = null;
+            mockFileMessageProducerModel
+                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
+                .Callback((IMessage _, IMessageHeader __, string routingKey) => { fileMessageRoutingKey = routingKey; })
+                .Returns(new MessageHeader());
+            mockFileMessageProducerModel.Setup(x => x.WaitForConfirms());
+
+            var mockFileInfoMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
+            mockFileInfoMessageProducerModel
+                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
+                .Returns(new MessageHeader());
+            mockFileInfoMessageProducerModel.Setup(x => x.WaitForConfirms());
+
+            var msg = new ExtractionRequestMessage
+            {
+                JobSubmittedAt = DateTime.UtcNow,
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ProjectNumber = "1234",
+                ExtractionDirectory = "1234/foo",
+                IsIdentifiableExtraction = isIdentifiableExtraction,
+                KeyTag = "foo",
+                ExtractionIdentifiers = new List<string> { "foo" },
+                Modality = null,
+            };
+            var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>(MockBehavior.Strict);
+            mockDeliverArgs.DeliveryTag = 1;
+            mockDeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg));
+            mockDeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
+            var header = new MessageHeader();
+            header.Populate(mockDeliverArgs.BasicProperties.Headers);
+            // Have to convert these to bytes since RabbitMQ normally does that when sending
+            mockDeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
+            mockDeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
+            mockDeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
+
+            var consumer = new ExtractionRequestQueueConsumer(
+                globals.CohortExtractorOptions,
+                mockFulfiller.Object,
+                mockAuditor.Object, mockPathResolver.Object,
+                mockFileMessageProducerModel.Object,
+                mockFileInfoMessageProducerModel.Object);
+
+            var fatalCalled = false;
+            FatalErrorEventArgs fatalErrorEventArgs = null;
+            consumer.OnFatal += (sender, args) =>
+            {
+                fatalCalled = true;
+                fatalErrorEventArgs = args;
+            };
+
+            var mockModel = new Mock<IModel>(MockBehavior.Strict);
+            mockModel.Setup(x => x.IsClosed).Returns(false);
+            mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>())).Verifiable();
+
+            consumer.SetModel(mockModel.Object);
+            consumer.ProcessMessage(mockDeliverArgs);
+
+            Thread.Sleep(500); // Fatal call is race-y
+            Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");
+            mockModel.Verify(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()), Times.Once);
+            Assert.AreEqual(expectedRoutingKey, fileMessageRoutingKey);
         }
 
         #endregion
