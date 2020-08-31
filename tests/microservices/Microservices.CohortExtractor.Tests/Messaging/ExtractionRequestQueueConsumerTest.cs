@@ -70,39 +70,8 @@ namespace Microservices.CohortExtractor.Tests.Messaging
 
         private static void TestRoutingKeys(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
         {
-            // TODO(rkm 2020-08-28) Why do we need this much boilerplate to test a string & a bool?
-
-            var mockFulfiller = new Mock<IExtractionRequestFulfiller>(MockBehavior.Strict);
-            mockFulfiller
-                .Setup(x => x.GetAllMatchingFiles(It.IsAny<ExtractionRequestMessage>(), It.IsAny<IAuditExtractions>()))
-                .Returns(() => new List<ExtractImageCollection>
-                {
-                    new ExtractImageCollection("foo")
-                    {
-                        {
-                            "bar", new HashSet<QueryToExecuteResult>
-                            {
-                                new QueryToExecuteResult(
-                                    "file.dcm",
-                                    "study",
-                                    "series",
-                                    "instance",
-                                    false,
-                                    "")
-                            }
-                        }
-                    }
-                });
-
-            var mockAuditor = new Mock<IAuditExtractions>(MockBehavior.Strict);
-            mockAuditor.Setup(x => x.AuditExtractionRequest(It.IsAny<ExtractionRequestMessage>()));
-            mockAuditor.Setup(x => x.AuditExtractFiles(It.IsAny<ExtractionRequestMessage>(), It.IsAny<ExtractImageCollection>()));
-
-            var mockPathResolver = new Mock<IProjectPathResolver>(MockBehavior.Strict);
-            mockPathResolver
-                .Setup(x => x.GetOutputPath(It.IsAny<QueryToExecuteResult>(), It.IsAny<ExtractionRequestMessage>()))
-                .Returns("path");
-
+            var fakeFulfiller = new FakeFulfiller();
+            
             var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             string fileMessageRoutingKey = null;
             mockFileMessageProducerModel
@@ -141,8 +110,8 @@ namespace Microservices.CohortExtractor.Tests.Messaging
 
             var consumer = new ExtractionRequestQueueConsumer(
                 globals.CohortExtractorOptions,
-                mockFulfiller.Object,
-                mockAuditor.Object, mockPathResolver.Object,
+                fakeFulfiller,
+                new NullAuditExtractions(), new DefaultProjectPathResolver(),
                 mockFileMessageProducerModel.Object,
                 mockFileInfoMessageProducerModel.Object);
 
