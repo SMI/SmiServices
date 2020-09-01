@@ -1,5 +1,4 @@
 ﻿using Microservices.CohortExtractor.Audit;
-using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
@@ -56,7 +55,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             GlobalOptions globals = GlobalOptions.Load();
             globals.CohortExtractorOptions.ExtractAnonRoutingKey = "anon";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "";
-            TestRoutingKeys(globals, false, "anon");
+            AssertMessagePublishedWithSpecifiedKey(globals, false, "anon");
         }
 
         [Test]
@@ -65,13 +64,19 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             GlobalOptions globals = GlobalOptions.Load();
             globals.CohortExtractorOptions.ExtractAnonRoutingKey = "";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "ident";
-            TestRoutingKeys(globals, true, "ident");
+            AssertMessagePublishedWithSpecifiedKey(globals, true, "ident");
         }
 
-        private static void TestRoutingKeys(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
+        /// <summary>
+        /// Checks that ExtractionRequestQueueConsumer publishes messages correctly according to the input message isIdentifiableExtraction value
+        /// </summary>
+        /// <param name="globals"></param>
+        /// <param name="isIdentifiableExtraction"></param>
+        /// <param name="expectedRoutingKey"></param>
+        private static void AssertMessagePublishedWithSpecifiedKey(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
         {
             var fakeFulfiller = new FakeFulfiller();
-            
+
             var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             string fileMessageRoutingKey = null;
             mockFileMessageProducerModel
