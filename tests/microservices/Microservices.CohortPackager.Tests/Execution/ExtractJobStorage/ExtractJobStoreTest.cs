@@ -81,7 +81,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             var message = new ExtractedFileStatusMessage();
             var header = new MessageHeader();
 
-            message.Status = ExtractedFileStatus.Unused;
+            message.Status = ExtractedFileStatus.None;
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
             message.Status = ExtractedFileStatus.Anonymised;

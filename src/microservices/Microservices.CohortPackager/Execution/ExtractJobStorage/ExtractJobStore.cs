@@ -43,8 +43,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] ExtractedFileStatusMessage message,
             [NotNull] IMessageHeader header)
         {
-            if (message.Status == ExtractedFileStatus.Unused)
-                throw new ApplicationException("ExtractedFileStatus was the default unused value");
+            if (message.Status == ExtractedFileStatus.None)
+                throw new ApplicationException("ExtractedFileStatus was None");
             if (message.Status == ExtractedFileStatus.Anonymised)
                 throw new ApplicationException("Received an anonymisation successful message from the failure queue");
 

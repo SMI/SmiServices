@@ -5,7 +5,7 @@
         /// <summary>
         /// Unused placeholder value
         /// </summary>
-        Unused = 0,
+        None = 0,
 
         /// <summary>
         /// The file has been anonymised successfully
