@@ -26,22 +26,8 @@ namespace Smi.Common.Messages.Extraction
         [JsonConstructor]
         public ExtractedFileVerificationMessage() { }
 
-        public ExtractedFileVerificationMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
-            : this()
-        {
-            ExtractionJobIdentifier = extractionJobIdentifier;
-            ProjectNumber = projectNumber;
-            ExtractionDirectory = extractionDirectory;
-            JobSubmittedAt = jobSubmittedAt;
-        }
-
-        /// <summary>
-        /// Creates a new instance copying all values from the given origin message
-        /// </summary>
-        /// <param name="request"></param>
         public ExtractedFileVerificationMessage(ExtractedFileStatusMessage request)
-            : this(request.ExtractionJobIdentifier, request.ProjectNumber, request.ExtractionDirectory,
-                request.JobSubmittedAt)
+            : base(request)
         {
             DicomFilePath = request.DicomFilePath;
             OutputFilePath = request.OutputFilePath;
