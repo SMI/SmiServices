@@ -94,8 +94,7 @@ namespace Microservices.FileCopier.Tests.Execution
             ExtractedFileStatusMessage statusMessage = null;
             consumer.Received += (_, ea) => statusMessage = JsonConvert.DeserializeObject<ExtractedFileStatusMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
             model.BasicConsume(outputQueueName, true, "", consumer);
-            Thread.Sleep(500); // TODO Race-y
-            Assert.AreEqual(ExtractedFileStatus.Copied, statusMessage.Status);
+            new TestTimelineAwaiter().Await(() => statusMessage.Status == ExtractedFileStatus.Copied);
         }
 
         #endregion
