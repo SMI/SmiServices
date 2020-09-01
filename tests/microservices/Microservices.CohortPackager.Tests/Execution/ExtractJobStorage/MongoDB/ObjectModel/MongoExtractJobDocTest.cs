@@ -1,12 +1,12 @@
-﻿using System;
-using System.Reflection;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using NUnit.Framework;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
+using System;
+using System.Reflection;
 
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -76,6 +76,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: false,
                 null);
 
             Assert.AreEqual(expected, doc);
@@ -97,6 +98,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: false,
                 failedInfoDoc);
             var doc2 = new MongoExtractJobDoc(
                 guid,
@@ -108,6 +110,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: false,
                 failedInfoDoc);
 
             Assert.AreEqual(doc1, doc2);
@@ -128,6 +131,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: false,
                 null);
             var doc2 = new MongoExtractJobDoc(
                 guid,
@@ -139,6 +143,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: false,
                 null);
 
             Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());

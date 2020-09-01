@@ -113,7 +113,7 @@ def send_CTP_Start_Message(yaml_dict, input_file, extraction_dir, project_name):
     """ Sends a Message to exchange given by QueueName requesting that CTP anonymises a DICOM file.
     NOTE! Sends a message direct to CTP input queue, not to the exchange used by CohortExtractor. """
 
-    queueName = yaml_dict['CTPAnonymiserOptions']['ExtractFileConsumerOptions']['QueueName']
+    queueName = yaml_dict['CTPAnonymiserOptions']['AnonFileConsumerOptions']['QueueName']
 
     pika_connection = pika.BlockingConnection(get_pika_connection_parameters(yaml_dict))
     pika_model = pika_connection.channel()

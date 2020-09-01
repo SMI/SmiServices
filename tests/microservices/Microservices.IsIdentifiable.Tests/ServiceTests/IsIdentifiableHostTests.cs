@@ -53,6 +53,8 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
 
             using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
             {
+                tester.CreateExchange(options.IsIdentifiableOptions.IsIdentifiableProducerOptions.ExchangeName, null);
+
                 options.IsIdentifiableOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
                 options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
@@ -60,14 +62,14 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 Assert.IsNotNull(host);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage()
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage()
                 {
                     DicomFilePath = "yay.dcm",
-                    AnonymisedFileName = testDcm.FullName,
+                    OutputFilePath = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",
-                    Status = ExtractFileStatus.Anonymised
+                    Status = ExtractedFileStatus.Anonymised
                 });
 
                 var awaiter = new TestTimelineAwaiter();
@@ -103,14 +105,14 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 var host = new IsIdentifiableHost(options, false);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage
                 {
                     DicomFilePath = "yay.dcm",
-                    AnonymisedFileName = testDcm.FullName,
+                    OutputFilePath = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",
-                    Status = ExtractFileStatus.Anonymised
+                    Status = ExtractedFileStatus.Anonymised
                 });
 
                 var awaiter = new TestTimelineAwaiter();

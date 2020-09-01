@@ -59,6 +59,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 ExtractionDirectory = "test/directory",
                 KeyTag = "KeyTag",
                 KeyValueCount = 123,
+                IsIdentifiableExtraction = true,
             };
 
             MongoExtractJobDoc doc = MongoExtractJobDoc.FromMessage(message, _messageHeader, _dateTimeProvider);
@@ -72,7 +73,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                true);
 
             Assert.AreEqual(expected, extractJobInfo);
         }

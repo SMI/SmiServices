@@ -32,6 +32,12 @@ public abstract class ExtractMessage implements IMessage {
 	@FieldRequired
 	public String JobSubmittedAt;
 
+	/**
+	 * True if this is an identifiable extraction (i.e. files should not be anonymised)
+	 */
+	@FieldRequired
+	public boolean IsIdentifiableExtraction;
+
 	protected ExtractMessage() {
 	}
 }

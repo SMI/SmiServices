@@ -70,7 +70,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
                 "KeyTag",
                 123,
                 null,
-                ExtractJobStatus.ReadyForChecks
+                ExtractJobStatus.ReadyForChecks,
+                true
             );
 
             var opts = new CohortPackagerOptions { JobWatcherTimeoutInSeconds = 123 };

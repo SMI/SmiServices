@@ -1,18 +1,19 @@
-
-using System.ComponentModel;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
-using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
+using Smi.Common.Options;
+using System.ComponentModel;
 
 namespace Microservices.CohortExtractor.Messaging
 {
     public class ExtractionRequestQueueConsumer : Consumer<ExtractionRequestMessage>
     {
+        private readonly CohortExtractorOptions _options;
+
         private readonly IExtractionRequestFulfiller _fulfiller;
         private readonly IAuditExtractions _auditor;
         private readonly IProducerModel _fileMessageProducer;
@@ -20,10 +21,13 @@ namespace Microservices.CohortExtractor.Messaging
 
         private readonly IProjectPathResolver _resolver;
 
-        public ExtractionRequestQueueConsumer(IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
+        public ExtractionRequestQueueConsumer(
+            CohortExtractorOptions options,
+            IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
             IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
             IProducerModel fileMessageInfoProducer)
         {
+            _options = options;
             _fulfiller = fulfiller;
             _auditor = auditor;
             _resolver = pathResolver;
@@ -44,6 +48,7 @@ namespace Microservices.CohortExtractor.Messaging
             }
 
             string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
+            string extractFileRoutingKey = request.IsIdentifiableExtraction ? _options.ExtractIdentRoutingKey : _options.ExtractAnonRoutingKey;
 
             foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request, _auditor))
             {
@@ -66,7 +71,7 @@ namespace Microservices.CohortExtractor.Messaging
                     Logger.Debug($"DicomFilePath={extractFileMessage.DicomFilePath}, OutputPath={extractFileMessage.OutputPath}");
 
                     // Send the extract file message
-                    var sentHeader = (MessageHeader)_fileMessageProducer.SendMessage(extractFileMessage, header);
+                    var sentHeader = (MessageHeader)_fileMessageProducer.SendMessage(extractFileMessage, header, extractFileRoutingKey);
 
                     // Record that we sent it
                     infoMessage.ExtractFileMessagesDispatched.Add(sentHeader, extractFileMessage.OutputPath);

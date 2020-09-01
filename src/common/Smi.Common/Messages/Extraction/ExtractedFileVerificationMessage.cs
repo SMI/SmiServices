@@ -3,8 +3,7 @@ using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
 {
-    // TODO(rkm 2020-02-04) Rename to AnonVerificationMessage
-    public class IsIdentifiableMessage : ExtractMessage, IFileReferenceMessage, IEquatable<IsIdentifiableMessage>
+    public class ExtractedFileVerificationMessage : ExtractMessage, IFileReferenceMessage, IEquatable<ExtractedFileVerificationMessage>
     {
         [JsonProperty(Required = Required.Always)]
         public bool IsIdentifiable { get; set; }
@@ -19,15 +18,15 @@ namespace Smi.Common.Messages.Extraction
         public string DicomFilePath { get; set; }
 
         /// <summary>
-        /// Anonymised file name. Only required if a file has been anonymised
+        /// Output file path, relative to the extraction directory. Only required if an output file has been produced
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string AnonymisedFileName { get; set; }
+        public string OutputFilePath { get; set; }
 
         [JsonConstructor]
-        public IsIdentifiableMessage() { }
+        public ExtractedFileVerificationMessage() { }
 
-        public IsIdentifiableMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
+        public ExtractedFileVerificationMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
             : this()
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
@@ -40,21 +39,21 @@ namespace Smi.Common.Messages.Extraction
         /// Creates a new instance copying all values from the given origin message
         /// </summary>
         /// <param name="request"></param>
-        public IsIdentifiableMessage(ExtractFileStatusMessage request)
+        public ExtractedFileVerificationMessage(ExtractedFileStatusMessage request)
             : this(request.ExtractionJobIdentifier, request.ProjectNumber, request.ExtractionDirectory,
                 request.JobSubmittedAt)
         {
             DicomFilePath = request.DicomFilePath;
-            AnonymisedFileName = request.AnonymisedFileName;
+            OutputFilePath = request.OutputFilePath;
         }
 
         #region Equality Members
 
-        public bool Equals(IsIdentifiableMessage other)
+        public bool Equals(ExtractedFileVerificationMessage other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && IsIdentifiable == other.IsIdentifiable && DicomFilePath == other.DicomFilePath && AnonymisedFileName == other.AnonymisedFileName;
+            return base.Equals(other) && IsIdentifiable == other.IsIdentifiable && DicomFilePath == other.DicomFilePath && OutputFilePath == other.OutputFilePath;
         }
 
         public override bool Equals(object obj)
@@ -62,7 +61,7 @@ namespace Smi.Common.Messages.Extraction
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IsIdentifiableMessage)obj);
+            return Equals((ExtractedFileVerificationMessage)obj);
         }
 
         public override int GetHashCode()
@@ -72,7 +71,7 @@ namespace Smi.Common.Messages.Extraction
                 int hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ IsIdentifiable.GetHashCode();
                 hashCode = (hashCode * 397) ^ (DicomFilePath != null ? DicomFilePath.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (AnonymisedFileName != null ? AnonymisedFileName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (OutputFilePath != null ? OutputFilePath.GetHashCode() : 0);
                 return hashCode;
             }
         }

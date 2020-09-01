@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
@@ -13,6 +10,9 @@ using Smi.Common.MessageSerialization;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Microservices.CohortPackager.Tests.Execution
 {
@@ -47,11 +47,8 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         private class TestReporter : IJobReporter
         {
-            public string Report { get; set; }
-            public void CreateReport(Guid jobId)
-            {
-                Report = $"Report for {jobId}";
-            }
+            public bool reportCreated;
+            public void CreateReport(Guid jobId) => reportCreated = true;
         }
 
         private class TestLoggingNotifier : IJobCompleteNotifier
@@ -65,7 +62,7 @@ namespace Microservices.CohortPackager.Tests.Execution
         }
 
         [Test]
-        public void TestCohortPackagerHost_HappyPath()
+        public void Test_CohortPackagerHost_HappyPath()
         {
             Guid jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -95,21 +92,21 @@ namespace Microservices.CohortPackager.Tests.Execution
                 },
                 KeyValue = "study-1",
             };
-            var testExtractFileStatusMessage = new ExtractFileStatusMessage
+            var testExtractFileStatusMessage = new ExtractedFileStatusMessage
             {
                 JobSubmittedAt = DateTime.UtcNow,
-                AnonymisedFileName = "study-1-anon-1.dcm",
+                OutputFilePath = "study-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = "test",
-                Status = ExtractFileStatus.ErrorWontRetry,
+                Status = ExtractedFileStatus.ErrorWontRetry,
                 StatusMessage = "Couldn't anonymise",
                 DicomFilePath = "study-1-orig-1.dcm",
             };
-            var testIsIdentifiableMessage = new IsIdentifiableMessage
+            var testIsIdentifiableMessage = new ExtractedFileVerificationMessage
             {
                 JobSubmittedAt = DateTime.UtcNow,
-                AnonymisedFileName = "study-1-anon-2.dcm",
+                OutputFilePath = "study-1-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = "test",
@@ -129,12 +126,12 @@ namespace Microservices.CohortPackager.Tests.Execution
                 globals.RabbitOptions,
                 globals.CohortPackagerOptions.ExtractRequestInfoOptions,
                 globals.CohortPackagerOptions.FileCollectionInfoOptions,
-                globals.CohortPackagerOptions.AnonFailedOptions,
+                globals.CohortPackagerOptions.NoVerifyStatusOptions,
                 globals.CohortPackagerOptions.VerificationStatusOptions))
             {
                 tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
                 tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.AnonFailedOptions, new MessageHeader(), testExtractFileStatusMessage);
+                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage);
                 tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage);
 
                 var reporter = new TestReporter();
@@ -151,6 +148,101 @@ namespace Microservices.CohortPackager.Tests.Execution
 
                 host.Stop("Test end");
                 Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
+                Assert.True(reporter.reportCreated);
+            }
+        }
+
+        [Test]
+        public void Test_CohortPackagerHost_IdentifiableExtraction()
+        {
+            Guid jobId = Guid.NewGuid();
+            var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
+            {
+                ExtractionModality = "MR",
+                JobSubmittedAt = DateTime.UtcNow,
+                ProjectNumber = "testProj1",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "test",
+                KeyTag = "StudyInstanceUID",
+                KeyValueCount = 1,
+                IsIdentifiableExtraction = true,
+            };
+            var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
+            {
+                JobSubmittedAt = DateTime.UtcNow,
+                ProjectNumber = "testProj1",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "test",
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+                {
+                    { new MessageHeader(), "out1.dcm" },
+                    { new MessageHeader(), "out2.dcm" },
+                },
+                RejectionReasons = new Dictionary<string, int>
+                {
+                    {"rejected - blah", 1 },
+                },
+                KeyValue = "study-1",
+                IsIdentifiableExtraction = true,
+            };
+            var testExtractFileStatusMessage1 = new ExtractedFileStatusMessage
+            {
+                JobSubmittedAt = DateTime.UtcNow,
+                OutputFilePath = "src.dcm",
+                ProjectNumber = "testProj1",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "test",
+                Status = ExtractedFileStatus.Copied,
+                StatusMessage = null,
+                DicomFilePath = "study-1-orig-1.dcm",
+                IsIdentifiableExtraction = true,
+            };
+            var testExtractFileStatusMessage2 = new ExtractedFileStatusMessage
+            {
+                JobSubmittedAt = DateTime.UtcNow,
+                OutputFilePath = "src_missing.dcm",
+                ProjectNumber = "testProj1",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "test",
+                Status = ExtractedFileStatus.FileMissing,
+                StatusMessage = null,
+                DicomFilePath = "study-1-orig-2.dcm",
+                IsIdentifiableExtraction = true,
+            };
+
+            GlobalOptions globals = GlobalOptions.Load();
+            globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
+
+            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
+            client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
+
+            using (var tester = new MicroserviceTester(
+                globals.RabbitOptions,
+                globals.CohortPackagerOptions.ExtractRequestInfoOptions,
+                globals.CohortPackagerOptions.FileCollectionInfoOptions,
+                globals.CohortPackagerOptions.NoVerifyStatusOptions,
+                globals.CohortPackagerOptions.VerificationStatusOptions))
+            {
+                tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
+                tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage);
+                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage1);
+                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage2);
+
+                var reporter = new TestReporter();
+                var notifier = new TestLoggingNotifier();
+                var host = new CohortPackagerHost(globals, reporter, notifier, null, false);
+                host.Start();
+
+                var timeoutSecs = 30;
+                while (!notifier.JobCompleted && timeoutSecs > 0)
+                {
+                    --timeoutSecs;
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
+
+                host.Stop("Test end");
+                Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
+                Assert.True(reporter.reportCreated);
             }
         }
 
