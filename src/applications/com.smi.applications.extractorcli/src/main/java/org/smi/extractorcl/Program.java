@@ -96,6 +96,15 @@ public class Program {
 			.argName("identifiable extraction")
 			.desc("This is an identifiable extraction")
 			.longOpt("identifiable-extraction")
+            .build());
+            
+		options.addOption(
+			Option        
+			.builder("f")
+			.type(boolean.class)
+			.argName("no-filters extraction")
+			.desc("Extraction with no reject filters. True by default if --identifiable-extraction specified")
+			.longOpt("no-filters-extraction")
 			.build());
 		
 		try {

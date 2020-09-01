@@ -1,5 +1,4 @@
-﻿using System;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using NUnit.Framework;
@@ -7,6 +6,7 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
+using System;
 
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
@@ -60,6 +60,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 KeyTag = "KeyTag",
                 KeyValueCount = 123,
                 IsIdentifiableExtraction = true,
+                IsNoFilterExtraction = true,
             };
 
             MongoExtractJobDoc doc = MongoExtractJobDoc.FromMessage(message, _messageHeader, _dateTimeProvider);
@@ -74,7 +75,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 123,
                 "MR",
                 ExtractJobStatus.WaitingForCollectionInfo,
-                true);
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
 
             Assert.AreEqual(expected, extractJobInfo);
         }

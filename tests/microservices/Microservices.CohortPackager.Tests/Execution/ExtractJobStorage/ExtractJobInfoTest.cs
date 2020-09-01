@@ -1,7 +1,7 @@
-﻿using System;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Tests;
+using System;
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 {
@@ -49,7 +49,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 123,
                 "MR",
                 ExtractJobStatus.WaitingForCollectionInfo,
-                true);
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
             var info2 = new ExtractJobInfo(
                 guid,
                 _dateTimeProvider.UtcNow(),
@@ -59,7 +61,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 123,
                 "MR",
                 ExtractJobStatus.WaitingForCollectionInfo,
-                true);
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
 
             Assert.AreEqual(info1, info2);
         }
@@ -77,7 +81,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 123,
                 "MR",
                 ExtractJobStatus.WaitingForCollectionInfo,
-                true);
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
             var info2 = new ExtractJobInfo(
                 guid,
                 _dateTimeProvider.UtcNow(),
@@ -87,7 +93,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 123,
                 "MR",
                 ExtractJobStatus.WaitingForCollectionInfo,
-                true);
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
 
             Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
         }

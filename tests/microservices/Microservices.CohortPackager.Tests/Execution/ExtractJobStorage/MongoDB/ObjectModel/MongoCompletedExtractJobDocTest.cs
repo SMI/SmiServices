@@ -26,7 +26,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             "test",
             1,
             null,
-            isIdentifiableExtraction: false,
+            isIdentifiableExtraction: true,
+            isNoFilterExtraction: true,
             null);
 
         #region Fixture Methods 
@@ -81,6 +82,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // NOTE(rkm 2020-08-28) This works by chance since the missing bool will default to false, so we don't require MongoCompletedExtractJobDoc to implement ISupportInitialize
             Assert.False(mongoExtractJobDoc.IsIdentifiableExtraction);
+            Assert.False(mongoExtractJobDoc.IsNoFilterExtraction);
         }
 
         [Test]

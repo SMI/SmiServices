@@ -55,6 +55,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public bool IsIdentifiableExtraction { get; }
 
+        public bool IsNoFilterExtraction { get; }
+
 
         public ExtractJobInfo(
             Guid extractionJobIdentifier,
@@ -65,7 +67,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             uint keyValueCount,
             [CanBeNull] string extractionModality,
             ExtractJobStatus jobStatus,
-            bool isIdentifiableExtraction)
+            bool isIdentifiableExtraction,
+            bool isNoFilterExtraction
+            )
         {
             ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
             JobSubmittedAt = (jobSubmittedAt != default(DateTime)) ? jobSubmittedAt : throw new ArgumentNullException(nameof(jobSubmittedAt));
@@ -77,6 +81,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
             JobStatus = (jobStatus != default(ExtractJobStatus)) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
             IsIdentifiableExtraction = isIdentifiableExtraction;
+            IsNoFilterExtraction = isNoFilterExtraction;
         }
 
         public override string ToString()
@@ -89,6 +94,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             sb.AppendLine("KeyCount: " + KeyValueCount);
             sb.AppendLine("ExtractionModality: " + ExtractionModality);
             sb.AppendLine("IsIdentifiableExtraction: " + IsIdentifiableExtraction);
+            sb.AppendLine("IsNoFilterExtraction: " + IsNoFilterExtraction);
             return sb.ToString();
         }
 
@@ -106,6 +112,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                    KeyValueCount == other.KeyValueCount &&
                    ExtractionModality == other.ExtractionModality &&
                    IsIdentifiableExtraction == other.IsIdentifiableExtraction &&
+                   IsNoFilterExtraction == other.IsNoFilterExtraction &&
                    JobStatus == other.JobStatus;
         }
 
@@ -134,6 +141,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (int) JobStatus;
                 hashCode = (hashCode * 397) ^ IsIdentifiableExtraction.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsNoFilterExtraction.GetHashCode();
                 return hashCode;
             }
         }

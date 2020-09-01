@@ -90,7 +90,8 @@ public class ExtractImagesTest extends TestCase {
 				"MyProjectID",
 				"MyProjectFolder",
 				null,
-				false,
+                false,
+                false,
 				extractRequestMessageProducerModel,
 				extractRequestInfoMessageProducerModel);
 
@@ -154,6 +155,7 @@ public class ExtractImagesTest extends TestCase {
 				"MyProjectFolder",
 				null,
 				false,
+                false,
 				extractRequestMessageProducerModel,
 				extractRequestInfoMessageProducerModel);
 
@@ -217,6 +219,7 @@ public class ExtractImagesTest extends TestCase {
 				"MyProjectFolder",
 				null,
 				false,
+                false,
 				null,
 				null);
 
@@ -246,6 +249,7 @@ public class ExtractImagesTest extends TestCase {
 				"MyProjectFolder",
 				null,
 				false,
+                false,
 				null,
 				null);
 

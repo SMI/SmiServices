@@ -72,7 +72,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 123,
                 "ZZ",
                 ExtractJobStatus.Completed,
-                false);
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
@@ -96,6 +98,7 @@ Job info:
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
 -    Identifiable extraction:       No
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Verification failures
@@ -138,7 +141,9 @@ Report contents:
                 123,
                 "ZZ",
                 ExtractJobStatus.Completed,
-                false);
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var rejections = new List<Tuple<string, Dictionary<string, int>>>
             {
@@ -194,6 +199,7 @@ Job info:
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
 -    Identifiable extraction:       No
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Verification failures
@@ -248,7 +254,9 @@ Report contents:
                 123,
                 "ZZ",
                 ExtractJobStatus.Completed,
-                false);
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var verificationFailures = new List<Tuple<string, string>>
             {
@@ -284,7 +292,9 @@ Report contents:
                 123,
                 "ZZ",
                 ExtractJobStatus.Completed,
-                false);
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var verificationFailures = new List<Tuple<string, string>>
             {
@@ -368,6 +378,7 @@ Job info:
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
 -    Identifiable extraction:       No
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Verification failures
@@ -431,8 +442,9 @@ Report contents:
                 123,
                 "ZZ",
                 ExtractJobStatus.Completed,
-                false);
-
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             const string report = @"
 [
@@ -493,6 +505,7 @@ Job info:
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
 -    Identifiable extraction:       No
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Verification failures
@@ -539,7 +552,7 @@ Report contents:
             Assert.True(reporter.Disposed);
         }
 
-    [Test]
+        [Test]
         public void Test_JobReporterBase_CreateReport_IdentifiableExtraction()
         {
             Guid jobId = Guid.NewGuid();
@@ -553,7 +566,9 @@ Report contents:
                 123,
                 "ZZ",
                 ExtractJobStatus.Completed,
-                true);
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: false
+                );
 
             var missingFiles = new List<string>
             {
@@ -580,6 +595,7 @@ Job info:
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
 -    Identifiable extraction:       Yes
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Missing file list (files which were selected from an input ID but could not be found)
@@ -594,6 +610,76 @@ Report contents:
             Assert.True(reporter.Disposed);
         }
 
+
+        [Test]
+        public void Test_JobReporterBase_CreateReport_FilteredExtraction()
+        {
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "test/dir",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: true
+                );
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            string expected = $@"
+# SMI file extraction report for 1234
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+-    Identifiable extraction:       No
+-    Filtered extraction:           No
+
+Report contents:
+-    Verification failures
+    -    Summary
+    -    Full Details
+-    Rejected failures
+-    Anonymisation failures
+
+## Verification failures
+
+### Summary
+
+
+### Full details
+
+
+## Rejected files
+
+
+## Anonymisation failures
+
+
+--- end of report ---
+";
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+        }
     }
+
     #endregion
 }
