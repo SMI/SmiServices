@@ -76,14 +76,12 @@ namespace Smi.Common.Messages.Extraction
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return true
-                && ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier)
-                && string.Equals(ProjectNumber, other.ProjectNumber)
-                && string.Equals(ExtractionDirectory, other.ExtractionDirectory)
-                && JobSubmittedAt.Equals(other.JobSubmittedAt)
-                && IsIdentifiableExtraction == other.IsIdentifiableExtraction
-                && IsNoFilterExtraction == other.IsNoFilterExtraction
-                && true;
+            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier)
+                   && string.Equals(ProjectNumber, other.ProjectNumber)
+                   && string.Equals(ExtractionDirectory, other.ExtractionDirectory)
+                   && JobSubmittedAt.Equals(other.JobSubmittedAt)
+                   && IsIdentifiableExtraction == other.IsIdentifiableExtraction
+                   && IsNoFilterExtraction == other.IsNoFilterExtraction;
         }
 
         public override bool Equals(object obj)
