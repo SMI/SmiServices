@@ -63,7 +63,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             OutputFileName = outputFileName;
             WasAnonymised = wasAnonymised;
             IsIdentifiable = isIdentifiable;
-            ExtractedFileStatus = (extractedFileStatus != ExtractedFileStatus.Unused) ? extractedFileStatus : throw new ArgumentException(nameof(extractedFileStatus));
+            ExtractedFileStatus = (extractedFileStatus != ExtractedFileStatus.None) ? extractedFileStatus : throw new ArgumentException(nameof(extractedFileStatus));
             StatusMessage = statusMessage;
             if (!IsIdentifiable && string.IsNullOrWhiteSpace(statusMessage))
                 throw new ArgumentNullException(nameof(statusMessage));

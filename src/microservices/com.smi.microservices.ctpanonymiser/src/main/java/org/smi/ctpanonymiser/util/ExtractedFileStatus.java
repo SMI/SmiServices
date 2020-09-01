@@ -5,7 +5,7 @@ public enum ExtractedFileStatus {
     /**
 	 * Unused placeholder value
 	 */
-    Unused,
+    None,
 
 	/**
 	 * The file has been anonymised successfully
