@@ -6,14 +6,12 @@ using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Framing;
-using Smi.Common.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 
 
 namespace Microservices.FileCopier.Tests.Messaging
@@ -91,20 +89,9 @@ namespace Microservices.FileCopier.Tests.Messaging
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
             consumer.SetModel(_mockModel.Object);
 
-            var fatalCalled = false;
-            FatalErrorEventArgs fatalErrorEventArgs = null;
-            consumer.OnFatal += (sender, args) =>
-            {
-                fatalCalled = true;
-                fatalErrorEventArgs = args;
-            };
-
             consumer.ProcessMessage(mockDeliverArgs);
 
-            Thread.Sleep(500); // Fatal is race-y
-            Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");
-            Assert.AreEqual(1, consumer.AckCount);
-            Assert.AreEqual(0, consumer.NackCount);
+            new TestTimelineAwaiter().Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
         }
 
         [Test]
@@ -118,20 +105,9 @@ namespace Microservices.FileCopier.Tests.Messaging
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
             consumer.SetModel(_mockModel.Object);
 
-            var fatalCalled = false;
-            FatalErrorEventArgs fatalErrorEventArgs = null;
-            consumer.OnFatal += (sender, args) =>
-            {
-                fatalCalled = true;
-                fatalErrorEventArgs = args;
-            };
-
             consumer.ProcessMessage(mockDeliverArgs);
 
-            Thread.Sleep(500); // Fatal is race-y
-            Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");
-            Assert.AreEqual(0, consumer.AckCount);
-            Assert.AreEqual(1, consumer.NackCount);
+            new TestTimelineAwaiter().Await(() => consumer.AckCount == 0 && consumer.NackCount == 1);
         }
 
         [Test]
@@ -150,8 +126,7 @@ namespace Microservices.FileCopier.Tests.Messaging
 
             consumer.ProcessMessage(mockDeliverArgs);
 
-            Thread.Sleep(500); // Fatal is race-y
-            Assert.True(fatalCalled, "Expected Fatal to be called");
+            new TestTimelineAwaiter().Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
@@ -173,8 +148,7 @@ namespace Microservices.FileCopier.Tests.Messaging
 
             consumer.ProcessMessage(mockDeliverArgs);
 
-            Thread.Sleep(500); // Fatal is race-y
-            Assert.True(fatalCalled, "Expected Fatal to be called");
+            new TestTimelineAwaiter().Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
