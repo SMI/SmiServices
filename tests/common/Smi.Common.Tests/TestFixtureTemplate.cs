@@ -6,7 +6,6 @@ namespace Smi.Common.Tests
     /// <summary>
     /// Template for test fixtures
     /// </summary>
-    [TestFixture]
     public class TestFixtureTemplate
     {
         #region Fixture Methods 

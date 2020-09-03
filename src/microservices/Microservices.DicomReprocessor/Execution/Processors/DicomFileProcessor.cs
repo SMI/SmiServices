@@ -9,7 +9,6 @@ using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 
@@ -73,7 +72,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
 
             var message = new DicomFileMessage
             {
-                NationalPACSAccessionNumber = (string)headerDoc["NationalPACSAccessionNumber"],
+                NationalPACSAccessionNumber = AccNoOrNull(headerDoc["NationalPACSAccessionNumber"]),
                 DicomFilePath = (string)headerDoc["DicomFilePath"],
                 DicomFileSize = headerDoc.Contains("DicomFileSize") ? (long)headerDoc["DicomFileSize"] : -1
             };
@@ -136,5 +135,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
             _logger.Error(e, "Error when processing document with _id " + documentId);
             Interlocked.Increment(ref _totalFailed);
         }
+
+        private static string AccNoOrNull(BsonValue bsonValue) => bsonValue.IsBsonNull ? null : bsonValue.AsString;
     }
 }

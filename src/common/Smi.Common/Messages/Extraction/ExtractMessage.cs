@@ -1,6 +1,8 @@
 
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
+
 
 namespace Smi.Common.Messages.Extraction
 {
@@ -21,17 +23,31 @@ namespace Smi.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public DateTime JobSubmittedAt { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
+        public bool IsIdentifiableExtraction { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public bool IsNoFilterExtraction { get; set; }
 
         [JsonConstructor]
         protected ExtractMessage() { }
 
-        protected ExtractMessage(Guid extractionJobIdentifier, string projectNumber, string extractionDirectory, DateTime jobSubmittedAt)
+
+        protected ExtractMessage(
+            Guid extractionJobIdentifier,
+            [NotNull] string projectNumber,
+            [NotNull] string extractionDirectory,
+            DateTime jobSubmittedAt,
+            bool isIdentifiableExtraction,
+            bool isNoFilterExtraction)
             : this()
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
             ProjectNumber = projectNumber;
             ExtractionDirectory = extractionDirectory;
             JobSubmittedAt = jobSubmittedAt;
+            IsIdentifiableExtraction = isIdentifiableExtraction;
+            IsNoFilterExtraction = isNoFilterExtraction;
         }
 
         protected ExtractMessage(IExtractMessage request)
@@ -39,14 +55,19 @@ namespace Smi.Common.Messages.Extraction
                 request.ExtractionJobIdentifier,
                 request.ProjectNumber,
                 request.ExtractionDirectory,
-                request.JobSubmittedAt)
+                request.JobSubmittedAt,
+                request.IsIdentifiableExtraction,
+                request.IsNoFilterExtraction)
         { }
 
-        public override string ToString()
-            => $"ExtractionJobIdentifier={ExtractionJobIdentifier}, " +
-               $"ProjectNumber={ProjectNumber}, " +
-               $"ExtractionDirectory={ExtractionDirectory}, " +
-               $"JobSubmittedAt={JobSubmittedAt}";
+        public override string ToString() =>
+            $"ExtractionJobIdentifier={ExtractionJobIdentifier}, " +
+            $"ProjectNumber={ProjectNumber}, " +
+            $"ExtractionDirectory={ExtractionDirectory}, " +
+            $"JobSubmittedAt={JobSubmittedAt}, " +
+            $"IsIdentifiableExtraction={IsIdentifiableExtraction}, " +
+            $"IsNoFilterExtraction={IsNoFilterExtraction}, " +
+            "";
 
         #region Equality Members
 
@@ -55,11 +76,12 @@ namespace Smi.Common.Messages.Extraction
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return
-                ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
-                string.Equals(ProjectNumber, other.ProjectNumber) &&
-                string.Equals(ExtractionDirectory, other.ExtractionDirectory) &&
-                JobSubmittedAt.Equals(other.JobSubmittedAt);
+            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier)
+                   && string.Equals(ProjectNumber, other.ProjectNumber)
+                   && string.Equals(ExtractionDirectory, other.ExtractionDirectory)
+                   && JobSubmittedAt.Equals(other.JobSubmittedAt)
+                   && IsIdentifiableExtraction == other.IsIdentifiableExtraction
+                   && IsNoFilterExtraction == other.IsNoFilterExtraction;
         }
 
         public override bool Equals(object obj)
@@ -75,9 +97,11 @@ namespace Smi.Common.Messages.Extraction
             unchecked
             {
                 int hashCode = ExtractionJobIdentifier.GetHashCode();
-                hashCode = (hashCode * 397) ^ (ProjectNumber != null ? ProjectNumber.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (ExtractionDirectory != null ? ExtractionDirectory.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ ProjectNumber.GetHashCode();
+                hashCode = (hashCode * 397) ^ ExtractionDirectory.GetHashCode();
                 hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsIdentifiableExtraction.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsNoFilterExtraction.GetHashCode();
                 return hashCode;
             }
         }

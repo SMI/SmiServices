@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.smi.common.logging.SmiLogging;
+import org.smi.common.options.GlobalOptions;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messaging.CTPAnonymiserConsumer;
 
@@ -44,10 +45,11 @@ public class ExtractFileMessageTest extends TestCase {
 		super.tearDown();
 	}
 
-	public void testSerializeDeserialize() {
+	public void testSerializeDeserialize() throws Exception {
 
 		ExtractFileMessage recvdMessage;
-		CTPAnonymiserConsumer consumer = new CTPAnonymiserConsumer(null, null, _fileSystemRoot, _extractFileSystemRoot);
+		GlobalOptions options = GlobalOptions.Load(true);
+		CTPAnonymiserConsumer consumer = new CTPAnonymiserConsumer(options, null, null, _fileSystemRoot, _extractFileSystemRoot);
 
 		// Get byte array version of message
 		Gson _gson = new Gson();

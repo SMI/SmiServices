@@ -60,7 +60,7 @@ namespace Smi.Common.Tests
             g.CohortExtractorOptions.QoSPrefetchCount = 1;
             g.CohortPackagerOptions.ExtractRequestInfoOptions.QoSPrefetchCount = 1;
             g.CohortPackagerOptions.FileCollectionInfoOptions.QoSPrefetchCount = 1;
-            g.CohortPackagerOptions.AnonFailedOptions.QoSPrefetchCount = 1;
+            g.CohortPackagerOptions.NoVerifyStatusOptions.QoSPrefetchCount = 1;
             g.CohortPackagerOptions.VerificationStatusOptions.QoSPrefetchCount = 1;
             g.DicomTagReaderOptions.QoSPrefetchCount = 1;
             g.IdentifierMapperOptions.QoSPrefetchCount = 1;

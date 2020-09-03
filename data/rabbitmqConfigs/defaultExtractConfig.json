@@ -27,7 +27,7 @@
       "arguments": {}
     },
     {
-      "name": "AnonStatusExchange",
+      "name": "ExtractedFileStatusExchange",
       "vhost": "smi_extract",
       "type": "direct",
       "durable": true,
@@ -36,7 +36,7 @@
       "arguments": {}
     },
     {
-      "name": "VerificationStatusExchange",
+      "name": "ExtractedFileVerifiedExchange",
       "vhost": "smi_extract",
       "type": "direct",
       "durable": true,
@@ -54,7 +54,7 @@
       "arguments": {}
     },
     {
-      "name": "AnonFileExchange",
+      "name": "ExtractFileExchange",
       "vhost": "smi_extract",
       "type": "direct",
       "durable": true,
@@ -115,21 +115,28 @@
       "arguments": {}
     },
     {
-      "name": "AnonSuccessQueue",
+      "name": "ExtractedFileToVerifyQueue",
       "vhost": "smi_extract",
       "durable": true,
       "auto_delete": false,
       "arguments": {}
     },
     {
-      "name": "AnonFailedQueue",
+      "name": "ExtractedFileNoVerifyQueue",
       "vhost": "smi_extract",
       "durable": true,
       "auto_delete": false,
       "arguments": {}
     },
     {
-      "name": "AnonFileQueue",
+      "name": "ExtractFileAnonQueue",
+      "vhost": "smi_extract",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "ExtractFileIdentQueue",
       "vhost": "smi_extract",
       "durable": true,
       "auto_delete": false,
@@ -150,7 +157,7 @@
       "arguments": {}
     },
     {
-      "name": "VerificationStatusQueue",
+      "name": "ExtractedFileVerifiedQueue",
       "vhost": "smi_extract",
       "durable": true,
       "auto_delete": false,
@@ -182,27 +189,35 @@
       "arguments": {}
     },
     {
-      "source": "AnonFileExchange",
+      "source": "ExtractFileExchange",
       "vhost": "smi_extract",
-      "destination": "AnonFileQueue",
+      "destination": "ExtractFileAnonQueue",
       "destination_type": "queue",
-      "routing_key": "",
+      "routing_key": "anon",
       "arguments": {}
     },
     {
-      "source": "AnonStatusExchange",
+      "source": "ExtractFileExchange",
       "vhost": "smi_extract",
-      "destination": "AnonSuccessQueue",
+      "destination": "ExtractFileIdentQueue",
       "destination_type": "queue",
-      "routing_key": "success",
+      "routing_key": "ident",
       "arguments": {}
     },
     {
-      "source": "AnonStatusExchange",
+      "source": "ExtractedFileStatusExchange",
       "vhost": "smi_extract",
-      "destination": "AnonFailedQueue",
+      "destination": "ExtractedFileToVerifyQueue",
       "destination_type": "queue",
-      "routing_key": "failure",
+      "routing_key": "verify",
+      "arguments": {}
+    },
+    {
+      "source": "ExtractedFileStatusExchange",
+      "vhost": "smi_extract",
+      "destination": "ExtractedFileNoVerifyQueue",
+      "destination_type": "queue",
+      "routing_key": "noverify",
       "arguments": {}
     },
     {
@@ -222,9 +237,9 @@
       "arguments": {}
     },
     {
-      "source": "VerificationStatusExchange",
+      "source": "ExtractedFileVerifiedExchange",
       "vhost": "smi_extract",
-      "destination": "VerificationStatusQueue",
+      "destination": "ExtractedFileVerifiedQueue",
       "destination_type": "queue",
       "routing_key": "",
       "arguments": {}

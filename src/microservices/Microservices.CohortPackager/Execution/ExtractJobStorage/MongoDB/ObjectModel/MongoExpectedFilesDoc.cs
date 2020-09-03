@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -14,7 +14,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     /// <summary>
     /// MongoDB document model representing a set of files which are expected to be extracted
     /// </summary>
-    [BsonIgnoreExtraElements]
+    [BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
     public class MongoExpectedFilesDoc : IEquatable<MongoExpectedFilesDoc>
     {
         [BsonElement("header")]

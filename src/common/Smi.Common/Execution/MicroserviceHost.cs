@@ -1,10 +1,5 @@
 
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using DicomTypeTranslation;
-using DicomTypeTranslation.Helpers;
 using JetBrains.Annotations;
 using NLog;
 using RabbitMQ.Client;
@@ -13,6 +8,10 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 
 namespace Smi.Common.Execution
 {
@@ -95,10 +94,6 @@ namespace Smi.Common.Execution
                 LogManager.GlobalThreshold = LogLevel.Debug;
 
             Logger.Trace("Trace logging enabled!");
-
-            //FIXME: Check this is still valid
-            if (!DicomDatasetHelpers.CorrectFoDicomVersion())
-                throw new ApplicationException("Incorrect fo-dicom version for the current platform");
 
             HostProcessID = Process.GetCurrentProcess().Id;
             Logger.Info($"Starting {HostProcessName} (Host={Environment.MachineName} PID={HostProcessID} User={Environment.UserName})");
@@ -209,8 +204,6 @@ namespace Smi.Common.Execution
         /// <param name="exception"></param>
         public void Fatal(string msg, Exception exception)
         {
-            Logger.Fatal(exception, msg);
-
             if (_stopCalled)
                 return;
 

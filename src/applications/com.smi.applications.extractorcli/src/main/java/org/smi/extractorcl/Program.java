@@ -88,6 +88,24 @@ public class Program {
 			.hasArg()
 			.longOpt("modality")
 			.build());
+
+		options.addOption(
+			Option        
+			.builder("i")
+			.type(boolean.class)
+			.argName("identifiable extraction")
+			.desc("This is an identifiable extraction")
+			.longOpt("identifiable-extraction")
+            .build());
+            
+		options.addOption(
+			Option        
+			.builder("f")
+			.type(boolean.class)
+			.argName("no-filters extraction")
+			.desc("Extraction with no reject filters. True by default if --identifiable-extraction specified")
+			.longOpt("no-filters-extraction")
+			.build());
 		
 		try {
 			commandLine = commLineParser.parse(options, args);
