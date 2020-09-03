@@ -15,16 +15,41 @@ namespace IsIdentifiableReviewer
     {
         private readonly List<Target> _targets;
 
+        /// <summary>
+        /// The currently selected database which will be updated when performing redactions (when not operating in Rules Only mode)
+        /// </summary>
         public Target CurrentTarget { get; set; }
+
+        /// <summary>
+        /// The report CSV file that is currently open
+        /// </summary>
         public ReportReader CurrentReport { get; set; }
 
+        /// <summary>
+        /// Generates suggested ignore rules for false positives
+        /// </summary>
         public IgnoreRuleGenerator Ignorer { get; }
 
+        /// <summary>
+        /// Updates the database to perform redactions (when not operating in Rules Only mode)
+        /// </summary>
         public RowUpdater Updater { get;  } 
 
+        /// <summary>
+        /// Width of modal popup dialogues
+        /// </summary>
         public int DlgWidth = 78;
+
+        /// <summary>
+        /// Height of modal popup dialogues
+        /// </summary>
         public int DlgHeight = 18;
+
+        /// <summary>
+        /// Border boundary of modal popup dialogues
+        /// </summary>
         public int DlgBoundary = 2;
+
         private ValuePane _valuePane;
         private Label _info;
         private TextField _gotoTextField;
@@ -34,6 +59,9 @@ namespace IsIdentifiableReviewer
         private Label _updateRuleLabel;
         private CheckBox _cbRulesOnly;
 
+        /// <summary>
+        /// Record of new rules added (e.g. Ignore with pattern X) along with the index of the failure.  This allows undoing user decisions
+        /// </summary>
         Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
 
         ColorScheme _greyOnBlack = new ColorScheme()

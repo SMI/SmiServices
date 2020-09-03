@@ -10,8 +10,19 @@ using Microservices.IsIdentifiable.Rules;
 
 namespace IsIdentifiableReviewer.Out
 {
+    /// <summary>
+    /// <para>
+    /// Implementation of OutBase for <see cref="RuleAction.Report"/>.  Base class <see cref="OutBase.Rules"/> should
+    /// be interpreted as rules for detecting <see cref="Failure"/> which should be redacted.  This involves adding a new rule
+    /// to redact the failure.  Then if not in <see cref="RulesOnly"/> updating the database to perform the redaction.
+    /// </para>
+    /// <para>See also:<seealso cref="IgnoreRuleGenerator"/></para>
+    /// </summary>
     public class RowUpdater : OutBase
     {
+        /// <summary>
+        /// Default name for the true positive detection rules (for redacting with).  This file will be appended to as new rules are added.
+        /// </summary>
         public const string DefaultFileName = "RedList.yaml";
 
         /// <summary>
@@ -27,11 +38,17 @@ namespace IsIdentifiableReviewer.Out
         /// The strategy to use to build SQL updates to run on the database
         /// </summary>
         public IUpdateStrategy UpdateStrategy = new RegexUpdateStrategy();
-
+        
+        /// <summary>
+        /// Creates a new instance which stores rules in the <paramref name="rulesFile"/> (which will also have existing rules loaded from)
+        /// </summary>
         public RowUpdater(FileInfo rulesFile) : base(rulesFile)
         {
         }
-
+        
+        /// <summary>
+        /// Creates a new instance which stores rules in the <see cref="DefaultFileName"/>
+        /// </summary>
         public RowUpdater() : this(new FileInfo(DefaultFileName))
         {
         }

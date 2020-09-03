@@ -7,8 +7,19 @@ using Microservices.IsIdentifiable.Rules;
 
 namespace IsIdentifiableReviewer.Out.UpdateStrategies
 {
+    /// <summary>
+    /// Abstract implementation of <see cref="IUpdateStrategy"/>, generates SQL statements for redacting a database
+    /// </summary>
     public abstract class UpdateStrategy : IUpdateStrategy
     {
+        /// <summary>
+        /// Override to generate one or more SQL statements that will fully redact a given <see cref="Failure"/> in the <paramref name="table"/>
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="primaryKeys"></param>
+        /// <param name="failure"></param>
+        /// <param name="usingRule"></param>
+        /// <returns></returns>
         public abstract IEnumerable<string> GetUpdateSql(DiscoveredTable table,Dictionary<DiscoveredTable, DiscoveredColumn> primaryKeys, Failure failure, IsIdentifiableRule usingRule);
 
         /// <summary>

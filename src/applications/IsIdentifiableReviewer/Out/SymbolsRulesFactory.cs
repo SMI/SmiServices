@@ -26,8 +26,14 @@ namespace IsIdentifiableReviewer.Out
         CharactersOnly
     }
 
+    /// <summary>
+    /// Generates Regex patterns for matching <see cref="Failure"/> based on permutations of digits (\d) and/or characters([A-Z] or [a-z]).  See also <seealso cref="SymbolsRuleFactoryMode"/>.
+    /// </summary>
     public class SymbolsRulesFactory : IRulePatternFactory
     {
+        /// <summary>
+        /// Whether to generate Regex match patterns using the permutation of characters, digits or both.
+        /// </summary>
         public SymbolsRuleFactoryMode Mode { get; set; }
 
         /// <summary>

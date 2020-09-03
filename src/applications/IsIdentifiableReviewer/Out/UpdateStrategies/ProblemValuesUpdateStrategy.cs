@@ -11,6 +11,14 @@ namespace IsIdentifiableReviewer.Out.UpdateStrategies
     /// </summary>
     public class ProblemValuesUpdateStrategy : UpdateStrategy
     {
+        /// <summary>
+        /// Generates 1 UPDATE statement per <see cref="Failure.Parts"/> for redacting the current <paramref name="failure"/>
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="primaryKeys"></param>
+        /// <param name="failure"></param>
+        /// <param name="usingRule"></param>
+        /// <returns></returns>
         public override IEnumerable<string> GetUpdateSql(DiscoveredTable table,
             Dictionary<DiscoveredTable, DiscoveredColumn> primaryKeys, Failure failure, IsIdentifiableRule usingRule)
         {

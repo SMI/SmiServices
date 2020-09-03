@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Options;
+using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Destinations;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using Microservices.IsIdentifiable.Rules;
@@ -13,6 +14,11 @@ using NLog.Fluent;
 
 namespace IsIdentifiableReviewer
 {
+    /// <summary>
+    /// CLI no user interaction mode for running the reviewer application.  In this mode all <see cref="Failure"/> in a table are
+    /// run through an existing rules base (for detecting true/false positives) and the database is updated to perform redactions.  
+    /// Any failures not covered by existing rules are routed to <see cref="IsIdentifiableReviewerOptions.UnattendedOutputPath"/>
+    /// </summary>
     public class UnattendedReviewer
     {
         private readonly Target _target;
@@ -21,15 +27,37 @@ namespace IsIdentifiableReviewer
         private readonly IgnoreRuleGenerator _ignorer;
         private readonly FileInfo _outputFile;
          
+        /// <summary>
+        /// The number of <see cref="Failure"/> that were redacted in the database.  Where there are multiple UPDATE statements run per failure, Updates will only be incremented once.
+        /// </summary>
         public int Updates = 0;
+
+        /// <summary>
+        /// The number of input <see cref="Failure"/> that were ignored as false positives based on existing ignore rules
+        /// </summary>
         public int Ignores = 0;
+
+        /// <summary>
+        /// The number of input <see cref="Failure"/> that were not covered by any existing rules
+        /// </summary>
         public int Unresolved = 0;
+
+        /// <summary>
+        /// Total number of <see cref="Failure"/> processed so far
+        /// </summary>
         public int Total = 0;
         private Logger _log;
 
         Dictionary<IsIdentifiableRule,int> _updateRulesUsed = new Dictionary<IsIdentifiableRule, int>();
         Dictionary<IsIdentifiableRule,int> _ignoreRulesUsed = new Dictionary<IsIdentifiableRule, int>();
 
+        /// <summary>
+        /// Creates a new instance that will connect to the database server (<paramref name="target"/>) and perform redactions using the <paramref name="updater"/>
+        /// </summary>
+        /// <param name="opts">CLI options for the process</param>
+        /// <param name="target">DBMS to connect to for redacting</param>
+        /// <param name="ignorer">Rules base for detecting false positives</param>
+        /// <param name="updater">Rules base for redacting true positives</param>
         public UnattendedReviewer(IsIdentifiableReviewerOptions opts, Target target, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             _log = LogManager.GetCurrentClassLogger();
@@ -56,6 +84,10 @@ namespace IsIdentifiableReviewer
             _updater = updater;
         }
 
+        /// <summary>
+        /// Connects to the database and runs all failures through the rules base performing redactions as required
+        /// </summary>
+        /// <returns></returns>
         public int Run()
         {
             //In RulesOnly mode this will be null
