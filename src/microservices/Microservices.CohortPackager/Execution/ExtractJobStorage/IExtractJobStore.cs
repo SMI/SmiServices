@@ -26,18 +26,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         void PersistMessageToStore(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
 
         /// <summary>
-        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// Serializes a <see cref="ExtractedFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
         /// </summary>
         /// <param name="fileStatusMessage"></param>
         /// <param name="header"></param>
-        void PersistMessageToStore(ExtractFileStatusMessage fileStatusMessage, IMessageHeader header);
+        void PersistMessageToStore(ExtractedFileStatusMessage fileStatusMessage, IMessageHeader header);
 
         /// <summary>
-        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// Serializes a <see cref="ExtractedFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
         /// </summary>
         /// <param name="anonVerificationMessage"></param>
         /// <param name="header"></param>
-        void PersistMessageToStore(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header);
+        void PersistMessageToStore(ExtractedFileVerificationMessage anonVerificationMessage, IMessageHeader header);
 
         /// <summary>
         /// Returns a list of all jobs which are ready for final checks
@@ -86,5 +86,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <param name="jobId"></param>
         /// <returns></returns>
         IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailures(Guid jobId);
+
+        /// <summary>
+        /// Returns the full list of files that were requested but could not be produced, and a reason for each
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        IEnumerable<string> GetCompletedJobMissingFileList(Guid jobId);
     }
 }

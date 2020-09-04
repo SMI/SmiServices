@@ -3,20 +3,20 @@ package org.smi.ctpanonymiser.messages;
 import org.smi.common.messageSerialization.JsonDeserializerWithOptions.FieldRequired;
 import org.smi.common.messages.ExtractMessage;
 import org.smi.common.messages.IMessage;
-import org.smi.ctpanonymiser.util.ExtractFileStatus;
+import org.smi.ctpanonymiser.util.ExtractedFileStatus;
 
 /**
  * Message indicating the path to an anonymised file
  */
-public class ExtractFileStatusMessage extends ExtractMessage implements IMessage {
+public class ExtractedFileStatusMessage extends ExtractMessage implements IMessage {
 
 	@FieldRequired
 	public String DicomFilePath;
 
-	public String AnonymisedFileName;
+	public String OutputFilePath;
 
     @FieldRequired
-	public ExtractFileStatus Status;
+	public ExtractedFileStatus Status;
 
 	public String StatusMessage;
 
@@ -46,7 +46,7 @@ public class ExtractFileStatusMessage extends ExtractMessage implements IMessage
 		ProjectNumber = projectNumber;
 	}
 
-	public ExtractFileStatusMessage(ExtractFileMessage request) {
+	public ExtractedFileStatusMessage(ExtractFileMessage request) {
 
 		ExtractionJobIdentifier = request.ExtractionJobIdentifier;
 		ExtractionDirectory = request.ExtractionDirectory;
@@ -65,7 +65,7 @@ public class ExtractFileStatusMessage extends ExtractMessage implements IMessage
 		sb.append("DicomFilePath: " + DicomFilePath + "\n");
 		sb.append("ProjectNumber: " + ProjectNumber + "\n");
 		sb.append("JobSubmittedAt: " + JobSubmittedAt + "\n");
-		sb.append("AnonymisedFileName: " + AnonymisedFileName + "\n");
+		sb.append("OutputFilePath: " + OutputFilePath + "\n");
 		sb.append("Status: " + Status + "\n");
 		sb.append("StatusMessage: " + StatusMessage + "\n");
 

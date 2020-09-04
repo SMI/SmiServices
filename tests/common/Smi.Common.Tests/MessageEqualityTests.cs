@@ -1,8 +1,10 @@
 ﻿
 using NUnit.Framework;
 using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
 using System;
 using System.Linq;
+
 
 namespace Smi.Common.Tests
 {
@@ -108,6 +110,37 @@ namespace Smi.Common.Tests
 
             msg1.DicomDataset = "jsonified string";
             msg2.DicomDataset = "jsonified string";
+
+            Assert.AreEqual(msg1, msg2);
+            Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
+        }
+
+
+        private class FooExtractMessage : ExtractMessage { }
+
+        [Test]
+        public void Tests_ExtractMessage_Equality()
+        {
+            Guid guid = Guid.NewGuid();
+            DateTime dt = DateTime.UtcNow;
+
+            // TODO(rkm 2020-08-26) Swap these object initializers for proper constructors
+            var msg1 = new FooExtractMessage
+            {
+                JobSubmittedAt = dt,
+                ExtractionJobIdentifier = guid,
+                ProjectNumber = "1234",
+                ExtractionDirectory = "foo/bar",
+                IsIdentifiableExtraction = true,
+            };
+            var msg2 = new FooExtractMessage
+            {
+                JobSubmittedAt = dt,
+                ExtractionJobIdentifier = guid,
+                ProjectNumber = "1234",
+                ExtractionDirectory = "foo/bar",
+                IsIdentifiableExtraction = true,
+            };
 
             Assert.AreEqual(msg1, msg2);
             Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());

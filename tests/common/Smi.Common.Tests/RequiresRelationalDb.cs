@@ -39,10 +39,11 @@ namespace Smi.Common.Tests
             if (server.Exists())
                 return;
 
+            string msg = $"Could not connect to {_type} at '{server.Name}' with the provided connection options";
             if (!FailIfUnavailable)
-                Assert.Ignore(_type + " is not running at '" + server.Name + "'");
+                Assert.Ignore(msg);
             else
-                Assert.Fail(_type + " is not running at '" + server.Name + "'");
+                Assert.Fail(msg);
         }
 
         public static ConStrs GetRelationalDatabaseConnectionStrings()

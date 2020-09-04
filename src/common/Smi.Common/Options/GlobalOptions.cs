@@ -83,6 +83,7 @@ namespace Smi.Common.Options
         public CohortPackagerOptions CohortPackagerOptions { get; set; }
         public DicomReprocessorOptions DicomReprocessorOptions { get; set; }
         public DicomTagReaderOptions DicomTagReaderOptions { get; set; }
+        public FileCopierOptions FileCopierOptions { get; set; }
         public IdentifierMapperOptions IdentifierMapperOptions { get; set; }
         public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; }
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
@@ -286,6 +287,15 @@ namespace Smi.Common.Options
         }
     }
 
+    [UsedImplicitly]
+    public class FileCopierOptions : ConsumerOptions
+    {
+        public ProducerOptions CopyStatusProducerOptions { get; set; }
+        public string NoVerifyRoutingKey { get; set; }
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
+    }
+
     public enum TagProcessorMode
     {
         Serial,
@@ -330,7 +340,7 @@ namespace Smi.Common.Options
     {
         public ConsumerOptions ExtractRequestInfoOptions { get; set; }
         public ConsumerOptions FileCollectionInfoOptions { get; set; }
-        public ConsumerOptions AnonFailedOptions { get; set; }
+        public ConsumerOptions NoVerifyStatusOptions { get; set; }
         public ConsumerOptions VerificationStatusOptions { get; set; }
         public uint JobWatcherTimeoutInSeconds { get; set; }
         public string ReporterType { get; set; }
@@ -387,6 +397,9 @@ namespace Smi.Common.Options
         /// Optional list of datasets which contain information about when NOT to extract an image.  This should be a manually curated blacklist - not just general rules (for those use <see cref="RejectorType"/>). Referenced datasets must include one or more of the UID columns (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID)
         /// </summary>
         public List<int> Blacklists { get; set; }
+
+        public string ExtractAnonRoutingKey { get; set; }
+        public string ExtractIdentRoutingKey { get; set; }
 
         public ProducerOptions ExtractFilesProducerOptions { get; set; }
         public ProducerOptions ExtractFilesInfoProducerOptions { get; set; }

@@ -1,12 +1,12 @@
 ﻿
 using RabbitMQ.Client;
-using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+
 
 namespace Smi.Common.Tests
 {
@@ -18,7 +18,7 @@ namespace Smi.Common.Tests
 
         private readonly List<string> _declaredExchanges = new List<string>();
         private readonly List<string> _declaredQueues = new List<string>();
-        private readonly ConnectionFactory _factory;
+        public readonly ConnectionFactory Factory;
 
         /// <summary>
         /// When true, will delete any created queues/exchanges when Dispose is called. Can set to false to inspect
@@ -41,7 +41,7 @@ namespace Smi.Common.Tests
 
             _adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
 
-            _factory = new ConnectionFactory
+            Factory = new ConnectionFactory
             {
                 HostName = rabbitOptions.RabbitMqHostName,
                 Port = rabbitOptions.RabbitMqHostPort,
@@ -50,7 +50,7 @@ namespace Smi.Common.Tests
                 Password = rabbitOptions.RabbitMqPassword
             };
 
-            using (var con = _factory.CreateConnection())
+            using (var con = Factory.CreateConnection())
             using (var model = con.CreateModel())
             {
                 //get rid of old exchanges
@@ -137,14 +137,14 @@ namespace Smi.Common.Tests
         /// <param name="isSecondaryBinding">false to create an entirely new Exchange=>Queue (including deleting any existing queue/exchange). False to simply declare the 
         /// queue and bind it to the exchange which is assumed to already exist (this allows you to set up exchange=>multiple queues).  If you are setting up multiple queues
         /// from a single exchange the first call should be isSecondaryBinding = false and all further calls after that for the same exchange should be isSecondaryBinding=true </param>
-        public void CreateExchange(string exchangeName, ConsumerOptions consumerIfAny, bool isSecondaryBinding = false)
+        public void CreateExchange(string exchangeName, string queueName = null, bool isSecondaryBinding = false, string routingKey = "")
         {
             if (!exchangeName.Contains("TEST."))
                 exchangeName = exchangeName.Insert(0, "TEST.");
 
-            string queueName = consumerIfAny != null ? consumerIfAny.QueueName : exchangeName;
+            string queueNameToUse = queueName ?? exchangeName.Replace("Exchange", "Queue");
 
-            using (var con = _factory.CreateConnection())
+            using (var con = Factory.CreateConnection())
             using (var model = con.CreateModel())
             {
                 //setup a sender channel for each of the consumers you want to test sending messages to
@@ -153,16 +153,16 @@ namespace Smi.Common.Tests
                 if (!isSecondaryBinding)
                     model.ExchangeDelete(exchangeName);
 
-                model.QueueDelete(queueName);
+                model.QueueDelete(queueNameToUse);
 
                 //Create a binding between the exchange and the queue
                 if (!isSecondaryBinding)
                     model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
 
-                model.QueueDeclare(queueName, true, false, false); //shared with other users
-                model.QueueBind(queueName, exchangeName, "");
+                model.QueueDeclare(queueNameToUse, true, false, false); //shared with other users
+                model.QueueBind(queueNameToUse, exchangeName, routingKey);
 
-                Console.WriteLine("Created Exchange " + exchangeName + "=>" + queueName);
+                Console.WriteLine("Created Exchange " + exchangeName + "=>" + queueNameToUse);
             }
         }
 
@@ -186,7 +186,7 @@ namespace Smi.Common.Tests
 
             if (CleanUpAfterTest)
             {
-                using (IConnection conn = _factory.CreateConnection())
+                using (IConnection conn = Factory.CreateConnection())
                 using (IModel model = conn.CreateModel())
                 {
                     _declaredExchanges.ForEach(x => model.ExchangeDelete(x));

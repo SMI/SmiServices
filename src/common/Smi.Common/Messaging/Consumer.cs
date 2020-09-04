@@ -213,6 +213,8 @@ namespace Smi.Common.Messaging
 
                 _exiting = true;
 
+                Logger.Fatal(exception, msg);
+
                 ConsumerFatalHandler onFatal = OnFatal;
 
                 if (onFatal != null)
@@ -221,7 +223,6 @@ namespace Smi.Common.Messaging
                 }
                 else
                 {
-                    Logger.Fatal(exception, msg);
                     throw new Exception("No handlers when attempting to raise OnFatal for this exception", exception);
                 }
             }

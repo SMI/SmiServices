@@ -38,22 +38,36 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine(line);
             streamWriter.WriteLine();
 
-            streamWriter.WriteLine("## Verification failures");
-            streamWriter.WriteLine();
-            WriteJobVerificationFailures(streamWriter, _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier));
-            streamWriter.WriteLine();
+            if (jobInfo.IsIdentifiableExtraction)
+            {
+                streamWriter.WriteLine("## Missing file list");
+                streamWriter.WriteLine();
+                WriteJobMissingFileList(streamWriter, _jobStore.GetCompletedJobMissingFileList(jobInfo.ExtractionJobIdentifier));
+                streamWriter.WriteLine();
+            }
+            else
+            {
 
-            streamWriter.WriteLine("## Rejected files");
-            streamWriter.WriteLine();
-            foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
-                WriteJobRejections(streamWriter, rejection);
-            streamWriter.WriteLine();
+                streamWriter.WriteLine("## Verification failures");
+                streamWriter.WriteLine();
+                WriteJobVerificationFailures(streamWriter,
+                    _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier));
+                streamWriter.WriteLine();
 
-            streamWriter.WriteLine("## Anonymisation failures");
-            streamWriter.WriteLine();
-            foreach ((string expectedAnonFile, string failureReason) in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
-                WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
-            streamWriter.WriteLine();
+                streamWriter.WriteLine("## Rejected files");
+                streamWriter.WriteLine();
+                foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(
+                    jobInfo.ExtractionJobIdentifier))
+                    WriteJobRejections(streamWriter, rejection);
+                streamWriter.WriteLine();
+
+                streamWriter.WriteLine("## Anonymisation failures");
+                streamWriter.WriteLine();
+                foreach ((string expectedAnonFile, string failureReason) in _jobStore
+                    .GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
+                    WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
+                streamWriter.WriteLine();
+            }
 
             streamWriter.WriteLine("--- end of report ---");
 
@@ -68,7 +82,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         protected abstract void FinishReport(Stream stream);
 
         private static IEnumerable<string> JobHeader(ExtractJobInfo jobInfo)
-            => new[]
+        {
+            string identExtraction = jobInfo.IsIdentifiableExtraction ? "Yes" : "No";
+            string filteredExtraction = !jobInfo.IsNoFilterExtraction ? "Yes" : "No";
+            var header = new List<string>
             {
                 $"# SMI file extraction report for {jobInfo.ProjectNumber}",
                 "",
@@ -78,14 +95,34 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"-    Extraction tag:                {jobInfo.KeyTag}",
                 $"-    Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",
                 $"-    Requested identifier count:    {jobInfo.KeyValueCount}",
+                $"-    Identifiable extraction:       {identExtraction}",
+                $"-    Filtered extraction:           {filteredExtraction}",
                 "",
-                "Report contents:",
-                "-    Verification failures",
-                "    -    Summary",
-                "    -    Full Details",
-                "-    Rejected failures",
-                "-    Anonymisation failures",
             };
+
+            if (jobInfo.IsIdentifiableExtraction)
+            {
+                header.AddRange(new List<string>
+                {
+                    "Report contents:",
+                    "-    Missing file list (files which were selected from an input ID but could not be found)",
+                });
+            }
+            else
+            {
+                header.AddRange(new List<string>
+                {
+                    "Report contents:",
+                    "-    Verification failures",
+                    "    -    Summary",
+                    "    -    Full Details",
+                    "-    Rejected failures",
+                    "-    Anonymisation failures",
+                });
+            }
+
+            return header;
+        }
 
         private static void WriteJobRejections(TextWriter streamWriter, Tuple<string, Dictionary<string, int>> rejection)
         {
@@ -165,6 +202,12 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             streamWriter.WriteLine("### Full details");
             streamWriter.WriteLine();
             streamWriter.Write(sb);
+        }
+
+        private static void WriteJobMissingFileList(TextWriter streamWriter, IEnumerable<string> missingFiles)
+        {
+            foreach (string file in missingFiles)
+                streamWriter.WriteLine($"-    {file}");
         }
 
         private static void WriteVerificationValuesTag(string tag, Dictionary<string, List<string>> failures, TextWriter streamWriter, StringBuilder sb)

@@ -13,6 +13,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 mongoExtractJobDoc.KeyTag,
                 mongoExtractJobDoc.KeyCount,
                 mongoExtractJobDoc.ExtractionModality,
-                mongoExtractJobDoc.JobStatus);
+                mongoExtractJobDoc.JobStatus,
+                mongoExtractJobDoc.IsIdentifiableExtraction,
+                mongoExtractJobDoc.IsNoFilterExtraction
+                );
     }
 }

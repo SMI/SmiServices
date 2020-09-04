@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
@@ -8,6 +6,8 @@ using Moq;
 using NUnit.Framework;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
 
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
 {
@@ -70,7 +70,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
                 "KeyTag",
                 123,
                 null,
-                ExtractJobStatus.ReadyForChecks
+                ExtractJobStatus.ReadyForChecks,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
             );
 
             var opts = new CohortPackagerOptions { JobWatcherTimeoutInSeconds = 123 };

@@ -7,7 +7,10 @@ using System.Text.RegularExpressions;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
-    // TODO(rkm 2020-08-27) What is this used for?
+    /// <summary>
+    /// Fake <see cref="IExtractionRequestFulfiller"/> that automatically finds all UIDs that you ask it to look up and returns
+    /// a single image name for each requested UID.  The filename will be the UID(s) you asked for
+    /// </summary>
     public class FakeFulfiller : IExtractionRequestFulfiller
     {
         protected readonly Logger Logger;
@@ -18,8 +21,6 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public FakeFulfiller()
         {
             Logger = LogManager.GetCurrentClassLogger();
-
-            Logger.Debug("Faking a filename");
         }
 
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)

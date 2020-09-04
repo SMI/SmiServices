@@ -67,8 +67,13 @@ public class ExtractorClHost {
 		final String projectID = commandLineOptions.getOptionValue("p");
 		final String extractionDir = projectID + "/extractions/" + extractionName;
 
+		final boolean isIdentifiableExtraction = commandLineOptions.hasOption("i");
+        final boolean isNoFilterExtraction = commandLineOptions.hasOption("f") || isIdentifiableExtraction;
+
 		_logger.debug("projectID: " + projectID);
 		_logger.debug("extractionDirectory: " + extractionDir);
+		_logger.debug("isIdentifiableExtraction: " + isIdentifiableExtraction);
+		_logger.debug("isNoFilterExtraction: " + isNoFilterExtraction);
 
 		Path fullExtractionDirectory = Paths.get(extractionRoot.getAbsolutePath().toString(), extractionDir);
 
@@ -85,7 +90,7 @@ public class ExtractorClHost {
 
 		String extractionModality = commandLineOptions.getOptionValue("modality", null);
 
-		_csvHandler = new ExtractMessagesCsvHandler(jobIdentifier, projectID, extractionDir, extractionModality,
+		_csvHandler = new ExtractMessagesCsvHandler(jobIdentifier, projectID, extractionDir, extractionModality, isIdentifiableExtraction, isNoFilterExtraction,
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestProducerOptions),
 				rabbitMQAdapter.SetupProducer(options.ExtractorClOptions.ExtractionRequestInfoProducerOptions));
 	}
