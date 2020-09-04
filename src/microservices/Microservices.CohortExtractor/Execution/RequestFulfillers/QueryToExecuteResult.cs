@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using System;
 
 
@@ -22,8 +21,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             InstanceTagValue = instanceTagValue;
             Reject = rejection;
             RejectReason = rejectionReason;
+
             if (Reject && string.IsNullOrWhiteSpace(RejectReason))
-                 throw new ArgumentException("RejectReason must be specified if Reject=true");
+                throw new ArgumentException("RejectReason must be specified if Reject=true");
         }
 
         public override string ToString()
@@ -45,7 +45,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((QueryToExecuteResult) obj);
+            return Equals((QueryToExecuteResult)obj);
         }
 
         public override int GetHashCode()
