@@ -98,13 +98,14 @@ namespace Microservices.IsIdentifiable.Runners
         /// <summary>
         /// The maximum size of a Cache before we clear it out to prevent running out of RAM
         /// </summary>
-        private const int MaxCacheSize = 1_000_000;
+        public int MaxValidationCacheSize  {get;set;}
         
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
             _opts = opts;
             _opts.ValidateOptions();
-            
+            MaxValidationCacheSize = opts.MaxValidationCacheSize;
+
             string targetName = _opts.GetTargetName();
 
             if (opts.ColumnReport)
@@ -243,7 +244,7 @@ namespace Microservices.IsIdentifiable.Runners
             // make sure that we have a cache for this column name
             var cache = Caches.GetOrAdd(fieldName,(v)=>new MemoryCache(new MemoryCacheOptions()
         {
-            SizeLimit = MaxCacheSize
+            SizeLimit = MaxValidationCacheSize
         }));
             
             //if we have the cached result use it

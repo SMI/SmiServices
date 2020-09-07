@@ -52,7 +52,20 @@ namespace Microservices.IsIdentifiable.Tests
             Assert.AreEqual(3,runner.ValidateCalls);
             runner.Run();
         }
+        [Test]
+        public void Test_NoCaching()
+        {
+            var runner = new TestRunner("hey there,0101010101 excited to see you");
+            runner.MaxValidationCacheSize = 0;
 
+            runner.Run();
+            Assert.AreEqual(1,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(2,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(3,runner.ValidateCalls);
+            runner.Run();
+        }
         [TestCase("DD3 7LB")]
         [TestCase("dd3 7lb")]
         [TestCase("dd37lb")]
