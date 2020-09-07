@@ -100,6 +100,16 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         public int MaxValidationCacheSize  {get;set;}
         
+        /// <summary>
+        /// Total number of calls to <see cref="Validate(string, string)"/> that were returned from the cache
+        /// </summary>
+        public long ValidateCacheHits {get;set;}
+
+        /// <summary>
+        /// Total number of calls to <see cref="Validate(string, string)"/> that were missing from the cache and run directly
+        /// </summary>
+        public long ValidateCacheMisses {get;set;}
+
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
             _opts = opts;
@@ -249,7 +259,12 @@ namespace Microservices.IsIdentifiable.Runners
             
             //if we have the cached result use it
             if(cache.TryGetValue(fieldValue ?? "NULL",out FailurePart[] result))
+            {
+                ValidateCacheHits++;
                 return result;
+            }
+            
+            ValidateCacheMisses++;
 
             //otherwise run ValidateImpl and cache the result
             return cache.Set(fieldValue?? "NULL", ValidateImpl(fieldName,fieldValue).ToArray(), new MemoryCacheEntryOptions() {

@@ -27,30 +27,36 @@ namespace Microservices.IsIdentifiable.Tests
         {
             var runner = new TestRunner("hey there,0101010101 excited to see you");
             runner.Run();
-            Assert.AreEqual(1,runner.ValidateCalls);
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(1,runner.ValidateCalls);
+            Assert.AreEqual(1,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(1,runner.ValidateCalls);
-            runner.Run();
+            Assert.AreEqual(2,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
 
             runner.ValueToTest = "ffffff";
             runner.Run();
-            Assert.AreEqual(2,runner.ValidateCalls);
+            Assert.AreEqual(2,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(2,runner.ValidateCalls);
+            Assert.AreEqual(3,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(2,runner.ValidateCalls);
-            runner.Run();
+            Assert.AreEqual(4,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
 
             runner.FieldToTest = "OtherField";
             runner.Run();
-            Assert.AreEqual(3,runner.ValidateCalls);
+            Assert.AreEqual(4,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(3,runner.ValidateCalls);
+            Assert.AreEqual(5,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(3,runner.ValidateCalls);
-            runner.Run();
+            Assert.AreEqual(6,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
         }
         [Test]
         public void Test_NoCaching()
@@ -59,11 +65,14 @@ namespace Microservices.IsIdentifiable.Tests
             runner.MaxValidationCacheSize = 0;
 
             runner.Run();
-            Assert.AreEqual(1,runner.ValidateCalls);
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(2,runner.ValidateCalls);
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
             runner.Run();
-            Assert.AreEqual(3,runner.ValidateCalls);
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
             runner.Run();
         }
         [TestCase("DD3 7LB")]
@@ -304,8 +313,6 @@ BasicRules:
 
             public readonly List<FailurePart> ResultsOfValidate = new List<FailurePart>();
 
-            public int ValidateCalls {get;set;}
-
             public TestRunner(string valueToTest)
                 : base(new TestOpts())
             {
@@ -325,12 +332,6 @@ BasicRules:
                 ResultsOfValidate.AddRange(Validate(FieldToTest, ValueToTest).OrderBy(v => v.Offset));
                 CloseReports();
                 return 0;
-            }
-
-            protected override IEnumerable<FailurePart> ValidateImpl(string fieldName, string fieldValue)
-            {
-                ValidateCalls++;
-                return base.ValidateImpl(fieldName, fieldValue);
             }
         }
 
