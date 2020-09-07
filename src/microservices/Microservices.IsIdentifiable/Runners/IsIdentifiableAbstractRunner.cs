@@ -94,6 +94,21 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         public ConcurrentDictionary<string,ConcurrentDictionary<string,FailurePart[]>> Caches {get;set;} = new ConcurrentDictionary<string, ConcurrentDictionary<string, FailurePart[]>>();
 
+        /// <summary>
+        /// The maximum size of a Cache before we clear it out to prevent running out of RAM
+        /// </summary>
+        private const int MaxCacheSize = 1_000_000;
+
+        /// <summary>
+        /// The number of values we have attempted to lookup
+        /// </summary>
+        private int _valuesLookedUp = 0;
+
+        /// <summary>
+        /// Check for exceeding <see cref="MaxCacheSize"/> every time this number of lookups has elapsed
+        /// </summary>
+        private int _checkEvery = 10_000;
+
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
             _opts = opts;
@@ -225,15 +240,36 @@ namespace Microservices.IsIdentifiable.Runners
 
         // ReSharper disable once UnusedMemberInSuper.Global
         public abstract int Run();
-
-        protected IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
-        {
-            var cache = Caches.GetOrAdd(fieldName,(v)=>new ConcurrentDictionary<string, FailurePart[]>());
-            return cache.GetOrAdd(fieldValue,(k)=>ValidateImpl(fieldName,fieldValue).ToArray());
-        }
-
+        
         /// <summary>
         /// Returns each subsection of <paramref name="fieldValue"/> which violates validation rules (e.g. the CHI found).
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <param name="fieldValue"></param>
+        /// <returns></returns>
+        protected IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        {
+            // every time we lookup a value increment the counter and see if we should check cache overflow
+            if(_valuesLookedUp++ % _checkEvery == 0)
+            {
+                _valuesLookedUp = 0;
+                foreach (var c in Caches)
+                {
+                    //any column with more than the maximum number of cached values should be cleared
+                    if(c.Value.Keys.Count > MaxCacheSize)
+                        c.Value.Clear();
+                }
+            }
+
+            // make sure that we have a cache for this column name
+            var cache = Caches.GetOrAdd(fieldName,(v)=>new ConcurrentDictionary<string, FailurePart[]>());
+
+            // lookup the cached value or call ValidateImpl
+            return cache.GetOrAdd(fieldValue,(k)=>ValidateImpl(fieldName,fieldValue).ToArray());
+        }
+        
+        /// <summary>
+        /// Actual implementation of <see cref="Validate(string, string)"/> after a cache miss has occurred.  This method is only called when a cached answer is not found for the given <paramref name="fieldName"/> and <paramref name="fieldValue"/> pair
         /// </summary>
         /// <param name="fieldName"></param>
         /// <param name="fieldValue"></param>
