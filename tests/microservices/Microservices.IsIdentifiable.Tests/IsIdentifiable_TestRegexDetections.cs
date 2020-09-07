@@ -21,6 +21,36 @@ namespace Microservices.IsIdentifiable.Tests
 
             Assert.AreEqual("0101010101", p.Word);
             Assert.AreEqual(10, p.Offset);
+        } 
+        [Test]
+        public void TestCaching()
+        {
+            var runner = new TestRunner("hey there,0101010101 excited to see you");
+            runner.Run();
+            Assert.AreEqual(1,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(1,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(1,runner.ValidateCalls);
+            runner.Run();
+
+            runner.ValueToTest = "ffffff";
+            runner.Run();
+            Assert.AreEqual(2,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(2,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(2,runner.ValidateCalls);
+            runner.Run();
+
+            runner.FieldToTest = "OtherField";
+            runner.Run();
+            Assert.AreEqual(3,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(3,runner.ValidateCalls);
+            runner.Run();
+            Assert.AreEqual(3,runner.ValidateCalls);
+            runner.Run();
         }
 
         [TestCase("DD3 7LB")]
@@ -256,30 +286,38 @@ BasicRules:
 
         private class TestRunner : IsIdentifiableAbstractRunner
         {
-            private readonly string _fieldToTest;
-            private readonly string _valueToTest;
+            public string FieldToTest {get;set; }
+            public string ValueToTest {get;set; }
 
             public readonly List<FailurePart> ResultsOfValidate = new List<FailurePart>();
+
+            public int ValidateCalls {get;set;}
 
             public TestRunner(string valueToTest)
                 : base(new TestOpts())
             {
-                _valueToTest = valueToTest;
-                _fieldToTest = "field";
+                ValueToTest = valueToTest;
+                FieldToTest = "field";
             }
 
             public TestRunner(string valueToTest, TestOpts opts, string fieldToTest = "field")
                 : base(opts)
             {
-                _fieldToTest = fieldToTest;
-                _valueToTest = valueToTest;
+                FieldToTest = fieldToTest;
+                ValueToTest = valueToTest;
             }
 
             public override int Run()
             {
-                ResultsOfValidate.AddRange(Validate(_fieldToTest, _valueToTest).OrderBy(v => v.Offset));
+                ResultsOfValidate.AddRange(Validate(FieldToTest, ValueToTest).OrderBy(v => v.Offset));
                 CloseReports();
                 return 0;
+            }
+
+            protected override IEnumerable<FailurePart> ValidateImpl(string fieldName, string fieldValue)
+            {
+                ValidateCalls++;
+                return base.ValidateImpl(fieldName, fieldValue);
             }
         }
 

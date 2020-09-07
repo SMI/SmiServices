@@ -238,7 +238,7 @@ namespace Microservices.IsIdentifiable.Runners
         /// <param name="fieldName"></param>
         /// <param name="fieldValue"></param>
         /// <returns></returns>
-        protected IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        protected virtual IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
         {
             // make sure that we have a cache for this column name
             var cache = Caches.GetOrAdd(fieldName,(v)=>new MemoryCache(new MemoryCacheOptions()
@@ -246,8 +246,14 @@ namespace Microservices.IsIdentifiable.Runners
             SizeLimit = MaxCacheSize
         }));
             
-            // lookup the cached value or call ValidateImpl
-            return cache.GetOrCreate(fieldValue?? "NULL",(k)=>ValidateImpl(fieldName,fieldValue).ToArray());
+            //if we have the cached result use it
+            if(cache.TryGetValue(fieldValue ?? "NULL",out FailurePart[] result))
+                return result;
+
+            //otherwise run ValidateImpl and cache the result
+            return cache.Set(fieldValue?? "NULL", ValidateImpl(fieldName,fieldValue).ToArray(), new MemoryCacheEntryOptions() {
+                Size=1
+            });
         }
         
         /// <summary>
@@ -256,7 +262,7 @@ namespace Microservices.IsIdentifiable.Runners
         /// <param name="fieldName"></param>
         /// <param name="fieldValue"></param>
         /// <returns></returns>
-        protected IEnumerable<FailurePart> ValidateImpl(string fieldName, string fieldValue)
+        protected virtual IEnumerable<FailurePart> ValidateImpl(string fieldName, string fieldValue)
         {
             if (_skipColumns.Contains(fieldName))
                 yield break;
