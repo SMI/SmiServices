@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -87,6 +88,11 @@ namespace Microservices.IsIdentifiable.Runners
         /// Custom whitelist rules you want to apply e.g. always ignore a failure if column is X AND value is Y
         /// </summary>
         public List<ICustomRule> CustomWhiteListRules { get; set; } = new List<ICustomRule>();
+
+        /// <summary>
+        /// One cache per field in the data being evaluated, records the recent values passed to <see cref="Validate(string, string)"/> and the results to avoid repeated lookups
+        /// </summary>
+        public ConcurrentDictionary<string,ConcurrentDictionary<string,FailurePart[]>> Caches {get;set;} = new ConcurrentDictionary<string, ConcurrentDictionary<string, FailurePart[]>>();
 
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
@@ -220,13 +226,19 @@ namespace Microservices.IsIdentifiable.Runners
         // ReSharper disable once UnusedMemberInSuper.Global
         public abstract int Run();
 
+        protected IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        {
+            var cache = Caches.GetOrAdd(fieldName,(v)=>new ConcurrentDictionary<string, FailurePart[]>());
+            return cache.GetOrAdd(fieldValue,(k)=>ValidateImpl(fieldName,fieldValue).ToArray());
+        }
+
         /// <summary>
         /// Returns each subsection of <paramref name="fieldValue"/> which violates validation rules (e.g. the CHI found).
         /// </summary>
         /// <param name="fieldName"></param>
         /// <param name="fieldValue"></param>
         /// <returns></returns>
-        protected IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        protected IEnumerable<FailurePart> ValidateImpl(string fieldName, string fieldValue)
         {
             if (_skipColumns.Contains(fieldName))
                 yield break;
