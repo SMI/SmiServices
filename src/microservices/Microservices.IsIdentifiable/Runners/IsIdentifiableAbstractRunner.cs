@@ -453,6 +453,8 @@ namespace Microservices.IsIdentifiable.Runners
         {
             foreach (var d in CustomRules.OfType<IDisposable>()) 
                 d.Dispose();
+
+            _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
         }
     }
 }
