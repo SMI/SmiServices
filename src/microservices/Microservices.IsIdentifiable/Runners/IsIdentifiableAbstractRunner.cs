@@ -265,7 +265,7 @@ namespace Microservices.IsIdentifiable.Runners
             var cache = Caches.GetOrAdd(fieldName,(v)=>new ConcurrentDictionary<string, FailurePart[]>());
 
             // lookup the cached value or call ValidateImpl
-            return cache.GetOrAdd(fieldValue,(k)=>ValidateImpl(fieldName,fieldValue ?? "NULL").ToArray());
+            return cache.GetOrAdd(fieldValue?? "NULL",(k)=>ValidateImpl(fieldName,fieldValue).ToArray());
         }
         
         /// <summary>
