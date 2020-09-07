@@ -265,6 +265,7 @@ BasicRules:
                 : base(new TestOpts())
             {
                 _valueToTest = valueToTest;
+                _fieldToTest = "field";
             }
 
             public TestRunner(string valueToTest, TestOpts opts, string fieldToTest = "field")
