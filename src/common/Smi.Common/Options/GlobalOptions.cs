@@ -142,7 +142,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class IdentifierMapperOptions : ConsumerOptions
+    public class IdentifierMapperOptions : ConsumerOptions, IMappingTableOptions
     {
         public ProducerOptions AnonImagesProducerOptions { get; set; }
         public string MappingConnectionString { get; set; }

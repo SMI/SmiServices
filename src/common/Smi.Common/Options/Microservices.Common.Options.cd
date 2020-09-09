@@ -61,6 +61,7 @@
       <HashCode>QAAAAAAAAAAMAAAFAAAQCAAAAAAAQBAAQAAAEQAAABA=</HashCode>
       <FileName>Options\GlobalOptions.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="Smi.Common.Options.DicomTagReaderOptions" Collapsed="true">
     <Position X="2.5" Y="1.75" Width="1.5" />
