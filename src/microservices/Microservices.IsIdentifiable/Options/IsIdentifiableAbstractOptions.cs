@@ -63,6 +63,9 @@ namespace Microservices.IsIdentifiable.Options
         [Option(HelpText = "Optional. Directory of additional rules in yaml format.")]
         public string RulesDirectory { get; set; }
 
+        [Option(HelpText = "Optional.  Maximum number of answers to cache per column.",Default = 1_000_000)]
+        public int MaxValidationCacheSize {get;set;} = 1_000_000;
+
         /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
         /// for naming output reports e.g. "biochemistry" , "mydir" etc

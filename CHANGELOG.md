@@ -16,7 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Add "no filters" extraction support. If specified when running ExtractorCLI, no file rejection filters will be applied by CohortExtractor. True by default for identifiable extractions
 -   IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
 -   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
-   
+-   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
+
 ## [1.11.1] - 2020-08-12
 
 -   Set PublishTrimmed to false to fix bug with missing assemblies in prod.

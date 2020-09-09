@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using Microservices.IsIdentifiable.Rules;
 using Microservices.IsIdentifiable.Whitelists;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using YamlDotNet.Serialization;
 
@@ -88,11 +90,32 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         public List<ICustomRule> CustomWhiteListRules { get; set; } = new List<ICustomRule>();
 
+        /// <summary>
+        /// One cache per field in the data being evaluated, records the recent values passed to <see cref="Validate(string, string)"/> and the results to avoid repeated lookups
+        /// </summary>
+        public ConcurrentDictionary<string,MemoryCache> Caches {get;set;} = new ConcurrentDictionary<string, MemoryCache>();
+
+        /// <summary>
+        /// The maximum size of a Cache before we clear it out to prevent running out of RAM
+        /// </summary>
+        public int MaxValidationCacheSize  {get;set;}
+        
+        /// <summary>
+        /// Total number of calls to <see cref="Validate(string, string)"/> that were returned from the cache
+        /// </summary>
+        public long ValidateCacheHits {get;set;}
+
+        /// <summary>
+        /// Total number of calls to <see cref="Validate(string, string)"/> that were missing from the cache and run directly
+        /// </summary>
+        public long ValidateCacheMisses {get;set;}
+
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
             _opts = opts;
             _opts.ValidateOptions();
-            
+            MaxValidationCacheSize = opts.MaxValidationCacheSize;
+
             string targetName = _opts.GetTargetName();
 
             if (opts.ColumnReport)
@@ -219,14 +242,43 @@ namespace Microservices.IsIdentifiable.Runners
 
         // ReSharper disable once UnusedMemberInSuper.Global
         public abstract int Run();
-
+        
         /// <summary>
         /// Returns each subsection of <paramref name="fieldValue"/> which violates validation rules (e.g. the CHI found).
         /// </summary>
         /// <param name="fieldName"></param>
         /// <param name="fieldValue"></param>
         /// <returns></returns>
-        protected IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        protected virtual IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        {
+            // make sure that we have a cache for this column name
+            var cache = Caches.GetOrAdd(fieldName,(v)=>new MemoryCache(new MemoryCacheOptions()
+        {
+            SizeLimit = MaxValidationCacheSize
+        }));
+            
+            //if we have the cached result use it
+            if(cache.TryGetValue(fieldValue ?? "NULL",out FailurePart[] result))
+            {
+                ValidateCacheHits++;
+                return result;
+            }
+            
+            ValidateCacheMisses++;
+
+            //otherwise run ValidateImpl and cache the result
+            return cache.Set(fieldValue?? "NULL", ValidateImpl(fieldName,fieldValue).ToArray(), new MemoryCacheEntryOptions() {
+                Size=1
+            });
+        }
+        
+        /// <summary>
+        /// Actual implementation of <see cref="Validate(string, string)"/> after a cache miss has occurred.  This method is only called when a cached answer is not found for the given <paramref name="fieldName"/> and <paramref name="fieldValue"/> pair
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <param name="fieldValue"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<FailurePart> ValidateImpl(string fieldName, string fieldValue)
         {
             if (_skipColumns.Contains(fieldName))
                 yield break;
@@ -401,6 +453,8 @@ namespace Microservices.IsIdentifiable.Runners
         {
             foreach (var d in CustomRules.OfType<IDisposable>()) 
                 d.Dispose();
+
+            _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
         }
     }
 }
