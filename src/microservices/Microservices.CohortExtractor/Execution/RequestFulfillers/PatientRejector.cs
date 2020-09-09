@@ -15,10 +15,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
     {
         HashSet<string> RejectPatients = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
         private Logger _logger;
+        private string _patientIdColumnName;
 
         public PatientRejector(ColumnInfo patientIdColumn)
         {
             _logger = LogManager.GetCurrentClassLogger();
+            _patientIdColumnName = patientIdColumn.GetRuntimeName();
 
             var qb = new QueryBuilder(null,null);
             qb.AddColumn(new ColumnInfoToIColumn(new MemoryRepository(),patientIdColumn));
@@ -30,6 +32,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
             using(var con = server.Database.Server.GetConnection())
             {
+                con.Open();
                 var cmd = server.GetCommand(sql,con);
                 var r = cmd.ExecuteReader();
 
@@ -48,17 +51,17 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             try
             {
                 //we don't know
-                if(row["PatientID"] == DBNull.Value)
+                if(row[_patientIdColumnName] == DBNull.Value)
                 {
                     reason = null;
                     return false;
                 }
 
-                patientId = (string)row["PatientID"];
+                patientId = (string)row[_patientIdColumnName];
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred determining the PatientID of the record(s) being extracted",ex);
+                throw new Exception($"An error occurred determining the PatientID of the record(s) being extracted.  Expected a column called {_patientIdColumnName}",ex);
             }
             
             if(RejectPatients.Contains(patientId))

@@ -34,7 +34,7 @@ namespace Microservices.CohortExtractor.Tests
             var rejector = new PatientRejector(cols[0]);
 
             var moqDave = new Mock<DbDataReader>();
-            moqDave.Setup(x => x["PatientId"])
+            moqDave.Setup(x => x["Pat"])
                 .Returns("Dave");
 
             Assert.IsFalse(rejector.Reject(moqDave.Object,out string reason));
@@ -42,14 +42,14 @@ namespace Microservices.CohortExtractor.Tests
 
 
             var moqFrank = new Mock<DbDataReader>();
-            moqFrank.Setup(x => x["PatientId"])
+            moqFrank.Setup(x => x["Pat"])
                 .Returns("Frank");
 
             Assert.IsTrue(rejector.Reject(moqFrank.Object,out reason));
             Assert.AreEqual("Patient was in reject list",reason);
 
             var moqLowerCaseFrank = new Mock<DbDataReader>();
-            moqLowerCaseFrank.Setup(x => x["PatientId"])
+            moqLowerCaseFrank.Setup(x => x["Pat"])
                 .Returns("frank");
 
             Assert.IsTrue(rejector.Reject(moqLowerCaseFrank.Object,out  reason));
