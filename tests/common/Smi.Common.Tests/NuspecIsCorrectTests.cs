@@ -117,7 +117,6 @@ namespace Smi.Common.Tests
                     {
                         if (Regex.IsMatch(line, @"[\s[]" + Regex.Escape(package) + @"[\s\]]", RegexOptions.IgnoreCase))
                         {
-                            int count = new Regex(Regex.Escape(version)).Matches(line).Count;
                             found = true;
                         }
                     }
