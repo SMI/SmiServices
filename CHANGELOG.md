@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     -   [breaking] RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
 -   Add "no filters" extraction support. If specified when running ExtractorCLI, no file rejection filters will be applied by CohortExtractor. True by default for identifiable extractions
 -   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
+-   Added new rejector that throws out patients whose IDs are stored in a database table.  Set `RejectPatientsIn` option in yaml to enable this
 
 ## [1.11.1] - 2020-08-12
 
