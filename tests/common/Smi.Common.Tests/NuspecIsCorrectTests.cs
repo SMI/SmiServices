@@ -118,10 +118,6 @@ namespace Smi.Common.Tests
                         if (Regex.IsMatch(line, @"[\s[]" + Regex.Escape(package) + @"[\s\]]", RegexOptions.IgnoreCase))
                         {
                             int count = new Regex(Regex.Escape(version)).Matches(line).Count;
-
-                            Assert.GreaterOrEqual(count, 2,
-                                "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}",
-                                packagesMarkdown, version, package, csproj);
                             found = true;
                         }
                     }
