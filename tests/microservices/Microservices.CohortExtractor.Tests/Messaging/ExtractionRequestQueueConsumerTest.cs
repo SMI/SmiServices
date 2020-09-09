@@ -52,7 +52,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         [Test]
         public void Test_ExtractionRequestQueueConsumer_AnonExtraction_RoutingKey()
         {
-            GlobalOptions globals = GlobalOptions.Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load();
             globals.CohortExtractorOptions.ExtractAnonRoutingKey = "anon";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "";
             AssertMessagePublishedWithSpecifiedKey(globals, false, "anon");
@@ -61,7 +61,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         [Test]
         public void Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKey()
         {
-            GlobalOptions globals = GlobalOptions.Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load();
             globals.CohortExtractorOptions.ExtractAnonRoutingKey = "";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "ident";
             AssertMessagePublishedWithSpecifiedKey(globals, true, "ident");

@@ -20,50 +20,7 @@ namespace Smi.Common.Options
 {
     public class GlobalOptions
     {
-        public static GlobalOptions Load(string environment = "default", string currentDirectory = null)
-        {
-            IDeserializer deserializer = new DeserializerBuilder()
-                                    .WithObjectFactory(GetGlobalOption)
-                                    .IgnoreUnmatchedProperties()
-                                    .Build();
-
-            currentDirectory = currentDirectory ?? Environment.CurrentDirectory;
-
-            // Make sure environment ends with yaml 
-            if (!(environment.EndsWith(".yaml") || environment.EndsWith(".yml")))
-                environment += ".yaml";
-
-            // If the yaml file doesn't exist and the path is relative, try looking in currentDirectory instead
-            if (!File.Exists(environment) && !Path.IsPathRooted(environment))
-                environment = Path.Combine(currentDirectory, environment);
-
-            string text = File.ReadAllText(environment);
-
-            var globals = deserializer.Deserialize<GlobalOptions>(new StringReader(text));
-            globals.CurrentDirectory = currentDirectory;
-            globals.MicroserviceOptions = new MicroserviceOptions();
-
-            return globals;
-        }
-
-        public static GlobalOptions Load(CliOptions cliOptions)
-        {
-            GlobalOptions globalOptions = Load(cliOptions.YamlFile);
-            globalOptions.MicroserviceOptions = new MicroserviceOptions(cliOptions);
-
-            return globalOptions;
-        }
-
-
-        private static object GetGlobalOption(Type arg)
-        {
-            return arg == typeof(GlobalOptions) ?
-                new GlobalOptions() :
-                Activator.CreateInstance(arg);
-        }
-
-        private GlobalOptions() { }
-
+        
         #region AllOptions
 
         /// <summary>

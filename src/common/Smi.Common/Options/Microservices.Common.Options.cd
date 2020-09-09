@@ -13,16 +13,164 @@
   <Class Name="Smi.Common.Options.ConsumerOptions" Collapsed="true">
     <Position X="6.25" Y="2.75" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAEIAEAAAEAAAgAAAAAAAAAAAAIAAAAgEAIAAAAA=</HashCode>
+      <HashCode>AAAAAEAAAAAAAAAEAAAAAAAAAAAAAQAAAAgAAAAAIAA=</HashCode>
       <FileName>Options\ConsumerOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Smi.Common.Options.ProducerOptions" Collapsed="true">
     <Position X="6.25" Y="4" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAEAAAEAAAgAgAAAAAAAAAAIAAAAAAAIAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAEgAAEAAAAAAAAAIAAAAAAAAAAImA=</HashCode>
       <FileName>Options\ProducerOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="Smi.Common.Options.GlobalOptions">
+    <Position X="19.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACEAAwgAEgAAQACEQIAAAAAAwAAgAAAAAAAAIAAAABA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.IsIdentifiableOptions" Collapsed="true">
+    <Position X="21.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAACAAAAAAAACAAAAAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.MicroserviceOptions" Collapsed="true">
+    <Position X="32.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.ProcessDirectoryOptions" Collapsed="true">
+    <Position X="32.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.MongoDbPopulatorOptions" Collapsed="true">
+    <Position X="31" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEQACAAAABAAEAAAAAAACAAAAAAAE=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.IdentifierMapperOptions" Collapsed="true">
+    <Position X="19.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAMAAAFAAAQCAAAAAAAQBAAQAAAEQAAABA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Smi.Common.Options.DicomTagReaderOptions" Collapsed="true">
+    <Position X="10" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAQAkAAAAAAAAAAAAAQAAAAEAAAAAAAI=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.FileCopierOptions" Collapsed="true">
+    <Position X="24" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAIAEAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.DicomReprocessorOptions" Collapsed="true">
+    <Position X="34.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAgAAAEAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.CohortPackagerOptions" Collapsed="true">
+    <Position X="31" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAIAAAEAAAAAAAAAAAAIBAAOAAAAAAAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.CohortExtractorOptions" Collapsed="true">
+    <Position X="26.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIACQAACACAAAEEAAAIAAAAEAAAAgAAgAAAAAAQQEA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.DicomRelationalMapperOptions" Collapsed="true">
+    <Position X="28.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAIAABEAEAQIgACIAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.DeadLetterReprocessorOptions" Collapsed="true">
+    <Position X="32.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIEAAAAAAAAAAAAAAAAAAIAAAAAAEA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.MongoDatabases" Collapsed="true">
+    <Position X="34.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAIAEAAAAAAAAAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.MongoDbOptions" Collapsed="true">
+    <Position X="36.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAEAAAAAAAAKAAAAAACAQAAAAABAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.RDMPOptions" Collapsed="true">
+    <Position X="36.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAEAAAAAAAAAAAAAAAAAAQAACAAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.FileSystemOptions" Collapsed="true">
+    <Position X="36.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAEAAAAACAEAAACAQABAAAAAAAAAAAAAAAABAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Options.RabbitOptions" Collapsed="true">
+    <Position X="34.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAUAAAAAAAAEAAAAAAABAAAAAAABAAAIAAIAQAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Smi.Common.Options.IMappingTableOptions" Collapsed="true">
+    <Position X="31" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAAAAAAAAAQCAAAAAAAQBAAQAAAEAAAABA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="Smi.Common.Options.TagProcessorMode" Collapsed="true">
+    <Position X="32.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Smi.Common.Options.ProcessingMode" Collapsed="true">
+    <Position X="31" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAAIAAAAAAAAAAAABA=</HashCode>
+      <FileName>Options\GlobalOptions.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

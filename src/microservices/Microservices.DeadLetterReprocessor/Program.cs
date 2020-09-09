@@ -14,7 +14,7 @@ namespace Microservices.DeadLetterReprocessor
             return Parser.Default.ParseArguments<DeadLetterReprocessorCliOptions>(args)
                 .MapResult(deadLetterCliOptions =>
                     {
-                        GlobalOptions globals = GlobalOptions.Load(deadLetterCliOptions);
+                        GlobalOptions globals = new GlobalOptionsFactory().Load(deadLetterCliOptions);
 
                         var bootstrapper = new MicroserviceHostBootstrapper(() => new DeadLetterReprocessorHost(globals, deadLetterCliOptions));
                         return bootstrapper.Main();

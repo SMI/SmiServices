@@ -116,7 +116,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             };
 
 
-            GlobalOptions globals = GlobalOptions.Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load();
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
 
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
@@ -210,7 +210,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 IsIdentifiableExtraction = true,
             };
 
-            GlobalOptions globals = GlobalOptions.Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load();
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
 
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);

@@ -161,10 +161,10 @@ You can then pass the GlobalOptions instance to your specific host in the bootst
 ```csharp
     private static int Main(string[] args)
     {
-        var options = GlobalOptions.Load();
+        var options = new GlobalOptionsFactory().Load();
         Parser.Default.ParseArguments(args, cli);
 
-        var options = GlobalOptions.Load(cli.YamlFile);
+        var options = new GlobalOptionsFactory().Load(cli.YamlFile);
             
         var bootstrapper = new MicroserviceHostBootstrapper(
             () => new DicomTagReaderHost(options));
