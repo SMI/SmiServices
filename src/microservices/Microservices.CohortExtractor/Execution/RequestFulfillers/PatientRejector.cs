@@ -11,9 +11,9 @@ using System.Text;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
-    class PatientRejector : IRejector
+    public class PatientRejector : IRejector
     {
-        HashSet<string> RejectPatients = new HashSet<string>();
+        HashSet<string> RejectPatients = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
         private Logger _logger;
 
         public PatientRejector(ColumnInfo patientIdColumn)
