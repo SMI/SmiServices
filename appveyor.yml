@@ -1,5 +1,6 @@
 version: 1.0.{build}
 init:
+  - cmd: if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
   - git config --global core.autocrlf true
 image: Visual Studio 2019
 services:
@@ -11,7 +12,6 @@ cache:
   - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
 
 before_build:
-- cmd: if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
 - ps: "Add-Content c:\\mongodb\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
 - cmd: "net start mongodb"
 - cmd: "c:\\mongodb\\bin\\mongo --eval \"printjson(rs.initiate())\""
