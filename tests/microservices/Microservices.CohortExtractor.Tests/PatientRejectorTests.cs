@@ -7,58 +7,71 @@ using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
-using System.Text;
 using Tests.Common;
 
 namespace Microservices.CohortExtractor.Tests
 {
-    class PatientRejectorTests : DatabaseTests
+    public class PatientRejectorTests : DatabaseTests
     {
+        private const string PatColName = "PatientID";
+
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
-        public void TestRejectPatients(DatabaseType type)
+        public void Test_PatientRejector(DatabaseType type)
         {
-            var server = GetCleanedServer(type);
+            DiscoveredDatabase server = GetCleanedServer(type);
+            DiscoveredTable tbl = server.CreateTable("BadPatients", new[] { new DatabaseColumnRequest(PatColName, "varchar(100)") });
 
-            var tbl = server.CreateTable("BadPatients",new []{new DatabaseColumnRequest("Pat","varchar(100)") });
-            
-            tbl.Insert(new Dictionary<string, object>(){{"Pat","Frank"} });
-            tbl.Insert(new Dictionary<string, object>(){{"Pat","Peter" } });
-            tbl.Insert(new Dictionary<string, object>(){{"Pat","Frank" } }); //duplication for the lols
-            tbl.Insert(new Dictionary<string, object>(){{"Pat","David" } });
+            tbl.Insert(new Dictionary<string, object> { { PatColName, "Frank" } });
+            tbl.Insert(new Dictionary<string, object> { { PatColName, "Peter" } });
+            tbl.Insert(new Dictionary<string, object> { { PatColName, "Frank" } }); //duplication for the lols
+            tbl.Insert(new Dictionary<string, object> { { PatColName, "David" } });
 
-            new TableInfoImporter(CatalogueRepository,tbl).DoImport(out var ti,out var cols);
-            
+            new TableInfoImporter(CatalogueRepository, tbl).DoImport(out TableInfo _, out ColumnInfo[] cols);
+
             var rejector = new PatientRejector(cols[0]);
 
             var moqDave = new Mock<DbDataReader>();
-            moqDave.Setup(x => x["Pat"])
+            moqDave.Setup(x => x[PatColName])
                 .Returns("Dave");
 
-            Assert.IsFalse(rejector.Reject(moqDave.Object,out string reason));
+            Assert.IsFalse(rejector.Reject(moqDave.Object, out string reason));
             Assert.IsNull(reason);
 
-
             var moqFrank = new Mock<DbDataReader>();
-            moqFrank.Setup(x => x["Pat"])
+            moqFrank.Setup(x => x[PatColName])
                 .Returns("Frank");
 
-            Assert.IsTrue(rejector.Reject(moqFrank.Object,out reason));
-            Assert.AreEqual("Patient was in reject list",reason);
+            Assert.IsTrue(rejector.Reject(moqFrank.Object, out reason));
+            Assert.AreEqual("Patient was in reject list", reason);
 
             var moqLowerCaseFrank = new Mock<DbDataReader>();
-            moqLowerCaseFrank.Setup(x => x["Pat"])
+            moqLowerCaseFrank.Setup(x => x[PatColName])
                 .Returns("frank");
 
-            Assert.IsTrue(rejector.Reject(moqLowerCaseFrank.Object,out  reason));
-            Assert.AreEqual("Patient was in reject list",reason);
+            Assert.IsTrue(rejector.Reject(moqLowerCaseFrank.Object, out reason));
+            Assert.AreEqual("Patient was in reject list", reason);
+        }
 
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql)]
+        public void Test_PatientRejector_MissingColumn_Throws(DatabaseType type)
+        {
+            DiscoveredDatabase server = GetCleanedServer(type);
+            DiscoveredTable tbl = server.CreateTable("BadPatients", new[] { new DatabaseColumnRequest(PatColName, "varchar(100)") });
 
+            new TableInfoImporter(CatalogueRepository, tbl).DoImport(out TableInfo _, out ColumnInfo[] cols);
 
+            var rejector = new PatientRejector(cols[0]);
 
+            var moqDave = new Mock<DbDataReader>();
+            moqDave
+                .Setup(x => x[PatColName])
+                .Throws<IndexOutOfRangeException>();
 
+            var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out string _));
+            Assert.True(exc.Message.Contains($"Expected a column called {PatColName}"));
         }
     }
 }

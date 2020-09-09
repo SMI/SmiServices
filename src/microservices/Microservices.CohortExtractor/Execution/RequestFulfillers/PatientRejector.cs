@@ -1,46 +1,46 @@
-﻿using MapsDirectlyToDatabaseTable;
+﻿using FAnsi.Discovery;
+using MapsDirectlyToDatabaseTable;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.QueryBuilding;
-using Rdmp.Core.Repositories;
 using ReusableLibraryCode.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Text;
+
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
     public class PatientRejector : IRejector
     {
-        HashSet<string> RejectPatients = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
-        private Logger _logger;
-        private string _patientIdColumnName;
+        private readonly HashSet<string> _rejectPatients = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+        private readonly Logger _logger;
+        private readonly string _patientIdColumnName;
 
         public PatientRejector(ColumnInfo patientIdColumn)
         {
             _logger = LogManager.GetCurrentClassLogger();
             _patientIdColumnName = patientIdColumn.GetRuntimeName();
 
-            var qb = new QueryBuilder(null,null);
-            qb.AddColumn(new ColumnInfoToIColumn(new MemoryRepository(),patientIdColumn));
-            
-            var sql = qb.SQL;
+            var qb = new QueryBuilder(limitationSQL: null, hashingAlgorithm: null);
+            qb.AddColumn(new ColumnInfoToIColumn(new MemoryRepository(), patientIdColumn));
+
+            string sql = qb.SQL;
             _logger.Info("Running PatientID fetch SQL:" + sql);
 
-            var server = patientIdColumn.TableInfo.Discover(DataAccessContext.DataExport);
+            DiscoveredTable server = patientIdColumn.TableInfo.Discover(DataAccessContext.DataExport);
 
-            using(var con = server.Database.Server.GetConnection())
+            using (DbConnection con = server.Database.Server.GetConnection())
             {
                 con.Open();
-                var cmd = server.GetCommand(sql,con);
-                var r = cmd.ExecuteReader();
+                DbCommand cmd = server.GetCommand(sql, con);
+                DbDataReader reader = cmd.ExecuteReader();
 
-                while(r.Read())
-                    RejectPatients.Add(r[0].ToString());
+                while (reader.Read())
+                    _rejectPatients.Add(reader[0].ToString());
             }
-            
-            _logger.Info($"Found {RejectPatients.Count} patients in the reject list");
+
+            _logger.Info($"Found {_rejectPatients.Count} patients in the reject list");
         }
 
 
@@ -50,8 +50,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
             try
             {
-                //we don't know
-                if(row[_patientIdColumnName] == DBNull.Value)
+                // The patient ID is null
+                if (row[_patientIdColumnName] == DBNull.Value)
                 {
                     reason = null;
                     return false;
@@ -59,17 +59,16 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 patientId = (string)row[_patientIdColumnName];
             }
-            catch (Exception ex)
+            catch (IndexOutOfRangeException ex)
             {
-                throw new Exception($"An error occurred determining the PatientID of the record(s) being extracted.  Expected a column called {_patientIdColumnName}",ex);
+                throw new IndexOutOfRangeException($"An error occurred determining the PatientID of the record(s) being extracted. Expected a column called {_patientIdColumnName}", ex);
             }
-            
-            if(RejectPatients.Contains(patientId))
+
+            if (_rejectPatients.Contains(patientId))
             {
                 reason = "Patient was in reject list";
                 return true;
             }
-                
 
             reason = null;
             return false;
