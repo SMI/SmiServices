@@ -90,6 +90,7 @@ namespace Smi.Common.Options
         public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
 
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
+        public string LogsRoot { get; set; }
 
         #endregion
 
@@ -534,7 +535,7 @@ namespace Smi.Common.Options
     public class FileSystemOptions
     {
         /// <summary>
-        /// If set, services will require that the "SMI_LOGS_ROOT" environment variable is set and points to a valid directory.
+        /// If set, services will require that <see cref="GlobalOptions.LogsRoot"/> is set and points to a valid directory.
         /// This helps to ensure that we log to a central location on the production system.
         /// </summary>
         public bool ForceSmiLogsRoot { get; set; } = false;

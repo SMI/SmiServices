@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Add "no filters" extraction support. If specified when running ExtractorCLI, no file rejection filters will be applied by CohortExtractor. True by default for identifiable extractions
 -   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
 
+
+### Changed
+-   Environment variables are no longer used.  Previous settings now appear in configuration file
+    - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
+
 ## [1.11.1] - 2020-08-12
 
 -   Set PublishTrimmed to false to fix bug with missing assemblies in prod.
