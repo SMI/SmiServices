@@ -5,14 +5,31 @@ using Microservices.IsIdentifiable.Rules;
 
 namespace IsIdentifiableReviewer.Out
 {
+    /// <summary>
+    /// <para>
+    /// Implementation of OutBase for <see cref="RuleAction.Ignore"/>.  Base class <see cref="OutBase.Rules"/> should
+    /// be interpreted as rules for detecting <see cref="Failure"/> which are false positives.
+    /// </para>
+    /// <para>See also:<seealso cref="RowUpdater"/></para>
+    /// </summary>
     public class IgnoreRuleGenerator: OutBase
     {
+        /// <summary>
+        /// Default name for the false positive detection rules (for ignoring failures).  This file will be appended to as new rules are added.
+        /// </summary>
         public const string DefaultFileName = "NewRules.yaml";
 
+        /// <summary>
+        /// Creates a new instance which stores rules in the <paramref name="rulesFile"/> (which will also have existing rules loaded from)
+        /// </summary>
         public IgnoreRuleGenerator(FileInfo rulesFile):base(rulesFile)
         {
             
         }
+
+        /// <summary>
+        /// Creates a new instance which stores rules in the <see cref="DefaultFileName"/>
+        /// </summary>
         public IgnoreRuleGenerator() : this(new FileInfo(DefaultFileName))
         {
         }
