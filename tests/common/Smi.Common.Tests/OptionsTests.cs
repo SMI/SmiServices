@@ -61,5 +61,25 @@ namespace Smi.Common.Tests
 
             Assert.Throws<ApplicationException>(() => g.DicomTagReaderOptions.GetReadOption());
         }
+
+
+        private class TestDecorator : OptionsDecorator
+        {
+            public override GlobalOptions Decorate(GlobalOptions options)
+            {
+                ForAll<MongoDbOptions>(options,(o)=> new MongoDbOptions{DatabaseName = "FFFFF" });
+                return options;
+            }
+        }
+
+        [Test]
+        public void TestDecorators()
+        {
+            var factory = new GlobalOptionsFactory(){ Decorators = { new TestDecorator()} };
+            var g = factory.Load();
+            Assert.AreEqual("FFFFF",g.MongoDatabases.DeadLetterStoreOptions.DatabaseName);
+            Assert.AreEqual("FFFFF",g.MongoDatabases.DicomStoreOptions.DatabaseName);
+            Assert.AreEqual("FFFFF",g.MongoDatabases.ExtractionStoreOptions.DatabaseName);
+        }
     }
 }

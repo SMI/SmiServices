@@ -18,7 +18,12 @@ using DatabaseType = FAnsi.DatabaseType;
 
 namespace Smi.Common.Options
 {
-    public class GlobalOptions
+    public interface IOptions
+    {
+
+    }
+
+    public class GlobalOptions : IOptions
     {
         
         #region AllOptions
@@ -88,7 +93,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MicroserviceOptions
+    public class MicroserviceOptions : IOptions
     {
         public bool TraceLogging { get; set; } = true;
 
@@ -106,7 +111,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class ProcessDirectoryOptions
+    public class ProcessDirectoryOptions : IOptions
     {
         public ProducerOptions AccessionDirectoryProducerOptions { get; set; }
 
@@ -117,7 +122,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MongoDbPopulatorOptions
+    public class MongoDbPopulatorOptions : IOptions
     {
         public ConsumerOptions SeriesQueueConsumerOptions { get; set; }
         public ConsumerOptions ImageQueueConsumerOptions { get; set; }
@@ -191,7 +196,7 @@ namespace Smi.Common.Options
         }
     }
 
-    public interface IMappingTableOptions
+    public interface IMappingTableOptions : IOptions
     {
         string MappingConnectionString { get; }
         string MappingTableName { get; set; }
@@ -261,7 +266,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class DicomReprocessorOptions
+    public class DicomReprocessorOptions : IOptions
     {
         public ProcessingMode ProcessingMode { get; set; }
 
@@ -294,7 +299,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class CohortPackagerOptions
+    public class CohortPackagerOptions : IOptions
     {
         public ConsumerOptions ExtractRequestInfoOptions { get; set; }
         public ConsumerOptions FileCollectionInfoOptions { get; set; }
@@ -406,7 +411,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class DeadLetterReprocessorOptions
+    public class DeadLetterReprocessorOptions : IOptions
     {
         public ConsumerOptions DeadLetterConsumerOptions { get; set; }
 
@@ -421,7 +426,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MongoDatabases
+    public class MongoDatabases : IOptions
     {
         public MongoDbOptions DicomStoreOptions { get; set; }
 
@@ -436,7 +441,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MongoDbOptions
+    public class MongoDbOptions : IOptions
     {
         public string HostName { get; set; } = "localhost";
         public int Port { get; set; } = 27017;
@@ -467,7 +472,7 @@ namespace Smi.Common.Options
     /// Describes the location of the Microsoft Sql Server RDMP platform databases which keep track of load configurations, available datasets (tables) etc
     /// </summary>
     [UsedImplicitly]
-    public class RDMPOptions
+    public class RDMPOptions : IOptions
     {
         public string CatalogueConnectionString { get; set; }
         public string DataExportConnectionString { get; set; }
@@ -492,7 +497,7 @@ namespace Smi.Common.Options
     /// Describes the root location of all images, file names should be expressed as relative paths (relative to this root).
     /// </summary>
     [UsedImplicitly]
-    public class FileSystemOptions
+    public class FileSystemOptions : IOptions
     {
         /// <summary>
         /// If set, services will require that <see cref="GlobalOptions.LogsRoot"/> is set and points to a valid directory.
@@ -529,7 +534,7 @@ namespace Smi.Common.Options
     /// <summary>
     /// Describes the location of the rabbit server for sending messages to
     /// </summary>
-    public class RabbitOptions
+    public class RabbitOptions : IOptions
     {
         public string RabbitMqHostName { get; set; }
         public int RabbitMqHostPort { get; set; }

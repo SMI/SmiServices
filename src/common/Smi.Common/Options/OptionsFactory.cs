@@ -8,13 +8,13 @@ namespace Smi.Common.Options
 {
     public class GlobalOptionsFactory
     {
-        public List<IOptionsDecorator> Decorators {get;set;}
+        public List<IOptionsDecorator> Decorators {get;set;} = new List<IOptionsDecorator>();
 
         public GlobalOptionsFactory()
         {
-
+            Decorators.Add(new EnvironmentVariableDecorator());
         }
-        public GlobalOptions Load(string environment = "default", string currentDirectory = null, bool decorate = true)
+        public GlobalOptions Load(string environment = "default", string currentDirectory = null)
         {
             IDeserializer deserializer = new DeserializerBuilder()
                                     .WithObjectFactory(GetGlobalOption)
