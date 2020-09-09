@@ -74,10 +74,10 @@ namespace Smi.Common.Execution
 
                 if (globals.FileSystemOptions.ForceSmiLogsRoot)
                 {
-                    string smiLogsRoot = Environment.GetEnvironmentVariable("SMI_LOGS_ROOT");
+                    string smiLogsRoot = globals.LogsRoot;
 
                     if (string.IsNullOrWhiteSpace(smiLogsRoot) || !Directory.Exists(smiLogsRoot))
-                        throw new ApplicationException($"Invalid logs root: SMI_LOGS_ROOT={smiLogsRoot}");
+                        throw new ApplicationException($"Invalid logs root: {smiLogsRoot}");
 
                     LogManager.Configuration.Variables["baseFileName"] =
                         $"{smiLogsRoot}/{HostProcessName}/${{cached:cached=true:clearCache=None:inner=${{date:format=yyyy-MM-dd-HH-mm-ss}}}}-${{processid}}";
