@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 -   Environment variables are no longer used.  Previous settings now appear in configuration file
     - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
+    - Environment variable `MONGO_SERVICE_PASSWORD` is now `MongoDbOptions.Password`
 
 ## [1.11.1] - 2020-08-12
 

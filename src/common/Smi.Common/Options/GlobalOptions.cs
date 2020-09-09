@@ -487,6 +487,9 @@ namespace Smi.Common.Options
         /// UserName for authentication. If empty, authentication will be skipped.
         /// </summary>
         public string UserName { get; set; }
+
+        public string Password {get;set;}
+
         public string DatabaseName { get; set; }
 
         public bool AreValid(bool skipAuthentication)
