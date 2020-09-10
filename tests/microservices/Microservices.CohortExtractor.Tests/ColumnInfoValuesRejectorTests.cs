@@ -5,20 +5,20 @@ using Moq;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Tests.Common;
 
 namespace Microservices.CohortExtractor.Tests
 {
-    public class PatientRejectorTests : DatabaseTests
+
+    public class ColumnInfoValuesRejectorTests : DatabaseTests
     {
         private const string PatColName = "PatientID";
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
-        public void Test_PatientRejector(DatabaseType type)
+        public void Test_ColumnInfoValuesRejectorTests(DatabaseType type)
         {
             DiscoveredDatabase server = GetCleanedServer(type);
             DiscoveredTable tbl = server.CreateTable("BadPatients", new[] { new DatabaseColumnRequest(PatColName, "varchar(100)") });
@@ -30,7 +30,7 @@ namespace Microservices.CohortExtractor.Tests
 
             new TableInfoImporter(CatalogueRepository, tbl).DoImport(out TableInfo _, out ColumnInfo[] cols);
 
-            var rejector = new PatientRejector(cols[0]);
+            var rejector = new ColumnInfoValuesRejector(cols[0]);
 
             var moqDave = new Mock<DbDataReader>();
             moqDave.Setup(x => x[PatColName])
@@ -54,24 +54,5 @@ namespace Microservices.CohortExtractor.Tests
             Assert.AreEqual("Patient was in reject list", reason);
         }
 
-        [TestCase(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql)]
-        public void Test_PatientRejector_MissingColumn_Throws(DatabaseType type)
-        {
-            DiscoveredDatabase server = GetCleanedServer(type);
-            DiscoveredTable tbl = server.CreateTable("BadPatients", new[] { new DatabaseColumnRequest(PatColName, "varchar(100)") });
-
-            new TableInfoImporter(CatalogueRepository, tbl).DoImport(out TableInfo _, out ColumnInfo[] cols);
-
-            var rejector = new PatientRejector(cols[0]);
-
-            var moqDave = new Mock<DbDataReader>();
-            moqDave
-                .Setup(x => x[PatColName])
-                .Throws<IndexOutOfRangeException>();
-
-            var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out string _));
-            Assert.True(exc.Message.Contains($"Expected a column called {PatColName}"));
-        }
     }
 }

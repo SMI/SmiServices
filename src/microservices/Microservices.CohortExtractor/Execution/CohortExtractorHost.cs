@@ -133,7 +133,7 @@ namespace Microservices.CohortExtractor.Execution
                 _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly));
 
             if(_consumerOptions.RejectPatientsIn.HasValue)
-                _fulfiller.Rejectors.Add(new PatientRejector(repositoryLocator.CatalogueRepository.GetObjectByID<ColumnInfo>(_consumerOptions.RejectPatientsIn.Value)));
+                _fulfiller.Rejectors.Add(new ColumnInfoValuesRejector(repositoryLocator.CatalogueRepository.GetObjectByID<ColumnInfo>(_consumerOptions.RejectPatientsIn.Value)));
 
             if(_consumerOptions.Blacklists != null)
                 foreach (int id in _consumerOptions.Blacklists)
