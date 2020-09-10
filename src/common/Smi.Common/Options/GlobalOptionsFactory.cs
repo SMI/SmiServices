@@ -65,13 +65,12 @@ namespace Smi.Common.Options
 
         public GlobalOptions Load(CliOptions cliOptions)
         {
-            //load but do not decorate
             GlobalOptions globalOptions = Load(cliOptions.YamlFile, null);
             globalOptions.MicroserviceOptions = new MicroserviceOptions(cliOptions);
 
+            // The above Load call does the decoration - don't do it here.
             return globalOptions;
         }
-
 
         private object GetGlobalOption(Type arg)
         {
