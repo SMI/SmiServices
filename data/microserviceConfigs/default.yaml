@@ -63,6 +63,10 @@ CohortExtractorOptions:
     AutoAck: false
     AllCatalogues: true
     OnlyCatalogues: [1,2,3]
+    
+    # Set this to the ID of a ColumnInfo that contains patient IDs you want forbidden
+    #RejectPatientsIn: 1234
+    
     # List of IDs of Catalogues to extract from (in ascending order).
     # Ignored if "AllCatalogues == true"
     #    - 2
