@@ -1,19 +1,29 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using YamlDotNet.Serialization;
 
 namespace Smi.Common.Options
 {
     public class GlobalOptionsFactory
     {
-        public List<IOptionsDecorator> Decorators {get;set;} = new List<IOptionsDecorator>();
+        private readonly List<IOptionsDecorator> _decorators = new List<IOptionsDecorator>();
 
-        public GlobalOptionsFactory()
+        /// <summary>
+        /// Create a GlobalOptionsFactory with the given set of <see cref="IOptionsDecorator"/>s. Adds a single <see cref="EnvironmentVariableDecorator"/> by default if passed a null value.
+        /// </summary>
+        /// <param name="decorators"></param>
+        public GlobalOptionsFactory(
+            [CanBeNull] ICollection<IOptionsDecorator> decorators = null
+        )
         {
-            Decorators.Add(new EnvironmentVariableDecorator());
+            if (decorators != null)
+                _decorators.AddRange(decorators);
+            else
+                _decorators.Add(new EnvironmentVariableDecorator());
         }
+
         public GlobalOptions Load(string environment = "default", string currentDirectory = null)
         {
             IDeserializer deserializer = new DeserializerBuilder()
@@ -41,13 +51,13 @@ namespace Smi.Common.Options
         }
 
         /// <summary>
-        /// Applies all <see cref="Decorators"/> to <paramref name="globals"/>
+        /// Applies all <see cref="_decorators"/> to <paramref name="globals"/>
         /// </summary>
         /// <param name="globals"></param>
         /// <returns></returns>
         private GlobalOptions Decorate(GlobalOptions globals)
         {
-            foreach(var d in Decorators)
+            foreach (var d in _decorators)
                 globals = d.Decorate(globals);
 
             return globals;
@@ -56,7 +66,7 @@ namespace Smi.Common.Options
         public GlobalOptions Load(CliOptions cliOptions)
         {
             //load but do not decorate
-            GlobalOptions globalOptions = Load(cliOptions.YamlFile,null);
+            GlobalOptions globalOptions = Load(cliOptions.YamlFile, null);
             globalOptions.MicroserviceOptions = new MicroserviceOptions(cliOptions);
 
             return globalOptions;
