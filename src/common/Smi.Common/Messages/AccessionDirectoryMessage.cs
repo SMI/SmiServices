@@ -7,7 +7,6 @@ namespace Smi.Common.Messages
 {
     /// <summary>
     /// Object representing an accession directory message.
-    /// https://github.com/HicServices/SMIPlugin/wiki/SMI-RabbitMQ-messages-and-queues#accessiondirectorymessage
     /// </summary>
     public sealed class AccessionDirectoryMessage : IMessage
     {
