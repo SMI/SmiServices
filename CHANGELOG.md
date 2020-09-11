@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
 -   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
 -   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
--   Added new rejector that throws out patients whose IDs are stored in a database table.  Set `RejectPatientsIn` option in yaml to enable this
+-   Added new rejector that throws out values (e.g. patient IDs) whose IDs are stored in a database table.  Set `RejectColumnInfos` option in yaml to enable this
 
 ## [1.11.1] - 2020-08-12
 
