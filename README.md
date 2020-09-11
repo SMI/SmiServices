@@ -57,6 +57,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 
 | Microservice / Console App| Description |
 | ------------- | ------------- |
+| [IsIdentifiable]  | Evaluates data being prepared for extraction for personally identifiable data (PII).  See also [IsIdentifiableReviewer]|
 | [ExtractorCL](./src/applications/com.smi.applications.extractorcli/README.md)  | Reads SeriesInstanceUIDs from a CSV file and generates `ExtractionRequestMessage` and audit message `ExtractionRequestInfoMessage`.|
 | [CohortExtractor](./src/microservices/Microservices.CohortExtractor/README.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
 | [CTPAnonymiser](./src/microservices/com.smi.microservices.ctpanonymiser/README.md)  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  `ExtractFileMessage` and copies to specified output directory.  Generates audit message `ExtractFileStatusMessage`.|
@@ -87,22 +88,11 @@ The following environment variables are expected by the program:
 | ISIDENTIFIABLE_NUMTHREADS | Optional (defaults to 1).  The number of threads to use when looking for identifiable data in extraction pipeline | 1|
 | CI  | When running tests in a CI, this ensures that integration tests are failed instead of skipped | 1|
 
-## Solution Overview
-
-Appart from the Microservices (documented above) the following library classes are also included in the solution:
-
-| Project Name | Path | Description|
-| ------------- | ----- | ------------- |
-| Dicom File Tester |/Applications| Application for testing DICOM files compatibility with Dicom<->JSON and Dicom to various database type conversions and back. It basically takes a file and pushes it through the various converters to see what breaks |
-| Dicom Repopulator |/Applications| [See Microservices](#image-extraction-microservices) |
-| Template Builder | /Applications| GUI tool for building modality database schema templates.  Supports viewing and exploring dicom tags in files|
-| Smi.MongoDB.Common | /Reusable | Library containing methods for interacting with MongoDb |
-
 ## Building
 
 ### Building the C# Projects
 
-Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
+Building requires the [.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ```bash
 $ dotnet build [-r RID]
@@ -227,4 +217,5 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
 [Dicom]: ./Glossary.md#dicom
 [Dicom tags]: ./Glossary.md#dicom-tags
-
+[IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
+[IsIdentifiableReviewer]: ./src/applications/IsIdentifiableReviewer/README.md
