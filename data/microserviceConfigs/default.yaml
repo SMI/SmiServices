@@ -24,16 +24,19 @@ MongoDatabases:
         HostName: 'localhost'
         Port: 27017
         UserName: ''
+        Password: ''
         DatabaseName: 'dicom'
     ExtractionStoreOptions:
         HostName: 'localhost'
         Port: 27017
         UserName: ''
+        Password: ''
         DatabaseName: 'extraction'
     DeadLetterStoreOptions:
         HostName: 'localhost'
         Port: 27017
         UserName: ''
+        Password: ''
         DatabaseName: 'deadLetterStorage'
 
 DeadLetterReprocessorOptions:

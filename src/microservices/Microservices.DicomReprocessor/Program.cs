@@ -19,7 +19,7 @@ namespace Microservices.DicomReprocessor
             return Parser.Default.ParseArguments<DicomReprocessorCliOptions>(args)
                 .MapResult(dicomReprocessorCliOptions =>
                 {
-                    GlobalOptions options = GlobalOptions.Load(dicomReprocessorCliOptions);
+                    GlobalOptions options = new GlobalOptionsFactory().Load(dicomReprocessorCliOptions);
 
                     var bootStrapper = new MicroserviceHostBootstrapper(() => new DicomReprocessorHost(options, dicomReprocessorCliOptions));
                     return bootStrapper.Main();

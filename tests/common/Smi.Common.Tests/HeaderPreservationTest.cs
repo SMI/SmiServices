@@ -14,7 +14,7 @@ namespace Smi.Common.Tests
         [Test]
         public void SendHeader()
         {
-            var o = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var o = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             var consumerOptions = new ConsumerOptions();
             consumerOptions.QueueName = "TEST.HeaderPreservationTest_Read1";

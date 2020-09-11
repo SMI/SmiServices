@@ -19,6 +19,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
 -   Added new rejector that throws out values (e.g. patient IDs) whose IDs are stored in a database table.  Set `RejectColumnInfos` option in yaml to enable this
 
+
+### Changed
+-   Environment variables are no longer required.  Previous settings now appear in configuration file
+    - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
+    - Environment variable `MONGO_SERVICE_PASSWORD` is now `MongoDbOptions.Password`
+    - Removed `ISIDENTIFIABLE_NUMTHREADS` as it didn't work correctly anyway
+
 ## [1.11.1] - 2020-08-12
 
 -   Set PublishTrimmed to false to fix bug with missing assemblies in prod.

@@ -40,7 +40,7 @@ namespace Smi.Common.Tests
         [SetUp]
         public void SetUp()
         {
-            _testOptions = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _testOptions = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             _testProducerOptions = new ProducerOptions
             {
@@ -223,7 +223,7 @@ namespace Smi.Common.Tests
                                                                                            
             NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);          
 
-            var o = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var o = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             var consumer = (IConsumer)Activator.CreateInstance(consumerType);
 

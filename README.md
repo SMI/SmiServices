@@ -21,7 +21,6 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    2. [Image Extraction Microservices](#image-extraction-microservices)
-1. [Environment Variables](#environment-variables)
 2. [Solution Overivew](#solution-overview)
 3. [Building](#building)
 4. [Testing](#testing)
@@ -73,19 +72,6 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | CohortExtractor Audit | Obsolete interface `IAuditExtractions` previously existed to record the linkage results and patient release identifiers.|
 | Fatal Error Logging | All Microservices that crash or log a fatal error are shut down and log a message to the Fatal Error Logging Exchange.  TODO: Nobody listens to this currently.|
 | Quarantine | TODO: Doesn't exist yet.|
-
-## Environment Variables
-
-The following environment variables are expected by the program:
-
->TODO can we move `ISIDENTIFIABLE_NUMTHREADS` to config yaml/CLI?
-
-| Name | Purpose | Example |
-|------|---------|---------|
-| SMI_LOGS_ROOT     |   Required to be set if `ForceSmiLogsRoot` is set to `true` in the service config. Determines where log files are written to | `/var/log/smi` |
-| MONGO_SERVICE_PASSWORD  | Password that should be used to access the MongoDb database used by ETL pipeline services | MyPassword|
-| ISIDENTIFIABLE_NUMTHREADS | Optional (defaults to 1).  The number of threads to use when looking for identifiable data in extraction pipeline | 1|
-| CI  | When running tests in a CI, this ensures that integration tests are failed instead of skipped | 1|
 
 ## Solution Overview
 

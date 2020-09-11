@@ -44,7 +44,7 @@ namespace Microservices.FileCopier.Tests.Execution
         [Test]
         public void Test_FileCopierHost_HappyPath()
         {
-            GlobalOptions globals = GlobalOptions.Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load();
             globals.FileSystemOptions.FileSystemRoot = "root";
             globals.FileSystemOptions.ExtractRoot = "exroot";
 

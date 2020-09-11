@@ -71,7 +71,7 @@ namespace Microservices.DicomTagReader.Tests
 
         private void SetUpDefaults()
         {
-            Options = GlobalOptions.Load("default", TestContext.CurrentContext.TestDirectory);
+            Options = new GlobalOptionsFactory().Load("default", TestContext.CurrentContext.TestDirectory);
 
             AccessionConsumerOptions = Options.DicomTagReaderOptions;
 
