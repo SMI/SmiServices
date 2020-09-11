@@ -19,7 +19,7 @@ namespace Smi.Common.Options
             return options;
         }
 
-        private static MongoDbOptions SetMongoPassword(MongoDbOptions opt)
+        private MongoDbOptions SetMongoPassword(MongoDbOptions opt)
         {
             //get the environment variables current value
             string envVar = Environment.GetEnvironmentVariable("MONGO_SERVICE_PASSWORD");

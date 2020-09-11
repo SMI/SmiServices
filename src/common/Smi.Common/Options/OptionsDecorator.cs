@@ -7,7 +7,7 @@ namespace Smi.Common.Options
     {
         public abstract GlobalOptions Decorate(GlobalOptions options);
 
-        protected static void ForAll<T>(IOptions globals, Func<T, T> setter) where T : IOptions
+        protected void ForAll<T>(IOptions globals, Func<T, T> setter) where T : IOptions
         {
             //for each property on branch
             foreach (PropertyInfo p in globals.GetType().GetProperties())
