@@ -405,9 +405,9 @@ namespace Smi.Common.Options
         public ProducerOptions ExtractFilesInfoProducerOptions { get; set; }
         
         /// <summary>
-        /// ID of a ColumnInfo that contains a list of patients who should not have data extracted for them.  e.g. opt out
+        /// ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
         /// </summary>
-        public int? RejectPatientsIn { get; set; }
+        public List<int> RejectColumnInfos { get; set; }
 
         public override string ToString()
         {
