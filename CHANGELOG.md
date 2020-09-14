@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
 -   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
 -   Added new rejector that throws out values (e.g. patient IDs) whose IDs are stored in a database table.  Set `RejectColumnInfos` option in yaml to enable this
-
+-   Added a check to QueryToExecuteResult for RejectReason being null when Reject is true.
 
 ### Changed
 -   Environment variables are no longer required.  Previous settings now appear in configuration file
