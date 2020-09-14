@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.12.0] - 2020-09-14
+
 -   Add SecurityCodeScan tool to build chain for .Net code
 -   Extraction report: Group PixelData separately and sort by length
 -   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
@@ -21,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Added a check to QueryToExecuteResult for RejectReason being null when Reject is true.
 
 ### Changed
--   Environment variables are no longer required.  Previous settings now appear in configuration file
+-   [breaking] Environment variables are no longer required.  Previous settings now appear in configuration file
     - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
     - Environment variable `MONGO_SERVICE_PASSWORD` is now `MongoDbOptions.Password`
     - Removed `ISIDENTIFIABLE_NUMTHREADS` as it didn't work correctly anyway
@@ -386,7 +388,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.11.1...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.12.0...develop
+[1.12.0]:  https://github.com/SMI/SmiServices/compare/v1.11.1...v1.12.0
 [1.11.1]:  https://github.com/SMI/SmiServices/compare/v1.11.0...v1.11.1
 [1.11.0]:  https://github.com/SMI/SmiServices/compare/v1.10.0...v1.11.0
 [1.10.0]:  https://github.com/SMI/SmiServices/compare/v1.9.0...v1.10.0
