@@ -21,7 +21,7 @@ The anonymiser is installed via Maven as per the other Java apps, so clone the p
 
 | Read/Write | Type | Config setting |
 | ------------- | ------------- |------------- |
-| Read| ExtractFileMessage | `CTPAnonymiserOptions.ExtractFileConsumerOptions` |
+| Read| ExtractFileMessage | `CTPAnonymiserOptions.AnonFileConsumerOptions` |
 | Write| ExtractFileStatusMessage|`CTPAnonymiserOptions.ExtractFileStatusProducerOptions`|
 
 The ExtractFileMessage contents include the name of a directory of DICOM files to be anonymised. As the files are anonymised, ExtractFileStatusMessage messages are produced indicating success or otherwise.

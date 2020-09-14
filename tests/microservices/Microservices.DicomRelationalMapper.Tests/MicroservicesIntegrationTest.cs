@@ -57,7 +57,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             TestLogger.Setup();
 
-            _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             _globals.UseTestValues(
                 RequiresRabbit.GetConnectionFactory(),
@@ -461,14 +461,15 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.CohortExtractorOptions))
             {
-                tester.CreateExchange(_globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions.ExchangeName, _globals.DicomTagReaderOptions);
-                tester.CreateExchange(_globals.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions);
-                tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.IdentifierMapperOptions);
-                tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions, true);
-                tester.CreateExchange(_globals.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, _globals.DicomRelationalMapperOptions);
-                tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, readFromFatalErrors);
+                tester.CreateExchange(_globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions.ExchangeName, _globals.DicomTagReaderOptions.QueueName);
+                tester.CreateExchange(_globals.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions.QueueName);
+                tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.IdentifierMapperOptions.QueueName);
+                tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions.QueueName, true);
+                tester.CreateExchange(_globals.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, _globals.DicomRelationalMapperOptions.QueueName);
+                tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, readFromFatalErrors.QueueName);
 
-                tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null);
+                tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, false, _globals.CohortExtractorOptions.ExtractIdentRoutingKey);
+                tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, true, _globals.CohortExtractorOptions.ExtractAnonRoutingKey);
                 tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions.ExchangeName, null);
 
                 #region Running Microservices

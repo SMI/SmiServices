@@ -25,7 +25,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestClassifierName_NoClassifier()
         {
-            var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             options.IsIdentifiableOptions.ClassifierType = "";
             var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, false));
@@ -35,7 +35,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestClassifierName_NotRecognized()
         {
-            var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableOptions.ClassifierType = "HappyFunTimes";
@@ -46,13 +46,15 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestClassifierName_ValidClassifier()
         {
-            var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
             using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableOptions))
             {
+                tester.CreateExchange(options.IsIdentifiableOptions.IsIdentifiableProducerOptions.ExchangeName, null);
+
                 options.IsIdentifiableOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
                 options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
@@ -60,14 +62,14 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 Assert.IsNotNull(host);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage()
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage()
                 {
                     DicomFilePath = "yay.dcm",
-                    AnonymisedFileName = testDcm.FullName,
+                    OutputFilePath = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",
-                    Status = ExtractFileStatus.Anonymised
+                    Status = ExtractedFileStatus.Anonymised
                 });
 
                 var awaiter = new TestTimelineAwaiter();
@@ -78,7 +80,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestIsIdentifiable_TesseractStanfordDicomFileClassifier()
         {
-            var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             // Create a test data directory containing IsIdentifiableRules with 0 rules, and tessdata with the eng.traineddata classifier
             // TODO(rkm 2020-04-14) This is a stop-gap solution until the tests are properly refactored
@@ -103,14 +105,14 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 var host = new IsIdentifiableHost(options, false);
                 host.Start();
 
-                tester.SendMessage(options.IsIdentifiableOptions, new ExtractFileStatusMessage
+                tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage
                 {
                     DicomFilePath = "yay.dcm",
-                    AnonymisedFileName = testDcm.FullName,
+                    OutputFilePath = testDcm.FullName,
                     ProjectNumber = "100",
                     ExtractionDirectory = "./fish",
                     StatusMessage = "yay!",
-                    Status = ExtractFileStatus.Anonymised
+                    Status = ExtractedFileStatus.Anonymised
                 });
 
                 var awaiter = new TestTimelineAwaiter();

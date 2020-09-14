@@ -11,15 +11,35 @@ using YamlDotNet.Serialization;
 
 namespace IsIdentifiableReviewer.Out
 {
+    /// <summary>
+    /// Abstract base for classes who act upon <see cref="Failure"/> by creating new <see cref="Rules"/> and/or redacting the database.
+    /// </summary>
     public abstract class OutBase
     {
+        /// <summary>
+        /// Existing rules which describe how to detect a <see cref="Failure"/> that should be handled by this class.  These are synced with the contents of the <see cref="RulesFile"/>
+        /// </summary>
         public List<IsIdentifiableRule> Rules { get;}
+
+        /// <summary>
+        /// Persistence of <see cref="RulesFile"/>
+        /// </summary>
         public FileInfo RulesFile { get; }
         
+        /// <summary>
+        /// Factory for creating new <see cref="Rules"/> when encountering novel <see cref="Failure"/> that do not match any existing rules.  May involve user input.
+        /// </summary>
         public IRulePatternFactory RulesFactory { get; set; } = new MatchWholeStringRulePatternFactory();
 
+        /// <summary>
+        /// Record of changes to <see cref="Rules"/> (and <see cref="RulesFile"/>).
+        /// </summary>
         public Stack<OutBaseHistory> History = new Stack<OutBaseHistory>();
 
+        /// <summary>
+        /// Creates a new instance, populating <see cref="Rules"/> with the files serialized in <paramref name="rulesFile"/>
+        /// </summary>
+        /// <param name="rulesFile">Location to load/persist rules from/to.  Will be created if it does not exist yet</param>
         protected OutBase(FileInfo rulesFile)
         {
             RulesFile = rulesFile;
@@ -86,6 +106,9 @@ namespace IsIdentifiableReviewer.Out
             return rule;
         }
 
+        /// <summary>
+        /// Removes the last <see cref="History"/> entry from the <see cref="Rules"/> and <see cref="RulesFile"/>.
+        /// </summary>
         public void Undo()
         {
             if(History.Count == 0)

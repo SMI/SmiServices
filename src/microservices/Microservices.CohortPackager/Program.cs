@@ -22,7 +22,7 @@ namespace Microservices.CohortPackager
             return
                 Parser.Default.ParseArguments<CohortPackagerCliOptions>(args).MapResult((cohortPackagerCliOptions) =>
                 {
-                    GlobalOptions globalOptions = GlobalOptions.Load(cohortPackagerCliOptions);
+                    GlobalOptions globalOptions = new GlobalOptionsFactory().Load(cohortPackagerCliOptions);
 
                     if (cohortPackagerCliOptions.ExtractionId != default)
                         return RecreateReport(globalOptions, cohortPackagerCliOptions.ExtractionId);

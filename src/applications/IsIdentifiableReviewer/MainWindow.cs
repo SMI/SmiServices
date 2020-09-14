@@ -15,16 +15,41 @@ namespace IsIdentifiableReviewer
     {
         private readonly List<Target> _targets;
 
+        /// <summary>
+        /// The currently selected database which will be updated when performing redactions (when not operating in Rules Only mode)
+        /// </summary>
         public Target CurrentTarget { get; set; }
+
+        /// <summary>
+        /// The report CSV file that is currently open
+        /// </summary>
         public ReportReader CurrentReport { get; set; }
 
+        /// <summary>
+        /// Generates suggested ignore rules for false positives
+        /// </summary>
         public IgnoreRuleGenerator Ignorer { get; }
 
+        /// <summary>
+        /// Updates the database to perform redactions (when not operating in Rules Only mode)
+        /// </summary>
         public RowUpdater Updater { get;  } 
 
+        /// <summary>
+        /// Width of modal popup dialogues
+        /// </summary>
         public int DlgWidth = 78;
+
+        /// <summary>
+        /// Height of modal popup dialogues
+        /// </summary>
         public int DlgHeight = 18;
+
+        /// <summary>
+        /// Border boundary of modal popup dialogues
+        /// </summary>
         public int DlgBoundary = 2;
+
         private ValuePane _valuePane;
         private Label _info;
         private TextField _gotoTextField;
@@ -34,7 +59,18 @@ namespace IsIdentifiableReviewer
         private Label _updateRuleLabel;
         private CheckBox _cbRulesOnly;
 
+        /// <summary>
+        /// Record of new rules added (e.g. Ignore with pattern X) along with the index of the failure.  This allows undoing user decisions
+        /// </summary>
         Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
+
+        ColorScheme _greyOnBlack = new ColorScheme()
+        {
+            Normal = Attribute.Make(Color.Black,Color.Gray),
+            HotFocus = Attribute.Make(Color.Black,Color.Gray),
+            Disabled = Attribute.Make(Color.Black,Color.Gray),
+            Focus = Attribute.Make(Color.Black,Color.Gray),
+        };
 
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
@@ -66,7 +102,7 @@ namespace IsIdentifiableReviewer
                 Height = 1
             };
             
-            _info.TextColor = Attribute.Make(Color.Black,Color.Gray);
+            _info.ColorScheme = _greyOnBlack;
             
             _valuePane = new ValuePane()
             {
@@ -101,7 +137,7 @@ namespace IsIdentifiableReviewer
                 X=28,
                 Width = 5
             };
-            _gotoTextField.Changed += (s,e) => GoTo();
+            _gotoTextField.TextChanged = (s) => GoTo();
             frame.Add(_gotoTextField);
             frame.Add(new Label(23,0,"GoTo:"));
 
@@ -133,7 +169,7 @@ namespace IsIdentifiableReviewer
             frame.Add(_updateRuleLabel);
 
             var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
-            cbCustomPattern.Toggled += (c, s) =>
+            cbCustomPattern.Toggled = (b) =>
             {
                 Updater.RulesFactory = cbCustomPattern.Checked ? this : _origUpdaterRulesFactory;
                 Ignorer.RulesFactory = cbCustomPattern.Checked ? this : _origIgnorerRulesFactory;
@@ -143,7 +179,7 @@ namespace IsIdentifiableReviewer
             _cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
             Updater.RulesOnly = opts.OnlyRules;
 
-            _cbRulesOnly.Toggled += (c, s) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
+            _cbRulesOnly.Toggled = (b) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
             frame.Add(_cbRulesOnly);
             
             top.Add (menu);
@@ -542,11 +578,13 @@ namespace IsIdentifiableReviewer
              var recommendedPattern = defaultFactory.GetPattern(sender,failure);
             
              Dictionary<string,string> buttons = new Dictionary<string, string>();
-             buttons.Add("Clear","");
-             buttons.Add("Full",_origIgnorerRulesFactory.GetPattern(sender,failure));
-             buttons.Add("Captures",_origUpdaterRulesFactory.GetPattern(sender,failure));
+             buttons.Add("x","");
+             buttons.Add("F",_origIgnorerRulesFactory.GetPattern(sender,failure));
+             buttons.Add("G",_origUpdaterRulesFactory.GetPattern(sender,failure));
              
-             buttons.Add("Symbols",new SymbolsRulesFactory().GetPattern(sender,failure));
+             buttons.Add(@"\d",new SymbolsRulesFactory {Mode= SymbolsRuleFactoryMode.DigitsOnly}.GetPattern(sender,failure));
+             buttons.Add(@"\c",new SymbolsRulesFactory{Mode= SymbolsRuleFactoryMode.CharactersOnly}.GetPattern(sender,failure));
+             buttons.Add(@"\d\c",new SymbolsRulesFactory().GetPattern(sender,failure));
 
              if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen,buttons))
              {

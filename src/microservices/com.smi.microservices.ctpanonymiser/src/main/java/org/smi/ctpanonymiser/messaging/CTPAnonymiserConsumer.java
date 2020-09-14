@@ -11,9 +11,10 @@ import org.smi.common.messaging.IProducerModel;
 import org.smi.common.messaging.SmiConsumer;
 import org.smi.ctpanonymiser.execution.SmiCtpProcessor;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
-import org.smi.ctpanonymiser.messages.ExtractFileStatusMessage;
+import org.smi.ctpanonymiser.messages.ExtractedFileStatusMessage;
 import org.smi.ctpanonymiser.util.CtpAnonymisationStatus;
-import org.smi.ctpanonymiser.util.ExtractFileStatus;
+import org.smi.common.options.GlobalOptions;
+import org.smi.ctpanonymiser.util.ExtractedFileStatus;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,8 +24,12 @@ import java.nio.file.Paths;
 public class CTPAnonymiserConsumer extends SmiConsumer {
 
 	private final static Logger _logger = Logger.getRootLogger();
-	private final static String _routingKey_failure = "failure";
-	private final static String _routingKey_success = "success";
+	
+	private GlobalOptions _options;
+	
+	private String _routingKey_failure;
+	private String _routingKey_success;
+
 	private String _fileSystemRoot;
 	private String _extractFileSystemRoot;
 
@@ -35,8 +40,11 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 	private boolean _foundAFile = false;
 
 
-	public CTPAnonymiserConsumer(IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
+	public CTPAnonymiserConsumer(GlobalOptions options, IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
 								 String extractFileSystemRoot) {
+
+		_routingKey_failure = options.CTPAnonymiserOptions.NoVerifyRoutingKey;
+		_routingKey_success = options.CTPAnonymiserOptions.VerifyRoutingKey;
 
 		_statusMessageProducer = producer;
 		_anonTool = anonTool;
@@ -64,7 +72,14 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			return;
 		}
 
-		ExtractFileStatusMessage statusMessage = new ExtractFileStatusMessage(extractFileMessage);
+		if (extractFileMessage.IsIdentifiableExtraction) {
+			// We should only receive these messages if the queue configuration is wrong, so ok just to crash-out
+			String msg = "Received a message with IsIdentifiableExtraction set";
+			_logger.error(msg);
+			throw new RuntimeException(msg);
+		}
+
+		ExtractedFileStatusMessage statusMessage = new ExtractedFileStatusMessage(extractFileMessage);
 
 		// Got the message, now apply the anonymisation
 
@@ -83,7 +98,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			}
 
 			statusMessage.StatusMessage = msg;
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+			statusMessage.Status = ExtractedFileStatus.FileMissing;
 
 			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
@@ -119,7 +134,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			_logger.error(msg);
 
 			statusMessage.StatusMessage = msg;
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+			statusMessage.Status = ExtractedFileStatus.FileMissing;
 
 			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
@@ -136,18 +151,18 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 		if (!tempFile.delete() || tempFile.exists())
 			_logger.warn("Could not delete temp file " + tempFile.getAbsolutePath());
 
-		String routingKey = _routingKey_failure;
+		String routingKey;
 
 		if (status == CtpAnonymisationStatus.Anonymised) {
 
-			statusMessage.AnonymisedFileName = extractFileMessage.OutputPath;
-			statusMessage.Status = ExtractFileStatus.Anonymised;
+			statusMessage.OutputFilePath = extractFileMessage.OutputPath;
+			statusMessage.Status = ExtractedFileStatus.Anonymised;
 			routingKey = _routingKey_success;
 
 		} else {
 
 			statusMessage.StatusMessage = _anonTool.getLastStatus();
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+			statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
 			routingKey = _routingKey_failure;
 		}
 

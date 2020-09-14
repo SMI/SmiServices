@@ -17,7 +17,7 @@ namespace Microservices.DicomTagReader
             return Parser.Default.ParseArguments<CliOptions>(args).MapResult(
                 (o) =>
                 {
-                    GlobalOptions options = GlobalOptions.Load(o);
+                    GlobalOptions options = new GlobalOptionsFactory().Load(o);
 
                     var bootstrapper = new MicroserviceHostBootstrapper(() => new DicomTagReaderHost(options));
 

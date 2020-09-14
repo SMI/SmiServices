@@ -5,7 +5,7 @@ namespace Smi.Common.Options
     /// <summary>
     /// Configuration options needed to receive messages from a RabbitMQ queue.
     /// </summary>
-    public class ConsumerOptions
+    public class ConsumerOptions : IOptions
     {
         /// <summary>
         /// Name of the queue to consume from.

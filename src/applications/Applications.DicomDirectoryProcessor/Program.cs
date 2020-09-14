@@ -26,7 +26,7 @@ namespace Applications.DicomDirectoryProcessor
             return Parser.Default.ParseArguments<DicomDirectoryProcessorCliOptions>(args).MapResult(
                 processDirectoryOptions =>
                 {
-                    GlobalOptions globalOptions = GlobalOptions.Load(processDirectoryOptions);
+                    GlobalOptions globalOptions = new GlobalOptionsFactory().Load(processDirectoryOptions);
 
                     var bootStrapper = new MicroserviceHostBootstrapper(() => new DicomDirectoryProcessorHost(globalOptions, processDirectoryOptions));
                     return bootStrapper.Main();

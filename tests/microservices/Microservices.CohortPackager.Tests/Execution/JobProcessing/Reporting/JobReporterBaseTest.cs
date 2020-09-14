@@ -12,7 +12,7 @@ using System.IO;
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 {
     [TestFixture]
-    public class JobReporterTest
+    public class JobReporterBaseTest
     {
         #region Fixture Methods 
 
@@ -42,13 +42,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             public bool Disposed { get; set; }
 
-            public TestJobReporter(IExtractJobStore jobStore)
-                : base(jobStore, null) { }
+            public TestJobReporter(IExtractJobStore jobStore) : base(jobStore, null) { }
 
-            protected override Stream GetStream(Guid jobId)
-            {
-                return new MemoryStream();
-            }
+            protected override Stream GetStream(Guid jobId) => new MemoryStream();
 
             protected override void FinishReport(Stream stream)
             {
@@ -58,17 +54,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 }
             }
 
-
-            protected override void ReleaseUnmanagedResources()
-            {
-                Disposed = true;
-            }
-
-
-            public override void Dispose()
-            {
-                ReleaseUnmanagedResources();
-            }
+            protected override void ReleaseUnmanagedResources() => Disposed = true;
+            public override void Dispose() => ReleaseUnmanagedResources();
         }
 
         [Test]
@@ -84,7 +71,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed);
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
@@ -107,18 +97,22 @@ Job info:
 -    Extraction tag:                keyTag
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
+-    Identifiable extraction:       No
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 
-Full details:
+### Full details
 
 
 ## Rejected files
@@ -146,7 +140,10 @@ Full details:
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed);
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var rejections = new List<Tuple<string, Dictionary<string, int>>>
             {
@@ -201,21 +198,25 @@ Job info:
 -    Extraction tag:                keyTag
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
+-    Identifiable extraction:       No
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
 
 
-Full details:
+### Full details
 
 - Tag: ScanOptions (1 total occurrence(s))
     - Value: 'FOO' (1 occurrence(s))
@@ -252,7 +253,10 @@ Full details:
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed);
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var verificationFailures = new List<Tuple<string, string>>
             {
@@ -287,7 +291,10 @@ Full details:
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed);
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
 
             var verificationFailures = new List<Tuple<string, string>>
             {
@@ -370,15 +377,19 @@ Job info:
 -    Extraction tag:                keyTag
 -    Extraction modality:           ZZ
 -    Requested identifier count:    123
+-    Identifiable extraction:       No
+-    Filtered extraction:           Yes
 
 Report contents:
 -    Verification failures
+    -    Summary
+    -    Full Details
 -    Rejected failures
 -    Anonymisation failures
 
 ## Verification failures
 
-Summary:
+### Summary
 
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))
@@ -388,7 +399,7 @@ Summary:
     - Value: 'BAZ' (2 occurrence(s))
 
 
-Full details:
+### Full details
 
 - Tag: ScanOptions (3 total occurrence(s))
     - Value: 'FOO' (2 occurrence(s))
@@ -401,6 +412,260 @@ Full details:
     - Value: 'BAZ' (2 occurrence(s))
         - ccc/ddd/foo1.dcm
         - ccc/ddd/foo2.dcm
+
+
+## Rejected files
+
+
+## Anonymisation failures
+
+
+--- end of report ---
+";
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+        }
+
+        [Test]
+        public void Test_JobReporterBase_CreateReport_WithPixelData()
+        {
+            // NOTE(rkm 2020-08-25) Tests that the "Z" tag is ordered before PixelData, and that PixelData items are ordered by decreasing length not by occurrence
+
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "test/dir",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
+
+            const string report = @"
+[
+     {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'aaaaaaaaaaa'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'Z',
+        'ProblemValue': 'bar'
+    },
+]";
+
+            var verificationFailures = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("foo1.dcm", report),
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            string expected = $@"
+# SMI file extraction report for 1234
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+-    Identifiable extraction:       No
+-    Filtered extraction:           Yes
+
+Report contents:
+-    Verification failures
+    -    Summary
+    -    Full Details
+-    Rejected failures
+-    Anonymisation failures
+
+## Verification failures
+
+### Summary
+
+- Tag: Z (1 total occurrence(s))
+    - Value: 'bar' (1 occurrence(s))
+
+- Tag: PixelData (3 total occurrence(s))
+    - Value: 'aaaaaaaaaaa' (1 occurrence(s))
+    - Value: 'a' (2 occurrence(s))
+
+
+### Full details
+
+- Tag: Z (1 total occurrence(s))
+    - Value: 'bar' (1 occurrence(s))
+        - foo1.dcm
+
+- Tag: PixelData (3 total occurrence(s))
+    - Value: 'aaaaaaaaaaa' (1 occurrence(s))
+        - foo1.dcm
+    - Value: 'a' (2 occurrence(s))
+        - foo1.dcm
+        - foo1.dcm
+
+
+## Rejected files
+
+
+## Anonymisation failures
+
+
+--- end of report ---
+";
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+        }
+
+        [Test]
+        public void Test_JobReporterBase_CreateReport_IdentifiableExtraction()
+        {
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "test/dir",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: false
+                );
+
+            var missingFiles = new List<string>
+            {
+               "missing.dcm",
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            string expected = $@"
+# SMI file extraction report for 1234
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+-    Identifiable extraction:       Yes
+-    Filtered extraction:           Yes
+
+Report contents:
+-    Missing file list (files which were selected from an input ID but could not be found)
+
+## Missing file list
+
+-    missing.dcm
+
+--- end of report ---
+";
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+        }
+
+
+        [Test]
+        public void Test_JobReporterBase_CreateReport_FilteredExtraction()
+        {
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "test/dir",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: true
+                );
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            string expected = $@"
+# SMI file extraction report for 1234
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+-    Identifiable extraction:       No
+-    Filtered extraction:           No
+
+Report contents:
+-    Verification failures
+    -    Summary
+    -    Full Details
+-    Rejected failures
+-    Anonymisation failures
+
+## Verification failures
+
+### Summary
+
+
+### Full details
 
 
 ## Rejected files

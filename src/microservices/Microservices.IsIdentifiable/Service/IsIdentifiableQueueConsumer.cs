@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace Microservices.IsIdentifiable.Service
 {
-    public class IsIdentifiableQueueConsumer : Consumer<ExtractFileStatusMessage>, IDisposable
+    public class IsIdentifiableQueueConsumer : Consumer<ExtractedFileStatusMessage>, IDisposable
     {
         private readonly IProducerModel _producer;
         private readonly string _fileSystemRoot;
@@ -26,7 +26,7 @@ namespace Microservices.IsIdentifiable.Service
             _classifier = classifier;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, ExtractFileStatusMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileStatusMessage message, ulong tag)
         {
             bool isClean = true;
             object resultObject;
@@ -34,10 +34,10 @@ namespace Microservices.IsIdentifiable.Service
             try
             {
                 // We should only ever receive messages regarding anonymised images
-                if (message.Status != ExtractFileStatus.Anonymised)
+                if (message.Status != ExtractedFileStatus.Anonymised)
                     throw new ApplicationException($"Received a message with anonymised status of {message.Status}");
 
-                var toProcess = new FileInfo( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.AnonymisedFileName) );
+                var toProcess = new FileInfo( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputFilePath) );
 
                 if(!toProcess.Exists)
                     throw new ApplicationException("IsIdentifiable service cannot find file "+toProcess.FullName);
@@ -58,7 +58,7 @@ namespace Microservices.IsIdentifiable.Service
                 return;
             }
 
-            _producer.SendMessage(new IsIdentifiableMessage(message)
+            _producer.SendMessage(new ExtractedFileVerificationMessage(message)
             {
                 IsIdentifiable = ! isClean,
                 Report = JsonConvert.SerializeObject(resultObject)

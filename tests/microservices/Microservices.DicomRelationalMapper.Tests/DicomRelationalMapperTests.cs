@@ -34,7 +34,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             BlitzMainDataTables();
 
-            _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource));

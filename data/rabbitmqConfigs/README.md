@@ -31,6 +31,15 @@ $ curl \
 http://0.0.0.0:15672/api/definitions
 ```
 
+## Deleting a vhost
+
+```bash
+> curl \
+    -u guest:guest \
+    -XDELETE \
+    http://0.0.0.0:15672/api/vhosts/<name>
+```
+
 ## Filter the default exchanges
 
 RabbitMQ has predefined exchanges which can't be removed from the management UI. To filter these out, tick the `regex` checkbox next to the search box on the `Exchanges` tab, then use this regex:

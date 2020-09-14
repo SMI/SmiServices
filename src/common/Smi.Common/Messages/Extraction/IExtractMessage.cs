@@ -30,5 +30,15 @@ namespace Smi.Common.Messages.Extraction
         /// DateTime the job was submitted at
         /// </summary>
         DateTime JobSubmittedAt { get; set; }
+
+        /// <summary>
+        /// True if this is an identifiable extraction (i.e. files should not be anonymised)
+        /// </summary>
+        bool IsIdentifiableExtraction { get; }
+
+        /// <summary>
+        /// True if this is a "no filters" (i.e. no file rejection filters should be applied)
+        /// </summary>
+        bool IsNoFilterExtraction { get; }
     }
 }

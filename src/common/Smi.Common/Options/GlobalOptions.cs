@@ -18,52 +18,14 @@ using DatabaseType = FAnsi.DatabaseType;
 
 namespace Smi.Common.Options
 {
-    public class GlobalOptions
+    public interface IOptions
     {
-        public static GlobalOptions Load(string environment = "default", string currentDirectory = null)
-        {
-            IDeserializer deserializer = new DeserializerBuilder()
-                                    .WithObjectFactory(GetGlobalOption)
-                                    .IgnoreUnmatchedProperties()
-                                    .Build();
 
-            currentDirectory = currentDirectory ?? Environment.CurrentDirectory;
+    }
 
-            // Make sure environment ends with yaml 
-            if (!(environment.EndsWith(".yaml") || environment.EndsWith(".yml")))
-                environment += ".yaml";
-
-            // If the yaml file doesn't exist and the path is relative, try looking in currentDirectory instead
-            if (!File.Exists(environment) && !Path.IsPathRooted(environment))
-                environment = Path.Combine(currentDirectory, environment);
-
-            string text = File.ReadAllText(environment);
-
-            var globals = deserializer.Deserialize<GlobalOptions>(new StringReader(text));
-            globals.CurrentDirectory = currentDirectory;
-            globals.MicroserviceOptions = new MicroserviceOptions();
-
-            return globals;
-        }
-
-        public static GlobalOptions Load(CliOptions cliOptions)
-        {
-            GlobalOptions globalOptions = Load(cliOptions.YamlFile);
-            globalOptions.MicroserviceOptions = new MicroserviceOptions(cliOptions);
-
-            return globalOptions;
-        }
-
-
-        private static object GetGlobalOption(Type arg)
-        {
-            return arg == typeof(GlobalOptions) ?
-                new GlobalOptions() :
-                Activator.CreateInstance(arg);
-        }
-
-        private GlobalOptions() { }
-
+    public class GlobalOptions : IOptions
+    {
+        
         #region AllOptions
 
         /// <summary>
@@ -83,12 +45,14 @@ namespace Smi.Common.Options
         public CohortPackagerOptions CohortPackagerOptions { get; set; }
         public DicomReprocessorOptions DicomReprocessorOptions { get; set; }
         public DicomTagReaderOptions DicomTagReaderOptions { get; set; }
+        public FileCopierOptions FileCopierOptions { get; set; }
         public IdentifierMapperOptions IdentifierMapperOptions { get; set; }
         public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; }
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
         public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
 
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
+        public string LogsRoot { get; set; }
 
         #endregion
 
@@ -129,7 +93,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MicroserviceOptions
+    public class MicroserviceOptions : IOptions
     {
         public bool TraceLogging { get; set; } = true;
 
@@ -147,7 +111,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class ProcessDirectoryOptions
+    public class ProcessDirectoryOptions : IOptions
     {
         public ProducerOptions AccessionDirectoryProducerOptions { get; set; }
 
@@ -158,7 +122,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MongoDbPopulatorOptions
+    public class MongoDbPopulatorOptions : IOptions
     {
         public ConsumerOptions SeriesQueueConsumerOptions { get; set; }
         public ConsumerOptions ImageQueueConsumerOptions { get; set; }
@@ -232,7 +196,7 @@ namespace Smi.Common.Options
         }
     }
 
-    public interface IMappingTableOptions
+    public interface IMappingTableOptions : IOptions
     {
         string MappingConnectionString { get; }
         string MappingTableName { get; set; }
@@ -286,6 +250,15 @@ namespace Smi.Common.Options
         }
     }
 
+    [UsedImplicitly]
+    public class FileCopierOptions : ConsumerOptions
+    {
+        public ProducerOptions CopyStatusProducerOptions { get; set; }
+        public string NoVerifyRoutingKey { get; set; }
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
+    }
+
     public enum TagProcessorMode
     {
         Serial,
@@ -293,7 +266,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class DicomReprocessorOptions
+    public class DicomReprocessorOptions : IOptions
     {
         public ProcessingMode ProcessingMode { get; set; }
 
@@ -326,11 +299,11 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class CohortPackagerOptions
+    public class CohortPackagerOptions : IOptions
     {
         public ConsumerOptions ExtractRequestInfoOptions { get; set; }
         public ConsumerOptions FileCollectionInfoOptions { get; set; }
-        public ConsumerOptions AnonFailedOptions { get; set; }
+        public ConsumerOptions NoVerifyStatusOptions { get; set; }
         public ConsumerOptions VerificationStatusOptions { get; set; }
         public uint JobWatcherTimeoutInSeconds { get; set; }
         public string ReporterType { get; set; }
@@ -388,8 +361,16 @@ namespace Smi.Common.Options
         /// </summary>
         public List<int> Blacklists { get; set; }
 
+        public string ExtractAnonRoutingKey { get; set; }
+        public string ExtractIdentRoutingKey { get; set; }
+
         public ProducerOptions ExtractFilesProducerOptions { get; set; }
         public ProducerOptions ExtractFilesInfoProducerOptions { get; set; }
+        
+        /// <summary>
+        /// ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
+        /// </summary>
+        public List<int> RejectColumnInfos { get; set; }
 
         public override string ToString()
         {
@@ -435,7 +416,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class DeadLetterReprocessorOptions
+    public class DeadLetterReprocessorOptions : IOptions
     {
         public ConsumerOptions DeadLetterConsumerOptions { get; set; }
 
@@ -450,7 +431,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MongoDatabases
+    public class MongoDatabases : IOptions
     {
         public MongoDbOptions DicomStoreOptions { get; set; }
 
@@ -465,7 +446,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class MongoDbOptions
+    public class MongoDbOptions : IOptions
     {
         public string HostName { get; set; } = "localhost";
         public int Port { get; set; } = 27017;
@@ -473,6 +454,9 @@ namespace Smi.Common.Options
         /// UserName for authentication. If empty, authentication will be skipped.
         /// </summary>
         public string UserName { get; set; }
+
+        public string Password {get;set;}
+
         public string DatabaseName { get; set; }
 
         public bool AreValid(bool skipAuthentication)
@@ -493,7 +477,7 @@ namespace Smi.Common.Options
     /// Describes the location of the Microsoft Sql Server RDMP platform databases which keep track of load configurations, available datasets (tables) etc
     /// </summary>
     [UsedImplicitly]
-    public class RDMPOptions
+    public class RDMPOptions : IOptions
     {
         public string CatalogueConnectionString { get; set; }
         public string DataExportConnectionString { get; set; }
@@ -518,10 +502,10 @@ namespace Smi.Common.Options
     /// Describes the root location of all images, file names should be expressed as relative paths (relative to this root).
     /// </summary>
     [UsedImplicitly]
-    public class FileSystemOptions
+    public class FileSystemOptions : IOptions
     {
         /// <summary>
-        /// If set, services will require that the "SMI_LOGS_ROOT" environment variable is set and points to a valid directory.
+        /// If set, services will require that <see cref="GlobalOptions.LogsRoot"/> is set and points to a valid directory.
         /// This helps to ensure that we log to a central location on the production system.
         /// </summary>
         public bool ForceSmiLogsRoot { get; set; } = false;
@@ -555,7 +539,7 @@ namespace Smi.Common.Options
     /// <summary>
     /// Describes the location of the rabbit server for sending messages to
     /// </summary>
-    public class RabbitOptions
+    public class RabbitOptions : IOptions
     {
         public string RabbitMqHostName { get; set; }
         public int RabbitMqHostPort { get; set; }
