@@ -10,6 +10,7 @@
     <LangVersion>8.0</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>	
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

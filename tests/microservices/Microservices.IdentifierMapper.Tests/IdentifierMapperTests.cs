@@ -106,7 +106,7 @@ namespace Microservices.IdentifierMapper.Tests
         public void TestIdentifierSwap_RegexVsDeserialize(DatabaseType type, int batchSize, int numberOfRandomTagsPerDicom)
         {
 
-            var options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             var mappingDataTable = new DataTable("IdMap");
             mappingDataTable.Columns.Add("priv");
@@ -535,7 +535,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             DiscoveredDatabase db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
-            GlobalOptions options = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             options.IdentifierMapperOptions = new IdentifierMapperOptions
             {
                 MappingConnectionString = db.Server.Builder.ConnectionString,

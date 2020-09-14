@@ -14,6 +14,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     -   Changes to MongoDB extraction schema, but backwards compatibility has been tested
     -   [breaking] RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
 -   Add "no filters" extraction support. If specified when running ExtractorCLI, no file rejection filters will be applied by CohortExtractor. True by default for identifiable extractions
+-   IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
+-   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
+-   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
+-   Added new rejector that throws out values (e.g. patient IDs) whose IDs are stored in a database table.  Set `RejectColumnInfos` option in yaml to enable this
+
+
+### Changed
+-   Environment variables are no longer required.  Previous settings now appear in configuration file
+    - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
+    - Environment variable `MONGO_SERVICE_PASSWORD` is now `MongoDbOptions.Password`
+    - Removed `ISIDENTIFIABLE_NUMTHREADS` as it didn't work correctly anyway
 
 ## [1.11.1] - 2020-08-12
 

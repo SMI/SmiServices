@@ -49,10 +49,7 @@ namespace Microservices.IsIdentifiable.Runners
 
                 var reader = cmd.ExecuteReader();
 
-                // The query can run in parallel, configure using ISIDENTIFIABLE_NUMTHREADS env var
-                // XXX default is single-threaded because it breaks during NERd otherwise.
-                int numThreads = int.Parse(Environment.GetEnvironmentVariable("ISIDENTIFIABLE_NUMTHREADS") ?? "1");
-                foreach (Reporting.Failure failure in reader.Cast<DbDataRecord>().AsParallel().WithDegreeOfParallelism(numThreads).SelectMany(GetFailuresIfAny))
+                foreach (Failure failure in reader.Cast<DbDataRecord>().SelectMany(GetFailuresIfAny))
                     AddToReports(failure);
 
                 CloseReports();

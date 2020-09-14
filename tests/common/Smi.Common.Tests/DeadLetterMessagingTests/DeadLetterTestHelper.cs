@@ -34,7 +34,7 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
         public void SetUpSuite()
         {
             TestLogger.Setup();
-            GlobalOptions = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             var testConnectionFactory = new ConnectionFactory
             {

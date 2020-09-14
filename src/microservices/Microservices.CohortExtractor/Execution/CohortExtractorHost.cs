@@ -132,6 +132,10 @@ namespace Microservices.CohortExtractor.Execution
             if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
                 _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly));
 
+            if(_consumerOptions.RejectColumnInfos != null)
+                foreach(var id in _consumerOptions.RejectColumnInfos)
+                    _fulfiller.Rejectors.Add(new ColumnInfoValuesRejector(repositoryLocator.CatalogueRepository.GetObjectByID<ColumnInfo>(id)));
+
             if(_consumerOptions.Blacklists != null)
                 foreach (int id in _consumerOptions.Blacklists)
                 {

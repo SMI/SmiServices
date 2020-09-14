@@ -18,7 +18,7 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        var options = GlobalOptions.Load();
+        var options = new GlobalOptionsFactory().Load();
         
         // ...
     }
@@ -35,7 +35,7 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        var options = GlobalOptions.Load(); // will use the 'default.yaml' file
+        var options = new GlobalOptionsFactory().Load(); // will use the 'default.yaml' file
         
         var consumerOptions = options.MyHostOptions; // you don't really need this here...
 
@@ -111,7 +111,7 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        var options = GlobalOptions.Load();
+        var options = new GlobalOptionsFactory().Load();
             
         var bootstrapper = new MicroserviceHostBootstrapper(
             () => new CohortPackagerHost(options));

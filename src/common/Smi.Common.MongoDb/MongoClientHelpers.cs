@@ -10,7 +10,6 @@ namespace Smi.Common.MongoDB
 {
     public static class MongoClientHelpers
     {
-        private const string MongoServicePasswordVar = "MONGO_SERVICE_PASSWORD";
         private const string AuthDatabase = "admin"; // Always authenticate against the admin database
 
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
@@ -37,12 +36,10 @@ namespace Smi.Common.MongoDB
                     WriteConcern = new WriteConcern(journal: true)
                 });
 
-            string password = Environment.GetEnvironmentVariable(MongoServicePasswordVar, EnvironmentVariableTarget.Process);
+            if (string.IsNullOrWhiteSpace(options.Password))
+                throw new ApplicationException($"MongoDB password must be set");
 
-            if (string.IsNullOrWhiteSpace(password))
-                throw new ApplicationException($"MongoDB password must be set in \"{MongoServicePasswordVar}\"");
-
-            MongoCredential credentials = MongoCredential.CreateCredential(AuthDatabase, options.UserName, password);
+            MongoCredential credentials = MongoCredential.CreateCredential(AuthDatabase, options.UserName, options.Password);
 
             var mongoClientSettings = new MongoClientSettings
             {

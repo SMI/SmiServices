@@ -16,7 +16,7 @@ namespace Microservices.MongoDBPopulator
             return
                 Parser.Default.ParseArguments<CliOptions>(args).MapResult((o) =>
                 {
-                    GlobalOptions options = GlobalOptions.Load(o);
+                    GlobalOptions options = new GlobalOptionsFactory().Load(o);
 
                     var bootStrapper = new MicroserviceHostBootstrapper(() => new MongoDbPopulatorHost(options));
                     return bootStrapper.Main();

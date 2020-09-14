@@ -4,7 +4,7 @@ namespace Smi.Common.Options
     /// <summary>
     /// Configuration options needed to send messages to a RabbitMQ exchange
     /// </summary>
-    public class ProducerOptions
+    public class ProducerOptions : IOptions
     {
         /// <summary>
         /// Name of the RabbitMQ exchange to send messages to

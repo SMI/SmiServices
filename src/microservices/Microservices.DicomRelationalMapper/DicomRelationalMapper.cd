@@ -4,10 +4,10 @@
     <Position X="15.107" Y="8.876" Height="0.323" Width="1.369" />
   </Comment>
   <Comment CommentText="Wrap the RDMP DLE">
-    <Position X="3.852" Y="10.872" Height="0.323" Width="1.369" />
+    <Position X="3.769" Y="11.132" Height="0.323" Width="1.369" />
   </Comment>
   <Comment CommentText="Fork logging between RDMP core and NLog (Microservice logs)">
-    <Position X="5.546" Y="10.844" Height="0.323" Width="3.904" />
+    <Position X="7.056" Y="10.927" Height="0.323" Width="3.904" />
   </Comment>
   <Comment CommentText="How to decide the RAW / STAGING database tables/names for parallel execution and/or security and load batch containment">
     <Position X="8.26" Y="4.121" Height="0.323" Width="8.381" />
@@ -41,7 +41,7 @@
   <Class Name="Microservices.DicomRelationalMapper.Execution.DicomFileMessageToDatasetListWorklist" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="11.25" Y="8.25" Width="3.75" />
     <TypeIdentifier>
-      <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAIAQEAAAAEAAAAAAAAAA=</HashCode>
+      <HashCode>AAEAAAACAAAAAAAAAAAAAAAAIAQEAAAAEAAAAAAAAAA=</HashCode>
       <FileName>Execution\DicomFileMessageToDatasetListProvider.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -58,7 +58,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Microservices.DicomRelationalMapper.Execution.NLogThrowerDataLoadEventListener" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="5.5" Y="10.25" Width="2.75" />
+    <Position X="7" Y="10.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAABAAAAAAAACIEAAAAAAAAAAgAAAAAA=</HashCode>
       <FileName>Execution\NLogThrowerDataLoadEventListener.cs</FileName>
@@ -123,8 +123,8 @@
       <FileName>Execution\Namers\ICanCreateStagingMyself.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="SMIPlugin.PipelineComponents.DicomSources.Worklists.IDicomDatasetWorklist">
-    <Position X="8.25" Y="8.25" Width="2.75" />
+  <Interface Name="Rdmp.Dicom.PipelineComponents.DicomSources.Worklists.IDicomDatasetWorklist" Collapsed="true">
+    <Position X="8.25" Y="8.25" Width="2.5" />
     <TypeIdentifier />
   </Interface>
   <Font Name="Segoe UI" Size="9" />

@@ -12,7 +12,7 @@ namespace Microservices.DicomRelationalMapper
         {
             return Parser.Default.ParseArguments<CliOptions>(args).MapResult((o) =>
             {
-                GlobalOptions options = GlobalOptions.Load(o);
+                GlobalOptions options = new GlobalOptionsFactory().Load(o);
 
                 var bootstrapper = new MicroserviceHostBootstrapper(() => new DicomRelationalMapperHost(options));
                 return bootstrapper.Main();
