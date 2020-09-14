@@ -8,25 +8,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.12.0] - 2020-09-14
 
--   Add SecurityCodeScan tool to build chain for .Net code
--   Extraction report: Group PixelData separately and sort by length
--   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
--   Add identifiable extraction support
+### Added
+
+-   [breaking] Add identifiable extraction support
     -   New service "FileCopier" which sits in place of CTP for identifiable extractions and copies source files to their output dirs
     -   Changes to MongoDB extraction schema, but backwards compatibility has been tested
-    -   [breaking] RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
+    -   RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
+-   Add [SecurityCodeScan](https://security-code-scan.github.io/) tool to build chain for .NET code
 -   Add "no filters" extraction support. If specified when running ExtractorCLI, no file rejection filters will be applied by CohortExtractor. True by default for identifiable extractions
--   IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
--   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
 -   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
 -   Added new rejector that throws out values (e.g. patient IDs) whose IDs are stored in a database table.  Set `RejectColumnInfos` option in yaml to enable this
 -   Added a check to QueryToExecuteResult for RejectReason being null when Reject is true.
 
 ### Changed
+
 -   [breaking] Environment variables are no longer required.  Previous settings now appear in configuration file
     - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
     - Environment variable `MONGO_SERVICE_PASSWORD` is now `MongoDbOptions.Password`
     - Removed `ISIDENTIFIABLE_NUMTHREADS` as it didn't work correctly anyway
+-   Extraction report: Group PixelData separately and sort by length
+-   IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
+-   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
+
+### Fixed
+
+-   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
 
 ## [1.11.1] - 2020-08-12
 
