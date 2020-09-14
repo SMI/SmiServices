@@ -22,15 +22,15 @@ The steps to cut a new release of SmiServices are as follows
     Switched to a new branch 'release/v1.3.0'
     ```
 
--   Update any files referencing the version. Currently these are:
-    -   `CHANGELOG.md`: Add a new tag under the `Unreleased` section, and add a new link to the bottom. Look at a previous release for an example e.g. `git show 827a1a`.
+-   Update any files referencing the version. To see an example, check the previous release commit: `git log --all --grep="Start release branch" -1 --name-only --format=`. E.g.:
+    -   `CHANGELOG.md`: Add a new section header under `Unreleased`, and add a new link to the bottom
     -   `README.md`: Bump the version
     -   `src/SharedAssemblyInfo.cs`: Bump the versions
 
 -   Commit these changes and push the new branch with the message "Start release branch for v1.2.3"
 -   Open a PR for this branch with the title "Release <version>". Request a review from `@tznind` and `@rkm`.
 -   If there are any further changes which need to be included in the release, then these can be merged into the release branch from `develop`.
--   Wait for the PR to be merged
+-   Wait for the PR to be reviewed and merged
 -   Checkout `master` and pull the merge commit
 -   Tag the release, e.g.:
 
