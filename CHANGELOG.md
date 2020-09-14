@@ -34,6 +34,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 -   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
 
+### Dependencies
+
+-   Bump fo-dicom.Drawing from 4.0.5 to 4.0.6
+-   Bump fo-dicom.NetCore from 4.0.5 to 4.0.6
+-   Bump HIC.BadMedicine.Dicom from 0.0.6 to 0.0.7
+-   Bump HIC.DicomTypeTranslation from 2.3.0 to 2.3.1
+-   Bump HIC.FAnsiSql from 1.0.2 to 1.0.5
+-   Bump HIC.RDMP.Dicom from 2.1.6 to 2.1.10
+-   Bump HIC.RDMP.Plugin from 4.1.6 to 4.1.8
+-   Bump HIC.RDMP.Plugin.Test from 4.1.6 to 4.1.8
+-   Bump Microsoft.CodeAnalysis.CSharp.Scripting from 3.6.0 to 3.7.0
+-   Bump Microsoft.Extensions.Caching.Memory from 3.1.6 to 3.1.8
+-   Bump Microsoft.NET.Test.Sdk from 16.6.1 to 16.7.1
+-   Bump MongoDB.Driver from 2.11.0 to 2.11.2
+-   Bump System.IO.Abstractions from 12.1.1 to 12.1.9
+-   Bump System.IO.Abstractions.TestingHelpers from 12.1.1 to 12.1.9
+-   Bump Terminal.Gui from 0.81.0 to 0.89.4
+
 ## [1.11.1] - 2020-08-12
 
 -   Set PublishTrimmed to false to fix bug with missing assemblies in prod.
