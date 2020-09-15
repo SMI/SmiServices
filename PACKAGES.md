@@ -20,7 +20,6 @@
 | Magick.NET-Q16-AnyCPU | [GitHub](https://github.com/dlemstra/Magick.NET) | [Apache License v2](https://github.com/dlemstra/Magick.NET/blob/master/License.txt) | The .NET library for [ImageMagick](https://imagemagick.org/index.php) |
 | Microsoft.CodeAnalysis.CSharp.Scripting | [GitHub](https://github.com/dotnet/roslyn) | [MIT](https://opensource.org/licenses/MIT)  | Supports dynamic rules for cohort extraction logic |
 | Microsoft.Extensions.Caching.Memory | [GitHub](https://github.com/dotnet/extensions) | [Apache 2.0](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory/3.1.7/License) | Caching ID mappings retrieved from Redis/MySQL
-| MongoDB.Driver | [GitHub](https://github.com/mongodb/mongo-csharp-driver) |  [Apache 2.0](https://www.nuget.org/packages/MongoDB.Driver/2.11.1/License) | For writting/reading dicom tags into MongoDb databases
 | NLog | [GitHub](https://github.com/NLog/NLog) | [BSD 3-Clause](https://github.com/NLog/NLog/blob/dev/LICENSE.txt) | Flexible user configurable logging |
 | Newtonsoft.Json | [GitHub](https://github.com/JamesNK/Newtonsoft.Json) | [MIT](https://opensource.org/licenses/MIT) | Serialization of objects for sharing/transmission
 | RabbitMQ.Client | [GitHub](https://github.com/rabbitmq/rabbitmq-dotnet-client) | [Apache License v2 / MPL 1.1](https://github.com/rabbitmq/rabbitmq-dotnet-client/blob/master/LICENSE) | Handles messaging between microservices |
