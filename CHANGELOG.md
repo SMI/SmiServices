@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+-   Remove reference to MongoDB.Driver in Smi.Common.MongoDb.csproj since it caused a version conflict in the output packages
+
 ## [1.12.0] - 2020-09-14
 
 ### Added
