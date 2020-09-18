@@ -64,7 +64,7 @@ namespace Smi.Common.Messages.Extraction
             $"ExtractionJobIdentifier={ExtractionJobIdentifier}, " +
             $"ProjectNumber={ProjectNumber}, " +
             $"ExtractionDirectory={ExtractionDirectory}, " +
-            $"JobSubmittedAt={JobSubmittedAt}, " +
+            $"JobSubmittedAt={JobSubmittedAt:s}, " +
             $"IsIdentifiableExtraction={IsIdentifiableExtraction}, " +
             $"IsNoFilterExtraction={IsNoFilterExtraction}, " +
             "";
