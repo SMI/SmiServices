@@ -84,6 +84,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             IsNoFilterExtraction = isNoFilterExtraction;
         }
 
+        public string ExtractionName()
+        {
+            string[] split = ExtractionDirectory.Split('/', '\\');
+            return split[^1];
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();

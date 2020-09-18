@@ -34,7 +34,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         {
             ExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
 
-            using Stream stream = GetStream(jobId);
+            using Stream stream = GetStream(jobInfo.ExtractionName());
             using var streamWriter = new StreamWriter(stream);
 
             streamWriter.WriteLine();
@@ -81,7 +81,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             FinishReport(stream);
         }
 
-        protected abstract Stream GetStream(Guid jobId);
+        protected abstract Stream GetStream(string extractionName);
 
         protected abstract void FinishReport(Stream stream);
 

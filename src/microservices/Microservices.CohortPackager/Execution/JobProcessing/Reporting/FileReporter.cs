@@ -23,9 +23,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             _reportDir = reportDir ?? throw new ArgumentNullException(nameof(reportDir));
         }
 
-        protected override Stream GetStream(Guid jobId)
+        protected override Stream GetStream(string extractionName)
         {
-            string jobReport = $"{_reportDir}/{jobId}.txt";
+            string jobReport = $"{_reportDir}/{extractionName}-report.txt";
             if (File.Exists(jobReport))
                 throw new ApplicationException($"Report file '{jobReport}' already exists");
 
