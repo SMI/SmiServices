@@ -6,25 +6,57 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
--   Add SecurityCodeScan tool to build chain for .Net code
--   Extraction report: Group PixelData separately and sort by length
--   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
--   Add identifiable extraction support
+-
+
+## [1.12.1] - 2020-09-15
+
+-   Remove reference to MongoDB.Driver in Smi.Common.MongoDb.csproj since it caused a version conflict in the output packages
+
+## [1.12.0] - 2020-09-14
+
+### Added
+
+-   [breaking] Add identifiable extraction support
     -   New service "FileCopier" which sits in place of CTP for identifiable extractions and copies source files to their output dirs
     -   Changes to MongoDB extraction schema, but backwards compatibility has been tested
-    -   [breaking] RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
+    -   RabbitMQ extraction config has been refactored. Queues and service config files need to be updated
+-   Add [SecurityCodeScan](https://security-code-scan.github.io/) tool to build chain for .NET code
 -   Add "no filters" extraction support. If specified when running ExtractorCLI, no file rejection filters will be applied by CohortExtractor. True by default for identifiable extractions
--   IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
--   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
 -   Added caching of values looked up in NLP/rulesbase for IsIdentifiable tool
 -   Added new rejector that throws out values (e.g. patient IDs) whose IDs are stored in a database table.  Set `RejectColumnInfos` option in yaml to enable this
 -   Added a check to QueryToExecuteResult for RejectReason being null when Reject is true.
 
 ### Changed
--   Environment variables are no longer required.  Previous settings now appear in configuration file
+
+-   [breaking] Environment variables are no longer required.  Previous settings now appear in configuration file
     - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
     - Environment variable `MONGO_SERVICE_PASSWORD` is now `MongoDbOptions.Password`
     - Removed `ISIDENTIFIABLE_NUMTHREADS` as it didn't work correctly anyway
+-   Extraction report: Group PixelData separately and sort by length
+-   IsIdentifiable Reviewer 'Symbols' rule factory now supports digits only or characters only mode (e.g. use `\d` for digits but leave characters verbatim)
+-   IsIdentifiable Reviewer 'symbols' option when building Regex now builds capture groups and matches only the failing parts of the input string not the full ProblemValue.  For example `MR Head 12-11-20` would return `(\d\d-\d\d-\d\d)$`
+
+### Fixed
+
+-   Fix the extraction output directory to be `<projId>/extractions/<extractname>`
+
+### Dependencies
+
+-   Bump fo-dicom.Drawing from 4.0.5 to 4.0.6
+-   Bump fo-dicom.NetCore from 4.0.5 to 4.0.6
+-   Bump HIC.BadMedicine.Dicom from 0.0.6 to 0.0.7
+-   Bump HIC.DicomTypeTranslation from 2.3.0 to 2.3.1
+-   Bump HIC.FAnsiSql from 1.0.2 to 1.0.5
+-   Bump HIC.RDMP.Dicom from 2.1.6 to 2.1.10
+-   Bump HIC.RDMP.Plugin from 4.1.6 to 4.1.8
+-   Bump HIC.RDMP.Plugin.Test from 4.1.6 to 4.1.8
+-   Bump Microsoft.CodeAnalysis.CSharp.Scripting from 3.6.0 to 3.7.0
+-   Bump Microsoft.Extensions.Caching.Memory from 3.1.6 to 3.1.8
+-   Bump Microsoft.NET.Test.Sdk from 16.6.1 to 16.7.1
+-   Bump MongoDB.Driver from 2.11.0 to 2.11.2
+-   Bump System.IO.Abstractions from 12.1.1 to 12.1.9
+-   Bump System.IO.Abstractions.TestingHelpers from 12.1.1 to 12.1.9
+-   Bump Terminal.Gui from 0.81.0 to 0.89.4
 
 ## [1.11.1] - 2020-08-12
 
@@ -386,7 +418,9 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.11.1...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.12.1...develop
+[1.12.1]:  https://github.com/SMI/SmiServices/compare/v1.12.0...v1.12.1
+[1.12.0]:  https://github.com/SMI/SmiServices/compare/v1.11.1...v1.12.0
 [1.11.1]:  https://github.com/SMI/SmiServices/compare/v1.11.0...v1.11.1
 [1.11.0]:  https://github.com/SMI/SmiServices/compare/v1.10.0...v1.11.0
 [1.10.0]:  https://github.com/SMI/SmiServices/compare/v1.9.0...v1.10.0
