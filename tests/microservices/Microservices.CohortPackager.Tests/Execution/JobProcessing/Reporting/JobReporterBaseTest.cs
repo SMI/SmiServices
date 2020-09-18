@@ -104,7 +104,7 @@ Report contents:
 -    Verification failures
     -    Summary
     -    Full Details
--    Rejected failures
+-    Blocked files
 -    Anonymisation failures
 
 ## Verification failures
@@ -115,7 +115,7 @@ Report contents:
 ### Full details
 
 
-## Rejected files
+## Blocked files
 
 
 ## Anonymisation failures
@@ -205,7 +205,7 @@ Report contents:
 -    Verification failures
     -    Summary
     -    Full Details
--    Rejected failures
+-    Blocked files
 -    Anonymisation failures
 
 ## Verification failures
@@ -223,7 +223,7 @@ Report contents:
         - foo1.dcm
 
 
-## Rejected files
+## Blocked files
 
 - ID: 1.2.3.4
     - 456x 'foo bar'
@@ -384,7 +384,7 @@ Report contents:
 -    Verification failures
     -    Summary
     -    Full Details
--    Rejected failures
+-    Blocked files
 -    Anonymisation failures
 
 ## Verification failures
@@ -414,7 +414,7 @@ Report contents:
         - ccc/ddd/foo2.dcm
 
 
-## Rejected files
+## Blocked files
 
 
 ## Anonymisation failures
@@ -511,7 +511,7 @@ Report contents:
 -    Verification failures
     -    Summary
     -    Full Details
--    Rejected failures
+-    Blocked files
 -    Anonymisation failures
 
 ## Verification failures
@@ -540,7 +540,7 @@ Report contents:
         - foo1.dcm
 
 
-## Rejected files
+## Blocked files
 
 
 ## Anonymisation failures
@@ -657,7 +657,7 @@ Report contents:
 -    Verification failures
     -    Summary
     -    Full Details
--    Rejected failures
+-    Blocked files
 -    Anonymisation failures
 
 ## Verification failures
@@ -668,7 +668,7 @@ Report contents:
 ### Full details
 
 
-## Rejected files
+## Blocked files
 
 
 ## Anonymisation failures

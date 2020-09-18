@@ -58,7 +58,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier));
                 streamWriter.WriteLine();
 
-                streamWriter.WriteLine("## Rejected files");
+                streamWriter.WriteLine("## Blocked files");
                 streamWriter.WriteLine();
                 foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(
                     jobInfo.ExtractionJobIdentifier))
@@ -120,7 +120,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     "-    Verification failures",
                     "    -    Summary",
                     "    -    Full Details",
-                    "-    Rejected failures",
+                    "-    Blocked files",
                     "-    Anonymisation failures",
                 });
             }
