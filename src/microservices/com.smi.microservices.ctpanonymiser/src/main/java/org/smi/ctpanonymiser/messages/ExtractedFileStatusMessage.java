@@ -13,11 +13,13 @@ public class ExtractedFileStatusMessage extends ExtractMessage implements IMessa
 	@FieldRequired
 	public String DicomFilePath;
 
+	@FieldRequired
 	public String OutputFilePath;
 
     @FieldRequired
 	public ExtractedFileStatus Status;
 
+	@FieldRequired
 	public String StatusMessage;
 
 	/** @return the filePath */
