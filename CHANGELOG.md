@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+-
+
+## [1.12.2] - 2020-09-18
+
 - Fix missing JSON fields from CTP output
 
 ## [1.12.1] - 2020-09-15
@@ -418,7 +422,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.12.1...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.12.2...develop
+[1.12.2]:  https://github.com/SMI/SmiServices/compare/v1.12.1...v1.12.2
 [1.12.1]:  https://github.com/SMI/SmiServices/compare/v1.12.0...v1.12.1
 [1.12.0]:  https://github.com/SMI/SmiServices/compare/v1.11.1...v1.12.0
 [1.11.1]:  https://github.com/SMI/SmiServices/compare/v1.11.0...v1.11.1
