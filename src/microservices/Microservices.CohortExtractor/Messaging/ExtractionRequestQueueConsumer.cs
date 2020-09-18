@@ -52,7 +52,7 @@ namespace Microservices.CohortExtractor.Messaging
 
             foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request, _auditor))
             {
-                Logger.Info($"Matched {matchedFiles.Accepted.Count} files with {matchedFiles.Rejected.Count} for KeyValue {matchedFiles.KeyValue}");
+                Logger.Info($"Accepted {matchedFiles.Accepted.Count} and rejected {matchedFiles.Rejected.Count} files for KeyValue {matchedFiles.KeyValue}");
 
                 var infoMessage = new ExtractFileCollectionInfoMessage(request);
 
