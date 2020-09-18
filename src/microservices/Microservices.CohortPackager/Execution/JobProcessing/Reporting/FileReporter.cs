@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
@@ -30,6 +30,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 throw new ApplicationException($"Report file '{jobReport}' already exists");
 
             _fileStream = File.OpenWrite(jobReport);
+            Logger.Info($"Writing report to {jobReport}");
             return _fileStream;
         }
 

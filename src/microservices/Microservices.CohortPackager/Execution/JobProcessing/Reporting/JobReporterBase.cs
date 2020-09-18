@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.IsIdentifiable.Reporting;
 using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,6 +15,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
     public abstract class JobReporterBase : IJobReporter, IDisposable
     {
+        [NotNull] protected readonly ILogger Logger;
+
         private readonly IExtractJobStore _jobStore;
 
         protected JobReporterBase(
@@ -23,6 +26,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [CanBeNull] string _
         )
         {
+            Logger = LogManager.GetLogger(GetType().Name);
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
         }
 
