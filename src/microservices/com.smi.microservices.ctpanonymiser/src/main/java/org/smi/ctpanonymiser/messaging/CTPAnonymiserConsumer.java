@@ -98,6 +98,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			}
 
 			statusMessage.StatusMessage = msg;
+			statusMessage.OutputFilePath = "";
 			statusMessage.Status = ExtractedFileStatus.FileMissing;
 
 			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
@@ -134,6 +135,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			_logger.error(msg);
 
 			statusMessage.StatusMessage = msg;
+			statusMessage.OutputFilePath = "";
 			statusMessage.Status = ExtractedFileStatus.FileMissing;
 
 			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
@@ -155,6 +157,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 
 		if (status == CtpAnonymisationStatus.Anonymised) {
 
+			statusMessage.StatusMessage = "";
 			statusMessage.OutputFilePath = extractFileMessage.OutputPath;
 			statusMessage.Status = ExtractedFileStatus.Anonymised;
 			routingKey = _routingKey_success;
@@ -162,6 +165,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 		} else {
 
 			statusMessage.StatusMessage = _anonTool.getLastStatus();
+			statusMessage.OutputFilePath = "";
 			statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
 			routingKey = _routingKey_failure;
 		}
