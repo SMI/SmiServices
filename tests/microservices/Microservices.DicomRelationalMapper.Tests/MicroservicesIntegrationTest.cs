@@ -57,7 +57,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             TestLogger.Setup();
 
-            _globals = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             _globals.UseTestValues(
                 RequiresRabbit.GetConnectionFactory(),

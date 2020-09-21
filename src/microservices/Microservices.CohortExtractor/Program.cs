@@ -23,7 +23,7 @@ namespace Microservices.CohortExtractor
             return Parser.Default.ParseArguments<CliOptions>(args).MapResult(
                 (a) =>
                 {
-                    GlobalOptions options = GlobalOptions.Load(a);
+                    GlobalOptions options = new GlobalOptionsFactory().Load(a);
 
                     var bootStrapper = new MicroserviceHostBootstrapper(() =>
                         new CohortExtractorHost(options, null, null)); //Use the auditor and request fullfilers specified in the yaml

@@ -35,7 +35,7 @@ namespace Microservices.IsIdentifiable
             //If running as a self contained micro service (getting messages from RabbitMQ)
             if (args.Length == 1 && string.Equals(args[0], "--service", StringComparison.CurrentCultureIgnoreCase))
             {
-                var options = GlobalOptions.Load();
+                var options = new GlobalOptionsFactory().Load();
                 
                 var bootstrapper = new MicroserviceHostBootstrapper(
                     () => new IsIdentifiableHost(options));
@@ -115,7 +115,7 @@ namespace Microservices.IsIdentifiable
 
         private static int Run(IsIdentifiableServiceOptions opts)
         {
-            var options = GlobalOptions.Load(opts.YamlFile);
+            var options = new GlobalOptionsFactory().Load(opts.YamlFile);
                 
             var bootstrapper = new MicroserviceHostBootstrapper(
                 () => new IsIdentifiableHost(options));

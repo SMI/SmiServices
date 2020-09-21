@@ -4,7 +4,7 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 [![Coverage Status](https://coveralls.io/repos/github/SMI/SmiServices/badge.svg)](https://coveralls.io/github/SMI/SmiServices)
 
-Version: `1.11.1`
+Version: `1.12.2`
 
 # SMI Services
 
@@ -21,7 +21,6 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    2. [Image Extraction Microservices](#image-extraction-microservices)
-1. [Environment Variables](#environment-variables)
 2. [Solution Overivew](#solution-overview)
 3. [Building](#building)
 4. [Testing](#testing)
@@ -75,18 +74,17 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | Fatal Error Logging | All Microservices that crash or log a fatal error are shut down and log a message to the Fatal Error Logging Exchange.  TODO: Nobody listens to this currently.|
 | Quarantine | TODO: Doesn't exist yet.|
 
-## Environment Variables
+## Solution Overview
 
-The following environment variables are expected by the program:
+Appart from the Microservices (documented above) the following library classes are also included in the solution:
 
->TODO can we move `ISIDENTIFIABLE_NUMTHREADS` to config yaml/CLI?
+| Project Name | Path | Description|
+| ------------- | ----- | ------------- |
+| Dicom File Tester |/Applications| Application for testing DICOM files compatibility with Dicom<->JSON and Dicom to various database type conversions and back. It basically takes a file and pushes it through the various converters to see what breaks |
+| Dicom Repopulator |/Applications| [See Microservices](#image-extraction-microservices) |
+| Template Builder | /Applications| GUI tool for building modality database schema templates.  Supports viewing and exploring dicom tags in files|
+| Smi.MongoDB.Common | /Reusable | Library containing methods for interacting with MongoDb |
 
-| Name | Purpose | Example |
-|------|---------|---------|
-| SMI_LOGS_ROOT     |   Required to be set if `ForceSmiLogsRoot` is set to `true` in the service config. Determines where log files are written to | `/var/log/smi` |
-| MONGO_SERVICE_PASSWORD  | Password that should be used to access the MongoDb database used by ETL pipeline services | MyPassword|
-| ISIDENTIFIABLE_NUMTHREADS | Optional (defaults to 1).  The number of threads to use when looking for identifiable data in extraction pipeline | 1|
-| CI  | When running tests in a CI, this ensures that integration tests are failed instead of skipped | 1|
 
 ## Building
 
