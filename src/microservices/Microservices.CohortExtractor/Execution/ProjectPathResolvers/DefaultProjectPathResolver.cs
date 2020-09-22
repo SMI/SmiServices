@@ -8,7 +8,7 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
 {
     public class DefaultProjectPathResolver : IProjectPathResolver
     {
-        public const string AnonExt = "-an.dcm";
+        public string AnonExt {get;protected set; } = "-an.dcm";
 
         private static readonly string[] _replaceableExtensions = { ".dcm", ".dicom" };
 
