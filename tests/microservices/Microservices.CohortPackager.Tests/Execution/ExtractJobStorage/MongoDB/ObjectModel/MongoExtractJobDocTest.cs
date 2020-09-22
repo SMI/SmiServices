@@ -41,6 +41,30 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         #endregion
 
         #region Tests
+        
+        [Test]
+        public void Test_MongoExtractJobDoc_CopyConstructor()
+        {
+            var jobid = Guid.NewGuid();
+            var original = new MongoExtractJobDoc(
+                jobid,
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(jobid, _messageHeader, _dateTimeProvider),
+                "1234",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                "test/directory",
+                _dateTimeProvider.UtcNow(),
+                "KeyTag",
+                123,
+                "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
+                new MongoFailedJobInfoDoc(new Exception("foo"), _dateTimeProvider)
+            );
+            var copied = new MongoExtractJobDoc(original);
+
+            Assert.AreEqual(original, copied);
+        }
+
 
         [Test]
         public void TestMongoExtractJobDoc_SettersAvailable()
