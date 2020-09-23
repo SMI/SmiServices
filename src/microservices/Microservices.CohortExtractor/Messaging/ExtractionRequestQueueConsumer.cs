@@ -19,21 +19,18 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
 
-        private readonly IProjectPathResolver _anonProjectResolver;
-
-        // NOTE(rkm 2020-09-23) Identifiable extractions should not produce files with the "-an.dcm" extension
-        private readonly IProjectPathResolver _identProjectResolver = new NoSuffixProjectPathResolver();
+        private readonly IProjectPathResolver _resolver;
 
         public ExtractionRequestQueueConsumer(
             CohortExtractorOptions options,
             IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
-            IProjectPathResolver anonProjectResolver, IProducerModel fileMessageProducer,
+            IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
             IProducerModel fileMessageInfoProducer)
         {
             _options = options;
             _fulfiller = fulfiller;
             _auditor = auditor;
-            _anonProjectResolver = anonProjectResolver;
+            _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }
@@ -53,10 +50,6 @@ namespace Microservices.CohortExtractor.Messaging
             string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
             string extractFileRoutingKey = request.IsIdentifiableExtraction ? _options.ExtractIdentRoutingKey : _options.ExtractAnonRoutingKey;
 
-            IProjectPathResolver resolverToUse = request.IsIdentifiableExtraction
-                ? _identProjectResolver
-                : _anonProjectResolver;
-
             foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request, _auditor))
             {
                 Logger.Info($"Matched {matchedFiles.Accepted.Count} files with {matchedFiles.Rejected.Count} for KeyValue {matchedFiles.KeyValue}");
@@ -72,7 +65,7 @@ namespace Microservices.CohortExtractor.Messaging
                         // Extraction directory relative to the extract root
                         ExtractionDirectory = extractionDirectory,
                         // Output path for the anonymised file, relative to the extraction directory
-                        OutputPath = resolverToUse.GetOutputPath(accepted, request).Replace('\\', '/'),
+                        OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/')
                     };
 
                     Logger.Debug($"DicomFilePath={extractFileMessage.DicomFilePath}, OutputPath={extractFileMessage.OutputPath}");
