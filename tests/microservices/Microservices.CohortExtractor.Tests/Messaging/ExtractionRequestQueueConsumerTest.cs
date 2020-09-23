@@ -55,16 +55,16 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             GlobalOptions globals = new GlobalOptionsFactory().Load();
             globals.CohortExtractorOptions.ExtractAnonRoutingKey = "anon";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "";
-            AssertMessagePublishedWithSpecifiedKey(globals, false, "anon");
+            AssertMessagePublishedCorrectly(globals, false, "anon");
         }
 
         [Test]
-        public void Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKey()
+        public void Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKeyAndOutputPath()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load();
             globals.CohortExtractorOptions.ExtractAnonRoutingKey = "";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "ident";
-            AssertMessagePublishedWithSpecifiedKey(globals, true, "ident");
+            AssertMessagePublishedCorrectly(globals, true, "ident");
         }
 
         /// <summary>
@@ -73,15 +73,20 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         /// <param name="globals"></param>
         /// <param name="isIdentifiableExtraction"></param>
         /// <param name="expectedRoutingKey"></param>
-        private static void AssertMessagePublishedWithSpecifiedKey(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
+        private static void AssertMessagePublishedCorrectly(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
         {
             var fakeFulfiller = new FakeFulfiller();
 
             var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             string fileMessageRoutingKey = null;
+            ExtractFileMessage producedExtractFileMessage = null;
             mockFileMessageProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
-                .Callback((IMessage _, IMessageHeader __, string routingKey) => { fileMessageRoutingKey = routingKey; })
+                .Callback((IMessage message, IMessageHeader __, string routingKey) =>
+                {
+                    producedExtractFileMessage = (ExtractFileMessage)message;
+                    fileMessageRoutingKey = routingKey;
+                })
                 .Returns(new MessageHeader());
             mockFileMessageProducerModel.Setup(x => x.WaitForConfirms());
 
@@ -139,6 +144,9 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");
             mockModel.Verify(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()), Times.Once);
             Assert.AreEqual(expectedRoutingKey, fileMessageRoutingKey);
+
+            if (isIdentifiableExtraction)
+                Assert.True(producedExtractFileMessage.OutputPath.EndsWith("foo.dcm"));
         }
 
         #endregion
