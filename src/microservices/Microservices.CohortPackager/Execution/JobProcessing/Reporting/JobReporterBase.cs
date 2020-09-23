@@ -35,7 +35,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             ExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
 
             using Stream stream = GetStream(jobInfo.ExtractionName());
-            using var streamWriter = new StreamWriter(stream);
+            using var streamWriter = new StreamWriter(stream)
+            {
+                NewLine = "\r\n"
+            };
 
             streamWriter.WriteLine();
             foreach (string line in JobHeader(jobInfo))
