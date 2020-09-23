@@ -2,6 +2,7 @@
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Smi.Common.Helpers;
+using Smi.Common.Messages.Extraction;
 using System.IO;
 using Tests.Common;
 
@@ -29,7 +30,7 @@ namespace Microservices.CohortExtractor.Tests
                     study ?? "unknown",
                     series ?? "unknown",
                     "foo.dcm"),
-                new NoSuffixProjectPathResolver().GetOutputPath(result, null));
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()));
         }
 
         [TestCase("file.dcm", "file.dcm")]
@@ -51,7 +52,7 @@ namespace Microservices.CohortExtractor.Tests
                     "study",
                     "series",
                     expectedOutput),
-                new NoSuffixProjectPathResolver().GetOutputPath(result, null));
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()));
         }
 
         [Test]
@@ -70,7 +71,7 @@ namespace Microservices.CohortExtractor.Tests
                     "study",
                     "unknown",
                     "file.dcm"),
-                new NoSuffixProjectPathResolver().GetOutputPath(result, null));
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()));
         }
 
         [Test]
