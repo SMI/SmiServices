@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -110,8 +111,19 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         public long ValidateCacheMisses {get;set;}
 
+        /// <summary>
+        /// Total number of <see cref="FailurePart"/> identified during lifetime (see <see cref="Validate(string, string)"/>)
+        /// </summary>
+        public int CountOfFailureParts {get;protected set;}
+
+        /// <summary>
+        /// Duration the class has existed for
+        /// </summary>
+        private Stopwatch _lifetime {get;}
+
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
+            _lifetime = Stopwatch.StartNew();
             _opts = opts;
             _opts.ValidateOptions();
             MaxValidationCacheSize = opts.MaxValidationCacheSize;
@@ -261,13 +273,16 @@ namespace Microservices.IsIdentifiable.Runners
             if(cache.TryGetValue(fieldValue ?? "NULL",out FailurePart[] result))
             {
                 ValidateCacheHits++;
+                CountOfFailureParts += result.Length;
                 return result;
             }
             
             ValidateCacheMisses++;
 
             //otherwise run ValidateImpl and cache the result
-            return cache.Set(fieldValue?? "NULL", ValidateImpl(fieldName,fieldValue).ToArray(), new MemoryCacheEntryOptions() {
+            var freshResult = ValidateImpl(fieldName,fieldValue).ToArray();
+            CountOfFailureParts += freshResult.Length;
+            return cache.Set(fieldValue?? "NULL", freshResult, new MemoryCacheEntryOptions() {
                 Size=1
             });
         }
@@ -454,7 +469,9 @@ namespace Microservices.IsIdentifiable.Runners
             foreach (var d in CustomRules.OfType<IDisposable>()) 
                 d.Dispose();
 
+            _logger?.Info($"Total runtime for {GetType().Name}:{_lifetime.Elapsed}");
             _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
+            _logger?.Info($"Total FailurePart identified: {CountOfFailureParts}");
         }
     }
 }
