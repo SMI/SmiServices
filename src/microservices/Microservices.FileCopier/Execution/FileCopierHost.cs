@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Microservices.FileCopier.Messaging;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
@@ -28,7 +28,13 @@ namespace Microservices.FileCopier.Execution
 
             IProducerModel copyStatusProducerModel = RabbitMqAdapter.SetupProducer(Globals.FileCopierOptions.CopyStatusProducerOptions, isBatch: false);
 
-            var fileCopier = new ExtractionFileCopier(Globals.FileCopierOptions, copyStatusProducerModel, Globals.FileSystemOptions.FileSystemRoot, fileSystem);
+            var fileCopier = new ExtractionFileCopier(
+                Globals.FileCopierOptions,
+                copyStatusProducerModel,
+                Globals.FileSystemOptions.FileSystemRoot,
+                Globals.FileSystemOptions.ExtractRoot,
+                fileSystem
+            );
             _consumer = new FileCopyQueueConsumer(fileCopier);
         }
 

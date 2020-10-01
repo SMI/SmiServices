@@ -16,7 +16,8 @@ namespace Microservices.FileCopier.Tests.Execution
         private FileCopierOptions _options;
 
         private MockFileSystem _mockFileSystem;
-        private const string FileSystemRoot = "smi";
+        private const string FileSystemRoot = "PACS";
+        private const string ExtractRoot = "extract";
         private string _relativeSrc;
         private readonly byte[] _expectedContents = { 0b00, 0b01, 0b10, 0b11 };
         private ExtractFileMessage _requestMessage;
@@ -35,8 +36,9 @@ namespace Microservices.FileCopier.Tests.Execution
 
             _mockFileSystem = new MockFileSystem();
             _mockFileSystem.Directory.CreateDirectory(FileSystemRoot);
+            _mockFileSystem.Directory.CreateDirectory(ExtractRoot);
             _relativeSrc = _mockFileSystem.Path.Combine("input", "a.dcm");
-            string src = _mockFileSystem.Path.Combine("smi", _relativeSrc);
+            string src = _mockFileSystem.Path.Combine(FileSystemRoot, _relativeSrc);
             _mockFileSystem.Directory.CreateDirectory(_mockFileSystem.Directory.GetParent(src).FullName);
             _mockFileSystem.File.WriteAllBytes(src, _expectedContents);
         }
@@ -56,7 +58,7 @@ namespace Microservices.FileCopier.Tests.Execution
                 JobSubmittedAt = DateTime.UtcNow,
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 ProjectNumber = "123",
-                ExtractionDirectory = "extract",
+                ExtractionDirectory = "proj1",
                 DicomFilePath = _relativeSrc,
                 OutputPath = "out.dcm",
             };
@@ -86,7 +88,7 @@ namespace Microservices.FileCopier.Tests.Execution
 
             var requestHeader = new MessageHeader();
 
-            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
@@ -98,7 +100,7 @@ namespace Microservices.FileCopier.Tests.Execution
             Assert.AreEqual(expectedStatusMessage, sentStatusMessage);
             Assert.AreEqual(_options.NoVerifyRoutingKey, sentRoutingKey);
 
-            string expectedDest = _mockFileSystem.Path.Combine("smi", "extract", "out.dcm");
+            string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
             Assert.True(_mockFileSystem.File.Exists(expectedDest));
             Assert.AreEqual(_expectedContents, _mockFileSystem.File.ReadAllBytes(expectedDest));
         }
@@ -121,7 +123,7 @@ namespace Microservices.FileCopier.Tests.Execution
             _requestMessage.DicomFilePath = "missing.dcm";
             var requestHeader = new MessageHeader();
 
-            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
@@ -151,11 +153,11 @@ namespace Microservices.FileCopier.Tests.Execution
                 .Returns(() => null);
 
             var requestHeader = new MessageHeader();
-            string expectedDest = _mockFileSystem.Path.Combine("smi", "extract", "out.dcm");
+            string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
             _mockFileSystem.Directory.GetParent(expectedDest).Create();
             _mockFileSystem.File.WriteAllBytes(expectedDest, new byte[] { 0b0 });
 
-            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
