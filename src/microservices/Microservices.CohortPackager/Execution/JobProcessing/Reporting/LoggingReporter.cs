@@ -24,7 +24,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        protected override Stream GetStream(string _) => new MemoryStream();
+        protected override Stream GetStream(ExtractJobInfo _) => new MemoryStream();
 
         protected override void FinishReport(Stream stream)
         {

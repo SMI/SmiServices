@@ -1,5 +1,6 @@
 using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using MongoDB.Driver;
@@ -12,13 +13,19 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Threading;
+
 
 namespace Microservices.CohortPackager.Tests.Execution
 {
     [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class CohortPackagerHostTest
     {
+        private const string ExtractRoot = "extractRoot";
+        private string _projectExtractDir;
+        private string _extractionDir;
 
         #region Fixture Methods 
 
@@ -26,6 +33,9 @@ namespace Microservices.CohortPackager.Tests.Execution
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
+
+            _projectExtractDir = Path.Combine("proj1", "extractions");
+            _extractionDir = Path.Combine(_projectExtractDir, "extract1");
         }
 
         [OneTimeTearDown]
@@ -47,8 +57,8 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         private class TestReporter : IJobReporter
         {
-            public bool reportCreated;
-            public void CreateReport(Guid jobId) => reportCreated = true;
+            public bool ReportCreated;
+            public void CreateReport(Guid jobId) => ReportCreated = true;
         }
 
         private class TestLoggingNotifier : IJobCompleteNotifier
@@ -71,7 +81,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = DateTime.UtcNow,
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
             };
@@ -80,7 +90,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = DateTime.UtcNow,
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "study-1-anon-1.dcm" },
@@ -98,7 +108,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "study-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 Status = ExtractedFileStatus.ErrorWontRetry,
                 StatusMessage = "Couldn't anonymise",
                 DicomFilePath = "study-1-orig-1.dcm",
@@ -109,7 +119,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "study-1-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 IsIdentifiable = false,
                 Report = "[]",
                 DicomFilePath = "study-1-orig-2.dcm",
@@ -136,7 +146,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
                 var reporter = new TestReporter();
                 var notifier = new TestLoggingNotifier();
-                var host = new CohortPackagerHost(globals, reporter, notifier, null, false);
+                var host = new CohortPackagerHost(globals, null, reporter, notifier, null, false);
                 host.Start();
 
                 var timeoutSecs = 30;
@@ -148,7 +158,9 @@ namespace Microservices.CohortPackager.Tests.Execution
 
                 host.Stop("Test end");
                 Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
-                Assert.True(reporter.reportCreated);
+
+                // TODO(rkm 2020-10-02) Test actual reports content once split into new files
+                Assert.True(reporter.ReportCreated);
             }
         }
 
@@ -162,7 +174,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = DateTime.UtcNow,
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 IsIdentifiableExtraction = true,
@@ -172,7 +184,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = DateTime.UtcNow,
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "out1.dcm" },
@@ -191,7 +203,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "src.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 Status = ExtractedFileStatus.Copied,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-1.dcm",
@@ -203,7 +215,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "src_missing.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = "test",
+                ExtractionDirectory = _extractionDir,
                 Status = ExtractedFileStatus.FileMissing,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-2.dcm",
@@ -216,34 +228,52 @@ namespace Microservices.CohortPackager.Tests.Execution
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
             client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
 
-            using (var tester = new MicroserviceTester(
+            using var tester = new MicroserviceTester(
                 globals.RabbitOptions,
                 globals.CohortPackagerOptions.ExtractRequestInfoOptions,
                 globals.CohortPackagerOptions.FileCollectionInfoOptions,
                 globals.CohortPackagerOptions.NoVerifyStatusOptions,
-                globals.CohortPackagerOptions.VerificationStatusOptions))
+                globals.CohortPackagerOptions.VerificationStatusOptions
+            );
+
+            tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
+            tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage);
+            tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage1);
+            tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage2);
+
+            MongoDbOptions mongoDbOptions = globals.MongoDatabases.ExtractionStoreOptions;
+            var jobStore = new MongoExtractJobStore(
+                MongoClientHelpers.GetMongoClient(mongoDbOptions, "CohortPackager-Test"),
+                mongoDbOptions.DatabaseName
+            );
+
+            globals.FileSystemOptions.ExtractRoot = ExtractRoot;
+            var mockFileSystem = new MockFileSystem();
+            mockFileSystem.Directory.CreateDirectory(globals.FileSystemOptions.FileSystemRoot);
+            mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projectExtractDir, "reports"));
+
+            var reporter = new FileReporter(jobStore, mockFileSystem, ExtractRoot);
+
+            var notifier = new TestLoggingNotifier();
+            var host = new CohortPackagerHost(globals, jobStore, reporter, notifier, null, false);
+            host.Start();
+
+            var timeoutSecs = 30;
+            while (!notifier.JobCompleted && timeoutSecs > 0)
             {
-                tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage1);
-                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage2);
-
-                var reporter = new TestReporter();
-                var notifier = new TestLoggingNotifier();
-                var host = new CohortPackagerHost(globals, reporter, notifier, null, false);
-                host.Start();
-
-                var timeoutSecs = 30;
-                while (!notifier.JobCompleted && timeoutSecs > 0)
-                {
-                    --timeoutSecs;
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
-                }
-
-                host.Stop("Test end");
-                Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
-                Assert.True(reporter.reportCreated);
+                --timeoutSecs;
+                Thread.Sleep(TimeSpan.FromSeconds(1));
             }
+
+            host.Stop("Test end");
+            Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
+
+            // TODO(rkm 2020-10-02) Test actual reports content once split into new files
+            //List<string> allFiles = mockFileSystem.AllFiles.ToList();
+            //Assert.AreEqual(1, allFiles.Count);
+            //string reportContent = mockFileSystem.File.ReadAllText(allFiles[0]);
+            //var expected = "";
+            //Assert.AreEqual(expected, reportContent);
         }
 
         #endregion

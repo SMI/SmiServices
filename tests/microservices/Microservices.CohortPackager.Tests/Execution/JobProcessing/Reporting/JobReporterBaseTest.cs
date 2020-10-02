@@ -44,7 +44,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             public TestJobReporter(IExtractJobStore jobStore) : base(jobStore, null) { }
 
-            protected override Stream GetStream(string extractionName) => new MemoryStream();
+            protected override Stream GetStream(ExtractJobInfo jobInfo) => new MemoryStream();
 
             protected override void FinishReport(Stream stream)
             {

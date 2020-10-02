@@ -26,7 +26,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public string ProjectNumber { get; }
 
         /// <summary>
-        /// Working directory for this project
+        /// Directory to extract files into, relative to teh extraction root. Should be of the format projName/extractions/extractName
         /// </summary>
         [NotNull]
         public string ExtractionDirectory { get; }
@@ -88,6 +88,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         {
             string[] split = ExtractionDirectory.Split('/', '\\');
             return split[^1];
+        }
+
+        public string ProjectExtractionDir()
+        {
+            int idx = ExtractionDirectory.LastIndexOfAny(new[] { '/', '\\' });
+            return ExtractionDirectory.Substring(0, idx);
         }
 
         public override string ToString()

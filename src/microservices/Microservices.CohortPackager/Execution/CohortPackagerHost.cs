@@ -1,15 +1,14 @@
-using System;
-using System.IO;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Messaging;
-using MongoDB.Driver;
 using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
+using System;
 
 
 namespace Microservices.CohortPackager.Execution
@@ -29,6 +28,7 @@ namespace Microservices.CohortPackager.Execution
 
         public CohortPackagerHost(
             GlobalOptions globals,
+            ExtractJobStore jobStore = null,
             IJobReporter reporter = null,
             IJobCompleteNotifier notifier = null,
             IRabbitMqAdapter rabbitMqAdapter = null,
@@ -36,19 +36,29 @@ namespace Microservices.CohortPackager.Execution
         )
             : base(globals, rabbitMqAdapter, loadSmiLogConfig)
         {
-
-            MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
-            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName);
-            var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
-
-            string reportDir = $"{Globals.FileSystemOptions.ExtractRoot}/Reports";
-            Directory.CreateDirectory(reportDir);
+            if (jobStore == null)
+            {
+                MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
+                jobStore = new MongoExtractJobStore(
+                    MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
+                    mongoDbOptions.DatabaseName
+                );
+            }
 
             // If not passed a reporter or notifier, try and construct one from the given options
             if (reporter == null)
-                reporter = ObjectFactory.CreateInstance<IJobReporter>($"{typeof(IJobReporter).Namespace}.{Globals.CohortPackagerOptions.ReporterType}", typeof(IJobReporter).Assembly, jobStore, reportDir);
+                reporter = ObjectFactory.CreateInstance<IJobReporter>(
+                    $"{typeof(IJobReporter).Namespace}.{Globals.CohortPackagerOptions.ReporterType}",
+                    typeof(IJobReporter).Assembly,
+                    jobStore,
+                    Globals.FileSystemOptions.ExtractRoot
+                );
             if (notifier == null)
-                notifier = ObjectFactory.CreateInstance<IJobCompleteNotifier>($"{typeof(IJobCompleteNotifier).Namespace}.{Globals.CohortPackagerOptions.NotifierType}", typeof(IJobCompleteNotifier).Assembly, jobStore);
+                notifier = ObjectFactory.CreateInstance<IJobCompleteNotifier>(
+                    $"{typeof(IJobCompleteNotifier).Namespace}.{Globals.CohortPackagerOptions.NotifierType}",
+                    typeof(IJobCompleteNotifier).Assembly,
+                    jobStore
+                );
 
             _jobWatcher = new ExtractJobWatcher(
                 globals.CohortPackagerOptions,
