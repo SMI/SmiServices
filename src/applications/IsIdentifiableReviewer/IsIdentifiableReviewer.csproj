@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Terminal.Gui" Version="0.90.2" />
+    <PackageReference Include="Terminal.Gui" Version="0.90.3" />
   </ItemGroup>
 
   <ItemGroup>
