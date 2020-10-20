@@ -146,7 +146,13 @@ namespace Microservices.CohortPackager.Tests.Execution
 
                 var reporter = new TestReporter();
                 var notifier = new TestLoggingNotifier();
-                var host = new CohortPackagerHost(globals, null, reporter, notifier, null, false);
+                var host = new CohortPackagerHost(
+                    globals,
+                    jobStore: null,
+                    reporter: reporter,
+                    notifier: notifier,
+                    loadSmiLogConfig: false
+                );
                 host.Start();
 
                 var timeoutSecs = 30;
@@ -255,7 +261,13 @@ namespace Microservices.CohortPackager.Tests.Execution
             var reporter = new FileReporter(jobStore, mockFileSystem, ExtractRoot);
 
             var notifier = new TestLoggingNotifier();
-            var host = new CohortPackagerHost(globals, jobStore, reporter, notifier, null, false);
+            var host = new CohortPackagerHost(
+                globals,
+                jobStore,
+                reporter: reporter,
+                notifier: notifier,
+                loadSmiLogConfig: false
+            );
             host.Start();
 
             var timeoutSecs = 30;

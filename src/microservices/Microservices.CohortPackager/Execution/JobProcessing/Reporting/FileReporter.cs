@@ -16,13 +16,12 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         private Stream _fileStream;
 
-
         public FileReporter(
             [NotNull] IExtractJobStore jobStore,
             [NotNull] IFileSystem fileSystem,
             [NotNull] string extractRoot
         )
-            : base(jobStore, null)
+            : base(jobStore)
         {
             _fileSystem = fileSystem;
             _extractRoot = extractRoot ?? throw new ArgumentNullException(nameof(extractRoot));

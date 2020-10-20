@@ -20,10 +20,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private readonly IExtractJobStore _jobStore;
 
         protected JobReporterBase(
-            [NotNull] IExtractJobStore jobStore,
-            // NOTE(rkm 2020-03-17) Required to force matching constructors for all derived types for construction via reflection
-            // ReSharper disable once UnusedParameter.Local
-            [CanBeNull] string _
+            [NotNull] IExtractJobStore jobStore
         )
         {
             Logger = LogManager.GetLogger(GetType().Name);

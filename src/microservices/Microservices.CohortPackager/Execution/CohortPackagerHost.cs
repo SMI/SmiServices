@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
@@ -9,6 +10,7 @@ using Smi.Common.Execution;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
+using System.IO.Abstractions;
 
 
 namespace Microservices.CohortPackager.Execution
@@ -29,6 +31,7 @@ namespace Microservices.CohortPackager.Execution
         public CohortPackagerHost(
             GlobalOptions globals,
             ExtractJobStore jobStore = null,
+            [CanBeNull] IFileSystem fileSystem = null,
             IJobReporter reporter = null,
             IJobCompleteNotifier notifier = null,
             IRabbitMqAdapter rabbitMqAdapter = null,
@@ -46,19 +49,23 @@ namespace Microservices.CohortPackager.Execution
             }
 
             // If not passed a reporter or notifier, try and construct one from the given options
+
             if (reporter == null)
-                reporter = ObjectFactory.CreateInstance<IJobReporter>(
-                    $"{typeof(IJobReporter).Namespace}.{Globals.CohortPackagerOptions.ReporterType}",
-                    typeof(IJobReporter).Assembly,
+            {
+                if (fileSystem == null)
+                    throw new ArgumentException("A filesystem must be provided if the reporter is to be constructed here");
+
+                reporter = GetReporter(
+                    Globals.CohortPackagerOptions.ReporterType,
                     jobStore,
+                    fileSystem,
                     Globals.FileSystemOptions.ExtractRoot
                 );
-            if (notifier == null)
-                notifier = ObjectFactory.CreateInstance<IJobCompleteNotifier>(
-                    $"{typeof(IJobCompleteNotifier).Namespace}.{Globals.CohortPackagerOptions.NotifierType}",
-                    typeof(IJobCompleteNotifier).Assembly,
-                    jobStore
-                );
+            }
+
+            notifier ??= GetNotifier(
+                Globals.CohortPackagerOptions.NotifierType
+            );
 
             _jobWatcher = new ExtractJobWatcher(
                 globals.CohortPackagerOptions,
@@ -99,6 +106,38 @@ namespace Microservices.CohortPackager.Execution
         private void ExceptionCallback(Exception e)
         {
             Fatal("ExtractJobWatcher threw an exception", e);
+        }
+
+        private static IJobReporter GetReporter(
+            [NotNull] string reporterTypeStr,
+            [NotNull] IExtractJobStore jobStore,
+            [NotNull] IFileSystem fileSystem,
+            [NotNull] string extractRoot
+        )
+        {
+            return reporterTypeStr switch
+            {
+                nameof(FileReporter) => new FileReporter(
+                    jobStore,
+                    fileSystem,
+                    extractRoot
+                ),
+                nameof(LoggingReporter) => new LoggingReporter(
+                    jobStore
+                ),
+                _ => throw new ArgumentException($"No case for type, or invalid type string '{reporterTypeStr}'")
+            };
+        }
+
+        private static IJobCompleteNotifier GetNotifier(
+            [NotNull] string notifierTypeStr
+        )
+        {
+            return notifierTypeStr switch
+            {
+                nameof(LoggingNotifier) => new LoggingNotifier(),
+                _ => throw new ArgumentException($"No case for type, or invalid type string '{notifierTypeStr}'")
+            };
         }
     }
 }

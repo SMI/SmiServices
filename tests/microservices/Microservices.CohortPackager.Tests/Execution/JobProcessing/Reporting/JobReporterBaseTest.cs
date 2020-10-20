@@ -42,7 +42,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             public bool Disposed { get; set; }
 
-            public TestJobReporter(IExtractJobStore jobStore) : base(jobStore, null) { }
+            public TestJobReporter(IExtractJobStore jobStore) : base(jobStore) { }
 
             protected override Stream GetStream(ExtractJobInfo jobInfo) => new MemoryStream();
 

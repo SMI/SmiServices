@@ -16,10 +16,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private readonly ILogger _logger;
 
         public LoggingReporter(
-            [NotNull] IExtractJobStore jobStore,
-            string _
+            [NotNull] IExtractJobStore jobStore
         )
-            : base(jobStore, _)
+            : base(jobStore)
         {
             _logger = LogManager.GetCurrentClassLogger();
         }
