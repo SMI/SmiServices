@@ -10,40 +10,111 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
     [UsedImplicitly]
     public class FileReporter : JobReporterBase
     {
-        private readonly string _extractRoot;
+        [NotNull] private readonly string _extractRoot;
 
-        private readonly IFileSystem _fileSystem;
+        [NotNull] private readonly IFileSystem _fileSystem;
 
-        private Stream _fileStream;
+        /// <summary>
+        /// Used to ensure any open streams are tidied-up on crashes
+        /// </summary>
+        [CanBeNull] private Stream _currentFileStream;
+
 
         public FileReporter(
             [NotNull] IExtractJobStore jobStore,
             [NotNull] IFileSystem fileSystem,
-            [NotNull] string extractRoot
+            [NotNull] string extractRoot,
+            ReportFormat reportFormat
         )
-            : base(jobStore)
+            : base(
+                jobStore,
+                reportFormat
+            )
         {
             _fileSystem = fileSystem;
             _extractRoot = extractRoot ?? throw new ArgumentNullException(nameof(extractRoot));
         }
 
-        protected override Stream GetStream(ExtractJobInfo jobInfo)
-        {
-            string jobReportPath = _fileSystem.Path.Combine(_extractRoot, jobInfo.ProjectExtractionDir(), "reports", $"{jobInfo.ExtractionName()}_report.txt");
-            if (_fileSystem.File.Exists(jobReportPath))
-                throw new ApplicationException($"Report file '{jobReportPath}' already exists");
 
-            _fileStream = _fileSystem.File.OpenWrite(jobReportPath);
-            Logger.Info($"Writing report to {jobReportPath}");
-            return _fileStream;
+        protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo)
+        {
+            _currentFileStream = null;
+            Stream fileStream;
+
+            if (WriteCombinedExtraction(jobInfo))
+            {
+                // Write a single report
+
+                string jobReportPath = GetSingleReportJobPath(jobInfo);
+                if (_fileSystem.File.Exists(jobReportPath))
+                    throw new ApplicationException($"Report file '{jobReportPath}' already exists");
+                Logger.Info($"Writing report to {jobReportPath}");
+
+                fileStream = _fileSystem.File.OpenWrite(jobReportPath);
+                _currentFileStream = fileStream; // This is re-used
+            }
+            else
+            {
+                // Create a new directory for the report files, and return an open stream to the summary README
+
+                string jobReportDir = GetMultiReportJobDirectory(jobInfo);
+                if (_fileSystem.Directory.Exists(jobReportDir))
+                    throw new ApplicationException($"Report directory '{jobReportDir}' already exists");
+                _fileSystem.Directory.CreateDirectory(jobReportDir);
+                Logger.Info($"Writing reports to directory {jobReportDir}");
+
+                string jobReadmePath = _fileSystem.Path.Combine(jobReportDir, "README.md");
+                fileStream = _fileSystem.File.OpenWrite(jobReadmePath);
+            }
+
+            return fileStream;
         }
 
-        protected override void FinishReport(Stream stream) { }
+        protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo) => GetStream(jobInfo, "pixel_data_summary.csv");
+        protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo) => GetStream(jobInfo, "pixel_data_full.csv");
+        protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo) => GetStream(jobInfo, "tag_data_summary.csv");
+        protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo) => GetStream(jobInfo, "tag_data_full.csv");
+
+        private string GetSingleReportJobPath(ExtractJobInfo jobInfo)
+            => _fileSystem.Path.Combine(
+                _extractRoot,
+                jobInfo.ProjectExtractionDir(),
+                "reports",
+                $"{jobInfo.ExtractionName()}_report.txt"
+            );
+
+        private string GetMultiReportJobDirectory(ExtractJobInfo jobInfo)
+            => _fileSystem.Path.Combine(
+                _extractRoot,
+                jobInfo.ProjectExtractionDir(),
+                "reports",
+                jobInfo.ExtractionName()
+            );
+
+        private bool WriteCombinedExtraction(ExtractJobInfo jobInfo)
+        {
+            if (ReportFormat == ReportFormat.Combined || jobInfo.IsIdentifiableExtraction)
+                return true;
+            if (ReportFormat == ReportFormat.Split)
+                return false;
+            throw new ApplicationException($"No case for report format '{ReportFormat}'");
+        }
+
+        private Stream GetStream(ExtractJobInfo jobInfo, string fileName)
+        {
+            if (WriteCombinedExtraction(jobInfo))
+                return _currentFileStream;
+
+            string jobReadmePath = _fileSystem.Path.Combine(GetMultiReportJobDirectory(jobInfo), fileName);
+            return _fileSystem.File.OpenWrite(jobReadmePath);
+        }
+
+        protected override void FinishReportPart(Stream stream) { }
 
         protected override void ReleaseUnmanagedResources()
         {
-            if (_fileStream != null)
-                _fileStream.Dispose();
+            if (_currentFileStream != null)
+                _currentFileStream.Dispose();
         }
 
         public override void Dispose()

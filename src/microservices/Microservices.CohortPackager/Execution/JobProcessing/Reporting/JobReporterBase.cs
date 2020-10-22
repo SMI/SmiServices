@@ -15,23 +15,28 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
     public abstract class JobReporterBase : IJobReporter, IDisposable
     {
+        public readonly ReportFormat ReportFormat;
+
         [NotNull] protected readonly ILogger Logger;
 
         private readonly IExtractJobStore _jobStore;
 
+
         protected JobReporterBase(
-            [NotNull] IExtractJobStore jobStore
+            [NotNull] IExtractJobStore jobStore,
+            ReportFormat reportFormat
         )
         {
             Logger = LogManager.GetLogger(GetType().Name);
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
+            ReportFormat = reportFormat;
         }
 
         public void CreateReport(Guid jobId)
         {
             ExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
 
-            using Stream stream = GetStream(jobInfo);
+            using Stream stream = GetStreamForSummary(jobInfo);
             using var streamWriter = new StreamWriter(stream)
             {
                 NewLine = "\r\n"
@@ -42,48 +47,58 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine(line);
             streamWriter.WriteLine();
 
+            // For identifiable extractions, write the metadata and list of missing files then return. The other parts don't make sense in this case
             if (jobInfo.IsIdentifiableExtraction)
             {
                 streamWriter.WriteLine("## Missing file list");
                 streamWriter.WriteLine();
                 WriteJobMissingFileList(streamWriter, _jobStore.GetCompletedJobMissingFileList(jobInfo.ExtractionJobIdentifier));
                 streamWriter.WriteLine();
+                streamWriter.WriteLine("--- end of report ---");
+                streamWriter.Flush();
+                FinishReportPart(stream);
+                return;
             }
-            else
-            {
 
-                streamWriter.WriteLine("## Verification failures");
-                streamWriter.WriteLine();
-                WriteJobVerificationFailures(streamWriter,
-                    _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier));
-                streamWriter.WriteLine();
+            streamWriter.WriteLine("## Verification failures");
+            streamWriter.WriteLine();
+            WriteJobVerificationFailures(streamWriter,
+                _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier));
+            streamWriter.WriteLine();
 
-                streamWriter.WriteLine("## Blocked files");
-                streamWriter.WriteLine();
-                foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(
-                    jobInfo.ExtractionJobIdentifier))
-                    WriteJobRejections(streamWriter, rejection);
-                streamWriter.WriteLine();
+            streamWriter.WriteLine("## Blocked files");
+            streamWriter.WriteLine();
+            foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(
+                jobInfo.ExtractionJobIdentifier))
+                WriteJobRejections(streamWriter, rejection);
+            streamWriter.WriteLine();
 
-                streamWriter.WriteLine("## Anonymisation failures");
-                streamWriter.WriteLine();
-                foreach ((string expectedAnonFile, string failureReason) in _jobStore
-                    .GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
-                    WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
-                streamWriter.WriteLine();
-            }
+            streamWriter.WriteLine("## Anonymisation failures");
+            streamWriter.WriteLine();
+            foreach ((string expectedAnonFile, string failureReason) in _jobStore
+                .GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
+                WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
+            streamWriter.WriteLine();
 
             streamWriter.WriteLine("--- end of report ---");
 
             streamWriter.Flush();
 
-            stream.Position = 0;
-            FinishReport(stream);
+            FinishReportPart(stream);
         }
 
-        protected abstract Stream GetStream(ExtractJobInfo jobInfo);
+        /// <summary>
+        /// Get the stream for writing the summary content to. This includes the job header and 
+        /// </summary>
+        /// <param name="jobInfo"></param>
+        /// <returns></returns>
+        protected abstract Stream GetStreamForSummary(ExtractJobInfo jobInfo);
+        protected abstract Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo);
+        protected abstract Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo);
+        protected abstract Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo);
+        protected abstract Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo);
 
-        protected abstract void FinishReport(Stream stream);
+        protected abstract void FinishReportPart(Stream stream);
 
         private static IEnumerable<string> JobHeader(ExtractJobInfo jobInfo)
         {

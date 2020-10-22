@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NLog;
+using System.IO;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -16,19 +15,28 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private readonly ILogger _logger;
 
         public LoggingReporter(
-            [NotNull] IExtractJobStore jobStore
+            [NotNull] IExtractJobStore jobStore,
+            ReportFormat reportFormat
         )
-            : base(jobStore)
+            : base(
+                jobStore,
+                reportFormat
+            )
         {
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        protected override Stream GetStream(ExtractJobInfo _) => new MemoryStream();
+        protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo) => new MemoryStream();
+        protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
+        protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
+        protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
+        protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
 
-        protected override void FinishReport(Stream stream)
+        protected override void FinishReportPart(Stream stream)
         {
-            using (var streamReader = new StreamReader(stream))
-                _logger.Info(streamReader.ReadToEnd);
+            stream.Position = 0;
+            using var streamReader = new StreamReader(stream);
+            _logger.Info(streamReader.ReadToEnd);
         }
 
         protected override void ReleaseUnmanagedResources() { }

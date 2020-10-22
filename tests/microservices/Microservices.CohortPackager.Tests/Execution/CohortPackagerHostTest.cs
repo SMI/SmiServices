@@ -258,7 +258,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             mockFileSystem.Directory.CreateDirectory(globals.FileSystemOptions.FileSystemRoot);
             mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projectExtractDir, "reports"));
 
-            var reporter = new FileReporter(jobStore, mockFileSystem, ExtractRoot);
+            var reporter = new FileReporter(jobStore, mockFileSystem, ExtractRoot, ReportFormat.Combined);
 
             var notifier = new TestLoggingNotifier();
             var host = new CohortPackagerHost(

@@ -42,16 +42,19 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             public bool Disposed { get; set; }
 
-            public TestJobReporter(IExtractJobStore jobStore) : base(jobStore) { }
+            public TestJobReporter(IExtractJobStore jobStore, ReportFormat reportFormat) : base(jobStore, reportFormat) { }
 
-            protected override Stream GetStream(ExtractJobInfo jobInfo) => new MemoryStream();
+            protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo) => new MemoryStream();
+            protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
+            protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
+            protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
+            protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
 
-            protected override void FinishReport(Stream stream)
+            protected override void FinishReportPart(Stream stream)
             {
-                using (var streamReader = new StreamReader(stream))
-                {
-                    Report = streamReader.ReadToEnd();
-                }
+                stream.Position = 0;
+                using var streamReader = new StreamReader(stream);
+                Report = streamReader.ReadToEnd();
             }
 
             protected override void ReleaseUnmanagedResources() => Disposed = true;
@@ -83,7 +86,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -184,7 +187,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -270,7 +273,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 Assert.Throws<ApplicationException>(() => reporter.CreateReport(Guid.Empty), "aa");
             }
@@ -363,7 +366,7 @@ Report contents:
                 .Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -490,7 +493,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -580,7 +583,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -636,7 +639,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }

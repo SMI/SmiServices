@@ -50,20 +50,24 @@ namespace Microservices.CohortPackager.Execution
 
             // If not passed a reporter or notifier, try and construct one from the given options
 
+            string reportFormatStr = Globals.CohortPackagerOptions.ReportFormat;
             if (reporter == null)
             {
                 if (fileSystem == null)
                     throw new ArgumentException("A filesystem must be provided if the reporter is to be constructed here");
 
-                reporter = GetReporter(
+                reporter = JobReporterFactory.GetReporter(
                     Globals.CohortPackagerOptions.ReporterType,
                     jobStore,
                     fileSystem,
-                    Globals.FileSystemOptions.ExtractRoot
+                    Globals.FileSystemOptions.ExtractRoot,
+                    reportFormatStr
                 );
             }
+            else if (!string.IsNullOrWhiteSpace(reportFormatStr))
+                Logger.Warn($"Using the passed IJobReporter, but a ReportFormat of '{reportFormatStr}' was set in the options");
 
-            notifier ??= GetNotifier(
+            notifier ??= JobCompleteNotifierFactory.GetNotifier(
                 Globals.CohortPackagerOptions.NotifierType
             );
 
@@ -108,36 +112,6 @@ namespace Microservices.CohortPackager.Execution
             Fatal("ExtractJobWatcher threw an exception", e);
         }
 
-        private static IJobReporter GetReporter(
-            [NotNull] string reporterTypeStr,
-            [NotNull] IExtractJobStore jobStore,
-            [NotNull] IFileSystem fileSystem,
-            [NotNull] string extractRoot
-        )
-        {
-            return reporterTypeStr switch
-            {
-                nameof(FileReporter) => new FileReporter(
-                    jobStore,
-                    fileSystem,
-                    extractRoot
-                ),
-                nameof(LoggingReporter) => new LoggingReporter(
-                    jobStore
-                ),
-                _ => throw new ArgumentException($"No case for type, or invalid type string '{reporterTypeStr}'")
-            };
-        }
 
-        private static IJobCompleteNotifier GetNotifier(
-            [NotNull] string notifierTypeStr
-        )
-        {
-            return notifierTypeStr switch
-            {
-                nameof(LoggingNotifier) => new LoggingNotifier(),
-                _ => throw new ArgumentException($"No case for type, or invalid type string '{notifierTypeStr}'")
-            };
-        }
     }
 }
