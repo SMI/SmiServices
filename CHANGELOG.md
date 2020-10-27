@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-
+- Reduce memory usage on long-running microservices even when .Net assumes RAM is plentiful
 
 ### Added
 
