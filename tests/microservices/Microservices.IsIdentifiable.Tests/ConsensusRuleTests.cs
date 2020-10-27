@@ -1,5 +1,6 @@
 ﻿using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Rules;
+using Microservices.IsIdentifiable.Runners;
 using Moq;
 using NPOI.OpenXmlFormats.Wordprocessing;
 using NUnit.Framework;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace Microservices.IsIdentifiable.Tests
 {
@@ -67,6 +69,29 @@ namespace Microservices.IsIdentifiable.Tests
             Assert.AreEqual(RuleAction.Report,result);
             Assert.AreEqual(10,badParts.Single().Offset);
             Assert.AreEqual("ab",badParts.Single().Word);
+        }
+
+        [Test]
+        public void TestDeserialization()
+        {
+            string yaml = 
+@"ConsensusRules:
+    - Rules:
+      - !SocketRule
+          Host: 127.0.123.123
+          Port: 1234
+      - !SocketRule
+          Host: 127.0.123.123
+          Port: 567";
+
+            
+            var deserializer = IsIdentifiableAbstractRunner.GetDeserializer();
+            var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
+
+            Assert.IsInstanceOf(typeof(ConsensusRule),ruleSet.ConsensusRules.Single());
+            Assert.IsInstanceOf(typeof(SocketRule),ruleSet.ConsensusRules.Single().Rules[0]);
+            Assert.AreEqual(1234,((SocketRule)ruleSet.ConsensusRules.Single().Rules[0]).Port);
+            Assert.AreEqual(567,((SocketRule)ruleSet.ConsensusRules.Single().Rules[1]).Port);
         }
 
         class TestRule : ICustomRule
