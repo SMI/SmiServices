@@ -24,6 +24,14 @@ namespace Smi.Common.Execution
         {
             Console.WriteLine("Bootstrapper -> Main called, constructing host");
 
+            // Set up a periodic forced GC to avoid wasting RAM on multi-service hosts:
+            new System.Timers.Timer {Interval = 3600000, AutoReset = true, Enabled = true}.Elapsed +=
+                (o, args) =>
+                {
+                    System.Runtime.GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect(2, GCCollectionMode.Forced, true, true);
+                };
+
             MicroserviceHost host;
 
             try
