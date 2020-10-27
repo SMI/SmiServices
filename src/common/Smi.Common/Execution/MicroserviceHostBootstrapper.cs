@@ -28,7 +28,7 @@ namespace Smi.Common.Execution
             new System.Timers.Timer {Interval = 3600000, AutoReset = true, Enabled = true}.Elapsed +=
                 (o, args) =>
                 {
-                    System.Runtime.GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    System.Runtime.GCSettings.LargeObjectHeapCompactionMode = System.Runtime.GCLargeObjectHeapCompactionMode.CompactOnce;
                     GC.Collect(2, GCCollectionMode.Forced, true, true);
                 };
 
