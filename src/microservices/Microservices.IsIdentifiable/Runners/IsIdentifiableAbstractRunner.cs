@@ -229,6 +229,20 @@ namespace Microservices.IsIdentifiable.Runners
             //some odd custom rule type that is not a socket or basic rule, do them after the regular reports but before sockets
             return -50;
         }
+        
+        /// <summary>
+        /// Generates a deserializer suitable for deserialzing <see cref="RuleSet"/> for use with this class (see also <see cref="LoadRules(string)"/>)
+        /// </summary>
+        /// <returns></returns>
+        public static IDeserializer GetDeserializer()
+        {
+            var builder = new DeserializerBuilder();
+            builder.WithTagMapping("!SocketRule", typeof(SocketRule));
+            builder.WithTagMapping("!WhiteListRule", typeof(WhiteListRule));
+            builder.WithTagMapping("!IsIdentifiableRule", typeof(IsIdentifiableRule));
+
+            return builder.Build();
+        }
 
         /// <summary>
         /// Deserializes the given <paramref name="yaml"/> into a collection of <see cref="IsIdentifiableRule"/>
@@ -239,7 +253,7 @@ namespace Microservices.IsIdentifiable.Runners
         {
             _logger.Info("Loading Rules Yaml");
             _logger.Debug("Loading Rules Yaml:" +Environment.NewLine+yaml);
-            var deserializer = new Deserializer();
+            var deserializer = GetDeserializer();
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
             if(ruleSet.BasicRules != null)

@@ -120,46 +120,52 @@ namespace IsIdentifiableReviewer
                 Height = Dim.Fill()
             };
 
-            frame.Add(new Button("Ignore")
+            var ignoreButton = new Button("Ignore")
             {
-                X = 0,
-                Clicked = Ignore
-            });
+                X = 0
+            };
+            ignoreButton.Clicked += Ignore;
+            frame.Add(ignoreButton);
 
-            frame.Add(new Button("Update")
+            var updateButton = new Button("Update")
             {
-                X = 11,
-                Clicked = Update
-            });
+                X = 11
+            };
+            updateButton.Clicked += Update;
+            frame.Add(updateButton);
             
             _gotoTextField = new TextField("1")
             {
                 X=28,
                 Width = 5
             };
-            _gotoTextField.TextChanged = (s) => GoTo();
+            _gotoTextField.TextChanged += (s) => GoTo();
             frame.Add(_gotoTextField);
             frame.Add(new Label(23,0,"GoTo:"));
 
-            frame.Add(new Button("Prev")
+            var prevButton = new Button("Prev")
             {
                 X = 0,
-                Y = 1,
-                Clicked = ()=>GoToRelative(-1)
-            });
-            frame.Add(new Button("Next")
-            {
-                X = 11,
-                Y = 1,
-                Clicked = ()=>GoToRelative(1)
-            });
+                Y = 1
+            };
+            prevButton.Clicked += () => GoToRelative(-1);
+            frame.Add(prevButton);
 
-            frame.Add(new Button("unDo")
+            var nextButton = new Button("Next")
             {
                 X = 11,
-                Y = 2,
-                Clicked = ()=>Undo()
-            });
+                Y = 1
+            };
+            nextButton.Clicked += () => GoToRelative(1);
+            frame.Add(nextButton);
+
+            var undoButton = new Button("unDo")
+            {
+                X = 11,
+                Y = 2
+            };
+            undoButton.Clicked += () => Undo();
+            frame.Add(undoButton);
 
             frame.Add(new Label(0,4,"Default Patterns"));
 
@@ -169,7 +175,7 @@ namespace IsIdentifiableReviewer
             frame.Add(_updateRuleLabel);
 
             var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
-            cbCustomPattern.Toggled = (b) =>
+            cbCustomPattern.Toggled += (b) =>
             {
                 Updater.RulesFactory = cbCustomPattern.Checked ? this : _origUpdaterRulesFactory;
                 Ignorer.RulesFactory = cbCustomPattern.Checked ? this : _origIgnorerRulesFactory;
@@ -179,7 +185,7 @@ namespace IsIdentifiableReviewer
             _cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
             Updater.RulesOnly = opts.OnlyRules;
 
-            _cbRulesOnly.Toggled = (b) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
+            _cbRulesOnly.Toggled += (b) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
             frame.Add(_cbRulesOnly);
             
             top.Add (menu);
@@ -467,16 +473,13 @@ namespace IsIdentifiableReviewer
 
                 string name = value.ToString();
 
-                var btn = new Button(0, line++, name)
+                var btn = new Button(0, line++, name);
+                btn.Clicked += () =>
                 {
-                    Clicked = () =>
-                    {
-                        result = v1;
-                        dlg.Running = false;
-                        optionChosen = true;
-                    }
+                    result = v1;
+                    dlg.Running = false;
+                    optionChosen = true;
                 };
-
 
                 dlg.Add(btn);
 
@@ -532,14 +535,14 @@ namespace IsIdentifiableReviewer
 
             var btn = new Button(0, line, "Ok")
             {
-                IsDefault = true,
-                Clicked = () =>
+                IsDefault = true
+            };
+            btn.Clicked += () =>
+            {
+                if (!string.IsNullOrWhiteSpace(txt.Text?.ToString()))
                 {
-                    if (!string.IsNullOrWhiteSpace(txt.Text?.ToString()))
-                    {
-                        dlg.Running = false;
-                        optionChosen = true;
-                    }
+                    dlg.Running = false;
+                    optionChosen = true;
                 }
             };
             dlg.Add(btn);
@@ -548,10 +551,8 @@ namespace IsIdentifiableReviewer
             if(buttons != null)
                 foreach (var kvp in buttons)
                 {
-                    var button = new Button(x, line,kvp.Key)
-                    {
-                        Clicked = () => { txt.Text = kvp.Value; }
-                    };
+                    var button = new Button(x, line,kvp.Key);
+                    button.Clicked += () => { txt.Text = kvp.Value; };
                     dlg.Add(button);
                     x += kvp.Key.Length + 5;
                 }
