@@ -68,16 +68,15 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             streamWriter.WriteLine("## Blocked files");
             streamWriter.WriteLine();
-            foreach (Tuple<string, Dictionary<string, int>> rejection in _jobStore.GetCompletedJobRejections(
+            foreach (ExtractionIdentifierRejectionInfo extractionIdentifierRejectionInfo in _jobStore.GetCompletedJobRejections(
                 jobInfo.ExtractionJobIdentifier))
-                WriteJobRejections(streamWriter, rejection);
+                WriteJobRejections(streamWriter, extractionIdentifierRejectionInfo);
             streamWriter.WriteLine();
 
             streamWriter.WriteLine("## Anonymisation failures");
             streamWriter.WriteLine();
-            foreach ((string expectedAnonFile, string failureReason) in _jobStore
-                .GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
-                WriteAnonFailure(streamWriter, expectedAnonFile, failureReason);
+            foreach (FileAnonFailureInfo fileAnonFailureInfo in _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier))
+                WriteAnonFailure(streamWriter, fileAnonFailureInfo);
             streamWriter.WriteLine();
 
             streamWriter.WriteLine("--- end of report ---");
@@ -143,30 +142,29 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             return header;
         }
 
-        private static void WriteJobRejections(TextWriter streamWriter, Tuple<string, Dictionary<string, int>> rejection)
+        private static void WriteJobRejections(TextWriter streamWriter, ExtractionIdentifierRejectionInfo extractionIdentifierRejectionInfo)
         {
-            (string rejectionKey, Dictionary<string, int> rejectionItems) = rejection;
-            streamWriter.WriteLine($"- ID: {rejectionKey}");
-            foreach ((string reason, int count) in rejectionItems.OrderByDescending(x => x.Value))
+            streamWriter.WriteLine($"- ID: {extractionIdentifierRejectionInfo.ExtractionIdentifier}");
+            foreach ((string reason, int count) in extractionIdentifierRejectionInfo.RejectionItems.OrderByDescending(x => x.Value))
                 streamWriter.WriteLine($"    - {count}x '{reason}'");
         }
 
-        private static void WriteAnonFailure(TextWriter streamWriter, string expectedAnonFile, string failureReason)
+        private static void WriteAnonFailure(TextWriter streamWriter, FileAnonFailureInfo fileAnonFailureInfo)
         {
-            streamWriter.WriteLine($"- file '{expectedAnonFile}': '{failureReason}'");
+            streamWriter.WriteLine($"- file '{fileAnonFailureInfo.ExpectedAnonFile}': '{fileAnonFailureInfo.Reason}'");
         }
 
-        private static void WriteJobVerificationFailures(TextWriter streamWriter, IEnumerable<Tuple<string, string>> verificationFailures)
+        private static void WriteJobVerificationFailures(TextWriter streamWriter, IEnumerable<VerificationFailureInfo> verificationFailures)
         {
             // For each problem field, we build a dict of problem values with a list of each file containing that value. This allows
             // grouping & ordering by occurrence in the following section.
             var groupedFailures = new Dictionary<string, Dictionary<string, List<string>>>();
-            foreach ((string anonFile, string failureData) in verificationFailures)
+            foreach (VerificationFailureInfo verificationFailureInfo in verificationFailures)
             {
                 IEnumerable<Failure> fileFailures;
                 try
                 {
-                    fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(failureData);
+                    fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(verificationFailureInfo.Data);
                 }
                 catch (JsonException e)
                 {
@@ -181,12 +179,12 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     if (!groupedFailures.ContainsKey(tag))
                         groupedFailures.Add(tag, new Dictionary<string, List<string>>
                         {
-                            { value, new List<string> { anonFile } },
+                            { value, new List<string> { verificationFailureInfo.AnonFilePath } },
                         });
                     else if (!groupedFailures[tag].ContainsKey(value))
-                        groupedFailures[tag].Add(value, new List<string> { anonFile });
+                        groupedFailures[tag].Add(value, new List<string> { verificationFailureInfo.AnonFilePath });
                     else
-                        groupedFailures[tag][value].Add(anonFile);
+                        groupedFailures[tag][value].Add(verificationFailureInfo.AnonFilePath);
                 }
             }
 

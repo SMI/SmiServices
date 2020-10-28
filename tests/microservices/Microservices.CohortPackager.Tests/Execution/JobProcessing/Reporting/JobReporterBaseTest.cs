@@ -81,9 +81,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<VerificationFailureInfo>());
 
             TestJobReporter reporter;
             using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
@@ -148,10 +148,10 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var rejections = new List<Tuple<string, Dictionary<string, int>>>
+            var rejections = new List<ExtractionIdentifierRejectionInfo>
             {
-                new Tuple<string, Dictionary<string, int>>(
-                    "1.2.3.4",
+                new ExtractionIdentifierRejectionInfo(
+                    keyValue: "1.2.3.4",
                     new Dictionary<string, int>
                     {
                         {"image is in the deny list for extraction", 123},
@@ -159,9 +159,9 @@ Report contents:
                     }),
             };
 
-            var anonFailures = new List<Tuple<string, string>>
+            var anonFailures = new List<FileAnonFailureInfo>
             {
-                new Tuple<string, string>("foo1.dcm", "image was corrupt"),
+                new FileAnonFailureInfo(expectedAnonFile: "foo1.dcm", reason: "image was corrupt"),
             };
 
             const string report = @"
@@ -175,9 +175,9 @@ Report contents:
     }
 ]";
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<VerificationFailureInfo>
             {
-                new Tuple<string, string>("foo1.dcm", report),
+                new VerificationFailureInfo(anonFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -261,15 +261,15 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<VerificationFailureInfo>
             {
-                new Tuple<string, string>("foo.dcm", "totally not a report"),
+                new VerificationFailureInfo(anonFilePath: "foo1.dcm", failureData: "totally not a report"),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
@@ -299,9 +299,9 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<VerificationFailureInfo>
             {
-                new Tuple<string, string>("ccc/ddd/foo1.dcm", @"
+                new VerificationFailureInfo(anonFilePath: "ccc/ddd/foo1.dcm", failureData: @"
                     [
                         {
                              'Parts': [],
@@ -312,7 +312,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("ccc/ddd/foo2.dcm", @"
+                new VerificationFailureInfo(anonFilePath:"ccc/ddd/foo2.dcm",failureData: @"
                     [
                         {
                              'Parts': [],
@@ -323,7 +323,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("aaa/bbb/foo1.dcm", @"
+                new VerificationFailureInfo(anonFilePath:"aaa/bbb/foo1.dcm", failureData:@"
                     [
                         {
                             'Parts': [],
@@ -334,7 +334,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("aaa/bbb/foo2.dcm", @"
+                new VerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm",failureData: @"
                     [
                         {
                             'Parts': [],
@@ -345,7 +345,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("aaa/bbb/foo2.dcm", @"
+                new VerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm", failureData: @"
                     [
                          {
                             'Parts': [],
@@ -360,8 +360,8 @@ Report contents:
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>()))
                 .Returns(verificationFailures);
 
@@ -481,15 +481,15 @@ Report contents:
     },
 ]";
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<VerificationFailureInfo>
             {
-                new Tuple<string, string>("foo1.dcm", report),
+                new VerificationFailureInfo(anonFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
@@ -634,9 +634,9 @@ Report contents:
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<VerificationFailureInfo>());
 
             TestJobReporter reporter;
             using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
