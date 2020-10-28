@@ -317,10 +317,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejectionsImpl(Guid jobId)
         {
-            IAsyncCursor<MongoExpectedFilesDoc> cursor = _completedExpectedFilesCollection.FindSync(Builders<MongoExpectedFilesDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId));
+            var filter = FilterDefinition<MongoExpectedFilesDoc>.Empty;
+            filter &= Builders<MongoExpectedFilesDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
+            // TODO(rkm 2020-10-28) This doesn't work for some reason, so for now we're using the check inside the foreach loop
+            //filter &= Builders<MongoExpectedFilesDoc>.Filter.Gt(x => x.RejectedKeys.RejectionInfo.Count, 0);
+            IAsyncCursor<MongoExpectedFilesDoc> cursor = _completedExpectedFilesCollection.FindSync(filter);
             while (cursor.MoveNext())
                 foreach (MongoExpectedFilesDoc expectedFilesDoc in cursor.Current)
+                {
+                    if (expectedFilesDoc.RejectedKeys.RejectionInfo.Count == 0)
+                        continue;
                     yield return new ExtractionIdentifierRejectionInfo(expectedFilesDoc.Key, expectedFilesDoc.RejectedKeys.RejectionInfo);
+                }
         }
 
         protected override IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId)
