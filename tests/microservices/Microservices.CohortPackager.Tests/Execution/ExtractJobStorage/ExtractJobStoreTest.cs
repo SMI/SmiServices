@@ -42,7 +42,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             protected override ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejectionsImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId) => throw new NotImplementedException();
-            protected override IEnumerable<VerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId) => throw new NotImplementedException();
+            protected override IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId) => new[] { "missing" };
         }
 

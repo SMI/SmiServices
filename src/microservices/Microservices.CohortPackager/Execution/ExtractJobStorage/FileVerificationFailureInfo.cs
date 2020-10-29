@@ -7,7 +7,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
     /// <summary>
     /// Contains information for an anonymised file which failed the validation checks
     /// </summary>
-    public class VerificationFailureInfo
+    public class FileVerificationFailureInfo
     {
         /// <summary>
         /// The anonymised file path which has failed, relative to the extraction directory
@@ -21,7 +21,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         [NotNull] public readonly string Data;
 
 
-        public VerificationFailureInfo(
+        public FileVerificationFailureInfo(
             [NotNull] string anonFilePath,
             [NotNull] string failureData
         )

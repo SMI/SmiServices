@@ -38,23 +38,52 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
         private class TestJobReporter : JobReporterBase
         {
-            public string Report { get; set; }
+            public string Report { get; set; } = "";
 
             public bool Disposed { get; set; }
 
+            private string _currentReportName;
+            private bool _isCombinedReport;
+
             public TestJobReporter(IExtractJobStore jobStore, ReportFormat reportFormat) : base(jobStore, reportFormat) { }
 
-            protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo) => new MemoryStream();
-            protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
-            protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
-            protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
-            protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
+            protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "summary";
+                _isCombinedReport = ShouldWriteCombinedReport(jobInfo);
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "pixel summary";
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "pixel full";
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "tag summary";
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "tag full";
+                return new MemoryStream();
+            }
 
             protected override void FinishReportPart(Stream stream)
             {
                 stream.Position = 0;
-                using var streamReader = new StreamReader(stream);
-                Report = streamReader.ReadToEnd();
+                using var streamReader = new StreamReader(stream, leaveOpen: true);
+                string header = _isCombinedReport ? "" : $"\n=== {_currentReportName} file ===\n";
+                Report += header + streamReader.ReadToEnd();
             }
 
             protected override void ReleaseUnmanagedResources() => Disposed = true;
@@ -83,7 +112,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
             mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<VerificationFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
 
             TestJobReporter reporter;
             using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
@@ -175,9 +204,9 @@ Report contents:
     }
 ]";
 
-            var verificationFailures = new List<VerificationFailureInfo>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new VerificationFailureInfo(anonFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -261,9 +290,9 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var verificationFailures = new List<VerificationFailureInfo>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new VerificationFailureInfo(anonFilePath: "foo1.dcm", failureData: "totally not a report"),
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", failureData: "totally not a report"),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -299,9 +328,9 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var verificationFailures = new List<VerificationFailureInfo>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new VerificationFailureInfo(anonFilePath: "ccc/ddd/foo1.dcm", failureData: @"
+                new FileVerificationFailureInfo(anonFilePath: "ccc/ddd/foo1.dcm", failureData: @"
                     [
                         {
                              'Parts': [],
@@ -312,7 +341,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new VerificationFailureInfo(anonFilePath:"ccc/ddd/foo2.dcm",failureData: @"
+                new FileVerificationFailureInfo(anonFilePath:"ccc/ddd/foo2.dcm",failureData: @"
                     [
                         {
                              'Parts': [],
@@ -323,7 +352,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new VerificationFailureInfo(anonFilePath:"aaa/bbb/foo1.dcm", failureData:@"
+                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo1.dcm", failureData:@"
                     [
                         {
                             'Parts': [],
@@ -334,7 +363,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new VerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm",failureData: @"
+                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm",failureData: @"
                     [
                         {
                             'Parts': [],
@@ -345,7 +374,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new VerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm", failureData: @"
+                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm", failureData: @"
                     [
                          {
                             'Parts': [],
@@ -481,9 +510,9 @@ Report contents:
     },
 ]";
 
-            var verificationFailures = new List<VerificationFailureInfo>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new VerificationFailureInfo(anonFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -636,7 +665,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
             mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<VerificationFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
 
             TestJobReporter reporter;
             using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
@@ -682,6 +711,162 @@ Report contents:
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
+
+        [Test]
+        public void CreateReport_SplitReport()
+        {
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "test/dir",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
+
+            const string report = @"
+[
+     {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'aaaaaaaaaaa'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'X',
+        'ProblemValue': 'foo'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'X',
+        'ProblemValue': 'foo'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'X',
+        'ProblemValue': 'bar'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'Z',
+        'ProblemValue': 'bar'
+    },
+]";
+
+            var verificationFailures = new List<FileVerificationFailureInfo>
+            {
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo(anonFilePath: "foo2.dcm", report),
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            // Test ordering of multiple tags / multiple occurrences in each tag
+            var expected = $@"
+=== summary file ===
+
+# SMI file extraction report for 1234
+
+Job info:
+-    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-    Job extraction id:             {jobId}
+-    Extraction tag:                keyTag
+-    Extraction modality:           ZZ
+-    Requested identifier count:    123
+-    Identifiable extraction:       No
+-    Filtered extraction:           Yes
+
+Report contents:
+-    Verification failures
+    -    Summary
+    -    Full Details
+-    Blocked files
+-    Anonymisation failures
+
+## Blocked files
+
+
+## Anonymisation failures
+
+
+--- end of report ---
+
+=== pixel summary file ===
+TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport
+PixelData,aaaaaaaaaaa,2,0.3333333333333333,0.3333333333333333
+PixelData,a,4,0.6666666666666666,0.6666666666666666
+
+=== pixel full file ===
+TagName,FailureValue,FilePath
+PixelData,aaaaaaaaaaa,foo1.dcm
+PixelData,aaaaaaaaaaa,foo2.dcm
+PixelData,a,foo1.dcm
+PixelData,a,foo1.dcm
+PixelData,a,foo2.dcm
+PixelData,a,foo2.dcm
+
+=== tag summary file ===
+TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport
+X,foo,4,0.6666666666666666,0.5
+X,bar,2,0.3333333333333333,0.5
+Z,bar,2,1,0.5
+
+=== tag full file ===
+TagName,FailureValue,FilePath
+X,foo,foo1.dcm
+X,foo,foo1.dcm
+X,foo,foo2.dcm
+X,foo,foo2.dcm
+X,bar,foo1.dcm
+X,bar,foo2.dcm
+Z,bar,foo1.dcm
+Z,bar,foo2.dcm
+";
+            Console.WriteLine(reporter.Report);
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+        }
+
     }
 
     #endregion

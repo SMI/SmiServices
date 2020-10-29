@@ -36,11 +36,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         [Test]
         public void Constructor_ThrowsArgumentException_OnInvalidArgs()
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new VerificationFailureInfo(null, "bar"); });
-            Assert.Throws<ArgumentException>(() => { var _ = new VerificationFailureInfo("  ", "bar"); });
+            Assert.Throws<ArgumentException>(() => { var _ = new FileVerificationFailureInfo(null, "bar"); });
+            Assert.Throws<ArgumentException>(() => { var _ = new FileVerificationFailureInfo("  ", "bar"); });
 
-            Assert.Throws<ArgumentException>(() => { var _ = new VerificationFailureInfo("foo", null); });
-            Assert.Throws<ArgumentException>(() => { var _ = new VerificationFailureInfo("foo", "  "); });
+            Assert.Throws<ArgumentException>(() => { var _ = new FileVerificationFailureInfo("foo", null); });
+            Assert.Throws<ArgumentException>(() => { var _ = new FileVerificationFailureInfo("foo", "  "); });
         }
 
         #endregion

@@ -41,7 +41,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             _currentFileStream = null;
             Stream fileStream;
 
-            if (WriteCombinedExtraction(jobInfo))
+            if (ShouldWriteCombinedReport(jobInfo))
             {
                 // Write a single report
 
@@ -91,18 +91,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 jobInfo.ExtractionName()
             );
 
-        private bool WriteCombinedExtraction(ExtractJobInfo jobInfo)
-        {
-            if (ReportFormat == ReportFormat.Combined || jobInfo.IsIdentifiableExtraction)
-                return true;
-            if (ReportFormat == ReportFormat.Split)
-                return false;
-            throw new ApplicationException($"No case for report format '{ReportFormat}'");
-        }
-
         private Stream GetStream(ExtractJobInfo jobInfo, string fileName)
         {
-            if (WriteCombinedExtraction(jobInfo))
+            if (ShouldWriteCombinedReport(jobInfo))
                 return _currentFileStream;
 
             string jobReadmePath = _fileSystem.Path.Combine(GetMultiReportJobDirectory(jobInfo), fileName);

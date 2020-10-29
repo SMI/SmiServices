@@ -23,7 +23,7 @@ namespace Microservices.CohortPackager.Options
             'f',
             "format",
             Required = false,
-            HelpText = "[Optional] The report format to use when --recreate-report is specified"
+            HelpText = "[Optional] The report format to use when --recreate-report is specified. This value is otherwise ignored"
         )]
         public ReportFormat ReportFormat { get; set; } = ReportFormat.Combined;
 

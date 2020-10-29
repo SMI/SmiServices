@@ -65,7 +65,7 @@ namespace Microservices.CohortPackager.Execution
                 );
             }
             else if (!string.IsNullOrWhiteSpace(reportFormatStr))
-                Logger.Warn($"Using the passed IJobReporter, but a ReportFormat of '{reportFormatStr}' was set in the options");
+                throw new ArgumentException($"Passed an IJobReporter, but this conflicts with the ReportFormat of '{reportFormatStr}' in the given options");
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
                 Globals.CohortPackagerOptions.NotifierType
@@ -111,7 +111,5 @@ namespace Microservices.CohortPackager.Execution
         {
             Fatal("ExtractJobWatcher threw an exception", e);
         }
-
-
     }
 }

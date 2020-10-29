@@ -117,7 +117,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobAnonymisationFailuresImpl(jobId);
         }
 
-        public IEnumerable<VerificationFailureInfo> GetCompletedJobVerificationFailures(Guid jobId)
+        public IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailures(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -143,7 +143,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
         protected abstract IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejectionsImpl(Guid jobId);
         protected abstract IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
-        protected abstract IEnumerable<VerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId);
+        protected abstract IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId);
     }
 }

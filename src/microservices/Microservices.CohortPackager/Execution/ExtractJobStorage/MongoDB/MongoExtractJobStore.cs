@@ -341,13 +341,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             return CompletedStatusDocsForFilter(filter).Select(x => new FileAnonFailureInfo(x.Item1, x.Item2));
         }
 
-        protected override IEnumerable<VerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId)
+        protected override IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId)
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.WasAnonymised, true);
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.IsIdentifiable, true);
-            return CompletedStatusDocsForFilter(filter).Select(x => new VerificationFailureInfo(x.Item1, x.Item2));
+            return CompletedStatusDocsForFilter(filter).Select(x => new FileVerificationFailureInfo(x.Item1, x.Item2));
         }
 
         protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId)
