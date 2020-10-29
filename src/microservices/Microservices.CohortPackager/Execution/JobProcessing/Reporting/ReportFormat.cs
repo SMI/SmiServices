@@ -17,8 +17,9 @@
         /// -   Text summary report with the extraction job metadata
         /// -   Validation report for pixel data - summary csv
         /// -   Validation report for pixel data - full csv with file listing
+        /// -   Validation report for pixel data - csv containing frequency distribution of word lengths
         /// -   Validation report for all other tags - summary csv
-        /// -   Validation report for all other tags- full csv with file listing
+        /// -   Validation report for all other tags - full csv with file listing
         /// </summary>
         Split,
     }

@@ -411,7 +411,7 @@ Report contents:
                 Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
 
                 List<string> allFiles = mockFileSystem.AllFiles.ToList();
-                Assert.AreEqual(5, allFiles.Count);
+                Assert.AreEqual(6, allFiles.Count);
 
                 string extractionName = _extractionDir.Split('/', '\\')[^1];
                 string extractionReportsDir = mockFileSystem.Path.Combine(ExtractRoot, _reportsDir, extractionName);
@@ -432,6 +432,7 @@ Files included:
 -   README.md (this file)
 -   pixel_data_summary.csv
 -   pixel_data_full.csv
+-   pixel_data_word_length_frequencies.csv
 -   tag_data_summary.csv
 -   tag_data_full.csv
 

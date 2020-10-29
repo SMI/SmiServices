@@ -72,6 +72,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo) => GetStream(jobInfo, "pixel_data_summary.csv");
         protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo) => GetStream(jobInfo, "pixel_data_full.csv");
+        protected override Stream GetStreamForPixelDataWordLengthFrequencies(ExtractJobInfo jobInfo) => GetStream(jobInfo, "pixel_data_word_frequencies.csv");
         protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo) => GetStream(jobInfo, "tag_data_summary.csv");
         protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo) => GetStream(jobInfo, "tag_data_full.csv");
 

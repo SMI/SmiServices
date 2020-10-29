@@ -29,6 +29,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo) => new MemoryStream();
         protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
         protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
+        protected override Stream GetStreamForPixelDataWordLengthFrequencies(ExtractJobInfo jobInfo) => new MemoryStream();
         protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo) => new MemoryStream();
         protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo) => new MemoryStream();
 

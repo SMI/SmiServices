@@ -66,6 +66,12 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 return new MemoryStream();
             }
 
+            protected override Stream GetStreamForPixelDataWordLengthFrequencies(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "pixel word length frequencies";
+                return new MemoryStream();
+            }
+
             protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo)
             {
                 _currentReportName = "tag summary";
@@ -721,7 +727,7 @@ Report contents:
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "test/dir",
+                "1234/extract1",
                 "keyTag",
                 123,
                 "ZZ",
@@ -804,24 +810,28 @@ Report contents:
             // Test ordering of multiple tags / multiple occurrences in each tag
             var expected = $@"
 === summary file ===
-
-# SMI file extraction report for 1234
+# SMI extraction validation report for 1234/extract1
 
 Job info:
--    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                keyTag
--    Extraction modality:           ZZ
--    Requested identifier count:    123
--    Identifiable extraction:       No
--    Filtered extraction:           Yes
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       No
+-   Filtered extraction:           Yes
 
-Report contents:
--    Verification failures
-    -    Summary
-    -    Full Details
--    Blocked files
--    Anonymisation failures
+Files included:
+-   README.md (this file)
+-   pixel_data_summary.csv
+-   pixel_data_full.csv
+-   pixel_data_word_length_frequencies.csv
+-   tag_data_summary.csv
+-   tag_data_full.csv
+
+This file contents:
+-   Blocked files
+-   Anonymisation failures
 
 ## Blocked files
 
@@ -845,6 +855,20 @@ PixelData,a,foo1.dcm
 PixelData,a,foo2.dcm
 PixelData,a,foo2.dcm
 
+=== pixel word length frequencies file ===
+WordLength,Count,Frequency
+1,1,0.5
+2,0,0
+3,0,0
+4,0,0
+5,0,0
+6,0,0
+7,0,0
+8,0,0
+9,0,0
+10,0,0
+11,1,0.5
+
 === tag summary file ===
 TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport
 X,foo,4,0.6666666666666666,0.5
@@ -865,8 +889,9 @@ Z,bar,foo2.dcm
             Console.WriteLine(reporter.Report);
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
-        }
 
+            // TODO test empty split reports
+        }
     }
 
     #endregion

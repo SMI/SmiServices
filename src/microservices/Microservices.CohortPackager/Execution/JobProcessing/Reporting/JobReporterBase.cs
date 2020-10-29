@@ -43,6 +43,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         {
             ExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
 
+            // TODO(rkm 2020-10-29) Add the pixel frequency table to the combined report
             if (ShouldWriteCombinedReport(jobInfo))
                 WriteCombinedReport(jobInfo);
             else
@@ -130,6 +131,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine("-   README.md (this file)");
                 streamWriter.WriteLine("-   pixel_data_summary.csv");
                 streamWriter.WriteLine("-   pixel_data_full.csv");
+                streamWriter.WriteLine("-   pixel_data_word_length_frequencies.csv");
                 streamWriter.WriteLine("-   tag_data_summary.csv");
                 streamWriter.WriteLine("-   tag_data_full.csv");
                 streamWriter.WriteLine();
@@ -184,11 +186,19 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 pixelFailures = new Dictionary<string, List<string>>();
             }
 
-            // Write summary pixel CSV
+            // Create records for the pixel reports
             List<TagDataSummaryCsvRecord> pixelSummaryRecords = TagDataSummaryCsvRecord.BuildRecordList(PixelDataStr, pixelFailures).ToList();
+            var wordLengthCounts = new Dictionary<int, int>();
             foreach (TagDataSummaryCsvRecord tagDataSummaryCsvRecord in pixelSummaryRecords)
+            {
+                int wordLen = tagDataSummaryCsvRecord.FailureValue.Length;
+                if (!wordLengthCounts.ContainsKey(wordLen))
+                    wordLengthCounts.Add(wordLen, 0);
+                ++wordLengthCounts[wordLen];
                 tagDataSummaryCsvRecord.RelativeFrequencyInReport = tagDataSummaryCsvRecord.RelativeFrequencyInTag;
+            }
 
+            // Write summary pixel CSV
             using (Stream stream = GetStreamForPixelDataSummary(jobInfo))
                 WriteCsv(
                     stream,
@@ -204,6 +214,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     TagDataFullCsvRecord
                         .BuildRecordList(PixelDataStr, pixelFailures)
                         .OrderByDescending(x => x.FailureValue.Length)
+                );
+
+            // Write the pixel text frequency file
+            using (Stream stream = GetStreamForPixelDataWordLengthFrequencies(jobInfo))
+                WriteCsv(
+                    stream,
+                    TagDataFrequencyRecord.BuildRecordList(wordLengthCounts)
                 );
 
             // Now select all other tags
@@ -263,9 +280,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         protected abstract Stream GetStreamForSummary(ExtractJobInfo jobInfo);
         protected abstract Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo);
         protected abstract Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo);
-
-        // TODO
-        //protected abstract Stream GetStreamForPixelDataFrequencies(ExtractJobInfo jobInfo);
+        protected abstract Stream GetStreamForPixelDataWordLengthFrequencies(ExtractJobInfo jobInfo);
         protected abstract Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo);
         protected abstract Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo);
 
