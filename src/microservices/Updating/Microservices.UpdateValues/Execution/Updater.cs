@@ -28,14 +28,19 @@ namespace Microservices.UpdateValues.Execution
             if(message.ExplicitTableInfo != null && message.ExplicitTableInfo.Length != 0)
             {
                 tables = _repository.GetAllObjectsInIDList(typeof(TableInfo),message.ExplicitTableInfo).Cast<ITableInfo>().ToArray();
+
+                if(tables.Length != message.ExplicitTableInfo.Length)
+                {
+                    throw new Exception($"Could not find all TableInfos IDs={string.Join(",",message.ExplicitTableInfo)}.  Found {tables.Length}:{string.Join(",",tables.Select(t=>t.ID))}");
+                }
             }
             else
             {
                 tables = GetAllTables(message.WhereFields.Union(message.WriteIntoFields).ToArray()).ToArray();
+                
+                if(tables.Length == 0)
+                    throw new Exception($"Could not find any tables to update that matched the field set {message}");
             }
-
-            if(tables.Length == 0)
-                throw new Exception($"Could not find any tables to update that matched the field set/explicit tables of {message}");
 
             foreach (var t in tables)
             {
@@ -82,9 +87,9 @@ namespace Microservices.UpdateValues.Execution
 
                 builder.Append(GetFieldEqualsValueExpression(col,message.HaveValues[i]));
 
-                //if there are more SET fields to come
+                //if there are more WHERE fields to come
                 if(i < message.WhereFields.Length -1)
-                    builder.AppendLine(",");
+                    builder.AppendLine(" AND ");
             }
 
             var sql = builder.ToString();

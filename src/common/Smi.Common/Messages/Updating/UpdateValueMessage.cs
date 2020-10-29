@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Smi.Common.Messages.Updating
@@ -35,9 +36,9 @@ namespace Smi.Common.Messages.Updating
         public string[] Values {get;set;} = new string[0];
 
         /// <summary>
-        /// Optional.  Where present indicates the tables which should be updated.  If null/empty then all tables matching the fields should be updated
+        /// Optional.  Where present indicates the tables which should be updated.  If empty then all tables matching the fields should be updated
         /// </summary>
-        public int[] ExplicitTableInfo;
+        public int[] ExplicitTableInfo = new int[0];
 
         public void Validate()
         {
@@ -65,5 +66,36 @@ namespace Smi.Common.Messages.Updating
                 $"{nameof(UpdateValueMessage)}: {nameof(WhereFields)}={string.Join(",",WhereFields)} {nameof(WriteIntoFields)}={string.Join(",",WriteIntoFields)}";
         }
 
+        /// <summary>
+        /// Checks whether two messages update the same fields using the same where logic
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            return obj is UpdateValueMessage message &&
+                   Operator == message.Operator &&
+                   Enumerable.SequenceEqual(WhereFields ?? new string[0], message.WhereFields?? new string[0]) &&
+                   Enumerable.SequenceEqual(HaveValues?? new string[0], message.HaveValues?? new string[0]) &&
+                   Enumerable.SequenceEqual(WriteIntoFields?? new string[0], message.WriteIntoFields?? new string[0]) &&
+                   Enumerable.SequenceEqual(Values?? new string[0], message.Values?? new string[0]) &&
+                   Enumerable.SequenceEqual(ExplicitTableInfo?? new int[0], message.ExplicitTableInfo?? new int[0]);
+        }
+
+        /// <summary>
+        /// Returns a hashcode based on the sizes of arrays (ok so most of our messages would end up in the same hash bucket but that's probably fine).
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            int hashCode = -1341392600;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Operator);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(WhereFields?.Length ?? 0);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(HaveValues?.Length ?? 0);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(WriteIntoFields?.Length ?? 0);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(Values?.Length ?? 0);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(ExplicitTableInfo?.Length ?? 0);
+            return hashCode;
+        }
     }
 }
