@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager
                     GlobalOptions globalOptions = new GlobalOptionsFactory().Load(cohortPackagerCliOptions);
 
                     if (cohortPackagerCliOptions.ExtractionId != default)
-                        return RecreateReport(globalOptions, cohortPackagerCliOptions.ExtractionId);
+                        return RecreateReport(globalOptions, cohortPackagerCliOptions.ExtractionId, cohortPackagerCliOptions.ReportFormat);
 
                     var bootstrapper = new MicroserviceHostBootstrapper(() => new CohortPackagerHost(globalOptions));
                     return bootstrapper.Main();
@@ -33,7 +33,7 @@ namespace Microservices.CohortPackager
                 err => 1);
         }
 
-        private static int RecreateReport(GlobalOptions globalOptions, Guid jobId)
+        private static int RecreateReport(GlobalOptions globalOptions, Guid jobId, ReportFormat reportFormat)
         {
             SetupLogging(globalOptions);
             Logger logger = LogManager.GetCurrentClassLogger();
@@ -51,7 +51,7 @@ namespace Microservices.CohortPackager
                 jobStore,
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
-                globalOptions.CohortPackagerOptions.ReportFormat
+                reportFormat.ToString()
             );
 
             try

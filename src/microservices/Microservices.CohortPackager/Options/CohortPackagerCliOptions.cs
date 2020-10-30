@@ -15,17 +15,20 @@ namespace Microservices.CohortPackager.Options
             'r',
             "recreate-report",
             Required = false,
-            HelpText = "[Optional] Recreate the report for the specified extraction ID, and exit"
+            HelpText = "[Optional] Recreate the report for the specified extraction ID, and exit. The extraction root will be set to the current directory."
         )]
+        [UsedImplicitly]
         public Guid ExtractionId { get; set; }
 
         [Option(
             'f',
             "format",
             Required = false,
+            Default = ReportFormat.Combined,
             HelpText = "[Optional] The report format to use when --recreate-report is specified. This value is otherwise ignored"
         )]
-        public ReportFormat ReportFormat { get; set; } = ReportFormat.Combined;
+        [UsedImplicitly]
+        public ReportFormat ReportFormat { get; set; }
 
         [Usage]
         [UsedImplicitly]
