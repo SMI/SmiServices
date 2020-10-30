@@ -194,7 +194,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 int wordLen = tagDataSummaryCsvRecord.FailureValue.Length;
                 if (!wordLengthCounts.ContainsKey(wordLen))
                     wordLengthCounts.Add(wordLen, 0);
-                ++wordLengthCounts[wordLen];
+                wordLengthCounts[wordLen] += tagDataSummaryCsvRecord.Occurrences;
                 tagDataSummaryCsvRecord.RelativeFrequencyInReport = tagDataSummaryCsvRecord.RelativeFrequencyInTag;
             }
 
