@@ -91,6 +91,7 @@ CohortPackagerOptions:
     JobWatcherTimeoutInSeconds: 30
     ReporterType: 'LoggingReporter'
     NotifierType: 'LoggingNotifier'
+    ReportFormat: 'Combined'
     ExtractRequestInfoOptions:
         QueueName: 'TEST.RequestInfoQueue'
         QoSPrefetchCount: 1
