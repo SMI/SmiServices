@@ -225,6 +225,11 @@ namespace Microservices.IsIdentifiable.Runners
             //socket rules sink to the bottom
             if (arg is SocketRule)
                 return -5000;
+            
+
+            //ConsensusRules should sink to the bottom but just above SocketRules (if any)
+            if (arg is ConsensusRule)
+                return -3000;
 
             //some odd custom rule type that is not a socket or basic rule, do them after the regular reports but before sockets
             return -50;
