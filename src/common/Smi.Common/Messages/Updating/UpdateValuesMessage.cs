@@ -11,9 +11,9 @@ namespace Smi.Common.Messages.Updating
     public class UpdateValuesMessage : IMessage
     {
         /// <summary>
-        /// Sql operator e.g. "=" to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>
+        /// Optional Sql operators e.g. "=", "<" etc to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>.  If null or empty "=" is assumed for all WHERE comparisons
         /// </summary>
-        public string Operator {get;set;} = "=";
+        public string[] Operators {get;set;} = null;
 
         /// <summary>
         /// The field(s) to search the database for (this should be the human readable name without qualifiers as it may match multiple tables e.g. ECHI)
@@ -44,16 +44,21 @@ namespace Smi.Common.Messages.Updating
         {
             if (WhereFields.Length != HaveValues.Length)
                 throw new Exception($"{nameof(WhereFields)} length must match {nameof(HaveValues)} length");
-
             
             if (WriteIntoFields.Length != Values.Length)
                 throw new Exception($"{nameof(WriteIntoFields)} length must match {nameof(Values)} length");
+                        
+            // If operators are specified then the WHERE column count must match the operator count
+            if(Operators != null && Operators.Length != 0)
+                if (Operators.Length != WhereFields.Length)
+                    throw new Exception($"{nameof(WhereFields)} length must match {nameof(Operators)} length");
 
             if(WhereFields.Length == 0)
                 throw new Exception("There must be at least one search field for WHERE section.  Otherwise this would update entire tables");
 
             if(WriteIntoFields.Length == 0)
                 throw new Exception("There must be at least one value to write");
+
         }
 
         /// <summary>
@@ -74,7 +79,7 @@ namespace Smi.Common.Messages.Updating
         public override bool Equals(object obj)
         {
             return obj is UpdateValuesMessage message &&
-                   Operator == message.Operator &&
+                   Enumerable.SequenceEqual(Operators ?? new string[0], message.Operators?? new string[0]) &&
                    Enumerable.SequenceEqual(WhereFields ?? new string[0], message.WhereFields?? new string[0]) &&
                    Enumerable.SequenceEqual(HaveValues?? new string[0], message.HaveValues?? new string[0]) &&
                    Enumerable.SequenceEqual(WriteIntoFields?? new string[0], message.WriteIntoFields?? new string[0]) &&
@@ -89,7 +94,7 @@ namespace Smi.Common.Messages.Updating
         public override int GetHashCode()
         {
             int hashCode = -1341392600;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Operator);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(Operators?.Length ?? 0);
             hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(WhereFields?.Length ?? 0);
             hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(HaveValues?.Length ?? 0);
             hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(WriteIntoFields?.Length ?? 0);

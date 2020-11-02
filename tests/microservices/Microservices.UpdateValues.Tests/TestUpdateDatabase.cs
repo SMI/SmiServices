@@ -83,7 +83,28 @@ namespace Microservices.UpdateValues.Tests
 
             Assert.AreEqual(1,tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222));
         }
+        
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql)]
+        public void TestUpdateValues_OneTable_OperatorGreaterThan(DatabaseType dbType)
+        {
+            var tblToUpdate = SetupTestTable(dbType);
 
+            var updater = new Updater(CatalogueRepository);
+            
+            //update PatientID that DOES exist, there are 2 patient 111s both are under 6
+            Assert.AreEqual(2,updater.HandleUpdate(new UpdateValuesMessage()
+            { 
+                WhereFields = new[]{ "PatientID","Age"},
+                HaveValues = new[]{ "111","6"},
+                Operators = new[]{"=","<=" },
+                WriteIntoFields = new[]{ "PatientID"},
+                Values = new[]{ "222"},
+                
+            }));
+
+            Assert.AreEqual(2,tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222));
+        }
         [Test]
         public void Test_TableInfoNotFound()
         {

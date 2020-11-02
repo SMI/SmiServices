@@ -32,6 +32,8 @@ namespace Microservices.UpdateValues.Execution
 
         public int HandleUpdate(UpdateValuesMessage message)
         {
+            message.Validate();
+
             ITableInfo[] tables;
             int affectedRows = 0;
 
@@ -82,7 +84,7 @@ namespace Microservices.UpdateValues.Execution
             {
                 var col = t.DiscoverColumn(message.WriteIntoFields[i]);
 
-                builder.Append(GetFieldEqualsValueExpression(col,message.Values[i]));
+                builder.Append(GetFieldEqualsValueExpression(col,message.Values[i],"="));
 
                 //if there are more SET fields to come
                 if(i < message.WriteIntoFields.Length -1)
@@ -95,7 +97,7 @@ namespace Microservices.UpdateValues.Execution
             {
                 var col = t.DiscoverColumn(message.WhereFields[i]);
 
-                builder.Append(GetFieldEqualsValueExpression(col,message.HaveValues[i]));
+                builder.Append(GetFieldEqualsValueExpression(col,message.HaveValues[i],message?.Operators?[i]));
 
                 //if there are more WHERE fields to come
                 if(i < message.WhereFields.Length -1)
@@ -127,13 +129,16 @@ namespace Microservices.UpdateValues.Execution
         /// </summary>
         /// <param name="col">LHS argument</param>
         /// <param name="value">RHS argument, if null then string literal "null" is used</param>
+        /// <param name="op">The SQL operator to use, if null "=" is used</param>
         /// <returns></returns>
-        protected string GetFieldEqualsValueExpression(DiscoveredColumn col, string value)
+        protected string GetFieldEqualsValueExpression(DiscoveredColumn col, string value, string op)
         {
             StringBuilder builder = new StringBuilder();
 
             builder.Append(col.GetFullyQualifiedName());
-            builder.Append( " = ");
+            builder.Append(" ");
+            builder.Append(op??"=");
+            builder.Append(" ");
                 
             if(string.IsNullOrWhiteSpace(value))
                 builder.Append("null");
