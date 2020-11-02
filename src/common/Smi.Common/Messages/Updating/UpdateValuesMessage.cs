@@ -38,7 +38,7 @@ namespace Smi.Common.Messages.Updating
         /// <summary>
         /// Optional.  Where present indicates the tables which should be updated.  If empty then all tables matching the fields should be updated
         /// </summary>
-        public int[] ExplicitTableInfo = new int[0];
+        public int[] ExplicitTableInfo {get;set; }  = new int[0];
 
         public void Validate()
         {

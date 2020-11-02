@@ -103,12 +103,33 @@ namespace Microservices.UpdateValues.Tests
 
             foreach(var prop in typeof(UpdateValuesMessage).GetProperties())
             {
-                prop.SetValue(m1,new string[]{ "ss"});
-                Assert.AreNotEqual(m1,m2);
+                if(prop.Name.Equals(nameof(UpdateValuesMessage.ExplicitTableInfo)))
+                {
+                    prop.SetValue(m1,new int[]{ 6});
+                    Assert.AreNotEqual(m1,m2);
 
-                prop.SetValue(m2,new string[]{ "ss"});
-                Assert.AreEqual(m1,m2);
-                Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+                    prop.SetValue(m2,new int[]{ 6});
+                    Assert.AreEqual(m1,m2);
+                    Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+
+                    
+                    prop.SetValue(m2,new int[]{ 7});
+                    Assert.AreNotEqual(m1,m2);
+                    prop.SetValue(m2,new int[]{ 6});
+
+                    Assert.AreEqual(m1,m2);
+                    Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+                }
+                else
+                {
+                    prop.SetValue(m1,new string[]{ "ss"});
+                    Assert.AreNotEqual(m1,m2);
+
+                    prop.SetValue(m2,new string[]{ "ss"});
+                    Assert.AreEqual(m1,m2);
+                    Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+                }
+
             }
 
         }
