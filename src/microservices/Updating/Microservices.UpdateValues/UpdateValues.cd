@@ -35,7 +35,7 @@
       <FileName>Options\UpdateValuesCliOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Smi.Common.Messages.Updating.UpdateValueMessage">
+  <Class Name="Smi.Common.Messages.Updating.UpdateValuesMessage">
     <Position X="4.25" Y="4.75" Width="2.5" />
     <TypeIdentifier />
     <Lollipop Position="0.2" />

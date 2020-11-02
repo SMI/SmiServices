@@ -12,7 +12,7 @@ Primary Author: [Thomas](https://github.com/tznind)
  6. [Class Diagram](#6-class-diagram)
 
 ### 1. Overview
-This service services `UpdateValueMessage` which is a request to update a concept e.g. PatientID in one or more tables.  Each message describes a single query (although multiple values can be updated at once).
+This service services `UpdateValuesMessage` which is a request to update a concept e.g. PatientID in one or more tables.  Each message describes a single query (although multiple values can be updated at once).
 
 ### 2. Setup / Installation
 - Clone the project and build. Any NuGet dependencies should be automatically downloaded
@@ -23,7 +23,7 @@ This service services `UpdateValueMessage` which is a request to update a concep
 
 | Read/Write | Type | Config setting |
 | ------------- | ------------- |------------- |
-| Read | UpdateValueMessage | UpdateValuesOptions.QueueName |
+| Read | UpdateValuesMessage | UpdateValuesOptions.QueueName |
 
 | Command Line Options | Purpose |
 | ------------- | ------------- |

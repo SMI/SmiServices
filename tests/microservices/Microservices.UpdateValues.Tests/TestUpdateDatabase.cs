@@ -44,7 +44,7 @@ namespace Microservices.UpdateValues.Tests
             var updater = new Updater(CatalogueRepository);
             
             //update PatientID that does not exist
-            Assert.AreEqual(0,updater.HandleUpdate(new UpdateValueMessage()
+            Assert.AreEqual(0,updater.HandleUpdate(new UpdateValuesMessage()
             { 
                 WhereFields = new[]{ "PatientID"},
                 HaveValues = new[]{ "5345"},
@@ -53,7 +53,7 @@ namespace Microservices.UpdateValues.Tests
             }), "Should not have been any updates because there is no patient number 5345");
                         
             //update PatientID that DOES exist
-            Assert.AreEqual(2,updater.HandleUpdate(new UpdateValueMessage()
+            Assert.AreEqual(2,updater.HandleUpdate(new UpdateValuesMessage()
             { 
                 WhereFields = new[]{ "PatientID"},
                 HaveValues = new[]{ "111"},
@@ -73,7 +73,7 @@ namespace Microservices.UpdateValues.Tests
             var updater = new Updater(CatalogueRepository);
             
             //update PatientID that DOES exist, there are 2 patient 111s but only one has the Age 3
-            Assert.AreEqual(1,updater.HandleUpdate(new UpdateValueMessage()
+            Assert.AreEqual(1,updater.HandleUpdate(new UpdateValuesMessage()
             { 
                 WhereFields = new[]{ "PatientID","Age"},
                 HaveValues = new[]{ "111","3"},
@@ -90,7 +90,7 @@ namespace Microservices.UpdateValues.Tests
             var updater = new Updater(CatalogueRepository);
             
             var ex = Assert.Throws<Exception>(()=>
-            updater.HandleUpdate(new UpdateValueMessage()
+            updater.HandleUpdate(new UpdateValuesMessage()
             { 
                 WhereFields = new[]{ "PatientID","Age"},
                 HaveValues = new[]{ "111","3"},
@@ -110,7 +110,7 @@ namespace Microservices.UpdateValues.Tests
             var updater = new Updater(CatalogueRepository);
             
             var ex = Assert.Throws<Exception>(()=>
-            updater.HandleUpdate(new UpdateValueMessage()
+            updater.HandleUpdate(new UpdateValuesMessage()
             { 
                 WhereFields = new[]{ "Blarg"},
                 HaveValues = new[]{ "111"},
@@ -120,7 +120,7 @@ namespace Microservices.UpdateValues.Tests
 
             TestContext.WriteLine(ex.Message);
 
-            Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValueMessage: WhereFields=Blarg WriteIntoFields=PatientID",ex.Message);
+            Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=Blarg WriteIntoFields=PatientID",ex.Message);
         }
         
         [Test]
@@ -131,7 +131,7 @@ namespace Microservices.UpdateValues.Tests
             var updater = new Updater(CatalogueRepository);
             
             var ex = Assert.Throws<Exception>(()=>
-            updater.HandleUpdate(new UpdateValueMessage()
+            updater.HandleUpdate(new UpdateValuesMessage()
             { 
                 WhereFields = new[]{ "PatientID"},
                 HaveValues = new[]{ "111"},
@@ -141,7 +141,7 @@ namespace Microservices.UpdateValues.Tests
 
             TestContext.WriteLine(ex.Message);
 
-            Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValueMessage: WhereFields=PatientID WriteIntoFields=Blarg",ex.Message);
+            Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=PatientID WriteIntoFields=Blarg",ex.Message);
         }
 
 

@@ -30,7 +30,7 @@ namespace Microservices.UpdateValues.Execution
             _repository = repository;
         }
 
-        public int HandleUpdate(UpdateValueMessage message)
+        public int HandleUpdate(UpdateValuesMessage message)
         {
             ITableInfo[] tables;
             int affectedRows = 0;
@@ -70,7 +70,7 @@ namespace Microservices.UpdateValues.Execution
         /// </summary>
         /// <param name="t"></param>
         /// <param name="message"></param>
-        protected virtual int UpdateTable(DiscoveredTable t, UpdateValueMessage message)
+        protected virtual int UpdateTable(DiscoveredTable t, UpdateValuesMessage message)
         {
             StringBuilder builder= new StringBuilder();
 

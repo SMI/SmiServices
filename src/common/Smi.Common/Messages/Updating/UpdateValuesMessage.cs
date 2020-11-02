@@ -8,7 +8,7 @@ namespace Smi.Common.Messages.Updating
     /// <summary>
     /// Requests to update the values in the fields <see cref="WriteIntoFields"/> to <see cref="Values"/>  where the value in <see cref="WhereFields"/> match <see cref="HaveValues"/>
     /// </summary>
-    public class UpdateValueMessage : IMessage
+    public class UpdateValuesMessage : IMessage
     {
         /// <summary>
         /// Sql operator e.g. "=" to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>
@@ -63,7 +63,7 @@ namespace Smi.Common.Messages.Updating
         public override string ToString()
         {
             return 
-                $"{nameof(UpdateValueMessage)}: {nameof(WhereFields)}={string.Join(",",WhereFields)} {nameof(WriteIntoFields)}={string.Join(",",WriteIntoFields)}";
+                $"{nameof(UpdateValuesMessage)}: {nameof(WhereFields)}={string.Join(",",WhereFields)} {nameof(WriteIntoFields)}={string.Join(",",WriteIntoFields)}";
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Smi.Common.Messages.Updating
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            return obj is UpdateValueMessage message &&
+            return obj is UpdateValuesMessage message &&
                    Operator == message.Operator &&
                    Enumerable.SequenceEqual(WhereFields ?? new string[0], message.WhereFields?? new string[0]) &&
                    Enumerable.SequenceEqual(HaveValues?? new string[0], message.HaveValues?? new string[0]) &&

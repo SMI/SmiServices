@@ -6,7 +6,7 @@ using Smi.Common.Options;
 
 namespace Microservices.UpdateValues.Execution
 {
-    public class UpdateValuesQueueConsumer : Consumer<UpdateValueMessage>
+    public class UpdateValuesQueueConsumer : Consumer<UpdateValuesMessage>
     {
         private Updater _updater;
 
@@ -16,7 +16,7 @@ namespace Microservices.UpdateValues.Execution
             _updater.UpdateTimeout = opts.UpdateTimeout;
             _updater.TableInfosToUpdate = opts.TableInfosToUpdate;
         }
-        protected override void ProcessMessageImpl(IMessageHeader header, UpdateValueMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, UpdateValuesMessage message, ulong tag)
         {
             _updater.HandleUpdate(message);
 

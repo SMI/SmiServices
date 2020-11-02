@@ -9,6 +9,6 @@ namespace Microservices.UpdateValues.Execution
         /// </summary>
         /// <param name="message">What should be updated</param>
         /// <returns>total number of rows updated in the database(s)</returns>
-        int HandleUpdate(UpdateValueMessage message);
+        int HandleUpdate(UpdateValuesMessage message);
     }
 }
