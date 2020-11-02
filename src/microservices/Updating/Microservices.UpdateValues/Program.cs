@@ -1,4 +1,9 @@
 ﻿using CommandLine;
+using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
+using FAnsi.Implementations.MySql;
+using FAnsi.Implementations.Oracle;
+using FAnsi.Implementations.PostgreSql;
 using Microservices.UpdateValues.Execution;
 using Microservices.UpdateValues.Options;
 using Smi.Common.Execution;
@@ -11,6 +16,10 @@ namespace Microservices.UpdateValues
     {
         static int Main(string[] args)
         {
+            ImplementationManager.Load<MySqlImplementation>();
+            ImplementationManager.Load<OracleImplementation>();
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+            ImplementationManager.Load<PostgreSqlImplementation>();
             
             return Parser.Default.ParseArguments<UpdateValuesCliOptions>(args).MapResult(
                 opts =>

@@ -14,6 +14,8 @@ namespace Microservices.UpdateValues.Execution
     public class Updater : IUpdater
     {
         private ICatalogueRepository _repository;
+
+        public int UpdateTimeout {get;set;} = 1000000;
         
         public Updater(ICatalogueRepository repository)
         {
@@ -99,7 +101,7 @@ namespace Microservices.UpdateValues.Execution
                 con.Open();
 
                 var cmd = t.Database.Server.GetCommand(sql,con);
-                cmd.CommandTimeout = 1000000;
+                cmd.CommandTimeout = UpdateTimeout;
 
                 try
                 {
