@@ -64,6 +64,8 @@ UpdateValuesOptions:
     QueueName: 'TEST.UpdateValuesQueue'
     QoSPrefetchCount: 10000
     AutoAck: false
+    #TableInfosToUpdate: 1,2,3 <-set this to limit which tables get updated when no explicit table is listed in the message
+    UpdateTimeout: 500 # number of seconds to wait for each UPDATE statement
 
 CohortExtractorOptions:
     QueueName: 'TEST.RequestQueue'
