@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Added new service UpdateValues which propagates changes (e.g. ECHI mapping changes) throughout the deployed database tables.
 - Added runtime and total failures count to IsIdentifiable logs
 - Added NoSuffixProjectPathResolver which generates anonymous image path names that do not contain "-an" (which is the default behaviour).
   -  To use, set `CohortExtractorOptions.ProjectPathResolverType` to `Microservices.CohortExtractor.Execution.ProjectPathResolvers.NoSuffixProjectPathResolver`

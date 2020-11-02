@@ -60,6 +60,11 @@ DicomRelationalMapperOptions:
     RetryDelayInSeconds: 60
     RunChecks: true
 
+UpdateValuesOptions:
+    QueueName: 'TEST.UpdateValuesQueue'
+    QoSPrefetchCount: 10000
+    AutoAck: false
+
 CohortExtractorOptions:
     QueueName: 'TEST.RequestQueue'
     QoSPrefetchCount: 10000
