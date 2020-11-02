@@ -393,6 +393,11 @@ namespace Smi.Common.Options
         /// Number of seconds the updater will wait when running a single value UPDATE on the live table e.g. ECHI A needs to be replaced with ECHI B
         /// </summary>
         public int UpdateTimeout {get;set;} = 5000;
+
+        /// <summary>
+        /// IDs of TableInfos that should be updated
+        /// </summary>
+        public int[] TableInfosToUpdate {get;set;} = new int[0];
     }
 
     [UsedImplicitly]

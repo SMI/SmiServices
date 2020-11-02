@@ -14,6 +14,7 @@ namespace Microservices.UpdateValues.Execution
         {
             _updater = new Updater(repo);
             _updater.UpdateTimeout = opts.UpdateTimeout;
+            _updater.TableInfosToUpdate = opts.TableInfosToUpdate;
         }
         protected override void ProcessMessageImpl(IMessageHeader header, UpdateValueMessage message, ulong tag)
         {

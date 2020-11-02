@@ -14,9 +14,17 @@ namespace Microservices.UpdateValues.Execution
     public class Updater : IUpdater
     {
         private ICatalogueRepository _repository;
-
-        public int UpdateTimeout {get;set;} = 1000000;
         
+        /// <summary>
+        /// Number of seconds the updater will wait when running a single value UPDATE on the live table e.g. ECHI A needs to be replaced with ECHI B
+        /// </summary>
+        public int UpdateTimeout {get;set;} = 1000000;
+
+        /// <summary>
+        /// List of IDs of <see cref="TableInfo"/> that should be examined for update potential.  If blank/empty then all tables will be considered.
+        /// </summary>
+        public int[] TableInfosToUpdate { get; internal set; } = new int[0];
+
         public Updater(ICatalogueRepository repository)
         {
             _repository = repository;
@@ -142,8 +150,13 @@ namespace Microservices.UpdateValues.Execution
         /// <returns></returns>
         public virtual IEnumerable<TableInfo> GetAllTables(string[] fields)
         {
-            return _repository.GetAllObjects<TableInfo>()
-                    .Where(t=>fields.All(f=>t.ColumnInfos.Select(c=>c.GetRuntimeName()).Contains(f)));
+            //the tables we should consider
+            var tables = TableInfosToUpdate != null && TableInfosToUpdate.Any() ? 
+                            _repository.GetAllObjectsInIDList<TableInfo>(TableInfosToUpdate):
+                            _repository.GetAllObjects<TableInfo>();
+
+            // get only those that have all the WHERE/SET columns in them
+            return tables.Where(t=>fields.All(f=>t.ColumnInfos.Select(c=>c.GetRuntimeName()).Contains(f)));
         }
     }
 }
