@@ -62,7 +62,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("WriteIntoFields length must match Operators length",ex.Message);
+            Assert.AreEqual("WhereFields length must match Operators length",ex.Message);
         }
         [Test]
         public void Test_GoodMessage()
