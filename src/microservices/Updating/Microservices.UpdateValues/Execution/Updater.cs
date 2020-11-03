@@ -54,6 +54,10 @@ namespace Microservices.UpdateValues.Execution
                     throw new Exception($"Could not find any tables to update that matched the field set {message}");
             }
 
+            //TODO: Expose IsView in ITableInfo in RDMP so we don't need this cast
+            //don't try to update views
+            tables = tables.Where(t=>!((TableInfo)t).IsView).ToArray();
+
             foreach (var t in tables)
             {
                 var tbl = t.Discover(ReusableLibraryCode.DataAccess.DataAccessContext.DataLoad);
