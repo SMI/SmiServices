@@ -2,11 +2,11 @@
 
 namespace TriggerUpdates.Execution
 {
-    internal class MongoSource : ITriggerUpdatesSource
+    public class MapperSource : ITriggerUpdatesSource
     {
-        private TriggerUpdatesFromMongo opts;
+        private TriggerUpdatesFromMapperOptions opts;
 
-        public MongoSource(TriggerUpdatesFromMongo opts)
+        public MapperSource(TriggerUpdatesFromMapperOptions opts)
         {
             this.opts = opts;
         }

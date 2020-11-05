@@ -84,7 +84,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.UpdateValues"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.UpdateValues.Tests", "tests\microservices\Microservices.UpdateValues.Tests\Microservices.UpdateValues.Tests.csproj", "{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TriggerUpdates", "src\applications\TriggerUpdates\TriggerUpdates.csproj", "{5509A8AF-999D-474F-9DD0-C3374E0EA266}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.TriggerUpdates", "src\applications\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj", "{6FC70871-A668-4423-AFD0-C53A84122402}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.TriggerUpdates.Tests", "tests\applications\Applications.TriggerUpdates.Tests\Applications.TriggerUpdates.Tests.csproj", "{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -208,10 +210,14 @@ Global
 		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}.Debug|x64.Build.0 = Debug|x64
 		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}.Release|x64.ActiveCfg = Release|x64
 		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}.Release|x64.Build.0 = Release|x64
-		{5509A8AF-999D-474F-9DD0-C3374E0EA266}.Debug|x64.ActiveCfg = Debug|x64
-		{5509A8AF-999D-474F-9DD0-C3374E0EA266}.Debug|x64.Build.0 = Debug|x64
-		{5509A8AF-999D-474F-9DD0-C3374E0EA266}.Release|x64.ActiveCfg = Release|x64
-		{5509A8AF-999D-474F-9DD0-C3374E0EA266}.Release|x64.Build.0 = Release|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Debug|x64.ActiveCfg = Debug|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Debug|x64.Build.0 = Debug|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Release|x64.ActiveCfg = Release|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Release|x64.Build.0 = Release|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Debug|x64.ActiveCfg = Debug|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Debug|x64.Build.0 = Debug|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Release|x64.ActiveCfg = Release|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -247,7 +253,8 @@ Global
 		{758C7C8C-683A-42E8-A8C5-C32AED1741BE} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{C710F837-3E9A-4D0B-8ADE-A76A87187BB0} = {758C7C8C-683A-42E8-A8C5-C32AED1741BE}
 		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739} = {758C7C8C-683A-42E8-A8C5-C32AED1741BE}
-		{5509A8AF-999D-474F-9DD0-C3374E0EA266} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{6FC70871-A668-4423-AFD0-C53A84122402} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}
