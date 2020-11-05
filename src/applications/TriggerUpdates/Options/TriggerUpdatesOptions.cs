@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TriggerUpdates
 {
-    public abstract class TriggerUpdatesOptions : CliOptions
+    public abstract class TriggerUpdatesCliOptions : CliOptions
     {
 
     }

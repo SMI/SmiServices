@@ -27,7 +27,7 @@ namespace TriggerUpdates
                 errs => -100);
         }
 
-        private static int Run(TriggerUpdatesOptions opts, ITriggerUpdatesSource source)
+        private static int Run(TriggerUpdatesCliOptions opts, ITriggerUpdatesSource source)
         {
             
             GlobalOptions globalOptions = new GlobalOptionsFactory().Load(opts);
