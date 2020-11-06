@@ -140,5 +140,40 @@ namespace Applications.TriggerUpdates.Tests
             Assert.AreEqual(1,msg.Length, "We expected only one update");
         }
 
+        
+        [TestCase(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        public void TestMapperSource_GuidMappingNowExists(DatabaseType dbType)
+        {
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+
+            // Simulate a data load that inserts the previously unknown value 0202020202 into the mapping as 0X0X0X0X0X
+            // The value 0202020202 is in the guid mapping table! so we would expect a global system update to be issued for the temporary guid mapping to the new legit mapping
+            map.Insert(new Dictionary<string, object>(){ 
+                {"CHI","0202020202" },
+                {"ECHI","0X0X0X0X0X" },
+                {SpecialFieldNames.ValidFrom,DateTime.Now },
+                {SpecialFieldNames.DataLoadRunID,55},
+                });
+            
+            var oldTempGuid = guidTable.GetDataTable().Rows[0][TableLookupWithGuidFallbackSwapper.GuidColumnName];
+            Assert.IsNotNull(oldTempGuid);
+ 
+            Assert.AreEqual(2,map.GetRowCount(),"We should have a mapping table with 2 entries, the old existing one 0101010101 and a new one 0202020202");
+
+            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
+
+            var msg = source.GetUpdates().ToArray();
+            Assert.IsNotNull(msg);
+
+            Assert.AreEqual("ECHI",msg[0].WhereFields.Single());
+            Assert.AreEqual("ECHI",msg[0].WriteIntoFields.Single());
+
+            Assert.AreEqual(oldTempGuid,msg[0].HaveValues.Single(),"Expected the temporary guid to be the thing we are searching for to replace");
+            Assert.AreEqual("0X0X0X0X0X",msg[0].Values.Single(),"Expected the replacement value to be the new legit mapping");
+
+            Assert.AreEqual(1,msg.Length, "We expected only one update");
+        }
+
     }
 }

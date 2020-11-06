@@ -57,6 +57,10 @@ namespace TriggerUpdates.Execution
         {
             var mappingTable = _globalOptions.IdentifierMapperOptions.Discover();
             var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
+            
+            //may be null!
+            var fallbackSwapper = _swapper as TableLookupWithGuidFallbackSwapper;
+            var guidTable = fallbackSwapper?.GetGuidTable(_globalOptions.IdentifierMapperOptions);
 
             if(!archiveTable.Exists())
                 throw new Exception($"No Archive table exists for mapping table {mappingTable.GetFullyQualifiedName()}");
@@ -95,26 +99,52 @@ namespace TriggerUpdates.Execution
 
                             var oldForColValue = cmd2.ExecuteScalar();
 
-                            //if there is no entry in the archive for this old one it must be brand new i.e. not an update
-                            if(oldForColValue == null)
-                                continue;
-
-                            //there is an entry in the archive so we need to issue a database update to update the live tables so the old archive
-                            // table swap value (e.g. ECHI) is updated to the new one in the live table
-                            yield return new UpdateValuesMessage()
+                            //if there is an entry in the archive for this old one then it is not a brand new record i.e. it is an update
+                            if(oldForColValue != null)
                             {
-                                WhereFields = new []{ forCol},
-                                HaveValues = new []{ oldForColValue?.ToString()},
+                                //there is an entry in the archive so we need to issue a database update to update the live tables so the old archive
+                                // table swap value (e.g. ECHI) is updated to the new one in the live table
+                                yield return new UpdateValuesMessage()
+                                {
+                                    WhereFields = new []{ forCol},
+                                    HaveValues = new []{ oldForColValue?.ToString()},
 
-                                WriteIntoFields = new []{ forCol},
-                                Values = new []{ currentForColValue?.ToString()}
-                            };
-
+                                    WriteIntoFields = new []{ forCol},
+                                    Values = new []{ currentForColValue?.ToString()}
+                                };
+                            }
                         }
 
-                        // TODO we should also look at guid mappings that are filled in now
-                        if(!(_swapper is TableLookupWithGuidFallbackSwapper guidSwapper))
-                            throw new NotSupportedException("Currently only TableLookupWithGuidFallbackSwapper is supported by this class");
+                        // We should also look at guid mappings that are filled in now because of brand new records
+                        if(guidTable != null)
+                        {
+                            string guidFetchSql = $"SELECT {TableLookupWithGuidFallbackSwapper.GuidColumnName} FROM {guidTable.GetFullyQualifiedName()} WHERE {swapCol}=@currentSwapColValue";
+
+                            using(var con3 = guidTable.Database.Server.GetConnection())
+                            {
+                                con3.Open();
+                                var cmd3 = guidTable.GetCommand(guidFetchSql,con3);
+
+                                guidTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd3,currentSwapColValue);
+
+                                var oldTemporaryMapping = cmd3.ExecuteScalar();
+
+                                //if this brand new mapping has a temporary guid assigned to it we need to issue an update of the temporary guid to the legit new mapping
+                                if(oldTemporaryMapping != null)
+                                {
+                                     //there is an entry in the archive so we need to issue a database update to update the live tables so the old archive
+                                    // table swap value (e.g. ECHI) is updated to the new one in the live table
+                                    yield return new UpdateValuesMessage()
+                                    {
+                                        WhereFields = new []{ forCol},
+                                        HaveValues = new []{ oldTemporaryMapping?.ToString()},
+
+                                        WriteIntoFields = new []{ forCol},
+                                        Values = new []{ currentForColValue?.ToString()}
+                                    };
+                                }
+                            }
+                        }
                     }
                 }
             }
