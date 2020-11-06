@@ -15,26 +15,19 @@ namespace TriggerUpdates
     {
         static int Main(string[] args)
         {
-            ImplementationManager.Load<MySqlImplementation>();
-            ImplementationManager.Load<OracleImplementation>();
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-            ImplementationManager.Load<PostgreSqlImplementation>();
-            
             return Parser.Default.ParseArguments<TriggerUpdatesFromMapperOptions,TriggerUpdatesFromMongo>(args)
                 .MapResult(
-                (TriggerUpdatesFromMapperOptions opts) => Run(opts,new MapperSource(opts)),
-                (TriggerUpdatesFromMongo opts) => Run(opts,new MongoSource(opts)),
+                (TriggerUpdatesFromMapperOptions opts) => Run(opts,(g)=>new MapperSource(g,opts)),
+                (TriggerUpdatesFromMongo opts) => Run(opts,(g)=>new MongoSource(g,opts)),
                 errs => -100);
         }
 
-        private static int Run(TriggerUpdatesCliOptions opts, ITriggerUpdatesSource source)
+        private static int Run(TriggerUpdatesCliOptions opts, Func<GlobalOptions,ITriggerUpdatesSource> sourceFactory)
         {
-            
             GlobalOptions globalOptions = new GlobalOptionsFactory().Load(opts);
 
-            var bootStrapper = new MicroserviceHostBootstrapper(() => new TriggerUpdatesHost(globalOptions, source));
+            var bootStrapper = new MicroserviceHostBootstrapper(() => new TriggerUpdatesHost(globalOptions, sourceFactory(globalOptions)));
             return bootStrapper.Main();
-
         }
     }
 }

@@ -1,14 +1,12 @@
 ﻿using Smi.Common.Messages.Updating;
+using Smi.Common.Options;
 
 namespace TriggerUpdates.Execution
 {
     public class MongoSource : ITriggerUpdatesSource
     {
-        private TriggerUpdatesFromMongo opts;
-
-        public MongoSource(TriggerUpdatesFromMongo opts)
+        public MongoSource(GlobalOptions globalOptions,TriggerUpdatesFromMongo cliOptions)
         {
-            this.opts = opts;
         }
 
         public UpdateValuesMessage Next()
