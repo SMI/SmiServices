@@ -52,9 +52,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetGuidTable"/>
         /// </summary>
         /// <returns></returns>
-        public DiscoveredTable GetMappingTable()
+        public DiscoveredTable GetMappingTable(IMappingTableOptions options)
         {
-            return _tableSwapper.GetMappingTable();
+            return options.Discover();
         }
 
         /// <summary>

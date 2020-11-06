@@ -86,11 +86,25 @@ namespace Applications.TriggerUpdates.Tests
                 {SpecialFieldNames.DataLoadRunID,55},
                 });
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions());
+            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
 
             Assert.IsEmpty(source.GetUpdates(), "Since 0303030303 has never before been seen (not in guid table) we don't have any existing mappings to update");
         }
+        
+        [TestCase(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        public void TestMapperSource_NoArchiveTable(DatabaseType dbType)
+        {
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            
+            var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
+            archive.Drop();
 
+            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
+            var ex = Assert.Throws<Exception>(()=>source.GetUpdates().ToArray());
+
+            StringAssert.StartsWith("No Archive table exists for mapping table",ex.Message);
+        }
         
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -112,7 +126,7 @@ namespace Applications.TriggerUpdates.Tests
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions());
+            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
 
             var msg = source.GetUpdates().ToArray();
             Assert.IsNotNull(msg);
