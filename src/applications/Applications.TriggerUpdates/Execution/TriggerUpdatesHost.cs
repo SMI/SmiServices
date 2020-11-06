@@ -20,9 +20,9 @@ namespace TriggerUpdates.Execution
         {
             UpdateValuesMessage msg;
 
-            while((msg = _source.Next()) != null)
+            foreach(var upd in _source.GetUpdates())
             {
-                _producer.SendMessage(msg,null);
+                _producer.SendMessage(upd,null);
             }
             
             Stop("Directory scan completed");

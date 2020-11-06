@@ -49,6 +49,15 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         }
 
         /// <summary>
+        /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetGuidTable"/>
+        /// </summary>
+        /// <returns></returns>
+        public DiscoveredTable GetMappingTable()
+        {
+            return _tableSwapper.GetMappingTable();
+        }
+
+        /// <summary>
         /// Returns a table in which guids would be stored for mapping table lookup misses.  This will be in
         /// the same database and schema as <paramref name="options"/> but the table name will have the <see cref="GuidTableSuffix"/>
         /// </summary>

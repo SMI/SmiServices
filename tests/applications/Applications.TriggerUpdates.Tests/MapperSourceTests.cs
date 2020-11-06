@@ -88,7 +88,7 @@ namespace Applications.TriggerUpdates.Tests
 
             var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions());
 
-            Assert.IsNull(source.Next(), "Since 0303030303 has never before been seen (not in guid table) we don't have any existing mappings to update");
+            Assert.IsEmpty(source.GetUpdates(), "Since 0303030303 has never before been seen (not in guid table) we don't have any existing mappings to update");
         }
 
         
@@ -114,16 +114,16 @@ namespace Applications.TriggerUpdates.Tests
 
             var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions());
 
-            var msg = source.Next();
+            var msg = source.GetUpdates().ToArray();
             Assert.IsNotNull(msg);
 
-            Assert.AreEqual("ECHI",msg.WhereFields.Single());
-            Assert.AreEqual("ECHI",msg.WriteIntoFields.Single());
+            Assert.AreEqual("ECHI",msg[0].WhereFields.Single());
+            Assert.AreEqual("ECHI",msg[0].WriteIntoFields.Single());
 
-            Assert.AreEqual("0A0A0A0A0A",msg.HaveValues.Single());
-            Assert.AreEqual("0Z0Z0Z0Z0Z",msg.Values.Single());
+            Assert.AreEqual("0A0A0A0A0A",msg[0].HaveValues.Single());
+            Assert.AreEqual("0Z0Z0Z0Z0Z",msg[0].Values.Single());
 
-            Assert.IsNull(source.Next(), "We expected only one update, the next call should have returned null");
+            Assert.AreEqual(1,msg.Length, "We expected only one update");
         }
 
     }

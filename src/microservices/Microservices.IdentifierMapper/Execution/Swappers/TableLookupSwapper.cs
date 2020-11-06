@@ -35,6 +35,15 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 throw new ArgumentException($"Swap table '{_swapTable.GetFullyQualifiedName()}' did not exist on server '{_server}'");
         }
 
+        /// <summary>
+        /// Returns the table that is being used for lookup operations
+        /// </summary>
+        /// <returns></returns>
+        public DiscoveredTable GetMappingTable()
+        {
+            return _swapTable;
+        }
+
         public override string GetSubstitutionFor(string toSwap, out string reason)
         {
             reason = null;

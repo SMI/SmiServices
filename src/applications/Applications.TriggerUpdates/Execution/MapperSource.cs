@@ -8,6 +8,7 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages.Updating;
 using Smi.Common.Options;
 using System;
+using System.Collections.Generic;
 
 namespace TriggerUpdates.Execution
 {
@@ -37,12 +38,31 @@ namespace TriggerUpdates.Execution
             
         }
 
-        public UpdateValuesMessage Next()
+        public IEnumerable<UpdateValuesMessage> GetUpdates()
         {
             if(!(_swapper is TableLookupWithGuidFallbackSwapper guidSwapper))
                 throw new NotSupportedException("Currently only TableLookupWithGuidFallbackSwapper is supported by this class");
 
-            return null;
+            var mappingTable = guidSwapper.GetMappingTable();
+
+            using(var con = mappingTable.Database.Server.GetConnection())
+            {
+                con.Open();
+
+
+                var cmd = mappingTable.GetCommand("TODO",con);
+                using(var r = cmd.ExecuteReader())
+                {
+                    while(r.Read())
+                    {
+                        yield return new UpdateValuesMessage()
+                        { 
+                         
+                            //TODO
+                            };
+                    }
+                }
+            }
         }
     }
 }

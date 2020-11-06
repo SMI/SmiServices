@@ -1,5 +1,6 @@
 ﻿using Smi.Common.Messages.Updating;
 using Smi.Common.Options;
+using System.Collections.Generic;
 
 namespace TriggerUpdates.Execution
 {
@@ -9,7 +10,7 @@ namespace TriggerUpdates.Execution
         {
         }
 
-        public UpdateValuesMessage Next()
+        public IEnumerable<UpdateValuesMessage> GetUpdates()
         {
             throw new System.NotImplementedException();
         }
