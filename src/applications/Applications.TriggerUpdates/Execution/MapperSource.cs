@@ -105,6 +105,8 @@ namespace TriggerUpdates.Execution
                             //if there is an entry in the archive for this old one then it is not a brand new record i.e. it is an update
                             if(oldForColValue != null)
                             {
+                                //there is an entry in the archive so we need to issue a database update to update the live tables so the old archive
+                                // table swap value (e.g. ECHI) is updated to the new one in the live table
                                 yield return new UpdateValuesMessage()
                                 {
                                     WhereFields = new []{ liveDatabaseFieldName ?? forCol},
@@ -133,8 +135,6 @@ namespace TriggerUpdates.Execution
                                 //if this brand new mapping has a temporary guid assigned to it we need to issue an update of the temporary guid to the legit new mapping
                                 if(oldTemporaryMapping != null)
                                 {
-                                     //there is an entry in the archive so we need to issue a database update to update the live tables so the old archive
-                                    // table swap value (e.g. ECHI) is updated to the new one in the live table
                                     yield return new UpdateValuesMessage()
                                     {
                                         WhereFields = new []{ liveDatabaseFieldName ?? forCol},
