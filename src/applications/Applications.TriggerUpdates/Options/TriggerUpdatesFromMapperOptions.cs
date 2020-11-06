@@ -8,5 +8,8 @@ namespace TriggerUpdates
     {
         [Option('d',"DateOfLastUpdate",Required = true,HelpText = "The last known date where live tables and mapping table were in sync.  Updates will be issued for records changed after this date")]
         public DateTime DateOfLastUpdate { get; set; }
+
+        [Option('f',"FieldName",HelpText = "The field name of the release identifier in your databases e.g. PatientID.  Only needed if different from the mapping table swap column name e.g. ECHI")]
+        public string LiveDatabaseFieldName { get;set;}
     }
 }

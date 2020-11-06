@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Added new command line application TriggerUpdates for detecting and issuing UpdateValuesMessages (e.g. ECHI mapping changes)
 - Added new service UpdateValues which propagates changes (e.g. ECHI mapping changes) throughout the deployed database tables.
 - ConsensusRule for combining 2+ other rules e.g. SocketRules (See IsIdentifiable Readme.md for more details)
 - Added runtime and total failures count to IsIdentifiable logs

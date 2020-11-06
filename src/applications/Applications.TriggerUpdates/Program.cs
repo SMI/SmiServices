@@ -15,10 +15,10 @@ namespace TriggerUpdates
     {
         static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<TriggerUpdatesFromMapperOptions,TriggerUpdatesFromMongo>(args)
+            return Parser.Default.ParseArguments<TriggerUpdatesFromMapperOptions,TriggerUpdatesFromMongoOptions>(args)
                 .MapResult(
                 (TriggerUpdatesFromMapperOptions opts) => Run(opts,(g)=>new MapperSource(g,opts)),
-                (TriggerUpdatesFromMongo opts) => Run(opts,(g)=>new MongoSource(g,opts)),
+                (TriggerUpdatesFromMongoOptions opts) => Run(opts,(g)=>new MongoSource(g,opts)),
                 errs => -100);
         }
 

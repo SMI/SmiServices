@@ -68,6 +68,9 @@ namespace TriggerUpdates.Execution
             var swapCol = _globalOptions.IdentifierMapperOptions.SwapColumnName;
             var forCol = _globalOptions.IdentifierMapperOptions.ReplacementColumnName;
 
+            // may be null!
+            var liveDatabaseFieldName = _cliOptions.LiveDatabaseFieldName;
+
             var archiveFetchSql = GetArchiveFetchSql(archiveTable,swapCol,forCol);
 
             using(var con = mappingTable.Database.Server.GetConnection())
@@ -106,10 +109,10 @@ namespace TriggerUpdates.Execution
                                 // table swap value (e.g. ECHI) is updated to the new one in the live table
                                 yield return new UpdateValuesMessage()
                                 {
-                                    WhereFields = new []{ forCol},
+                                    WhereFields = new []{ liveDatabaseFieldName ?? forCol},
                                     HaveValues = new []{ oldForColValue?.ToString()},
 
-                                    WriteIntoFields = new []{ forCol},
+                                    WriteIntoFields = new []{ liveDatabaseFieldName ?? forCol},
                                     Values = new []{ currentForColValue?.ToString()}
                                 };
                             }
@@ -136,10 +139,10 @@ namespace TriggerUpdates.Execution
                                     // table swap value (e.g. ECHI) is updated to the new one in the live table
                                     yield return new UpdateValuesMessage()
                                     {
-                                        WhereFields = new []{ forCol},
+                                        WhereFields = new []{ liveDatabaseFieldName ?? forCol},
                                         HaveValues = new []{ oldTemporaryMapping?.ToString()},
 
-                                        WriteIntoFields = new []{ forCol},
+                                        WriteIntoFields = new []{ liveDatabaseFieldName ?? forCol},
                                         Values = new []{ currentForColValue?.ToString()}
                                     };
                                 }

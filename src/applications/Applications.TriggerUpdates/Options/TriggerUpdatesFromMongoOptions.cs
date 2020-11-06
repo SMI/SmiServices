@@ -3,7 +3,7 @@
 namespace TriggerUpdates
 {
     [Verb("mongo", HelpText = "Triggers updates for a specific tag in ")]
-    public class TriggerUpdatesFromMongo : TriggerUpdatesCliOptions
+    public class TriggerUpdatesFromMongoOptions : TriggerUpdatesCliOptions
     {
     }
 }

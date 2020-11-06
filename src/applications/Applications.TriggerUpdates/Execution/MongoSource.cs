@@ -6,8 +6,11 @@ namespace TriggerUpdates.Execution
 {
     public class MongoSource : ITriggerUpdatesSource
     {
-        public MongoSource(GlobalOptions globalOptions,TriggerUpdatesFromMongo cliOptions)
+        private TriggerUpdatesFromMongoOptions _cliOptions;
+
+        public MongoSource(GlobalOptions globalOptions,TriggerUpdatesFromMongoOptions cliOptions)
         {
+            _cliOptions = cliOptions;
         }
 
         public IEnumerable<UpdateValuesMessage> GetUpdates()
