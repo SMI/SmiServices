@@ -25,7 +25,7 @@ namespace TriggerUpdates.Execution
                 _producer.SendMessage(upd,null);
             }
             
-            Stop("Directory scan completed");
+            Stop("Update detection process finished");
         }
     }
 }
