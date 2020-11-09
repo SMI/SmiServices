@@ -110,10 +110,10 @@ namespace TriggerUpdates.Execution
                                 yield return new UpdateValuesMessage()
                                 {
                                     WhereFields = new []{ liveDatabaseFieldName ?? forCol},
-                                    HaveValues = new []{ oldForColValue?.ToString()},
+                                    HaveValues = new []{ Qualify(oldForColValue)},
 
                                     WriteIntoFields = new []{ liveDatabaseFieldName ?? forCol},
-                                    Values = new []{ currentForColValue?.ToString()}
+                                    Values = new []{ Qualify(currentForColValue)}
                                 };
                             }
                         }
@@ -138,10 +138,10 @@ namespace TriggerUpdates.Execution
                                     yield return new UpdateValuesMessage()
                                     {
                                         WhereFields = new []{ liveDatabaseFieldName ?? forCol},
-                                        HaveValues = new []{ oldTemporaryMapping?.ToString()},
+                                        HaveValues = new []{ Qualify(oldTemporaryMapping)},
 
                                         WriteIntoFields = new []{ liveDatabaseFieldName ?? forCol},
-                                        Values = new []{ currentForColValue?.ToString()}
+                                        Values = new []{ Qualify(currentForColValue)}
                                     };
                                 }
                             }
@@ -149,6 +149,22 @@ namespace TriggerUpdates.Execution
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns DBMS formatted representation for constant <paramref name="value"/>
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private string Qualify(object value)
+        {
+            if(value == DBNull.Value || string.IsNullOrWhiteSpace(value?.ToString()))
+                return "null";
+
+            if(_cliOptions.Qualifier != '\0')
+                return _cliOptions.Qualifier + value.ToString() + _cliOptions.Qualifier;
+
+            return value.ToString();
         }
 
 
