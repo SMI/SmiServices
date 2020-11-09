@@ -52,10 +52,10 @@ namespace Applications.TriggerUpdates.Execution
                 dtMap.Columns.Add("CHI");
                 dtMap.Columns.Add("ECHI");
 
-                dtMap.PrimaryKey = new []{ dt.Columns["CHI"]};
+                dtMap.PrimaryKey = new []{ dtMap.Columns["CHI"]};
 
                 dtMap.Rows.Add("0101010101", "0A0A0A0A0A");
-                map = db.CreateTable("Map",dt);
+                map = db.CreateTable("Map",dtMap);
             }
 
             var mapperOptions = new IdentifierMapperOptions()
