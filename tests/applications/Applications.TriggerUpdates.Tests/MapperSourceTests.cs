@@ -178,6 +178,49 @@ namespace Applications.TriggerUpdates.Tests
 
             Assert.AreEqual(1,msg.Length, "We expected only one update");
         }
+
+        
+        [TestCase(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        public void TestMapperSource_UpdatedMapping_Qualifier(DatabaseType dbType)
+        {
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+
+            // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
+            using(var con = map.Database.Server.GetConnection())
+            {
+                con.Open();
+                Assert.AreEqual(1,map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET ECHI = null WHERE CHI = '0101010101'",con).ExecuteNonQuery());
+            }
+            
+            var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
+            Assert.IsTrue(archive.Exists(),"Archive table should definetly be there, we created the trigger after all");
+            Assert.AreEqual(1,archive.GetRowCount(), "Expected the old ECHI to have an entry in the archive when it was updated");
+                        
+            Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
+
+            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions }, new TriggerUpdatesFromMapperOptions()
+            {
+                DateOfLastUpdate = new DateTime(2020,01,01),
+                
+                // This is the thing we are testing
+                Qualifier = '\'',
+                LiveDatabaseFieldName = "PatientID"
+            });
+
+            var msg = source.GetUpdates().ToArray();
+            Assert.IsNotNull(msg);
+
+            Assert.AreEqual("PatientID",msg[0].WhereFields.Single(),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
+            Assert.AreEqual("PatientID",msg[0].WriteIntoFields.Single(),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
+
+            Assert.AreEqual("'0A0A0A0A0A'",msg[0].HaveValues.Single());
+            Assert.AreEqual("null",msg[0].Values.Single());
+
+            Assert.AreEqual(1,msg.Length, "We expected only one update");
+        }
+
+        
         
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.MicrosoftSQLServer)]

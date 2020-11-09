@@ -9,7 +9,6 @@ Primary Author: [Thomas Nind](https://github.com/tznind)
  4. [Config](#4-config)
  5. [Expectations](#5-expectations)
  6. [Class Diagram](#6-class-diagram)
- 7. [Directory Scan Modes](#7-directory-scan-modes)
 
 ### 1. Overview
 The TriggerUpdates app is a console app that runs and terminates rather than a microservice that runs forever. The app issues update messages designed for consumption by the [UpdateValues microservice] .

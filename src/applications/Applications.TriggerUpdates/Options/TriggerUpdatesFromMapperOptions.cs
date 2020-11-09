@@ -13,7 +13,7 @@ namespace TriggerUpdates
         public string LiveDatabaseFieldName { get;set;}
 
 
-        [Option('q',"Qualifier",HelpText = "Qualifier for values e.g. '.  This should be the DBMS qualifier needed for strings/dates.  If patient identifiers are numerical then do not specify this option)]
+        [Option('q',"Qualifier",HelpText = "Qualifier for values e.g. '.  This should be the DBMS qualifier needed for strings/dates.  If patient identifiers are numerical then do not specify this option")]
         public char Qualifier { get;set;}
     }
 }
