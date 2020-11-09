@@ -93,6 +93,8 @@ namespace TriggerUpdates.Execution
                                 
                     //find all records in the table that are new
                     var cmd = mappingTable.GetCommand($"SELECT {swapCol}, {forCol} FROM {mappingTable.GetFullyQualifiedName()} WHERE {SpecialFieldNames.ValidFrom} >= @dateOfLastUpdate",con);
+                    cmd.CommandTimeout = _globalOptions.UpdateValuesOptions.CommandTimeoutInSeconds;
+
                     mappingTable.Database.Server.AddParameterWithValueToCommand("@dateOfLastUpdate",cmd,dateOfLastUpdate);
                 
                     _currentCommandMainTable = cmd;
@@ -113,6 +115,8 @@ namespace TriggerUpdates.Execution
                             {
                                 con2.Open();
                                 var cmd2 = archiveTable.GetCommand(archiveFetchSql,con2);
+
+                                cmd2.CommandTimeout = _globalOptions.UpdateValuesOptions.CommandTimeoutInSeconds;
                                 _currentCommandOtherTables = cmd2;
 
                                 archiveTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd2,currentSwapColValue);
@@ -148,6 +152,8 @@ namespace TriggerUpdates.Execution
                                 {
                                     con3.Open();
                                     var cmd3 = guidTable.GetCommand(guidFetchSql,con3);
+
+                                    cmd3.CommandTimeout = _globalOptions.UpdateValuesOptions.CommandTimeoutInSeconds;
                                     _currentCommandOtherTables = cmd3;
 
                                     guidTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd3,currentSwapColValue);
