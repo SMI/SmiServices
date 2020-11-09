@@ -1,4 +1,5 @@
-﻿using Smi.Common.Execution;
+﻿using Smi.Common;
+using Smi.Common.Execution;
 using Smi.Common.Messages.Updating;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -10,7 +11,7 @@ namespace TriggerUpdates.Execution
         private ITriggerUpdatesSource _source;
         private IProducerModel _producer;
 
-        public TriggerUpdatesHost(GlobalOptions options,ITriggerUpdatesSource source):base(options)
+        public TriggerUpdatesHost(GlobalOptions options,ITriggerUpdatesSource source,IRabbitMqAdapter rabbitMqAdapter = null,bool loadSmiLogConfig = true):base(options,rabbitMqAdapter,loadSmiLogConfig)
         {
             this._source = source;
             _producer =  RabbitMqAdapter.SetupProducer(options.TriggerUpdatesOptions, isBatch: false);
