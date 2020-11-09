@@ -71,8 +71,7 @@ namespace TriggerUpdates.Execution
                 var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
             
                 //may be null!
-                var fallbackSwapper = _swapper as TableLookupWithGuidFallbackSwapper;
-                var guidTable = fallbackSwapper?.GetGuidTable(_globalOptions.IdentifierMapperOptions);
+                var guidTable = _swapper.GetGuidTableIfAny(_globalOptions.IdentifierMapperOptions);
 
                 if(!archiveTable.Exists())
                     throw new Exception($"No Archive table exists for mapping table {mappingTable.GetFullyQualifiedName()}");
@@ -93,7 +92,7 @@ namespace TriggerUpdates.Execution
                                 
                     //find all records in the table that are new
                     var cmd = mappingTable.GetCommand($"SELECT {swapCol}, {forCol} FROM {mappingTable.GetFullyQualifiedName()} WHERE {SpecialFieldNames.ValidFrom} >= @dateOfLastUpdate",con);
-                    cmd.CommandTimeout = _globalOptions.UpdateValuesOptions.CommandTimeoutInSeconds;
+                    cmd.CommandTimeout = _globalOptions.TriggerUpdatesOptions.CommandTimeoutInSeconds;
 
                     mappingTable.Database.Server.AddParameterWithValueToCommand("@dateOfLastUpdate",cmd,dateOfLastUpdate);
                 
@@ -116,7 +115,7 @@ namespace TriggerUpdates.Execution
                                 con2.Open();
                                 var cmd2 = archiveTable.GetCommand(archiveFetchSql,con2);
 
-                                cmd2.CommandTimeout = _globalOptions.UpdateValuesOptions.CommandTimeoutInSeconds;
+                                cmd2.CommandTimeout = _globalOptions.TriggerUpdatesOptions.CommandTimeoutInSeconds;
                                 _currentCommandOtherTables = cmd2;
 
                                 archiveTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd2,currentSwapColValue);
@@ -153,7 +152,7 @@ namespace TriggerUpdates.Execution
                                     con3.Open();
                                     var cmd3 = guidTable.GetCommand(guidFetchSql,con3);
 
-                                    cmd3.CommandTimeout = _globalOptions.UpdateValuesOptions.CommandTimeoutInSeconds;
+                                    cmd3.CommandTimeout = _globalOptions.TriggerUpdatesOptions.CommandTimeoutInSeconds;
                                     _currentCommandOtherTables = cmd3;
 
                                     guidTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd3,currentSwapColValue);

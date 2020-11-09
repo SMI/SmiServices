@@ -200,5 +200,10 @@ where not exists(select *
                 throw new Exception("Error creating/checking Guid substitution table on:" + Environment.NewLine + sb, e);
             }
         }
+
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        {
+            return _options.Discover();
+        }
     }
 }

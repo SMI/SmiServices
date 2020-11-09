@@ -401,15 +401,15 @@ namespace Smi.Common.Options
         /// </summary>
         public int[] TableInfosToUpdate {get;set;} = new int[0];
 
-        /// <summary>
-        /// The number of seconds database commands should be allowed to execute for before timing out.
-        /// </summary>
-        public int CommandTimeoutInSeconds = 500;
     }
     
     [UsedImplicitly]
     public class TriggerUpdatesOptions : ProducerOptions
     {
+        /// <summary>
+        /// The number of seconds database commands should be allowed to execute for before timing out.
+        /// </summary>
+        public int CommandTimeoutInSeconds = 500;
     }
 
     [UsedImplicitly]
