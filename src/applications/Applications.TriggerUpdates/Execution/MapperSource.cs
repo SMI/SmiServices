@@ -5,20 +5,17 @@ using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
-using JetBrains.Annotations;
-using MapsDirectlyToDatabaseTable;
 using Microservices.IdentifierMapper.Execution.Swappers;
-using Rdmp.Core.Curation.Data;
-using Rdmp.Core.Curation.Data.Spontaneous;
+using NLog;
 using Rdmp.Core.DataLoad.Triggers;
-using Rdmp.Core.QueryBuilding;
-using Rdmp.Core.Repositories;
 using Smi.Common.Helpers;
 using Smi.Common.Messages.Updating;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
+using System.Threading;
 
 namespace TriggerUpdates.Execution
 {
@@ -27,6 +24,17 @@ namespace TriggerUpdates.Execution
         private ISwapIdentifiers _swapper;
         private TriggerUpdatesFromMapperOptions _cliOptions;
         private GlobalOptions _globalOptions;
+        
+        protected readonly CancellationTokenSource TokenSource = new CancellationTokenSource();
+        protected readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        /// <summary>
+        /// True if the <see cref="GetUpdates"/> database quering operation is currently executing
+        /// </summary>
+        public bool IsExecuting {get; private set; } = false;
+
+        private DbCommand _currentCommandMainTable;
+        private DbCommand _currentCommandOtherTables;
 
         public MapperSource(GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
         {
@@ -55,99 +63,121 @@ namespace TriggerUpdates.Execution
 
         public IEnumerable<UpdateValuesMessage> GetUpdates()
         {
-            var mappingTable = _globalOptions.IdentifierMapperOptions.Discover();
-            var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
-            
-            //may be null!
-            var fallbackSwapper = _swapper as TableLookupWithGuidFallbackSwapper;
-            var guidTable = fallbackSwapper?.GetGuidTable(_globalOptions.IdentifierMapperOptions);
+            IsExecuting = true;
 
-            if(!archiveTable.Exists())
-                throw new Exception($"No Archive table exists for mapping table {mappingTable.GetFullyQualifiedName()}");
-
-            var swapCol = _globalOptions.IdentifierMapperOptions.SwapColumnName;
-            var forCol = _globalOptions.IdentifierMapperOptions.ReplacementColumnName;
-
-            // may be null!
-            var liveDatabaseFieldName = _cliOptions.LiveDatabaseFieldName;
-
-            var archiveFetchSql = GetArchiveFetchSql(archiveTable,swapCol,forCol);
-
-            using(var con = mappingTable.Database.Server.GetConnection())
+            try
             {
-                con.Open();
+                var mappingTable = _globalOptions.IdentifierMapperOptions.Discover();
+                var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
+            
+                //may be null!
+                var fallbackSwapper = _swapper as TableLookupWithGuidFallbackSwapper;
+                var guidTable = fallbackSwapper?.GetGuidTable(_globalOptions.IdentifierMapperOptions);
 
-                var dateOfLastUpdate = _cliOptions.DateOfLastUpdate;
+                if(!archiveTable.Exists())
+                    throw new Exception($"No Archive table exists for mapping table {mappingTable.GetFullyQualifiedName()}");
 
-                
-                //find all records in the table that are new
-                var cmd = mappingTable.GetCommand($"SELECT {swapCol}, {forCol} FROM {mappingTable.GetFullyQualifiedName()} WHERE {SpecialFieldNames.ValidFrom} >= @dateOfLastUpdate",con);
-                mappingTable.Database.Server.AddParameterWithValueToCommand("@dateOfLastUpdate",cmd,dateOfLastUpdate);
-                
+                var swapCol = _globalOptions.IdentifierMapperOptions.SwapColumnName;
+                var forCol = _globalOptions.IdentifierMapperOptions.ReplacementColumnName;
 
-                using(var r = cmd.ExecuteReader())
+                // may be null!
+                var liveDatabaseFieldName = _cliOptions.LiveDatabaseFieldName;
+
+                var archiveFetchSql = GetArchiveFetchSql(archiveTable,swapCol,forCol);
+
+                using(var con = mappingTable.Database.Server.GetConnection())
                 {
-                    while(r.Read())
+                    con.Open();
+
+                    var dateOfLastUpdate = _cliOptions.DateOfLastUpdate;
+                                
+                    //find all records in the table that are new
+                    var cmd = mappingTable.GetCommand($"SELECT {swapCol}, {forCol} FROM {mappingTable.GetFullyQualifiedName()} WHERE {SpecialFieldNames.ValidFrom} >= @dateOfLastUpdate",con);
+                    mappingTable.Database.Server.AddParameterWithValueToCommand("@dateOfLastUpdate",cmd,dateOfLastUpdate);
+                
+                    _currentCommandMainTable = cmd;
+                
+                    TokenSource.Token.ThrowIfCancellationRequested();
+
+                    using(var r = cmd.ExecuteReader())
                     {
-                        var currentSwapColValue = r[swapCol];
-                        var currentForColValue = r[forCol];
-
-                        //if there is a corresponding record in the archive table
-                        using(var con2 = archiveTable.Database.Server.GetConnection())
+                        while(r.Read())
                         {
-                            con2.Open();
-                            var cmd2 = archiveTable.GetCommand(archiveFetchSql,con2);
+                            TokenSource.Token.ThrowIfCancellationRequested();
 
-                            archiveTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd2,currentSwapColValue);
+                            var currentSwapColValue = r[swapCol];
+                            var currentForColValue = r[forCol];
 
-                            var oldForColValue = cmd2.ExecuteScalar();
-
-                            //if there is an entry in the archive for this old one then it is not a brand new record i.e. it is an update
-                            if(oldForColValue != null)
+                            //if there is a corresponding record in the archive table
+                            using(var con2 = archiveTable.Database.Server.GetConnection())
                             {
-                                //there is an entry in the archive so we need to issue a database update to update the live tables so the old archive
-                                // table swap value (e.g. ECHI) is updated to the new one in the live table
-                                yield return new UpdateValuesMessage()
+                                con2.Open();
+                                var cmd2 = archiveTable.GetCommand(archiveFetchSql,con2);
+                                _currentCommandOtherTables = cmd2;
+
+                                archiveTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd2,currentSwapColValue);
+
+                                var oldForColValue = cmd2.ExecuteScalar();
+                            
+                                TokenSource.Token.ThrowIfCancellationRequested();
+
+                                //if there is an entry in the archive for this old one then it is not a brand new record i.e. it is an update
+                                if(oldForColValue != null)
                                 {
-                                    WhereFields = new []{ liveDatabaseFieldName ?? forCol},
-                                    HaveValues = new []{ Qualify(oldForColValue)},
-
-                                    WriteIntoFields = new []{ liveDatabaseFieldName ?? forCol},
-                                    Values = new []{ Qualify(currentForColValue)}
-                                };
-                            }
-                        }
-
-                        // We should also look at guid mappings that are filled in now because of brand new records
-                        if(guidTable != null)
-                        {
-                            string guidFetchSql = $"SELECT {TableLookupWithGuidFallbackSwapper.GuidColumnName} FROM {guidTable.GetFullyQualifiedName()} WHERE {swapCol}=@currentSwapColValue";
-
-                            using(var con3 = guidTable.Database.Server.GetConnection())
-                            {
-                                con3.Open();
-                                var cmd3 = guidTable.GetCommand(guidFetchSql,con3);
-
-                                guidTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd3,currentSwapColValue);
-
-                                var oldTemporaryMapping = cmd3.ExecuteScalar();
-
-                                //if this brand new mapping has a temporary guid assigned to it we need to issue an update of the temporary guid to the legit new mapping
-                                if(oldTemporaryMapping != null)
-                                {
+                                    //there is an entry in the archive so we need to issue a database update to update the live tables so the old archive
+                                    // table swap value (e.g. ECHI) is updated to the new one in the live table
                                     yield return new UpdateValuesMessage()
                                     {
                                         WhereFields = new []{ liveDatabaseFieldName ?? forCol},
-                                        HaveValues = new []{ Qualify(oldTemporaryMapping)},
+                                        HaveValues = new []{ Qualify(oldForColValue)},
 
                                         WriteIntoFields = new []{ liveDatabaseFieldName ?? forCol},
                                         Values = new []{ Qualify(currentForColValue)}
                                     };
                                 }
                             }
+
+                            TokenSource.Token.ThrowIfCancellationRequested();
+
+                            // We should also look at guid mappings that are filled in now because of brand new records
+                            if(guidTable != null)
+                            {
+                                string guidFetchSql = $"SELECT {TableLookupWithGuidFallbackSwapper.GuidColumnName} FROM {guidTable.GetFullyQualifiedName()} WHERE {swapCol}=@currentSwapColValue";
+
+                                using(var con3 = guidTable.Database.Server.GetConnection())
+                                {
+                                    con3.Open();
+                                    var cmd3 = guidTable.GetCommand(guidFetchSql,con3);
+                                    _currentCommandOtherTables = cmd3;
+
+                                    guidTable.Database.Server.AddParameterWithValueToCommand("@currentSwapColValue",cmd3,currentSwapColValue);
+
+                                    var oldTemporaryMapping = cmd3.ExecuteScalar();
+
+                                    TokenSource.Token.ThrowIfCancellationRequested();
+
+                                    //if this brand new mapping has a temporary guid assigned to it we need to issue an update of the temporary guid to the legit new mapping
+                                    if(oldTemporaryMapping != null)
+                                    {
+                                        yield return new UpdateValuesMessage()
+                                        {
+                                            WhereFields = new []{ liveDatabaseFieldName ?? forCol},
+                                            HaveValues = new []{ Qualify(oldTemporaryMapping)},
+
+                                            WriteIntoFields = new []{ liveDatabaseFieldName ?? forCol},
+                                            Values = new []{ Qualify(currentForColValue)}
+                                        };
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+
+            }
+            finally
+            {
+                IsExecuting = false;
             }
         }
 
@@ -206,6 +236,31 @@ namespace TriggerUpdates.Execution
                 sb.AppendLine(topX.SQL);
 
             return sb.ToString();
+        }
+
+        public void Stop()
+        {
+            TokenSource.Cancel();
+
+            if(_currentCommandMainTable != null)
+                _currentCommandMainTable.Cancel();
+
+            if(_currentCommandOtherTables != null)
+                _currentCommandOtherTables.Cancel();
+
+            // give application 10 seconds to exit
+            var timeout = 10_000;
+            const int delta = 500;
+            while (IsExecuting && timeout > 0)
+            {
+                Thread.Sleep(delta);
+                timeout -= delta;
+            }
+
+            if (timeout <= 0)
+                throw new ApplicationException("Query execution did not exit in time");
+
+            Logger.Info("Query execution aborted, exiting");
         }
     }
 }

@@ -10,5 +10,10 @@ namespace TriggerUpdates.Execution
         /// </summary>
         /// <returns></returns>
         IEnumerable<UpdateValuesMessage> GetUpdates();
+
+        /// <summary>
+        /// Notifies the source that it should cancel any ongoing queries and attempt to stop issuing updates
+        /// </summary>
+        void Stop();
     }
 }

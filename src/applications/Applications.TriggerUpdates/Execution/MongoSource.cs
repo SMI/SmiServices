@@ -17,5 +17,10 @@ namespace TriggerUpdates.Execution
         {
             throw new System.NotImplementedException();
         }
+
+        public void Stop()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
