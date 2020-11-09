@@ -122,8 +122,6 @@ namespace Applications.TriggerUpdates.Execution
             {
                 tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName, globals.UpdateValuesOptions.QueueName);;
 
-                #region Running Microservices
-
                 sourceHost.Start();
                 tester.StopOnDispose.Add(sourceHost);
                 
