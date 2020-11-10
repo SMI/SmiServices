@@ -116,12 +116,13 @@ namespace Applications.TriggerUpdates.Execution
                 ((TableRepository)RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,
                 ((TableRepository)RepositoryLocator.DataExportRepository).ConnectionStringBuilder);
             
-            var sourceHost = new TriggerUpdatesHost(globals,new MapperSource(globals,cliOptions));
-            var destHost = new UpdateValuesHost(globals);
 
             using (var tester = new MicroserviceTester(globals.RabbitOptions, globals.CohortExtractorOptions))
             {
-                tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName, globals.UpdateValuesOptions.QueueName);;
+                tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName, globals.UpdateValuesOptions.QueueName);
+
+                var sourceHost = new TriggerUpdatesHost(globals,new MapperSource(globals,cliOptions));
+                var destHost = new UpdateValuesHost(globals);
 
                 sourceHost.Start();
                 tester.StopOnDispose.Add(sourceHost);
