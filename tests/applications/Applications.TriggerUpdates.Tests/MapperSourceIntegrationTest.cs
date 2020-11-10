@@ -57,6 +57,9 @@ namespace Applications.TriggerUpdates.Execution
                 dtMap.Rows.Add("0101010101", "0A0A0A0A0A");
                 map = db.CreateTable("Map",dtMap);
             }
+            
+            // Import into RDMP the live table so we have a TableInfo pointer to it floating around
+            Import(liveTable);
 
             var mapperOptions = new IdentifierMapperOptions()
             {
