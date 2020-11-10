@@ -68,6 +68,10 @@ namespace TriggerUpdates.Execution
             try
             {
                 var mappingTable = _globalOptions.IdentifierMapperOptions.Discover();
+                                
+                if(!mappingTable.Exists())
+                    throw new Exception($"Mapping table {mappingTable.GetFullyQualifiedName()} did not exist");
+
                 var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
             
                 //may be null!

@@ -117,6 +117,12 @@ namespace Applications.TriggerUpdates.Execution
                 ((TableRepository)RepositoryLocator.DataExportRepository).ConnectionStringBuilder);
             
 
+            //make sure the identifier mapper goes to the right table
+            globals.IdentifierMapperOptions.MappingConnectionString = db.Server.Builder.ConnectionString;
+            globals.IdentifierMapperOptions.MappingDatabaseType = dbType;
+            globals.IdentifierMapperOptions.MappingTableName = map.GetFullyQualifiedName();
+            globals.IdentifierMapperOptions.SwapperType = typeof(TableLookupWithGuidFallbackSwapper).FullName;
+
             using (var tester = new MicroserviceTester(globals.RabbitOptions, globals.CohortExtractorOptions))
             {
                 tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName, globals.UpdateValuesOptions.QueueName);
