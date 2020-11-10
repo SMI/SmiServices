@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
+
 
 namespace TriggerUpdates.Execution
 {
@@ -36,7 +38,7 @@ namespace TriggerUpdates.Execution
         private DbCommand _currentCommandMainTable;
         private DbCommand _currentCommandOtherTables;
 
-        public MapperSource(GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
+        public MapperSource([NotNull] GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
         {
             _cliOptions = cliOptions;
             _globalOptions = globalOptions;
@@ -53,7 +55,7 @@ namespace TriggerUpdates.Execution
             }
             catch (System.Exception ex)
             {
-                throw new System.Exception($"Could not create IdentifierMapper Swapper with SwapperType:{globalOptions?.IdentifierMapperOptions?.SwapperType ?? "Null"}",ex);
+                throw new System.Exception($"Could not create IdentifierMapper Swapper with SwapperType:{globalOptions.IdentifierMapperOptions?.SwapperType ?? "Null"}",ex);
             }
 
             if(_swapper == null)
