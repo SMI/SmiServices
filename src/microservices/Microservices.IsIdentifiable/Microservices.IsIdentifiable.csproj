@@ -45,7 +45,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="5.0.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
   </ItemGroup>
   <ItemGroup>
