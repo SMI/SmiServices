@@ -99,7 +99,8 @@ namespace Applications.TriggerUpdates.Execution
                 {SpecialFieldNames.DataLoadRunID,55},
                 });
 
-            var globals = new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  };
+            var globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            
             var cliOptions = new TriggerUpdatesFromMapperOptions()
             {
                 DateOfLastUpdate = new DateTime(2020,01,01),
