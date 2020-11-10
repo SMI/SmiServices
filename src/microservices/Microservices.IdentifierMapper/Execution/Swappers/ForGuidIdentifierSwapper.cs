@@ -203,7 +203,7 @@ where not exists(select *
 
         public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
         {
-            return _options.Discover();
+            return options.Discover();
         }
     }
 }
