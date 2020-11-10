@@ -8,7 +8,7 @@ Primary Author: [Thomas Nind](https://github.com/tznind)
  3. [Exchange and Queue Settings](#3-exchange-and-queue-settings)
  4. [Config](#4-config)
  5. [Expectations](#5-expectations)
-     1. [Aliases](#aliases)
+     1. [Aliases](#51-aliases)
  6. [Class Diagram](#6-class-diagram)
 
 ### 1. Overview
