@@ -52,6 +52,8 @@ namespace Smi.Common.Options
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
         public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
 
+        public TriggerUpdatesOptions TriggerUpdatesOptions {get;set;}
+
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
         public string LogsRoot { get; set; }
 
@@ -398,6 +400,16 @@ namespace Smi.Common.Options
         /// IDs of TableInfos that should be updated
         /// </summary>
         public int[] TableInfosToUpdate {get;set;} = new int[0];
+
+    }
+    
+    [UsedImplicitly]
+    public class TriggerUpdatesOptions : ProducerOptions
+    {
+        /// <summary>
+        /// The number of seconds database commands should be allowed to execute for before timing out.
+        /// </summary>
+        public int CommandTimeoutInSeconds = 500;
     }
 
     [UsedImplicitly]
