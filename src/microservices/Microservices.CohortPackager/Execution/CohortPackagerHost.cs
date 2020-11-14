@@ -29,12 +29,12 @@ namespace Microservices.CohortPackager.Execution
 
 
         public CohortPackagerHost(
-            GlobalOptions globals,
-            ExtractJobStore jobStore = null,
+            [NotNull] GlobalOptions globals,
+            [CanBeNull] ExtractJobStore jobStore = null,
             [CanBeNull] IFileSystem fileSystem = null,
-            IJobReporter reporter = null,
-            IJobCompleteNotifier notifier = null,
-            IRabbitMqAdapter rabbitMqAdapter = null,
+            [CanBeNull] IJobReporter reporter = null,
+            [CanBeNull] IJobCompleteNotifier notifier = null,
+            [CanBeNull] IRabbitMqAdapter rabbitMqAdapter = null,
             bool loadSmiLogConfig = true
         )
             : base(globals, rabbitMqAdapter, loadSmiLogConfig)
@@ -53,19 +53,21 @@ namespace Microservices.CohortPackager.Execution
             string reportFormatStr = Globals.CohortPackagerOptions.ReportFormat;
             if (reporter == null)
             {
-                if (fileSystem == null)
-                    throw new ArgumentException("A filesystem must be provided if the reporter is to be constructed here");
-
                 reporter = JobReporterFactory.GetReporter(
                     Globals.CohortPackagerOptions.ReporterType,
                     jobStore,
-                    fileSystem,
+                    fileSystem ?? new FileSystem(),
                     Globals.FileSystemOptions.ExtractRoot,
                     reportFormatStr
                 );
             }
-            else if (!string.IsNullOrWhiteSpace(reportFormatStr))
-                throw new ArgumentException($"Passed an IJobReporter, but this conflicts with the ReportFormat of '{reportFormatStr}' in the given options");
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(reportFormatStr))
+                    throw new ArgumentException($"Passed an IJobReporter, but this conflicts with the ReportFormat of '{reportFormatStr}' in the given options");
+                if (fileSystem != null)
+                    throw new ArgumentException("Passed a fileSystem, but this will be unused as also passed an existing IJobReporter");
+            }
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
                 Globals.CohortPackagerOptions.NotifierType
@@ -76,7 +78,8 @@ namespace Microservices.CohortPackager.Execution
                 jobStore,
                 ExceptionCallback,
                 notifier,
-                reporter);
+                reporter
+            );
 
             AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 
