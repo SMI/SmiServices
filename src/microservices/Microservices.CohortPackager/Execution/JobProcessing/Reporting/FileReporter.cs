@@ -41,6 +41,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             _currentFileStream = null;
             Stream fileStream;
 
+            // Write the jobId to a file in the extraction dir to help identify the set of files if they are moved
+            string jobIdFile = _fileSystem.Path.Combine(_extractRoot, jobInfo.ExtractionDirectory, "jobId.txt");
+            _fileSystem.File.WriteAllLines(jobIdFile, new[] { jobInfo.ExtractionJobIdentifier.ToString() });
+
             if (ShouldWriteCombinedReport(jobInfo))
             {
                 // Write a single report
