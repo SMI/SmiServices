@@ -42,6 +42,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         public void CreateReport(Guid jobId)
         {
             ExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
+            Logger.Info($"Creating report(s) for {jobId}");
 
             // TODO(rkm 2020-10-29) Add the pixel frequency table to the combined report
             if (ShouldWriteCombinedReport(jobInfo))
