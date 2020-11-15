@@ -38,20 +38,58 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
         private class TestJobReporter : JobReporterBase
         {
-            public string Report { get; set; }
+            public string Report { get; set; } = "";
 
             public bool Disposed { get; set; }
 
-            public TestJobReporter(IExtractJobStore jobStore) : base(jobStore) { }
+            private string _currentReportName;
+            private bool _isCombinedReport;
 
-            protected override Stream GetStream(ExtractJobInfo jobInfo) => new MemoryStream();
+            public TestJobReporter(IExtractJobStore jobStore, ReportFormat reportFormat) : base(jobStore, reportFormat) { }
 
-            protected override void FinishReport(Stream stream)
+            protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo)
             {
-                using (var streamReader = new StreamReader(stream))
-                {
-                    Report = streamReader.ReadToEnd();
-                }
+                _currentReportName = "summary";
+                _isCombinedReport = ShouldWriteCombinedReport(jobInfo);
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "pixel summary";
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "pixel full";
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForPixelDataWordLengthFrequencies(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "pixel word length frequencies";
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "tag summary";
+                return new MemoryStream();
+            }
+
+            protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo)
+            {
+                _currentReportName = "tag full";
+                return new MemoryStream();
+            }
+
+            protected override void FinishReportPart(Stream stream)
+            {
+                stream.Position = 0;
+                using var streamReader = new StreamReader(stream, leaveOpen: true);
+                string header = _isCombinedReport ? "" : $"\n=== {_currentReportName} file ===\n";
+                Report += header + streamReader.ReadToEnd();
             }
 
             protected override void ReleaseUnmanagedResources() => Disposed = true;
@@ -78,12 +116,12 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -145,10 +183,10 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var rejections = new List<Tuple<string, Dictionary<string, int>>>
+            var rejections = new List<ExtractionIdentifierRejectionInfo>
             {
-                new Tuple<string, Dictionary<string, int>>(
-                    "1.2.3.4",
+                new ExtractionIdentifierRejectionInfo(
+                    keyValue: "1.2.3.4",
                     new Dictionary<string, int>
                     {
                         {"image is in the deny list for extraction", 123},
@@ -156,9 +194,9 @@ Report contents:
                     }),
             };
 
-            var anonFailures = new List<Tuple<string, string>>
+            var anonFailures = new List<FileAnonFailureInfo>
             {
-                new Tuple<string, string>("foo1.dcm", "image was corrupt"),
+                new FileAnonFailureInfo(expectedAnonFile: "foo1.dcm", reason: "image was corrupt"),
             };
 
             const string report = @"
@@ -172,9 +210,9 @@ Report contents:
     }
 ]";
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new Tuple<string, string>("foo1.dcm", report),
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -184,7 +222,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -258,19 +296,19 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new Tuple<string, string>("foo.dcm", "totally not a report"),
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", failureData: "totally not a report"),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 Assert.Throws<ApplicationException>(() => reporter.CreateReport(Guid.Empty), "aa");
             }
@@ -296,9 +334,9 @@ Report contents:
                 isNoFilterExtraction: false
                 );
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new Tuple<string, string>("ccc/ddd/foo1.dcm", @"
+                new FileVerificationFailureInfo(anonFilePath: "ccc/ddd/foo1.dcm", failureData: @"
                     [
                         {
                              'Parts': [],
@@ -309,7 +347,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("ccc/ddd/foo2.dcm", @"
+                new FileVerificationFailureInfo(anonFilePath:"ccc/ddd/foo2.dcm",failureData: @"
                     [
                         {
                              'Parts': [],
@@ -320,7 +358,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("aaa/bbb/foo1.dcm", @"
+                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo1.dcm", failureData:@"
                     [
                         {
                             'Parts': [],
@@ -331,7 +369,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("aaa/bbb/foo2.dcm", @"
+                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm",failureData: @"
                     [
                         {
                             'Parts': [],
@@ -342,7 +380,7 @@ Report contents:
                         }
                     ]"
                 ),
-                new Tuple<string, string>("aaa/bbb/foo2.dcm", @"
+                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm", failureData: @"
                     [
                          {
                             'Parts': [],
@@ -357,13 +395,13 @@ Report contents:
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>()))
                 .Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -478,19 +516,19 @@ Report contents:
     },
 ]";
 
-            var verificationFailures = new List<Tuple<string, string>>
+            var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new Tuple<string, string>("foo1.dcm", report),
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -580,7 +618,7 @@ Report contents:
             mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -631,12 +669,12 @@ Report contents:
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<Tuple<string, Dictionary<string, int>>>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<Tuple<string, string>>());
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -678,6 +716,181 @@ Report contents:
 ";
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
+        }
+
+        [Test]
+        public void CreateReport_SplitReport()
+        {
+            Guid jobId = Guid.NewGuid();
+            var provider = new TestDateTimeProvider();
+            var testJobInfo = new ExtractJobInfo(
+                jobId,
+                provider.UtcNow(),
+                "1234",
+                "1234/extract1",
+                "keyTag",
+                123,
+                "ZZ",
+                ExtractJobStatus.Completed,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+                );
+
+            const string report = @"
+[
+     {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'aaaaaaaaaaa'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'X',
+        'ProblemValue': 'foo'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'X',
+        'ProblemValue': 'foo'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'X',
+        'ProblemValue': 'bar'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'Z',
+        'ProblemValue': 'bar'
+    },
+]";
+
+            var verificationFailures = new List<FileVerificationFailureInfo>
+            {
+                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo(anonFilePath: "foo2.dcm", report),
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            // Test ordering of multiple tags / multiple occurrences in each tag
+            var expected = $@"
+=== summary file ===
+# SMI extraction validation report for 1234/extract1
+
+Job info:
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       No
+-   Filtered extraction:           Yes
+
+Files included:
+-   README.md (this file)
+-   pixel_data_summary.csv
+-   pixel_data_full.csv
+-   pixel_data_word_length_frequencies.csv
+-   tag_data_summary.csv
+-   tag_data_full.csv
+
+This file contents:
+-   Blocked files
+-   Anonymisation failures
+
+## Blocked files
+
+
+## Anonymisation failures
+
+
+--- end of report ---
+
+=== pixel summary file ===
+TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport
+PixelData,aaaaaaaaaaa,2,0.3333333333333333,0.3333333333333333
+PixelData,a,4,0.6666666666666666,0.6666666666666666
+
+=== pixel full file ===
+TagName,FailureValue,FilePath
+PixelData,aaaaaaaaaaa,foo1.dcm
+PixelData,aaaaaaaaaaa,foo2.dcm
+PixelData,a,foo1.dcm
+PixelData,a,foo1.dcm
+PixelData,a,foo2.dcm
+PixelData,a,foo2.dcm
+
+=== pixel word length frequencies file ===
+WordLength,Count,Frequency
+1,1,0.5
+2,0,0
+3,0,0
+4,0,0
+5,0,0
+6,0,0
+7,0,0
+8,0,0
+9,0,0
+10,0,0
+11,1,0.5
+
+=== tag summary file ===
+TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport
+X,foo,4,0.6666666666666666,0.5
+X,bar,2,0.3333333333333333,0.5
+Z,bar,2,1,0.5
+
+=== tag full file ===
+TagName,FailureValue,FilePath
+X,foo,foo1.dcm
+X,foo,foo1.dcm
+X,foo,foo2.dcm
+X,foo,foo2.dcm
+X,bar,foo1.dcm
+X,bar,foo2.dcm
+Z,bar,foo1.dcm
+Z,bar,foo2.dcm
+";
+            Console.WriteLine(reporter.Report);
+            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            Assert.True(reporter.Disposed);
+
+            // TODO test empty split reports
         }
     }
 

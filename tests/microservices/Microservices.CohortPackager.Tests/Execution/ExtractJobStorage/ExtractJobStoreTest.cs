@@ -40,9 +40,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             protected override void CompleteJobImpl(Guid jobId) { }
             protected override void MarkJobFailedImpl(Guid jobId, Exception e) { }
             protected override ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId) => throw new NotImplementedException();
-            protected override IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejectionsImpl(Guid jobId) => throw new NotImplementedException();
-            protected override IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId) => throw new NotImplementedException();
-            protected override IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId) => throw new NotImplementedException();
+            protected override IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejectionsImpl(Guid jobId) => throw new NotImplementedException();
+            protected override IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId) => throw new NotImplementedException();
+            protected override IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId) => new[] { "missing" };
         }
 

@@ -308,6 +308,7 @@ namespace Smi.Common.Options
         public uint JobWatcherTimeoutInSeconds { get; set; }
         public string ReporterType { get; set; }
         public string NotifierType { get; set; }
+        public string ReportFormat { get; set; }
 
         public override string ToString()
         {
