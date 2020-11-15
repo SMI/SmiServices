@@ -49,6 +49,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 WriteCombinedReport(jobInfo);
             else
                 WriteSplitReport(jobInfo);
+
+            Logger.Info($"Report(s) for {jobId} created");
         }
 
         private void WriteCombinedReport(ExtractJobInfo jobInfo)
