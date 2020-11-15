@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29411.108
@@ -78,6 +77,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.FileCopier", "src\microservices\Microservices.FileCopier\Microservices.FileCopier.csproj", "{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.FileCopier.Tests", "tests\microservices\Microservices.FileCopier.Tests\Microservices.FileCopier.Tests.csproj", "{D61F6BF9-E857-457C-B745-40489A8CFE65}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Updating", "Updating", "{758C7C8C-683A-42E8-A8C5-C32AED1741BE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.UpdateValues", "src\microservices\Updating\Microservices.UpdateValues\Microservices.UpdateValues.csproj", "{C710F837-3E9A-4D0B-8ADE-A76A87187BB0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.UpdateValues.Tests", "tests\microservices\Microservices.UpdateValues.Tests\Microservices.UpdateValues.Tests.csproj", "{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.TriggerUpdates", "src\applications\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj", "{6FC70871-A668-4423-AFD0-C53A84122402}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.TriggerUpdates.Tests", "tests\applications\Applications.TriggerUpdates.Tests\Applications.TriggerUpdates.Tests.csproj", "{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -193,6 +202,22 @@ Global
 		{D61F6BF9-E857-457C-B745-40489A8CFE65}.Debug|x64.Build.0 = Debug|x64
 		{D61F6BF9-E857-457C-B745-40489A8CFE65}.Release|x64.ActiveCfg = Release|x64
 		{D61F6BF9-E857-457C-B745-40489A8CFE65}.Release|x64.Build.0 = Release|x64
+		{C710F837-3E9A-4D0B-8ADE-A76A87187BB0}.Debug|x64.ActiveCfg = Debug|x64
+		{C710F837-3E9A-4D0B-8ADE-A76A87187BB0}.Debug|x64.Build.0 = Debug|x64
+		{C710F837-3E9A-4D0B-8ADE-A76A87187BB0}.Release|x64.ActiveCfg = Release|x64
+		{C710F837-3E9A-4D0B-8ADE-A76A87187BB0}.Release|x64.Build.0 = Release|x64
+		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}.Debug|x64.ActiveCfg = Debug|x64
+		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}.Debug|x64.Build.0 = Debug|x64
+		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}.Release|x64.ActiveCfg = Release|x64
+		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739}.Release|x64.Build.0 = Release|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Debug|x64.ActiveCfg = Debug|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Debug|x64.Build.0 = Debug|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Release|x64.ActiveCfg = Release|x64
+		{6FC70871-A668-4423-AFD0-C53A84122402}.Release|x64.Build.0 = Release|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Debug|x64.ActiveCfg = Debug|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Debug|x64.Build.0 = Debug|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Release|x64.ActiveCfg = Release|x64
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -225,6 +250,11 @@ Global
 		{C2031E86-81B4-405A-A923-9B82E0CE196F} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{D4E52707-FFF7-41E6-8057-C6DB344B8CD7} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{D61F6BF9-E857-457C-B745-40489A8CFE65} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{758C7C8C-683A-42E8-A8C5-C32AED1741BE} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{C710F837-3E9A-4D0B-8ADE-A76A87187BB0} = {758C7C8C-683A-42E8-A8C5-C32AED1741BE}
+		{1B27F8A1-1A0F-4EFB-8A0F-4DB461E8B739} = {758C7C8C-683A-42E8-A8C5-C32AED1741BE}
+		{6FC70871-A668-4423-AFD0-C53A84122402} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

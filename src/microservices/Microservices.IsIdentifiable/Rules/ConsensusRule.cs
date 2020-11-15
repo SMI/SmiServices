@@ -60,6 +60,13 @@ namespace Microservices.IsIdentifiable.Rules
                         return RuleAction.None;
                     }
                 }
+
+                //if anyone wants no action taken at any point stop consulting others.  Either they will agree in which case we have wasted time or they disagree so we say there is no consensus
+                if(firstRuleOperation == RuleAction.None)
+                {
+                    badParts = new FailurePart[0];
+                    return RuleAction.None;
+                }
             }
 
             badParts = parts;

@@ -101,5 +101,10 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
             Setup(_options);
         }
+
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        {
+            return null;
+        }
     }
 }
