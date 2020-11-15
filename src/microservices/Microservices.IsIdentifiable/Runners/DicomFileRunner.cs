@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -32,6 +33,8 @@ namespace Microservices.IsIdentifiable.Runners
         private DateTime? _zeroDate = null;
 
         public const string EngData = "https://github.com/tesseract-ocr/tessdata/blob/master/eng.traineddata";
+
+        private readonly IFileSystem _fileSystem = new FileSystem();
 
         public DicomFileRunner(IsIdentifiableDicomFileOptions opts) : base(opts)
         {
@@ -69,7 +72,7 @@ namespace Microservices.IsIdentifiable.Runners
                 _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default);
                 _tesseractEngine.DefaultPageSegMode = PageSegMode.Auto;
 
-                _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName());
+                _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName(), opts.IgnoreTextLessThan);
 
                 Reports.Add(_tesseractReport);
             }
@@ -96,7 +99,7 @@ namespace Microservices.IsIdentifiable.Runners
         {
             //deal with files first
             foreach (var file in Directory.GetFiles(root, _opts.Pattern))
-                ValidateDicomFile(new FileInfo(file));
+                ValidateDicomFile(_fileSystem.FileInfo.FromFileName(file));
 
             //now directories
             foreach (var directory in Directory.GetDirectories(root))
@@ -104,7 +107,7 @@ namespace Microservices.IsIdentifiable.Runners
         }
 
 
-        public void ValidateDicomFile(FileInfo fi)
+        public void ValidateDicomFile(IFileInfo fi)
         {
             _logger.Debug("Opening File: " + fi.Name);
 
@@ -128,7 +131,7 @@ namespace Microservices.IsIdentifiable.Runners
             DoneRows(1);
         }
 
-        private void ValidateDicomItem(FileInfo fi, DicomFile dicomFile, DicomDataset dataset, DicomItem dicomItem)
+        private void ValidateDicomItem(IFileInfo fi, DicomFile dicomFile, DicomDataset dataset, DicomItem dicomItem)
         {
             //if it is a sequence get the Sequences dataset and then start processing that
             if (dicomItem.ValueRepresentation.Code == "SQ")
@@ -166,7 +169,7 @@ namespace Microservices.IsIdentifiable.Runners
             }
         }
 
-        private void Validate(FileInfo fi, DicomFile dicomFile, DicomItem dicomItem, string fieldValue)
+        private void Validate(IFileInfo fi, DicomFile dicomFile, DicomItem dicomItem, string fieldValue)
         {
             // Keyword might be "Unknown" in which case we would rather use "(xxxx,yyyy)"
             string tagName = dicomItem.Tag.DictionaryEntry.Keyword;
@@ -183,7 +186,7 @@ namespace Microservices.IsIdentifiable.Runners
                 AddToReports(factory.Create(fi, dicomFile, fieldValue, tagName, parts));
         }
 
-        void ValidateDicomPixelData(FileInfo fi, DicomFile dicomFile, DicomDataset ds)
+        void ValidateDicomPixelData(IFileInfo fi, DicomFile dicomFile, DicomDataset ds)
         {
             string modality = GetTagOrUnknown(ds, DicomTag.Modality);
             string[] imageType = GetImageType(ds);
@@ -260,7 +263,7 @@ namespace Microservices.IsIdentifiable.Runners
             }
         }
 
-        private void Process(Bitmap targetBmp, PixelFormat pixelFormat, PixelFormat processedPixelFormat, FileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
+        private void Process(Bitmap targetBmp, PixelFormat pixelFormat, PixelFormat processedPixelFormat, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
         {
             using (var ms = new MemoryStream())
             {
@@ -269,7 +272,7 @@ namespace Microservices.IsIdentifiable.Runners
             }
         }
 
-        private void Process(MemoryStream ms, PixelFormat pixelFormat, PixelFormat processedPixelFormat, FileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
+        private void Process(MemoryStream ms, PixelFormat pixelFormat, PixelFormat processedPixelFormat, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
         {
             float meanConfidence;
             string text;

@@ -1,11 +1,18 @@
+using NLog;
 using System.Data;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Abstractions;
+
 
 namespace Microservices.IsIdentifiable.Reporting.Reports
 {
-    internal class PixelTextFailureReport : FailureReport
+    public class PixelTextFailureReport : FailureReport
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
+        private readonly uint _ignoreTextLessThan;
+
         private readonly DataTable _dt = new DataTable();
 
         private readonly string[] _headerRow =
@@ -26,9 +33,12 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
             "Rotation"
         };
 
-        public PixelTextFailureReport(string targetName)
+
+        public PixelTextFailureReport(string targetName, uint ignoreTextLessThan)
             : base(targetName)
         {
+            _ignoreTextLessThan = ignoreTextLessThan;
+
             foreach (string s in _headerRow)
                 _dt.Columns.Add(s);
         }
@@ -44,8 +54,14 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
         }
 
         //TODO Replace argument list with object
-        public void FoundPixelData(FileInfo fi, string sopID, PixelFormat pixelFormat, PixelFormat processedPixelFormat, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation)
+        public void FoundPixelData(IFileInfo fi, string sopID, PixelFormat pixelFormat, PixelFormat processedPixelFormat, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation)
         {
+            if (_ignoreTextLessThan != 0 && textLength < _ignoreTextLessThan)
+            {
+                _logger.Debug($"Ignoring data from {fi.FullName} of length {textLength}");
+                return;
+            }
+
             DataRow dr = _dt.Rows.Add();
 
             if (imageType != null && imageType.Length > 0)

@@ -27,7 +27,7 @@ namespace Microservices.IsIdentifiable.Tests
             FailureStoreReport report = new FailureStoreReport("HappyOzz",1000);
             report.AddDestinations(opts);
 
-            var failure = new Reporting.Failure(
+            var failure = new Failure(
                 new FailurePart[]
                 {
                     new FailurePart("Kansas", FailureClassification.Location, 12),

@@ -113,12 +113,12 @@ namespace Microservices.IsIdentifiable
             }
         }
 
-        private static int Run(IsIdentifiableServiceOptions opts)
+        private static int Run(IsIdentifiableServiceOptions serviceOpts)
         {
-            var options = new GlobalOptionsFactory().Load(opts.YamlFile);
+            var options = new GlobalOptionsFactory().Load(serviceOpts.YamlFile);
                 
             var bootstrapper = new MicroserviceHostBootstrapper(
-                () => new IsIdentifiableHost(options));
+                () => new IsIdentifiableHost(options, serviceOpts));
             return bootstrapper.Main();
 
         }
