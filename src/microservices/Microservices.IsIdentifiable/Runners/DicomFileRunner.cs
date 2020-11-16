@@ -21,7 +21,7 @@ using ImageMagick; // dotnet add package Magick.NET-Q16-AnyCPU
 
 namespace Microservices.IsIdentifiable.Runners
 {
-    internal class DicomFileRunner : IsIdentifiableAbstractRunner
+    public class DicomFileRunner : IsIdentifiableAbstractRunner
     {
         private readonly IsIdentifiableDicomFileOptions _opts;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -36,9 +36,12 @@ namespace Microservices.IsIdentifiable.Runners
 
         private readonly IFileSystem _fileSystem = new FileSystem();
 
+        private readonly uint _ignoreTextLessThan;
+
         public DicomFileRunner(IsIdentifiableDicomFileOptions opts) : base(opts)
         {
             _opts = opts;
+            _ignoreTextLessThan = opts.IgnoreTextLessThan;
 
             //if using Efferent.Native DICOM codecs
             // (see https://github.com/Efferent-Health/Dicom-native)
@@ -72,7 +75,7 @@ namespace Microservices.IsIdentifiable.Runners
                 _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default);
                 _tesseractEngine.DefaultPageSegMode = PageSegMode.Auto;
 
-                _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName(), opts.IgnoreTextLessThan);
+                _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName());
 
                 Reports.Add(_tesseractReport);
             }
@@ -94,6 +97,17 @@ namespace Microservices.IsIdentifiable.Runners
 
             return 0;
         }
+        protected override void AddToReports(Failure f)
+        {
+            if (_ignoreTextLessThan != 0 && f.ProblemValue.Length < _ignoreTextLessThan)
+            {
+                _logger.Debug($"Ignoring failure from resource {f.Resource} of length {f.ProblemValue.Length}");
+                return;
+            }
+
+            base.AddToReports(f);
+        }
+
 
         private void ProcessDirectory(string root)
         {
