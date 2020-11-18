@@ -41,10 +41,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         public void CreateReport(Guid jobId)
         {
-            ExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
+            CompletedExtractJobInfo jobInfo = _jobStore.GetCompletedJobInfo(jobId);
             Logger.Info($"Creating report(s) for {jobId}");
 
-            // TODO(rkm 2020-10-29) Add the pixel frequency table to the combined report
             if (ShouldWriteCombinedReport(jobInfo))
                 WriteCombinedReport(jobInfo);
             else
@@ -53,7 +52,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             Logger.Info($"Report(s) for {jobId} created");
         }
 
-        private void WriteCombinedReport(ExtractJobInfo jobInfo)
+        private void WriteCombinedReport(CompletedExtractJobInfo jobInfo)
         {
             using Stream stream = GetStreamForSummary(jobInfo);
             using StreamWriter streamWriter = GetStreamWriter(stream);
@@ -120,7 +119,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         /// Writes each part of the report content separately by calling the relevant GetStreamForX methods in turn
         /// </summary>
         /// <param name="jobInfo"></param>
-        private void WriteSplitReport(ExtractJobInfo jobInfo)
+        private void WriteSplitReport(CompletedExtractJobInfo jobInfo)
         {
             // TODO(rkm 2020-10-29) We can probably reduce the number of full collection enumerations in this method
 
@@ -292,7 +291,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         private static StreamWriter GetStreamWriter(Stream stream) => new StreamWriter(stream) { NewLine = NewLine };
 
-        private static IEnumerable<string> JobHeader(ExtractJobInfo jobInfo)
+        private static IEnumerable<string> JobHeader(CompletedExtractJobInfo jobInfo)
         {
             string identExtraction = jobInfo.IsIdentifiableExtraction ? "Yes" : "No";
             string filteredExtraction = !jobInfo.IsNoFilterExtraction ? "Yes" : "No";
@@ -303,6 +302,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 "",
                 "Job info:",
                 $"-   Job submitted at:              {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:              {jobInfo.JobCompletedAt.ToString("s", CultureInfo.InvariantCulture)}",
                 $"-   Job extraction id:             {jobInfo.ExtractionJobIdentifier}",
                 $"-   Extraction tag:                {jobInfo.KeyTag}",
                 $"-   Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",

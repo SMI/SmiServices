@@ -50,15 +50,15 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     x => x.GetCompletedJobInfo(It.IsAny<Guid>())
                 )
                 .Returns(
-                    new ExtractJobInfo(
+                    new CompletedExtractJobInfo(
                         jobId,
                         DateTime.UtcNow,
+                        DateTime.UtcNow + TimeSpan.FromHours(1),
                         "1234",
                         extractionDir,
                         "SeriesInstanceUID",
                         1,
                         null,
-                        ExtractJobStatus.Completed,
                         false,
                         false
                     )

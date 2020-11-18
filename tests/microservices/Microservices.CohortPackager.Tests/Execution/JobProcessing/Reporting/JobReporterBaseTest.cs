@@ -101,18 +101,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: false,
                 isNoFilterExtraction: false
-                );
+            );
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
@@ -131,6 +131,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                keyTag
 -   Extraction modality:           ZZ
@@ -162,7 +163,7 @@ Report contents:
 
 --- end of report ---
 ";
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            TestHelpers.AreEqualIgnoringLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
@@ -171,18 +172,18 @@ Report contents:
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: false,
                 isNoFilterExtraction: false
-                );
+            );
 
             var rejections = new List<ExtractionIdentifierRejectionInfo>
             {
@@ -233,6 +234,7 @@ Report contents:
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                keyTag
 -   Extraction modality:           ZZ
@@ -276,7 +278,7 @@ Report contents:
 --- end of report ---
 ";
 
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            TestHelpers.AreEqualIgnoringLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
@@ -285,18 +287,18 @@ Report contents:
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "test/dir",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: false,
                 isNoFilterExtraction: false
-                );
+            );
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
@@ -323,18 +325,18 @@ Report contents:
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: false,
                 isNoFilterExtraction: false
-                );
+            );
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
@@ -413,6 +415,7 @@ Report contents:
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                keyTag
 -   Extraction modality:           ZZ
@@ -463,7 +466,7 @@ Report contents:
 
 --- end of report ---
 ";
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            TestHelpers.AreEqualIgnoringLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
@@ -474,18 +477,18 @@ Report contents:
 
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: false,
                 isNoFilterExtraction: false
-                );
+            );
 
             const string report = @"
 [
@@ -541,6 +544,7 @@ Report contents:
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                keyTag
 -   Extraction modality:           ZZ
@@ -590,7 +594,7 @@ Report contents:
 
 --- end of report ---
 ";
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            TestHelpers.AreEqualIgnoringLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
@@ -599,18 +603,18 @@ Report contents:
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: false
-                );
+            );
 
             var missingFiles = new List<string>
             {
@@ -632,6 +636,7 @@ Report contents:
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                keyTag
 -   Extraction modality:           ZZ
@@ -648,7 +653,7 @@ Report contents:
 
 --- end of report ---
 ";
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            TestHelpers.AreEqualIgnoringLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
@@ -658,15 +663,15 @@ Report contents:
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: false,
                 isNoFilterExtraction: true
                 );
@@ -688,6 +693,7 @@ Report contents:
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                keyTag
 -   Extraction modality:           ZZ
@@ -719,7 +725,7 @@ Report contents:
 
 --- end of report ---
 ";
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            TestHelpers.AreEqualIgnoringLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
         }
 
@@ -728,18 +734,18 @@ Report contents:
         {
             Guid jobId = Guid.NewGuid();
             var provider = new TestDateTimeProvider();
-            var testJobInfo = new ExtractJobInfo(
+            var testJobInfo = new CompletedExtractJobInfo(
                 jobId,
                 provider.UtcNow(),
+                provider.UtcNow() + TimeSpan.FromHours(1),
                 "1234",
                 "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
-                ExtractJobStatus.Completed,
                 isIdentifiableExtraction: false,
                 isNoFilterExtraction: false
-                );
+            );
 
             const string report = @"
 [
@@ -826,6 +832,7 @@ Report contents:
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                keyTag
 -   Extraction modality:           ZZ
@@ -902,10 +909,8 @@ Z,bar,foo1.dcm
 Z,bar,foo2.dcm
 ";
             Console.WriteLine(reporter.Report);
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(expected, reporter.Report);
+            TestHelpers.AreEqualIgnoringLineEndings(expected, reporter.Report);
             Assert.True(reporter.Disposed);
-
-            // TODO test empty split reports
         }
     }
 

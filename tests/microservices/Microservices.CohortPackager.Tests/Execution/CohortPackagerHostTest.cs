@@ -201,6 +201,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                     jobStore: null,
                     mockFileSystem,
                     notifier: notifier,
+                    dateTimeProvider: _dateTimeProvider,
                     loadSmiLogConfig: false
                 );
                 host.Start();
@@ -221,6 +222,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
 Job info:
 -   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                SeriesInstanceUID
 -   Extraction modality:           Unspecified
@@ -396,6 +398,7 @@ Report contents:
                     jobStore: null,
                     mockFileSystem,
                     notifier: notifier,
+                    dateTimeProvider: _dateTimeProvider,
                     loadSmiLogConfig: false
                 );
                 host.Start();
@@ -421,6 +424,7 @@ $@"# SMI extraction validation report for testProj1/{extractionName}
 
 Job info:
 -   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                SeriesInstanceUID
 -   Extraction modality:           Unspecified
@@ -547,7 +551,8 @@ This file contents:
             MongoDbOptions mongoDbOptions = globals.MongoDatabases.ExtractionStoreOptions;
             var jobStore = new MongoExtractJobStore(
                 MongoClientHelpers.GetMongoClient(mongoDbOptions, "CohortPackager-Test"),
-                mongoDbOptions.DatabaseName
+                mongoDbOptions.DatabaseName,
+                _dateTimeProvider
             );
 
             globals.FileSystemOptions.ExtractRoot = ExtractRoot;
@@ -587,6 +592,7 @@ This file contents:
 
 Job info:
 -   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job completed at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
 -   Job extraction id:             {jobId}
 -   Extraction tag:                StudyInstanceUID
 -   Extraction modality:           MR

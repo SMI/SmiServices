@@ -93,7 +93,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             Logger.Debug($"Marked job {jobId} as failed");
         }
 
-        public ExtractJobInfo GetCompletedJobInfo(Guid jobId)
+        public CompletedExtractJobInfo GetCompletedJobInfo(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -140,7 +140,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid());
         protected abstract void CompleteJobImpl(Guid jobId);
         protected abstract void MarkJobFailedImpl(Guid jobId, Exception e);
-        protected abstract ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
+        protected abstract CompletedExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
         protected abstract IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejectionsImpl(Guid jobId);
         protected abstract IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId);

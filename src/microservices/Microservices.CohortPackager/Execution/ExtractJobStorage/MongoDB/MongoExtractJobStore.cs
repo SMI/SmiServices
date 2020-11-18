@@ -224,7 +224,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     if (toComplete.JobStatus == ExtractJobStatus.Failed)
                         throw new ApplicationException($"Job {jobId} is marked as failed");
 
-                    var completedJob = new MongoCompletedExtractJobDoc(toComplete, _dateTimeProvider);
+                    var completedJob = new MongoCompletedExtractJobDoc(toComplete, _dateTimeProvider.UtcNow());
                     _completedJobCollection.InsertOne(completedJob);
 
                     DeleteResult res = _inProgressJobCollection.DeleteOne(GetFilterForSpecificJob<MongoExtractJobDoc>(jobId));
@@ -302,7 +302,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             }
         }
 
-        protected override ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId)
+        protected override CompletedExtractJobInfo GetCompletedJobInfoImpl(Guid jobId)
         {
             MongoCompletedExtractJobDoc jobDoc =
                 _completedJobCollection

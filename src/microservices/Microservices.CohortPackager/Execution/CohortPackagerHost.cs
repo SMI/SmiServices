@@ -7,6 +7,7 @@ using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Messaging;
 using Smi.Common;
 using Smi.Common.Execution;
+using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
@@ -35,6 +36,7 @@ namespace Microservices.CohortPackager.Execution
             [CanBeNull] IJobReporter reporter = null,
             [CanBeNull] IJobCompleteNotifier notifier = null,
             [CanBeNull] IRabbitMqAdapter rabbitMqAdapter = null,
+            [CanBeNull] DateTimeProvider dateTimeProvider = null,
             bool loadSmiLogConfig = true
         )
             : base(globals, rabbitMqAdapter, loadSmiLogConfig)
@@ -44,9 +46,12 @@ namespace Microservices.CohortPackager.Execution
                 MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
                 jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
-                    mongoDbOptions.DatabaseName
+                    mongoDbOptions.DatabaseName,
+                    dateTimeProvider
                 );
             }
+            else if (dateTimeProvider != null)
+                throw new ArgumentException("jobStore and dateTimeProvider are mutually exclusive arguments");
 
             // If not passed a reporter or notifier, try and construct one from the given options
 

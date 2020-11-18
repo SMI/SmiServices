@@ -64,7 +64,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        ExtractJobInfo GetCompletedJobInfo(Guid jobId);
+        CompletedExtractJobInfo GetCompletedJobInfo(Guid jobId);
 
         /// <summary>
         /// Returns the rejection reasons for a completed job
