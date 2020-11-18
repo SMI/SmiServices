@@ -105,7 +105,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "test/dir",
+                "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
@@ -127,23 +127,24 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             }
 
             string expected = $@"
-# SMI file extraction report for 1234
+# SMI extraction validation report for 1234/test
 
 Job info:
--    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                keyTag
--    Extraction modality:           ZZ
--    Requested identifier count:    123
--    Identifiable extraction:       No
--    Filtered extraction:           Yes
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       No
+-   Filtered extraction:           Yes
 
 Report contents:
--    Verification failures
-    -    Summary
-    -    Full Details
--    Blocked files
--    Anonymisation failures
+
+-   Verification failures
+    -   Summary
+    -   Full Details
+-   Blocked files
+-   Anonymisation failures
 
 ## Verification failures
 
@@ -174,7 +175,7 @@ Report contents:
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "test/dir",
+                "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
@@ -228,48 +229,49 @@ Report contents:
             }
 
             string expected = $@"
-# SMI file extraction report for 1234
+# SMI extraction validation report for 1234/test
 
 Job info:
--    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                keyTag
--    Extraction modality:           ZZ
--    Requested identifier count:    123
--    Identifiable extraction:       No
--    Filtered extraction:           Yes
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       No
+-   Filtered extraction:           Yes
 
 Report contents:
--    Verification failures
-    -    Summary
-    -    Full Details
--    Blocked files
--    Anonymisation failures
+
+-   Verification failures
+    -   Summary
+    -   Full Details
+-   Blocked files
+-   Anonymisation failures
 
 ## Verification failures
 
 ### Summary
 
-- Tag: ScanOptions (1 total occurrence(s))
-    - Value: 'FOO' (1 occurrence(s))
+-   Tag: ScanOptions (1 total occurrence(s))
+    -   Value: 'FOO' (1 occurrence(s))
 
 
 ### Full details
 
-- Tag: ScanOptions (1 total occurrence(s))
-    - Value: 'FOO' (1 occurrence(s))
-        - foo1.dcm
+-   Tag: ScanOptions (1 total occurrence(s))
+    -   Value: 'FOO' (1 occurrence(s))
+        -   foo1.dcm
 
 
 ## Blocked files
 
-- ID: 1.2.3.4
-    - 456x 'foo bar'
-    - 123x 'image is in the deny list for extraction'
+-   ID: 1.2.3.4
+    -   456x 'foo bar'
+    -   123x 'image is in the deny list for extraction'
 
 ## Anonymisation failures
 
-- file 'foo1.dcm': 'image was corrupt'
+-   file 'foo1.dcm': 'image was corrupt'
 
 --- end of report ---
 ";
@@ -325,7 +327,7 @@ Report contents:
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "test/dir",
+                "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
@@ -407,49 +409,50 @@ Report contents:
             }
 
             string expected = $@"
-# SMI file extraction report for 1234
+# SMI extraction validation report for 1234/test
 
 Job info:
--    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                keyTag
--    Extraction modality:           ZZ
--    Requested identifier count:    123
--    Identifiable extraction:       No
--    Filtered extraction:           Yes
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       No
+-   Filtered extraction:           Yes
 
 Report contents:
--    Verification failures
-    -    Summary
-    -    Full Details
--    Blocked files
--    Anonymisation failures
+
+-   Verification failures
+    -   Summary
+    -   Full Details
+-   Blocked files
+-   Anonymisation failures
 
 ## Verification failures
 
 ### Summary
 
-- Tag: ScanOptions (3 total occurrence(s))
-    - Value: 'FOO' (2 occurrence(s))
-    - Value: 'BAR' (1 occurrence(s))
+-   Tag: ScanOptions (3 total occurrence(s))
+    -   Value: 'FOO' (2 occurrence(s))
+    -   Value: 'BAR' (1 occurrence(s))
 
-- Tag: SomeOtherTag (2 total occurrence(s))
-    - Value: 'BAZ' (2 occurrence(s))
+-   Tag: SomeOtherTag (2 total occurrence(s))
+    -   Value: 'BAZ' (2 occurrence(s))
 
 
 ### Full details
 
-- Tag: ScanOptions (3 total occurrence(s))
-    - Value: 'FOO' (2 occurrence(s))
-        - aaa/bbb/foo1.dcm
-        - aaa/bbb/foo2.dcm
-    - Value: 'BAR' (1 occurrence(s))
-        - aaa/bbb/foo2.dcm
+-   Tag: ScanOptions (3 total occurrence(s))
+    -   Value: 'FOO' (2 occurrence(s))
+        -   aaa/bbb/foo1.dcm
+        -   aaa/bbb/foo2.dcm
+    -   Value: 'BAR' (1 occurrence(s))
+        -   aaa/bbb/foo2.dcm
 
-- Tag: SomeOtherTag (2 total occurrence(s))
-    - Value: 'BAZ' (2 occurrence(s))
-        - ccc/ddd/foo1.dcm
-        - ccc/ddd/foo2.dcm
+-   Tag: SomeOtherTag (2 total occurrence(s))
+    -   Value: 'BAZ' (2 occurrence(s))
+        -   ccc/ddd/foo1.dcm
+        -   ccc/ddd/foo2.dcm
 
 
 ## Blocked files
@@ -475,7 +478,7 @@ Report contents:
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "test/dir",
+                "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
@@ -534,48 +537,49 @@ Report contents:
             }
 
             string expected = $@"
-# SMI file extraction report for 1234
+# SMI extraction validation report for 1234/test
 
 Job info:
--    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                keyTag
--    Extraction modality:           ZZ
--    Requested identifier count:    123
--    Identifiable extraction:       No
--    Filtered extraction:           Yes
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       No
+-   Filtered extraction:           Yes
 
 Report contents:
--    Verification failures
-    -    Summary
-    -    Full Details
--    Blocked files
--    Anonymisation failures
+
+-   Verification failures
+    -   Summary
+    -   Full Details
+-   Blocked files
+-   Anonymisation failures
 
 ## Verification failures
 
 ### Summary
 
-- Tag: Z (1 total occurrence(s))
-    - Value: 'bar' (1 occurrence(s))
+-   Tag: Z (1 total occurrence(s))
+    -   Value: 'bar' (1 occurrence(s))
 
-- Tag: PixelData (3 total occurrence(s))
-    - Value: 'aaaaaaaaaaa' (1 occurrence(s))
-    - Value: 'a' (2 occurrence(s))
+-   Tag: PixelData (3 total occurrence(s))
+    -   Value: 'aaaaaaaaaaa' (1 occurrence(s))
+    -   Value: 'a' (2 occurrence(s))
 
 
 ### Full details
 
-- Tag: Z (1 total occurrence(s))
-    - Value: 'bar' (1 occurrence(s))
-        - foo1.dcm
+-   Tag: Z (1 total occurrence(s))
+    -   Value: 'bar' (1 occurrence(s))
+        -   foo1.dcm
 
-- Tag: PixelData (3 total occurrence(s))
-    - Value: 'aaaaaaaaaaa' (1 occurrence(s))
-        - foo1.dcm
-    - Value: 'a' (2 occurrence(s))
-        - foo1.dcm
-        - foo1.dcm
+-   Tag: PixelData (3 total occurrence(s))
+    -   Value: 'aaaaaaaaaaa' (1 occurrence(s))
+        -   foo1.dcm
+    -   Value: 'a' (2 occurrence(s))
+        -   foo1.dcm
+        -   foo1.dcm
 
 
 ## Blocked files
@@ -599,7 +603,7 @@ Report contents:
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "test/dir",
+                "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
@@ -624,23 +628,23 @@ Report contents:
             }
 
             string expected = $@"
-# SMI file extraction report for 1234
+# SMI extraction validation report for 1234/test
 
 Job info:
--    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                keyTag
--    Extraction modality:           ZZ
--    Requested identifier count:    123
--    Identifiable extraction:       Yes
--    Filtered extraction:           Yes
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       Yes
+-   Filtered extraction:           Yes
 
 Report contents:
--    Missing file list (files which were selected from an input ID but could not be found)
+-   Missing file list (files which were selected from an input ID but could not be found)
 
 ## Missing file list
 
--    missing.dcm
+-   missing.dcm
 
 --- end of report ---
 ";
@@ -658,7 +662,7 @@ Report contents:
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "test/dir",
+                "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
@@ -680,23 +684,24 @@ Report contents:
             }
 
             string expected = $@"
-# SMI file extraction report for 1234
+# SMI extraction validation report for 1234/test
 
 Job info:
--    Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                keyTag
--    Extraction modality:           ZZ
--    Requested identifier count:    123
--    Identifiable extraction:       No
--    Filtered extraction:           No
+-   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                keyTag
+-   Extraction modality:           ZZ
+-   Requested identifier count:    123
+-   Identifiable extraction:       No
+-   Filtered extraction:           No
 
 Report contents:
--    Verification failures
-    -    Summary
-    -    Full Details
--    Blocked files
--    Anonymisation failures
+
+-   Verification failures
+    -   Summary
+    -   Full Details
+-   Blocked files
+-   Anonymisation failures
 
 ## Verification failures
 
@@ -727,7 +732,7 @@ Report contents:
                 jobId,
                 provider.UtcNow(),
                 "1234",
-                "1234/extract1",
+                "extractions/test",
                 "keyTag",
                 123,
                 "ZZ",
@@ -758,6 +763,13 @@ Report contents:
         'ResourcePrimaryKey': 'unused',
         'ProblemField': 'PixelData',
         'ProblemValue': 'a'
+    },
+    {
+        'Parts': [],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'another'
     },
     {
         'Parts': [],
@@ -810,7 +822,7 @@ Report contents:
             // Test ordering of multiple tags / multiple occurrences in each tag
             var expected = $@"
 === summary file ===
-# SMI extraction validation report for 1234/extract1
+# SMI extraction validation report for 1234/test
 
 Job info:
 -   Job submitted at:              {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
@@ -843,31 +855,34 @@ This file contents:
 
 === pixel summary file ===
 TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport
-PixelData,aaaaaaaaaaa,2,0.3333333333333333,0.3333333333333333
-PixelData,a,4,0.6666666666666666,0.6666666666666666
+PixelData,aaaaaaaaaaa,2,0.25,0.25
+PixelData,another,2,0.25,0.25
+PixelData,a,4,0.5,0.5
 
 === pixel full file ===
 TagName,FailureValue,FilePath
 PixelData,aaaaaaaaaaa,foo1.dcm
 PixelData,aaaaaaaaaaa,foo2.dcm
+PixelData,another,foo1.dcm
+PixelData,another,foo2.dcm
 PixelData,a,foo1.dcm
 PixelData,a,foo1.dcm
 PixelData,a,foo2.dcm
 PixelData,a,foo2.dcm
 
 === pixel word length frequencies file ===
-WordLength,Count,Frequency
-1,1,0.5
+WordLength,Count,RelativeFrequencyInReport
+1,4,0.5
 2,0,0
 3,0,0
 4,0,0
 5,0,0
 6,0,0
-7,0,0
+7,2,0.25
 8,0,0
 9,0,0
 10,0,0
-11,1,0.5
+11,2,0.25
 
 === tag summary file ===
 TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport

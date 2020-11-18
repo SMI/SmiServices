@@ -62,6 +62,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             foreach (string line in JobHeader(jobInfo))
                 streamWriter.WriteLine(line);
 
+            streamWriter.WriteLine();
             streamWriter.WriteLine("Report contents:");
 
             // For identifiable extractions, write the metadata and list of missing files then return. The other parts don't make sense in this case
@@ -322,14 +323,14 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         private static void WriteJobRejections(TextWriter streamWriter, ExtractionIdentifierRejectionInfo extractionIdentifierRejectionInfo)
         {
-            streamWriter.WriteLine($"- ID: {extractionIdentifierRejectionInfo.ExtractionIdentifier}");
+            streamWriter.WriteLine($"-   ID: {extractionIdentifierRejectionInfo.ExtractionIdentifier}");
             foreach ((string reason, int count) in extractionIdentifierRejectionInfo.RejectionItems.OrderByDescending(x => x.Value))
-                streamWriter.WriteLine($"    - {count}x '{reason}'");
+                streamWriter.WriteLine($"    -   {count}x '{reason}'");
         }
 
         private static void WriteAnonFailure(TextWriter streamWriter, FileAnonFailureInfo fileAnonFailureInfo)
         {
-            streamWriter.WriteLine($"- file '{fileAnonFailureInfo.ExpectedAnonFile}': '{fileAnonFailureInfo.Reason}'");
+            streamWriter.WriteLine($"-   file '{fileAnonFailureInfo.ExpectedAnonFile}': '{fileAnonFailureInfo.Reason}'");
         }
 
         private Dictionary<string, Dictionary<string, List<string>>> GetJobVerificationFailures(Guid extractionJobIdentifier)
@@ -410,13 +411,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private static void WriteJobMissingFileList(TextWriter streamWriter, IEnumerable<string> missingFiles)
         {
             foreach (string file in missingFiles)
-                streamWriter.WriteLine($"-    {file}");
+                streamWriter.WriteLine($"-   {file}");
         }
 
         private static void WriteVerificationValuesTag(string tag, Dictionary<string, List<string>> failures, TextWriter streamWriter, StringBuilder sb)
         {
             int totalOccurrences = failures.Sum(x => x.Value.Count);
-            string line = $"- Tag: {tag} ({totalOccurrences} total occurrence(s))";
+            string line = $"-   Tag: {tag} ({totalOccurrences} total occurrence(s))";
             streamWriter.WriteLine(line);
             sb.AppendLine(line);
         }
@@ -426,11 +427,11 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             foreach ((string problemVal, List<string> relatedFiles) in values)
             {
-                string line = $"    - Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))";
+                string line = $"    -   Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))";
                 streamWriter.WriteLine(line);
                 sb.AppendLine(line);
                 foreach (string file in relatedFiles)
-                    sb.AppendLine($"        - {file}");
+                    sb.AppendLine($"        -   {file}");
             }
 
             streamWriter.WriteLine();

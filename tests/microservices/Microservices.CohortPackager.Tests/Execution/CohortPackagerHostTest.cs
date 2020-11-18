@@ -26,9 +26,8 @@ namespace Microservices.CohortPackager.Tests.Execution
     public class CohortPackagerHostTest
     {
         private const string ExtractRoot = "extractRoot";
-        private string _projectExtractDir;
-        private string _extractionDir;
-        private string _reportsDir;
+        private string _projExtract1Dir;
+        private string _projReportsDir;
 
         private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
@@ -40,9 +39,9 @@ namespace Microservices.CohortPackager.Tests.Execution
         {
             TestLogger.Setup();
 
-            _projectExtractDir = Path.Combine("proj1", "extractions");
-            _extractionDir = Path.Combine(_projectExtractDir, "extract1"); // Todo is this needed?
-            _reportsDir = Path.Combine(_projectExtractDir, "reports");
+            string projExtractionsDir = Path.Combine("proj1", "extractions");
+            _projExtract1Dir = Path.Combine(projExtractionsDir, "extract1");
+            _projReportsDir = Path.Combine(projExtractionsDir, "reports");
         }
 
         [OneTimeTearDown]
@@ -88,7 +87,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 2,
             };
@@ -97,7 +96,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
@@ -114,7 +113,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-2-anon-1.dcm" },
@@ -129,7 +128,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-2-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 Status = ExtractedFileStatus.ErrorWontRetry,
                 StatusMessage = "Couldn't anonymise",
                 DicomFilePath = "series-2-orig-1.dcm",
@@ -140,7 +139,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 IsIdentifiable = false,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
@@ -161,7 +160,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-2-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 IsIdentifiable = true,
                 Report = failureReport,
                 DicomFilePath = "series-2-orig-2.dcm",
@@ -169,7 +168,6 @@ namespace Microservices.CohortPackager.Tests.Execution
 
 
             GlobalOptions globals = new GlobalOptionsFactory().Load();
-
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
             globals.CohortPackagerOptions.ReporterType = "FileReporter";
             globals.CohortPackagerOptions.ReportFormat = "Combined";
@@ -193,7 +191,9 @@ namespace Microservices.CohortPackager.Tests.Execution
 
                 globals.FileSystemOptions.ExtractRoot = ExtractRoot;
                 var mockFileSystem = new MockFileSystem();
-                mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _reportsDir));
+                var reportsDir = Path.Combine(ExtractRoot, _projReportsDir);
+                mockFileSystem.Directory.CreateDirectory(reportsDir);
+                mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projExtract1Dir));
 
                 var notifier = new TestLoggingNotifier();
                 var host = new CohortPackagerHost(
@@ -215,51 +215,50 @@ namespace Microservices.CohortPackager.Tests.Execution
                 host.Stop("Test end");
                 Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
 
-                List<string> allFiles = mockFileSystem.AllFiles.ToList();
-                Assert.AreEqual(1, allFiles.Count);
-                string reportContent = mockFileSystem.File.ReadAllText(allFiles[0]);
+                string reportContent = mockFileSystem.File.ReadAllText(mockFileSystem.Path.Combine(reportsDir, "extract1_report.txt"));
                 var expected = @$"
-# SMI file extraction report for testProj1
+# SMI extraction validation report for testProj1/extract1
 
 Job info:
--    Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                SeriesInstanceUID
--    Extraction modality:           Unspecified
--    Requested identifier count:    2
--    Identifiable extraction:       No
--    Filtered extraction:           Yes
+-   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                SeriesInstanceUID
+-   Extraction modality:           Unspecified
+-   Requested identifier count:    2
+-   Identifiable extraction:       No
+-   Filtered extraction:           Yes
 
 Report contents:
--    Verification failures
-    -    Summary
-    -    Full Details
--    Blocked files
--    Anonymisation failures
+
+-   Verification failures
+    -   Summary
+    -   Full Details
+-   Blocked files
+-   Anonymisation failures
 
 ## Verification failures
 
 ### Summary
 
-- Tag: ScanOptions (1 total occurrence(s))
-    - Value: 'FOO' (1 occurrence(s))
+-   Tag: ScanOptions (1 total occurrence(s))
+    -   Value: 'FOO' (1 occurrence(s))
 
 
 ### Full details
 
-- Tag: ScanOptions (1 total occurrence(s))
-    - Value: 'FOO' (1 occurrence(s))
-        - series-2-anon-2.dcm
+-   Tag: ScanOptions (1 total occurrence(s))
+    -   Value: 'FOO' (1 occurrence(s))
+        -   series-2-anon-2.dcm
 
 
 ## Blocked files
 
-- ID: series-1
-    - 1x 'rejected - blah'
+-   ID: series-1
+    -   1x 'rejected - blah'
 
 ## Anonymisation failures
 
-- file 'series-2-anon-1.dcm': 'Couldn't anonymise'
+-   file 'series-2-anon-1.dcm': 'Couldn't anonymise'
 
 --- end of report ---
 ";
@@ -283,7 +282,7 @@ Report contents:
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 2,
             };
@@ -292,7 +291,7 @@ Report contents:
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
@@ -309,7 +308,7 @@ Report contents:
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-2-anon-1.dcm" },
@@ -324,7 +323,7 @@ Report contents:
                 OutputFilePath = "series-2-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 Status = ExtractedFileStatus.ErrorWontRetry,
                 StatusMessage = "Couldn't anonymise",
                 DicomFilePath = "series-2-orig-1.dcm",
@@ -335,7 +334,7 @@ Report contents:
                 OutputFilePath = "series-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 IsIdentifiable = false,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
@@ -356,7 +355,7 @@ Report contents:
                 OutputFilePath = "series-2-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 IsIdentifiable = true,
                 Report = failureReport,
                 DicomFilePath = "series-2-orig-2.dcm",
@@ -364,7 +363,6 @@ Report contents:
 
 
             GlobalOptions globals = new GlobalOptionsFactory().Load();
-
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
             globals.CohortPackagerOptions.ReporterType = "FileReporter";
             globals.CohortPackagerOptions.ReportFormat = "Split";
@@ -388,7 +386,9 @@ Report contents:
 
                 globals.FileSystemOptions.ExtractRoot = ExtractRoot;
                 var mockFileSystem = new MockFileSystem();
-                mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _reportsDir));
+                var fullreportsDir = Path.Combine(ExtractRoot, _projReportsDir);
+                mockFileSystem.Directory.CreateDirectory(fullreportsDir);
+                mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projExtract1Dir));
 
                 var notifier = new TestLoggingNotifier();
                 var host = new CohortPackagerHost(
@@ -411,10 +411,10 @@ Report contents:
                 Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
 
                 List<string> allFiles = mockFileSystem.AllFiles.ToList();
-                Assert.AreEqual(6, allFiles.Count);
+                Assert.AreEqual(7, allFiles.Count);
 
-                string extractionName = _extractionDir.Split('/', '\\')[^1];
-                string extractionReportsDir = mockFileSystem.Path.Combine(ExtractRoot, _reportsDir, extractionName);
+                string extractionName = _projExtract1Dir.Split('/', '\\')[^1];
+                string extractionReportsDir = mockFileSystem.Path.Combine(ExtractRoot, _projReportsDir, extractionName);
 
                 var expectedReadmeText =
 $@"# SMI extraction validation report for testProj1/{extractionName}
@@ -442,12 +442,12 @@ This file contents:
 
 ## Blocked files
 
-- ID: series-1
-    - 1x 'rejected - blah'
+-   ID: series-1
+    -   1x 'rejected - blah'
 
 ## Anonymisation failures
 
-- file 'series-2-anon-1.dcm': 'Couldn't anonymise'
+-   file 'series-2-anon-1.dcm': 'Couldn't anonymise'
 
 --- end of report ---
 ";
@@ -476,7 +476,7 @@ This file contents:
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 IsIdentifiableExtraction = true,
@@ -486,7 +486,7 @@ This file contents:
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "out1.dcm" },
@@ -505,7 +505,7 @@ This file contents:
                 OutputFilePath = "src.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 Status = ExtractedFileStatus.Copied,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-1.dcm",
@@ -517,7 +517,7 @@ This file contents:
                 OutputFilePath = "src_missing.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _extractionDir,
+                ExtractionDirectory = _projExtract1Dir,
                 Status = ExtractedFileStatus.FileMissing,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-2.dcm",
@@ -525,11 +525,8 @@ This file contents:
             };
 
             GlobalOptions globals = new GlobalOptionsFactory().Load();
-
-            globals.RabbitOptions.RabbitMqHostName = "192.168.56.106";
-            globals.MongoDatabases.ExtractionStoreOptions.HostName = "192.168.56.106";
-
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
+            globals.CohortPackagerOptions.ReportFormat = null;
 
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
             client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
@@ -556,7 +553,9 @@ This file contents:
             globals.FileSystemOptions.ExtractRoot = ExtractRoot;
             var mockFileSystem = new MockFileSystem();
             mockFileSystem.Directory.CreateDirectory(globals.FileSystemOptions.FileSystemRoot);
-            mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projectExtractDir, "reports"));
+            var reportsDir = Path.Combine(ExtractRoot, _projReportsDir);
+            mockFileSystem.Directory.CreateDirectory(reportsDir);
+            mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projExtract1Dir));
 
             var reporter = new FileReporter(jobStore, mockFileSystem, ExtractRoot, ReportFormat.Combined);
 
@@ -581,26 +580,26 @@ This file contents:
             Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
 
             List<string> allFiles = mockFileSystem.AllFiles.ToList();
-            Assert.AreEqual(1, allFiles.Count);
-            string reportContent = mockFileSystem.File.ReadAllText(allFiles[0]);
+            Assert.AreEqual(2, allFiles.Count);
+            string reportContent = mockFileSystem.File.ReadAllText(mockFileSystem.Path.Combine(reportsDir, "extract1_report.txt"));
             var expected = $@"
-# SMI file extraction report for testProj1
+# SMI extraction validation report for testProj1/extract1
 
 Job info:
--    Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--    Job extraction id:             {jobId}
--    Extraction tag:                StudyInstanceUID
--    Extraction modality:           MR
--    Requested identifier count:    1
--    Identifiable extraction:       Yes
--    Filtered extraction:           Yes
+-   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
+-   Job extraction id:             {jobId}
+-   Extraction tag:                StudyInstanceUID
+-   Extraction modality:           MR
+-   Requested identifier count:    1
+-   Identifiable extraction:       Yes
+-   Filtered extraction:           Yes
 
 Report contents:
--    Missing file list (files which were selected from an input ID but could not be found)
+-   Missing file list (files which were selected from an input ID but could not be found)
 
 ## Missing file list
 
--    study-1-orig-2.dcm
+-   study-1-orig-2.dcm
 
 --- end of report ---
 ";
