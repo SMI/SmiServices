@@ -1,10 +1,8 @@
 using Microservices.CohortPackager.Execution;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
-using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using MongoDB.Driver;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.MessageSerialization;
@@ -13,9 +11,7 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Threading;
 
@@ -25,12 +21,14 @@ namespace Microservices.CohortPackager.Tests.Execution
     [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class CohortPackagerHostTest
     {
-        private const string ExtractRoot = "extractRoot";
-        private string _projExtract1Dir;
-        private string _projReportsDir;
+        private string _testDirAbsolute;
+        private string _extractRootAbsolute;
+        private string _projExtractionsDirRelative;
+        private string _projExtract1DirRelative;
+        private string _projExtract1DirAbsolute;
+        private string _projReportsDirAbsolute;
 
         private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
-
 
         #region Fixture Methods 
 
@@ -39,9 +37,8 @@ namespace Microservices.CohortPackager.Tests.Execution
         {
             TestLogger.Setup();
 
-            string projExtractionsDir = Path.Combine("proj1", "extractions");
-            _projExtract1Dir = Path.Combine(projExtractionsDir, "extract1");
-            _projReportsDir = Path.Combine(projExtractionsDir, "reports");
+            _projExtractionsDirRelative = Path.Combine("proj1", "extractions");
+            _projExtract1DirRelative = Path.Combine(_projExtractionsDirRelative, "extract1");
         }
 
         [OneTimeTearDown]
@@ -52,27 +49,156 @@ namespace Microservices.CohortPackager.Tests.Execution
         #region Test Methods
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _testDirAbsolute = Path.Combine(Path.GetTempPath(), "nunit-smiservices", $"{TestContext.CurrentContext.Test.FullName}-{Guid.NewGuid().ToString().Split('-')[0]}");
+            _extractRootAbsolute = Path.Combine(_testDirAbsolute, "extractRoot");
+            _projExtract1DirAbsolute = Path.Combine(_extractRootAbsolute, _projExtract1DirRelative);
+            _projReportsDirAbsolute = Path.Combine(_extractRootAbsolute, _projExtractionsDirRelative, "reports");
+
+            // NOTE(rkm 2020-11-19) This would normally be created by one of the other services
+            Directory.CreateDirectory(_projExtract1DirAbsolute);
+        }
 
         [TearDown]
-        public void TearDown() { }
+        public void TearDown()
+        {
+            if (TestContext.CurrentContext.Result.Outcome == ResultState.Failure)
+                return;
+
+            Directory.Delete(_testDirAbsolute, recursive: true);
+        }
+
+        private bool HaveFiles() => Directory.Exists(_projReportsDirAbsolute) && Directory.EnumerateFiles(_projExtract1DirAbsolute).Any();
+
+        private void VerifyReports(GlobalOptions globals, ReportFormat reportFormat, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
+        {
+            globals.FileSystemOptions.ExtractRoot = _extractRootAbsolute;
+            globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
+            globals.CohortPackagerOptions.ReporterType = "FileReporter";
+            globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
+
+            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
+            client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
+
+            using (var tester = new MicroserviceTester(
+                globals.RabbitOptions,
+                globals.CohortPackagerOptions.ExtractRequestInfoOptions,
+                globals.CohortPackagerOptions.FileCollectionInfoOptions,
+                globals.CohortPackagerOptions.NoVerifyStatusOptions,
+                globals.CohortPackagerOptions.VerificationStatusOptions))
+            {
+                foreach ((ConsumerOptions consumerOptions, IMessage message) in toSend)
+                    tester.SendMessage(consumerOptions, new MessageHeader(), message);
+
+                var host = new CohortPackagerHost(
+                    globals,
+                    loadSmiLogConfig: false
+                );
+
+                host.Start();
+
+                var timeoutSecs = 10;
+
+                while (!HaveFiles() && timeoutSecs > 0)
+                {
+                    --timeoutSecs;
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
+
+                host.Stop("Test end");
+            }
+            
+            const string firstLine = "# SMI extraction validation report for testProj1/extract1";
+            switch (reportFormat)
+            {
+                case ReportFormat.Combined:
+                    {
+                        string reportContent = File.ReadAllText(Path.Combine(_projReportsDirAbsolute, "extract1_report.txt"));
+                        Assert.True(reportContent.StartsWith(firstLine));
+                        break;
+                    }
+                case ReportFormat.Split:
+                    {
+                        string extract1ReportsDirAbsolute = Path.Combine(_projReportsDirAbsolute, "extract1");
+                        Assert.AreEqual(6, Directory.GetFiles(extract1ReportsDirAbsolute).Length);
+                        string reportContent = File.ReadAllText(Path.Combine(extract1ReportsDirAbsolute, "README.md"));
+                        Assert.True(reportContent.StartsWith(firstLine));
+                        break;
+                    }
+                default:
+                    Assert.Fail($"No case for ReportFormat {reportFormat}");
+                    break;
+            }
+        }
 
         #endregion
 
         #region Tests
 
-        private class TestLoggingNotifier : IJobCompleteNotifier
+        [TestCase(ReportFormat.Combined)]
+        [TestCase(ReportFormat.Split)]
+        public void Integration_CombinedReport_HappyPath(ReportFormat reportFormat)
         {
-            public bool JobCompleted { get; set; }
+            // Test messages:
+            //  - series-1
+            //      - series-1-anon-1.dcm -> valid
 
-            public void NotifyJobCompleted(ExtractJobInfo jobInfo)
+            var jobId = Guid.NewGuid();
+            var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
-                JobCompleted = true;
-            }
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                ProjectNumber = "testProj1",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = _projExtract1DirRelative,
+                KeyTag = "SeriesInstanceUID",
+                KeyValueCount = 1,
+            };
+            var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
+            {
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                ProjectNumber = "testProj1",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+                {
+                    { new MessageHeader(), "series-1-anon-1.dcm" },
+                },
+                RejectionReasons = new Dictionary<string, int>
+                {
+                    {"rejected - blah", 1 },
+                },
+                KeyValue = "series-1",
+            };
+            var testIsIdentifiableMessage = new ExtractedFileVerificationMessage
+            {
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                OutputFilePath = "series-1-anon-1.dcm",
+                ProjectNumber = "testProj1",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = _projExtract1DirRelative,
+                IsIdentifiable = false,
+                Report = "[]",
+                DicomFilePath = "series-1-orig-1.dcm",
+            };
+
+            GlobalOptions globals = new GlobalOptionsFactory().Load();
+
+            VerifyReports(
+                globals,
+                reportFormat,
+                new[]
+                {
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions, testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions, testExtractFileCollectionInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage),
+                }
+            );
         }
 
-        [Test]
-        public void HappyPath_AnonExtraction_SingleReport()
+        [TestCase(ReportFormat.Combined)]
+        [TestCase(ReportFormat.Split)]
+        public void Integration_CombinedReport_BumpyRoad(ReportFormat reportFormat)
         {
             // Test messages:
             //  - series-1
@@ -81,13 +207,14 @@ namespace Microservices.CohortPackager.Tests.Execution
             //  - series-2
             //      - series-2-anon-1.dcm -> fails anonymisation
             //      - series-2-anon-2.dcm -> fails validation
+
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 2,
             };
@@ -96,11 +223,10 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
-                    // { new MessageHeader(), "series-1-anon-2.dcm" }, -- rejected
                 },
                 RejectionReasons = new Dictionary<string, int>
                 {
@@ -113,7 +239,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-2-anon-1.dcm" },
@@ -128,7 +254,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-2-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 Status = ExtractedFileStatus.ErrorWontRetry,
                 StatusMessage = "Couldn't anonymise",
                 DicomFilePath = "series-2-orig-1.dcm",
@@ -139,7 +265,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 IsIdentifiable = false,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
@@ -160,327 +286,40 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-2-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 IsIdentifiable = true,
                 Report = failureReport,
                 DicomFilePath = "series-2-orig-2.dcm",
             };
 
-
             GlobalOptions globals = new GlobalOptionsFactory().Load();
-            globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
-            globals.CohortPackagerOptions.ReporterType = "FileReporter";
-            globals.CohortPackagerOptions.ReportFormat = "Combined";
 
-            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
-            client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
-
-            using (var tester = new MicroserviceTester(
-                globals.RabbitOptions,
-                globals.CohortPackagerOptions.ExtractRequestInfoOptions,
-                globals.CohortPackagerOptions.FileCollectionInfoOptions,
-                globals.CohortPackagerOptions.NoVerifyStatusOptions,
-                globals.CohortPackagerOptions.VerificationStatusOptions))
-            {
-                tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage1);
-                tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage2);
-                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage1);
-                tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage2);
-
-                globals.FileSystemOptions.ExtractRoot = ExtractRoot;
-                var mockFileSystem = new MockFileSystem();
-                var reportsDir = Path.Combine(ExtractRoot, _projReportsDir);
-                mockFileSystem.Directory.CreateDirectory(reportsDir);
-                mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projExtract1Dir));
-
-                var notifier = new TestLoggingNotifier();
-                var host = new CohortPackagerHost(
-                    globals,
-                    jobStore: null,
-                    mockFileSystem,
-                    notifier: notifier,
-                    dateTimeProvider: _dateTimeProvider,
-                    loadSmiLogConfig: false
-                );
-                host.Start();
-
-                var timeoutSecs = 30;
-                while (!notifier.JobCompleted && timeoutSecs > 0)
+            VerifyReports(
+                globals,
+                reportFormat,
+                new[]
                 {
-                    --timeoutSecs;
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions, testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions,testExtractFileCollectionInfoMessage1),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions,  testExtractFileCollectionInfoMessage2),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,  testExtractFileStatusMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage1),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage2),
                 }
-
-                host.Stop("Test end");
-                Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
-
-                string reportContent = mockFileSystem.File.ReadAllText(mockFileSystem.Path.Combine(reportsDir, "extract1_report.txt"));
-                var expected = @$"
-# SMI extraction validation report for testProj1/extract1
-
-Job info:
--   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--   Job completed at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--   Job extraction id:             {jobId}
--   Extraction tag:                SeriesInstanceUID
--   Extraction modality:           Unspecified
--   Requested identifier count:    2
--   Identifiable extraction:       No
--   Filtered extraction:           Yes
-
-Report contents:
-
--   Verification failures
-    -   Summary
-    -   Full Details
--   Blocked files
--   Anonymisation failures
-
-## Verification failures
-
-### Summary
-
--   Tag: ScanOptions (1 total occurrence(s))
-    -   Value: 'FOO' (1 occurrence(s))
-
-
-### Full details
-
--   Tag: ScanOptions (1 total occurrence(s))
-    -   Value: 'FOO' (1 occurrence(s))
-        -   series-2-anon-2.dcm
-
-
-## Blocked files
-
--   ID: series-1
-    -   1x 'rejected - blah'
-
-## Anonymisation failures
-
--   file 'series-2-anon-1.dcm': 'Couldn't anonymise'
-
---- end of report ---
-";
-                Assert.AreEqual(expected, reportContent);
-            }
+            );
         }
 
         [Test]
-        public void HappyPath_AnonExtraction_SplitReport()
+        public void Integration_IdentifiableExtraction_HappyPath()
         {
-            // Test messages:
-            //  - series-1
-            //      - series-1-anon-1.dcm -> valid
-            //      - series-1-anon-2.dcm -> rejected
-            //  - series-2
-            //      - series-2-anon-1.dcm -> fails anonymisation
-            //      - series-2-anon-2.dcm -> fails validation
             var jobId = Guid.NewGuid();
-            var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
-            {
-                JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                ProjectNumber = "testProj1",
-                ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
-                KeyTag = "SeriesInstanceUID",
-                KeyValueCount = 2,
-            };
-            var testExtractFileCollectionInfoMessage1 = new ExtractFileCollectionInfoMessage
-            {
-                JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                ProjectNumber = "testProj1",
-                ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
-                {
-                    { new MessageHeader(), "series-1-anon-1.dcm" },
-                    // { new MessageHeader(), "series-1-anon-2.dcm" }, -- rejected
-                },
-                RejectionReasons = new Dictionary<string, int>
-                {
-                    {"rejected - blah", 1 },
-                },
-                KeyValue = "series-1",
-            };
-            var testExtractFileCollectionInfoMessage2 = new ExtractFileCollectionInfoMessage
-            {
-                JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                ProjectNumber = "testProj1",
-                ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
-                {
-                    { new MessageHeader(), "series-2-anon-1.dcm" },
-                    { new MessageHeader(), "series-2-anon-2.dcm" },
-                },
-                RejectionReasons = new Dictionary<string, int>(),
-                KeyValue = "series-2",
-            };
-            var testExtractFileStatusMessage = new ExtractedFileStatusMessage
-            {
-                JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                OutputFilePath = "series-2-anon-1.dcm",
-                ProjectNumber = "testProj1",
-                ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
-                Status = ExtractedFileStatus.ErrorWontRetry,
-                StatusMessage = "Couldn't anonymise",
-                DicomFilePath = "series-2-orig-1.dcm",
-            };
-            var testIsIdentifiableMessage1 = new ExtractedFileVerificationMessage
-            {
-                JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                OutputFilePath = "series-1-anon-1.dcm",
-                ProjectNumber = "testProj1",
-                ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
-                IsIdentifiable = false,
-                Report = "[]",
-                DicomFilePath = "series-1-orig-1.dcm",
-            };
-            const string failureReport = @"
-[
-    {
-        'Parts': [],
-        'Resource': 'series-2-anon-2.dcm',
-        'ResourcePrimaryKey': '1.2.3.4',
-        'ProblemField': 'ScanOptions',
-        'ProblemValue': 'FOO'
-    }
-]";
-            var testIsIdentifiableMessage2 = new ExtractedFileVerificationMessage
-            {
-                JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                OutputFilePath = "series-2-anon-2.dcm",
-                ProjectNumber = "testProj1",
-                ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
-                IsIdentifiable = true,
-                Report = failureReport,
-                DicomFilePath = "series-2-orig-2.dcm",
-            };
-
-
-            GlobalOptions globals = new GlobalOptionsFactory().Load();
-            globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
-            globals.CohortPackagerOptions.ReporterType = "FileReporter";
-            globals.CohortPackagerOptions.ReportFormat = "Split";
-
-            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
-            client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
-
-            using (var tester = new MicroserviceTester(
-                globals.RabbitOptions,
-                globals.CohortPackagerOptions.ExtractRequestInfoOptions,
-                globals.CohortPackagerOptions.FileCollectionInfoOptions,
-                globals.CohortPackagerOptions.NoVerifyStatusOptions,
-                globals.CohortPackagerOptions.VerificationStatusOptions))
-            {
-                tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage1);
-                tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage2);
-                tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage);
-                tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage1);
-                tester.SendMessage(globals.CohortPackagerOptions.VerificationStatusOptions, new MessageHeader(), testIsIdentifiableMessage2);
-
-                globals.FileSystemOptions.ExtractRoot = ExtractRoot;
-                var mockFileSystem = new MockFileSystem();
-                var fullreportsDir = Path.Combine(ExtractRoot, _projReportsDir);
-                mockFileSystem.Directory.CreateDirectory(fullreportsDir);
-                mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projExtract1Dir));
-
-                var notifier = new TestLoggingNotifier();
-                var host = new CohortPackagerHost(
-                    globals,
-                    jobStore: null,
-                    mockFileSystem,
-                    notifier: notifier,
-                    dateTimeProvider: _dateTimeProvider,
-                    loadSmiLogConfig: false
-                );
-                host.Start();
-
-                var timeoutSecs = 30;
-                while (!notifier.JobCompleted && timeoutSecs > 0)
-                {
-                    --timeoutSecs;
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
-                }
-
-                host.Stop("Test end");
-                Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
-
-                List<string> allFiles = mockFileSystem.AllFiles.ToList();
-                Assert.AreEqual(7, allFiles.Count);
-
-                string extractionName = _projExtract1Dir.Split('/', '\\')[^1];
-                string extractionReportsDir = mockFileSystem.Path.Combine(ExtractRoot, _projReportsDir, extractionName);
-
-                var expectedReadmeText =
-$@"# SMI extraction validation report for testProj1/{extractionName}
-
-Job info:
--   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--   Job completed at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--   Job extraction id:             {jobId}
--   Extraction tag:                SeriesInstanceUID
--   Extraction modality:           Unspecified
--   Requested identifier count:    2
--   Identifiable extraction:       No
--   Filtered extraction:           Yes
-
-Files included:
--   README.md (this file)
--   pixel_data_summary.csv
--   pixel_data_full.csv
--   pixel_data_word_length_frequencies.csv
--   tag_data_summary.csv
--   tag_data_full.csv
-
-This file contents:
--   Blocked files
--   Anonymisation failures
-
-## Blocked files
-
--   ID: series-1
-    -   1x 'rejected - blah'
-
-## Anonymisation failures
-
--   file 'series-2-anon-1.dcm': 'Couldn't anonymise'
-
---- end of report ---
-";
-                string readmeText = mockFileSystem.File.ReadAllText(mockFileSystem.Path.Combine(extractionReportsDir, "README.md"));
-                Console.WriteLine(readmeText);
-                Assert.AreEqual(expectedReadmeText, readmeText);
-
-                // TODO(rkm 2020-10-29) Test other report content
-
-                // debug
-                foreach (var f in allFiles)
-                {
-                    Console.WriteLine($"--- {f.Split('/', '\\')[^1]} ---");
-                    Console.WriteLine(mockFileSystem.File.ReadAllText(f));
-                }
-            }
-        }
-
-        [Test]
-        public void Test_CohortPackagerHost_IdentifiableExtraction()
-        {
-            Guid jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
                 ExtractionModality = "MR",
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 IsIdentifiableExtraction = true,
@@ -490,7 +329,7 @@ This file contents:
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "out1.dcm" },
@@ -509,7 +348,7 @@ This file contents:
                 OutputFilePath = "src.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 Status = ExtractedFileStatus.Copied,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-1.dcm",
@@ -521,7 +360,7 @@ This file contents:
                 OutputFilePath = "src_missing.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1Dir,
+                ExtractionDirectory = _projExtract1DirRelative,
                 Status = ExtractedFileStatus.FileMissing,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-2.dcm",
@@ -529,87 +368,18 @@ This file contents:
             };
 
             GlobalOptions globals = new GlobalOptionsFactory().Load();
-            globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
-            globals.CohortPackagerOptions.ReportFormat = null;
 
-            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
-            client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
-
-            using var tester = new MicroserviceTester(
-                globals.RabbitOptions,
-                globals.CohortPackagerOptions.ExtractRequestInfoOptions,
-                globals.CohortPackagerOptions.FileCollectionInfoOptions,
-                globals.CohortPackagerOptions.NoVerifyStatusOptions,
-                globals.CohortPackagerOptions.VerificationStatusOptions
-            );
-
-            tester.SendMessage(globals.CohortPackagerOptions.ExtractRequestInfoOptions, new MessageHeader(), testExtractionRequestInfoMessage);
-            tester.SendMessage(globals.CohortPackagerOptions.FileCollectionInfoOptions, new MessageHeader(), testExtractFileCollectionInfoMessage);
-            tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage1);
-            tester.SendMessage(globals.CohortPackagerOptions.NoVerifyStatusOptions, new MessageHeader(), testExtractFileStatusMessage2);
-
-            MongoDbOptions mongoDbOptions = globals.MongoDatabases.ExtractionStoreOptions;
-            var jobStore = new MongoExtractJobStore(
-                MongoClientHelpers.GetMongoClient(mongoDbOptions, "CohortPackager-Test"),
-                mongoDbOptions.DatabaseName,
-                _dateTimeProvider
-            );
-
-            globals.FileSystemOptions.ExtractRoot = ExtractRoot;
-            var mockFileSystem = new MockFileSystem();
-            mockFileSystem.Directory.CreateDirectory(globals.FileSystemOptions.FileSystemRoot);
-            var reportsDir = Path.Combine(ExtractRoot, _projReportsDir);
-            mockFileSystem.Directory.CreateDirectory(reportsDir);
-            mockFileSystem.Directory.CreateDirectory(Path.Combine(ExtractRoot, _projExtract1Dir));
-
-            var reporter = new FileReporter(jobStore, mockFileSystem, ExtractRoot, ReportFormat.Combined);
-
-            var notifier = new TestLoggingNotifier();
-            var host = new CohortPackagerHost(
+            VerifyReports(
                 globals,
-                jobStore,
-                reporter: reporter,
-                notifier: notifier,
-                loadSmiLogConfig: false
+                ReportFormat.Combined,
+                new[]
+                {
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions,  testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions,testExtractFileCollectionInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,testExtractFileStatusMessage1),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,  testExtractFileStatusMessage2),
+                }
             );
-            host.Start();
-
-            var timeoutSecs = 30;
-            while (!notifier.JobCompleted && timeoutSecs > 0)
-            {
-                --timeoutSecs;
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-
-            host.Stop("Test end");
-            Assert.True(notifier.JobCompleted && timeoutSecs >= 0);
-
-            List<string> allFiles = mockFileSystem.AllFiles.ToList();
-            Assert.AreEqual(2, allFiles.Count);
-            string reportContent = mockFileSystem.File.ReadAllText(mockFileSystem.Path.Combine(reportsDir, "extract1_report.txt"));
-            var expected = $@"
-# SMI extraction validation report for testProj1/extract1
-
-Job info:
--   Job submitted at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--   Job completed at:              {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}
--   Job extraction id:             {jobId}
--   Extraction tag:                StudyInstanceUID
--   Extraction modality:           MR
--   Requested identifier count:    1
--   Identifiable extraction:       Yes
--   Filtered extraction:           Yes
-
-Report contents:
--   Missing file list (files which were selected from an input ID but could not be found)
-
-## Missing file list
-
--   study-1-orig-2.dcm
-
---- end of report ---
-";
-            Assert.AreEqual(expected, reportContent);
         }
 
         #endregion

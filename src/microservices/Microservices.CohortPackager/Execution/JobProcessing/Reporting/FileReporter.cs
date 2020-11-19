@@ -45,11 +45,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             string jobIdFile = _fileSystem.Path.Combine(_extractRoot, jobInfo.ExtractionDirectory, "jobId.txt");
             _fileSystem.File.WriteAllLines(jobIdFile, new[] { jobInfo.ExtractionJobIdentifier.ToString() });
 
+            string projReportsDirAbsolute = AbsolutePathToProjReportsDir(jobInfo);
+            Directory.CreateDirectory(projReportsDirAbsolute);
+
             if (ShouldWriteCombinedReport(jobInfo))
             {
                 // Write a single report
-
-                string jobReportPath = GetSingleReportJobPath(jobInfo);
+                string jobReportPath = _fileSystem.Path.Combine(projReportsDirAbsolute, $"{jobInfo.ExtractionName()}_report.txt");
                 if (_fileSystem.File.Exists(jobReportPath))
                     throw new ApplicationException($"Report file '{jobReportPath}' already exists");
                 Logger.Info($"Writing report to {jobReportPath}");
@@ -60,8 +62,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             else
             {
                 // Create a new directory for the report files, and return an open stream to the summary README
-
-                string jobReportDir = GetMultiReportJobDirectory(jobInfo);
+                string jobReportDir = AbsolutePathToProjExtractionReportsDir(jobInfo);
                 if (_fileSystem.Directory.Exists(jobReportDir))
                     throw new ApplicationException($"Report directory '{jobReportDir}' already exists");
                 _fileSystem.Directory.CreateDirectory(jobReportDir);
@@ -80,29 +81,28 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo) => GetStream(jobInfo, "tag_data_summary.csv");
         protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo) => GetStream(jobInfo, "tag_data_full.csv");
 
-        private string GetSingleReportJobPath(ExtractJobInfo jobInfo)
-            => _fileSystem.Path.Combine(
-                _extractRoot,
-                jobInfo.ProjectExtractionDir(),
-                "reports",
-                $"{jobInfo.ExtractionName()}_report.txt"
-            );
+        private string AbsolutePathToProjReportsDir(ExtractJobInfo jobInfo)
+            =>
+                _fileSystem.Path.Combine(
+                    _extractRoot,
+                    jobInfo.ProjectExtractionDir(),
+                    "reports"
+                );
 
-        private string GetMultiReportJobDirectory(ExtractJobInfo jobInfo)
-            => _fileSystem.Path.Combine(
-                _extractRoot,
-                jobInfo.ProjectExtractionDir(),
-                "reports",
-                jobInfo.ExtractionName()
-            );
+        private string AbsolutePathToProjExtractionReportsDir(ExtractJobInfo jobInfo)
+            =>
+                _fileSystem.Path.Combine(
+                    AbsolutePathToProjReportsDir(jobInfo),
+                    jobInfo.ExtractionName()
+                );
 
         private Stream GetStream(ExtractJobInfo jobInfo, string fileName)
         {
             if (ShouldWriteCombinedReport(jobInfo))
                 return _currentFileStream;
 
-            string jobReadmePath = _fileSystem.Path.Combine(GetMultiReportJobDirectory(jobInfo), fileName);
-            return _fileSystem.File.OpenWrite(jobReadmePath);
+            string absReportPath = _fileSystem.Path.Combine(AbsolutePathToProjExtractionReportsDir(jobInfo), fileName);
+            return _fileSystem.File.OpenWrite(absReportPath);
         }
 
         protected override void FinishReportPart(Stream stream) { }
