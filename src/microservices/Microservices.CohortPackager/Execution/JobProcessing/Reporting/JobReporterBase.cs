@@ -57,7 +57,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             using Stream stream = GetStreamForSummary(jobInfo);
             using StreamWriter streamWriter = GetStreamWriter(stream);
 
-            streamWriter.WriteLine();
             foreach (string line in JobHeader(jobInfo))
                 streamWriter.WriteLine(line);
 
@@ -67,6 +66,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             // For identifiable extractions, write the metadata and list of missing files then return. The other parts don't make sense in this case
             if (jobInfo.IsIdentifiableExtraction)
             {
+                streamWriter.WriteLine();
                 streamWriter.WriteLine("-   Missing file list (files which were selected from an input ID but could not be found)");
                 streamWriter.WriteLine();
 
@@ -145,8 +145,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine();
                 streamWriter.WriteLine("## Blocked files");
                 streamWriter.WriteLine();
-                foreach (ExtractionIdentifierRejectionInfo extractionIdentifierRejectionInfo in _jobStore
-                    .GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier))
+                IOrderedEnumerable<ExtractionIdentifierRejectionInfo> orderedRejections = _jobStore
+                    .GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier)
+                    .OrderByDescending(x => x.RejectionItems.Sum(y => y.Value));
+                foreach (ExtractionIdentifierRejectionInfo extractionIdentifierRejectionInfo in orderedRejections)
                     WriteJobRejections(streamWriter, extractionIdentifierRejectionInfo);
 
                 streamWriter.WriteLine();
@@ -301,14 +303,14 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"# SMI extraction validation report for {jobInfo.ProjectNumber}/{jobInfo.ExtractionName()}",
                 "",
                 "Job info:",
-                $"-   Job submitted at:              {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
-                $"-   Job completed at:              {jobInfo.JobCompletedAt.ToString("s", CultureInfo.InvariantCulture)}",
-                $"-   Job extraction id:             {jobInfo.ExtractionJobIdentifier}",
-                $"-   Extraction tag:                {jobInfo.KeyTag}",
-                $"-   Extraction modality:           {jobInfo.ExtractionModality ?? "Unspecified"}",
-                $"-   Requested identifier count:    {jobInfo.KeyValueCount}",
-                $"-   Identifiable extraction:       {identExtraction}",
-                $"-   Filtered extraction:           {filteredExtraction}",
+                $"-   Job submitted at:             {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:             {jobInfo.JobCompletedAt.ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
+                $"-   Extraction tag:               {jobInfo.KeyTag}",
+                $"-   Extraction modality:          {jobInfo.ExtractionModality ?? "Unspecified"}",
+                $"-   Requested identifier count:   {jobInfo.KeyValueCount}",
+                $"-   Identifiable extraction:      {identExtraction}",
+                $"-   Filtered extraction:          {filteredExtraction}",
             };
         }
 
