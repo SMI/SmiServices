@@ -419,9 +419,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private static void WriteVerificationValuesTag(string tag, Dictionary<string, List<string>> failures, TextWriter streamWriter, StringBuilder sb)
         {
             int totalOccurrences = failures.Sum(x => x.Value.Count);
-            string line = $"-   Tag: {tag} ({totalOccurrences} total occurrence(s))";
-            streamWriter.WriteLine(line);
-            sb.AppendLine(line);
+            string line = $"-   Tag: {tag} ({totalOccurrences} total occurrence(s)){NewLine}";
+            streamWriter.Write(line);
+            sb.Append(line);
         }
 
         private static void WriteVerificationValues(IEnumerable<KeyValuePair<string, List<string>>> values, TextWriter streamWriter, StringBuilder sb)
@@ -429,15 +429,15 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             foreach ((string problemVal, List<string> relatedFiles) in values)
             {
-                string line = $"    -   Value: '{problemVal}' ({relatedFiles.Count} occurrence(s))";
-                streamWriter.WriteLine(line);
-                sb.AppendLine(line);
+                string line = $"    -   Value: '{problemVal}' ({relatedFiles.Count} occurrence(s)){NewLine}";
+                streamWriter.Write(line);
+                sb.Append(line);
                 foreach (string file in relatedFiles)
-                    sb.AppendLine($"        -   {file}");
+                    sb.Append($"        -   {file}{NewLine}");
             }
 
             streamWriter.WriteLine();
-            sb.AppendLine();
+            sb.Append(NewLine);
         }
 
         protected abstract void ReleaseUnmanagedResources();
