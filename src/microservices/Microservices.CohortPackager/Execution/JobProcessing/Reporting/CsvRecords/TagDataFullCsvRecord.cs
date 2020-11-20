@@ -1,12 +1,12 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords
 {
-    // TODO tests
-    public class TagDataFullCsvRecord : IExtractionReportCsvRecord
+    public class TagDataFullCsvRecord : IExtractionReportCsvRecord, IEquatable<TagDataFullCsvRecord>
     {
         /// <summary>
         /// The tag name which contained the failure value 
@@ -41,11 +41,53 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
             FilePath = string.IsNullOrWhiteSpace(filePath) ? throw new ArgumentException(nameof(filePath)) : filePath;
         }
 
-        public static IEnumerable<TagDataFullCsvRecord> BuildRecordList(string tagName, Dictionary<string, List<string>> tagFailures)
+        public static IEnumerable<TagDataFullCsvRecord> BuildRecordList(
+            [NotNull] string tagName,
+            [NotNull] Dictionary<string, List<string>> tagFailures
+        )
         {
-            foreach ((string failureValue, List<string> files) in tagFailures)
-                foreach (string file in files)
+            // Order by most frequent first, then alphabetically by filename
+            foreach ((string failureValue, List<string> files) in tagFailures.OrderByDescending(x => x.Value.Count))
+                foreach (string file in files.OrderBy(x => x))
                     yield return new TagDataFullCsvRecord(tagName, failureValue, file);
         }
+
+        public override string ToString() => $"TagDataFullCsvRecord({TagName}, {FailureValue}, {FilePath})";
+
+        #region Equality members
+
+        public bool Equals(TagDataFullCsvRecord other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return true
+                   && TagName == other.TagName
+                   && FailureValue == other.FailureValue
+                   && FilePath == other.FilePath
+                   && true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((TagDataFullCsvRecord)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                TagName,
+                FailureValue,
+                FilePath
+            );
+        }
+
+        public static bool operator ==(TagDataFullCsvRecord left, TagDataFullCsvRecord right) => Equals(left, right);
+
+        public static bool operator !=(TagDataFullCsvRecord left, TagDataFullCsvRecord right) => !Equals(left, right);
+
+        #endregion
     }
 }

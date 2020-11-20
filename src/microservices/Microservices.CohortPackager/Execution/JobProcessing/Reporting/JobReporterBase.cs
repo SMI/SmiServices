@@ -193,13 +193,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             // Create records for the pixel reports
             List<TagDataSummaryCsvRecord> pixelSummaryRecords = TagDataSummaryCsvRecord.BuildRecordList(PixelDataStr, pixelFailures).ToList();
-            var wordLengthCounts = new Dictionary<int, int>();
+            var wordLengthCounts = new Dictionary<uint, uint>();
             foreach (TagDataSummaryCsvRecord tagDataSummaryCsvRecord in pixelSummaryRecords)
             {
-                int wordLen = tagDataSummaryCsvRecord.FailureValue.Length;
+                var wordLen = (uint)tagDataSummaryCsvRecord.FailureValue.Length;
                 if (!wordLengthCounts.ContainsKey(wordLen))
                     wordLengthCounts.Add(wordLen, 0);
-                wordLengthCounts[wordLen] += tagDataSummaryCsvRecord.Occurrences;
+                wordLengthCounts[wordLen] += (uint)tagDataSummaryCsvRecord.Occurrences;
                 tagDataSummaryCsvRecord.RelativeFrequencyInReport = tagDataSummaryCsvRecord.RelativeFrequencyInTag;
             }
 
@@ -236,11 +236,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             // Write the summary CSV for all other tags. Before doing so, we need to convert into records and calculate the relative frequencies
             var summaryRecordsByTag = new List<List<TagDataSummaryCsvRecord>>();
-            var totalOccurrencesByValue = new Dictionary<string, int>();
+            var totalOccurrencesByValue = new Dictionary<string, uint>();
             foreach ((string tagName, Dictionary<string, List<string>> failures) in otherTagFailures)
             {
-                List<TagDataSummaryCsvRecord> record = TagDataSummaryCsvRecord.BuildRecordList(tagName, failures)
-                    .ToList();
+                List<TagDataSummaryCsvRecord> record = TagDataSummaryCsvRecord.BuildRecordList(tagName, failures).ToList();
                 summaryRecordsByTag.Add(record);
                 foreach (TagDataSummaryCsvRecord r in record)
                 {
@@ -249,14 +248,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     totalOccurrencesByValue[r.FailureValue] += r.Occurrences;
                 }
             }
-            int totalFailureValues = summaryRecordsByTag.Sum(x => x.Sum(y => y.Occurrences));
+            var totalFailureValues = (uint)summaryRecordsByTag.Sum(x => x.Sum(y => y.Occurrences));
             var orderedTagSummaryRecords = new List<TagDataSummaryCsvRecord>();
             foreach (List<TagDataSummaryCsvRecord> tagRecordList in summaryRecordsByTag.OrderByDescending(x =>
                 x.Sum(y => y.Occurrences)))
                 foreach (TagDataSummaryCsvRecord record in tagRecordList.OrderByDescending(x => x.Occurrences))
                 {
-                    record.RelativeFrequencyInReport =
-                        totalOccurrencesByValue[record.FailureValue] * 1.0 / totalFailureValues;
+                    record.RelativeFrequencyInReport = totalOccurrencesByValue[record.FailureValue] * 1.0 / totalFailureValues;
                     orderedTagSummaryRecords.Add(record);
                 }
 

@@ -7,14 +7,13 @@ using System.Linq;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords
 {
-    // TODO Tests
-    public class TagDataFrequencyRecord : IExtractionReportCsvRecord
+    public class TagDataFrequencyRecord : IExtractionReportCsvRecord, IEquatable<TagDataFrequencyRecord>
     {
         [UsedImplicitly]
-        public int WordLength { get; }
+        public uint WordLength { get; }
 
         [UsedImplicitly]
-        public int Count { get; }
+        public uint Count { get; }
 
         [UsedImplicitly]
         [Format("0.#########")]
@@ -22,28 +21,66 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
 
 
         public TagDataFrequencyRecord(
-            int wordLength,
-            int count,
+            uint wordLength,
+            uint count,
             double relativeFrequencyInReport
         )
         {
-            WordLength = wordLength < 0 ? throw new ArgumentException(nameof(wordLength)) : wordLength;
-            Count = count < 0 ? throw new ArgumentException(nameof(count)) : count;
+            WordLength = wordLength;
+            Count = count;
             RelativeFrequencyInReport = relativeFrequencyInReport < 0 ? throw new ArgumentException(nameof(relativeFrequencyInReport)) : relativeFrequencyInReport;
         }
 
-        public static IEnumerable<TagDataFrequencyRecord> BuildRecordList(Dictionary<int, int> wordLenCounts)
+        public static IEnumerable<TagDataFrequencyRecord> BuildRecordList(Dictionary<uint, uint> wordLenCounts)
         {
             if (wordLenCounts.Count == 0)
                 yield break;
 
-            int totalWords = wordLenCounts.Sum(x => x.Value);
-            for (var i = 1; i <= wordLenCounts.Keys.Max(); ++i)
+            long totalWords = wordLenCounts.Sum(x => x.Value);
+            for (uint i = 1; i <= wordLenCounts.Keys.Max(); ++i)
             {
                 // Fill in any missing records with 0
-                int count = wordLenCounts.GetValueOrDefault(i, 0);
+                uint count = wordLenCounts.GetValueOrDefault(i, (uint)0);
                 yield return new TagDataFrequencyRecord(i, count, count * 1.0 / totalWords);
             }
         }
+
+        public override string ToString() => $"TagDataFrequencyRecord({WordLength}, {Count}, {RelativeFrequencyInReport})";
+
+        #region Equality Members
+
+        public bool Equals(TagDataFrequencyRecord other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return true
+                   && WordLength == other.WordLength
+                   && Count == other.Count
+                   && RelativeFrequencyInReport.Equals(other.RelativeFrequencyInReport)
+                   && true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((TagDataFrequencyRecord)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                WordLength,
+                Count,
+                RelativeFrequencyInReport
+            );
+        }
+
+        public static bool operator ==(TagDataFrequencyRecord left, TagDataFrequencyRecord right) => Equals(left, right);
+
+        public static bool operator !=(TagDataFrequencyRecord left, TagDataFrequencyRecord right) => !Equals(left, right);
+
+        #endregion
     }
 }
