@@ -32,17 +32,6 @@ namespace Microservices.IsIdentifiable
             ImplementationManager.Load<OracleImplementation>();
             ImplementationManager.Load<PostgreSqlImplementation>();
 
-            // TODO(rkm 2020-11-16) Is this branch ever used?
-            //If running as a self contained micro service (getting messages from RabbitMQ)
-            if (args.Length == 1 && string.Equals(args[0], "--service", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var options = new GlobalOptionsFactory().Load();
-                
-                var bootstrapper = new MicroserviceHostBootstrapper(
-                    () => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions()));
-                return bootstrapper.Main();
-            }
-
             try
             {
                 string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
