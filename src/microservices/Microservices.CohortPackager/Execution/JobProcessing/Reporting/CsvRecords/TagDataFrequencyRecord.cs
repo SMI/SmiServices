@@ -53,11 +53,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return true
-                   && WordLength == other.WordLength
-                   && Count == other.Count
-                   && RelativeFrequencyInReport.Equals(other.RelativeFrequencyInReport)
-                   && true;
+            return 
+                WordLength == other.WordLength
+                && Count == other.Count
+                && RelativeFrequencyInReport.Equals(other.RelativeFrequencyInReport);
         }
 
         public override bool Equals(object obj)

@@ -79,13 +79,12 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return true
-                   && TagName == other.TagName
-                   && FailureValue == other.FailureValue
-                   && Occurrences == other.Occurrences
-                   && RelativeFrequencyInTag.Equals(other.RelativeFrequencyInTag)
-                   && RelativeFrequencyInReport.Equals(other.RelativeFrequencyInReport)
-                   && true;
+            return 
+                TagName == other.TagName
+                && FailureValue == other.FailureValue
+                && Occurrences == other.Occurrences
+                && RelativeFrequencyInTag.Equals(other.RelativeFrequencyInTag)
+                && RelativeFrequencyInReport.Equals(other.RelativeFrequencyInReport);
         }
 
         public override bool Equals(object obj)
