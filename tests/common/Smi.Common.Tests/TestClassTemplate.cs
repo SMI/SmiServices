@@ -4,7 +4,7 @@
 namespace Smi.Common.Tests
 {
     /// <summary>
-    /// Template for test classes. The test class name should match the class under test + 'Test', e.g. 'FooTest'. The test project layout should match the source project layout wherever possible, e.g.:
+    /// Template for test classes. The test class name should match the class under test + 'Test', e.g. 'FooTests'. The test project layout should match the source project layout wherever possible, e.g.:
     /// FooProj
     /// -  FooClass.cs
     /// -  BarDirectory
