@@ -55,18 +55,20 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
 
         #region Tests
 
-        [Test]
-        public void IgnorePixelDataLessThan()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void IgnorePixelDataLessThan(bool ignoreShortText)
         {
             var opts = new IsIdentifiableDicomFileOptions
             {
                 ColumnReport = true,
                 TessDirectory = _tessDir.FullName,
-                // NOTE(rkm 2020-11-16) The test image should report 3 bits of text with lengths 123, 127, and 170.
-                // If we ignore less than 170 then only 1 bit of text should be reported.
-                IgnoreTextLessThan = 170
             };
-            
+
+            // NOTE(rkm 2020-11-16) The test image should report 3 bits of text with lengths 123, 127, and 170.
+            // If we ignore less than 170 then only 1 bit of text should be reported.
+            opts.IgnoreTextLessThan = ignoreShortText ? 170 : 0U;
+
             string fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
             TestData.Create(new FileInfo(fileName), TestData.BURNED_IN_TEXT_IMG);
 
@@ -82,7 +84,7 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
             runner.ValidateDicomFile(fileInfo);
 
             List<Failure> failures = toMemory.Failures.ToList();
-            Assert.AreEqual(1, failures.Count);
+            Assert.AreEqual(ignoreShortText ? 1 : 3, failures.Count);
         }
 
         #endregion
