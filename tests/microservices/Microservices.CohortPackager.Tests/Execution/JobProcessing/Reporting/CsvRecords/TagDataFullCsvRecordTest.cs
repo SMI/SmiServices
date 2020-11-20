@@ -35,17 +35,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
         #region Tests
 
-        [Test]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs()
+        // tagName
+        [TestCase(null, "foo", "foo")]
+        [TestCase("", "foo", "foo")]
+        // failureValue
+        [TestCase("foo", null, "foo")]
+        [TestCase("foo", "", "foo")]
+        // filePath
+        [TestCase("foo", "foo", null)]
+        [TestCase("foo", "foo", "")]
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string tagName, string failureValue, string filePath)
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord(null, "foo", "foo"); });
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord("", "foo", "foo"); });
-
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord("foo", null, "foo"); });
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord("foo", "", "foo"); });
-
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord("foo", "foo", null); });
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord("foo", "foo", ""); });
+            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord(tagName, failureValue, filePath); });
         }
 
         [Test]
@@ -61,7 +62,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
             var testData = new Dictionary<string, List<string>>
             {
                 {
-                    "foo", 
+                    "foo",
                     new List<string>
                     {
                         "2.dcm",

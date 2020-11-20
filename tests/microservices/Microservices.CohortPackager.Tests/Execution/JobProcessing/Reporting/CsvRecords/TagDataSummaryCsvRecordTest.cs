@@ -35,19 +35,20 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
         #region Tests
 
-        [Test]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs()
+        // tagName
+        [TestCase(null, "foo", 1U, 1.0)]
+        [TestCase("  ", "foo", 1U, 1.0)]
+        // failureValue
+        [TestCase("foo", null, 1U, 1.0)]
+        [TestCase("foo", "  ", 1U, 1.0)]
+        // occurrences
+        [TestCase("foo", "foo", 0U, 1.0)]
+        // frequency
+        [TestCase("foo", "foo", 1U, 0.0)]
+        [TestCase("foo", "foo", 1U, -1.0)]
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string tagName, string failureValue, uint occurrences, double frequency)
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord(null, "foo", 1, 1.0); });
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord("", "foo", 1, 1.0); });
-
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord("foo", null, 1, 1.0); });
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord("foo", "", 1, 1.0); });
-
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord("foo", "foo", 0, 1.0); });
-
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord("foo", "foo", 1, 0.0); });
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord("foo", "foo", 1, -1.0); });
+            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord(tagName, failureValue, occurrences, frequency); });
         }
 
         [Test]

@@ -35,10 +35,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
         #region Tests
 
-        [Test]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs()
+        [TestCase(0U, 0U, -0.1)]
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(uint wordLength, uint count, double relativeFrequencyInReport)
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFrequencyRecord(0, 0, -0.1); });
+            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFrequencyRecord(wordLength, count, relativeFrequencyInReport); });
         }
 
         [Test]

@@ -33,13 +33,13 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         #region Tests
 
-        [Test]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs()
+        [TestCase(null, "bar")]
+        [TestCase("  ", "bar")]
+        [TestCase("foo", null)]
+        [TestCase("foo", "  ")]
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string expectedAnonFile, string reason)
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new FileAnonFailureInfo(null, "bar"); });
-            Assert.Throws<ArgumentException>(() => { var _ = new FileAnonFailureInfo("  ", "bar"); });
-            Assert.Throws<ArgumentException>(() => { var _ = new FileAnonFailureInfo("foo", null); });
-            Assert.Throws<ArgumentException>(() => { var _ = new FileAnonFailureInfo("foo", "  "); });
+            Assert.Throws<ArgumentException>(() => { var _ = new FileAnonFailureInfo(expectedAnonFile, reason); });
         }
 
         #endregion
