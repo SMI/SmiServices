@@ -29,6 +29,20 @@ namespace Microservices.CohortPackager.Execution
         private readonly AnonFailedMessageConsumer _anonFailedMessageConsumer;
 
 
+        /// <summary>
+        /// Default constructor for CohortPackagerHost
+        /// </summary>
+        /// <param name="globals"></param>
+        /// <param name="jobStore"></param>
+        /// <param name="fileSystem"></param>
+        /// <param name="reporter">
+        /// Pass to override the default IJobReporter that will be created from
+        /// Globals.CohortPackagerOptions.ReportFormat. That value should not be set if a reporter is passed.
+        /// </param>
+        /// <param name="notifier"></param>
+        /// <param name="rabbitMqAdapter"></param>
+        /// <param name="dateTimeProvider"></param>
+        /// <param name="loadSmiLogConfig"></param>
         public CohortPackagerHost(
             [NotNull] GlobalOptions globals,
             [CanBeNull] ExtractJobStore jobStore = null,
