@@ -26,7 +26,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public string ProjectNumber { get; }
 
         /// <summary>
-        /// Directory to extract files into, relative to teh extraction root. Should be of the format projName/extractions/extractName
+        /// Directory to extract files into, relative to the extraction root. Should be of the format projName/extractions/extractName
         /// </summary>
         [NotNull]
         public string ExtractionDirectory { get; }
