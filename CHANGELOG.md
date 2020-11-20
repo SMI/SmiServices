@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 - Reduce memory usage on long-running microservices even when .Net assumes RAM is plentiful
+-   Extraction pipeline changes and bugfixes:
+    -   Validation reports are now written to the project reports directory, instead of to a central reports directory
+    -   Reports can now be created as either "Combined" (single report as before" or "Split" (a [pack](src/microservices/Microservices.CohortPackager/README.md) of reports including CSVs suitable for post-processing). This is configurable in the YAML config and can also be specified on the CLI when recreating reports for an extraction
+    -   Fix mismatch in Java/C# messages for ExtractionModality
+    -   Added JobCompletedAt to the reports
+    -   ExtractionFileCopier: Copy files relative to the extraction root not the global filesystem root
+    -   IsIdentifiable: Add support for ignoring OCR output less than `n` characters in length
+    -   IsIdentifiable: Add a test case for burned-in image text
 
 ### Added
 
