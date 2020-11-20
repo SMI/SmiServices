@@ -1,4 +1,5 @@
-﻿using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
+﻿using System;
+using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
 using NUnit.Framework;
 using Smi.Common.Tests;
 
@@ -42,8 +43,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Notifying
         [Test]
         public void GetNotifier_ThrowsException_OnInvalidNotifierTypeStr()
         {
-            IJobCompleteNotifier notifier = JobCompleteNotifierFactory.GetNotifier(notifierTypeStr: "LoggingNotifier");
-            Assert.True(notifier is LoggingNotifier);
+            Assert.Throws<ArgumentException>(() => JobCompleteNotifierFactory.GetNotifier(notifierTypeStr: "foo"));
         }
 
         #endregion

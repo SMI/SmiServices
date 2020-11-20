@@ -8,7 +8,7 @@
         Unknown,
 
         /// <summary>
-        /// The "original" format, useful for smaller extractions. Produces a single report containing all the extraction information in a text-based format
+        /// The "original" format, useful for smaller extractions. Produces a single report containing all the extraction information in markdown format
         /// </summary>
         Combined,
 
