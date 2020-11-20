@@ -84,12 +84,20 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             IsNoFilterExtraction = isNoFilterExtraction;
         }
 
+        /// <summary>
+        /// Returns the extraction name (last part of projName/extractions/extractName)
+        /// </summary>
+        /// <returns></returns>
         public string ExtractionName()
         {
             string[] split = ExtractionDirectory.Split('/', '\\');
             return split[^1];
         }
-
+        
+        /// <summary>
+        /// Returns the project extraction directory (first two parts of projName/extractions/extractName)
+        /// </summary>
+        /// <returns></returns>
         public string ProjectExtractionDir()
         {
             int idx = ExtractionDirectory.LastIndexOfAny(new[] { '/', '\\' });
