@@ -16,11 +16,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         public LoggingReporter(
             [NotNull] IExtractJobStore jobStore,
-            ReportFormat reportFormat
+            ReportFormat reportFormat,
+            [CanBeNull] string reportNewLine
         )
             : base(
                 jobStore,
-                reportFormat
+                reportFormat,
+                reportNewLine
             )
         {
             _logger = LogManager.GetCurrentClassLogger();

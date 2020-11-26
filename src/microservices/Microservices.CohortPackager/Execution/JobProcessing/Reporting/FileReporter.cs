@@ -24,11 +24,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IExtractJobStore jobStore,
             [NotNull] IFileSystem fileSystem,
             [NotNull] string extractRoot,
-            ReportFormat reportFormat
+            ReportFormat reportFormat,
+            [CanBeNull] string reportNewLine
         )
             : base(
                 jobStore,
-                reportFormat
+                reportFormat,
+                reportNewLine
             )
         {
             _fileSystem = fileSystem;
@@ -43,7 +45,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             // Write the jobId to a file in the extraction dir to help identify the set of files if they are moved
             string jobIdFile = _fileSystem.Path.Combine(_extractRoot, jobInfo.ExtractionDirectory, "jobId.txt");
-            _fileSystem.File.WriteAllLines(jobIdFile, new[] { jobInfo.ExtractionJobIdentifier.ToString() });
+            _fileSystem.File.WriteAllText(jobIdFile, string.Join(ReportNewLine, jobInfo.ExtractionJobIdentifier));
 
             string projReportsDirAbsolute = AbsolutePathToProjReportsDir(jobInfo);
             Directory.CreateDirectory(projReportsDirAbsolute);

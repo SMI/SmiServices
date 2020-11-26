@@ -30,6 +30,15 @@ namespace Microservices.CohortPackager.Options
         [UsedImplicitly]
         public ReportFormat ReportFormat { get; set; }
 
+        [Option(
+            'o',
+            "output-newline",
+            Required = false,
+            HelpText = "[Optional] The newline string to use when creating the validation reports. Can be specified to create reports for a different platform. Defaults to Environment.NewLine if not set, and overrides any value in the YAML config."
+        )]
+        [UsedImplicitly]
+        public string OutputNewLine { get; set; }
+
         [Usage]
         [UsedImplicitly]
         public static IEnumerable<Example> Examples

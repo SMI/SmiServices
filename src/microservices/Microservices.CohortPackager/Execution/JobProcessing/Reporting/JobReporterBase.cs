@@ -1,4 +1,5 @@
 using CsvHelper;
+using CsvHelper.Configuration;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
@@ -19,24 +20,42 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
     {
         public readonly ReportFormat ReportFormat;
 
+        [NotNull] public readonly string ReportNewLine;
+
         [NotNull] protected readonly ILogger Logger;
 
         [NotNull] private readonly IExtractJobStore _jobStore;
 
-        // NOTE(rkm 2020-10-28) Always write Windows-style line endings, since the reports are generated on Linux but target Windows
-        private const string NewLine = "\r\n";
-
         private const string PixelDataStr = "PixelData";
+
+        [NotNull] private readonly CsvConfiguration _csvConfiguration;
 
 
         protected JobReporterBase(
             [NotNull] IExtractJobStore jobStore,
-            ReportFormat reportFormat
+            ReportFormat reportFormat,
+            [CanBeNull] string reportNewLine
         )
         {
             Logger = LogManager.GetLogger(GetType().Name);
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
-            ReportFormat = reportFormat;
+            ReportFormat = (reportFormat == default) ? throw new ArgumentException(nameof(reportFormat)) : reportFormat;
+
+            // NOTE(rkm 2020-11-20) IsNullOrWhiteSpace returns true for newline characters!
+            if (!string.IsNullOrEmpty(reportNewLine))
+            {
+                ReportNewLine = reportNewLine;
+            }
+            else
+            {
+                Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ({Environment.NewLine})");
+                ReportNewLine = Environment.NewLine;
+            }
+
+            _csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                NewLine = ParseToCsvNewLine(ReportNewLine),
+            };
         }
 
         public void CreateReport(Guid jobId)
@@ -169,7 +188,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             void WriteCsv<T>(Stream stream, IEnumerable<T> records) where T : IExtractionReportCsvRecord
             {
                 using StreamWriter streamWriter = GetStreamWriter(stream);
-                using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
+                using var csvWriter = new CsvWriter(streamWriter, _csvConfiguration);
 
                 csvWriter.WriteHeader<T>();
                 csvWriter.NextRecord();
@@ -289,7 +308,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         protected abstract void FinishReportPart(Stream stream);
 
-        private static StreamWriter GetStreamWriter(Stream stream) => new StreamWriter(stream) { NewLine = NewLine };
+        private StreamWriter GetStreamWriter(Stream stream) => new StreamWriter(stream) { NewLine = ReportNewLine };
 
         private static IEnumerable<string> JobHeader(CompletedExtractJobInfo jobInfo)
         {
@@ -414,29 +433,40 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine($"-   {file}");
         }
 
-        private static void WriteVerificationValuesTag(string tag, Dictionary<string, List<string>> failures, TextWriter streamWriter, StringBuilder sb)
+        private void WriteVerificationValuesTag(string tag, Dictionary<string, List<string>> failures, TextWriter streamWriter, StringBuilder sb)
         {
             int totalOccurrences = failures.Sum(x => x.Value.Count);
-            string line = $"-   Tag: {tag} ({totalOccurrences} total occurrence(s)){NewLine}";
+            string line = $"-   Tag: {tag} ({totalOccurrences} total occurrence(s)){ReportNewLine}";
             streamWriter.Write(line);
             sb.Append(line);
         }
 
-        private static void WriteVerificationValues(IEnumerable<KeyValuePair<string, List<string>>> values, TextWriter streamWriter, StringBuilder sb)
+        private void WriteVerificationValues(IEnumerable<KeyValuePair<string, List<string>>> values, TextWriter streamWriter, StringBuilder sb)
         {
 
             foreach ((string problemVal, List<string> relatedFiles) in values)
             {
-                string line = $"    -   Value: '{problemVal}' ({relatedFiles.Count} occurrence(s)){NewLine}";
+                string line = $"    -   Value: '{problemVal}' ({relatedFiles.Count} occurrence(s)){ReportNewLine}";
                 streamWriter.Write(line);
                 sb.Append(line);
                 foreach (string file in relatedFiles)
-                    sb.Append($"        -   {file}{NewLine}");
+                    sb.Append($"        -   {file}{ReportNewLine}");
             }
 
             streamWriter.WriteLine();
-            sb.Append(NewLine);
+            sb.Append(ReportNewLine);
         }
+
+        // NOTE(rkm 2020-11-20) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
+        // can tell, this is the most straightforward way to parse a "NewLine" from one of the "NewLines" string constants they provide...
+        private static NewLine ParseToCsvNewLine(string newLine) =>
+            newLine switch
+            {
+                NewLines.CR => NewLine.CR,
+                NewLines.CRLF => NewLine.CRLF,
+                NewLines.LF => NewLine.LF,
+                _ => throw new ArgumentException($"No case for '{newLine}'")
+            };
 
         protected abstract void ReleaseUnmanagedResources();
         public abstract void Dispose();

@@ -13,7 +13,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IExtractJobStore jobStore,
             [NotNull] IFileSystem fileSystem,
             [NotNull] string extractRoot,
-            [NotNull] string reportFormatStr
+            [NotNull] string reportFormatStr,
+            [CanBeNull] string reportNewLine
         )
         {
             if (!Enum.TryParse(reportFormatStr, ignoreCase: true, out ReportFormat reportFormat))
@@ -25,11 +26,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     jobStore,
                     fileSystem,
                     extractRoot,
-                    reportFormat
+                    reportFormat,
+                    reportNewLine
                 ),
                 nameof(LoggingReporter) => new LoggingReporter(
                     jobStore,
-                    reportFormat
+                    reportFormat,
+                    reportNewLine
                 ),
                 _ => throw new ArgumentException($"No case for type, or invalid type string '{reporterTypeStr}'")
             };

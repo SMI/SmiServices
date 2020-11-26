@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager
                     GlobalOptions globalOptions = new GlobalOptionsFactory().Load(cohortPackagerCliOptions);
 
                     if (cohortPackagerCliOptions.ExtractionId != default)
-                        return RecreateReport(globalOptions, cohortPackagerCliOptions.ExtractionId, cohortPackagerCliOptions.ReportFormat);
+                        return RecreateReport(globalOptions, cohortPackagerCliOptions);
 
                     var bootstrapper = new MicroserviceHostBootstrapper(() => new CohortPackagerHost(globalOptions));
                     return bootstrapper.Main();
@@ -33,12 +33,12 @@ namespace Microservices.CohortPackager
                 err => 1);
         }
 
-        private static int RecreateReport(GlobalOptions globalOptions, Guid jobId, ReportFormat reportFormat)
+        private static int RecreateReport(GlobalOptions globalOptions, CohortPackagerCliOptions cliOptions)
         {
             SetupLogging(globalOptions);
             Logger logger = LogManager.GetCurrentClassLogger();
 
-            logger.Info($"Recreating report for job {jobId}");
+            logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
 
             string procName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
             MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases.ExtractionStoreOptions;
@@ -51,12 +51,13 @@ namespace Microservices.CohortPackager
                 jobStore,
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
-                reportFormat.ToString()
+                cliOptions.ReportFormat.ToString(),
+                cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine
             );
 
             try
             {
-                reporter.CreateReport(jobId);
+                reporter.CreateReport(cliOptions.ExtractionId);
             }
             catch (Exception e)
             {

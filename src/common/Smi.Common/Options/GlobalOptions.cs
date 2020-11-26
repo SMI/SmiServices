@@ -312,6 +312,7 @@ namespace Smi.Common.Options
         public string ReporterType { get; set; }
         public string NotifierType { get; set; }
         public string ReportFormat { get; set; }
+        public string ReportNewLine { get; set; }
 
         public override string ToString()
         {

@@ -15,6 +15,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
     [TestFixture]
     public class JobReporterBaseTest
     {
+        private const string WindowsNewLine = "\r\n";
+        private const string LinuxNewLine = "\n";
+
         private static readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
         #region Fixture Methods
@@ -51,7 +54,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             private string _currentReportName;
             private bool _isCombinedReport;
 
-            public TestJobReporter(IExtractJobStore jobStore, ReportFormat reportFormat) : base(jobStore, reportFormat) { }
+            public TestJobReporter(
+                IExtractJobStore jobStore,
+                ReportFormat reportFormat,
+                string reportNewLine
+            )
+                : base(
+                    jobStore,
+                    reportFormat,
+                    reportNewLine
+                )
+            {
+            }
 
             protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo)
             {
@@ -94,7 +108,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             {
                 stream.Position = 0;
                 using var streamReader = new StreamReader(stream, leaveOpen: true);
-                string header = _isCombinedReport ? "" : $"{ReportEqualityHelpers.NewLine}=== {_currentReportName} file ==={ReportEqualityHelpers.NewLine}";
+                string header = _isCombinedReport ? "" : $"{ReportNewLine}=== {_currentReportName} file ==={ReportNewLine}";
                 Report += header + streamReader.ReadToEnd();
             }
 
@@ -119,8 +133,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 isNoFilterExtraction
             );
 
-        [Test]
-        public void CreateReport_Empty()
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_Empty(string newLine)
         {
             CompletedExtractJobInfo jobInfo = TestJobInfo();
 
@@ -131,7 +146,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -146,15 +161,16 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 anonFailuresExpected: null,
                 isIdentifiableExtraction: false,
                 isJoinedReport: false,
+                newLine,
                 reporter.Report
             );
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void CreateReport_BasicData(bool isNoFilterExtraction)
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_BasicData(string newLine)
         {
-            CompletedExtractJobInfo jobInfo = TestJobInfo(isNoFilterExtraction: isNoFilterExtraction);
+            CompletedExtractJobInfo jobInfo = TestJobInfo();
 
             var rejections = new List<ExtractionIdentifierRejectionInfo>
             {
@@ -195,7 +211,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -241,6 +257,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 anonFailuresExpected,
                 isIdentifiableExtraction: false,
                 isJoinedReport: false,
+                newLine,
                 reporter.Report
             );
         }
@@ -262,7 +279,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
             {
                 Assert.Throws<ApplicationException>(() => reporter.CreateReport(Guid.Empty), "aa");
             }
@@ -270,8 +287,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             Assert.True(reporter.Disposed);
         }
 
-        [Test]
-        public void CreateReport_AggregateData()
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_AggregateData(string newLine)
         {
             CompletedExtractJobInfo jobInfo = TestJobInfo();
 
@@ -342,7 +360,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 .Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -394,6 +412,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 anonFailuresExpected: null,
                 isIdentifiableExtraction: false,
                 isJoinedReport: false,
+                newLine,
                 reporter.Report
             );
         }
@@ -448,7 +467,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -499,6 +518,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 anonFailuresExpected: null,
                 isIdentifiableExtraction: false,
                 isJoinedReport: false,
+                LinuxNewLine,
                 reporter.Report
             );
         }
@@ -518,7 +538,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -538,12 +558,14 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 missingFilesExpected,
                 isIdentifiableExtraction: true,
                 isJoinedReport: false,
+                LinuxNewLine,
                 reporter.Report
             );
         }
 
-        [Test]
-        public void CreateReport_SplitReport()
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_SplitReport(string newLine)
         {
             CompletedExtractJobInfo jobInfo = TestJobInfo();
 
@@ -620,7 +642,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split))
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, newLine))
             {
                 reporter.CreateReport(Guid.Empty);
             }
@@ -713,7 +735,25 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"",
             };
 
-            Assert.AreEqual(string.Join(ReportEqualityHelpers.NewLine, expected), reporter.Report);
+            Assert.AreEqual(string.Join(newLine, expected), reporter.Report);
+        }
+
+        [Test]
+        public void Constructor_UnknownReportFormat_ThrowsArgumentException()
+        {
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var _ = new TestJobReporter(mockJobStore.Object, ReportFormat.Unknown, "foo");
+            });
+        }
+
+        [Test]
+        public void Constructor_NoNewLine_SetToEnvironment()
+        {
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            var reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, null);
+            Assert.AreEqual(Environment.NewLine, reporter.ReportNewLine);
         }
     }
 

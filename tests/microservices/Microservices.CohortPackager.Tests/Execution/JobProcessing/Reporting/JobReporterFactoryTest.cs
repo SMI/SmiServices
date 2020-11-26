@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 
 
@@ -45,7 +46,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     new Mock<IExtractJobStore>().Object,
                     new MockFileSystem(),
                     extractRoot: "",
-                    reportFormatStr: "FooFormat"
+                    reportFormatStr: "FooFormat",
+                    reportNewLine: null
                 )
             );
             Assert.AreEqual(expected: "Could not parse reportFormatStr to a valid ReportFormat. Got 'FooFormat'", exc.Message);
@@ -60,7 +62,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 mockJobStore.Object,
                 new MockFileSystem(),
                 extractRoot: "",
-                reportFormatStr: "Combined"
+                reportFormatStr: "Combined",
+                reportNewLine: null
             );
 
             var fileReporter = reporter as FileReporter;
@@ -77,7 +80,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 mockJobStore.Object,
                 new MockFileSystem(),
                 extractRoot: "",
-                reportFormatStr: "Combined"
+                reportFormatStr: "Combined",
+                reportNewLine: null
             );
 
             var loggingReporter = reporter as LoggingReporter;
@@ -94,10 +98,37 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     new Mock<IExtractJobStore>().Object,
                     new MockFileSystem(),
                     extractRoot: "",
-                    reportFormatStr: "Combined"
+                    reportFormatStr: "Combined",
+                    reportNewLine: null
                 )
             );
             Assert.AreEqual(expected: "No case for type, or invalid type string 'FooReporter'", exc.Message);
+        }
+
+        [Test]
+        public void GetReporter_UsesOutputNewLine()
+        {
+            // TODO(rkm 2020-11-26) Maybe improve this by building list using reflection to cover new types in future?
+            var reporterImpls = new List<Type> { typeof(FileReporter), typeof(LoggingReporter) };
+
+            // NOTE(rkm 2020-11-20) Ensure we aren't testing the Environment.NewLine, which will be the default if the format is not properly passed
+            string testNewLine = (Environment.NewLine == "\r\n") ? "\n" : "\r\n";
+
+            foreach (Type reporterImpl in reporterImpls)
+            {
+                IJobReporter reporter = JobReporterFactory.GetReporter(
+                    reporterImpl.Name,
+                    new Mock<IExtractJobStore>().Object,
+                    new MockFileSystem(),
+                    extractRoot: "",
+                    reportFormatStr: "Combined",
+                    testNewLine
+                );
+
+                var asBase = reporter as JobReporterBase;
+                Assert.NotNull(asBase);
+                Assert.AreEqual(testNewLine, asBase.ReportNewLine);
+            }
         }
 
         #endregion

@@ -103,6 +103,7 @@ CohortPackagerOptions:
     ReporterType: 'LoggingReporter'
     NotifierType: 'LoggingNotifier'
     ReportFormat: 'Combined'
+    ReportNewLine: ''
     ExtractRequestInfoOptions:
         QueueName: 'TEST.RequestInfoQueue'
         QoSPrefetchCount: 1

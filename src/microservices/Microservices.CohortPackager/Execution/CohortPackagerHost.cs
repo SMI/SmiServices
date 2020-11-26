@@ -77,7 +77,8 @@ namespace Microservices.CohortPackager.Execution
                     jobStore,
                     fileSystem ?? new FileSystem(),
                     Globals.FileSystemOptions.ExtractRoot,
-                    reportFormatStr
+                    reportFormatStr,
+                    Globals.CohortPackagerOptions.ReportNewLine
                 );
             }
             else

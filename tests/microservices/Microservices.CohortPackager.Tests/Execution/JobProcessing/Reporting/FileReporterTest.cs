@@ -70,7 +70,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             var mockFileSystem = new MockFileSystem();
             mockFileSystem.Directory.CreateDirectory(mockFileSystem.Path.Combine(extractionRoot, extractionDir));
 
-            var reporter = new FileReporter(mockJobStore.Object, mockFileSystem, extractionRoot, ReportFormat.Split);
+            var reporter = new FileReporter(mockJobStore.Object, mockFileSystem, extractionRoot, ReportFormat.Split, reportNewLine: null);
 
             reporter.CreateReport(jobId);
 

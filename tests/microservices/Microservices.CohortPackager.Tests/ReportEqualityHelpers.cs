@@ -13,9 +13,7 @@ namespace Microservices.CohortPackager.Tests
 {
     public static class ReportEqualityHelpers
     {
-        // NOTE(rkm 2020-11-18) We should always write the reports with Windows-style line endings
-        public const string NewLine = "\r\n";
-
+        [UsedImplicitly] // Can be set to help debug test output
         public static bool ShouldPrintReports { get; set; }
 
         public static void AssertReportsAreEqual(
@@ -26,23 +24,24 @@ namespace Microservices.CohortPackager.Tests
             [CanBeNull] List<Tuple<string, string>> anonFailuresExpected,
             bool isIdentifiableExtraction,
             bool isJoinedReport,
+            [NotNull] string newLine,
             [NotNull] string actualReport
         )
         {
-            string header = GetHeaderAndContents(jobInfo, provider);
+            string header = GetHeaderAndContents(jobInfo, provider, newLine);
 
             if (isIdentifiableExtraction)
             {
                 Assert.NotNull(anonFailuresExpected);
                 IEnumerable<string> missingFiles = anonFailuresExpected.Select(x => x.Item1);
-                CheckIdentReport(header, missingFiles, actualReport);
+                CheckIdentReport(header, missingFiles, newLine, actualReport);
                 return;
             }
 
             (
                 string expectedVerificationFailuresSummary,
                 string expectedVerificationFailuresFull
-            ) = ExpectedVerificationFailures(verificationFailuresExpected);
+            ) = ExpectedVerificationFailures(verificationFailuresExpected, newLine);
 
             var expected = new List<string>
             {
@@ -58,20 +57,23 @@ namespace Microservices.CohortPackager.Tests
                 expectedVerificationFailuresFull ?? "",
                 $"## Blocked files",
                 $"",
-                BlockedFiles(blockedFilesExpected) ?? "",
+                BlockedFiles(blockedFilesExpected, newLine) ?? "",
                 $"## Anonymisation failures",
                 $"",
-                AnonymisationFailures(anonFailuresExpected) ?? "",
+                AnonymisationFailures(anonFailuresExpected, newLine) ?? "",
                 $"--- end of report ---",
                 $"",
             };
 
-            string expectedStr = string.Join(NewLine, expected);
-            PrintReports(expectedStr, actualReport);
+            string expectedStr = string.Join(newLine, expected);
+
+            if (ShouldPrintReports)
+                PrintReports(expectedStr, actualReport);
+
             Assert.AreEqual(expectedStr, actualReport);
         }
 
-        private static string GetHeaderAndContents(ExtractJobInfo jobInfo, DateTimeProvider provider)
+        private static string GetHeaderAndContents(ExtractJobInfo jobInfo, DateTimeProvider provider, string newLine)
         {
             string identExtraction = jobInfo.IsIdentifiableExtraction ? "Yes" : "No";
             string filteredExtraction = !jobInfo.IsNoFilterExtraction ? "Yes" : "No";
@@ -113,10 +115,10 @@ namespace Microservices.CohortPackager.Tests
                 });
             }
 
-            return string.Join(NewLine, headerLines);
+            return string.Join(newLine, headerLines);
         }
 
-        private static void CheckIdentReport(string headerLines, IEnumerable<string> missingFiles, string actualReport)
+        private static void CheckIdentReport(string headerLines, IEnumerable<string> missingFiles, string newLine, string actualReport)
         {
             var expected = new List<string>
             {
@@ -124,18 +126,18 @@ namespace Microservices.CohortPackager.Tests
                 $"",
                 $"## Missing file list",
                 $"",
-                string.Join(NewLine, missingFiles.Select(x => $"-   {x}")),
+                string.Join(newLine, missingFiles.Select(x => $"-   {x}")),
                 $"",
                 $"--- end of report ---",
                 $"",
             };
 
-            string expectedStr = string.Join(NewLine, expected);
+            string expectedStr = string.Join(newLine, expected);
             PrintReports(expectedStr, actualReport);
             Assert.AreEqual(expectedStr, actualReport);
         }
 
-        private static Tuple<string, string> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>> verificationFailuresExpected)
+        private static Tuple<string, string> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>> verificationFailuresExpected, string newLine)
         {
             if (verificationFailuresExpected == null)
                 return new Tuple<string, string>(null, null);
@@ -155,24 +157,24 @@ namespace Microservices.CohortPackager.Tests
             foreach ((string key, Dictionary<string, List<string>> values) in ordered)
             {
                 int totalOccurrences = values.Sum(x => x.Value.Count);
-                summarySb.Append($"-   Tag: {key} ({totalOccurrences} total occurrence(s)){NewLine}");
-                fullSb.Append($"-   Tag: {key} ({totalOccurrences} total occurrence(s)){NewLine}");
+                summarySb.Append($"-   Tag: {key} ({totalOccurrences} total occurrence(s)){newLine}");
+                fullSb.Append($"-   Tag: {key} ({totalOccurrences} total occurrence(s)){newLine}");
                 foreach ((string value, List<string> inFiles) in values)
                 {
                     totalOccurrences = inFiles.Count;
-                    summarySb.Append($"    -   Value: '{value}' ({totalOccurrences} occurrence(s)){NewLine}");
-                    fullSb.Append($"    -   Value: '{value}' ({totalOccurrences} occurrence(s)){NewLine}");
+                    summarySb.Append($"    -   Value: '{value}' ({totalOccurrences} occurrence(s)){newLine}");
+                    fullSb.Append($"    -   Value: '{value}' ({totalOccurrences} occurrence(s)){newLine}");
                     foreach (string fileName in inFiles)
-                        fullSb.Append($"        -   {fileName}{NewLine}");
+                        fullSb.Append($"        -   {fileName}{newLine}");
                 }
 
-                summarySb.Append($"{NewLine}");
-                fullSb.Append($"{NewLine}");
+                summarySb.Append($"{newLine}");
+                fullSb.Append($"{newLine}");
             }
             return new Tuple<string, string>(summarySb.ToString(), fullSb.ToString());
         }
 
-        private static string BlockedFiles(Dictionary<string, List<Tuple<int, string>>> blockedFilesExpected)
+        private static string BlockedFiles(Dictionary<string, List<Tuple<int, string>>> blockedFilesExpected, string newLine)
         {
             if (blockedFilesExpected == null)
                 return null;
@@ -180,29 +182,26 @@ namespace Microservices.CohortPackager.Tests
             var sb = new StringBuilder();
             foreach ((string id, List<Tuple<int, string>> blockedItems) in blockedFilesExpected.OrderByDescending(x => x.Value.Sum(y => y.Item1)))
             {
-                sb.Append($"-   ID: {id}{NewLine}");
+                sb.Append($"-   ID: {id}{newLine}");
                 foreach ((int count, string reason) in blockedItems.OrderByDescending(x => x.Item1))
-                    sb.Append($"    -   {count}x '{reason}'{NewLine}");
+                    sb.Append($"    -   {count}x '{reason}'{newLine}");
             }
             return sb.ToString();
         }
 
-        private static string AnonymisationFailures(List<Tuple<string, string>> anonFailuresExpected)
+        private static string AnonymisationFailures(List<Tuple<string, string>> anonFailuresExpected, string newLine)
         {
             if (anonFailuresExpected == null)
                 return null;
 
             var sb = new StringBuilder();
             foreach ((string file, string reason) in anonFailuresExpected)
-                sb.Append($"-   file '{file}': '{reason}'{NewLine}");
+                sb.Append($"-   file '{file}': '{reason}'{newLine}");
             return sb.ToString();
         }
 
         private static void PrintReports(string expected, string actual)
         {
-            if (!ShouldPrintReports)
-                return;
-
             Console.WriteLine("--- expected ---");
             Console.WriteLine(expected);
             Console.WriteLine("--- actual ---");
