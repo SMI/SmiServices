@@ -207,6 +207,8 @@ namespace Smi.Common.Execution
             if (_stopCalled)
                 return;
 
+            Logger.Fatal(exception, msg);
+
             if (_fatalLoggingProducer != null)
                 try
                 {

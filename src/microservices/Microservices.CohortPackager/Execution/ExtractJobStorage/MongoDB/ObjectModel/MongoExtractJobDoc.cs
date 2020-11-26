@@ -85,11 +85,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             FailedJobInfoDoc = failedJobInfoDoc;
         }
 
-
         /// <summary>
         /// Copy constructor
         /// </summary>
-        protected MongoExtractJobDoc(MongoExtractJobDoc existing)
+        public MongoExtractJobDoc(MongoExtractJobDoc existing)
         {
             ExtractionJobIdentifier = existing.ExtractionJobIdentifier;
             Header = existing.Header;
@@ -100,6 +99,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             KeyTag = existing.KeyTag;
             KeyCount = existing.KeyCount;
             ExtractionModality = existing.ExtractionModality;
+            IsIdentifiableExtraction = existing.IsIdentifiableExtraction;
             FailedJobInfoDoc = existing.FailedJobInfoDoc;
             IsNoFilterExtraction = existing.IsNoFilterExtraction;
         }

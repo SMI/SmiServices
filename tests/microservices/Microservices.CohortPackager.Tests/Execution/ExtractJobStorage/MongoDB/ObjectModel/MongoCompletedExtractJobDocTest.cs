@@ -95,7 +95,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         [Test]
         public void TestMongoCompletedExtractJobDoc_Constructor_ExtractJobStatus()
         {
-            var doc = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
+            var doc = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
 
             Assert.AreEqual(ExtractJobStatus.Completed, doc.JobStatus);
         }
@@ -103,16 +103,16 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         [Test]
         public void TestMongoCompletedExtractJobDoc_Equality()
         {
-            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
-            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
+            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
+            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             Assert.AreEqual(doc1, doc2);
         }
 
         [Test]
         public void TestMongoCompletedExtractJobDoc_GetHashCode()
         {
-            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
-            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
+            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
+            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());
         }
 

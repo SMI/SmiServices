@@ -6,8 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-- Reduce memory usage on long-running microservices even when .Net assumes RAM is plentiful
-
 ### Added
 
 - Added new command line application TriggerUpdates for detecting and issuing UpdateValuesMessages (e.g. ECHI mapping changes)
@@ -17,6 +15,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added NoSuffixProjectPathResolver which generates anonymous image path names that do not contain "-an" (which is the default behaviour).
   -  To use, set `CohortExtractorOptions.ProjectPathResolverType` to `Microservices.CohortExtractor.Execution.ProjectPathResolvers.NoSuffixProjectPathResolver`
   -  For identifiable extractions, the NoSuffixProjectPathResolver is now used
+-   Validation reports can now be created as either "Combined" (single report as before" or "Split" (a [pack](src/microservices/Microservices.CohortPackager/README.md) of reports including CSVs suitable for post-processing). This is configurable in the YAML config and can also be specified on the CLI when recreating reports for an extraction
+-   Added JobCompletedAt to the validation reports
+-   IsIdentifiable: Add support for ignoring OCR output less than `n` characters in length
+-   IsIdentifiable: Add a test case for burned-in image text
+
+### Changed
+
+-   Reduce memory usage on long-running microservices even when .Net assumes RAM is plentiful
+-   Validation reports are now written to the project reports directory, instead of to a central reports directory
+
+### Fixed
+
+-   Fix mismatch in Java/C# messages for ExtractionModality
+-   ExtractionFileCopier: Copy files relative to the extraction root not the global filesystem root
 
 ## [1.12.2] - 2020-09-18
 

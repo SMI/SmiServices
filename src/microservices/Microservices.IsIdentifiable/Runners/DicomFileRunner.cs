@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -20,7 +21,7 @@ using ImageMagick; // dotnet add package Magick.NET-Q16-AnyCPU
 
 namespace Microservices.IsIdentifiable.Runners
 {
-    internal class DicomFileRunner : IsIdentifiableAbstractRunner
+    public class DicomFileRunner : IsIdentifiableAbstractRunner
     {
         private readonly IsIdentifiableDicomFileOptions _opts;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -33,9 +34,14 @@ namespace Microservices.IsIdentifiable.Runners
 
         public const string EngData = "https://github.com/tesseract-ocr/tessdata/blob/master/eng.traineddata";
 
+        private readonly IFileSystem _fileSystem = new FileSystem();
+
+        private readonly uint _ignoreTextLessThan;
+
         public DicomFileRunner(IsIdentifiableDicomFileOptions opts) : base(opts)
         {
             _opts = opts;
+            _ignoreTextLessThan = opts.IgnoreTextLessThan;
 
             //if using Efferent.Native DICOM codecs
             // (see https://github.com/Efferent-Health/Dicom-native)
@@ -91,12 +97,23 @@ namespace Microservices.IsIdentifiable.Runners
 
             return 0;
         }
+        protected override void AddToReports(Failure f)
+        {
+            if (_ignoreTextLessThan != 0 && f.ProblemValue.Length < _ignoreTextLessThan)
+            {
+                _logger.Debug($"Ignoring failure from resource {f.Resource} of length {f.ProblemValue.Length}");
+                return;
+            }
+
+            base.AddToReports(f);
+        }
+
 
         private void ProcessDirectory(string root)
         {
             //deal with files first
             foreach (var file in Directory.GetFiles(root, _opts.Pattern))
-                ValidateDicomFile(new FileInfo(file));
+                ValidateDicomFile(_fileSystem.FileInfo.FromFileName(file));
 
             //now directories
             foreach (var directory in Directory.GetDirectories(root))
@@ -104,7 +121,7 @@ namespace Microservices.IsIdentifiable.Runners
         }
 
 
-        public void ValidateDicomFile(FileInfo fi)
+        public void ValidateDicomFile(IFileInfo fi)
         {
             _logger.Debug("Opening File: " + fi.Name);
 
@@ -128,7 +145,7 @@ namespace Microservices.IsIdentifiable.Runners
             DoneRows(1);
         }
 
-        private void ValidateDicomItem(FileInfo fi, DicomFile dicomFile, DicomDataset dataset, DicomItem dicomItem)
+        private void ValidateDicomItem(IFileInfo fi, DicomFile dicomFile, DicomDataset dataset, DicomItem dicomItem)
         {
             //if it is a sequence get the Sequences dataset and then start processing that
             if (dicomItem.ValueRepresentation.Code == "SQ")
@@ -166,7 +183,7 @@ namespace Microservices.IsIdentifiable.Runners
             }
         }
 
-        private void Validate(FileInfo fi, DicomFile dicomFile, DicomItem dicomItem, string fieldValue)
+        private void Validate(IFileInfo fi, DicomFile dicomFile, DicomItem dicomItem, string fieldValue)
         {
             // Keyword might be "Unknown" in which case we would rather use "(xxxx,yyyy)"
             string tagName = dicomItem.Tag.DictionaryEntry.Keyword;
@@ -183,7 +200,7 @@ namespace Microservices.IsIdentifiable.Runners
                 AddToReports(factory.Create(fi, dicomFile, fieldValue, tagName, parts));
         }
 
-        void ValidateDicomPixelData(FileInfo fi, DicomFile dicomFile, DicomDataset ds)
+        void ValidateDicomPixelData(IFileInfo fi, DicomFile dicomFile, DicomDataset ds)
         {
             string modality = GetTagOrUnknown(ds, DicomTag.Modality);
             string[] imageType = GetImageType(ds);
@@ -260,7 +277,7 @@ namespace Microservices.IsIdentifiable.Runners
             }
         }
 
-        private void Process(Bitmap targetBmp, PixelFormat pixelFormat, PixelFormat processedPixelFormat, FileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
+        private void Process(Bitmap targetBmp, PixelFormat pixelFormat, PixelFormat processedPixelFormat, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
         {
             using (var ms = new MemoryStream())
             {
@@ -269,7 +286,7 @@ namespace Microservices.IsIdentifiable.Runners
             }
         }
 
-        private void Process(MemoryStream ms, PixelFormat pixelFormat, PixelFormat processedPixelFormat, FileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
+        private void Process(MemoryStream ms, PixelFormat pixelFormat, PixelFormat processedPixelFormat, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
         {
             float meanConfidence;
             string text;

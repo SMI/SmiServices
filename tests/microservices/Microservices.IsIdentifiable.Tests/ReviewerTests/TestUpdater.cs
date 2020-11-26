@@ -24,7 +24,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var db = GetCleanedServer(dbType);
             var dbname = db.GetRuntimeName();
 
-            var failure = new Reporting.Failure(
+            var failure = new Failure(
                 new FailurePart[]
                 {
                     new FailurePart("Kansas", FailureClassification.Location, 13),
@@ -95,7 +95,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var dbname = db.GetRuntimeName();
 
             //the Failure was about Kansas and Toto
-            var failure = new Reporting.Failure(
+            var failure = new Failure(
                 new FailurePart[]
                 {
                     new FailurePart("Kansas", FailureClassification.Location, 13),

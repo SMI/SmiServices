@@ -22,7 +22,7 @@ public class ExtractionRequestMessage extends ExtractMessage implements IMessage
      * The extraction modality. Only specified if the KeyTag is StudyInstanceUID
      */
     @FieldRequired
-    public String ExtractionModality;
+    public String Modality;
 
     /**
      * The unique set of identifiers of Type which should be extracted and the
