@@ -4,7 +4,7 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 [![Coverage Status](https://coveralls.io/repos/github/SMI/SmiServices/badge.svg)](https://coveralls.io/github/SMI/SmiServices)
 
-Version: `1.12.2`
+Version: `1.13.0`
 
 # SMI Services
 

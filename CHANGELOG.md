@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.13.0] - 2020-11-26
+
 ### Added
 
 - Added new command line application TriggerUpdates for detecting and issuing UpdateValuesMessages (e.g. ECHI mapping changes)
@@ -22,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+-   Update docs and make more keywords links to the relevant docs (#440)
 -   Reduce memory usage on long-running microservices even when .Net assumes RAM is plentiful
 -   Validation reports are now written to the project reports directory, instead of to a central reports directory
 
@@ -444,7 +447,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.12.2...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.13.0...develop
+[1.13.0]:  https://github.com/SMI/SmiServices/compare/v1.12.2...v1.13.0
 [1.12.2]:  https://github.com/SMI/SmiServices/compare/v1.12.1...v1.12.2
 [1.12.1]:  https://github.com/SMI/SmiServices/compare/v1.12.0...v1.12.1
 [1.12.0]:  https://github.com/SMI/SmiServices/compare/v1.11.1...v1.12.0
