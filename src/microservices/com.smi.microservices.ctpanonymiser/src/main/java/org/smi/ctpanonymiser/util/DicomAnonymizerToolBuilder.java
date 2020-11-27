@@ -64,6 +64,11 @@ public class DicomAnonymizerToolBuilder {
 	private String _check = null;
 
 	/**
+	 * Specifies the name of the executable which will perform SR text anonymisation.
+	 */
+	private String _SRAnonTool = null;
+
+	/**
 	 * Builds a new DicomAnonymizerTool object from the default and any set values
 	 * 
 	 * @return New DicomAnonymizerTool object
@@ -81,9 +86,10 @@ public class DicomAnonymizerToolBuilder {
 		_logger.debug("setBIRElement: " + _setBIRElement);
 		_logger.debug("testmode: " + _testmode);
 		_logger.debug("check: " + _check);
+		_logger.debug("SRAnonTool: " + _SRAnonTool);
 		_logger.debug("=== ===");
 
-		return new SmiCtpProcessor(_tagAnonScriptFile, _pixelAnonScriptFile, _decompress, _recompress, _setBIRElement, _testmode, _check);
+		return new SmiCtpProcessor(_tagAnonScriptFile, _pixelAnonScriptFile, _decompress, _recompress, _setBIRElement, _testmode, _check, _SRAnonTool);
 	}
 
 	// TODO Add overloads for some of these to take file paths and create the File
@@ -121,6 +127,11 @@ public class DicomAnonymizerToolBuilder {
 
 	public DicomAnonymizerToolBuilder check(String check) {
 		this._check = check;
+		return this;
+	}
+
+	public DicomAnonymizerToolBuilder SRAnonTool(String SRAnonTool) {
+		this._SRAnonTool = SRAnonTool;
 		return this;
 	}
 }
