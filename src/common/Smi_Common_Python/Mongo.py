@@ -2,7 +2,13 @@ from pymongo import MongoClient
 import re
 
 class SmiPyMongoCollection:
-  """Python class to help get records from a specific collection in a MongoDB"""
+  """Python class to help get records from a specific collection in a MongoDB.
+  Typical usage:
+  mongodb = Mongo.SmiPyMongoCollection(mongo_host)
+  mongodb.setImageCollection('SR')
+  mongojson = mongodb.DicomFilePathToJSON('/path/file2')
+  print('MONGO: %s' % mongojson)
+  """
 
   def __init__(self, hostname, username = None, password = None):
     """Initialise the class with the MongoDB hostname username and password"""
