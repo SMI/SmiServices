@@ -30,6 +30,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Fix mismatch in Java/C# messages for ExtractionModality
 -   ExtractionFileCopier: Copy files relative to the extraction root not the global filesystem root
 
+
+### Dependencies
+
+- Bump System.IO.Abstractions from 13.2.1 to 13.2.2
+- Bump Moq from 4.15.1 to 4.15.2
+- Bump System.IO.Abstractions.TestingHelpers from 13.2.1
+
 ## [1.12.2] - 2020-09-18
 
 - Fix missing JSON fields from CTP output
