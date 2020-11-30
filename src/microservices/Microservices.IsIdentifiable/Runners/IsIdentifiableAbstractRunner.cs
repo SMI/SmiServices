@@ -397,7 +397,7 @@ namespace Microservices.IsIdentifiable.Runners
         /// Records the provided failure to all selected reports
         /// </summary>
         /// <param name="f"></param>
-        protected virtual void AddToReports(Reporting.Failure f)
+        protected void AddToReports(Reporting.Failure f)
         {
             Reports.ForEach(r => r.Add(f));
         }
