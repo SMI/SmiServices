@@ -68,6 +68,61 @@ def _get_pika_message_properties(producerExecutableName, producerProcessId = -1)
 
 
 # ----------------------------------------------------------------------
+class smiMessage:
+    """ SMI message base class.
+    Currently only handles sending/output messages.
+    Would need a from_json to handle receiving/input messages.
+    Inherited by microservice-specific messages. """
+    def __init__(self):
+        self.msg_dict = {}
+
+    def to_json(self):
+        return json.dumps(self.msg_dict, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+    def __repr__(self):
+        return '<smiMessage>: '+self.to_json()
+
+
+class CTP_Start_Message(smiMessage):
+    """ SMI message to send a file to CTP.
+    The yaml_dict is default.yaml but only needed for debugging. """
+
+    def __init__(self, yaml_dict, dicom_file_path, extraction_directory, project_number):
+        super().__init__()
+        self.msg_dict = {}
+        self.msg_dict['DicomFilePath'] = dicom_file_path
+        self.msg_dict['ExtractionDirectory'] = extraction_directory
+        self.msg_dict['OutputPath'] = os.path.basename(dicom_file_path) #"op" #yaml_dict['FileSystemOptions']['ExtractRoot']
+        self.msg_dict['ExtractionJobIdentifier'] = str(uuid.uuid4())
+        self.msg_dict['ProjectNumber'] = project_number
+        self.msg_dict['IsIdentifiableExtraction'] = False
+        self.msg_dict['IsNoFilterExtraction'] = False
+        self.msg_dict['JobSubmittedAt'] = time.strftime("%Y-%m-%dT%H:%MZ",time.gmtime())
+        print("CTP input file will be %s/%s" % (yaml_dict['FileSystemOptions']['FileSystemRoot'], dicom_file_path))
+        print("CTP output file will be %s/%s/%s" % (yaml_dict['FileSystemOptions']['ExtractRoot'], self.msg_dict['ExtractionDirectory'], self.msg_dict['OutputPath']))
+
+
+class IsIdentifiable_Start_Message(smiMessage):
+    """ SMI messages to send a file to IsIdentifiable """
+    # eg. this is what CTP emitted, so is what IsIdentifiable will be given:
+    # {"DicomFilePath":"InputDir/IM-0001-0019-copy.dcm",  "AnonymisedFileName":"outIM-0001-0019-copy.dcm",  "Status":0,
+    # "ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81","ProjectNumber":"001","ExtractionDirectory":"extracted","JobSubmittedAt":"2019-12-19T10:49Z"}
+    # However IsIdentifiable only needs to know where the anonymised file went
+    # relative to the Extraction root directory.
+
+    def __init__(self, yaml_dict, extraction_directory, anonymised_filename, project_number):
+        super().__init__()
+        self.msg_dict = {}
+        self.msg_dict['DicomFilePath'] = 'not needed'
+        self.msg_dict['ExtractionDirectory'] = extraction_directory
+        self.msg_dict['AnonymisedFileName'] = anonymised_filename
+        self.msg_dict['ExtractionJobIdentifier'] = str(uuid.uuid4())
+        self.msg_dict['Status'] = 0
+        self.msg_dict['ProjectNumber'] = project_number
+        self.msg_dict['JobSubmittedAt'] = time.strftime("%Y-%m-%dT%H:%MZ",time.gmtime())
+
+
+# ----------------------------------------------------------------------
 
 class RabbitConsumer:
     """ Holds the connection state
@@ -148,61 +203,6 @@ class RabbitProducer:
                         body = msg.to_json(),
                         properties = _get_pika_message_properties(self._producerName, self._producerPID),
                         mandatory = True)
-
-
-# ----------------------------------------------------------------------
-class smiMessage:
-    """ SMI message base class.
-    Currently only handles sending/output messages.
-    Would need a from_json to handle receiving/input messages.
-    Inherited by microservice-specific messages. """
-    def __init__(self):
-        self.msg_dict = {}
-
-    def to_json(self):
-        return json.dumps(self.msg_dict, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-    def __repr__(self):
-        return '<smiMessage>: '+self.to_json()
-
-
-class CTP_Start_Message(smiMessage):
-    """ SMI message to send a file to CTP.
-    The yaml_dict is default.yaml but only needed for debugging. """
-
-    def __init__(self, yaml_dict, dicom_file_path, extraction_directory, project_number):
-        super().__init__()
-        self.msg_dict = {}
-        self.msg_dict['DicomFilePath'] = dicom_file_path
-        self.msg_dict['ExtractionDirectory'] = extraction_directory
-        self.msg_dict['OutputPath'] = os.path.basename(dicom_file_path) #"op" #yaml_dict['FileSystemOptions']['ExtractRoot']
-        self.msg_dict['ExtractionJobIdentifier'] = str(uuid.uuid4())
-        self.msg_dict['ProjectNumber'] = project_number
-        self.msg_dict['IsIdentifiableExtraction'] = False
-        self.msg_dict['IsNoFilterExtraction'] = False
-        self.msg_dict['JobSubmittedAt'] = time.strftime("%Y-%m-%dT%H:%MZ",time.gmtime())
-        print("CTP input file will be %s/%s" % (yaml_dict['FileSystemOptions']['FileSystemRoot'], dicom_file_path))
-        print("CTP output file will be %s/%s/%s" % (yaml_dict['FileSystemOptions']['ExtractRoot'], self.msg_dict['ExtractionDirectory'], self.msg_dict['OutputPath']))
-
-
-class IsIdentifiable_Start_Message(smiMessage):
-    """ SMI messages to send a file to IsIdentifiable """
-    # eg. this is what CTP emitted, so is what IsIdentifiable will be given:
-    # {"DicomFilePath":"InputDir/IM-0001-0019-copy.dcm",  "AnonymisedFileName":"outIM-0001-0019-copy.dcm",  "Status":0,
-    # "ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81","ProjectNumber":"001","ExtractionDirectory":"extracted","JobSubmittedAt":"2019-12-19T10:49Z"}
-    # However IsIdentifiable only needs to know where the anonymised file went
-    # relative to the Extraction root directory.
-
-    def __init__(self, yaml_dict, extraction_directory, anonymised_filename, project_number):
-        super().__init__()
-        self.msg_dict = {}
-        self.msg_dict['DicomFilePath'] = 'not needed'
-        self.msg_dict['ExtractionDirectory'] = extraction_directory
-        self.msg_dict['AnonymisedFileName'] = anonymised_filename
-        self.msg_dict['ExtractionJobIdentifier'] = str(uuid.uuid4())
-        self.msg_dict['Status'] = 0
-        self.msg_dict['ProjectNumber'] = project_number
-        self.msg_dict['JobSubmittedAt'] = time.strftime("%Y-%m-%dT%H:%MZ",time.gmtime())
 
 
 # ----------------------------------------------------------------------
