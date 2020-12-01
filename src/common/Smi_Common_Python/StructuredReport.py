@@ -4,7 +4,6 @@ import sys
 from . import Dicom
 from .Dicom import tag_is, tag_val, has_tag
 import pydicom
-#from pydicom.datadict import keyword_for_tag
 
 
 # ---------------------------------------------------------------------
@@ -183,7 +182,7 @@ def sr_key_can_be_ignored(keystr):
 # Replaces HTML tags <BR> with newlines.
 # Removes multiple line endings for clarity.
 
-def _SR_output_string(keystr, valstr):
+def _SR_output_string(keystr, valstr, fp):
     # If it's a list then print each element (but only expecting a single one line ['Findings'])
     if isinstance(valstr, list):
         return [_SR_output_string(keystr,X) for X in valstr]
@@ -201,9 +200,9 @@ def _SR_output_string(keystr, valstr):
     valstr = re.sub('\n+', '\n', valstr)
     # If there is no key then do not print a prefix
     if keystr == None or keystr == '':
-        print('%s' % (valstr))
+        fp.write('%s\n' % (valstr))
     else:
-        print('[[%s]] %s' % (keystr, valstr))
+        fp.write('[[%s]] %s\n' % (keystr, valstr))
 
 
 # ---------------------------------------------------------------------
@@ -211,36 +210,36 @@ def _SR_output_string(keystr, valstr):
 # when it finds a sequence
 # Uses str_output_string to format the output.
 
-def _SR_parse_key(json_dict, json_key):
+def _SR_parse_key(json_dict, json_key, fp):
         if tag_is(json_key, 'ConceptNameCodeSequence'):
-            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)))
+            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
         elif tag_is(json_key, 'ContentSequence'):
             for cs_item in tag_val(json_dict, json_key):
                 if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
                     value_type = tag_val(cs_item, 'ValueType')
                     if value_type == 'PNAME' or value_type == ['PNAME']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
                     elif value_type == 'DATETIME' or value_type == ['DATETIME']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
                     elif value_type == 'DATE' or value_type == ['DATE']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
                     elif value_type == 'TEXT' or value_type == ['TEXT']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
                     elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
                     elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
                     elif value_type == 'CODE' or value_type == ['CODE']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
                     elif value_type == 'UIDREF' or value_type == ['UIDREF']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
                     elif value_type == 'IMAGE' or value_type == ['IMAGE']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')))
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
                     elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
                         # Sometimes it has no ContentSequence or is 'null'
                         if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
-                            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')))
-                            _SR_parse_key(cs_item, 'ContentSequence')
+                            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
+                            _SR_parse_key(cs_item, 'ContentSequence', fp)
                     else:
                         print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
                 #print('ITEM %s' % cs_item)
@@ -256,14 +255,14 @@ def _SR_parse_key(json_dict, json_key):
 
 def SR_parse(json_dict, doc_name, fp = sys.stdout):
 
-    _SR_output_string('Document name', doc_name)
+    _SR_output_string('Document name', doc_name, fp)
 
     # Output a set of known tags from the root of the document
     # This loop does the equivalent of
     # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
     for sr_extract_dict in sr_keys_to_extract:
-        _SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])))
+        _SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
 
     # Now output all the remaining tags which are not ignored
     for json_key in json_dict:
-        _SR_parse_key(json_dict, json_key)
+        _SR_parse_key(json_dict, json_key, fp)
