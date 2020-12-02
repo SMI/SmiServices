@@ -97,17 +97,6 @@ namespace Microservices.IsIdentifiable.Runners
 
             return 0;
         }
-        protected override void AddToReports(Failure f)
-        {
-            if (_ignoreTextLessThan != 0 && f.ProblemValue.Length < _ignoreTextLessThan)
-            {
-                _logger.Debug($"Ignoring failure from resource {f.Resource} of length {f.ProblemValue.Length}");
-                return;
-            }
-
-            base.AddToReports(f);
-        }
-
 
         private void ProcessDirectory(string root)
         {
@@ -291,30 +280,33 @@ namespace Microservices.IsIdentifiable.Runners
             float meanConfidence;
             string text;
 
-            {
-                var bytes = ms.ToArray();
+            var bytes = ms.ToArray();
 
-                // targetBmp is now in the desired format.
-                using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
-                {
-                    text = page.GetText();
-                    text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
-                    text = text.Trim();
-                    meanConfidence = page.GetMeanConfidence();
-                }
+            // targetBmp is now in the desired format.
+            using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
+            {
+                text = page.GetText();
+                text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
+                text = text.Trim();
+                meanConfidence = page.GetMeanConfidence();
             }
             
-
+            
             //if we find some text
             if (!string.IsNullOrWhiteSpace(text))
             {
                 string problemField = rotationIfAny != 0 ? "PixelData" + rotationIfAny : "PixelData";
+                
+                if(text.Length < _ignoreTextLessThan)
+                    _logger.Debug($"Ignoring pixel data discovery in {fi.Name} of length {text.Length} because it is below the threshold {_ignoreTextLessThan}");
+                else
+                {
+                    var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
 
-                var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
+                    AddToReports(f);
 
-                AddToReports(f);
-
-                _tesseractReport.FoundPixelData(fi, sopID, pixelFormat, processedPixelFormat, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny);
+                    _tesseractReport.FoundPixelData(fi, sopID, pixelFormat, processedPixelFormat, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny);
+                }                
             }
         }
 
