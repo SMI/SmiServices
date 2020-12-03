@@ -33,6 +33,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Fix mismatch in Java/C# messages for ExtractionModality
 -   ExtractionFileCopier: Copy files relative to the extraction root not the global filesystem root
 
+
+### Dependencies
+
+- Bump CsvHelper from 17.0.0 to 17.0.1
+- Bump System.IO.Abstractions from 13.2.1 to 13.2.2
+- Bump Moq from 4.15.1 to 4.15.2
+- Bump System.IO.Abstractions.TestingHelpers from 13.2.1 to 13.2.2
+- Bump CsvHelper from 16.2.0 to 17.0.0
+- Bump JetBrains.Annotations from 2020.1.0 to 2020.3.0
+- Bump jackson-dataformat-yaml from 2.11.3 to 2.12.0
+- Bump jackson-databind from 2.11.3 to 2.12.0
+
 ## [1.12.2] - 2020-09-18
 
 - Fix missing JSON fields from CTP output
