@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [1.13.0] - 2020-11-26
+## [1.13.0] - 2020-12-03
 
 ### Added
 
@@ -32,7 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 -   Fix mismatch in Java/C# messages for ExtractionModality
 -   ExtractionFileCopier: Copy files relative to the extraction root not the global filesystem root
-
+-   Fix implementation of minimum OCR length (before being reported) #471
 
 ### Dependencies
 
