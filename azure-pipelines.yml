@@ -1,19 +1,23 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+---
 
 trigger:
-- master
+    branches:
+        include: ["*"]
+    tags:
+        include: ["*"]
 
-pool:
-  vmImage: 'ubuntu-latest'
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+jobs:
+    - job: run_dotnet_tests
+      displayName: Run dotnet tests
+      steps:
+        - script: ./meta/run_dotnet_tests.sh
+    - job: run_java_tests
+      displayName: Run java tests
+      steps:
+        - script: ./meta/run_java_tests.sh
+    - job: build_artefacts
+      displayName: Upload tagged releases to GitHub
+      condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      dependsOn: [run_dotnet_tests, run_java_tests]
+      steps:
+        - script: ./meta/build_artefacts.sh $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
