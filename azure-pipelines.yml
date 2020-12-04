@@ -39,25 +39,27 @@ jobs:
           inputs:
             script: docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
         - task: CmdLine@2
+          name: RDMP
           displayName: Set RDMP version
           inputs:
             script: |
                 rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-                echo "##vso[task.setvariable variable=rdmp_ver;isOutput=true]$rdmp_ver"
+                echo $rdmp_ver
+                echo "##vso[task.setvariable variable=version;isOutput=true]$rdmp_ver"
         - task: Cache@2
           displayName: Cache rdmp-cli
           inputs:
-              key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
+              key: '"rdmp-cli" | "$(Agent.OS)" | "$(RDMP.version)"'
               path: $(RDMP_CLI_DIR)
         - task: CmdLine@2
           displayName: Install RDMP
           inputs:
             script: |
               if [ ! -d $(RDMP_CLI_DIR) ]; then
-                wget https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-linux-x64.zip
+                wget https://github.com/HicServices/RDMP/releases/download/v$(RDMP.version)/rdmp-cli-linux-x64.zip
                 # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
-                unzip -d $HOME/rdmp-cli rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
-                chmod +x $HOME/rdmp-cli/rdmp
+                unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
+                chmod +x $(RDMP_CLI_DIR)/rdmp
               fi
     - job: run_dotnet_tests
       displayName: Run dotnet tests
@@ -67,9 +69,7 @@ jobs:
             displayName: Cache NuGet packages
             inputs:
               key: 'nuget | "$(Agent.OS)" | **/*.csproj'
-              path: $(NUGET_PACKAGES)              
-          
-   
+              path: $(NUGET_PACKAGES)   
           - task: Cache@2
             displayName: Cache tesseract data
             inputs:
