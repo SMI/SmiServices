@@ -2,7 +2,7 @@
 
 # TODO(rkm 2020-12-04) See if we can build on both Linux and Windows here
 pool:
-    vmImage: 'ubuntu-latest'
+    vmImage: 'ubuntu-20.04'
 
 trigger:
     branches:
