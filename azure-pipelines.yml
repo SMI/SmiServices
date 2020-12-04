@@ -25,7 +25,7 @@ jobs:
         - task: CmdLine@2
           displayName: Install packages
           inputs:
-            script: sudo apt install pigz
+            script: sudo apt install pigz            
     - job: start_containers
       displayName: Start containers
       steps:
@@ -61,6 +61,12 @@ jobs:
                 unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
                 chmod +x $(RDMP_CLI_DIR)/rdmp
               fi
+    - job: tmp_test
+      dependsOn: [start_containers]
+      steps:
+         - task: CmdLine@2
+           inputs:
+             script: docker ps
     - job: run_dotnet_tests
       displayName: Run dotnet tests
       dependsOn: [install_packages, start_containers]
