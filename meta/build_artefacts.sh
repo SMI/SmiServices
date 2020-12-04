@@ -39,7 +39,7 @@ mv ./src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar ./dist/smi-nerd-$
 
 pushd dist
 tar cf - ./smi-services-${RELEASE_TAG}-linux-x64 | pigz > smi-services-${RELEASE_TAG}-linux-x64.tgz
-zip -9r smi-services-${RELEASE_TAG}-win.zip ./smi-services-${RELEASE_TAG}-win-x64
+zip -9r smi-services-${RELEASE_TAG}-win-x64.zip ./smi-services-${RELEASE_TAG}-win-x64
 rm -r smi-services-${RELEASE_TAG}-linux-x64 smi-services-${RELEASE_TAG}-win-x64
 md5sum * > MD5SUMS.txt
 cat MD5SUMS.txt
