@@ -32,9 +32,9 @@ jobs:
           - task: Cache@2
             displayName: Cache rdmp-cli
             inputs:
-              key: 'rdmp-cli | "$(Agent.OS)" | ./rdmp-cli/rdmp'
+              key: '"rdmp-cli" | "$(Agent.OS)" | ./rdmp-cli/rdmp'
               restoreKeys: |
-                rdmp-cli | "$(Agent.OS)"
+                "rdmp-cli" | "$(Agent.OS)"
               path: $(RDMP_CLI_DIR)
           - task: Cache@2
             displayName: Cache tesseract data
