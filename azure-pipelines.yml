@@ -13,7 +13,7 @@ variables:
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-  RDMP_CLI_DIR: $(Pipeline.Workspac)/rdmp-cli
+  RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
   TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
 
 jobs:     
