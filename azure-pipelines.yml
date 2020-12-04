@@ -17,6 +17,7 @@ variables:
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
   RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
   TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
+  MSSQL_SA_PASSWORD: 'YourStrong!Passw0rd'
 
 jobs:
     - job: install_packages    
@@ -49,6 +50,7 @@ jobs:
             inputs:
               containerregistrytype: 'Container Registry'
               dockerComposeFile: './meta/docker-compose-dotnet.yml'
+              dockerComposeFileArgs: '-e SA_PASSWORD=$(MSSQL_SA_PASSWORD)'
               action: 'Run services'
           - task: CmdLine@2
             displayName: Start MongoDB replication
@@ -67,7 +69,7 @@ jobs:
                 key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
                 path: $(RDMP_CLI_DIR)
           - task: CmdLine@2
-            displayName: Install RDMP
+            displayName: Download rdmp-cli
             inputs:
               script: |
                 if [ ! -d $(RDMP_CLI_DIR) ]; then
@@ -76,6 +78,10 @@ jobs:
                   unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
                   chmod +x $(RDMP_CLI_DIR)/rdmp
                 fi
+          - task: CmdLine@2
+            displayName: Install RDMP
+            inputs:
+              script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
           - task: Bash@3
             inputs:
               filePath: './meta/run_dotnet_tests.sh'
