@@ -8,7 +8,8 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
 {
     public class DefaultProjectPathResolver : IProjectPathResolver
     {
-        public const string AnonExt = "-an.dcm";
+        public string AnonExt { get; protected set; } = "-an.dcm";
+        public string IdentExt { get; protected set; } = ".dcm";
 
         private static readonly string[] _replaceableExtensions = { ".dcm", ".dicom" };
 
@@ -16,11 +17,13 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
         /// Returns the output path for the anonymised file, relative to the ExtractionDirectory
         /// </summary>
         /// <param name="result"></param>
-        /// <param name="_"></param>
+        /// <param name="message"></param>
         /// <returns></returns>
-        public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage _)
+        public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage message)
         {
-            // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output (anonymised) file name to be -an.dcm
+            string extToUse = message.IsIdentifiableExtraction ? IdentExt : AnonExt;
+
+            // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output file name to have the required extension
             string fileName = Path.GetFileName(result.FilePathValue);
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException(nameof(fileName));
@@ -29,13 +32,13 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
             foreach (string ext in _replaceableExtensions)
                 if (fileName.EndsWith(ext))
                 {
-                    fileName = fileName.Replace(ext, AnonExt);
+                    fileName = fileName.Replace(ext, extToUse);
                     replaced = true;
                     break;
                 }
 
             if (!replaced)
-                fileName += AnonExt;
+                fileName += extToUse;
 
             return Path.Combine(
                 result.StudyTagValue ?? "unknown",

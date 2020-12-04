@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;
 
@@ -25,5 +26,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         {
             logger.Log(level,$"{GetType().Name}: CacheRatio={CacheHit}:{CacheMiss} SuccessRatio={Success}:{Fail}:{Invalid} DatabaseTime:{DatabaseStopwatch.Elapsed}");
         }
+
+        public abstract DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options);
     }
 }

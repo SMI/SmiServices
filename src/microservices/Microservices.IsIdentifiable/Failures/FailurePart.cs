@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microservices.IsIdentifiable.Failures
 {
@@ -44,6 +46,21 @@ namespace Microservices.IsIdentifiable.Failures
             return index >= Offset && index < Offset + Word.Length;
         }
         
+        /// <summary>
+        /// Returns true if the failure part includes ANY of the indexes between start and start+length
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public bool Includes(int start, int length)
+        {
+            for (int i = start; i < start + length; i++)
+                if(Includes(i))
+                    return true;
+
+            return false;
+        }
+
         #region Equality
         public bool Equals(FailurePart other)
         {
@@ -51,6 +68,7 @@ namespace Microservices.IsIdentifiable.Failures
             if (ReferenceEquals(this, other)) return true;
             return Offset == other.Offset && Word == other.Word;
         }
+
 
         public override bool Equals(object obj)
         {

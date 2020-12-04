@@ -43,9 +43,18 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _tableSwapper.Setup(mappingTableOptions);
 
             var guidOptions = mappingTableOptions.Clone();
-            guidOptions.MappingTableName = GetGuidTable(guidOptions).GetFullyQualifiedName();
+            guidOptions.MappingTableName = GetGuidTableIfAny(guidOptions).GetFullyQualifiedName();
             guidOptions.ReplacementColumnName = GuidColumnName;
             _guidSwapper.Setup(guidOptions);
+        }
+
+        /// <summary>
+        /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetGuidTable"/>
+        /// </summary>
+        /// <returns></returns>
+        public DiscoveredTable GetMappingTable(IMappingTableOptions options)
+        {
+            return options.Discover();
         }
 
         /// <summary>
@@ -54,7 +63,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public DiscoveredTable GetGuidTable(IMappingTableOptions options)
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
         {
             var mappingTable = options.Discover();
             var guidTableName = mappingTable.GetRuntimeName() + GuidTableSuffix;

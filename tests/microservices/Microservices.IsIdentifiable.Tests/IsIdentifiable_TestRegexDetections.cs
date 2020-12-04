@@ -138,6 +138,7 @@ BasicRules:
             //this would be nice
             Assert.AreEqual(expectedMatch, p.Word);
             Assert.AreEqual(FailureClassification.Postcode, p.Classification);
+            Assert.AreEqual(1,runner.CountOfFailureParts);
         }
 
         [TestCase("dd3000")]

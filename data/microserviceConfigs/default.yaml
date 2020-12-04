@@ -60,6 +60,17 @@ DicomRelationalMapperOptions:
     RetryDelayInSeconds: 60
     RunChecks: true
 
+UpdateValuesOptions:
+    QueueName: 'TEST.UpdateValuesQueue'
+    QoSPrefetchCount: 10000
+    AutoAck: false
+    #TableInfosToUpdate: 1,2,3 <-set this to limit which tables get updated when no explicit table is listed in the message
+    UpdateTimeout: 500 # number of seconds to wait for each UPDATE statement
+
+TriggerUpdatesOptions:
+    ExchangeName: 'TEST.TriggerUpdatesExchange'
+    MaxConfirmAttempts: 1
+
 CohortExtractorOptions:
     QueueName: 'TEST.RequestQueue'
     QoSPrefetchCount: 10000
@@ -91,6 +102,8 @@ CohortPackagerOptions:
     JobWatcherTimeoutInSeconds: 30
     ReporterType: 'LoggingReporter'
     NotifierType: 'LoggingNotifier'
+    ReportFormat: 'Combined'
+    ReportNewLine: ''
     ExtractRequestInfoOptions:
         QueueName: 'TEST.RequestInfoQueue'
         QoSPrefetchCount: 1
@@ -180,7 +193,7 @@ FileCopierOptions:
     QoSPrefetchCount: 1
     AutoAck: false
     CopyStatusProducerOptions:
-        ExchangeName: 'TEST.FileStatusExchange'
+        ExchangeName: 'TEST.ExtractedFileStatusExchange'
         MaxConfirmAttempts: 1
 
 ExtractorClOptions:

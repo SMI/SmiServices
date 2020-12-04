@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -110,8 +111,19 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         public long ValidateCacheMisses {get;set;}
 
+        /// <summary>
+        /// Total number of <see cref="FailurePart"/> identified during lifetime (see <see cref="Validate(string, string)"/>)
+        /// </summary>
+        public int CountOfFailureParts {get;protected set;}
+
+        /// <summary>
+        /// Duration the class has existed for
+        /// </summary>
+        private Stopwatch _lifetime {get;}
+
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
+            _lifetime = Stopwatch.StartNew();
             _opts = opts;
             _opts.ValidateOptions();
             MaxValidationCacheSize = opts.MaxValidationCacheSize;
@@ -213,9 +225,28 @@ namespace Microservices.IsIdentifiable.Runners
             //socket rules sink to the bottom
             if (arg is SocketRule)
                 return -5000;
+            
+
+            //ConsensusRules should sink to the bottom but just above SocketRules (if any)
+            if (arg is ConsensusRule)
+                return -3000;
 
             //some odd custom rule type that is not a socket or basic rule, do them after the regular reports but before sockets
             return -50;
+        }
+        
+        /// <summary>
+        /// Generates a deserializer suitable for deserialzing <see cref="RuleSet"/> for use with this class (see also <see cref="LoadRules(string)"/>)
+        /// </summary>
+        /// <returns></returns>
+        public static IDeserializer GetDeserializer()
+        {
+            var builder = new DeserializerBuilder();
+            builder.WithTagMapping("!SocketRule", typeof(SocketRule));
+            builder.WithTagMapping("!WhiteListRule", typeof(WhiteListRule));
+            builder.WithTagMapping("!IsIdentifiableRule", typeof(IsIdentifiableRule));
+
+            return builder.Build();
         }
 
         /// <summary>
@@ -227,7 +258,7 @@ namespace Microservices.IsIdentifiable.Runners
         {
             _logger.Info("Loading Rules Yaml");
             _logger.Debug("Loading Rules Yaml:" +Environment.NewLine+yaml);
-            var deserializer = new Deserializer();
+            var deserializer = GetDeserializer();
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
             if(ruleSet.BasicRules != null)
@@ -261,13 +292,16 @@ namespace Microservices.IsIdentifiable.Runners
             if(cache.TryGetValue(fieldValue ?? "NULL",out FailurePart[] result))
             {
                 ValidateCacheHits++;
+                CountOfFailureParts += result.Length;
                 return result;
             }
             
             ValidateCacheMisses++;
 
             //otherwise run ValidateImpl and cache the result
-            return cache.Set(fieldValue?? "NULL", ValidateImpl(fieldName,fieldValue).ToArray(), new MemoryCacheEntryOptions() {
+            var freshResult = ValidateImpl(fieldName,fieldValue).ToArray();
+            CountOfFailureParts += freshResult.Length;
+            return cache.Set(fieldValue?? "NULL", freshResult, new MemoryCacheEntryOptions() {
                 Size=1
             });
         }
@@ -454,7 +488,9 @@ namespace Microservices.IsIdentifiable.Runners
             foreach (var d in CustomRules.OfType<IDisposable>()) 
                 d.Dispose();
 
+            _logger?.Info($"Total runtime for {GetType().Name}:{_lifetime.Elapsed}");
             _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
+            _logger?.Info($"Total FailurePart identified: {CountOfFailureParts}");
         }
     }
 }

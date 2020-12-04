@@ -54,7 +54,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
-		assertEquals(null, erm.ExtractionModality);
+		assertEquals(null, erm.Modality);
 		assertEquals(5, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -110,7 +110,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
-		assertEquals(null, erm.ExtractionModality);
+		assertEquals(null, erm.Modality);
 		assertEquals(4, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -172,7 +172,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
-		assertEquals(null, erm.ExtractionModality);
+		assertEquals(null, erm.Modality);
 		assertEquals(6, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -300,6 +300,6 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		// Check the messages had the correct details
 		ExtractionRequestMessage erm = (ExtractionRequestMessage) requestMessage.getValue();
-		assertEquals("MR", erm.ExtractionModality);
+		assertEquals("MR", erm.Modality);
 	}
 }

@@ -1,7 +1,9 @@
-﻿using System;
+using System;
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microservices.IsIdentifiable.Options;
 using Smi.Common.Execution;
 using Smi.Common.Helpers;
 using Smi.Common.Messaging;
@@ -16,7 +18,11 @@ namespace Microservices.IsIdentifiable.Service
 
         private IProducerModel _producerModel;
 
-        public IsIdentifiableHost(GlobalOptions globals, bool loadSmiLogConfig = true)
+        public IsIdentifiableHost(
+            [NotNull] GlobalOptions globals,
+            [NotNull] IsIdentifiableServiceOptions serviceOpts,
+            bool loadSmiLogConfig = true
+        )
             : base(globals, loadSmiLogConfig: loadSmiLogConfig)
         {
             _consumerOptions = globals.IsIdentifiableOptions;
@@ -30,7 +36,7 @@ namespace Microservices.IsIdentifiable.Service
                 throw new ArgumentException("A DataDirectory must be set",nameof(globals));
 
             var objectFactory = new MicroserviceObjectFactory();
-            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename,typeof(IClassifier).Assembly,new DirectoryInfo(dataDirectory));
+            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), serviceOpts);
 
             if(classifier == null)
                 throw new TypeLoadException($"Could not find IClassifier Type { classifierTypename }");

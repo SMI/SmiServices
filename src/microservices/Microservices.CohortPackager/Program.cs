@@ -6,11 +6,11 @@ using Microservices.CohortPackager.Options;
 using MongoDB.Driver;
 using NLog;
 using Smi.Common.Execution;
-using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Reflection;
 
 namespace Microservices.CohortPackager
@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager
                     GlobalOptions globalOptions = new GlobalOptionsFactory().Load(cohortPackagerCliOptions);
 
                     if (cohortPackagerCliOptions.ExtractionId != default)
-                        return RecreateReport(globalOptions, cohortPackagerCliOptions.ExtractionId);
+                        return RecreateReport(globalOptions, cohortPackagerCliOptions);
 
                     var bootstrapper = new MicroserviceHostBootstrapper(() => new CohortPackagerHost(globalOptions));
                     return bootstrapper.Main();
@@ -33,28 +33,31 @@ namespace Microservices.CohortPackager
                 err => 1);
         }
 
-        private static int RecreateReport(GlobalOptions globalOptions, Guid jobId)
+        private static int RecreateReport(GlobalOptions globalOptions, CohortPackagerCliOptions cliOptions)
         {
             SetupLogging(globalOptions);
             Logger logger = LogManager.GetCurrentClassLogger();
 
-            logger.Info($"Recreating report for job {jobId}");
+            logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
 
             string procName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
             MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases.ExtractionStoreOptions;
             MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, procName);
             var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
 
-            string reportDir = Directory.GetCurrentDirectory();
-            var reporter = new MicroserviceObjectFactory()
-                .CreateInstance<IJobReporter>(
-                    $"{typeof(IJobReporter).Namespace}.{globalOptions.CohortPackagerOptions.ReporterType}",
-                    typeof(IJobReporter).Assembly, jobStore,
-                    reportDir);
+            // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory
+            IJobReporter reporter = JobReporterFactory.GetReporter(
+                "FileReporter",
+                jobStore,
+                new FileSystem(),
+                Directory.GetCurrentDirectory(),
+                cliOptions.ReportFormat.ToString(),
+                cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine
+            );
 
             try
             {
-                reporter.CreateReport(jobId);
+                reporter.CreateReport(cliOptions.ExtractionId);
             }
             catch (Exception e)
             {

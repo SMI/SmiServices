@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using FAnsi.Discovery;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using Smi.Common.Options;
@@ -129,6 +130,11 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
             //output the hosted mapper stats
             _hostedSwapper.LogProgress(logger,level);
+        }
+
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        {
+            return _hostedSwapper.GetGuidTableIfAny(options);
         }
     }
 }

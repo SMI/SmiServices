@@ -41,6 +41,7 @@ namespace Smi.Common.Options
         public RDMPOptions RDMPOptions { get; set; }
         public MongoDatabases MongoDatabases { get; set; }
         public DicomRelationalMapperOptions DicomRelationalMapperOptions { get; set; }
+        public UpdateValuesOptions UpdateValuesOptions {get;set;}
         public CohortExtractorOptions CohortExtractorOptions { get; set; }
         public CohortPackagerOptions CohortPackagerOptions { get; set; }
         public DicomReprocessorOptions DicomReprocessorOptions { get; set; }
@@ -50,6 +51,8 @@ namespace Smi.Common.Options
         public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; }
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
         public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
+
+        public TriggerUpdatesOptions TriggerUpdatesOptions {get;set;}
 
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
         public string LogsRoot { get; set; }
@@ -308,6 +311,8 @@ namespace Smi.Common.Options
         public uint JobWatcherTimeoutInSeconds { get; set; }
         public string ReporterType { get; set; }
         public string NotifierType { get; set; }
+        public string ReportFormat { get; set; }
+        public string ReportNewLine { get; set; }
 
         public override string ToString()
         {
@@ -383,6 +388,30 @@ namespace Smi.Common.Options
                 throw new Exception("No RequestFulfillerType set on CohortExtractorOptions.  This must be set to a class implementing IExtractionRequestFulfiller");
 
         }
+    }
+    
+    [UsedImplicitly]
+    public class UpdateValuesOptions: ConsumerOptions
+    {
+        /// <summary>
+        /// Number of seconds the updater will wait when running a single value UPDATE on the live table e.g. ECHI A needs to be replaced with ECHI B
+        /// </summary>
+        public int UpdateTimeout {get;set;} = 5000;
+
+        /// <summary>
+        /// IDs of TableInfos that should be updated
+        /// </summary>
+        public int[] TableInfosToUpdate {get;set;} = new int[0];
+
+    }
+    
+    [UsedImplicitly]
+    public class TriggerUpdatesOptions : ProducerOptions
+    {
+        /// <summary>
+        /// The number of seconds database commands should be allowed to execute for before timing out.
+        /// </summary>
+        public int CommandTimeoutInSeconds = 500;
     }
 
     [UsedImplicitly]

@@ -1,6 +1,6 @@
 # ProcessDirectory
 
-Primary Author: [Ally Hume] (https://github.com/allyhume)
+Primary Author: [Ally Hume](https://github.com/allyhume)
 
 ## Contents
  1. [Overview](#1-overview)

@@ -1,15 +1,17 @@
-using System;
-using System.IO;
+using JetBrains.Annotations;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Messaging;
-using MongoDB.Driver;
 using Smi.Common;
 using Smi.Common.Execution;
+using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
+using System;
+using System.IO.Abstractions;
 
 
 namespace Microservices.CohortPackager.Execution
@@ -27,35 +29,77 @@ namespace Microservices.CohortPackager.Execution
         private readonly AnonFailedMessageConsumer _anonFailedMessageConsumer;
 
 
+        /// <summary>
+        /// Default constructor for CohortPackagerHost
+        /// </summary>
+        /// <param name="globals"></param>
+        /// <param name="jobStore"></param>
+        /// <param name="fileSystem"></param>
+        /// <param name="reporter">
+        /// Pass to override the default IJobReporter that will be created from
+        /// Globals.CohortPackagerOptions.ReportFormat. That value should not be set if a reporter is passed.
+        /// </param>
+        /// <param name="notifier"></param>
+        /// <param name="rabbitMqAdapter"></param>
+        /// <param name="dateTimeProvider"></param>
+        /// <param name="loadSmiLogConfig"></param>
         public CohortPackagerHost(
-            GlobalOptions globals,
-            IJobReporter reporter = null,
-            IJobCompleteNotifier notifier = null,
-            IRabbitMqAdapter rabbitMqAdapter = null,
+            [NotNull] GlobalOptions globals,
+            [CanBeNull] ExtractJobStore jobStore = null,
+            [CanBeNull] IFileSystem fileSystem = null,
+            [CanBeNull] IJobReporter reporter = null,
+            [CanBeNull] IJobCompleteNotifier notifier = null,
+            [CanBeNull] IRabbitMqAdapter rabbitMqAdapter = null,
+            [CanBeNull] DateTimeProvider dateTimeProvider = null,
             bool loadSmiLogConfig = true
         )
             : base(globals, rabbitMqAdapter, loadSmiLogConfig)
         {
-
-            MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
-            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName);
-            var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
-
-            string reportDir = $"{Globals.FileSystemOptions.ExtractRoot}/Reports";
-            Directory.CreateDirectory(reportDir);
+            if (jobStore == null)
+            {
+                MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
+                jobStore = new MongoExtractJobStore(
+                    MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
+                    mongoDbOptions.DatabaseName,
+                    dateTimeProvider
+                );
+            }
+            else if (dateTimeProvider != null)
+                throw new ArgumentException("jobStore and dateTimeProvider are mutually exclusive arguments");
 
             // If not passed a reporter or notifier, try and construct one from the given options
+
+            string reportFormatStr = Globals.CohortPackagerOptions.ReportFormat;
             if (reporter == null)
-                reporter = ObjectFactory.CreateInstance<IJobReporter>($"{typeof(IJobReporter).Namespace}.{Globals.CohortPackagerOptions.ReporterType}", typeof(IJobReporter).Assembly, jobStore, reportDir);
-            if (notifier == null)
-                notifier = ObjectFactory.CreateInstance<IJobCompleteNotifier>($"{typeof(IJobCompleteNotifier).Namespace}.{Globals.CohortPackagerOptions.NotifierType}", typeof(IJobCompleteNotifier).Assembly, jobStore);
+            {
+                reporter = JobReporterFactory.GetReporter(
+                    Globals.CohortPackagerOptions.ReporterType,
+                    jobStore,
+                    fileSystem ?? new FileSystem(),
+                    Globals.FileSystemOptions.ExtractRoot,
+                    reportFormatStr,
+                    Globals.CohortPackagerOptions.ReportNewLine
+                );
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(reportFormatStr))
+                    throw new ArgumentException($"Passed an IJobReporter, but this conflicts with the ReportFormat of '{reportFormatStr}' in the given options");
+                if (fileSystem != null)
+                    throw new ArgumentException("Passed a fileSystem, but this will be unused as also passed an existing IJobReporter");
+            }
+
+            notifier ??= JobCompleteNotifierFactory.GetNotifier(
+                Globals.CohortPackagerOptions.NotifierType
+            );
 
             _jobWatcher = new ExtractJobWatcher(
                 globals.CohortPackagerOptions,
                 jobStore,
                 ExceptionCallback,
                 notifier,
-                reporter);
+                reporter
+            );
 
             AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 

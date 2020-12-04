@@ -15,7 +15,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public Guid ExtractionJobIdentifier { get; }
 
         /// <summary>
-        /// DateTime the job was submitted at (time the ExtractorCL was run)
+        /// DateTime the job was submitted at (the time the ExtractorCL was run)
         /// </summary>
         public DateTime JobSubmittedAt { get; }
 
@@ -26,7 +26,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public string ProjectNumber { get; }
 
         /// <summary>
-        /// Working directory for this project
+        /// Directory to extract files into, relative to the extraction root. Should be of the format projName/extractions/extractName
         /// </summary>
         [NotNull]
         public string ExtractionDirectory { get; }
@@ -82,6 +82,26 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             JobStatus = (jobStatus != default(ExtractJobStatus)) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
             IsIdentifiableExtraction = isIdentifiableExtraction;
             IsNoFilterExtraction = isNoFilterExtraction;
+        }
+
+        /// <summary>
+        /// Returns the extraction name (last part of projName/extractions/extractName)
+        /// </summary>
+        /// <returns></returns>
+        public string ExtractionName()
+        {
+            string[] split = ExtractionDirectory.Split('/', '\\');
+            return split[^1];
+        }
+        
+        /// <summary>
+        /// Returns the project extraction directory (first two parts of projName/extractions/extractName)
+        /// </summary>
+        /// <returns></returns>
+        public string ProjectExtractionDir()
+        {
+            int idx = ExtractionDirectory.LastIndexOfAny(new[] { '/', '\\' });
+            return ExtractionDirectory.Substring(0, idx);
         }
 
         public override string ToString()

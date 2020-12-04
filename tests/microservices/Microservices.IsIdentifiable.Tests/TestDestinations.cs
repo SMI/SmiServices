@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using Microservices.IsIdentifiable.Options;
+using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Destinations;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
@@ -100,7 +101,7 @@ cell1 with some new lines and tabs	cell2
 
         public void DoneRows(int numberDone) { }
 
-        public void Add(Reporting.Failure failure) { }
+        public void Add(Failure failure) { }
 
         public void CloseReport()
         {

@@ -13,7 +13,7 @@ namespace Smi.Common.Tests
 
             var consoleTarget = new ConsoleTarget("TestConsole")
             {
-                Layout = @"${longdate}|${level}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}",
+                Layout = @"${longdate}|${level}|${logger}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}",
                 AutoFlush = true
             };
             
