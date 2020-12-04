@@ -10,47 +10,58 @@ trigger:
 
 variables:
   CI: 1
-  NUGET_PACKAGES_DIR: $(Agent.HomeDirectory)/.nuget/packages
-  MAVEN_PACKAGES_DIR: $(Agent.HomeDirectory)/.m2
-  RDMP_CLI_DIR: $(Agent.HomeDirectory)/rdmp-cli
-  DATA_DIR: $(Agent.HomeDirectory)/data
+  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+  MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+  RDMP_CLI_DIR: $(Pipeline.Workspac)/rdmp-cli
+  TESS_DATA_DIR: $(Agent.HomeDirectory)/tessdata
 
-jobs:
-    - job: caches
-      displayName: Setup caches
-      steps:
-        - task: Cache@2
-          displayName: Cache NuGet packages
-          inputs:
-            key: 'nuget | "$(Agent.OS)"'
-            path: $(NUGET_PACKAGES_DIR)
-        - task: Cache@2
-          displayName: Cache Maven packages
-          inputs:
-            key: 'maven | "$(Agent.OS)"'
-            path: $(MAVEN_PACKAGES_DIR)
-        - task: Cache@2
-          displayName: Cache rdmp-cli
-          inputs:
-            key: 'rdmp-cli | "$(Agent.OS)"'
-            path: $(RDMP_CLI_DIR)
-        - task: Cache@2
-          displayName: Cache data dir
-          inputs:
-            key: 'data-dir | "$(Agent.OS)"'
-            path: $(DATA_DIR)
-            
+jobs:     
     - job: run_dotnet_tests
       displayName: Run dotnet tests
-      dependsOn: [caches]
       steps:
-        - script: ./meta/run_dotnet_tests.sh
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            inputs:
+              key: 'nuget | "$(Agent.OS)" | **/packages.lock.json,!**/bin/**'
+              restoreKeys: |
+                nuget | "$(Agent.OS)"
+              path: $(NUGET_PACKAGES)
+          - task: Cache@2
+            displayName: Cache rdmp-cli
+            inputs:
+              key: 'rdmp-cli | "$(Agent.OS)" | ./rdmp-cli/rdmp'
+              restoreKeys: |
+                rdmp-cli | "$(Agent.OS)"
+              path: $(RDMP_CLI_DIR)
+          - task: Cache@2
+            displayName: Cache tesseract data
+            inputs:
+              key: 'tessdata | "$(Agent.OS)" | ./tessdata/eng.traineddata'
+              restoreKeys: |
+                tessdata | "$(Agent.OS)"
+                tessdata
+              path: $(TESS_DATA_DIR)
+          - task: Bash@3
+            inputs:
+              filePath: './meta/run_dotnet_tests.sh'
+              failOnStderr: true
 
     - job: run_java_tests
       displayName: Run java tests
-      dependsOn: [caches]
       steps:
-        - script: ./meta/run_java_tests.sh
+          - task: Cache@2
+            inputs:
+              key: 'maven | "$(Agent.OS)" | **/pom.xml'
+              restoreKeys: |
+                maven | "$(Agent.OS)"
+                maven
+              path: $(MAVEN_CACHE_FOLDER)
+            displayName: Cache Maven local repo
+          - task: Bash@3
+            inputs:
+              filePath: './meta/run_java_tests.sh'
+              failOnStderr: true
         
     - job: build_artefacts
       displayName: Upload tagged releases to GitHub
