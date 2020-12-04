@@ -30,6 +30,7 @@ jobs:
             inputs:
               script: |
                   rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+                  echo $rdmp_ver
                   echo '##vso[task.setvariable variable=rdmp_ver]$rdmp_ver'
           - task: Cache@2
             displayName: Cache rdmp-cli
