@@ -23,7 +23,7 @@ jobs:
       displayName: Install packages
       steps:
         - task: CmdLine@2
-          displayName: Set RDMP version
+          displayName: Install packages
           inputs:
             script: sudo apt install pigz
     - job: start_containers
@@ -36,6 +36,7 @@ jobs:
             action: 'Run services'
     - job: run_dotnet_tests
       displayName: Run dotnet tests
+      dependsOn: [install_packages, start_containers]
       steps:
           - task: Cache@2
             displayName: Cache NuGet packages
@@ -67,6 +68,7 @@ jobs:
 
     - job: run_java_tests
       displayName: Run java tests
+      dependsOn: [install_packages, start_containers]
       steps:
           - task: Cache@2
             inputs:
