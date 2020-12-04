@@ -31,7 +31,7 @@ jobs:
 
     - job: run_dotnet_tests
       displayName: Run dotnet tests
-      dependsOn: [install_packages, start_containers]
+      dependsOn: [install_packages]
       steps:
           - task: Cache@2
             displayName: Cache NuGet packages
@@ -89,7 +89,7 @@ jobs:
 
     - job: run_java_tests
       displayName: Run java tests
-      dependsOn: [install_packages, start_containers]
+      dependsOn: [install_packages]
       steps:
           - task: Cache@2
             displayName: Cache Maven local repo
