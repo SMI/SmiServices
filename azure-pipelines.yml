@@ -14,7 +14,7 @@ variables:
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
   RDMP_CLI_DIR: $(Pipeline.Workspac)/rdmp-cli
-  TESS_DATA_DIR: $(Agent.HomeDirectory)/tessdata
+  TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
 
 jobs:     
     - job: run_dotnet_tests
@@ -23,9 +23,7 @@ jobs:
           - task: Cache@2
             displayName: Cache NuGet packages
             inputs:
-              key: 'nuget | "$(Agent.OS)" | **/packages.lock.json,!**/bin/**'
-              restoreKeys: |
-                nuget | "$(Agent.OS)"
+              key: 'nuget | "$(Agent.OS)"'
               path: $(NUGET_PACKAGES)
           - task: Cache@2
             displayName: Cache rdmp-cli
