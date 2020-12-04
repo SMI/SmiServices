@@ -42,11 +42,13 @@ jobs:
             
     - job: run_dotnet_tests
       displayName: Run dotnet tests
+      dependsOn: [caches]
       steps:
         - script: ./meta/run_dotnet_tests.sh
 
     - job: run_java_tests
       displayName: Run java tests
+      dependsOn: [caches]
       steps:
         - script: ./meta/run_java_tests.sh
         
