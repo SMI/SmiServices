@@ -1,20 +1,55 @@
 ---
 
+# TODO(rkm 2020-12-04) See if we can build on both Linux and Windows here
+
 trigger:
     branches:
         include: ["*"]
     tags:
         include: ["*"]
 
+variables:
+  CI: 1
+  NUGET_PACKAGES_DIR: $(Agent.HomeDirectory)/.nuget/packages
+  MAVEN_PACKAGES_DIR: $(Agent.HomeDirectory)/.m2
+  RDMP_CLI_DIR: $(Agent.HomeDirectory)/rdmp-cli
+  DATA_DIR: $(Agent.HomeDirectory)/data
+
 jobs:
+    - job: caches
+      displayName: Setup caches
+      steps:
+        - task: Cache@2
+          displayName: Cache NuGet packages
+          inputs:
+            key: 'nuget | "$(Agent.OS)"'
+            path: $(NUGET_PACKAGES_DIR)
+        - task: Cache@2
+          displayName: Cache Maven packages
+          inputs:
+            key: 'maven | "$(Agent.OS)"'
+            path: $(MAVEN_PACKAGES_DIR)
+        - task: Cache@2
+          displayName: Cache rdmp-cli
+          inputs:
+            key: 'rdmp-cli | "$(Agent.OS)"'
+            path: $(RDMP_CLI_DIR)
+        - task: Cache@2
+          displayName: Cache data dir
+          inputs:
+            key: 'data-dir | "$(Agent.OS)"'
+            path: $(DATA_DIR)
+            
     - job: run_dotnet_tests
       displayName: Run dotnet tests
       steps:
         - script: ./meta/run_dotnet_tests.sh
+
     - job: run_java_tests
       displayName: Run java tests
       steps:
         - script: ./meta/run_java_tests.sh
+        
     - job: build_artefacts
       displayName: Upload tagged releases to GitHub
       condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
