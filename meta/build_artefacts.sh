@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# NOTE(rkm 2020-12-04) Requires standard Linux commands, plus: dotnet, java, mvn, tar, zip, and pigz
+
 RELEASE_TAG="$1"
 if [ -z $RELEASE_TAG ]; then
     echo "Error: Must pass the release tag"
