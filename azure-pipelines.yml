@@ -1,13 +1,15 @@
 ---
 
 # TODO(rkm 2020-12-04) See if we can build on both Linux and Windows here
+pool:
+    vmImage: 'ubuntu-latest'
 
 trigger:
     branches:
         include: ["*"]
     tags:
         include: ["*"]
-
+  
 variables:
   CI: 1
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
@@ -16,7 +18,22 @@ variables:
   RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
   TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
 
-jobs:     
+jobs:
+    - job: install_packages
+      displayName: Install packages
+      steps:
+        - task: CmdLine@2
+          displayName: Set RDMP version
+          inputs:
+            script: sudo apt install pigz
+    - job: start_containers
+      displayName: Start containers
+      steps:
+        - task: DockerCompose@0
+          inputs:
+            containerregistrytype: 'Container Registry'
+            dockerComposeFile: './meta/docker-compose.yml'
+            action: 'Run services'
     - job: run_dotnet_tests
       displayName: Run dotnet tests
       steps:
