@@ -1,0 +1,12 @@
+---
+
+# docker-compose file for CI tests
+
+version: "3.7"
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.7.16
+    ports:
+      - 5672:5672
