@@ -78,8 +78,9 @@ class DicomText:
                 line = '[[%s]] %s\n' % (tagname, drkey.value)
                 self._p_text = self._p_text + line
         # Now for the main event, the text in the ContentSequence
-        for content_sequence_item in self._dicom_raw.ContentSequence:
-            content_sequence_item.walk(self._dataset_read_callback)
+        if 'ContentSequence' in self._dicom_raw:
+            for content_sequence_item in self._dicom_raw.ContentSequence:
+                content_sequence_item.walk(self._dataset_read_callback)
 
     def redact_string(self, plaintext, offset, len):
         """ Simple function to replace characters from the middle of a string.
@@ -141,8 +142,9 @@ class DicomText:
         self._r_text = ''
         self._redacted_text = ''
         self._annotations = annot_list
-        for content_sequence_item in self._dicom_raw.ContentSequence:
-            content_sequence_item.walk(self._dataset_redact_callback)
+        if 'ContentSequence' in self._dicom_raw:
+            for content_sequence_item in self._dicom_raw.ContentSequence:
+                content_sequence_item.walk(self._dataset_redact_callback)
 
     def text(self):
         """ Returns the text after parse() has been called.
@@ -166,6 +168,7 @@ class DicomText:
         DICOM file B.
         """
         dicom_dest = pydicom.dcmread(destfile)
-        dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
-        dicom_dest.save_as(destfile)
+        if 'ContentSequence' in self._dicom_raw:
+            dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
+            dicom_dest.save_as(destfile)
 
