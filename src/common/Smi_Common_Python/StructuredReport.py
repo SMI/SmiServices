@@ -172,7 +172,18 @@ sr_keys_to_ignore = [
     'WindowWidth',
     'RescaleIntercept',
     'RescaleSlope',
-    'RescaleType'
+    'RescaleType',
+    'LossyImageCompression',
+    'PresentationLUTShape',
+    'OverlayRows',
+    'OverlayColumns',
+    'OverlayType',
+    'OverlaySubtype',
+    'OverlayOrigin',
+    'OverlayBitsAllocated',
+    'OverlayBitPosition',
+    'OverlayData',
+    'PixelData'
 ]
 
 

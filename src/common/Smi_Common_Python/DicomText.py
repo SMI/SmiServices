@@ -70,11 +70,12 @@ class DicomText:
             if srkey['tag'] in self._dicom_raw:
                 line = '[[%s]] %s\n' % (srkey['label'], srkey['decode_func'](str(self._dicom_raw[srkey['tag']].value)))
                 self._p_text = self._p_text + line
-        # Now read ALL tags and use a blacklist (and ignore already done in whitelist)
+        # Now read ALL tags and use a blacklist (and ignore already done in whitelist).
+        # Private tags will have tagname='' so ignore those too.
         for drkey in self._dicom_raw:
             tagname = pydicom.datadict.keyword_for_tag(drkey.tag)
-            if not drkey.VR == 'SQ' and not tagname in sr_keys_to_ignore and not tagname in list_of_tagname_desired:
-                print('ERROR: unexpected %s = %s' % (tagname, drkey.value))
+            if not drkey.VR == 'SQ' and not tagname in sr_keys_to_ignore and not tagname in list_of_tagname_desired and not tagname == '':
+                print('ERROR: unexpected %s = %s' % (tagname, str(drkey.value)[0:20]))
                 line = '[[%s]] %s\n' % (tagname, drkey.value)
                 self._p_text = self._p_text + line
         # Now for the main event, the text in the ContentSequence
