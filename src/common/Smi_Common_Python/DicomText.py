@@ -21,6 +21,10 @@ class DicomText:
     write_redacted_text_into_dicom_file  # to rewrite a second file with redacted text
     """
 
+    # Class variable determines whether unknown tags are included in the output
+    # (ideally this would be True but in practice we are only interested in known tags).
+    _include_unexpected_tags = False
+
     def __init__(self, filename):
         """ The DICOM file is read during construction.
         """
@@ -75,9 +79,10 @@ class DicomText:
         for drkey in self._dicom_raw:
             tagname = pydicom.datadict.keyword_for_tag(drkey.tag)
             if not drkey.VR == 'SQ' and not tagname in sr_keys_to_ignore and not tagname in list_of_tagname_desired and not tagname == '':
-                print('ERROR: unexpected %s = %s' % (tagname, str(drkey.value)[0:20]))
-                line = '[[%s]] %s\n' % (tagname, drkey.value)
-                self._p_text = self._p_text + line
+                print('Warning: unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
+                if DicomText._include_unexpected_tags:
+                    line = '[[%s]] %s\n' % (tagname, drkey.value)
+                    self._p_text = self._p_text + line
         # Now for the main event, the text in the ContentSequence
         if 'ContentSequence' in self._dicom_raw:
             for content_sequence_item in self._dicom_raw.ContentSequence:
