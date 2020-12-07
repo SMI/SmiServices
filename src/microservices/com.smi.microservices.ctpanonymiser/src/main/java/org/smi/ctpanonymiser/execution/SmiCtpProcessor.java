@@ -150,6 +150,7 @@ public class SmiCtpProcessor {
 			}
 		}
 
+		// Re-open so we can check Modality
 		try {
 			dObj = new DicomObject(outFile);
 		} catch (Exception e) {
@@ -182,7 +183,7 @@ public class SmiCtpProcessor {
 					ok = false;
 			}
 			catch (Exception e) {
-				 _logger.error("Could not run SemEHR");
+				 _logger.error("Could not run SRAnonTool");
 				 _lastStatus = "exec"; // XXX
 				 return CtpAnonymisationStatus.InputFileException;
 			}
