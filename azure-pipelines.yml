@@ -17,59 +17,21 @@ variables:
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
   RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
   TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
+  MSSQL_SA_PASSWORD: 'YourStrong!Passw0rd'
 
 jobs:
-    - job: install_packages
-      displayName: Install packages
+    - job: install_packages    
+      displayName: Install packages      
       steps:
+        - checkout: none
         - task: CmdLine@2
           displayName: Install packages
           inputs:
-            script: sudo apt install pigz            
-    - job: start_containers
-      displayName: Start containers
-      steps:
-        - task: DockerCompose@0
-          inputs:
-            containerregistrytype: 'Container Registry'
-            dockerComposeFile: './meta/docker-compose.yml'
-            action: 'Run services'
-        - task: CmdLine@2
-          displayName: Start MongoDB replication
-          inputs:
-            script: docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
-        - task: CmdLine@2
-          name: RDMP
-          displayName: Set RDMP version
-          inputs:
-            script: |
-                rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-                echo $rdmp_ver
-                echo "##vso[task.setvariable variable=version;isOutput=true]$rdmp_ver"
-        - task: Cache@2
-          displayName: Cache rdmp-cli
-          inputs:
-              key: '"rdmp-cli" | "$(Agent.OS)" | "$(RDMP.version)"'
-              path: $(RDMP_CLI_DIR)
-        - task: CmdLine@2
-          displayName: Install RDMP
-          inputs:
-            script: |
-              if [ ! -d $(RDMP_CLI_DIR) ]; then
-                wget https://github.com/HicServices/RDMP/releases/download/v$(RDMP.version)/rdmp-cli-linux-x64.zip
-                # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
-                unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
-                chmod +x $(RDMP_CLI_DIR)/rdmp
-              fi
-    - job: tmp_test
-      dependsOn: [start_containers]
-      steps:
-         - task: CmdLine@2
-           inputs:
-             script: docker ps
+            script: sudo apt install pigz
+
     - job: run_dotnet_tests
       displayName: Run dotnet tests
-      dependsOn: [install_packages, start_containers]
+      dependsOn: [install_packages]
       steps:
           - task: Cache@2
             displayName: Cache NuGet packages
@@ -83,6 +45,43 @@ jobs:
               restoreKeys: |
                 tessdata
               path: $(TESS_DATA_DIR)
+          - task: DockerCompose@0
+            displayName: Run containers for dotnet tests
+            inputs:
+              containerregistrytype: 'Container Registry'
+              dockerComposeFile: './meta/docker-compose-dotnet.yml'
+              dockerComposeFileArgs: '-e SA_PASSWORD=$(MSSQL_SA_PASSWORD)'
+              action: 'Run services'
+          - task: CmdLine@2
+            displayName: Start MongoDB replication
+            inputs:
+              script: docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
+          - task: CmdLine@2
+            displayName: Set RDMP version
+            inputs:
+              script: |
+                  rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+                  echo $rdmp_ver
+                  echo "##vso[task.setvariable variable=rdmp_ver]$rdmp_ver"
+          - task: Cache@2
+            displayName: Cache rdmp-cli
+            inputs:
+                key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
+                path: $(RDMP_CLI_DIR)
+          - task: CmdLine@2
+            displayName: Download rdmp-cli
+            inputs:
+              script: |
+                if [ ! -d $(RDMP_CLI_DIR) ]; then
+                  wget https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-linux-x64.zip
+                  # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
+                  unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
+                  chmod +x $(RDMP_CLI_DIR)/rdmp
+                fi
+          - task: CmdLine@2
+            displayName: Install RDMP
+            inputs:
+              script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
           - task: Bash@3
             inputs:
               filePath: './meta/run_dotnet_tests.sh'
@@ -90,16 +89,22 @@ jobs:
 
     - job: run_java_tests
       displayName: Run java tests
-      dependsOn: [install_packages, start_containers]
+      dependsOn: [install_packages]
       steps:
           - task: Cache@2
+            displayName: Cache Maven local repo
             inputs:
               key: 'maven | "$(Agent.OS)" | **/pom.xml'
               restoreKeys: |
                 maven | "$(Agent.OS)"
                 maven
               path: $(MAVEN_CACHE_FOLDER)
-            displayName: Cache Maven local repo
+          - task: DockerCompose@0
+            displayName: Run containers for java tests
+            inputs:
+              containerregistrytype: 'Container Registry'
+              dockerComposeFile: './meta/docker-compose-java.yml'
+              action: 'Run services'
           - task: Bash@3
             inputs:
               filePath: './meta/run_java_tests.sh'
