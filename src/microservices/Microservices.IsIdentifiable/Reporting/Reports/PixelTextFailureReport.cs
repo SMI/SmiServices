@@ -1,6 +1,8 @@
 using System.Data;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Abstractions;
+
 
 namespace Microservices.IsIdentifiable.Reporting.Reports
 {
@@ -44,7 +46,7 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
         }
 
         //TODO Replace argument list with object
-        public void FoundPixelData(FileInfo fi, string sopID, PixelFormat pixelFormat, PixelFormat processedPixelFormat, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation)
+        public void FoundPixelData(IFileInfo fi, string sopID, PixelFormat pixelFormat, PixelFormat processedPixelFormat, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation)
         {
             DataRow dr = _dt.Rows.Add();
 

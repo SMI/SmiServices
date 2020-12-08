@@ -13,7 +13,7 @@ namespace Microservices.IdentifierMapper
             return Parser.Default.ParseArguments<CliOptions>(args).MapResult(
                 cliOptions =>
                     {
-                        GlobalOptions options = GlobalOptions.Load(cliOptions);
+                        GlobalOptions options = new GlobalOptionsFactory().Load(cliOptions);
 
                         var bootstrapper = new MicroserviceHostBootstrapper(() => new IdentifierMapperHost(options));
                         return bootstrapper.Main();

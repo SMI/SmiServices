@@ -1,5 +1,6 @@
 ﻿
 using System.Threading;
+using FAnsi.Discovery;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Smi.Common;
 using Smi.Common.Options;
@@ -33,5 +34,10 @@ namespace Microservices.IdentifierMapper.Tests
         }
 
         public override void ClearCache() { }
+
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        {
+            return null;
+        }
     }
 }

@@ -1,7 +1,7 @@
-﻿using System;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Tests;
+using System;
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 {
@@ -35,8 +35,48 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         #region Tests
 
-        [Test]
+        [TestCase("proj/foo/extract-name")]
+        [TestCase("proj\\foo\\extract-name")]
+        public void Test_ExtractJobInfo_ExtractionName(string extractionDir)
+        {
+            var info = new ExtractJobInfo(
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                "1234",
+                extractionDir,
+                "KeyTag",
+                123,
+                "MR",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+            );
 
+            Assert.AreEqual("extract-name", info.ExtractionName());
+        }
+
+        [TestCase("proj/foo/extract-name", "proj/foo")]
+        [TestCase("proj\\foo\\extract-name", "proj\\foo")]
+        public void Test_ExtractJobInfo_ProjectExtractionDir(string extractionDir, string expected)
+        {
+            var info = new ExtractJobInfo(
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                "1234",
+                extractionDir,
+                "KeyTag",
+                123,
+                "MR",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+            );
+
+            Assert.AreEqual(expected, info.ProjectExtractionDir());
+        }
+
+
+        [Test]
         public void TestExtractJobInfo_Equality()
         {
             Guid guid = Guid.NewGuid();
@@ -48,7 +88,10 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
             var info2 = new ExtractJobInfo(
                 guid,
                 _dateTimeProvider.UtcNow(),
@@ -57,7 +100,10 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
 
             Assert.AreEqual(info1, info2);
         }
@@ -74,7 +120,10 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
             var info2 = new ExtractJobInfo(
                 guid,
                 _dateTimeProvider.UtcNow(),
@@ -83,7 +132,10 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "KeyTag",
                 123,
                 "MR",
-                ExtractJobStatus.WaitingForCollectionInfo);
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+                );
 
             Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
         }

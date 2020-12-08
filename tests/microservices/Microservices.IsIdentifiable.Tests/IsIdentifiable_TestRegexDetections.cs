@@ -21,8 +21,60 @@ namespace Microservices.IsIdentifiable.Tests
 
             Assert.AreEqual("0101010101", p.Word);
             Assert.AreEqual(10, p.Offset);
-        }
+        } 
+        [Test]
+        public void TestCaching()
+        {
+            var runner = new TestRunner("hey there,0101010101 excited to see you");
+            runner.Run();
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(1,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(2,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
 
+            runner.ValueToTest = "ffffff";
+            runner.Run();
+            Assert.AreEqual(2,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(3,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(4,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
+
+            runner.FieldToTest = "OtherField";
+            runner.Run();
+            Assert.AreEqual(4,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(5,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(6,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
+        }
+        [Test]
+        public void Test_NoCaching()
+        {
+            var runner = new TestRunner("hey there,0101010101 excited to see you");
+            runner.MaxValidationCacheSize = 0;
+
+            runner.Run();
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(1,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(2,runner.ValidateCacheMisses);
+            runner.Run();
+            Assert.AreEqual(0,runner.ValidateCacheHits);
+            Assert.AreEqual(3,runner.ValidateCacheMisses);
+            runner.Run();
+        }
         [TestCase("DD3 7LB")]
         [TestCase("dd3 7lb")]
         [TestCase("dd37lb")]
@@ -86,6 +138,7 @@ BasicRules:
             //this would be nice
             Assert.AreEqual(expectedMatch, p.Word);
             Assert.AreEqual(FailureClassification.Postcode, p.Classification);
+            Assert.AreEqual(1,runner.CountOfFailureParts);
         }
 
         [TestCase("dd3000")]
@@ -256,27 +309,28 @@ BasicRules:
 
         private class TestRunner : IsIdentifiableAbstractRunner
         {
-            private readonly string _fieldToTest;
-            private readonly string _valueToTest;
+            public string FieldToTest {get;set; }
+            public string ValueToTest {get;set; }
 
             public readonly List<FailurePart> ResultsOfValidate = new List<FailurePart>();
 
             public TestRunner(string valueToTest)
                 : base(new TestOpts())
             {
-                _valueToTest = valueToTest;
+                ValueToTest = valueToTest;
+                FieldToTest = "field";
             }
 
             public TestRunner(string valueToTest, TestOpts opts, string fieldToTest = "field")
                 : base(opts)
             {
-                _fieldToTest = fieldToTest;
-                _valueToTest = valueToTest;
+                FieldToTest = fieldToTest;
+                ValueToTest = valueToTest;
             }
 
             public override int Run()
             {
-                ResultsOfValidate.AddRange(Validate(_fieldToTest, _valueToTest).OrderBy(v => v.Offset));
+                ResultsOfValidate.AddRange(Validate(FieldToTest, ValueToTest).OrderBy(v => v.Offset));
                 CloseReports();
                 return 0;
             }

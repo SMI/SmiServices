@@ -3,6 +3,10 @@ using IsIdentifiableReviewer.Out;
 
 namespace IsIdentifiableReviewer
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    /// <summary>
+    /// CLI options for the reviewer
+    /// </summary>
     public class IsIdentifiableReviewerOptions
     {
 
@@ -47,4 +51,5 @@ namespace IsIdentifiableReviewer
         )]
         public bool OnlyRules { get; set; }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

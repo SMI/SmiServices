@@ -14,9 +14,6 @@
     <Compile Include="..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.10.4" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>  
 </Project>

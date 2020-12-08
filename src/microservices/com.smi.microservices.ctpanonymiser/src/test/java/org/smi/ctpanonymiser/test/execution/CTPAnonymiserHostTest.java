@@ -16,8 +16,8 @@ import org.smi.common.rabbitMq.RabbitMqAdapter;
 import org.smi.ctpanonymiser.Program;
 import org.smi.ctpanonymiser.execution.CTPAnonymiserHost;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
-import org.smi.ctpanonymiser.messages.ExtractFileStatusMessage;
-import org.smi.ctpanonymiser.util.ExtractFileStatus;
+import org.smi.ctpanonymiser.messages.ExtractedFileStatusMessage;
+import org.smi.ctpanonymiser.util.ExtractedFileStatus;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -41,7 +41,7 @@ public class CTPAnonymiserHostTest extends TestCase {
     private ProducerOptions _extractFileProducerOptions;
     private ConsumerOptions _extractFileStatusConsumerOptions;
     private IProducerModel _extractFileMessageProducer;
-    private AnyConsumer<ExtractFileStatusMessage> _anonFileStatusMessageConsumer;
+    private AnyConsumer<ExtractedFileStatusMessage> _anonFileStatusMessageConsumer;
 
     private ConnectionFactory _factory;
     private Connection _conn;
@@ -67,15 +67,15 @@ public class CTPAnonymiserHostTest extends TestCase {
         _options.FileSystemOptions.setFileSystemRoot(_fsRoot);
         _options.FileSystemOptions.setExtractRoot(_extractRoot);
 
-        if (!_options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName.startsWith("TEST."))
-            _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName = "TEST."
-                    + _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
+        if (!_options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName.startsWith("TEST."))
+            _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName = "TEST."
+                    + _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName;
 
         if (!_options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName.startsWith("TEST."))
             _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName = "TEST."
                     + _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
 
-        String _consumerQueueName = _options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QueueName;
+        String _consumerQueueName = _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName;
         _producerExchangeName = _options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
 
         // Set up RMQ
@@ -88,7 +88,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         _extractFileStatusConsumerOptions.AutoAck = false;
         _extractFileStatusConsumerOptions.QoSPrefetchCount = 1;
 
-        _anonFileStatusMessageConsumer = new AnyConsumer<>(ExtractFileStatusMessage.class);
+        _anonFileStatusMessageConsumer = new AnyConsumer<>(ExtractedFileStatusMessage.class);
 
         _extractFileProducerOptions = new ProducerOptions();
         _extractFileProducerOptions.ExchangeName = _inputExchName;
@@ -103,7 +103,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         _channel.exchangeDeclare(_inputExchName, "direct", true);
         _channel.queueDeclare(_consumerQueueName, true, false, false, null);
-        _channel.queueBind(_consumerQueueName, _inputExchName, "");
+        _channel.queueBind(_consumerQueueName, _inputExchName, "anon");
         System.out.println(String.format("Bound %s -> %s", _inputExchName, _consumerQueueName));
 
         // Setup the output exch. / queue pair
@@ -111,8 +111,8 @@ public class CTPAnonymiserHostTest extends TestCase {
         _channel.exchangeDeclare(_producerExchangeName, "direct", true);
         _channel.queueDeclare(_outputQueueName, true, false, false, null);
         _channel.queueBind(_outputQueueName, _producerExchangeName, "");
-        _channel.queueBind(_outputQueueName, _producerExchangeName, "success");
-        _channel.queueBind(_outputQueueName, _producerExchangeName, "failure");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "verify");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "noverify");
         System.out.println(String.format("Bound %s -> %s", _producerExchangeName, _outputQueueName));
 
         _channel.queuePurge(_consumerQueueName);
@@ -164,7 +164,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         TimeUnit.MILLISECONDS.sleep(1000);
 
         _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
-        _extractFileMessageProducer.SendMessage(exMessage, "", null);
+        _extractFileMessageProducer.SendMessage(exMessage, "anon", null);
 
         _logger.info("Waiting...");
 
@@ -185,14 +185,14 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         if (_anonFileStatusMessageConsumer.isMessageValid()) {
 
-            ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
+            ExtractedFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
 
             _logger.info("Message received");
             _logger.info("\n" + recvd.toString());
 
-            assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.AnonymisedFileName);
+            assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.OutputFilePath);
             assertEquals("Project numbers do not match", exMessage.ProjectNumber, recvd.ProjectNumber);
-            assertEquals(ExtractFileStatus.Anonymised, recvd.Status);
+            assertEquals(ExtractedFileStatus.Anonymised, recvd.Status);
         } else {
             fail("Did not receive message");
         }
@@ -214,7 +214,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         exMessage.ProjectNumber = "123-456";
 
         _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
-        _extractFileMessageProducer.SendMessage(exMessage, "", null);
+        _extractFileMessageProducer.SendMessage(exMessage, "anon", null);
 
         _logger.info("Waiting...");
 
@@ -235,13 +235,13 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         if (_anonFileStatusMessageConsumer.isMessageValid()) {
 
-            ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
+            ExtractedFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
 
             _logger.info("Message received");
             _logger.info("\n" + recvd.toString());
 
-            assertEquals("FilePaths do not match", null, recvd.AnonymisedFileName);
-            assertEquals(ExtractFileStatus.ErrorWontRetry, recvd.Status);
+            assertEquals("FilePaths do not match", "", recvd.OutputFilePath);
+            assertEquals(ExtractedFileStatus.FileMissing, recvd.Status);
         } else {
             fail("Did not receive message");
         }

@@ -7,14 +7,13 @@ namespace Smi.Common.Messages
 {
     /// <summary>
     /// Object representing an accession directory message.
-    /// https://github.com/HicServices/SMIPlugin/wiki/SMI-RabbitMQ-messages-and-queues#accessiondirectorymessage
     /// </summary>
     public sealed class AccessionDirectoryMessage : IMessage
     {
         /// <summary>
         /// NationalPACSAccessionNumber obtained from the end of the directory path.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
+        [JsonProperty(Required = Required.AllowNull)]
         public string NationalPACSAccessionNumber { get; set; }
 
         /// <summary>

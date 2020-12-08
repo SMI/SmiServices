@@ -27,7 +27,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null, false, false,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
@@ -54,7 +54,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
-		assertEquals(null, erm.ExtractionModality);
+		assertEquals(null, erm.Modality);
 		assertEquals(5, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -83,7 +83,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,false,false,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
@@ -110,7 +110,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
-		assertEquals(null, erm.ExtractionModality);
+		assertEquals(null, erm.Modality);
 		assertEquals(4, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -138,7 +138,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		IProducerModel extractRequestInfoMessageProducerModel = mock(IProducerModel.class);
 
 		UUID uuid = UUID.randomUUID();
-		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,false,false,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
@@ -172,7 +172,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		assertEquals("MyProjectID", erm.ProjectNumber);
 		assertEquals("MyProjectFolder", erm.ExtractionDirectory);
 		assertEquals("SeriesInstanceUID", erm.KeyTag);
-		assertEquals(null, erm.ExtractionModality);
+		assertEquals(null, erm.Modality);
 		assertEquals(6, erm.ExtractionIdentifiers.size());
 
 		assertTrue(erm.ExtractionIdentifiers.contains("s1"));
@@ -206,7 +206,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		UUID extractionUid = UUID.randomUUID();
 
 		ExtractMessagesCsvHandler handler = new ExtractMessagesCsvHandler(extractionUid, "MyProjectID",
-				"MyProjectFolder", null, extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
+				"MyProjectFolder", null,false, false, extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		handler.processHeader(new String[] { "SeriesInstanceUID" });
 
@@ -251,14 +251,14 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		boolean thrown = false;
 
 		try {
-			handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "aaaaa",
+			handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "aaaaa",false,false,
 					extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 		} catch (IllegalArgumentException e) {
 			thrown = true;
 		}
 		assertTrue(thrown);
 
-		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,false,false,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
 		thrown = false;
@@ -269,7 +269,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		}
 		assertTrue(thrown);
 
-		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",false,false,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 		handler.processHeader(new String[] { "StudyInstanceUID" });
 
@@ -283,7 +283,7 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		// Happy path
 
-		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",
+		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "MR",false,false,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 		handler.processHeader(new String[] { "StudyInstanceUID" });
 		handler.processLine(1, new String[] { "s1" });
@@ -300,6 +300,6 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 
 		// Check the messages had the correct details
 		ExtractionRequestMessage erm = (ExtractionRequestMessage) requestMessage.getValue();
-		assertEquals("MR", erm.ExtractionModality);
+		assertEquals("MR", erm.Modality);
 	}
 }

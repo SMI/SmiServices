@@ -14,43 +14,38 @@ jobs:
       - $HOME/data
     addons:
       postgresql: "10"
-      apt:
-        sources:
-        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic main universe multiverse restricted'
-        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic-backports main universe'
-        - sourceline: 'deb http://archive.ubuntu.com/ubuntu bionic-updates main universe multiverse restricted'
-        - sourceline: 'deb http://security.ubuntu.com/ubuntu bionic-security main multiverse restricted universe'
-        - sourceline: 'deb https://dl.bintray.com/rabbitmq-erlang/debian/ bionic erlang'
-          key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
-        - sourceline: 'deb https://dl.bintray.com/rabbitmq/debian/ bionic main'
-          key_url: 'https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc'
-        - sourceline: 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main'
-          key_url: 'https://packages.microsoft.com/keys/microsoft.asc'
-        - sourceline: 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/16.04/mssql-server-2017 xenial main'
-        packages:
-        - rabbitmq-server
-        - libgdiplus
-        - tesseract-ocr
-        - libtesseract-dev
-        - maven
     services:
     - postgresql
     - mysql
-    - mongodb
     - redis
     env:
     - MSSQL_SA_PASSWORD="YourStrong!Passw0rd"
     - ACCEPT_EULA=Y
-    - MSSQL_PID='evaluation'
+    - MSSQL_PID='developer'
 
     before_install:
-    - sudo apt-get install -y --no-install-recommends mssql-tools mssql-server dotnet-runtime-2.2 dotnet-sdk-3.1
+    - cat lib/travis/*.asc | sudo -E apt-key add -
+    - sort ${TRAVIS_ROOT}/etc/apt/sources.list lib/travis/apt.sources | uniq | sudo tee ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null
+    - sudo apt-get -q update
+    - sudo apt-get -q install -y --no-install-recommends pigz rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
+    - sudo apt-get -q install -y --no-install-recommends mssql-tools mssql-server
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
 
     install:
-    - |
-      export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - ( cd ./lib/java && ./installDat.sh && cd - )
+    - |
+      echo -e '\nreplication:\n  replSetName: rs0' | sudo tee -a /etc/mongod.conf >/dev/null &&
+      sudo systemctl start mongod
+      COUNTER=0
+      sudo grep -q 'waiting for connections on port' /var/log/mongodb/mongod.log
+      while [[ $? -ne 0 && $COUNTER -lt 60 ]] ; do
+          sleep 1
+          let COUNTER+=1
+          echo "Waiting for mongo to initialize... ($COUNTER seconds so far)"
+          sudo grep -q 'waiting for connections on port' /var/log/mongodb/mongod.log
+      done
+      mongo --eval 'rs.initiate()'
+    - export RDMPVERSION=$(fgrep -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj|sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
     - |
       if [ ! -x $HOME/rdmp-cli/rdmp ] || ! fgrep -q $RDMPVERSION $HOME/rdmp-cli/rdmp.dll
       then
@@ -67,10 +62,10 @@ jobs:
     script:
     - dotnet build -c Release --verbosity quiet
     - for i in `find . -type d -name netcoreapp3.1`; do if [ ! -e $i/default.yaml ]; then ln data/microserviceConfigs/default.yaml $i/ ; fi ; done
-    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build
+    - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
     - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
-    - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
-    - mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test
+    - mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml test
+    - mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ test
 
     - |
       if [ ! -z "$TRAVIS_TAG" ]
@@ -78,17 +73,18 @@ jobs:
         mkdir -p ./dist
         for platform in linux win
         do
-          dotnet publish -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 --self-contained false -nologo -v q
+          dotnet publish -p:PublishTrimmed=false -c Release -r $platform-x64 -o $(pwd)/dist/$platform-x64 -nologo -v q
         done
-        ( cd dist && zip -r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar czf smi-services-linux-x64-$TRAVIS_TAG.tar.gz ./linux-x64 && cd - )
-        mvn -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable
-        mvn -f src/microservices/uk.ac.dundee.hic.nerd/ package
+        ( cd dist && zip -9r smi-services-win-x64-$TRAVIS_TAG.zip ./win-x64 && tar cf - ./linux-x64 | pigz -3 > smi-services-linux-x64-$TRAVIS_TAG.tar.gz && cd - )
+        mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml install assembly:single@create-deployable -DskipTests
+        mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ package -DskipTests
         for filename in $(find ./src -name "*deploy-distribution.zip")
         do
           base=$(ls $filename | awk -F'-' '{print $1}' | awk -F'/' '{print $6}')
           mv $filename dist/$base-${TRAVIS_TAG}.zip
         done
         mv src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar dist/nerd-${TRAVIS_TAG}.jar
+        ls -lh dist/
       fi
 
 deploy:

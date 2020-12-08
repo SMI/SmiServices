@@ -89,5 +89,10 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _lastVal = null;
             _logger.Debug("ClearCache called, single value cache cleared");
         }
+
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        {
+            return null;
+        }
     }
 }

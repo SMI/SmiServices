@@ -1,15 +1,20 @@
 version: 1.0.{build}
 init:
+  - cmd: if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
   - git config --global core.autocrlf true
 image: Visual Studio 2019
 services:
   - mssql2017
   - mysql
   - postgresql101
-  - mongodb
-  
+ 
+cache:
+  - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
+
 before_build:
-- dotnet restore --packages ./packages
+- ps: "Add-Content c:\\mongodb\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
+- cmd: "net start mongodb"
+- cmd: "c:\\mongodb\\bin\\mongo --eval \"printjson(rs.initiate())\""
 - choco install opencover.portable
 - choco install rabbitmq
 
@@ -30,8 +35,8 @@ build_script:
   - ps: 7z x rdmp-cli-win-x64.zip -oC:\projects\smiservices\rdmp-cli
   - ps: C:\projects\smiservices\rdmp-cli\rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
-  - cmd: "\"packages/opencover/4.7.922/tools/OpenCover.Console.exe\" -returntargetcode -target:\"c:/program files/dotnet/dotnet.exe\" -targetargs:\"test ./tests/run-all-tests.proj -c Release -p:BuildInParallel=false\" -filter:\"+[CohortExtractor]* +[CohortPackager]* +[DeadLetterReprocessor]* +[DicomRelationalMapper]* +[DicomReprocessor]* +[DicomTagReader]* +[IdentifierMapper]* +[IsIdentifiable]* +[MongoDbPopulator]* +[DicomDirectoryProcessor]* +[IsIdentifiableReviewer]* +[Smi.Common]* +[Smi.Common.MongoDb]* -[*NUnit*]*\"  -output:coverage.xml -register:appveyor -oldStyle -hideskipped:File"
-  - cmd: packages\coveralls.io\1.4.2\tools\coveralls.net.exe --opencover coverage.xml -r %COVERALLS_REPO_TOKEN%
+  - cmd: "\"C:/ProgramData/chocolatey/bin/OpenCover.Console.exe\" -returntargetcode -target:\"c:/program files/dotnet/dotnet.exe\" -targetargs:\"test ./tests/run-all-tests.proj -c Release -p:BuildInParallel=false\" -filter:\"+[CohortExtractor]* +[CohortPackager]* +[DeadLetterReprocessor]* +[DicomRelationalMapper]* +[DicomReprocessor]* +[DicomTagReader]* +[IdentifierMapper]* +[IsIdentifiable]* +[MongoDbPopulator]* +[DicomDirectoryProcessor]* +[TriggerUpdates]* +[UpdateValues]* +[IsIdentifiableReviewer]* +[Smi.Common]* +[Smi.Common.MongoDb]* -[*NUnit*]*\"  -output:coverage.xml -register:appveyor -oldStyle -hideskipped:File"
+  - cmd: 'if defined COVERALLS_REPO_TOKEN %USERPROFILE%\\.nuget\\packages\\coveralls.io\\1.4.2\\tools\\coveralls.net.exe --opencover coverage.xml -r %COVERALLS_REPO_TOKEN%'
 
 test: off
 

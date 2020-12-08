@@ -1,12 +1,12 @@
-﻿using System;
-using System.Reflection;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using NUnit.Framework;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
+using System;
+using System.Reflection;
 
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -41,6 +41,30 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         #endregion
 
         #region Tests
+        
+        [Test]
+        public void Test_MongoExtractJobDoc_CopyConstructor()
+        {
+            var jobid = Guid.NewGuid();
+            var original = new MongoExtractJobDoc(
+                jobid,
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(jobid, _messageHeader, _dateTimeProvider),
+                "1234",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                "test/directory",
+                _dateTimeProvider.UtcNow(),
+                "KeyTag",
+                123,
+                "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
+                new MongoFailedJobInfoDoc(new Exception("foo"), _dateTimeProvider)
+            );
+            var copied = new MongoExtractJobDoc(original);
+
+            Assert.AreEqual(original, copied);
+        }
+
 
         [Test]
         public void TestMongoExtractJobDoc_SettersAvailable()
@@ -62,6 +86,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 ExtractionDirectory = "test/directory",
                 KeyTag = "KeyTag",
                 KeyValueCount = 123,
+                IsIdentifiableExtraction = true,
+                IsNoFilterExtraction = true,
             };
 
             MongoExtractJobDoc doc = MongoExtractJobDoc.FromMessage(message, _messageHeader, _dateTimeProvider);
@@ -76,6 +102,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
 
             Assert.AreEqual(expected, doc);
@@ -97,6 +125,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 failedInfoDoc);
             var doc2 = new MongoExtractJobDoc(
                 guid,
@@ -108,6 +138,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 failedInfoDoc);
 
             Assert.AreEqual(doc1, doc2);
@@ -128,6 +160,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
             var doc2 = new MongoExtractJobDoc(
                 guid,
@@ -139,6 +173,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "KeyTag",
                 123,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
 
             Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());

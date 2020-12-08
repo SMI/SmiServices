@@ -13,6 +13,23 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 mongoExtractJobDoc.KeyTag,
                 mongoExtractJobDoc.KeyCount,
                 mongoExtractJobDoc.ExtractionModality,
-                mongoExtractJobDoc.JobStatus);
+                mongoExtractJobDoc.JobStatus,
+                mongoExtractJobDoc.IsIdentifiableExtraction,
+                mongoExtractJobDoc.IsNoFilterExtraction
+                );
+
+        public static CompletedExtractJobInfo ToExtractJobInfo(this MongoCompletedExtractJobDoc mongoCompletedExtractJobDoc)
+            => new CompletedExtractJobInfo(
+                mongoCompletedExtractJobDoc.ExtractionJobIdentifier,
+                mongoCompletedExtractJobDoc.JobSubmittedAt,
+                mongoCompletedExtractJobDoc.CompletedAt,
+                mongoCompletedExtractJobDoc.ProjectNumber,
+                mongoCompletedExtractJobDoc.ExtractionDirectory,
+                mongoCompletedExtractJobDoc.KeyTag,
+                mongoCompletedExtractJobDoc.KeyCount,
+                mongoCompletedExtractJobDoc.ExtractionModality,
+                mongoCompletedExtractJobDoc.IsIdentifiableExtraction,
+                mongoCompletedExtractJobDoc.IsNoFilterExtraction
+            );
     }
 }

@@ -1,8 +1,8 @@
 
 using Microservices.CohortExtractor.Audit;
-using Smi.Common.Messages.Extraction;
 using NLog;
 using Rdmp.Core.Curation.Data;
+using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +41,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
         {
             var queries = new List<QueryToExecute>();
-            
+
             foreach (var c in GetCataloguesFor(message))
             {
                 var query = GetQueryToExecute(c, message);
@@ -53,12 +53,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 }
             }
 
-            Logger.Debug("Found " + queries.Count + " Catalogues which support extracting based on '" + message.KeyTag + "'");
+            Logger.Debug($"Found {queries.Count} Catalogues which support extracting based on '{message.KeyTag}'");
 
             if (queries.Count == 0)
                 throw new Exception($"Couldn't find any compatible Catalogues to run extraction queries against for query {message}");
 
-            
+            List<IRejector> rejectorsToUse = message.IsNoFilterExtraction ? new List<IRejector>() : Rejectors;
 
             foreach (string valueToLookup in message.ExtractionIdentifiers)
             {
@@ -66,10 +66,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 foreach (QueryToExecute query in queries)
                 {
-                    foreach (var result in query.Execute(valueToLookup,Rejectors))
+                    foreach (QueryToExecuteResult result in query.Execute(valueToLookup, rejectorsToUse))
                     {
-                        if(!results.ContainsKey(result.SeriesTagValue))
-                            results.Add(result.SeriesTagValue,new HashSet<QueryToExecuteResult>());
+                        if (!results.ContainsKey(result.SeriesTagValue))
+                            results.Add(result.SeriesTagValue, new HashSet<QueryToExecuteResult>());
 
                         results[result.SeriesTagValue].Add(result);
                     }
@@ -90,7 +90,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             if (!string.IsNullOrWhiteSpace(message.Modality))
             {
-                if(ModalityRoutingRegex == null)
+                if (ModalityRoutingRegex == null)
                     throw new NotSupportedException("Filtering on Modality requires setting a ModalityRoutingRegex");
 
                 var anyModality = message.Modality.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -104,12 +104,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 }
                 else
                 {
-                    Logger.Log(LogLevel.Warn,nameof(ModalityRoutingRegex) + " did not match Catalogue name " + columnSet.Catalogue.Name);
+                    Logger.Log(LogLevel.Warn, nameof(ModalityRoutingRegex) + " did not match Catalogue name " + columnSet.Catalogue.Name);
                 }
 
             }
-                
-            
+
+
             return new QueryToExecute(columnSet, message.KeyTag);
         }
 

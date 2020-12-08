@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
@@ -16,6 +12,11 @@ using Smi.Common.MessageSerialization;
 using Smi.Common.MongoDb.Tests;
 using Smi.Common.MongoDB.Tests;
 using Smi.Common.Tests;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 {
@@ -224,6 +225,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 ExtractionModality = "CT",
+                IsIdentifiableExtraction = true,
+                IsNoFilterExtraction = true,
             };
             var testHeader = new MessageHeader
             {
@@ -253,6 +256,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "StudyInstanceUID",
                 1,
                 "CT",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
 
             Assert.AreEqual(expected, extractJob);
@@ -359,11 +364,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
-            var testExtractFileStatusMessage = new ExtractFileStatusMessage
+            var testExtractFileStatusMessage = new ExtractedFileStatusMessage
             {
-                AnonymisedFileName = "anon.dcm",
+                OutputFilePath = "anon.dcm",
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                Status = ExtractFileStatus.ErrorWontRetry,
+                Status = ExtractedFileStatus.ErrorWontRetry,
                 ProjectNumber = "1234",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = "1234/test",
@@ -374,16 +379,17 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             store.PersistMessageToStore(testExtractFileStatusMessage, header);
 
-
             Dictionary<Guid, MongoFileStatusDoc> docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
             Assert.AreEqual(docs.Count, 1);
             MongoFileStatusDoc statusDoc = docs.Values.ToList()[0];
 
             var expected = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
+                "original.dcm",
                 "anon.dcm",
                 false,
                 true,
+                ExtractedFileStatus.ErrorWontRetry,
                 "Could not anonymise");
 
             Assert.True(statusDoc.Equals(expected));
@@ -396,9 +402,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
-            var testIsIdentifiableMessage = new IsIdentifiableMessage
+            var testIsIdentifiableMessage = new ExtractedFileVerificationMessage
             {
-                AnonymisedFileName = "anon.dcm",
+                OutputFilePath = "anon.dcm",
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "1234",
                 ExtractionJobIdentifier = jobId,
@@ -417,9 +423,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             var expected = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
+                "original.dcm",
                 "anon.dcm",
                 true,
                 false,
+                ExtractedFileStatus.Anonymised,
                 "[]");
 
             Assert.True(statusDoc.Equals(expected));
@@ -439,6 +447,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "SeriesInstanceUID",
                 1,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -453,9 +463,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             );
             var testMongoFileStatusDoc = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+                "input.dcm",
                 "anon1.dcm",
                 true,
                 false,
+                ExtractedFileStatus.Anonymised,
                 "Verified");
 
             var client = new TestMongoClient();
@@ -514,6 +526,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "SeriesInstanceUID",
                 1,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -528,9 +542,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 );
             var testMongoFileStatusDoc = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+                "input.dcm",
                 "anon1.dcm",
                 true,
                 false,
+                ExtractedFileStatus.Anonymised,
                 "Verified");
 
             var client = new TestMongoClient();
@@ -620,6 +636,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "1.2.3.4",
                 123,
                 "MR",
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true,
                 null);
 
             var client = new TestMongoClient();

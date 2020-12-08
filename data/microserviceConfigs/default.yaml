@@ -24,16 +24,19 @@ MongoDatabases:
         HostName: 'localhost'
         Port: 27017
         UserName: ''
+        Password: ''
         DatabaseName: 'dicom'
     ExtractionStoreOptions:
         HostName: 'localhost'
         Port: 27017
         UserName: ''
+        Password: ''
         DatabaseName: 'extraction'
     DeadLetterStoreOptions:
         HostName: 'localhost'
         Port: 27017
         UserName: ''
+        Password: ''
         DatabaseName: 'deadLetterStorage'
 
 DeadLetterReprocessorOptions:
@@ -57,21 +60,35 @@ DicomRelationalMapperOptions:
     RetryDelayInSeconds: 60
     RunChecks: true
 
+UpdateValuesOptions:
+    QueueName: 'TEST.UpdateValuesQueue'
+    QoSPrefetchCount: 10000
+    AutoAck: false
+    #TableInfosToUpdate: 1,2,3 <-set this to limit which tables get updated when no explicit table is listed in the message
+    UpdateTimeout: 500 # number of seconds to wait for each UPDATE statement
+
+TriggerUpdatesOptions:
+    ExchangeName: 'TEST.TriggerUpdatesExchange'
+    MaxConfirmAttempts: 1
+
 CohortExtractorOptions:
     QueueName: 'TEST.RequestQueue'
     QoSPrefetchCount: 10000
     AutoAck: false
     AllCatalogues: true
-    OnlyCatalogues: [1,2,3]
+    
     # List of IDs of Catalogues to extract from (in ascending order).
     # Ignored if "AllCatalogues == true"
-    #    - 2
-    #    - 4
-    #    - 5
-    # also doable on a single line with [2,4,5] :)
+    OnlyCatalogues: [1,2,3]
+    
+    # ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
+    #RejectColumnInfos: [105,110]
+    
     AuditorType: 'Microservices.CohortExtractor.Audit.NullAuditExtractions'
     RequestFulfillerType: 'Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller'
     ProjectPathResolverType: 'Microservices.CohortExtractor.Execution.ProjectPathResolvers.DefaultProjectPathResolver'
+    ExtractAnonRoutingKey: anon
+    ExtractIdentRoutingKey: ident
     # Writes (Producer) to this exchange
     ExtractFilesProducerOptions: 
         ExchangeName: 'TEST.ExtractFileExchange'
@@ -85,6 +102,8 @@ CohortPackagerOptions:
     JobWatcherTimeoutInSeconds: 30
     ReporterType: 'LoggingReporter'
     NotifierType: 'LoggingNotifier'
+    ReportFormat: 'Combined'
+    ReportNewLine: ''
     ExtractRequestInfoOptions:
         QueueName: 'TEST.RequestInfoQueue'
         QoSPrefetchCount: 1
@@ -93,12 +112,12 @@ CohortPackagerOptions:
         QueueName: 'TEST.FileCollectionInfoQueue'
         QoSPrefetchCount: 1
         AutoAck: false
-    AnonFailedOptions:
-        QueueName: 'TEST.AnonFailedQueue'
+    NoVerifyStatusOptions:
+        QueueName: 'TEST.ExtractedFileNoVerifyQueue'
         QoSPrefetchCount: 1
         AutoAck: false
     VerificationStatusOptions:
-        QueueName: 'TEST.VerificationStatusQueue'
+        QueueName: 'TEST.ExtractedFileVerifiedQueue'
         QoSPrefetchCount: 1
         AutoAck: false
 
@@ -158,12 +177,23 @@ ProcessDirectoryOptions:
         MaxConfirmAttempts: 1
 
 CTPAnonymiserOptions:
-    ExtractFileConsumerOptions:
-        QueueName: 'TEST.ExtractFileQueue'
+    VerifyRoutingKey: verify
+    NoVerifyRoutingKey: noverify
+    AnonFileConsumerOptions:
+        QueueName: 'TEST.ExtractFileAnonQueue'
         QoSPrefetchCount: 1
         AutoAck: false
     ExtractFileStatusProducerOptions:
-        ExchangeName: 'TEST.FileStatusExchange'
+        ExchangeName: 'TEST.ExtractedFileStatusExchange'
+        MaxConfirmAttempts: 1
+
+FileCopierOptions:
+    NoVerifyRoutingKey: noverify
+    QueueName: 'TEST.ExtractFileIdentQueue'
+    QoSPrefetchCount: 1
+    AutoAck: false
+    CopyStatusProducerOptions:
+        ExchangeName: 'TEST.ExtractedFileStatusExchange'
         MaxConfirmAttempts: 1
 
 ExtractorClOptions:
@@ -176,11 +206,11 @@ ExtractorClOptions:
         MaxConfirmAttempts: 1
 
 IsIdentifiableOptions:
-    QueueName: 'TEST.IsIdentifiableQueue'
+    QueueName: 'TEST.ExtractedFileToVerifyQueue'
     QoSPrefetchCount: 1
     AutoAck: false
     IsIdentifiableProducerOptions:
-        ExchangeName: 'TEST.IsIdentifiableExchange'
+        ExchangeName: 'TEST.ExtractedFileVerifiedExchange'
         MaxConfirmAttempts: 1
     ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
     DataDirectory: ''

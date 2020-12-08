@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -10,6 +12,7 @@ using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting.Reports;
 using Microservices.IsIdentifiable.Rules;
 using Microservices.IsIdentifiable.Whitelists;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using YamlDotNet.Serialization;
 
@@ -88,11 +91,43 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         public List<ICustomRule> CustomWhiteListRules { get; set; } = new List<ICustomRule>();
 
+        /// <summary>
+        /// One cache per field in the data being evaluated, records the recent values passed to <see cref="Validate(string, string)"/> and the results to avoid repeated lookups
+        /// </summary>
+        public ConcurrentDictionary<string,MemoryCache> Caches {get;set;} = new ConcurrentDictionary<string, MemoryCache>();
+
+        /// <summary>
+        /// The maximum size of a Cache before we clear it out to prevent running out of RAM
+        /// </summary>
+        public int MaxValidationCacheSize  {get;set;}
+        
+        /// <summary>
+        /// Total number of calls to <see cref="Validate(string, string)"/> that were returned from the cache
+        /// </summary>
+        public long ValidateCacheHits {get;set;}
+
+        /// <summary>
+        /// Total number of calls to <see cref="Validate(string, string)"/> that were missing from the cache and run directly
+        /// </summary>
+        public long ValidateCacheMisses {get;set;}
+
+        /// <summary>
+        /// Total number of <see cref="FailurePart"/> identified during lifetime (see <see cref="Validate(string, string)"/>)
+        /// </summary>
+        public int CountOfFailureParts {get;protected set;}
+
+        /// <summary>
+        /// Duration the class has existed for
+        /// </summary>
+        private Stopwatch _lifetime {get;}
+
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
+            _lifetime = Stopwatch.StartNew();
             _opts = opts;
             _opts.ValidateOptions();
-            
+            MaxValidationCacheSize = opts.MaxValidationCacheSize;
+
             string targetName = _opts.GetTargetName();
 
             if (opts.ColumnReport)
@@ -190,9 +225,28 @@ namespace Microservices.IsIdentifiable.Runners
             //socket rules sink to the bottom
             if (arg is SocketRule)
                 return -5000;
+            
+
+            //ConsensusRules should sink to the bottom but just above SocketRules (if any)
+            if (arg is ConsensusRule)
+                return -3000;
 
             //some odd custom rule type that is not a socket or basic rule, do them after the regular reports but before sockets
             return -50;
+        }
+        
+        /// <summary>
+        /// Generates a deserializer suitable for deserialzing <see cref="RuleSet"/> for use with this class (see also <see cref="LoadRules(string)"/>)
+        /// </summary>
+        /// <returns></returns>
+        public static IDeserializer GetDeserializer()
+        {
+            var builder = new DeserializerBuilder();
+            builder.WithTagMapping("!SocketRule", typeof(SocketRule));
+            builder.WithTagMapping("!WhiteListRule", typeof(WhiteListRule));
+            builder.WithTagMapping("!IsIdentifiableRule", typeof(IsIdentifiableRule));
+
+            return builder.Build();
         }
 
         /// <summary>
@@ -204,7 +258,7 @@ namespace Microservices.IsIdentifiable.Runners
         {
             _logger.Info("Loading Rules Yaml");
             _logger.Debug("Loading Rules Yaml:" +Environment.NewLine+yaml);
-            var deserializer = new Deserializer();
+            var deserializer = GetDeserializer();
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
             if(ruleSet.BasicRules != null)
@@ -219,14 +273,46 @@ namespace Microservices.IsIdentifiable.Runners
 
         // ReSharper disable once UnusedMemberInSuper.Global
         public abstract int Run();
-
+        
         /// <summary>
         /// Returns each subsection of <paramref name="fieldValue"/> which violates validation rules (e.g. the CHI found).
         /// </summary>
         /// <param name="fieldName"></param>
         /// <param name="fieldValue"></param>
         /// <returns></returns>
-        protected IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        protected virtual IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
+        {
+            // make sure that we have a cache for this column name
+            var cache = Caches.GetOrAdd(fieldName,(v)=>new MemoryCache(new MemoryCacheOptions()
+        {
+            SizeLimit = MaxValidationCacheSize
+        }));
+            
+            //if we have the cached result use it
+            if(cache.TryGetValue(fieldValue ?? "NULL",out FailurePart[] result))
+            {
+                ValidateCacheHits++;
+                CountOfFailureParts += result.Length;
+                return result;
+            }
+            
+            ValidateCacheMisses++;
+
+            //otherwise run ValidateImpl and cache the result
+            var freshResult = ValidateImpl(fieldName,fieldValue).ToArray();
+            CountOfFailureParts += freshResult.Length;
+            return cache.Set(fieldValue?? "NULL", freshResult, new MemoryCacheEntryOptions() {
+                Size=1
+            });
+        }
+        
+        /// <summary>
+        /// Actual implementation of <see cref="Validate(string, string)"/> after a cache miss has occurred.  This method is only called when a cached answer is not found for the given <paramref name="fieldName"/> and <paramref name="fieldValue"/> pair
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <param name="fieldValue"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<FailurePart> ValidateImpl(string fieldName, string fieldValue)
         {
             if (_skipColumns.Contains(fieldName))
                 yield break;
@@ -401,6 +487,10 @@ namespace Microservices.IsIdentifiable.Runners
         {
             foreach (var d in CustomRules.OfType<IDisposable>()) 
                 d.Dispose();
+
+            _logger?.Info($"Total runtime for {GetType().Name}:{_lifetime.Elapsed}");
+            _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
+            _logger?.Info($"Total FailurePart identified: {CountOfFailureParts}");
         }
     }
 }

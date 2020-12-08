@@ -1,11 +1,13 @@
-﻿using System;
-using System.Reflection;
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Tests;
+using System;
+using System.Reflection;
 
 namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
@@ -24,6 +26,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             "test",
             1,
             null,
+            isIdentifiableExtraction: true,
+            isNoFilterExtraction: true,
             null);
 
         #region Fixture Methods 
@@ -48,16 +52,50 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         #region Tests
 
         [Test]
+        public void Test_MongoCompletedExtractJobDoc_ParseOldFormat()
+        {
+            Console.WriteLine(Guid.NewGuid());
+            const string jsonDoc = @"
+{
+    '_id' : 'bfead735-d5c0-4f7c-b0a7-88d873704dab',
+    'header' : {
+        'extractionJobIdentifier' : 'bfead735-d5c0-4f7c-b0a7-88d873704dab',
+        'messageGuid' : 'bfead735-d5c0-4f7c-b0a7-88d873704dab',
+        'producerExecutableName' : 'ExtractorCL',
+        'producerProcessID' : 1234,
+        'originalPublishTimestamp' : ISODate('2020-08-28T12:00:00Z'),
+        'parents' : '',
+        'receivedAt' : ISODate('2020-08-28T12:00:00Z')
+    },
+    'projectNumber' : '1234s',
+    'jobStatus' : 'Completed',
+    'extractionDirectory' : 'foo/bar',
+    'jobSubmittedAt' : ISODate('2020-08-28T12:00:00Z'),
+    'keyTag' : 'SeriesInstanceUID',
+    'keyCount' : 123,
+    'extractionModality' : null,
+    'failedJobInfo' : null,
+    'completedAt' : ISODate('2020-08-28T12:00:00Z'),
+}";
+
+            var mongoExtractJobDoc = BsonSerializer.Deserialize<MongoCompletedExtractJobDoc>(BsonDocument.Parse(jsonDoc));
+
+            // NOTE(rkm 2020-08-28) This works by chance since the missing bool will default to false, so we don't require MongoCompletedExtractJobDoc to implement ISupportInitialize
+            Assert.False(mongoExtractJobDoc.IsIdentifiableExtraction);
+            Assert.False(mongoExtractJobDoc.IsNoFilterExtraction);
+        }
+
+        [Test]
         public void TestMongoCompletedExtractJobDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoCompletedExtractJobDoc).GetProperties())
                 Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
         }
-        
+
         [Test]
         public void TestMongoCompletedExtractJobDoc_Constructor_ExtractJobStatus()
         {
-            var doc = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
+            var doc = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
 
             Assert.AreEqual(ExtractJobStatus.Completed, doc.JobStatus);
         }
@@ -65,16 +103,16 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         [Test]
         public void TestMongoCompletedExtractJobDoc_Equality()
         {
-            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
-            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
+            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
+            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             Assert.AreEqual(doc1, doc2);
         }
 
         [Test]
         public void TestMongoCompletedExtractJobDoc_GetHashCode()
         {
-            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
-            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider);
+            var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
+            var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());
         }
 

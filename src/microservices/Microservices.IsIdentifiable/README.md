@@ -9,7 +9,8 @@ Primary Author: [Thomas](https://github.com/tznind)
  1. [Rules](#rules) 
     1. [Basic Rules](#basic-rules) 
     2. [Socket Rules](#socket-rules) 
-    3. [White List Rules](#white-list-rules) 
+    3. [Consensus Rules](#consensus-rules) 
+    4. [White List Rules](#white-list-rules) 
  1. [Exchange and Queue Settings](#exchange-and-queue-settings)
  1. [Expectations](#expectations)
  1. [Class Diagram](#class-diagram)
@@ -159,6 +160,24 @@ Once the responder has decided there are no more offending sections (or there we
 ```
 Responder: \0\0
 ```
+
+### Consensus Rules
+
+If you have two or more rules that you want to cooperate when determining whether data is identifiable or not e.g. 2 NLP Name Entity Recognizers you can use a ConsensusRule.  These rules require all subrules to agree on whether to Report or Ignore a given cell value.  If there is disagreement then the rule is not applied (`RuleAction.None` i.e. take no action).
+
+You can configure a consensus rule using the following yaml:
+```yaml
+ConsensusRules:
+    - Rules:
+      - !SocketRule
+          Host: 127.0.123.123
+          Port: 1234
+      - !SocketRule
+          Host: 127.0.123.123
+          Port: 567
+```
+
+Consensus rules are specifically designed for intersecting two or more over matching rules e.g. NLP classifications.  If only one rule flags something as identifiable it will be ignored (both must agree).
 
 ### White List Rules
 

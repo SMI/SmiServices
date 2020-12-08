@@ -26,18 +26,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         void PersistMessageToStore(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
 
         /// <summary>
-        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// Serializes a <see cref="ExtractedFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
         /// </summary>
         /// <param name="fileStatusMessage"></param>
         /// <param name="header"></param>
-        void PersistMessageToStore(ExtractFileStatusMessage fileStatusMessage, IMessageHeader header);
+        void PersistMessageToStore(ExtractedFileStatusMessage fileStatusMessage, IMessageHeader header);
 
         /// <summary>
-        /// Serializes a <see cref="ExtractFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
+        /// Serializes a <see cref="ExtractedFileStatusMessage"/> and it's <see cref="IMessageHeader"/> and stores it
         /// </summary>
         /// <param name="anonVerificationMessage"></param>
         /// <param name="header"></param>
-        void PersistMessageToStore(IsIdentifiableMessage anonVerificationMessage, IMessageHeader header);
+        void PersistMessageToStore(ExtractedFileVerificationMessage anonVerificationMessage, IMessageHeader header);
 
         /// <summary>
         /// Returns a list of all jobs which are ready for final checks
@@ -64,27 +64,34 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        ExtractJobInfo GetCompletedJobInfo(Guid jobId);
+        CompletedExtractJobInfo GetCompletedJobInfo(Guid jobId);
 
         /// <summary>
         /// Returns the rejection reasons for a completed job
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<string, int>> GetCompletedJobRejections(Guid jobId);
+        IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejections(Guid jobId);
 
         /// <summary>
-        /// Returns the anonymisation failures for a completed job. This is a tuple of "expected anonymised file path" and "failure reason"
+        /// Returns the anonymisation failures for a completed job
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailures(Guid jobId);
+        IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailures(Guid jobId);
 
         /// <summary>
-        /// Returns the verification failures for a completed job. This is a tuple of "anonymised file path" and "verification failure reason"
+        /// Returns the verification failures for a completed job
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailures(Guid jobId);
+        IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailures(Guid jobId);
+
+        /// <summary>
+        /// Returns the full list of files that were matched from an input identifier but could not be found, and a reason for each
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        IEnumerable<string> GetCompletedJobMissingFileList(Guid jobId);
     }
 }

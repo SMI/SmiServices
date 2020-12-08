@@ -27,26 +27,10 @@ namespace Microservices.IsIdentifiable
 
         public static int Main(string[] args)
         {
-            if (!DicomDatasetHelpers.CorrectFoDicomVersion())
-            {
-                Console.WriteLine("Incorrect fo-dicom version for the current platform");
-                return 1;
-            }
-
             ImplementationManager.Load<MicrosoftSQLImplementation>();
             ImplementationManager.Load<MySqlImplementation>();
             ImplementationManager.Load<OracleImplementation>();
             ImplementationManager.Load<PostgreSqlImplementation>();
-
-            //If running as a self contained micro service (getting messages from RabbitMQ)
-            if (args.Length == 1 && string.Equals(args[0], "--service", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var options = GlobalOptions.Load();
-                
-                var bootstrapper = new MicroserviceHostBootstrapper(
-                    () => new IsIdentifiableHost(options));
-                return bootstrapper.Main();
-            }
 
             try
             {
@@ -119,12 +103,12 @@ namespace Microservices.IsIdentifiable
             }
         }
 
-        private static int Run(IsIdentifiableServiceOptions opts)
+        private static int Run(IsIdentifiableServiceOptions serviceOpts)
         {
-            var options = GlobalOptions.Load(opts.YamlFile);
+            var options = new GlobalOptionsFactory().Load(serviceOpts.YamlFile);
                 
             var bootstrapper = new MicroserviceHostBootstrapper(
-                () => new IsIdentifiableHost(options));
+                () => new IsIdentifiableHost(options, serviceOpts));
             return bootstrapper.Main();
 
         }

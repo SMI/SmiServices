@@ -4,7 +4,7 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 [![Coverage Status](https://coveralls.io/repos/github/SMI/SmiServices/badge.svg)](https://coveralls.io/github/SMI/SmiServices)
 
-Version: `1.8.1`
+Version: `1.13.0`
 
 # SMI Services
 
@@ -21,7 +21,6 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    2. [Image Extraction Microservices](#image-extraction-microservices)
-1. [Environment Variables](#environment-variables)
 2. [Solution Overivew](#solution-overview)
 3. [Building](#building)
 4. [Testing](#testing)
@@ -44,12 +43,12 @@ A control queue is provided for controlling Microservices during runtime.  It su
 
 | Microservice / Console App| Description |
 | ------------- | ------------- |
-| [ProcessDirectory](./src/applications/Applications.DicomDirectoryProcessor/README.md)  | Enumerates directories and generates `AccessionDirectoryMessage` for those that contain dicom files.|
-| [DicomTagReader](./src/microservices/Microservices.DicomTagReader/README.md)  | Opens dicom files found in `AccessionDirectoryMessage` directories and converts to JSON as a `DicomFileMessage`.  Also creates a summary record of the whole series as a `SeriesMessage`.|
-| [IdentifierMapper](./src/microservices/Microservices.IdentifierMapper/Readme.md)  | Replaces the `PatientID` Dicom Tag in a `DicomFileMessage` using a specified mapping table.|
-| [MongoDBPopulator](./src/microservices/Microservices.MongoDbPopulator/Readme.md)  | Stores the Dicom Tag data in `DicomFileMessage` and/or `SeriesMessage` into a MongoDB database document store. |
-| [DicomRelationalMapper](./src/microservices/Microservices.DicomRelationalMapper/Readme.md)  | Runs an RDMP data load configuration with a batch of `DicomFileMessage` to load Dicom Tag data into a relational database (MySql or Microsoft Sql Server).|
-| [DicomReprocessor](./src/microservices/Microservices.DicomReprocessor/README.md)  | Runs a MongoDB query on the database populated by `MongoDBPopulator` and converts the results back into `DicomFileMessage` for (re)loading by `DicomRelationalMapper`.|
+| [ProcessDirectory]  | Command line application that finds dicom files on disk and [queues them for execution in RabbitMQ](./src/common/Smi.Common/Messages/AccessionDirectoryMessage.cs).|
+| [DicomTagReader] | Opens queued dicom files on disk and [converts them to JSON](./src/common/Smi.Common/Messages/DicomFileMessage.cs).  Also creates a [summary record of the whole series](./src/common/Smi.Common/Messages/SeriesMessage.cs).|
+| [IdentifierMapper] (Optional)  | Replaces the `PatientID` dicom Tag in a [DicomFileMessage] using a specified mapping table.|
+| [MongoDBPopulator]  | Persists the dicom Tag data in [DicomFileMessage] and/or [SeriesMessage] into a MongoDB database document store. |
+| [DicomRelationalMapper] | Persists the dicom Tag data (and file paths) in [DicomFileMessage] into a [relational database](https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/FAQ.md#databases).  ETL pipeline is controlled by an [RDMP] data load configuration.|
+| [DicomReprocessor] | Runs a MongoDB query on the database populated by [MongoDBPopulator] and converts the results back into [DicomFileMessage] for (re)loading by [DicomRelationalMapper].|
 
 ### Image Extraction Microservices
 
@@ -57,10 +56,11 @@ A control queue is provided for controlling Microservices during runtime.  It su
 
 | Microservice / Console App| Description |
 | ------------- | ------------- |
-| [ExtractorCL](./src/applications/com.smi.applications.extractorcli/README.md)  | Reads SeriesInstanceUIDs from a CSV file and generates `ExtractionRequestMessage` and audit message `ExtractionRequestInfoMessage`.|
-| [CohortExtractor](./src/microservices/Microservices.CohortExtractor/README.md)  | Looks up SeriesInstanceUIDs in `ExtractionRequestMessage` and does relational database lookup(s) to resolve into physical image file location.  Generates  `ExtractFileMessage` and audit message `ExtractFileCollectionInfoMessage`.|
-| [CTPAnonymiser](./src/microservices/com.smi.microservices.ctpanonymiser/README.md)  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  `ExtractFileMessage` and copies to specified output directory.  Generates audit message `ExtractFileStatusMessage`.|
-| [CohortPackager](./src/microservices/Microservices.CohortPackager/README.md)  | Records all audit messages and determines when jobs are complete.|
+| [IsIdentifiable]  | Evaluates data being prepared for extraction for personally identifiable data (PII).  See also [IsIdentifiableReviewer]|
+| [ExtractorCL] | Reads UIDs from a CSV file and generates [ExtractionRequestMessage] and audit message [ExtractionRequestInfoMessage].|
+| [CohortExtractor] | Looks up SeriesInstanceUIDs in [ExtractionRequestMessage] and does relational database lookup(s) to resolve into physical image file location.  Generates  [ExtractFileMessage] and audit message [ExtractFileCollectionInfoMessage].|
+| [CTPAnonymiser]  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  [ExtractFileMessage] and copies to specified output directory.  Generates audit message [ExtractFileStatusMessage].|
+| [CohortPackager] | Records all audit messages and determines when jobs are complete.|
 
 ### Audit and Logging Systems
 
@@ -74,19 +74,6 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | Fatal Error Logging | All Microservices that crash or log a fatal error are shut down and log a message to the Fatal Error Logging Exchange.  TODO: Nobody listens to this currently.|
 | Quarantine | TODO: Doesn't exist yet.|
 
-## Environment Variables
-
-The following environment variables are expected by the program:
-
->TODO can we move `ISIDENTIFIABLE_NUMTHREADS` to config yaml/CLI?
-
-| Name | Purpose | Example |
-|------|---------|---------|
-| SMI_LOGS_ROOT     |   Required to be set if `ForceSmiLogsRoot` is set to `true` in the service config. Determines where log files are written to | `/var/log/smi` |
-| MONGO_SERVICE_PASSWORD  | Password that should be used to access the MongoDb database used by ETL pipeline services | MyPassword|
-| ISIDENTIFIABLE_NUMTHREADS | Optional (defaults to 1).  The number of threads to use when looking for identifiable data in extraction pipeline | 1|
-| CI  | When running tests in a CI, this ensures that integration tests are failed instead of skipped | 1|
-
 ## Solution Overview
 
 Appart from the Microservices (documented above) the following library classes are also included in the solution:
@@ -98,11 +85,12 @@ Appart from the Microservices (documented above) the following library classes a
 | Template Builder | /Applications| GUI tool for building modality database schema templates.  Supports viewing and exploring dicom tags in files|
 | Smi.MongoDB.Common | /Reusable | Library containing methods for interacting with MongoDb |
 
+
 ## Building
 
 ### Building the C# Projects
 
-Building requires the [.NET Core 2.2 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.2)
+Building requires the [.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ```bash
 $ dotnet build [-r RID]
@@ -227,4 +215,23 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
 [Dicom]: ./Glossary.md#dicom
 [Dicom tags]: ./Glossary.md#dicom-tags
-
+[IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
+[IsIdentifiableReviewer]: ./src/applications/IsIdentifiableReviewer/README.md
+[DicomFileMessage]: ./src/common/Smi.Common/Messages/DicomFileMessage.cs
+[SeriesMessage]: ./src/common/Smi.Common/Messages/SeriesMessage.cs
+[ExtractionRequestMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractionRequestMessage.cs
+[ExtractionRequestInfoMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractionRequestInfoMessage.cs
+[ExtractFileMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractFileMessage.cs
+[ExtractFileCollectionInfoMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractFileCollectionInfoMessage.cs
+[ExtractFileStatusMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractFileStatusMessage.cs
+[RDMP]: https://github.com/HicServices/RDMP
+[ProcessDirectory]: ./src/applications/Applications.DicomDirectoryProcessor/README.md
+[DicomTagReader]: ./src/microservices/Microservices.DicomTagReader/README.md
+[IdentifierMapper]: ./src/microservices/Microservices.IdentifierMapper/Readme.md
+[MongoDBPopulator]: ./src/microservices/Microservices.MongoDbPopulator/Readme.md
+[DicomRelationalMapper]: ./src/microservices/Microservices.DicomRelationalMapper/Readme.md
+[DicomReprocessor]: ./src/microservices/Microservices.DicomReprocessor/README.md
+[ExtractorCL]: ./src/applications/com.smi.applications.extractorcli/README.md
+[CohortExtractor]: ./src/microservices/Microservices.CohortExtractor/README.md
+[CTPAnonymiser]: ./src/microservices/com.smi.microservices.ctpanonymiser/README.md
+[CohortPackager]: ./src/microservices/Microservices.CohortPackager/README.md

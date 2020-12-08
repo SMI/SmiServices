@@ -1,7 +1,8 @@
 ﻿
-using System;
 using NUnit.Framework;
 using Smi.Common.Options;
+using System;
+using System.Collections.Generic;
 
 namespace Smi.Common.Tests
 {
@@ -12,7 +13,7 @@ namespace Smi.Common.Tests
         [TestCase("default.yaml")]
         public void GlobalOptions_Test(string template)
         {
-            GlobalOptions globals = GlobalOptions.Load(template, TestContext.CurrentContext.TestDirectory);
+            GlobalOptions globals = new GlobalOptionsFactory().Load(template, TestContext.CurrentContext.TestDirectory);
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RabbitOptions.RabbitMqHostName));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.FileSystemOptions.FileSystemRoot));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RDMPOptions.CatalogueConnectionString));
@@ -46,7 +47,7 @@ namespace Smi.Common.Tests
         [Test]
         public void Test_GlobalOptionsUseTestValues_Nulls()
         {
-            GlobalOptions g = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions g = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             Assert.IsNotNull(g.RabbitOptions.RabbitMqHostName);
             g.UseTestValues(null, null, null, null, null);
@@ -56,10 +57,30 @@ namespace Smi.Common.Tests
         [Test]
         public void Test_GlobalOptions_FileReadOption_ThrowsException()
         {
-            GlobalOptions g = GlobalOptions.Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions g = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
             g.DicomTagReaderOptions.FileReadOption = "SkipLargeTags";
 
             Assert.Throws<ApplicationException>(() => g.DicomTagReaderOptions.GetReadOption());
+        }
+
+
+        private class TestDecorator : OptionsDecorator
+        {
+            public override GlobalOptions Decorate(GlobalOptions options)
+            {
+                ForAll<MongoDbOptions>(options, (o) => new MongoDbOptions { DatabaseName = "FFFFF" });
+                return options;
+            }
+        }
+
+        [Test]
+        public void TestDecorators()
+        {
+            var factory = new GlobalOptionsFactory(new List<IOptionsDecorator> { new TestDecorator() });
+            var g = factory.Load();
+            Assert.AreEqual("FFFFF", g.MongoDatabases.DeadLetterStoreOptions.DatabaseName);
+            Assert.AreEqual("FFFFF", g.MongoDatabases.DicomStoreOptions.DatabaseName);
+            Assert.AreEqual("FFFFF", g.MongoDatabases.ExtractionStoreOptions.DatabaseName);
         }
     }
 }

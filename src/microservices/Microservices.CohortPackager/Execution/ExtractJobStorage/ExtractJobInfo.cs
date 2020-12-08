@@ -1,6 +1,6 @@
+using JetBrains.Annotations;
 using System;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 {
@@ -15,7 +15,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public Guid ExtractionJobIdentifier { get; }
 
         /// <summary>
-        /// DateTime the job was submitted at (time the ExtractorCL was run)
+        /// DateTime the job was submitted at (the time the ExtractorCL was run)
         /// </summary>
         public DateTime JobSubmittedAt { get; }
 
@@ -26,7 +26,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public string ProjectNumber { get; }
 
         /// <summary>
-        /// Working directory for this project
+        /// Directory to extract files into, relative to the extraction root. Should be of the format projName/extractions/extractName
         /// </summary>
         [NotNull]
         public string ExtractionDirectory { get; }
@@ -53,6 +53,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         public ExtractJobStatus JobStatus { get; }
 
+        public bool IsIdentifiableExtraction { get; }
+
+        public bool IsNoFilterExtraction { get; }
+
+
         public ExtractJobInfo(
             Guid extractionJobIdentifier,
             DateTime jobSubmittedAt,
@@ -61,7 +66,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] string keyTag,
             uint keyValueCount,
             [CanBeNull] string extractionModality,
-            ExtractJobStatus jobStatus)
+            ExtractJobStatus jobStatus,
+            bool isIdentifiableExtraction,
+            bool isNoFilterExtraction
+            )
         {
             ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
             JobSubmittedAt = (jobSubmittedAt != default(DateTime)) ? jobSubmittedAt : throw new ArgumentNullException(nameof(jobSubmittedAt));
@@ -72,6 +80,28 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             if (extractionModality != null)
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
             JobStatus = (jobStatus != default(ExtractJobStatus)) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
+            IsIdentifiableExtraction = isIdentifiableExtraction;
+            IsNoFilterExtraction = isNoFilterExtraction;
+        }
+
+        /// <summary>
+        /// Returns the extraction name (last part of projName/extractions/extractName)
+        /// </summary>
+        /// <returns></returns>
+        public string ExtractionName()
+        {
+            string[] split = ExtractionDirectory.Split('/', '\\');
+            return split[^1];
+        }
+        
+        /// <summary>
+        /// Returns the project extraction directory (first two parts of projName/extractions/extractName)
+        /// </summary>
+        /// <returns></returns>
+        public string ProjectExtractionDir()
+        {
+            int idx = ExtractionDirectory.LastIndexOfAny(new[] { '/', '\\' });
+            return ExtractionDirectory.Substring(0, idx);
         }
 
         public override string ToString()
@@ -83,6 +113,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             sb.AppendLine("KeyTag: " + KeyTag);
             sb.AppendLine("KeyCount: " + KeyValueCount);
             sb.AppendLine("ExtractionModality: " + ExtractionModality);
+            sb.AppendLine("IsIdentifiableExtraction: " + IsIdentifiableExtraction);
+            sb.AppendLine("IsNoFilterExtraction: " + IsNoFilterExtraction);
             return sb.ToString();
         }
 
@@ -99,6 +131,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                    KeyTag == other.KeyTag &&
                    KeyValueCount == other.KeyValueCount &&
                    ExtractionModality == other.ExtractionModality &&
+                   IsIdentifiableExtraction == other.IsIdentifiableExtraction &&
+                   IsNoFilterExtraction == other.IsNoFilterExtraction &&
                    JobStatus == other.JobStatus;
         }
 
@@ -123,9 +157,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 hashCode = (hashCode * 397) ^ ProjectNumber.GetHashCode();
                 hashCode = (hashCode * 397) ^ ExtractionDirectory.GetHashCode();
                 hashCode = (hashCode * 397) ^ KeyTag.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)KeyValueCount;
+                hashCode = (hashCode * 397) ^ (int) KeyValueCount;
                 hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int)JobStatus;
+                hashCode = (hashCode * 397) ^ (int) JobStatus;
+                hashCode = (hashCode * 397) ^ IsIdentifiableExtraction.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsNoFilterExtraction.GetHashCode();
                 return hashCode;
             }
         }
