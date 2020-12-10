@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager.Options
             "format",
             Required = false,
             Default = ReportFormat.Combined,
-            HelpText = "[Optional] The report format to use when --recreate-report is specified. This value is otherwise ignored"
+            HelpText = "[Optional] The report format to use when --recreate-report is specified. This value (even when the default is used) overrides any value set in the YAML config"
         )]
         [UsedImplicitly]
         public ReportFormat ReportFormat { get; set; }
