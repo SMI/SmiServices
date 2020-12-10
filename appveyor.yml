@@ -29,7 +29,7 @@ build_script:
   
   - ps: "[Net.ServicePointManager]::SecurityProtocol = \"tls12, tls11, tls\""
   - ps: "New-Item -Path \".\" -Name \"rdmp-cli\" -ItemType \"directory\""
-  - ps:  Invoke-WebRequest https://github.com/HicServices/RDMP/releases/download/v4.1.1/rdmp-cli-win-x64.zip -OutFile rdmp-cli-win-x64.zip
+  - ps:  Invoke-WebRequest https://github.com/HicServices/RDMP/releases/download/v4.2.0/rdmp-cli-win-x64.zip -OutFile rdmp-cli-win-x64.zip
   
   
   - ps: 7z x rdmp-cli-win-x64.zip -oC:\projects\smiservices\rdmp-cli
