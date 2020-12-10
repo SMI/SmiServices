@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -48,7 +49,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             }
             else
             {
-                Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ({Environment.NewLine})");
+                Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ('{Regex.Escape(Environment.NewLine)}')");
                 ReportNewLine = Environment.NewLine;
             }
 
@@ -465,7 +466,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 @"\r" => NewLine.CR,
                 @"\r\n" => NewLine.CRLF,
                 @"\n" => NewLine.LF,
-                _ => throw new ArgumentException($"No case for '{newLine}'")
+                _ => throw new ArgumentException($"No case for '{Regex.Escape(newLine)}'")
             };
 
         protected abstract void ReleaseUnmanagedResources();
