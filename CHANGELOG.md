@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+
 ### Dependencies
 
 - Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4

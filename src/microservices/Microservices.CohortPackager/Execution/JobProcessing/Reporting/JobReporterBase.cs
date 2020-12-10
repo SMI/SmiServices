@@ -457,14 +457,14 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             sb.Append(ReportNewLine);
         }
 
-        // NOTE(rkm 2020-11-20) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
-        // can tell, this is the most straightforward way to parse a "NewLine" from one of the "NewLines" string constants they provide...
+        // NOTE(rkm 2020-12-10) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
+        // can tell, this is the most straightforward way to parse a "NewLine" from an input string
         private static NewLine ParseToCsvNewLine(string newLine) =>
             newLine switch
             {
-                NewLines.CR => NewLine.CR,
-                NewLines.CRLF => NewLine.CRLF,
-                NewLines.LF => NewLine.LF,
+                @"\r" => NewLine.CR,
+                @"\r\n" => NewLine.CRLF,
+                @"\n" => NewLine.LF,
                 _ => throw new ArgumentException($"No case for '{newLine}'")
             };
 
