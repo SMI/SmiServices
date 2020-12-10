@@ -55,7 +55,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             _csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                NewLine = ParseToCsvNewLine(ReportNewLine),
+                NewLine = ParseToCsvNewLine(Regex.Escape(ReportNewLine)),
             };
         }
 
@@ -459,7 +459,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         }
 
         // NOTE(rkm 2020-12-10) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
-        // can tell, this is the most straightforward way to parse a "NewLine" from an input string
+        // can tell, this is the most straightforward way to parse a "NewLine" from an input string. The input string must already be escaped.
         private static NewLine ParseToCsvNewLine(string newLine) =>
             newLine switch
             {
