@@ -6,6 +6,10 @@
 
 set -euxo pipefail
 
+pushd ./lib/java
+./installDat.sh
+popd
+
 # TODO(rkm 2020-12-04) Is this still needed?
 if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ]; then
     echo "Running iconv on ChunkedInputStream.java"
