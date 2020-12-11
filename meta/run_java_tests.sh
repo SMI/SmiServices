@@ -4,7 +4,7 @@
 # different to the old Travis builds which would still run each line and only report
 # failures at the end
 
-set -euxo pipefail
+set -euo pipefail
 
 pushd ./lib/java
 ./installDat.sh
