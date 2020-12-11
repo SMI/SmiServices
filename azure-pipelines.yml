@@ -114,7 +114,8 @@ jobs:
           - task: Bash@3
             inputs:
               filePath: './meta/run_java_tests.sh'
-              failOnStderr: true
+              # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
+              failOnStderr: false
         
     - job: build_artefacts
       displayName: Upload tagged releases to GitHub
