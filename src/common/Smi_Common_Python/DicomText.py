@@ -21,9 +21,17 @@ class DicomText:
     write_redacted_text_into_dicom_file  # to rewrite a second file with redacted text
     """
 
-    # Class variable determines whether unknown tags are included in the output
-    # (ideally this would be True but in practice we are only interested in known tags).
+    """ Class variable determines whether unknown tags are included in the output
+    (ideally this would be True but in practice we are only interested in known tags).
+    Replace HTML entities such as <BR> with newline.
+    Insert a [[Findings]] tag after the header tags so SemEHR can find the body of text.
+    Redaction replaces text with X. Random length uses random number of X instead.
+    """
     _include_unexpected_tags = False
+    _replace_HTML_entities = False
+    _insert_Findings_tag = False
+    _redact_random_length = False
+    _redact_char = 'X'
 
     def __init__(self, filename):
         """ The DICOM file is read during construction.
@@ -53,11 +61,16 @@ class DicomText:
         """
         rc = ''
         if data_element.VR in ['SH', 'CS', 'SQ']:
+            # "SH" Short String, "CS" Code String, "SQ" Sequence ignored
             pass
         elif data_element.VR == 'LO':
-            rc = rc + ('[[%s]]' % str(data_element.value)) + '\n'
+            # "LO" Long String typically used for headings
+            rc = rc + ('# %s' % str(data_element.value)) + '\n'
         else:
             rc = rc + ('%s' % (str(data_element.value))) + '\n'
+            # XXX replace HTML entities? such as <BR> with newline
+            if DicomText._replace_HTML_entities:
+                rc = re.sub('<[Bb][Rr]>', '\n', rc)
         if rc == '':
             return
         self._offset_list.append( { 'offset':len(self._p_text), 'string': rc} )
@@ -84,9 +97,15 @@ class DicomText:
                     line = '[[%s]] %s\n' % (tagname, drkey.value)
                     self._p_text = self._p_text + line
         # Now for the main event, the text in the ContentSequence
+        # XXX output [[Findings]] so that SemEHR knows where to start
+        if DicomText._insert_Findings_tag:
+            self._dataset_read_callback(None, DataElement(0x00100010, 'UT', 'Findings'))
+        # The text appears as a set of strings inside this tag:
         if 'ContentSequence' in self._dicom_raw:
+            self._p_text = self._p_text + '[[ContentSequence]]\n'
             for content_sequence_item in self._dicom_raw.ContentSequence:
                 content_sequence_item.walk(self._dataset_read_callback)
+            self._p_text = self._p_text + '[[EndContentSequence]]\n'
 
     def redact_string(self, plaintext, offset, len):
         """ Simple function to replace characters from the middle of a string.
@@ -94,13 +113,10 @@ class DicomText:
         Can replace all for same length or randomise the amount.
         Returns the new string.
         """
-        redact_char = 'X'
-        redact_random_length = False
-
         redact_length = len
-        if redact_random_length:
+        if DicomText._redact_random_length:
             redact_length = random.randint(-int(len/2), int(len/2))
-        rc = plaintext[0:offset] + 'X'.rjust(redact_length,'X') + plaintext[offset+len:]
+        rc = plaintext[0:offset] + DicomText._redact_char.rjust(redact_length, DicomText._redact_char) + plaintext[offset+len:]
         return rc
 
     def _dataset_redact_callback(self, dataset, data_element):
@@ -113,7 +129,7 @@ class DicomText:
         if data_element.VR in ['SH', 'CS', 'SQ']:
             pass
         elif data_element.VR == 'LO':
-            rc = rc + ('[[%s]]' % str(data_element.value)) + '\n'
+            rc = rc + ('# %s' % str(data_element.value)) + '\n'
         else:
             rc = rc + ('%s' % (str(data_element.value))) + '\n'
         if rc == '':
@@ -122,17 +138,24 @@ class DicomText:
         current_start = len(self._r_text)
         current_end   = current_start + len(rc)
         replacement = rc
+        replacedAny = False
         for annot in self._annotations:
             if annot['start_char'] >= current_start and annot['start_char'] < current_end:
                 annot_at = annot['start_char'] - current_start
                 annot_end = annot['end_char'] - current_start
-                if rc[annot_at:annot_end+1] == annot['text']:
-                    # text is found exactly where we expected so offsets are correct
-                    replacement = self.redact_string(rc, annot_at, annot_end-annot_at+1)
-                    data_element.value = replacement
-                else:
-                    # offsets have slipped, find proper offset and save adjustment
-                    print('WARN: offsets slipped')
+                replaced = replacedAny = False
+                # SemEHR may have an extra LF at the start so start_char offset need adjusting
+                for offset in [-1, 0, +1, -2, +2]:
+                    if rc[annot_at+offset : annot_end+offset] == annot['text']:
+                        replacement = self.redact_string(rc, annot_at+offset, annot_end-annot_at+offset)
+                        replaced = replacedAny = True
+                        #print('REPLACE: %s at offset %d' % (annot['text'], offset))
+                        break
+                if not replaced:
+                    print('WARNING: offsets slipped:')
+                    print('  expected to find %s but found %s' % (annot['text'], rc[annot_at:annot_end]))
+        if replacedAny:
+            data_element.value = replacement         
         self._r_text = self._r_text + rc
         self._redacted_text = self._redacted_text + replacement
 
@@ -144,8 +167,8 @@ class DicomText:
         so parse must already have been called.
         Modifies the actual state of the DICOM dataset _dicom_raw.
         """
-        assert(self._p_text) # call parse first
-        self._r_text = ''
+        assert(self._p_text) # you must have called parse first
+        self._r_text = ''    # XXX could start with '\n' to match semehr behaviour
         self._redacted_text = ''
         self._annotations = annot_list
         if 'ContentSequence' in self._dicom_raw:
