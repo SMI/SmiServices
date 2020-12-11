@@ -33,13 +33,13 @@ jobs:
           displayName: Use .NET SDK 3.1
           inputs:
             packageType: sdk
-            version: 3.1
+            version: 3.1.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
         - task: UseDotNet@2
           displayName: Use .NET Runtime 2.2 for rdmp-cli
           inputs:
             packageType: runtime
-            version: 2.2     
+            version: 2.2.x
 
     - job: run_dotnet_tests
       displayName: Run dotnet tests
