@@ -40,6 +40,11 @@ jobs:
           inputs:
             packageType: runtime
             version: 2.2.x
+            installationPath: $(Agent.ToolsDirectory)/dotnet
+        - task: CmdLine@2
+          displayName: temp
+          inputs:
+            script: dotnet --info
 
     - job: run_dotnet_tests
       displayName: Run dotnet tests
