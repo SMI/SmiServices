@@ -27,25 +27,25 @@ jobs:
         - task: CmdLine@2
           displayName: Install packages
           inputs:
-            script: sudo apt install pigz            
-        # TODO(rkm 2020-12-11) Check these two are cached across pipeline runs
-        - task: UseDotNet@2
-          displayName: Use .NET SDK 3.1
-          inputs:
-            packageType: sdk
-            version: 3.1.x
-            installationPath: $(Agent.ToolsDirectory)/dotnet
-        - task: UseDotNet@2
-          displayName: Use .NET Runtime 2.2.0 for rdmp-cli
-          inputs:
-            packageType: runtime
-            version: 2.2.0
-            installationPath: $(Agent.ToolsDirectory)/dotnet
+            script: sudo apt install pigz                    
 
     - job: run_dotnet_tests
       displayName: Run dotnet tests
       dependsOn: [install_packages]
       steps:
+        # TODO(rkm 2020-12-11) Check these two are cached across pipeline runs
+          - task: UseDotNet@2
+            displayName: Use .NET SDK 3.1
+            inputs:
+              packageType: sdk
+              version: 3.1.x
+              installationPath: $(Agent.ToolsDirectory)/dotnet
+          - task: UseDotNet@2
+            displayName: Use .NET Runtime 2.2.0 for rdmp-cli
+            inputs:
+              packageType: runtime
+              version: 2.2.0
+              installationPath: $(Agent.ToolsDirectory)/dotnet
           - task: Cache@2
             displayName: Cache NuGet packages
             inputs:
