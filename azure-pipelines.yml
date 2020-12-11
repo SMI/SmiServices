@@ -40,6 +40,10 @@ jobs:
       displayName: Run dotnet tests
       dependsOn: [install_packages]
       steps:
+          - task: CmdLine@2
+            displayName: debug
+            inputs:
+              script: dotnet --info
           - task: Cache@2
             displayName: Cache NuGet packages
             inputs:
