@@ -24,7 +24,6 @@ variables:
 jobs:
     - job: run_dotnet_tests
       displayName: Run dotnet tests
-      dependsOn: [install_packages]
       steps:
           - task: CmdLine@2
             displayName: Install dotnet packages
@@ -92,7 +91,6 @@ jobs:
 
     - job: run_java_tests
       displayName: Run java tests
-      dependsOn: [install_packages]
       steps:
           - task: Cache@2
             displayName: Cache Maven local repo
