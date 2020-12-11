@@ -22,28 +22,20 @@ variables:
   MSSQL_SA_PASSWORD: 'YourStrong!Passw0rd'
 
 jobs:
-    - job: install_packages    
-      displayName: Install packages      
-      steps:
-        - checkout: none
-        - task: CmdLine@2
-          displayName: Install packages
-          inputs:
-            script: >
-              wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb &&
-              sudo dpkg -i packages-microsoft-prod.deb &&
-              sudo apt-get update -qq &&
-              sudo apt-get install -y apt-transport-https &&
-              sudo apt-get install -y pigz dotnet-runtime-2.2 dotnet-sdk-3.1
-
     - job: run_dotnet_tests
       displayName: Run dotnet tests
       dependsOn: [install_packages]
       steps:
           - task: CmdLine@2
-            displayName: debug
+            displayName: Install dotnet packages
             inputs:
-              script: dotnet --info
+              script: >
+                :
+                && wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+                && sudo dpkg -i packages-microsoft-prod.deb
+                && sudo apt-get update -qq
+                && sudo apt-get install -y apt-transport-https
+                && sudo apt-get install -y dotnet-runtime-2.2 dotnet-sdk-3.1
           - task: Cache@2
             displayName: Cache NuGet packages
             inputs:
@@ -126,4 +118,11 @@ jobs:
       condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [run_dotnet_tests, run_java_tests]
       steps:
+        - task: CmdLine@2
+          displayName: Install dotnet packages
+          inputs:
+            script: >
+                :
+                && sudo apt-get update -qq
+                && sudo apt-get install -y pigz
         - script: ./meta/build_artefacts.sh $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
