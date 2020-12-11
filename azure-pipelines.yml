@@ -51,7 +51,7 @@ jobs:
             inputs:
                 containerregistrytype: "Container Registry"
                 dockerComposeFile: "./meta/docker-compose-dotnet.yml"
-                dockerComposeFileArgs: '-e DB_PASSWORD="$(DB_PASSWORD)"'
+                dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
                 action: "Run services"
           - task: CmdLine@2
             displayName: Start MongoDB replication
@@ -80,9 +80,21 @@ jobs:
                       chmod +x $(RDMP_CLI_DIR)/rdmp
                     fi
           - task: CmdLine@2
+            displayName: Install sqlcmd
+            inputs:
+                script: >
+                    :
+                    && curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+                    && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/mssql-release.list
+                    && sudo ACCEPT_EULA=Y apt-get install mssql-tools
+          - task: CmdLine@2
+            displayName: Wait for MsSQL
+            inputs:
+                script: timeout 1m bash -c "until /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -Q 'SELECT @@VERSION' -l 1 &> /dev/null ; do echo -n . ; done"
+          - task: CmdLine@2
             displayName: Install RDMP
             inputs:
-                script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
+                script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p $(DB_PASSWORD)
           - task: Bash@3
             inputs:
                 filePath: "./meta/run_dotnet_tests.sh"
