@@ -19,7 +19,7 @@ variables:
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
   RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
   TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
-  MSSQL_SA_PASSWORD: 'YourStrong!Passw0rd'
+  DB_PASSWORD: 'YourStrong!Passw0rd'
 
 jobs:
     - job: run_dotnet_tests
@@ -52,7 +52,7 @@ jobs:
             inputs:
               containerregistrytype: 'Container Registry'
               dockerComposeFile: './meta/docker-compose-dotnet.yml'
-              dockerComposeFileArgs: '-e SA_PASSWORD=$(MSSQL_SA_PASSWORD)'
+              dockerComposeFileArgs: '-e DB_PASSWORD="$(DB_PASSWORD)"'
               action: 'Run services'
           - task: CmdLine@2
             displayName: Start MongoDB replication
