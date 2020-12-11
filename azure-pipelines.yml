@@ -1,25 +1,24 @@
 ---
-
 # TODO(rkm 2020-12-04) See if we can build on both Linux and Windows here
 
 pool:
     # NOTE(rkm 2020-12-11) Can use 20.04 when rdmp-cli supports .NET Core 3.1
-    vmImage: 'ubuntu-18.04'
+    vmImage: "ubuntu-18.04"
 
 trigger:
     branches:
         include: ["*"]
     tags:
         include: ["*"]
-  
+
 variables:
-  CI: 1
-  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
-  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
-  MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-  RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
-  TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
-  DB_PASSWORD: 'YourStrong!Passw0rd'
+    CI: 1
+    NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+    MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+    MAVEN_OPTS: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
+    RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
+    TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
+    DB_PASSWORD: "YourStrong!Passw0rd"
 
 jobs:
     - job: run_dotnet_tests
@@ -28,43 +27,43 @@ jobs:
           - task: CmdLine@2
             displayName: Install dotnet packages
             inputs:
-              script: >
-                :
-                && wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-                && sudo dpkg -i packages-microsoft-prod.deb
-                && sudo apt-get update -qq
-                && sudo apt-get install -y apt-transport-https
-                && sudo apt-get install -y dotnet-runtime-2.2 dotnet-sdk-3.1
+                script: >
+                    :
+                    && wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+                    && sudo dpkg -i packages-microsoft-prod.deb
+                    && sudo apt-get update -qq
+                    && sudo apt-get install -y apt-transport-https
+                    && sudo apt-get install -y dotnet-runtime-2.2 dotnet-sdk-3.1
           - task: Cache@2
             displayName: Cache NuGet packages
             inputs:
-              key: 'nuget | "$(Agent.OS)" | **/*.csproj'
-              path: $(NUGET_PACKAGES)   
+                key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+                path: $(NUGET_PACKAGES)
           - task: Cache@2
             displayName: Cache tesseract data
             inputs:
-              key: 'tessdata | "$(Agent.OS)"'
-              restoreKeys: |
-                tessdata
-              path: $(TESS_DATA_DIR)
+                key: 'tessdata | "$(Agent.OS)"'
+                restoreKeys: |
+                    tessdata
+                path: $(TESS_DATA_DIR)
           - task: DockerCompose@0
             displayName: Run containers for dotnet tests
             inputs:
-              containerregistrytype: 'Container Registry'
-              dockerComposeFile: './meta/docker-compose-dotnet.yml'
-              dockerComposeFileArgs: '-e DB_PASSWORD="$(DB_PASSWORD)"'
-              action: 'Run services'
+                containerregistrytype: "Container Registry"
+                dockerComposeFile: "./meta/docker-compose-dotnet.yml"
+                dockerComposeFileArgs: '-e DB_PASSWORD="$(DB_PASSWORD)"'
+                action: "Run services"
           - task: CmdLine@2
             displayName: Start MongoDB replication
             inputs:
-              script: docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"       
+                script: docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
           - task: CmdLine@2
             displayName: Set RDMP version
             inputs:
-              script: |
-                  rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-                  echo $rdmp_ver
-                  echo "##vso[task.setvariable variable=rdmp_ver]$rdmp_ver"
+                script: |
+                    rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+                    echo $rdmp_ver
+                    echo "##vso[task.setvariable variable=rdmp_ver]$rdmp_ver"
           - task: Cache@2
             displayName: Cache rdmp-cli
             inputs:
@@ -73,60 +72,60 @@ jobs:
           - task: CmdLine@2
             displayName: Download rdmp-cli
             inputs:
-              script: |
-                if [ ! -d $(RDMP_CLI_DIR) ]; then
-                  wget https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-linux-x64.zip
-                  # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
-                  unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
-                  chmod +x $(RDMP_CLI_DIR)/rdmp
-                fi
+                script: |
+                    if [ ! -d $(RDMP_CLI_DIR) ]; then
+                      wget https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-linux-x64.zip
+                      # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
+                      unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
+                      chmod +x $(RDMP_CLI_DIR)/rdmp
+                    fi
           - task: CmdLine@2
             displayName: Install RDMP
             inputs:
-              script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
+                script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
           - task: Bash@3
             inputs:
-              filePath: './meta/run_dotnet_tests.sh'
-              failOnStderr: true
+                filePath: "./meta/run_dotnet_tests.sh"
+                failOnStderr: true
 
     - job: run_java_tests
       displayName: Run java tests
       steps:
           - task: JavaToolInstaller@0
             inputs:
-              versionSpec: '11'
-              jdkArchitectureOption: 'x64'
-              jdkSourceOption: 'PreInstalled'
+                versionSpec: "11"
+                jdkArchitectureOption: "x64"
+                jdkSourceOption: "PreInstalled"
           - task: Cache@2
             displayName: Cache Maven local repo
             inputs:
-              key: 'maven | "$(Agent.OS)" | **/pom.xml'
-              restoreKeys: |
-                maven | "$(Agent.OS)"
-                maven
-              path: $(MAVEN_CACHE_FOLDER)
+                key: 'maven | "$(Agent.OS)" | **/pom.xml'
+                restoreKeys: |
+                    maven | "$(Agent.OS)"
+                    maven
+                path: $(MAVEN_CACHE_FOLDER)
           - task: DockerCompose@0
             displayName: Run containers for java tests
             inputs:
-              containerregistrytype: 'Container Registry'
-              dockerComposeFile: './meta/docker-compose-java.yml'
-              action: 'Run services'
+                containerregistrytype: "Container Registry"
+                dockerComposeFile: "./meta/docker-compose-java.yml"
+                action: "Run services"
           - task: Bash@3
             inputs:
-              filePath: './meta/run_java_tests.sh'
-              # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
-              failOnStderr: false
-        
+                filePath: "./meta/run_java_tests.sh"
+                # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
+                failOnStderr: false
+
     - job: build_artefacts
       displayName: Upload tagged releases to GitHub
       condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [run_dotnet_tests, run_java_tests]
       steps:
-        - task: CmdLine@2
-          displayName: Install dotnet packages
-          inputs:
-            script: >
-                :
-                && sudo apt-get update -qq
-                && sudo apt-get install -y pigz
-        - script: ./meta/build_artefacts.sh $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
+          - task: CmdLine@2
+            displayName: Install dotnet packages
+            inputs:
+                script: >
+                    :
+                    && sudo apt-get update -qq
+                    && sudo apt-get install -y pigz
+          - script: ./meta/build_artefacts.sh $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
