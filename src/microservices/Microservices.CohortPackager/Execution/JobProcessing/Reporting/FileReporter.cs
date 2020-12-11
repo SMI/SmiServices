@@ -12,6 +12,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
     {
         [NotNull] private readonly string _extractRoot;
 
+        private bool _createJobIdFile;
+
         [NotNull] private readonly IFileSystem _fileSystem;
 
         /// <summary>
@@ -25,7 +27,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IFileSystem fileSystem,
             [NotNull] string extractRoot,
             ReportFormat reportFormat,
-            [CanBeNull] string reportNewLine
+            [CanBeNull] string reportNewLine,
+            bool createJobIdFile = true
         )
             : base(
                 jobStore,
@@ -35,17 +38,20 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         {
             _fileSystem = fileSystem;
             _extractRoot = extractRoot ?? throw new ArgumentNullException(nameof(extractRoot));
+            _createJobIdFile = createJobIdFile;
         }
-
 
         protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo)
         {
             _currentFileStream = null;
             Stream fileStream;
 
-            // Write the jobId to a file in the extraction dir to help identify the set of files if they are moved
-            string jobIdFile = _fileSystem.Path.Combine(_extractRoot, jobInfo.ExtractionDirectory, "jobId.txt");
-            _fileSystem.File.WriteAllText(jobIdFile, string.Join(ReportNewLine, jobInfo.ExtractionJobIdentifier));
+            if (_createJobIdFile)
+            {
+                // Write the jobId to a file in the extraction dir to help identify the set of files if they are moved
+                string jobIdFile = _fileSystem.Path.Combine(_extractRoot, jobInfo.ExtractionDirectory, "jobId.txt");
+                _fileSystem.File.WriteAllText(jobIdFile, string.Join(ReportNewLine, jobInfo.ExtractionJobIdentifier));
+            }
 
             string projReportsDirAbsolute = AbsolutePathToProjReportsDir(jobInfo);
             Directory.CreateDirectory(projReportsDirAbsolute);
