@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+-   Clarified the CLI help text for `--format` in CohortPackager
+
 ### Fixed
 
 -   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
