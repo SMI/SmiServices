@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+-   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 -   CohortPackager: Don't try and create the jobId file when recreating an existing report
 
 ### Dependencies

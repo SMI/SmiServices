@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -48,13 +49,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             }
             else
             {
-                Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ({Environment.NewLine})");
+                Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ('{Regex.Escape(Environment.NewLine)}')");
                 ReportNewLine = Environment.NewLine;
             }
 
             _csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                NewLine = ParseToCsvNewLine(ReportNewLine),
+                NewLine = ParseToCsvNewLine(Regex.Escape(ReportNewLine)),
             };
         }
 
@@ -457,15 +458,15 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             sb.Append(ReportNewLine);
         }
 
-        // NOTE(rkm 2020-11-20) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
-        // can tell, this is the most straightforward way to parse a "NewLine" from one of the "NewLines" string constants they provide...
+        // NOTE(rkm 2020-12-10) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
+        // can tell, this is the most straightforward way to parse a "NewLine" from an input string. The input string must already be escaped.
         private static NewLine ParseToCsvNewLine(string newLine) =>
             newLine switch
             {
-                NewLines.CR => NewLine.CR,
-                NewLines.CRLF => NewLine.CRLF,
-                NewLines.LF => NewLine.LF,
-                _ => throw new ArgumentException($"No case for '{newLine}'")
+                @"\r" => NewLine.CR,
+                @"\r\n" => NewLine.CRLF,
+                @"\n" => NewLine.LF,
+                _ => throw new ArgumentException($"No case for '{Regex.Escape(newLine)}'")
             };
 
         protected abstract void ReleaseUnmanagedResources();
