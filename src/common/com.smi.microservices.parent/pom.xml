@@ -136,6 +136,19 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>3.3.0</version>
+					<configuration>
+						<archive>
+							<manifest>
+                        <mainClass>org.smi.ctpanonymiser.Program.Main</mainClass>
+                        <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+							</manifest>
+							<manifestEntries>
+                        <Specification-Vendor>Sun Microsystems, Inc.</Specification-Vendor>
+                        <Implementation-Vendor>Sun Microsystems, Inc.</Implementation-Vendor>
+							</manifestEntries>
+						</archive>
+					</configuration>
 					<executions>
 						<execution>
 							<id>create-deployable</id>
