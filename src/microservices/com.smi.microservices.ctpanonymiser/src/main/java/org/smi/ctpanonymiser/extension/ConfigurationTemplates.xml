@@ -1,0 +1,17 @@
+<TemplateDefinitions>
+
+    <Components>
+
+        <Plugin>
+            <attr name="name" required="yes" default="SRAnonymizerExtension"/>
+            <attr name="class" required="yes" default="org.smi.SRAnonymizerExtension" editable="no"/>
+            <attr name="id" required="yes" default="ExtID"/>
+            <attr name="root" required="yes" default="roots/SRAnonymizerExtension"/>
+            <attr name="prefix" required="yes">
+                <helptext>The prefix to be prepended to processed elements.</helptext>
+            </attr>
+        </Plugin>
+
+    </Components>
+
+</TemplateDefinitions>

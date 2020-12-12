@@ -1,0 +1,66 @@
+<project name="SRAnonymizerExtension" default="all" basedir=".">
+
+    <property name="build" value="${basedir}/build"/>
+    <property name="libraries" value="${basedir}/libraries"/>
+    <property name="products" value="${basedir}/products"/>
+    <property name="source" value="${basedir}/source"/>
+    <property name="java" value="${source}/java"/>
+    <property name="resources" value="${source}/resources"/>
+    <property name="ctp" value="../CTP"/>
+
+    <path id="classpath">
+        <pathelement location="${libraries}/util.jar"/>
+        <pathelement location="${libraries}/CTP.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build}" failonerror="false"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+        <tstamp>
+            <format property="today" pattern="yyyy.MM.dd"/>
+            <format property="now" pattern="HH:mm:ss"/>
+        </tstamp>
+        <echo message="Time now ${now}"/>
+        <echo message="ant.java.version = ${ant.java.version}" />
+        <delete dir="${products}" failonerror="false" />
+        <mkdir dir="${build}"/>
+        <mkdir dir="${products}"/>
+    </target>
+
+    <target name="getLibraryJars">
+        <copy overwrite="true" todir="${libraries}">
+            <fileset dir="${ctp}/libraries">
+                <include name="CTP.jar"/>
+                <include name="util.jar"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="jar" depends="init, getLibraryJars">
+
+        <javac destdir="${build}" optimize="on"
+                classpathref="classpath"
+                includeantruntime="false"
+                debug="true" debuglevel="lines,vars,source">
+            <src path="${java}"/>
+        </javac>
+
+        <copy overwrite="true" todir="${build}">
+            <fileset dir="${resources}"/>
+        </copy>
+
+        <jar jarfile="${products}/SRAnonymizerExtension.jar">
+            <manifest>
+                <attribute name="Implementation-Version" value="${today} @ ${now}"/>
+            </manifest>
+            <fileset dir="${build}" includes="**"/>
+        </jar>
+
+    </target>
+
+    <target name="all" depends="clean, jar"/>
+
+</project>
