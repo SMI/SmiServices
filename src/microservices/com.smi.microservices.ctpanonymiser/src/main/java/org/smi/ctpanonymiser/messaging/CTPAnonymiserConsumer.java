@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
+import org.rsna.ctp.Configuration;
 
 public class CTPAnonymiserConsumer extends SmiConsumer {
 
@@ -145,6 +146,18 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 		}
 
 		_logger.debug("Extracting to file: " + outFile.getAbsolutePath());
+
+		/* Need to explicitly load the configuration (config.xml) to learn about Plugins */
+		Configuration c = Configuration.load();
+		/* also need to do something like this, to allow listClasspath to work:
+		static final File cwdir = new File("."); 
+		static final String mainClassName = "org.rsna.ctp.ClinicalTrialProcessor"; 
+		JarClassLoader clsloader = JarClassLoader.getInstance(new File[] { cwdir }); 
+		Thread.currentThread().setContextClassLoader(clsloader); 
+		Class ctpClass = clsloader.loadClass(mainClassName); 
+		ctpClass.getConstructor( new Class[0] ).newInstance( new Object[0] );
+		which seems to be re-creating the Main program using a JarClassLoader.
+		*/
 
 		CtpAnonymisationStatus status = _anonTool.anonymize(tempFile, outFile);
 		_logger.debug("SmiCtpProcessor returned " + status);
