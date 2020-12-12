@@ -52,7 +52,8 @@ namespace Microservices.CohortPackager
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
                 cliOptions.ReportFormat.ToString(),
-                cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine
+                cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine,
+                createJobIdFile: false
             );
 
             try
