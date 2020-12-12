@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 -   Clarified the CLI help text for `--format` in CohortPackager
+-   CTP calls an external program to anonymise Structured Reports
+  -  Requires an addition to `default.yaml`: `SRAnonTool` (adding this does not break existing programs).
 
 ### Fixed
 
