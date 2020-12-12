@@ -46,6 +46,35 @@ jobs:
                 restoreKeys: |
                     tessdata
                 path: $(TESS_DATA_DIR)
+          - task: Cache@2
+            displayName: Use docker iamges cache
+            inputs:
+                key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yaml'
+                path: $(Pipeline.Workspace)/docker
+                cacheHitVar: DOCKER_CACHE_RESTORED
+          - script: docker load < $(Pipeline.Workspace)/docker/cache.tar
+            displayName: Load docker images if cached
+            condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
+          - script: >
+                :
+                && docker_images=$(grep "image:" meta/docker-compose-dotnet.yml | tr -d ' ' | cut -d: -f2-)
+                && echo $docker_images
+                && echo "##vso[task.setvariable variable=docker_images]$docker_images"
+                && for i in $images; do docker pull $i &>> pull.log ; done
+                && newer=$(grep -c 'Downloaded newer image' pull.log)
+                && if [ $newer -nq "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
+            displayName: Pull newer images if available
+          - script: >
+                :
+                && mkdir -p $(Pipeline.Workspace)/docker
+                && docker save $docker_images > $(Pipeline.Workspace)/docker/cache.tar
+            displayName: Save docker images to cache
+            # If we didn't start with a cache, or if we pulled newer images
+            condition:
+                or(
+                    and(not(canceled()), or(failed(), ne(variables.DOCKER_CACHE_RESTORED, 'true'))),
+                    eq($(pulled_newer), "1")
+                )
           - task: DockerCompose@0
             displayName: Run containers for dotnet tests
             inputs:
