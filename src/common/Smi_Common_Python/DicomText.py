@@ -147,13 +147,17 @@ class DicomText:
                 # SemEHR may have an extra LF at the start so start_char offset need adjusting
                 for offset in [-1, 0, +1, -2, +2]:
                     if rc[annot_at+offset : annot_end+offset] == annot['text']:
-                        replacement = self.redact_string(rc, annot_at+offset, annot_end-annot_at+offset)
+                        replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at+offset)
                         replaced = replacedAny = True
                         #print('REPLACE: %s at offset %d' % (annot['text'], offset))
                         break
                 if not replaced:
                     print('WARNING: offsets slipped:')
                     print('  expected to find %s but found %s' % (annot['text'], rc[annot_at:annot_end]))
+        if data_element.VR == 'PN':
+            # Always fully redact the content of a PersonName tag
+            replacement = self.redact_string(rc, 0, len(rc))
+            replacedAny = True
         if replacedAny:
             data_element.value = replacement         
         self._r_text = self._r_text + rc
