@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Microservices.IsIdentifiable.Reporting;
 using NLog;
@@ -14,6 +15,7 @@ namespace Microservices.IsIdentifiable.Service
     public class IsIdentifiableQueueConsumer : Consumer<ExtractedFileStatusMessage>, IDisposable
     {
         private readonly IProducerModel _producer;
+        private readonly IFileSystem _fileSystem = new FileSystem();
         private readonly string _fileSystemRoot;
         private readonly string _extractionRoot;
         private readonly IClassifier _classifier;
@@ -37,7 +39,7 @@ namespace Microservices.IsIdentifiable.Service
                 if (message.Status != ExtractedFileStatus.Anonymised)
                     throw new ApplicationException($"Received a message with anonymised status of {message.Status}");
 
-                var toProcess = new FileInfo( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputFilePath) );
+                IFileInfo toProcess = _fileSystem.FileInfo.FromFileName( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputFilePath) );
 
                 if(!toProcess.Exists)
                     throw new ApplicationException("IsIdentifiable service cannot find file "+toProcess.FullName);

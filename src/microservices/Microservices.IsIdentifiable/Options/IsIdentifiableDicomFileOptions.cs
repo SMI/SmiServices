@@ -30,6 +30,9 @@ namespace Microservices.IsIdentifiable.Options
         [Option(HelpText = "Optional.  If NoDateFields is set then this value will not result in a failure.  e.g. 0001-01-01")]
         public string ZeroDate { get; set; }
 
+        [Option(HelpText = "Optional. If non-zero, will ignore any reported pixel data text less than (but not equal to) the specified number of characters")]
+        public uint IgnoreTextLessThan { get; set; } = 0;
+
         [Usage]
         public static IEnumerable<Example> Examples
         {

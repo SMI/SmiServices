@@ -1,7 +1,6 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using MongoDB.Bson.Serialization.Attributes;
-using Smi.Common.Helpers;
+using System;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -13,11 +12,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         public MongoCompletedExtractJobDoc(
             [NotNull] MongoExtractJobDoc extractJobDoc,
-            [NotNull] DateTimeProvider provider
+            DateTime completedAt
         ) : base(extractJobDoc)
         {
             JobStatus = ExtractJobStatus.Completed;
-            CompletedAt = provider.UtcNow();
+            CompletedAt = (completedAt != default) ? completedAt : throw new ArgumentException(nameof(completedAt));
         }
 
         #region Equality Members

@@ -102,6 +102,8 @@ CohortPackagerOptions:
     JobWatcherTimeoutInSeconds: 30
     ReporterType: 'LoggingReporter'
     NotifierType: 'LoggingNotifier'
+    ReportFormat: 'Combined'
+    ReportNewLine: ''
     ExtractRequestInfoOptions:
         QueueName: 'TEST.RequestInfoQueue'
         QoSPrefetchCount: 1
@@ -191,7 +193,7 @@ FileCopierOptions:
     QoSPrefetchCount: 1
     AutoAck: false
     CopyStatusProducerOptions:
-        ExchangeName: 'TEST.FileStatusExchange'
+        ExchangeName: 'TEST.ExtractedFileStatusExchange'
         MaxConfirmAttempts: 1
 
 ExtractorClOptions:

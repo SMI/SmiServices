@@ -35,8 +35,48 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         #region Tests
 
-        [Test]
+        [TestCase("proj/foo/extract-name")]
+        [TestCase("proj\\foo\\extract-name")]
+        public void Test_ExtractJobInfo_ExtractionName(string extractionDir)
+        {
+            var info = new ExtractJobInfo(
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                "1234",
+                extractionDir,
+                "KeyTag",
+                123,
+                "MR",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+            );
 
+            Assert.AreEqual("extract-name", info.ExtractionName());
+        }
+
+        [TestCase("proj/foo/extract-name", "proj/foo")]
+        [TestCase("proj\\foo\\extract-name", "proj\\foo")]
+        public void Test_ExtractJobInfo_ProjectExtractionDir(string extractionDir, string expected)
+        {
+            var info = new ExtractJobInfo(
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                "1234",
+                extractionDir,
+                "KeyTag",
+                123,
+                "MR",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: false,
+                isNoFilterExtraction: false
+            );
+
+            Assert.AreEqual(expected, info.ProjectExtractionDir());
+        }
+
+
+        [Test]
         public void TestExtractJobInfo_Equality()
         {
             Guid guid = Guid.NewGuid();

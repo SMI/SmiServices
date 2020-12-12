@@ -93,7 +93,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             Logger.Debug($"Marked job {jobId} as failed");
         }
 
-        public ExtractJobInfo GetCompletedJobInfo(Guid jobId)
+        public CompletedExtractJobInfo GetCompletedJobInfo(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -101,7 +101,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobInfoImpl(jobId) ?? throw new ApplicationException("The job store implementation returned a null ExtractJobInfo object");
         }
 
-        public IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejections(Guid jobId)
+        public IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejections(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -109,7 +109,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobRejectionsImpl(jobId);
         }
 
-        public IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailures(Guid jobId)
+        public IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailures(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -117,7 +117,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobAnonymisationFailuresImpl(jobId);
         }
 
-        public IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailures(Guid jobId)
+        public IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailures(Guid jobId)
         {
             if (jobId == default(Guid))
                 throw new ArgumentNullException(nameof(jobId));
@@ -140,10 +140,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = new Guid());
         protected abstract void CompleteJobImpl(Guid jobId);
         protected abstract void MarkJobFailedImpl(Guid jobId, Exception e);
-        protected abstract ExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
-        protected abstract IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejectionsImpl(Guid jobId);
-        protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
-        protected abstract IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailuresImpl(Guid jobId);
+        protected abstract CompletedExtractJobInfo GetCompletedJobInfoImpl(Guid jobId);
+        protected abstract IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejectionsImpl(Guid jobId);
+        protected abstract IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
+        protected abstract IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId);
     }
 }

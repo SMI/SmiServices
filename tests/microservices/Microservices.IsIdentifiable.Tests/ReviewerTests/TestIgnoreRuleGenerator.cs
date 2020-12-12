@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Failures;
+using Microservices.IsIdentifiable.Reporting;
 using NUnit.Framework;
 using Smi.Common.Tests;
 
@@ -11,7 +12,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestRepeatedIgnoring()
         {
-            var failure = new Reporting.Failure(
+            var failure = new Failure(
                 new FailurePart[]
                 {
                     new FailurePart("Kansas", FailureClassification.Location, 13),
@@ -51,7 +52,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestUndo()
         {
-            var failure = new Reporting.Failure(
+            var failure = new Failure(
                 new FailurePart[]
                 {
                     new FailurePart("Kansas", FailureClassification.Location, 13),

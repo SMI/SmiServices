@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Service;
 using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
@@ -28,7 +29,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
             options.IsIdentifiableOptions.ClassifierType = "";
-            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, false));
+            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false));
             StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableOptions.ClassifierType), ex.Message);
         }
 
@@ -39,7 +40,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableOptions.ClassifierType = "HappyFunTimes";
-            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options, false));
+            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false));
             StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex.Message);
         }
 
@@ -58,7 +59,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 options.IsIdentifiableOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
                 options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
-                var host = new IsIdentifiableHost(options, false);
+                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false);
                 Assert.IsNotNull(host);
                 host.Start();
 
@@ -102,7 +103,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             {
                 options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
 
-                var host = new IsIdentifiableHost(options, false);
+                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false);
                 host.Start();
 
                 tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage

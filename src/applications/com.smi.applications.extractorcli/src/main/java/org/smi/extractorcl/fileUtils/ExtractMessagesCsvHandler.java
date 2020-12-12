@@ -154,7 +154,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
         erm.IsIdentifiableExtraction = _isIdentifiableExtraction;
         erm.IsNoFilterExtraction = _isNoFilterExtraction;
 		if (_extractionKey == ExtractionKey.StudyInstanceUID)
-			erm.ExtractionModality = _extractionModality;
+			erm.Modality = _extractionModality;
 
 		// Only need to send 1 of these
 		ExtractionRequestInfoMessage erim = new ExtractionRequestInfoMessage();

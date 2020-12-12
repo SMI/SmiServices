@@ -17,6 +17,7 @@ namespace Microservices.FileCopier.Execution
         [NotNull] private readonly IProducerModel _copyStatusProducerModel;
 
         [NotNull] private readonly string _fileSystemRoot;
+        [NotNull] private readonly string _extractionRoot;
         [NotNull] private readonly IFileSystem _fileSystem;
 
         [NotNull] private readonly ILogger _logger;
@@ -26,18 +27,22 @@ namespace Microservices.FileCopier.Execution
             [NotNull] FileCopierOptions options,
             [NotNull] IProducerModel copyStatusCopyStatusProducerModel,
             [NotNull] string fileSystemRoot,
+            [NotNull] string extractionRoot,
             [CanBeNull] IFileSystem fileSystem = null)
         {
             _options = options;
             _copyStatusProducerModel = copyStatusCopyStatusProducerModel;
             _fileSystemRoot = fileSystemRoot;
+            _extractionRoot = extractionRoot;
             _fileSystem = fileSystem ?? new FileSystem();
 
             if (!_fileSystem.Directory.Exists(_fileSystemRoot))
                 throw new ArgumentException($"Cannot find the specified fileSystemRoot: '{_fileSystemRoot}'");
+            if (!_fileSystem.Directory.Exists(_extractionRoot))
+                throw new ArgumentException($"Cannot find the specified extractionRoot: '{_extractionRoot}'");
 
             _logger = LogManager.GetLogger(GetType().Name);
-
+            _logger.Info($"fileSystemRoot={_fileSystemRoot}, extractionRoot={_extractionRoot}");
         }
 
         public void ProcessMessage(
@@ -60,7 +65,7 @@ namespace Microservices.FileCopier.Execution
                 return;
             }
 
-            string fullDest = _fileSystem.Path.Combine(_fileSystemRoot, message.ExtractionDirectory, message.OutputPath);
+            string fullDest = _fileSystem.Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputPath);
 
             if (_fileSystem.File.Exists(fullDest))
                 _logger.Warn($"Output file '{fullDest}' already exists. Will overwrite.");
