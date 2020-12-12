@@ -8,13 +8,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
     public static class JobReporterFactory
     {
-        public static IJobReporter GetReporter(
-            [NotNull] string reporterTypeStr,
+        public static IJobReporter GetReporter([NotNull] string reporterTypeStr,
             [NotNull] IExtractJobStore jobStore,
             [NotNull] IFileSystem fileSystem,
             [NotNull] string extractRoot,
             [NotNull] string reportFormatStr,
-            [CanBeNull] string reportNewLine
+            [CanBeNull] string reportNewLine,
+            bool createJobIdFile = true
         )
         {
             if (!Enum.TryParse(reportFormatStr, ignoreCase: true, out ReportFormat reportFormat))
@@ -27,7 +27,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     fileSystem,
                     extractRoot,
                     reportFormat,
-                    reportNewLine
+                    reportNewLine,
+                    createJobIdFile
                 ),
                 nameof(LoggingReporter) => new LoggingReporter(
                     jobStore,
