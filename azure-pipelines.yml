@@ -18,7 +18,7 @@ variables:
     MAVEN_OPTS: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
     RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
     TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
-    DB_PASSWORD: "YourStrong!Passw0rd"
+    DB_PASSWORD: "YourStrongPassw0rd"
 
 jobs:
     - job: run_dotnet_tests

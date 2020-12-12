@@ -20,14 +20,14 @@ services:
         image: mcr.microsoft.com/mssql/server:2017-latest
         environment:
             - ACCEPT_EULA=Y
-            - SA_PASSWORD=${DB_PASSWORD:-'YourStrong!Passw0rd'}
+            - SA_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
         ports:
             - 1433:1433
     mariadb:
         container_name: mariadb
         image: mariadb:10.4
         environment:
-            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-'YourStrong!Passw0rd'}
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
         ports:
             - 3306:3306
     redis:
