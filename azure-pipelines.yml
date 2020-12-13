@@ -68,7 +68,7 @@ jobs:
                 # If we didn't start with a cache, or if we pulled newer images
                 if
                     false \
-                    || [[ "$(variables.DOCKER_CACHE_RESTORED)" -ne "true" ]] \
+                    || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
                     || [[ "$(pulled_newer)" == "1" ]]
                 ]; then
                     mkdir -p $(Pipeline.Workspace)/docker
