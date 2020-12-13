@@ -70,7 +70,7 @@ jobs:
                     false \
                     || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
                     || [[ "$(pulled_newer)" == "1" ]]
-                ]; then
+                then
                     mkdir -p $(Pipeline.Workspace)/docker
                     docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache.tar
                 fi
