@@ -1,5 +1,6 @@
 ---
 # TODO(rkm 2020-12-04) See if we can build on both Linux and Windows here
+# TODO(rkm 2020-12-13) Tidy inline scripts to CmdLine@2
 
 pool:
     # NOTE(rkm 2020-12-11) Can use 20.04 when rdmp-cli supports .NET Core 3.1
@@ -86,7 +87,9 @@ jobs:
           - task: CmdLine@2
             displayName: Start MongoDB replication
             inputs:
-                script: docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
+                script: |
+                    timeout 1m bash -c "until /usr/bin/mongo --eval 'db.stats()' &> /dev/null ; do sleep 1 && echo -n . ; done"
+                    docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
           - task: CmdLine@2
             displayName: Set RDMP version
             inputs:
