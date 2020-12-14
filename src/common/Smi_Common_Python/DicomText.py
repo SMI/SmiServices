@@ -60,8 +60,8 @@ class DicomText:
         Builds a class-member string _p_text as it goes.
         """
         rc = ''
-        if data_element.VR in ['SH', 'CS', 'SQ']:
-            # "SH" Short String, "CS" Code String, "SQ" Sequence ignored
+        if data_element.VR in ['SH', 'CS', 'SQ', 'UI']:
+            # "SH" Short String, "CS" Code String, "SQ" Sequence, "UI" UID ignored
             pass
         elif data_element.VR == 'LO':
             # "LO" Long String typically used for headings
@@ -126,7 +126,7 @@ class DicomText:
         """
 
         rc = ''
-        if data_element.VR in ['SH', 'CS', 'SQ']:
+        if data_element.VR in ['SH', 'CS', 'SQ', 'UI']:
             pass
         elif data_element.VR == 'LO':
             rc = rc + ('# %s' % str(data_element.value)) + '\n'
@@ -154,7 +154,7 @@ class DicomText:
                 if not replaced:
                     print('WARNING: offsets slipped:')
                     print('  expected to find %s but found %s' % (annot['text'], rc[annot_at:annot_end]))
-        if data_element.VR == 'PN':
+        if data_element.VR == 'PN' or data_element.VR == 'DA':
             # Always fully redact the content of a PersonName tag
             replacement = self.redact_string(rc, 0, len(rc))
             replacedAny = True
