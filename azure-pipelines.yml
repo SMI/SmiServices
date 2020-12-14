@@ -47,6 +47,19 @@ jobs:
                 restoreKeys: |
                     tessdata
                 path: $(TESS_DATA_DIR)
+                cacheHitVar: TESS_CACHE_RESTORED
+          - task: CmdLine@2
+            displayName: Ensure tessdata exists
+            inputs:
+                script: |
+                    wget -q \
+                    -O $(Pipeline.Workspace)/tessdata/eng.traineddata \
+                    https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
+            condition: eq(variables.TESS_CACHE_RESTORED, 'false')
+          - task: CmdLine@2
+            displayName: Symlink tessdata from the cache
+            inputs:
+                script: ln -s $(Pipeline.Workspace)/tessdata/eng.traineddata ./data/tessdata/eng.traineddata
           - task: Cache@2
             displayName: Use docker iamges cache
             inputs:
