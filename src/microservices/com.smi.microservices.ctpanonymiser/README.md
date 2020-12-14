@@ -58,14 +58,14 @@ The status message also includes details of the path to the anonymised file, pro
 The procedure for anonymising Structured Reports (the SR modality) is to have
 CTP proceed as normal, removing almost all tags which may contain PII, then
 extract the text from the original DICOM file and pass it through an external
-anonymisation process, and the insert the redacted text into CTP's output file,
+anonymisation process, and then insert the redacted text into CTP's output file,
 thus reconstructing the text content part of the DICOM with anonymous text.
 
 To do this requires an external tool to be configured as `SRAnonTool` in the yaml,
 which should be the full path to the tool, unless it is in the current directory.
 The tool is called with `-i input.dcm -o output.dcm`, where input.dcm is the raw
 original DICOM file and output.dcm is the output from CTP. The tool is only called
-for DICOM files which has the `Modality` tag equal to `SR`.
+for DICOM files which have the `Modality` tag equal to `SR`.
 
 Any failures in the execution of the tool will result in a complete failure of
 the CTP anonymisation process for this file. Even though CTP may have successfully
