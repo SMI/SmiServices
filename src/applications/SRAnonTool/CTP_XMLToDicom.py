@@ -19,9 +19,8 @@ import random
 import yaml
 sys.path.append('../../common/') # if we are in the application directory
 sys.path.append('src/common')    # if we are in the root of the repo
-if 'SMI_ROOT' in os.environ:     # $SMI_ROOT/lib
+if 'SMI_ROOT' in os.environ:     # $SMI_ROOT/lib/python3
     sys.path.append(os.path.join(os.environ['SMI_ROOT'], 'lib', 'python3'))
-sys.path.append('/home/arb/src/SmiServices/src/common')
 from Smi_Common_Python import Knowtator
 from Smi_Common_Python import Dicom
 from Smi_Common_Python import DicomText
