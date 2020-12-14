@@ -37,8 +37,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
         #region Tests
 
-        [Test]
-        public void CreateReport_WritesJobIdToFile()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CreateReport_WritesJobIdToFile(bool createJobIdFile)
         {
             var jobId = Guid.NewGuid();
             const string extractionRoot = "root";
@@ -70,13 +71,20 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             var mockFileSystem = new MockFileSystem();
             mockFileSystem.Directory.CreateDirectory(mockFileSystem.Path.Combine(extractionRoot, extractionDir));
 
-            var reporter = new FileReporter(mockJobStore.Object, mockFileSystem, extractionRoot, ReportFormat.Split, reportNewLine: null);
+            var reporter = new FileReporter(mockJobStore.Object, mockFileSystem, extractionRoot, ReportFormat.Split, reportNewLine: null, createJobIdFile: createJobIdFile);
 
             reporter.CreateReport(jobId);
 
             string expectedJobIdFile = mockFileSystem.Path.Combine(extractionRoot, extractionDir, "jobId.txt");
-            Assert.True(mockFileSystem.FileExists(expectedJobIdFile));
-            Assert.AreEqual(jobId.ToString(), mockFileSystem.File.ReadAllLines(expectedJobIdFile)[0]);
+            if (createJobIdFile)
+            {
+                Assert.True(mockFileSystem.FileExists(expectedJobIdFile));
+                Assert.AreEqual(jobId.ToString(), mockFileSystem.File.ReadAllLines(expectedJobIdFile)[0]);
+            }
+            else
+            {
+                Assert.False(mockFileSystem.FileExists(expectedJobIdFile));
+            }
         }
 
         #endregion

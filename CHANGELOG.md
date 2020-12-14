@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+-   Clarified the CLI help text for `--format` in CohortPackager
+
+### Fixed
+
+-   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+-   CohortPackager: Don't try and create the jobId file when recreating an existing report
+
+### Dependencies
+
+- Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4
+
 ## [1.13.0] - 2020-12-03
 
 ### Added
