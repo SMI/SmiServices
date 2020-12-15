@@ -38,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Added JobCompletedAt to the validation reports
 -   IsIdentifiable: Add support for ignoring OCR output less than `n` characters in length
 -   IsIdentifiable: Add a test case for burned-in image text
+- Added some Python library code
 
 ### Changed
 
