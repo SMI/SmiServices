@@ -85,6 +85,7 @@ namespace Microservices.CohortPackager.Tests
                 $"Job info:",
                 $"-   Job submitted at:             {provider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
                 $"-   Job completed at:             {(provider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
                 $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
                 $"-   Extraction tag:               {jobInfo.KeyTag}",
                 $"-   Extraction modality:          {jobInfo.ExtractionModality ?? "Unspecified"}",

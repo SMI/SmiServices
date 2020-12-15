@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+-   Added total job duration to extraction report header
+
 ### Changed
 
 -   Clarified the CLI help text for `--format` in CohortPackager
