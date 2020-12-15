@@ -323,6 +323,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 "Job info:",
                 $"-   Job submitted at:             {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
                 $"-   Job completed at:             {jobInfo.JobCompletedAt.ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {(jobInfo.JobCompletedAt - jobInfo.JobSubmittedAt)}",
                 $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
                 $"-   Extraction tag:               {jobInfo.KeyTag}",
                 $"-   Extraction modality:          {jobInfo.ExtractionModality ?? "Unspecified"}",
