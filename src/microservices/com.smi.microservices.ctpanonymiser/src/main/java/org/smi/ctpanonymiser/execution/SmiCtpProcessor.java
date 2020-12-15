@@ -3,6 +3,8 @@ package org.smi.ctpanonymiser.execution;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Properties;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import org.apache.log4j.Logger;
 import org.rsna.ctp.objects.DicomObject;
@@ -30,6 +32,7 @@ public class SmiCtpProcessor {
 	private boolean _setBIRElement;
 	private boolean _testmode;
 	private String _check;
+	private String _SRAnonTool;
 
 	private PixelScript _pixelScript;
 	private boolean performPixelAnon = false;
@@ -41,13 +44,14 @@ public class SmiCtpProcessor {
 	private String _lastStatus;
 
 	public SmiCtpProcessor(File tagAnonScriptFile, File pixelAnonScriptFile, boolean decompress, boolean recompress, boolean setBIRElement,
-			boolean testmode, String check) {
+			boolean testmode, String check, String SRAnonTool) {
 
 		_decompress = decompress;
 		_recompress = recompress;
 		_setBIRElement = setBIRElement;
 		_testmode = testmode;
 		_check = check;
+		_SRAnonTool = SRAnonTool;
 
 		if (pixelAnonScriptFile != null) {
 
@@ -82,6 +86,7 @@ public class SmiCtpProcessor {
 		}
 
 		DicomObject dObj = null;
+		File origFile = inFile; // inFile gets reassigned so keep a record of it.
 
 		try {
 
@@ -142,6 +147,51 @@ public class SmiCtpProcessor {
 
 				_lastStatus = e.getMessage();
 				return CtpAnonymisationStatus.OutputFileChecksFailed;
+			}
+		}
+
+		// Re-open so we can check Modality
+		try {
+			dObj = new DicomObject(outFile);
+		} catch (Exception e) {
+			_logger.error("Could not create dicom object from outFile", e);
+			_lastStatus = e.getMessage();
+			return CtpAnonymisationStatus.InputFileException;
+		}
+
+		// See API https://github.com/johnperry/CTP/blob/master/source/java/org/rsna/ctp/objects/DicomObject.java
+		// See list of possible values for Modality https://www.dicomlibrary.com/dicom/modality/
+		boolean isSR = dObj.getElementValue("Modality").trim().equals("SR");
+
+		// Structured Reports have an additional anonymisation step
+		if (isSR)
+		{
+			String commandArray[] = { _SRAnonTool,
+				"-i", origFile.getAbsolutePath(),
+				"-o", outFile.getAbsolutePath() };
+			boolean ok = true;
+			String line;
+			try
+			{
+				Process process = Runtime.getRuntime().exec(commandArray);
+				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+				process.waitFor();
+				while ((line = errorReader.readLine()) != null) { _logger.error(line); }
+				errorReader.close();
+				process.destroy();
+				if (process.exitValue() != 0)
+					ok = false;
+			}
+			catch (Exception e) {
+				 _logger.error("Could not run SRAnonTool");
+				 _lastStatus = "exec"; // XXX
+				 return CtpAnonymisationStatus.InputFileException;
+			}
+			if (!ok)
+			{
+				_logger.error("DICOMAnonymizer returned status " + status.getStatus() + ", with message " + status.getMessage());
+				_lastStatus = line;
+				return CtpAnonymisationStatus.TagAnonFailed;
 			}
 		}
 
