@@ -32,16 +32,6 @@ namespace Microservices.IsIdentifiable
             ImplementationManager.Load<OracleImplementation>();
             ImplementationManager.Load<PostgreSqlImplementation>();
 
-            //If running as a self contained micro service (getting messages from RabbitMQ)
-            if (args.Length == 1 && string.Equals(args[0], "--service", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var options = new GlobalOptionsFactory().Load();
-                
-                var bootstrapper = new MicroserviceHostBootstrapper(
-                    () => new IsIdentifiableHost(options));
-                return bootstrapper.Main();
-            }
-
             try
             {
                 string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -113,12 +103,12 @@ namespace Microservices.IsIdentifiable
             }
         }
 
-        private static int Run(IsIdentifiableServiceOptions opts)
+        private static int Run(IsIdentifiableServiceOptions serviceOpts)
         {
-            var options = new GlobalOptionsFactory().Load(opts.YamlFile);
+            var options = new GlobalOptionsFactory().Load(serviceOpts.YamlFile);
                 
             var bootstrapper = new MicroserviceHostBootstrapper(
-                () => new IsIdentifiableHost(options));
+                () => new IsIdentifiableHost(options, serviceOpts));
             return bootstrapper.Main();
 
         }

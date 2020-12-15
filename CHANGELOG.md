@@ -6,7 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-- Reduce memory usage on long-running microservices even when .Net assumes RAM is plentiful
+### Changed
+
+-   Clarified the CLI help text for `--format` in CohortPackager
+
+### Fixed
+
+-   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+-   CohortPackager: Don't try and create the jobId file when recreating an existing report
+
+### Dependencies
+
+- Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4
+
+## [1.13.0] - 2020-12-03
 
 ### Added
 
@@ -17,6 +30,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added NoSuffixProjectPathResolver which generates anonymous image path names that do not contain "-an" (which is the default behaviour).
   -  To use, set `CohortExtractorOptions.ProjectPathResolverType` to `Microservices.CohortExtractor.Execution.ProjectPathResolvers.NoSuffixProjectPathResolver`
   -  For identifiable extractions, the NoSuffixProjectPathResolver is now used
+-   Validation reports can now be created as either "Combined" (single report as before" or "Split" (a [pack](src/microservices/Microservices.CohortPackager/README.md) of reports including CSVs suitable for post-processing). This is configurable in the YAML config and can also be specified on the CLI when recreating reports for an extraction
+-   Added JobCompletedAt to the validation reports
+-   IsIdentifiable: Add support for ignoring OCR output less than `n` characters in length
+-   IsIdentifiable: Add a test case for burned-in image text
+
+### Changed
+
+-   Update docs and make more keywords links to the relevant docs (#440)
+-   Reduce memory usage on long-running microservices even when .Net assumes RAM is plentiful
+-   Validation reports are now written to the project reports directory, instead of to a central reports directory
+
+### Fixed
+
+-   Fix mismatch in Java/C# messages for ExtractionModality
+-   ExtractionFileCopier: Copy files relative to the extraction root not the global filesystem root
+-   Fix implementation of minimum OCR length (before being reported) #471
+
+### Dependencies
+
+- Bump CsvHelper from 17.0.0 to 17.0.1
+- Bump System.IO.Abstractions from 13.2.1 to 13.2.2
+- Bump Moq from 4.15.1 to 4.15.2
+- Bump System.IO.Abstractions.TestingHelpers from 13.2.1 to 13.2.2
+- Bump CsvHelper from 16.2.0 to 17.0.0
+- Bump JetBrains.Annotations from 2020.1.0 to 2020.3.0
+- Bump jackson-dataformat-yaml from 2.11.3 to 2.12.0
+- Bump jackson-databind from 2.11.3 to 2.12.0
 
 ## [1.12.2] - 2020-09-18
 
@@ -432,7 +472,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.12.2...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.13.0...develop
+[1.13.0]:  https://github.com/SMI/SmiServices/compare/v1.12.2...v1.13.0
 [1.12.2]:  https://github.com/SMI/SmiServices/compare/v1.12.1...v1.12.2
 [1.12.1]:  https://github.com/SMI/SmiServices/compare/v1.12.0...v1.12.1
 [1.12.0]:  https://github.com/SMI/SmiServices/compare/v1.11.1...v1.12.0

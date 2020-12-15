@@ -64,31 +64,31 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        ExtractJobInfo GetCompletedJobInfo(Guid jobId);
+        CompletedExtractJobInfo GetCompletedJobInfo(Guid jobId);
 
         /// <summary>
         /// Returns the rejection reasons for a completed job
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<string, Dictionary<string, int>>> GetCompletedJobRejections(Guid jobId);
+        IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejections(Guid jobId);
 
         /// <summary>
-        /// Returns the anonymisation failures for a completed job. This is a tuple of "expected anonymised file path" and "failure reason"
+        /// Returns the anonymisation failures for a completed job
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<string, string>> GetCompletedJobAnonymisationFailures(Guid jobId);
+        IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailures(Guid jobId);
 
         /// <summary>
-        /// Returns the verification failures for a completed job. This is a tuple of "anonymised file path" and "verification failure reason"
+        /// Returns the verification failures for a completed job
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<string, string>> GetCompletedJobVerificationFailures(Guid jobId);
+        IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailures(Guid jobId);
 
         /// <summary>
-        /// Returns the full list of files that were requested but could not be produced, and a reason for each
+        /// Returns the full list of files that were matched from an input identifier but could not be found, and a reason for each
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>

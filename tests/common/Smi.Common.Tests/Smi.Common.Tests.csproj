@@ -33,9 +33,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HIC.BadMedicine.Dicom" Version="0.0.7" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />     
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />     
     <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.1.9" />    
-    <PackageReference Include="Moq" Version="4.15.1" />
+    <PackageReference Include="Moq" Version="4.15.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />    
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="NunitXml.TestLogger" Version="2.1.80" />
@@ -57,6 +57,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestData\NotADicomFile.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\burned-in-text-test.dcm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
