@@ -76,8 +76,8 @@ jobs:
                 && docker_images=$(grep "image:" meta/docker-compose-dotnet.yml | tr -d ' ' | cut -d: -f2-)
                 && echo $docker_images
                 && echo "##vso[task.setvariable variable=docker_images]$docker_images"
-                && for i in $docker_images; do docker pull $i &>> pull.log ; done
-                && newer=$(grep -c 'Downloaded newer image' pull.log)
+                && for i in $docker_images; do docker pull $i | tee dotnet-docker-pull.log ; done
+                && newer=$(grep -c 'Downloaded newer image' dotnet-docker-pull.log)
                 && if [ $newer -ne "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
             displayName: Pull newer images if available
           - script: |
@@ -178,8 +178,8 @@ jobs:
                 && docker_images=$(grep "image:" meta/docker-compose-java.yml | tr -d ' ' | cut -d: -f2-)
                 && echo $docker_images
                 && echo "##vso[task.setvariable variable=docker_images]$docker_images"
-                && for i in $docker_images; do docker pull $i &>> pull.log ; done
-                && newer=$(grep -c 'Downloaded newer image' pull.log)
+                && for i in $docker_images; do docker pull $i | tee java-docker-pull.log ; done
+                && newer=$(grep -c 'Downloaded newer image' java-docker-pull.log)
                 && if [ $newer -ne "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
             displayName: Pull newer images if available
           - script: |
