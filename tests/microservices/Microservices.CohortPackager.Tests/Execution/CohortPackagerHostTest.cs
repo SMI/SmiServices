@@ -25,6 +25,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         #region Fixtures
 
+        // TODO(rkm 2020-12-17) Test if the old form of this is fixed in NUnit 3.13 (see https://github.com/nunit/nunit/issues/2574)
         private class PathFixtures : IDisposable
         {
             public readonly string ExtractName;
@@ -74,7 +75,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
             globals.CohortPackagerOptions.ReporterType = "FileReporter";
             globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
-
+            
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
             client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
 
@@ -141,7 +142,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             //  - series-1
             //      - series-1-anon-1.dcm -> valid
 
-            using var pf = new PathFixtures($"Integration_CombinedReport_HappyPath_{reportFormat}");
+            using var pf = new PathFixtures($"Integration_HappyPath_{reportFormat}");
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -208,7 +209,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             //      - series-2-anon-1.dcm -> fails anonymisation
             //      - series-2-anon-2.dcm -> fails validation
 
-            using var pf = new PathFixtures($"Integration_CombinedReport_BumpyRoad_{reportFormat}");
+            using var pf = new PathFixtures($"Integration_BumpyRoad_{reportFormat}");
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
