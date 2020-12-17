@@ -51,7 +51,8 @@ namespace Microservices.CohortPackager.Tests.Execution
         [SetUp]
         public void SetUp()
         {
-            _testDirAbsolute = Path.Combine(Path.GetTempPath(), "nunit-smiservices", $"{TestContext.CurrentContext.Test.FullName}-{Guid.NewGuid().ToString().Split('-')[0]}");
+            string testName = TestContext.CurrentContext.Test.FullName.Replace('(', '_').Replace(")", "");
+            _testDirAbsolute = Path.Combine(Path.GetTempPath(), "nunit-smiservices", $"{testName}-{Guid.NewGuid().ToString().Split('-')[0]}");
             _extractRootAbsolute = Path.Combine(_testDirAbsolute, "extractRoot");
             _projExtract1DirAbsolute = Path.Combine(_extractRootAbsolute, _projExtract1DirRelative);
             _projReportsDirAbsolute = Path.Combine(_extractRootAbsolute, _projExtractionsDirRelative, "reports");
