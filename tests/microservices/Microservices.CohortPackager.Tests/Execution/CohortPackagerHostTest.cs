@@ -21,60 +21,56 @@ namespace Microservices.CohortPackager.Tests.Execution
     [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class CohortPackagerHostTest
     {
-        private string _testDirAbsolute;
-        private string _extractRootAbsolute;
-        private string _projExtractionsDirRelative;
-        private string _projExtract1DirRelative;
-        private string _projExtract1DirAbsolute;
-        private string _projReportsDirAbsolute;
-
         private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
-        #region Fixture Methods 
+        #region Fixtures
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        private class PathFixtures : IDisposable
         {
-            TestLogger.Setup();
+            public readonly string ExtractName;
+            public readonly string TestDirAbsolute;
+            public readonly string ExtractRootAbsolute;
+            public readonly string ProjExtractionsDirRelative = Path.Combine("proj", "extractions");
+            public readonly string ProjExtractDirRelative;
+            public readonly string ProjExtractDirAbsolute;
+            public readonly string ProjReportsDirAbsolute;
 
-            _projExtractionsDirRelative = Path.Combine("proj1", "extractions");
-            _projExtract1DirRelative = Path.Combine(_projExtractionsDirRelative, "extract1");
+            public PathFixtures(string extractName)
+            {
+                ExtractName = extractName;
+                string testName = TestContext.CurrentContext.Test.FullName.Replace('(', '_').Replace(")", "");
+                TestDirAbsolute = Path.Combine(Path.GetTempPath(), "nunit-smiservices", $"{testName}-{Guid.NewGuid().ToString().Split('-')[0]}");
+
+                ExtractRootAbsolute = Path.Combine(TestDirAbsolute, "extractRoot");
+
+                ProjExtractDirRelative = Path.Combine(ProjExtractionsDirRelative, extractName);
+                ProjExtractDirAbsolute = Path.Combine(ExtractRootAbsolute, ProjExtractDirRelative);
+
+                ProjReportsDirAbsolute = Path.Combine(ExtractRootAbsolute, ProjExtractionsDirRelative, "reports");
+
+                // NOTE(rkm 2020-11-19) This would normally be created by one of the other services
+                Directory.CreateDirectory(ProjExtractDirAbsolute);
+            }
+
+            public void Dispose()
+            {
+                ResultState outcome = TestContext.CurrentContext.Result.Outcome;
+                if (outcome == ResultState.Failure || outcome == ResultState.Error)
+                    return;
+
+                Directory.Delete(TestDirAbsolute, recursive: true);
+            }
         }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown() { }
 
         #endregion
 
         #region Test Methods
 
-        [SetUp]
-        public void SetUp()
+        private bool HaveFiles(PathFixtures pf) => Directory.Exists(pf.ProjReportsDirAbsolute) && Directory.EnumerateFiles(pf.ProjExtractDirAbsolute).Any();
+
+        private void VerifyReports(GlobalOptions globals, PathFixtures pf, ReportFormat reportFormat, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
         {
-            string testName = TestContext.CurrentContext.Test.FullName.Replace('(', '_').Replace(")", "");
-            _testDirAbsolute = Path.Combine(Path.GetTempPath(), "nunit-smiservices", $"{testName}-{Guid.NewGuid().ToString().Split('-')[0]}");
-            _extractRootAbsolute = Path.Combine(_testDirAbsolute, "extractRoot");
-            _projExtract1DirAbsolute = Path.Combine(_extractRootAbsolute, _projExtract1DirRelative);
-            _projReportsDirAbsolute = Path.Combine(_extractRootAbsolute, _projExtractionsDirRelative, "reports");
-
-            // NOTE(rkm 2020-11-19) This would normally be created by one of the other services
-            Directory.CreateDirectory(_projExtract1DirAbsolute);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            if (TestContext.CurrentContext.Result.Outcome == ResultState.Failure)
-                return;
-
-            Directory.Delete(_testDirAbsolute, recursive: true);
-        }
-
-        private bool HaveFiles() => Directory.Exists(_projReportsDirAbsolute) && Directory.EnumerateFiles(_projExtract1DirAbsolute).Any();
-
-        private void VerifyReports(GlobalOptions globals, ReportFormat reportFormat, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
-        {
-            globals.FileSystemOptions.ExtractRoot = _extractRootAbsolute;
+            globals.FileSystemOptions.ExtractRoot = pf.ExtractRootAbsolute;
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
             globals.CohortPackagerOptions.ReporterType = "FileReporter";
             globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
@@ -101,7 +97,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
                 var timeoutSecs = 10;
 
-                while (!HaveFiles() && timeoutSecs > 0)
+                while (!HaveFiles(pf) && timeoutSecs > 0)
                 {
                     --timeoutSecs;
                     Thread.Sleep(TimeSpan.FromSeconds(1));
@@ -109,21 +105,21 @@ namespace Microservices.CohortPackager.Tests.Execution
 
                 host.Stop("Test end");
             }
-            
-            const string firstLine = "# SMI extraction validation report for testProj1/extract1";
+
+            var firstLine = $"# SMI extraction validation report for testProj1/{pf.ExtractName}";
             switch (reportFormat)
             {
                 case ReportFormat.Combined:
                     {
-                        string reportContent = File.ReadAllText(Path.Combine(_projReportsDirAbsolute, "extract1_report.txt"));
+                        string reportContent = File.ReadAllText(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
                         Assert.True(reportContent.StartsWith(firstLine));
                         break;
                     }
                 case ReportFormat.Split:
                     {
-                        string extract1ReportsDirAbsolute = Path.Combine(_projReportsDirAbsolute, "extract1");
-                        Assert.AreEqual(6, Directory.GetFiles(extract1ReportsDirAbsolute).Length);
-                        string reportContent = File.ReadAllText(Path.Combine(extract1ReportsDirAbsolute, "README.md"));
+                        string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
+                        Assert.AreEqual(6, Directory.GetFiles(extractReportsDirAbsolute).Length);
+                        string reportContent = File.ReadAllText(Path.Combine(extractReportsDirAbsolute, "README.md"));
                         Assert.True(reportContent.StartsWith(firstLine));
                         break;
                     }
@@ -139,11 +135,13 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         [TestCase(ReportFormat.Combined)]
         [TestCase(ReportFormat.Split)]
-        public void Integration_CombinedReport_HappyPath(ReportFormat reportFormat)
+        public void Integration_HappyPath(ReportFormat reportFormat)
         {
             // Test messages:
             //  - series-1
             //      - series-1-anon-1.dcm -> valid
+
+            using var pf = new PathFixtures($"Integration_CombinedReport_HappyPath_{reportFormat}");
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -151,7 +149,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 1,
             };
@@ -160,7 +158,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
@@ -177,7 +175,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 IsIdentifiable = false,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
@@ -187,6 +185,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
             VerifyReports(
                 globals,
+                pf,
                 reportFormat,
                 new[]
                 {
@@ -199,7 +198,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         [TestCase(ReportFormat.Combined)]
         [TestCase(ReportFormat.Split)]
-        public void Integration_CombinedReport_BumpyRoad(ReportFormat reportFormat)
+        public void Integration_BumpyRoad(ReportFormat reportFormat)
         {
             // Test messages:
             //  - series-1
@@ -209,13 +208,15 @@ namespace Microservices.CohortPackager.Tests.Execution
             //      - series-2-anon-1.dcm -> fails anonymisation
             //      - series-2-anon-2.dcm -> fails validation
 
+            using var pf = new PathFixtures($"Integration_CombinedReport_BumpyRoad_{reportFormat}");
+
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 2,
             };
@@ -224,7 +225,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
@@ -240,7 +241,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-2-anon-1.dcm" },
@@ -255,7 +256,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-2-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 Status = ExtractedFileStatus.ErrorWontRetry,
                 StatusMessage = "Couldn't anonymise",
                 DicomFilePath = "series-2-orig-1.dcm",
@@ -266,7 +267,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-1-anon-1.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 IsIdentifiable = false,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
@@ -287,7 +288,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "series-2-anon-2.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 IsIdentifiable = true,
                 Report = failureReport,
                 DicomFilePath = "series-2-orig-2.dcm",
@@ -297,6 +298,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
             VerifyReports(
                 globals,
+                pf,
                 reportFormat,
                 new[]
                 {
@@ -313,6 +315,8 @@ namespace Microservices.CohortPackager.Tests.Execution
         [Test]
         public void Integration_IdentifiableExtraction_HappyPath()
         {
+            using var pf = new PathFixtures("Integration_IdentifiableExtraction_HappyPath");
+
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
@@ -320,7 +324,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 IsIdentifiableExtraction = true,
@@ -330,7 +334,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "out1.dcm" },
@@ -349,7 +353,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "src.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 Status = ExtractedFileStatus.Copied,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-1.dcm",
@@ -361,7 +365,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 OutputFilePath = "src_missing.dcm",
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
-                ExtractionDirectory = _projExtract1DirRelative,
+                ExtractionDirectory = pf.ProjExtractDirRelative,
                 Status = ExtractedFileStatus.FileMissing,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-2.dcm",
@@ -372,6 +376,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
             VerifyReports(
                 globals,
+                pf,
                 ReportFormat.Combined,
                 new[]
                 {
