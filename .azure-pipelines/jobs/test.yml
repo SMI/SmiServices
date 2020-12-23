@@ -18,7 +18,7 @@ jobs:
             displayName: Use .NET Core Runtime 2.2.203
             inputs:
                 packageType: runtime
-                version: 2.2.203
+                version: 2.2.x
                 installationPath: $(Agent.ToolsDirectory)/dotnet
           - task: Cache@2
             displayName: Cache NuGet packages
