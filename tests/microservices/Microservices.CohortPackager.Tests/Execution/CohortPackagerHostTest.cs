@@ -77,6 +77,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
             
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
+            globals.MongoDatabases.ExtractionStoreOptions.DatabaseName += "-" + Guid.NewGuid().ToString().Split('-')[0];
             client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
 
             using (var tester = new MicroserviceTester(
