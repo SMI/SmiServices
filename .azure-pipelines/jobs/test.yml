@@ -41,7 +41,7 @@ jobs:
                 script: |
                     : \
                     && mkdir -p $(Pipeline.Workspace)/tessdata \
-                    && curl \
+                    && curl -L \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
