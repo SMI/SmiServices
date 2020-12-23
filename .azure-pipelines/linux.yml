@@ -1,4 +1,12 @@
 ---
+trigger:
+    branches:
+        include:
+            - "*"
+    tags:
+        include:
+            - "*"
+
 jobs:
     - template: jobs/test.yml
       parameters:
