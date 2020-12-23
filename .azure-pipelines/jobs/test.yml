@@ -1,10 +1,11 @@
 ---
 parameters:
     vmImage:
+    os:
 
 jobs:
     - job: dotnet_tests
-      displayName: Dotnet Tests ($(Agent.OS))
+      displayName: Dotnet Tests
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
@@ -140,7 +141,7 @@ jobs:
           #       filePath: "./meta/run_dotnet_tests.sh"
           #       failOnStderr: true
 # - job: java_tests
-#   displayName: Java Tests ($(Agent.OS))
+#   displayName: Java Tests
 #   pool:
 #     vmImage: ${{ parameters.vmImage }}
 #   steps:
