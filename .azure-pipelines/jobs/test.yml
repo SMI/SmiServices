@@ -56,7 +56,7 @@ jobs:
                 key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yml | v2'
                 path: $(Pipeline.Workspace)/docker
                 cacheHitVar: DOCKER_CACHE_RESTORED
-          - script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet.tar
+          - script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
             displayName: Load docker images if cached
             condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
           - script: >
@@ -76,7 +76,7 @@ jobs:
                     || [[ "$(pulled_newer)" == "1" ]]
                 then
                     mkdir -p $(Pipeline.Workspace)/docker
-                    docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-dotnet.tar
+                    docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
                 fi
             displayName: Save docker images to cache
             condition: and(not(canceled()), not(failed()))
