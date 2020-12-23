@@ -7,6 +7,15 @@ trigger:
         include:
             - "*"
 
+variables:
+    CI: 1
+    NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+    MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+    MAVEN_OPTS: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
+    RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
+    TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
+    DB_PASSWORD: "YourStrongPassw0rd"
+
 jobs:
     - template: jobs/test.yml
       parameters:
