@@ -1,3 +1,0 @@
-deepmerge
-pydicom
-pymongo
