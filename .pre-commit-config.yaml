@@ -18,7 +18,7 @@ repos:
             args: [--autofix, --indent=4]
           - id: trailing-whitespace
             # Python
-          - id: check-ast
+          # - id: check-ast
           - id: check-builtin-literals
           - id: check-docstring-first
           - id: debug-statements
@@ -80,11 +80,11 @@ repos:
       hooks:
           - id: mypy
             args: [--config-file, .meta/mypy.ini]
-    - repo: https://github.com/psf/black
-      rev: "20.8b1"
-      hooks:
-          - id: black
-            language_version: python38
+    # - repo: https://github.com/psf/black
+    #   rev: "20.8b1"
+    #   hooks:
+    #       - id: black
+    #         language_version: python38
     - repo: https://gitlab.com/pycqa/flake8
       rev: "3.8.4"
       hooks:

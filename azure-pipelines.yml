@@ -219,4 +219,4 @@ jobs:
                     :
                     && sudo apt-get update -qq
                     && sudo apt-get install -y pigz
-          - script: ./meta/build_artefacts.sh $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
+          - script: ./meta/build_artefacts.py linux $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
