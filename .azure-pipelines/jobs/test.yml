@@ -8,17 +8,18 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
-          - task: Bash@3
-            displayName: Install dotnet packages
+          - task: UseDotNet@2
+            displayName: Use .NET Core SDK 3.1
             inputs:
-                targetType: "inline"
-                script: >
-                    :
-                    && wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-                    && sudo dpkg -i packages-microsoft-prod.deb
-                    && sudo apt-get update -qq
-                    && sudo apt-get install -y apt-transport-https
-                    && sudo apt-get install -y dotnet-runtime-2.2 dotnet-sdk-3.1
+                packageType: sdk
+                version: 3.1.x
+                installationPath: $(Agent.ToolsDirectory)/dotnet
+          - task: UseDotNet@2
+            displayName: Use .NET Core Runtime 2.2.203
+            inputs:
+                packageType: runtime
+                version: 2.2.203
+                installationPath: $(Agent.ToolsDirectory)/dotnet
           - task: Cache@2
             displayName: Cache NuGet packages
             inputs:
