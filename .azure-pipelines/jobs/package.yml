@@ -10,10 +10,11 @@ jobs:
       condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [dotnet_tests] #, java_tests]
       steps:
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Install pigz on Linux
             condition: eq('$(Agent.OS)', 'Linux')
             inputs:
+                targetType: "inline"
                 script: >
                     :
                     && sudo apt-get update -qq

@@ -2,15 +2,25 @@
 parameters:
     vmImage:
 
+variables:
+    CI: 1
+    NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+    MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+    MAVEN_OPTS: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
+    RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
+    TESS_DATA_DIR: $(Pipeline.Workspace)/tessdata
+    DB_PASSWORD: "YourStrongPassw0rd"
+
 jobs:
     - job: dotnet_tests
       displayName: Dotnet Tests /
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Install dotnet packages
             inputs:
+                targetType: "inline"
                 script: >
                     :
                     && wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
@@ -31,9 +41,10 @@ jobs:
                     tessdata
                 path: $(TESS_DATA_DIR)
                 cacheHitVar: TESS_CACHE_RESTORED
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Ensure tessdata exists
             inputs:
+                targetType: "inline"
                 script: |
                     : \
                     && mkdir -p $(Pipeline.Workspace)/tessdata \
@@ -41,9 +52,10 @@ jobs:
                         -O $(Pipeline.Workspace)/tessdata/eng.traineddata \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Symlink tessdata from the cache
             inputs:
+                targetType: "inline"
                 script: ln -s $(Pipeline.Workspace)/tessdata/eng.traineddata ./data/tessdata/eng.traineddata
           - task: Cache@2
             displayName: Use docker iamges cache
@@ -82,15 +94,17 @@ jobs:
                 dockerComposeFile: "./meta/docker-compose-dotnet.yml"
                 dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
                 action: "Run services"
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Start MongoDB replication
             inputs:
+                targetType: "inline"
                 script: |
                     timeout 1m bash -c "until /usr/bin/mongo --eval 'db.stats()' &> /dev/null ; do sleep 1 && echo -n . ; done"
                     docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Set RDMP version
             inputs:
+                targetType: "inline"
                 script: |
                     rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
                     echo $rdmp_ver
@@ -100,9 +114,10 @@ jobs:
             inputs:
                 key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
                 path: $(RDMP_CLI_DIR)
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Download rdmp-cli if required
             inputs:
+                targetType: "inline"
                 script: |
                     if [ ! -x $(RDMP_CLI_DIR)/rdmp ]; then
                       echo Downloading rdmp-cli v${rdmp_ver}
@@ -111,18 +126,20 @@ jobs:
                       unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
                       chmod +x $(RDMP_CLI_DIR)/rdmp
                     fi
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Wait for MsSQL to be ready
             inputs:
+                targetType: "inline"
                 script: >
                     :
                     && curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
                     && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/mssql-release.list
                     && sudo ACCEPT_EULA=Y apt-get install mssql-tools
                     && timeout 1m bash -c "until /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -Q 'SELECT @@VERSION' -l 1 &> /dev/null ; do echo -n . ; done"
-          - task: CmdLine@2
+          - task: Bash@3
             displayName: Install RDMP databases
             inputs:
+                targetType: "inline"
                 script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p $(DB_PASSWORD)
           # NOTE(rkm 2020-12-23) Disabled for initial testing
           # - task: Bash@3
