@@ -134,12 +134,11 @@ jobs:
             inputs:
                 targetType: "inline"
                 script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p $(DB_PASSWORD)
-          # NOTE(rkm 2020-12-23) Disabled for initial testing
-          # - task: Bash@3
-          #   displayName: Run Dotnet tests
-          #   inputs:
-          #       filePath: "./meta/run_dotnet_tests.sh"
-          #       failOnStderr: true
+          - task: Bash@3
+            displayName: Run Dotnet tests
+            inputs:
+                filePath: "./meta/run_dotnet_tests.sh"
+                failOnStderr: true
 
     - job: java_tests
       displayName: Java Tests
