@@ -1,0 +1,21 @@
+---
+parameters:
+    vmImage:
+
+jobs:
+    - job: build_artefacts
+      displayName: Build Artefacts /
+      pool:
+          vmImage: ${{ parameters.vmImage }}
+      condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      dependsOn: [dotnet_tests] #, java_tests]
+      steps:
+          - task: CmdLine@2
+            displayName: Install pigz on Linux
+            condition: eq('$(Agent.OS)', 'Linux')
+            inputs:
+                script: >
+                    :
+                    && sudo apt-get update -qq
+                    && sudo apt-get install -y pigz
+          - script: ./meta/build_artefacts.py $(Agent.OS) $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)

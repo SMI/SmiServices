@@ -1,0 +1,11 @@
+---
+variables:
+    CI: true
+
+jobs:
+    - template: jobs/test.yml
+      parameters:
+          vmImage: windows-2019
+    - template: jobs/package.yml
+      parameters:
+          vmImage: windows-2019

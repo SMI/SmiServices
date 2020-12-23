@@ -1,0 +1,11 @@
+---
+variables:
+    CI: true
+
+jobs:
+    - template: jobs/test.yml
+      parameters:
+          vmImage: ubuntu-18.04
+    - template: jobs/package.yml
+      parameters:
+          vmImage: ubuntu-18.04

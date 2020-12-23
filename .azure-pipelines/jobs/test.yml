@@ -1,0 +1,137 @@
+---
+parameters:
+    vmImage:
+
+jobs:
+    - job: dotnet_tests
+      displayName: Dotnet Tests /
+      pool:
+          vmImage: ${{ parameters.vmImage }}
+      steps:
+          - task: CmdLine@2
+            displayName: Install dotnet packages
+            inputs:
+                script: >
+                    :
+                    && wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+                    && sudo dpkg -i packages-microsoft-prod.deb
+                    && sudo apt-get update -qq
+                    && sudo apt-get install -y apt-transport-https
+                    && sudo apt-get install -y dotnet-runtime-2.2 dotnet-sdk-3.1
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            inputs:
+                key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+                path: $(NUGET_PACKAGES)
+          - task: Cache@2
+            displayName: Cache tesseract data
+            inputs:
+                key: 'tessdata | "$(Agent.OS)"'
+                restoreKeys: |
+                    tessdata
+                path: $(TESS_DATA_DIR)
+                cacheHitVar: TESS_CACHE_RESTORED
+          - task: CmdLine@2
+            displayName: Ensure tessdata exists
+            inputs:
+                script: |
+                    : \
+                    && mkdir -p $(Pipeline.Workspace)/tessdata \
+                    && wget -q \
+                        -O $(Pipeline.Workspace)/tessdata/eng.traineddata \
+                        https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
+            condition: eq(variables.TESS_CACHE_RESTORED, 'false')
+          - task: CmdLine@2
+            displayName: Symlink tessdata from the cache
+            inputs:
+                script: ln -s $(Pipeline.Workspace)/tessdata/eng.traineddata ./data/tessdata/eng.traineddata
+          - task: Cache@2
+            displayName: Use docker iamges cache
+            inputs:
+                key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yml | v2'
+                path: $(Pipeline.Workspace)/docker
+                cacheHitVar: DOCKER_CACHE_RESTORED
+          - script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet.tar
+            displayName: Load docker images if cached
+            condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
+          - script: >
+                :
+                && docker_images=$(grep "image:" meta/docker-compose-dotnet.yml | tr -d ' ' | cut -d: -f2-)
+                && echo $docker_images
+                && echo "##vso[task.setvariable variable=docker_images]$docker_images"
+                && for i in $docker_images; do docker pull $i | tee dotnet-docker-pull.log ; done
+                && newer=$(grep -c 'Downloaded newer image' dotnet-docker-pull.log) || true
+                && if [ $newer -ne "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
+            displayName: Pull newer images if available
+          - script: |
+                # If we didn't start with a cache, or if we pulled newer images
+                if
+                    false \
+                    || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
+                    || [[ "$(pulled_newer)" == "1" ]]
+                then
+                    mkdir -p $(Pipeline.Workspace)/docker
+                    docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-dotnet.tar
+                fi
+            displayName: Save docker images to cache
+            condition: and(not(canceled()), not(failed()))
+          - task: DockerCompose@0
+            displayName: Run containers for dotnet tests
+            inputs:
+                containerregistrytype: "Container Registry"
+                dockerComposeFile: "./meta/docker-compose-dotnet.yml"
+                dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
+                action: "Run services"
+          - task: CmdLine@2
+            displayName: Start MongoDB replication
+            inputs:
+                script: |
+                    timeout 1m bash -c "until /usr/bin/mongo --eval 'db.stats()' &> /dev/null ; do sleep 1 && echo -n . ; done"
+                    docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
+          - task: CmdLine@2
+            displayName: Set RDMP version
+            inputs:
+                script: |
+                    rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+                    echo $rdmp_ver
+                    echo "##vso[task.setvariable variable=rdmp_ver]$rdmp_ver"
+          - task: Cache@2
+            displayName: Cache rdmp-cli
+            inputs:
+                key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
+                path: $(RDMP_CLI_DIR)
+          - task: CmdLine@2
+            displayName: Download rdmp-cli if required
+            inputs:
+                script: |
+                    if [ ! -x $(RDMP_CLI_DIR)/rdmp ]; then
+                      echo Downloading rdmp-cli v${rdmp_ver}
+                      wget https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-linux-x64.zip
+                      # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
+                      unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
+                      chmod +x $(RDMP_CLI_DIR)/rdmp
+                    fi
+          - task: CmdLine@2
+            displayName: Wait for MsSQL to be ready
+            inputs:
+                script: >
+                    :
+                    && curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+                    && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/mssql-release.list
+                    && sudo ACCEPT_EULA=Y apt-get install mssql-tools
+                    && timeout 1m bash -c "until /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -Q 'SELECT @@VERSION' -l 1 &> /dev/null ; do echo -n . ; done"
+          - task: CmdLine@2
+            displayName: Install RDMP databases
+            inputs:
+                script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p $(DB_PASSWORD)
+          # NOTE(rkm 2020-12-23) Disabled for initial testing
+          # - task: Bash@3
+          #   displayName: Run Dotnet tests
+          #   inputs:
+          #       filePath: "./meta/run_dotnet_tests.sh"
+          #       failOnStderr: true
+# - job: java_tests
+#   displayName: Java Tests /
+#   pool:
+#     vmImage: ${{ parameters.vmImage }}
+#   steps:
