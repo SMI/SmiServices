@@ -4,7 +4,7 @@ parameters:
 
 jobs:
     - job: build_artefacts
-      displayName: Build Artefacts /
+      displayName: Build Artefacts ($(Agent.OS))
       pool:
           vmImage: ${{ parameters.vmImage }}
       condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')

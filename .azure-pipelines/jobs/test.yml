@@ -4,7 +4,7 @@ parameters:
 
 jobs:
     - job: dotnet_tests
-      displayName: Dotnet Tests /
+      displayName: Dotnet Tests ($(Agent.OS))
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
@@ -15,7 +15,7 @@ jobs:
                 version: 3.1.x
                 installationPath: $(Agent.ToolsDirectory)/dotnet
           - task: UseDotNet@2
-            displayName: Use .NET Core Runtime 2.2.203
+            displayName: Use .NET Core Runtime 2.2
             inputs:
                 packageType: runtime
                 version: 2.2.x
@@ -140,7 +140,7 @@ jobs:
           #       filePath: "./meta/run_dotnet_tests.sh"
           #       failOnStderr: true
 # - job: java_tests
-#   displayName: Java Tests /
+#   displayName: Java Tests ($(Agent.OS))
 #   pool:
 #     vmImage: ${{ parameters.vmImage }}
 #   steps:
