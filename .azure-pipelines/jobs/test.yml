@@ -53,7 +53,7 @@ jobs:
           - task: Cache@2
             displayName: Use docker iamges cache
             inputs:
-                key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yml | v2'
+                key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yml | v3'
                 path: $(Pipeline.Workspace)/docker
                 cacheHitVar: DOCKER_CACHE_RESTORED
           - script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
