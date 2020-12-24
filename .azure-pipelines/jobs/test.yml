@@ -56,9 +56,12 @@ jobs:
                 key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yml | v3'
                 path: $(Pipeline.Workspace)/docker
                 cacheHitVar: DOCKER_CACHE_RESTORED
-          - script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
+          - task: Bash@3
             displayName: Load docker images if cached
             condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
+            inputs:
+                targetType: "inline"
+                script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
           - script: >
                 :
                 && docker_images=$(grep "image:" meta/docker-compose-dotnet.yml | tr -d ' ' | cut -d: -f2-)
@@ -165,12 +168,12 @@ jobs:
                 key: 'docker | "$(Agent.OS)" | meta/docker-compose-java.yml | v2'
                 path: $(Pipeline.Workspace)/docker
                 cacheHitVar: DOCKER_CACHE_RESTORED
-          - task: Bash@3
-            displayName: Load docker images if cached
-            inputs:
-                targetType: "inline"
-                script: docker load < $(Pipeline.Workspace)/docker/cache-java-$(Agent.OS).tar
-            condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
+          # - task: Bash@3
+          #   displayName: Load docker images if cached
+          #   inputs:
+          #       targetType: "inline"
+          #       script: docker load < $(Pipeline.Workspace)/docker/cache-java-$(Agent.OS).tar
+          #   condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
           - task: Bash@3
             displayName: Pull newer images if available
             inputs:
