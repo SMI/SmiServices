@@ -162,14 +162,14 @@ jobs:
           - task: Cache@2
             displayName: Use docker iamges cache
             inputs:
-                key: 'docker | "$(Agent.OS)" | meta/docker-compose-java.yml'
+                key: 'docker | "$(Agent.OS)" | meta/docker-compose-java.yml | v2'
                 path: $(Pipeline.Workspace)/docker
                 cacheHitVar: DOCKER_CACHE_RESTORED
           - task: Bash@3
             displayName: Load docker images if cached
             inputs:
                 targetType: "inline"
-                script: docker load < $(Pipeline.Workspace)/docker/cache-java.tar
+                script: docker load < $(Pipeline.Workspace)/docker/cache-java-$(Agent.OS).tar
             condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
           - task: Bash@3
             displayName: Pull newer images if available
@@ -196,7 +196,7 @@ jobs:
                         || [[ "$(pulled_newer)" == "1" ]]
                     then
                         mkdir -p $(Pipeline.Workspace)/docker
-                        docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-java.tar
+                        docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-java-$(Agent.OS).tar
                     fi
           - task: DockerCompose@0
             displayName: Run containers for java tests
