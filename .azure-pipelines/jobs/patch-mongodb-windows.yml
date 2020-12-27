@@ -4,4 +4,4 @@ steps:
       displayName: Show mongodb config path
       inputs:
           targetType: "inline"
-          script: echo $(Get-Service mongodb).BinaryPathName
+          script: mongo admin --eval 'db.runCommand({getCmdLineOpts:1})'
