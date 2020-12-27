@@ -52,7 +52,8 @@ jobs:
                 script: |
                     : \
                     && cd ./data/tessdata/ \
-                    && ln -s $(Pipeline.Workspace)/tessdata/eng.traineddata .
+                    && ls -l $(Pipeline.Workspace)/tessdata \
+                    && ln $(Pipeline.Workspace)/tessdata/eng.traineddata .
           - task: Cache@2
             displayName: Use docker iamges cache
             inputs:
