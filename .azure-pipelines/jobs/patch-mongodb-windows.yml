@@ -1,7 +1,22 @@
 ---
 steps:
+    # - task: PowerShell@2
+    #   displayName: Show mongodb config path
+    #   inputs:
+    #       targetType: "inline"
+    #       script: mongo admin --eval 'db.runCommand({getCmdLineOpts:1})'
     - task: PowerShell@2
-      displayName: Show mongodb config path
+      displayName: Add replication to mongodb config
       inputs:
           targetType: "inline"
-          script: mongo admin --eval 'db.runCommand({getCmdLineOpts:1})'
+          script: "Add-Content C:\\Program Files\\MongoDB\\Server\\4.4\\bin\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
+    - task: PowerShell@2
+      displayName: Check
+      inputs:
+          targetType: "inline"
+          script: cat "C:\\Program Files\\MongoDB\\Server\\4.4\\bin\\mongod.cfg"
+    - task: PowerShell@2
+      displayName: Restart MongoDB
+      inputs:
+          targetType: "inline"
+          script: Restart-Service -Name MongoDB
