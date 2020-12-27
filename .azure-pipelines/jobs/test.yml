@@ -46,7 +46,7 @@ jobs:
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
           - ${{ if eq( parameters.os, 'Linux' ) }}:
-                - template: ./jobs/docker-dotnet.yml
+                - template: ./docker-dotnet.yml
           - task: Bash@3
             displayName: Start MongoDB replication
             inputs:
