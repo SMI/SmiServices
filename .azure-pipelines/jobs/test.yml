@@ -35,25 +35,16 @@ jobs:
                 path: $(TESS_DATA_DIR)
                 cacheHitVar: TESS_CACHE_RESTORED
           - task: Bash@3
-            displayName: Ensure tessdata exists
+            displayName: Download tessdata if cache not restored
             inputs:
                 targetType: "inline"
                 script: |
                     : \
-                    && mkdir -p $(Pipeline.Workspace)/tessdata \
+                    && mkdir -p $(TESS_DATA_DIR) \
                     && curl -L \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
-          - task: Bash@3
-            displayName: Symlink tessdata from the cache
-            inputs:
-                targetType: "inline"
-                script: |
-                    : \
-                    && cd ./data/tessdata/ \
-                    && ls -l $(Pipeline.Workspace)/tessdata \
-                    && ln $(Pipeline.Workspace)/tessdata/eng.traineddata .
           - task: Cache@2
             displayName: Use docker iamges cache
             inputs:
