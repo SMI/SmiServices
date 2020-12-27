@@ -45,53 +45,17 @@ jobs:
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
-          - task: Cache@2
-            displayName: Use docker iamges cache
-            inputs:
-                key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yml | v3'
-                path: $(Pipeline.Workspace)/docker
-                cacheHitVar: DOCKER_CACHE_RESTORED
-          - task: Bash@3
-            displayName: Load docker images if cached
-            condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
-            inputs:
-                targetType: "inline"
-                script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
-          - script: >
-                :
-                && docker_images=$(grep "image:" meta/docker-compose-dotnet.yml | tr -d ' ' | cut -d: -f2-)
-                && echo $docker_images
-                && echo "##vso[task.setvariable variable=docker_images]$docker_images"
-                && for i in $docker_images; do docker pull $i | tee dotnet-docker-pull.log ; done
-                && newer=$(grep -c 'Downloaded newer image' dotnet-docker-pull.log) || true
-                && if [ $newer -ne "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
-            displayName: Pull newer images if available
-          - script: |
-                # If we didn't start with a cache, or if we pulled newer images
-                if
-                    false \
-                    || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
-                    || [[ "$(pulled_newer)" == "1" ]]
-                then
-                    mkdir -p $(Pipeline.Workspace)/docker
-                    docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
-                fi
-            displayName: Save docker images to cache
-            condition: and(not(canceled()), not(failed()))
-          - task: DockerCompose@0
-            displayName: Run containers for dotnet tests
-            inputs:
-                containerregistrytype: "Container Registry"
-                dockerComposeFile: "./meta/docker-compose-dotnet.yml"
-                dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
-                action: "Run services"
+          - template: ./jobs/docker-dotnet.yml
+            displayName: Load docker images on Linux
+            condition: eq( variables['Agent.OS'], 'Linux' )
           - task: Bash@3
             displayName: Start MongoDB replication
             inputs:
                 targetType: "inline"
                 script: |
                     timeout 1m bash -c "until /usr/bin/mongo --eval 'db.stats()' &> /dev/null ; do sleep 1 && echo -n . ; done"
-                    docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
+                    # docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
+                    mongo --eval 'rs.initiate()'
           - task: Bash@3
             displayName: Set RDMP version
             inputs:
