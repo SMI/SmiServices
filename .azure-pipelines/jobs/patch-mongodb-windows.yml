@@ -4,4 +4,4 @@ steps:
       displayName: Show mongodb config path
       inputs:
           targetType: "inline"
-          script: $(Get-Service mongodb).BinaryPathName
+          script: echo $(Get-Service mongodb).BinaryPathName
