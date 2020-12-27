@@ -9,7 +9,7 @@ steps:
       displayName: Add replication to mongodb config
       inputs:
           targetType: "inline"
-          script: 'Add-Content C:\Program Files\MongoDB\Server\4.4\bin\mongod.cfg "`r`nreplication:`r`n  replSetName: rs0`r`n"'
+          script: 'Add-Content "C:\Program Files\MongoDB\Server\4.4\bin\mongod.cfg" "`r`nreplication:`r`n  replSetName: rs0`r`n"'
     - task: PowerShell@2
       displayName: Check
       inputs:
