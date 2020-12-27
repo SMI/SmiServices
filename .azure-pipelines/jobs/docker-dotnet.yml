@@ -46,3 +46,8 @@ steps:
           dockerComposeFile: "./meta/docker-compose-dotnet.yml"
           dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
           action: "Run services"
+    - task: Bash@3
+      displayName: Wait for MsSQL to be ready
+      inputs:
+          targetType: "inline"
+          script: timeout 1m bash -c "until docker exec mssql bash -c \"/opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q 'SELECT @@VERSION'\" &> /dev/null ; do echo -n . ; done"

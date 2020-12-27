@@ -82,16 +82,6 @@ jobs:
                       chmod +x $(RDMP_CLI_DIR)/rdmp
                     fi
           - task: Bash@3
-            displayName: Wait for MsSQL to be ready
-            inputs:
-                targetType: "inline"
-                script: >
-                    :
-                    && curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-                    && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/mssql-release.list
-                    && sudo ACCEPT_EULA=Y apt-get install mssql-tools
-                    && timeout 1m bash -c "until /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -Q 'SELECT @@VERSION' -l 1 &> /dev/null ; do echo -n . ; done"
-          - task: Bash@3
             displayName: Install RDMP databases
             inputs:
                 targetType: "inline"
