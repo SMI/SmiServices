@@ -18,8 +18,8 @@ steps:
           path: $(RDMP_CLI_DIR)
           cacheHitVar: RDMP_CACHE_RESTORED
     - task: Bash@3
-      displayName: Download rdmp-cli if required`
-      condition: and(not(canceled()), eq(variables.RDMP_CACHE_RESTORED, 'true'))
+      displayName: Download rdmp-cli if required
+      condition: and(not(canceled()), eq(variables.RDMP_CACHE_RESTORED, 'false'))
       inputs:
           targetType: "inline"
           script: |
