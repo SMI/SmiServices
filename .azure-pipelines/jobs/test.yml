@@ -46,7 +46,7 @@ jobs:
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
           - ${{ if eq( parameters.os, 'Linux' ) }}:
-                - template: ./docker-dotnet.yml
+                - template: ../steps/docker-dotnet.yml
           - ${{ if eq( parameters.os, 'Windows' ) }}:
                 - template: ./patch-mongodb-windows.yml
           - task: Bash@3
