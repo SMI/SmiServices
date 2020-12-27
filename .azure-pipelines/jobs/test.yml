@@ -47,13 +47,14 @@ jobs:
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
           - ${{ if eq( parameters.os, 'Linux' ) }}:
                 - template: ./docker-dotnet.yml
+          - ${{ if eq( parameters.os, 'Windows' ) }}:
+                - template: ./patch-mongodb-windows.yml
           - task: Bash@3
             displayName: Start MongoDB replication
             inputs:
                 targetType: "inline"
                 script: |
                     timeout 1m bash -c "until /usr/bin/mongo --eval 'db.stats()' &> /dev/null ; do sleep 1 && echo -n . ; done"
-                    # docker exec mongodb bash -c "mongo --eval 'rs.initiate()'"
                     mongo --eval 'rs.initiate()'
           - task: Bash@3
             displayName: Set RDMP version
