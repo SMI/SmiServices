@@ -20,8 +20,8 @@ jobs:
     - template: jobs/test.yml
       parameters:
           vmImage: ubuntu-18.04
-          os: Linux
+          os: linux
     - template: jobs/package.yml
       parameters:
           vmImage: ubuntu-18.04
-          os: Linux
+          os: linux

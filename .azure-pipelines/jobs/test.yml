@@ -45,9 +45,9 @@ jobs:
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
-          - ${{ if eq( parameters.os, 'Linux' ) }}:
+          - ${{ if eq( parameters.os, 'linux' ) }}:
                 - template: ../steps/docker-dotnet.yml
-          - ${{ if eq( parameters.os, 'Windows' ) }}:
+          - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ./patch-mongodb-windows.yml
           - task: Bash@3
             displayName: Start MongoDB replication
@@ -56,36 +56,9 @@ jobs:
                 script: |
                     timeout 1m bash -c "until /usr/bin/mongo --eval 'db.stats()' &> /dev/null ; do sleep 1 && echo -n . ; done"
                     mongo --eval 'rs.initiate()'
-          - task: Bash@3
-            displayName: Set RDMP version
-            inputs:
-                targetType: "inline"
-                script: |
-                    rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-                    echo $rdmp_ver
-                    echo "##vso[task.setvariable variable=rdmp_ver]$rdmp_ver"
-          - task: Cache@2
-            displayName: Cache rdmp-cli
-            inputs:
-                key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
-                path: $(RDMP_CLI_DIR)
-          - task: Bash@3
-            displayName: Download rdmp-cli if required
-            inputs:
-                targetType: "inline"
-                script: |
-                    if [ ! -x $(RDMP_CLI_DIR)/rdmp ]; then
-                      echo Downloading rdmp-cli v${rdmp_ver}
-                      curl -L https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-linux-x64.zip -o rdmp-cli-linux-x64.zip
-                      # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
-                      unzip -d $(RDMP_CLI_DIR) rdmp-cli-linux-x64.zip -x "Curation*" "zh-*"
-                      chmod +x $(RDMP_CLI_DIR)/rdmp
-                    fi
-          - task: Bash@3
-            displayName: Install RDMP databases
-            inputs:
-                targetType: "inline"
-                script: $(RDMP_CLI_DIR)/rdmp install localhost TEST_ -u sa -p $(DB_PASSWORD)
+          - template: ../steps/rdmp-setup.yml
+            parameters:
+                os: parameters.os
           - task: Bash@3
             displayName: Run Dotnet tests
             inputs:
