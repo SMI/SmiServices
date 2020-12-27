@@ -45,7 +45,7 @@ jobs:
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
-          - ${{ if eq( variables['Agent.OS'], 'Linux' ) }}:
+          - ${{ if eq( parameters.os, 'Linux' ) }}:
                 - template: ./jobs/docker-dotnet.yml
           - task: Bash@3
             displayName: Start MongoDB replication

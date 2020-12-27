@@ -20,6 +20,8 @@ jobs:
     - template: jobs/test.yml
       parameters:
           vmImage: windows-2019
+          os: Windows
     - template: jobs/package.yml
       parameters:
           vmImage: windows-2019
+          os: Windows
