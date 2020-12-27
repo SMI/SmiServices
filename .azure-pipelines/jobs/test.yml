@@ -43,7 +43,9 @@ jobs:
                     && mkdir -p $(Pipeline.Workspace)/tessdata \
                     && curl -L \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
-                        > $(Pipeline.Workspace)/tessdata/eng.traineddata
+                        > $(Pipeline.Workspace)/tessdata/eng.traineddata \
+                    && pwd $(Pipeline.Workspace)/tessdata \
+                    && ls -l $(Pipeline.Workspace)/tessdata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
           - task: Bash@3
             displayName: Symlink tessdata from the cache
