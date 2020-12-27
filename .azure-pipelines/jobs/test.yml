@@ -43,15 +43,16 @@ jobs:
                     && mkdir -p $(Pipeline.Workspace)/tessdata \
                     && curl -L \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
-                        > $(Pipeline.Workspace)/tessdata/eng.traineddata \
-                    && ls -l $(Pipeline.Workspace)/tessdata \
-                    && ls -l ./data/tessdata
+                        > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
           - task: Bash@3
             displayName: Symlink tessdata from the cache
             inputs:
                 targetType: "inline"
-                script: ln -s $(Pipeline.Workspace)/tessdata/eng.traineddata ./data/tessdata/eng.traineddata
+                script: |
+                    : \
+                    && cd ./data/tessdata/eng.traineddata \
+                    && ln -s $(Pipeline.Workspace)/tessdata/eng.traineddata .
           - task: Cache@2
             displayName: Use docker iamges cache
             inputs:
