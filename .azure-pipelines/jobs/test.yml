@@ -51,6 +51,7 @@ jobs:
                 targetType: "inline"
                 script: |
                     : \
+                    && ls -l \
                     && cd ./data/tessdata/eng.traineddata \
                     && ln -s $(Pipeline.Workspace)/tessdata/eng.traineddata .
           - task: Cache@2
