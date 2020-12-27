@@ -23,7 +23,7 @@ steps:
       inputs:
           targetType: "inline"
           script: |
-              echo Downloading rdmp-cli v${rdmp_ver}
+              echo Downloading rdmp-cli v$(rdmp_ver)
               curl -L https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-${{ parameters.os }}-x64.zip -o rdmp-cli-${{ parameters.os }}-x64.zip
               # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
               unzip -d $(RDMP_CLI_DIR) rdmp-cli-${{ parameters.os }}-x64.zip -x "Curation*" "zh-*"
