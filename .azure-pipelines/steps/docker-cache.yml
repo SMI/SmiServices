@@ -1,9 +1,22 @@
 ---
+parameters:
+    os:
+    language:
+
 steps:
+    - task: Bash@3
+      displayName: Set glob for compose files
+      inputs:
+          targetType: "inline"
+          script: |
+              compose_glob=$(echo .azure/pipelines/docker-compose/${{ parameters.os }}'*'${{ parameters.language }}'*'.yml)
+              set -f
+              echo $compose_glob
+              echo "##vso[task.setvariable variable=compose_glob]$compose_glob"
     - task: Cache@2
       displayName: Use docker iamges cache
       inputs:
-          key: 'docker | "$(Agent.OS)" | meta/docker-compose-dotnet.yml | v3'
+          key: "docker | $(compose_glob)"
           path: $(Pipeline.Workspace)/docker
           cacheHitVar: DOCKER_CACHE_RESTORED
     - task: Bash@3
@@ -11,14 +24,14 @@ steps:
       condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
       inputs:
           targetType: "inline"
-          script: docker load < $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
+          script: docker load < $(Pipeline.Workspace)/docker/cache.tar
     - task: Bash@3
       displayName: Pull newer images if available
       inputs:
           targetType: "inline"
           script: >
               :
-              && docker_images=$(grep "image:" meta/docker-compose-dotnet.yml | tr -d ' ' | cut -d: -f2-)
+              && docker_images=$(grep -h "image:" $(compose_glob) | tr -d ' ' | cut -d: -f2- | sort -u)
               && echo $docker_images
               && echo "##vso[task.setvariable variable=docker_images]$docker_images"
               && for i in $docker_images; do docker pull $i | tee dotnet-docker-pull.log ; done
@@ -37,17 +50,5 @@ steps:
                   || [[ "$(pulled_newer)" == "1" ]]
               then
                   mkdir -p $(Pipeline.Workspace)/docker
-                  docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-dotnet-$(Agent.OS).tar
+                  docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache.tar
               fi
-    - task: DockerCompose@0
-      displayName: Run containers for dotnet tests
-      inputs:
-          containerregistrytype: "Container Registry"
-          dockerComposeFile: "./meta/docker-compose-dotnet.yml"
-          dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
-          action: "Run services"
-    - task: Bash@3
-      displayName: Wait for MsSQL to be ready
-      inputs:
-          targetType: "inline"
-          script: timeout 1m bash -c "until docker exec mssql bash -c \"/opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q 'SELECT @@VERSION'\" &> /dev/null ; do echo -n . ; done"

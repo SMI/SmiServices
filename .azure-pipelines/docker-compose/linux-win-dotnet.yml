@@ -1,6 +1,4 @@
 ---
-# docker-compose file for CI tests
-
 version: "3.7"
 
 services:
@@ -10,11 +8,6 @@ services:
         command: mongod --replSet rs0
         ports:
             - 27017:27017
-    rabbitmq:
-        container_name: rabbitmq
-        image: rabbitmq:3.7.16
-        ports:
-            - 5672:5672
     mssql:
         container_name: mssql
         image: mcr.microsoft.com/mssql/server:2017-latest
@@ -23,13 +16,6 @@ services:
             - SA_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
         ports:
             - 1433:1433
-    mariadb:
-        container_name: mariadb
-        image: mariadb:10.4
-        environment:
-            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
-        ports:
-            - 3306:3306
     redis:
         container_name: redis
         image: redis:3.2.12

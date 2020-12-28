@@ -1,0 +1,16 @@
+---
+version: "3.7"
+
+services:
+    rabbitmq:
+        container_name: rabbitmq
+        image: rabbitmq:3.7.16
+        ports:
+            - 5672:5672
+    mariadb:
+        container_name: mariadb
+        image: mariadb:10.4
+        environment:
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
+        ports:
+            - 3306:3306

@@ -1,6 +1,7 @@
 ---
 parameters:
     vmImage:
+    # NOTE(rkm 2020-12-27) OS is required for the template conditions which are evaluated at compile-time before the Agent.OS is known
     os:
 
 jobs:
@@ -45,17 +46,20 @@ jobs:
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
+          - template: ../steps/docker-cache.yml
+            parameters:
+                os: ${{ parameters.os }}
+                language: dotnet
+          - template: ../steps/linux-win-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'linux' ) }}:
-                - template: ../steps/docker-dotnet.yml
+                - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
-                - template: ./patch-mongodb-windows.yml
+                - template: ../steps/win-dotnet-services.yml
           - task: Bash@3
             displayName: Start MongoDB replication
             inputs:
                 targetType: "inline"
-                script: |
-                    timeout 1m bash -c "until /usr/bin/mongo --eval 'db.stats()' &> /dev/null ; do sleep 1 && echo -n . ; done"
-                    mongo --eval 'rs.initiate()'
+                script: mongo --eval "rs.initiate()"
           - template: ../steps/rdmp-setup.yml
             parameters:
                 os: ${{ parameters.os }}
@@ -84,51 +88,14 @@ jobs:
                     maven | "$(Agent.OS)"
                     maven
                 path: $(MAVEN_CACHE_FOLDER)
-          - task: Cache@2
-            displayName: Use docker iamges cache
-            inputs:
-                key: 'docker | "$(Agent.OS)" | meta/docker-compose-java.yml | v2'
-                path: $(Pipeline.Workspace)/docker
-                cacheHitVar: DOCKER_CACHE_RESTORED
-          # - task: Bash@3
-          #   displayName: Load docker images if cached
-          #   inputs:
-          #       targetType: "inline"
-          #       script: docker load < $(Pipeline.Workspace)/docker/cache-java-$(Agent.OS).tar
-          #   condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
-          - task: Bash@3
-            displayName: Pull newer images if available
-            inputs:
-                targetType: "inline"
-                script: >
-                    :
-                    && docker_images=$(grep "image:" meta/docker-compose-java.yml | tr -d ' ' | cut -d: -f2-)
-                    && echo $docker_images
-                    && echo "##vso[task.setvariable variable=docker_images]$docker_images"
-                    && for i in $docker_images; do docker pull $i | tee java-docker-pull.log ; done
-                    && newer=$(grep -c 'Downloaded newer image' java-docker-pull.log) || true
-                    && if [ $newer -ne "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
-          - task: Bash@3
-            displayName: Save docker images to cache
-            condition: and(not(canceled()), not(failed()))
-            inputs:
-                targetType: "inline"
-                script: |
-                    # If we didn't start with a cache, or if we pulled newer images
-                    if
-                        false \
-                        || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
-                        || [[ "$(pulled_newer)" == "1" ]]
-                    then
-                        mkdir -p $(Pipeline.Workspace)/docker
-                        docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache-java-$(Agent.OS).tar
-                    fi
-          - task: DockerCompose@0
-            displayName: Run containers for java tests
-            inputs:
-                containerregistrytype: "Container Registry"
-                dockerComposeFile: "./meta/docker-compose-java.yml"
-                action: "Run services"
+          - template: ../steps/docker-cache.yml
+            parameters:
+                os: ${{ parameters.os }}
+                language: java
+          - ${{ if eq( parameters.os, 'linux' ) }}:
+                - template: ../steps/linux-java-docker.yml
+          - ${{ if eq( parameters.os, 'win' ) }}:
+                - template: ../steps/win-java-services.yml
           - task: Bash@3
             displayName: Run Java tests
             inputs:

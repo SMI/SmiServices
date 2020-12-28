@@ -1,0 +1,11 @@
+---
+parameters:
+    name:
+    cmd:
+
+steps:
+    - task: Bash@3
+      displayName: Wait for ${{ parameters.name }} to be ready
+      inputs:
+          filePath: ./azure-pipelines/scripts/wait-for.sh
+          arguments: ${{ parameters.cmd }}

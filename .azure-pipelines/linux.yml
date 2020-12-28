@@ -1,4 +1,6 @@
 ---
+name: SmiServices Linux test
+
 trigger:
     branches:
         include:
@@ -17,7 +19,7 @@ variables:
     DB_PASSWORD: "YourStrongPassw0rd"
 
 jobs:
-    - template: jobs/test.yml
+    - template: jobs/tests.yml
       parameters:
           vmImage: ubuntu-18.04
           os: linux

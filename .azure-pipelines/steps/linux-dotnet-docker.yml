@@ -1,0 +1,17 @@
+---
+steps:
+    - task: DockerCompose@0
+      displayName: Start Linux containers for .NET tests
+      inputs:
+          containerregistrytype: "Container Registry"
+          dockerComposeFile: ".azure-pipelines/docker-compose/linux-dotnet.yml"
+          dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
+          action: "Run services"
+    - template: ./wait-for.yml
+      parameters:
+          name: RabbitMQ
+          cmd: docker exec rabbitmq rabbitmq-diagnostics -q ping
+    - template: ./wait-for.yml
+      parameters:
+          name: MariaDB
+          cmd: docker exec mariadb mysqladmin -uroot -p$(DB_PASSWORD) status
