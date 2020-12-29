@@ -12,6 +12,17 @@ steps:
       inputs:
           targetType: "inline"
           script: choco install mariadb
+    - task: PowerShell@2
+      displayName: Add replication to MongoDB config
+      inputs:
+          targetType: "inline"
+          script: 'Add-Content "C:\Program Files\MongoDB\Server\4.4\bin\mongod.cfg" "`r`nreplication:`r`n  replSetName: rs0`r`n"'
+    - task: PowerShell@2
+      displayName: Restart MongoDB
+      inputs:
+          targetType: "inline"
+          script: Restart-Service -Name MongoDB
+    # Wait for everything to be available
     - template: ./wait-for.yml
       parameters:
           name: RabbitMQ
@@ -20,3 +31,12 @@ steps:
       parameters:
           name: MariaDB
           cmd: mysqladmin -uroot -p$(DB_PASSWORD) status
+    - template: ./wait-for.yml
+      parameters:
+          name: MongoDB
+          cmd: test $(mongo --quiet --eval 'db.stats().ok') -eq 1
+    - task: Bash@3
+      displayName: Start MongoDB replication
+      inputs:
+          targetType: "inline"
+          script: mongo --eval "rs.initiate()"

@@ -46,12 +46,11 @@ jobs:
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(Pipeline.Workspace)/tessdata/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')
-          - template: ../steps/docker-cache.yml
-            parameters:
-                os: ${{ parameters.os }}
-                language: dotnet
-          - template: ../steps/linux-win-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'linux' ) }}:
+                - template: ../steps/docker-cache.yml
+                  parameters:
+                      os: ${{ parameters.os }}
+                      language: dotnet
                 - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
@@ -88,11 +87,11 @@ jobs:
                     maven | "$(Agent.OS)"
                     maven
                 path: $(MAVEN_CACHE_FOLDER)
-          - template: ../steps/docker-cache.yml
-            parameters:
-                os: ${{ parameters.os }}
-                language: java
           - ${{ if eq( parameters.os, 'linux' ) }}:
+                - template: ../steps/docker-cache.yml
+                  parameters:
+                      os: ${{ parameters.os }}
+                      language: java
                 - template: ../steps/linux-java-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-java-services.yml

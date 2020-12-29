@@ -19,3 +19,16 @@ steps:
       parameters:
           name: Redis
           cmd: docker exec redis bash -c "/usr/local/bin/redis-cli PING"
+    - template: ./wait-for.yml
+      parameters:
+          name: MsSQL
+          cmd: docker exec mssql bash -c "/opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q "SELECT @@VERSION""
+    - template: ./wait-for.yml
+      parameters:
+          name: MongoDB
+          cmd: test $(docker exec mongodb /usr/bin/mongo --quiet --eval 'db.stats().ok') -eq 1
+    - task: Bash@3
+      displayName: Start MongoDB replication
+      inputs:
+          targetType: "inline"
+          script: docker exec mongodb mongo --eval "rs.initiate()"

@@ -19,3 +19,17 @@ services:
         image: redis:3.2.12
         ports:
             - 6379:6379
+    mssql:
+        container_name: mssql
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
+        ports:
+            - 1433:1433
+    mongodb:
+        container_name: mongodb
+        image: mongo:4.2.2
+        command: mongod --replSet rs0
+        ports:
+            - 27017:27017
