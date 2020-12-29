@@ -14,3 +14,8 @@ services:
             - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
         ports:
             - 3306:3306
+    redis:
+        container_name: redis
+        image: redis:3.2.12
+        ports:
+            - 6379:6379

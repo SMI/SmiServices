@@ -15,3 +15,7 @@ steps:
       parameters:
           name: MariaDB
           cmd: docker exec mariadb mysqladmin -uroot -p$(DB_PASSWORD) status
+    - template: ./wait-for.yml
+      parameters:
+          name: Redis
+          cmd: docker exec redis bash -c "/usr/local/bin/redis-cli PING"
