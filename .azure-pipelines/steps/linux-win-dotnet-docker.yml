@@ -10,7 +10,7 @@ steps:
     - template: ./wait-for.yml
       parameters:
           name: MongoDB
-          cmd: docker exec mongodb bash -c "test "\$(/usr/bin/mongo --quiet --eval "db.stats().ok")" -eq 1'
+          cmd: docker exec mongodb bash -c "test "$(/usr/bin/mongo --quiet --eval "db.stats().ok")" -eq 1'
     - template: ./wait-for.yml
       parameters:
           name: MsSQL
