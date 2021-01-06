@@ -29,22 +29,21 @@ namespace Microservices.IsIdentifiable.Runners
             {
                 var culture = string.IsNullOrWhiteSpace(_opts.Culture) ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(_opts.Culture);
                 
-                var r = new CsvReader(fs,culture);
-
-                if(!r.Read() || !r.ReadHeader())
-                    throw new Exception("Csv file had no headers");
-
-                
-                _logger.Info("Headers are:" + string.Join(",",r.Context.HeaderRecord));
-
-
-                while(r.Read())
+                using(var r = new CsvReader(fs,culture))
                 {
-                    foreach (Failure failure in GetFailuresIfAny(r))
-                        AddToReports(failure);
-                }
+                    if(!r.Read() || !r.ReadHeader())
+                        throw new Exception("Csv file had no headers");
+
+                    _logger.Info("Headers are:" + string.Join(",",r.Context.HeaderRecord));
+
+                    while(r.Read())
+                    {
+                        foreach (Failure failure in GetFailuresIfAny(r))
+                            AddToReports(failure);
+                    }
                 
-                CloseReports();
+                    CloseReports();
+                }
 
                 return 0;
             }
