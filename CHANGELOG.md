@@ -9,7 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 -   Added total job duration to extraction report header
-
+-   Added CSV input support for IsIdentifiable, use verb `file` from command line
+ 
 ### Changed
 
 -   Clarified the CLI help text for `--format` in CohortPackager

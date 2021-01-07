@@ -5,7 +5,8 @@ using FAnsi;
 
 namespace Microservices.IsIdentifiable.Options
 {
-    [Verb("db")]
+
+    [Verb("db", HelpText = "Run tool on data held in a relational database table")]
     public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableAbstractOptions
     {
         [Option('d', HelpText = "Full connection string to the database storing the table to be evaluated", Required = true)]
