@@ -57,7 +57,6 @@ namespace IsIdentifiableReviewer
         private IRulePatternFactory _origIgnorerRulesFactory;
         private Label _ignoreRuleLabel;
         private Label _updateRuleLabel;
-        private CheckBox _cbRulesOnly;
 
         /// <summary>
         /// Record of new rules added (e.g. Ignore with pattern X) along with the index of the failure.  This allows undoing user decisions
@@ -71,6 +70,8 @@ namespace IsIdentifiableReviewer
             Disabled = Attribute.Make(Color.Black,Color.Gray),
             Focus = Attribute.Make(Color.Black,Color.Gray),
         };
+        private MenuItem miCustomPatterns;
+        private MenuItem miRulesOnly;
 
         public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
@@ -91,6 +92,10 @@ namespace IsIdentifiableReviewer
                 new MenuBarItem ("_File (F9)", new MenuItem [] {
                     new MenuItem("_Open Report",null, OpenReport), 
                     new MenuItem ("_Quit", null, () => { top.Running = false; })
+                }),
+                new MenuBarItem ("_Options", new MenuItem [] {
+                    miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}, 
+                    miRulesOnly = new MenuItem ("_Rules Only", null, ToggleRulesOnly){CheckType = MenuItemCheckStyle.Checked,Checked = opts.OnlyRules}
                 })
             });
 
@@ -174,19 +179,7 @@ namespace IsIdentifiableReviewer
             frame.Add(_ignoreRuleLabel);
             frame.Add(_updateRuleLabel);
 
-            var cbCustomPattern = new CheckBox(23,1,"Custom Patterns",false);
-            cbCustomPattern.Toggled += (b) =>
-            {
-                Updater.RulesFactory = cbCustomPattern.Checked ? this : _origUpdaterRulesFactory;
-                Ignorer.RulesFactory = cbCustomPattern.Checked ? this : _origIgnorerRulesFactory;
-            };
-            frame.Add(cbCustomPattern);
-
-            _cbRulesOnly = new CheckBox(23,2,"Rules Only",opts.OnlyRules);
             Updater.RulesOnly = opts.OnlyRules;
-
-            _cbRulesOnly.Toggled += (b) => { Updater.RulesOnly = _cbRulesOnly.Checked;};
-            frame.Add(_cbRulesOnly);
             
             top.Add (menu);
             Add(_info);
@@ -195,6 +188,20 @@ namespace IsIdentifiableReviewer
 
             if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
                 OpenReport(opts.FailuresCsv,(e)=>throw e, (t)=>throw new Exception("Mode only supported when a single Target is configured"));
+        }
+
+        private void ToggleRulesOnly()
+        {
+            miRulesOnly.Checked = !miRulesOnly.Checked;
+            Updater.RulesOnly = miRulesOnly.Checked;
+        }
+
+        private void ToggleCustomPatterns()
+        {
+            miCustomPatterns.Checked = !miCustomPatterns.Checked;
+
+            Updater.RulesFactory = miCustomPatterns.Checked ? this : _origUpdaterRulesFactory;
+            Ignorer.RulesFactory = miCustomPatterns.Checked ? this : _origIgnorerRulesFactory;
         }
 
         private void Undo()
@@ -340,7 +347,7 @@ namespace IsIdentifiableReviewer
 
             try
             {
-                Updater.Update(_cbRulesOnly.Checked ? null : CurrentTarget?.Discover()
+                Updater.Update(miRulesOnly.Checked ? null : CurrentTarget?.Discover()
                     , _valuePane.CurrentFailure, null /*create one yourself*/);
 
                 History.Push(new MainWindowHistory(CurrentReport.CurrentIndex,Updater));
