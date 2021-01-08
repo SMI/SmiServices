@@ -8,16 +8,20 @@
 # XXX TODO: copy the input to the output if it doesn't exist?
 
 prog=$(basename "$0")
-usage="usage: ${prog} -i read_from.dcm -o write_into.dcm"
-options="i:o:"
+usage="usage: ${prog} [-d] [-v]  -i read_from.dcm  -o write_into.dcm"
+options="dvi:o:"
 log="$SMI_LOGS_ROOT/${prog}.log"
 dcm=""
+debug=0
+verbose=0
 
 # Default value if not set is for SMI
 if [ "$SMI_ROOT" == "" ]; then
+	echo "${prog}: WARNING: env var SMI_ROOT was not set, using default value" >&2
 	export SMI_ROOT="/nfs/smi/home/smi"
 fi
 if [ "$SMI_LOGS_ROOT" == "" ]; then
+	echo "${prog}: WARNING: env var SMI_LOGS_ROOT was not set, using default value" >&2
 	export SMI_LOGS_ROOT="/beegfs-hdruk/smi/data/logs"
 fi
 
@@ -31,12 +35,14 @@ tidy_exit()
 	rc=$1
 	msg="$2"
 	echo "$msg" >&2
-	echo "$msg" >> $log
-	# Tidy up
-	if [ -f "${input_dcm}.SRtext" ]; then rm -f "${input_dcm}.SRtext"; fi
-	if [ -f "${input_doc}" ]; then rm -f "${input_doc}"; fi
-	if [ -f "${anon_doc}" ]; then rm -f "${anon_doc}"; fi
-	if [ -f "${anon_xml}" ]; then rm -f "${anon_xml}"; fi
+	echo "`date` $msg" >> $log
+	# Tidy up, if not debugging
+	if [ $debug -eq 0 ]; then
+	  if [ -f "${input_dcm}.SRtext" ]; then rm -f "${input_dcm}.SRtext"; fi
+	  if [ -f "${input_doc}" ]; then rm -f "${input_doc}"; fi
+	  if [ -f "${anon_doc}" ]; then rm -f "${anon_doc}"; fi
+	  if [ -f "${anon_xml}" ]; then rm -f "${anon_xml}"; fi
+	fi
 	exit $rc
 }
 
@@ -47,6 +53,8 @@ export PYTHONPATH=${SMI_ROOT}/lib/python3
 # Command line arguments
 while getopts ${options} var; do
 case $var in
+	d) debug=1;;
+	v) verbose=1;;
 	i) input_dcm="$OPTARG";;
 	o) output_dcm="$OPTARG";;
 	?) echo "$usage" >&2; exit 1;;
@@ -71,9 +79,12 @@ else
 fi
 
 # Convert DICOM to text
+if [ $verbose -gt 0 ]; then
+	echo "RUN: CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 -i ${input_dcm} -o ${input_dcm}.SRtext"
+fi
 CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 	-i "${input_dcm}" \
-	-o "${input_dcm}.SRtext"  || tidy_exit 4 "Error converting ${input_dcm} to ${input_dcm}.SRtext"
+	-o "${input_dcm}.SRtext"  || tidy_exit 4 "Error $? from CTP_DicomToText.py while converting ${input_dcm} to ${input_dcm}.SRtext"
 
 # Run the SemEHR anonymiser
 doc_filename=$(basename "$input_dcm")
@@ -81,20 +92,26 @@ input_doc="/data/input_docs/$doc_filename"
 anon_doc="/data/anonymised/$doc_filename"
 anon_xml="/data/anonymised/$doc_filename.knowtator.xml"
 cp  "${input_dcm}.SRtext"  "$input_doc" || tidy_exit 5 "Cannot copy ${input_dcm}.SRtext to ${input_doc}"
+if [ $verbose -gt 0 ]; then
+	echo "RUN: /opt/semehr/CogStack-SemEHR/analysis/clinical_doc_wrapper.py"
+fi
 (cd /opt/semehr/CogStack-SemEHR/analysis; python2 ./clinical_doc_wrapper.py) >> $log 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
-	tidy_exit $rc "Possible failure of SemEHR given ${input_dcm}"
+	tidy_exit $rc "Possible failure (exit code $rc) of SemEHR-anon given ${input_doc} from ${input_dcm}"
 fi
 
 if [ ! -f "$anon_xml" ]; then
-	tidy_exit 6 "ERROR: SemEHR failed to convert $input_doc to $anon_xml"
+	tidy_exit 6 "ERROR: SemEHR-anon failed to convert $input_doc to $anon_xml"
 fi
 
 # Convert XML back to DICOM
+if [ $verbose -gt 0 ]; then
+	echo "RUN: CTP_XMLToDicom.py -y $default_yaml1 	-i $input_dcm -x $anon_xml -o $output_dcm"
+fi
 CTP_XMLToDicom.py -y $default_yaml1 \
 	-i "$input_dcm" \
 	-x "$anon_xml" \
-	-o "$output_dcm"   || tidy_exit 7 "Error redacting $output_dcm with $anon_xml"
+	-o "$output_dcm"   || tidy_exit 7 "Error $? from CTP_XMLToDicom.py while redacting $output_dcm with $anon_xml"
 
 tidy_exit 0 "Finished with ${input_dcm}"
