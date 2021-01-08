@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using IsIdentifiableReviewer.Out;
+using IsIdentifiableReviewer.Views;
 using Microservices.IsIdentifiable.Reporting;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
@@ -96,6 +97,9 @@ namespace IsIdentifiableReviewer
                 new MenuBarItem ("_Options", new MenuItem [] {
                     miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}, 
                     miRulesOnly = new MenuItem ("_Rules Only", null, ToggleRulesOnly){CheckType = MenuItemCheckStyle.Checked,Checked = opts.OnlyRules}
+                }),
+                new MenuBarItem ("_View", new MenuItem [] {
+                    miCustomPatterns = new MenuItem("_Rules",null,ViewRules),
                 })
             });
 
@@ -188,6 +192,17 @@ namespace IsIdentifiableReviewer
 
             if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
                 OpenReport(opts.FailuresCsv,(e)=>throw e, (t)=>throw new Exception("Mode only supported when a single Target is configured"));
+        }
+
+        private void ViewRules()
+        {
+            if(CurrentReport == null)
+                MessageBox.Query(DlgWidth,DlgHeight,"No Report Open","You must open a report first","Ok");
+            else
+            {
+                var rules = new RulesView(CurrentReport,Ignorer,Updater);
+                Application.Run(rules);
+            }
         }
 
         private void ToggleRulesOnly()
