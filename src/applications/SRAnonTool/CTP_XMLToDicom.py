@@ -91,5 +91,6 @@ if __name__ == "__main__":
 
     dicomtext.write_redacted_text_into_dicom_file(args.output_dcm)
     #print(f'dcm2json {redacted_dcmname} | jq \'..|select(.vr=="UT")?|.Value|.[]\'')
+	logging.info(f'Wrote {args.output_dcm}')
 
     exit(0)
