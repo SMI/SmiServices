@@ -1,6 +1,11 @@
+# Convert from and to the Knowtator XML format
+# for recording document annotations.
+# This has been deduced from the SemEHR-anonymiser output
+# and is intended only for working with that software.
 
 from operator import itemgetter # for sorted()
 import xml.etree.ElementTree    # untangle and xmltodict not available in NSH
+import xml.dom.minidom as minidom
 
 
 # ---------------------------------------------------------------------
@@ -66,3 +71,36 @@ def annotation_xml_to_dict(xmlroot):
             # XXX should check mentionClass id matches and is sensitive text
             pass
     return(sorted(item_list, key=itemgetter('start_char')))
+
+
+def dict_to_annotation_xml_string(dictlist):
+    """ Convert a list of dict { start_char, end_char, text } into an XML string.
+    To get the list of dict from a regex pattern in a string you could use:
+    [{ 'start_char': m.start(), 'end_char': m.end(), 'text': pattern } for m in re.finditer(pattern, txt)]
+    """
+    xmlroot = xml.etree.ElementTree.Element('annotations')
+    match_num=0
+    for match in dictlist:
+    	match_num = match_num+1
+    	xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'annotation')
+    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mention')
+    	xmlsubitem.set('id', f'filename-{match_num}')
+    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'annotator')
+    	xmlsubitem.set('id', f'filename-{match_num}')
+    	xmlsubitem.text = 'semehr'
+    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'span')
+    	xmlsubitem.set('start', str(match['start_char']))
+    	xmlsubitem.set('end', str(match['end_char']))
+    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'spannedText')
+    	xmlsubitem.text = match['text']
+    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'creationDate')
+    	xmlsubitem.text = 'Wed November 11 13:04:51 2020'
+    	xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'classMention')
+    	xmlitem.set('id', f'filename-{match_num}')
+    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mentionClass')
+    	xmlsubitem.set('id', 'semehr_sensitive_info')
+    	xmlsubitem.text = match['text']
+
+    xmlstr = minidom.parseString(xml.etree.ElementTree.tostring(xmlroot)).toprettyxml(indent=" ")
+    return xmlstr
+
