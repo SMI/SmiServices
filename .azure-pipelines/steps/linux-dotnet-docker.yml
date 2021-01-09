@@ -26,7 +26,7 @@ steps:
     - template: ./wait-for.yml
       parameters:
           name: MongoDB
-          cmd: test $(docker exec mongodb /usr/bin/mongo --quiet --eval 'db.stats().ok') -eq 1
+          cmd: "'test $(docker exec mongodb /usr/bin/mongo --quiet --eval \"db.stats().ok\") -eq 1'"
     - task: Bash@3
       displayName: Start MongoDB replication
       inputs:
