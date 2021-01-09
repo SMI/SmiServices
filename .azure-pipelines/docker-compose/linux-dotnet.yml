@@ -4,19 +4,19 @@ version: "3.7"
 services:
     rabbitmq:
         container_name: rabbitmq
-        image: rabbitmq:3.7.16
+        image: rabbitmq:latest
         ports:
             - 5672:5672
     mariadb:
         container_name: mariadb
-        image: mariadb:10.4
+        image: mariadb:latest
         environment:
             - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-'YourStrongPassw0rd'}
         ports:
             - 3306:3306
     redis:
         container_name: redis
-        image: redis:3.2.12
+        image: redis:latest
         ports:
             - 6379:6379
     mssql:
@@ -29,7 +29,7 @@ services:
             - 1433:1433
     mongodb:
         container_name: mongodb
-        image: mongo:4.2.2
+        image: mongo:latest
         command: mongod --replSet rs0
         ports:
             - 27017:27017
