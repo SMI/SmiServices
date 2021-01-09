@@ -1,11 +1,13 @@
 ---
 
 steps:
-  - task: PythonScript@0
+  - task: Bash@3
+    displayName: Load variables
     inputs:
-      pythonInterpreter: '/usr/bin/python3'
-      scriptSource: 'inline'
+      targetType: "inline"
       script: |
+        cat .azure-pipelines/vars.json
+        python3 << EOF
         import json
         import sys
 
@@ -15,3 +17,4 @@ steps:
         for k, v in vars.items():
             print(f"##vso[task.setvariable variable={k}]{v}")
             print(f"##vso[task.setvariable variable={k}]{v}", file=sys.stderr)
+        EOF
