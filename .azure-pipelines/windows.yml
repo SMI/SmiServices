@@ -18,11 +18,11 @@ variables:
     DB_PASSWORD: "YourStrongPassw0rd"
 
 jobs:
-    - template: jobs/tests.yml
+    - template: jobs/tests.tmpl.yml
       parameters:
           vmImage: windows-2019
           os: win
-    - template: jobs/package.yml
+    - template: jobs/package.tmpl.yml
       parameters:
           vmImage: windows-2019
           os: win

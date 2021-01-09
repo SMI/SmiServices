@@ -7,23 +7,23 @@ steps:
           dockerComposeFile: ".azure-pipelines/docker-compose/linux-dotnet.yml"
           dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
           action: "Run services"
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: RabbitMQ
           cmd: docker exec rabbitmq rabbitmq-diagnostics -q ping
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: MariaDB
           cmd: docker exec mariadb mysqladmin -uroot -p$(DB_PASSWORD) status
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: Redis
           cmd: docker exec redis /usr/local/bin/redis-cli PING
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: MsSQL
           cmd: docker exec mssql /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q 'SELECT @@VERSION'
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: MongoDB
           cmd: docker exec mongodb /usr/bin/mongo --quiet --eval 'db.stats().ok'

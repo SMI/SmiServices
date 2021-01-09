@@ -23,15 +23,15 @@ steps:
           targetType: "inline"
           script: Restart-Service -Name MongoDB
     # Wait for everything to be available
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: RabbitMQ
           cmd: rabbitmq-diagnostics -q ping
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: MariaDB
           cmd: mysqladmin -uroot -p$(DB_PASSWORD) status
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: MongoDB
           cmd: test $(mongo --quiet --eval 'db.stats().ok') -eq 1

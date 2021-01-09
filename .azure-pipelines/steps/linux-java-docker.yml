@@ -7,7 +7,7 @@ steps:
           dockerComposeFile: ".azure-pipelines/docker-compose/linux-java.yml"
           dockerComposeFileArgs: "DB_PASSWORD=$(DB_PASSWORD)"
           action: "Run services"
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: RabbitMQ
           cmd: docker exec rabbitmq rabbitmq-diagnostics -q ping

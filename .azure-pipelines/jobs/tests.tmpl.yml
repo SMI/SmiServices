@@ -52,14 +52,14 @@ jobs:
                 targetType: "inline"
                 script: ln -s $(TESS_CACHE_DIR)/eng.traineddata $(Build.SourcesDirectory)/data/tessdata/eng.traineddata
           - ${{ if eq( parameters.os, 'linux' ) }}:
-                - template: ../steps/docker-cache.yml
+                - template: ../steps/docker-cache.tmpl.yml
                   parameters:
                       os: ${{ parameters.os }}
                       language: dotnet
                 - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
-          - template: ../steps/rdmp-setup.yml
+          - template: ../steps/rdmp-setup.tmpl.yml
             parameters:
                 os: ${{ parameters.os }}
           - task: Bash@3
@@ -89,7 +89,7 @@ jobs:
                     maven
                 path: $(MAVEN_CACHE_FOLDER)
           - ${{ if eq( parameters.os, 'linux' ) }}:
-                - template: ../steps/docker-cache.yml
+                - template: ../steps/docker-cache.tmpl.yml
                   parameters:
                       os: ${{ parameters.os }}
                       language: java

@@ -5,7 +5,7 @@ steps:
       inputs:
           targetType: "inline"
           script: choco install rabbitmq
-    - template: ./wait-for.yml
+    - template: ./wait-for.tmpl.yaml
       parameters:
           name: RabbitMQ
           cmd: rabbitmq-diagnostics -q ping
