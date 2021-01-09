@@ -13,18 +13,20 @@ steps:
               set -f
               echo $compose_glob
               echo "##vso[task.setvariable variable=compose_glob]$compose_glob"
-    - task: Cache@2
-      displayName: Use docker iamges cache
-      inputs:
-          key: "docker | $(compose_glob) | .azure-pipelines/docker-compose/docker-cache-key.txt"
-          path: $(DOCKER_CACHE_DIR)
-          cacheHitVar: DOCKER_CACHE_RESTORED
-    - task: Bash@3
-      displayName: Load docker images if cached
-      condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
-      inputs:
-          targetType: "inline"
-          script: docker load < $(DOCKER_CACHE_DIR)/cache.tar
+    # NOTE(rkm 2021-01-09) Disabled for now since we can't modify the existing cache.
+    # See https://github.com/microsoft/azure-pipelines-tasks/issues/11286
+    # - task: Cache@2
+    #   displayName: Use docker iamges cache
+    #   inputs:
+    #       key: "docker | $(compose_glob)"
+    #       path: $(DOCKER_CACHE_DIR)
+    #       cacheHitVar: DOCKER_CACHE_RESTORED
+    # - task: Bash@3
+    #   displayName: Load docker images if cached
+    #   condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
+    #   inputs:
+    #       targetType: "inline"
+    #       script: docker load < $(DOCKER_CACHE_DIR)/cache.tar
     - task: Bash@3
       displayName: Pull newer images if available
       inputs:
@@ -37,20 +39,19 @@ steps:
               && for i in $docker_images; do docker pull $i | tee dotnet-docker-pull.log ; done
               && newer=$(grep -c 'Downloaded newer image' dotnet-docker-pull.log) || true
               && if [ $newer -ne "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
-    - task: Bash@3
-      displayName: Save docker images to cache
-      condition: and(not(canceled()), not(failed()))
-      inputs:
-          targetType: "inline"
-          script: |
-              # If we didn't start with a cache, or if we pulled newer images
-              if
-                  false \
-                  || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
-                  || [[ "$(pulled_newer)" == "1" ]]
-              then
-                  mkdir -p $(DOCKER_CACHE_DIR)
-                  docker save $(docker_images) > $(DOCKER_CACHE_DIR)/cache.tar
-                  # NOTE(rkm 2020-01-09) Modifies the cache key so that the tar is updated
-                  echo foo > .azure-pipelines/docker-compose/docker-cache-key.txt
-              fi
+    # See above
+    # - task: Bash@3
+    #   displayName: Save docker images to cache
+    #   condition: and(not(canceled()), not(failed()))
+    #   inputs:
+    #       targetType: "inline"
+    #       script: |
+    #           # If we didn't start with a cache, or if we pulled newer images
+    #           if
+    #               false \
+    #               || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
+    #               || [[ "$(pulled_newer)" == "1" ]]
+    #           then
+    #               mkdir -p $(DOCKER_CACHE_DIR)
+    #               docker save $(docker_images) > $(DOCKER_CACHE_DIR)/cache.tar
+    #           fi
