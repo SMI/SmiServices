@@ -16,15 +16,15 @@ steps:
     - task: Cache@2
       displayName: Use docker iamges cache
       inputs:
-          key: "docker | $(compose_glob)"
-          path: $(Pipeline.Workspace)/docker
+          key: "docker | $(compose_glob) | .azure-pipelines/docker-compose/docker-cache-key.txt"
+          path: $(DOCKER_CACHE_DIR)
           cacheHitVar: DOCKER_CACHE_RESTORED
     - task: Bash@3
       displayName: Load docker images if cached
       condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
       inputs:
           targetType: "inline"
-          script: docker load < $(Pipeline.Workspace)/docker/cache.tar
+          script: docker load < $(DOCKER_CACHE_DIR)/cache.tar
     - task: Bash@3
       displayName: Pull newer images if available
       inputs:
@@ -49,6 +49,8 @@ steps:
                   || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
                   || [[ "$(pulled_newer)" == "1" ]]
               then
-                  mkdir -p $(Pipeline.Workspace)/docker
-                  docker save $(docker_images) > $(Pipeline.Workspace)/docker/cache.tar
+                  mkdir -p $(DOCKER_CACHE_DIR)
+                  docker save $(docker_images) > $(DOCKER_CACHE_DIR)/cache.tar
+                  # NOTE(rkm 2020-01-09) Modifies the cache key so that the tar is updated
+                  echo foo > .azure-pipelines/docker-compose/docker-cache-key.txt
               fi

@@ -15,6 +15,7 @@ variables:
     MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
     MAVEN_OPTS: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
     RDMP_CLI_DIR: $(Pipeline.Workspace)/rdmp-cli
+    DOCKER_CACHE_DIR: $(Pipeline.Workspace)/docker-cache
     TESS_CACHE_DIR: $(Pipeline.Workspace)/tessdata
     DB_PASSWORD: "YourStrongPassw0rd"
 
