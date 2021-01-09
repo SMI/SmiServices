@@ -7,6 +7,11 @@ steps:
       scriptSource: 'inline'
       script: |
         import json
-        vars = json.load(open(".azure-pipelines/vars.json"))
+        import sys
+
+        with open(".azure-pipelines/vars.json") as f:
+            vars = json.load(f)
+
         for k, v in vars.items():
-          print(f"##vso[task.setvariable variable={k}]{v}")
+            print(f"##vso[task.setvariable variable={k}]{v}")
+            print(f"##vso[task.setvariable variable={k}]{v}", file=sys.stderr)
