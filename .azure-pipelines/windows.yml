@@ -1,6 +1,4 @@
 ---
-name: SmiServices Windows test
-
 trigger:
     branches:
         include:

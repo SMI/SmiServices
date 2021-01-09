@@ -1,6 +1,4 @@
 ---
-name: SmiServices Linux test
-
 trigger:
     branches:
         include:
