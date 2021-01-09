@@ -30,7 +30,7 @@ steps:
     - task: Cache@2
       displayName: Use docker iamges cache
       inputs:
-          key: "docker | $(compose_file)"
+          key: "docker | $(compose_file) | v2"
           path: $(DOCKER_CACHE_DIR)
           cacheHitVar: DOCKER_CACHE_RESTORED
     - task: Bash@3
