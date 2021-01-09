@@ -1,57 +1,49 @@
 ---
+# NOTE(rkm 2021-01-09) Will need to update the new cache tasks for Windows if we decide to use that again
 parameters:
     os:
     language:
 
 steps:
     - task: Bash@3
-      displayName: Set glob for compose files
+      displayName: Set compose file variable
       inputs:
           targetType: "inline"
           script: |
-              compose_glob=$(echo .azure-pipelines/docker-compose/'*'${{ parameters.os }}'*'${{ parameters.language }}'*'.yml)
-              set -f
-              echo $compose_glob
-              echo "##vso[task.setvariable variable=compose_glob]$compose_glob"
-    # NOTE(rkm 2021-01-09) Disabled for now since we can't modify the existing cache.
-    # See https://github.com/microsoft/azure-pipelines-tasks/issues/11286
-    # - task: Cache@2
-    #   displayName: Use docker iamges cache
-    #   inputs:
-    #       key: "docker | $(compose_glob)"
-    #       path: $(DOCKER_CACHE_DIR)
-    #       cacheHitVar: DOCKER_CACHE_RESTORED
-    # - task: Bash@3
-    #   displayName: Load docker images if cached
-    #   condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
-    #   inputs:
-    #       targetType: "inline"
-    #       script: docker load < $(DOCKER_CACHE_DIR)/cache.tar
+              set -euxo pipefail
+              compose_file=.azure-pipelines/docker-compose/'*'${{ parameters.os }}'*'${{ parameters.language }}'*'.yml
+              test -f $compose_file
+              echo "##vso[task.setvariable variable=compose_file]$compose_file"
     - task: Bash@3
-      displayName: Pull newer images if available
+      displayName: Re-write the compose file with tags from the lockfile
       inputs:
           targetType: "inline"
-          script: >
-              :
-              && docker_images=$(grep -h "image:" $(compose_glob) | tr -d ' ' | cut -d: -f2- | sort -u)
-              && echo $docker_images
-              && echo "##vso[task.setvariable variable=docker_images]$docker_images"
-              && for i in $docker_images; do docker pull $i | tee dotnet-docker-pull.log ; done
-              && newer=$(grep -c 'Downloaded newer image' dotnet-docker-pull.log) || true
-              && if [ $newer -ne "0" ]; then echo "##vso[task.setvariable variable=pulled_newer]1" ; fi
-    # See above
-    # - task: Bash@3
-    #   displayName: Save docker images to cache
-    #   condition: and(not(canceled()), not(failed()))
-    #   inputs:
-    #       targetType: "inline"
-    #       script: |
-    #           # If we didn't start with a cache, or if we pulled newer images
-    #           if
-    #               false \
-    #               || [[ "${{ variables.DOCKER_CACHE_RESTORED }}" -ne "true" ]] \
-    #               || [[ "$(pulled_newer)" == "1" ]]
-    #           then
-    #               mkdir -p $(DOCKER_CACHE_DIR)
-    #               docker save $(docker_images) > $(DOCKER_CACHE_DIR)/cache.tar
-    #           fi
+          script: |
+            docker run \
+                --rm \
+                -v`pwd`/.azure-pipelines/docker-compose:/run \
+                --user $(id -u):$(id -g) \
+                safewaters/docker-lock \
+                    lock rewrite \
+                    --lockfile-name $(basename $(compose_file).lock)
+    - task: Cache@2
+      displayName: Use docker iamges cache
+      inputs:
+          key: "docker | $(compose_file)"
+          path: $(DOCKER_CACHE_DIR)
+          cacheHitVar: DOCKER_CACHE_RESTORED
+    - task: Bash@3
+      displayName: Load docker images if cached
+      condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
+      inputs:
+          targetType: "inline"
+          script: docker load < $(DOCKER_CACHE_DIR)/cache.tar
+    - task: Bash@3
+      displayName: Save docker images to cache
+      condition: and(not(canceled()), or(failed(), ne(variables.DOCKER_CACHE_RESTORED, 'true')))
+      inputs:
+          targetType: "inline"
+          script: |
+            mkdir -p $(DOCKER_CACHE_DIR)
+            docker pull ubuntu
+            docker save ubuntu > $(Pipeline.Workspace)/docker/cache.tar

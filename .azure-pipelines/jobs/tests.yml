@@ -64,6 +64,7 @@ jobs:
                 os: ${{ parameters.os }}
           - task: Bash@3
             displayName: Run Dotnet tests
+            condition: False
             inputs:
                 filePath: "./meta/run_dotnet_tests.sh"
                 failOnStderr: true
@@ -97,6 +98,7 @@ jobs:
                 - template: ../steps/win-java-services.yml
           - task: Bash@3
             displayName: Run Java tests
+            condition: False
             inputs:
                 filePath: "./meta/run_java_tests.sh"
                 # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)

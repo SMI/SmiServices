@@ -1,0 +1,36 @@
+{
+	"composefiles": {
+		"linux-dotnet.yml": [
+			{
+				"name": "mariadb",
+				"tag": "latest",
+				"digest": "cdc553f0515a8d41264f0855120874e86761f7c69407b5cfbe49283dc195bea8",
+				"service": "mariadb"
+			},
+			{
+				"name": "mongo",
+				"tag": "latest",
+				"digest": "7722bd2778a299b6f4a62b93a0d2741c734ba7332a090131030ca28261a9a198",
+				"service": "mongodb"
+			},
+			{
+				"name": "mcr.microsoft.com/mssql/server",
+				"tag": "2017-latest",
+				"digest": "c9832ca564c8410bf13a7d6276a0bf6f5d83d0f6a15c6a5004ba07a04bf93920",
+				"service": "mssql"
+			},
+			{
+				"name": "rabbitmq",
+				"tag": "latest",
+				"digest": "1fc999fbdd8054b0c34c285901474f136792ad4a42d39186f3793ac40de04dba",
+				"service": "rabbitmq"
+			},
+			{
+				"name": "redis",
+				"tag": "latest",
+				"digest": "0f724af268d0d3f5fb1d6b33fc22127ba5cbca2d58523b286ed3122db0dc5381",
+				"service": "redis"
+			}
+		]
+	}
+}
