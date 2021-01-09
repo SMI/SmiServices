@@ -26,6 +26,7 @@ steps:
                 safewaters/docker-lock \
                     lock rewrite \
                     --lockfile-name $(basename $(compose_file).lock)
+            cat $(compose_file)
     - task: Cache@2
       displayName: Use docker iamges cache
       inputs:
@@ -39,12 +40,13 @@ steps:
           targetType: "inline"
           script: docker load < $(DOCKER_CACHE_DIR)/cache.tar
     - task: Bash@3
-      displayName: Save docker images to cache
+      displayName: Pull and save docker images to cache
       condition: and(not(canceled()), or(failed(), ne(variables.DOCKER_CACHE_RESTORED, 'true')))
       inputs:
           targetType: "inline"
           script: |
             set -euxo pipefail
+            docker-compose -f $(compose_file) pull
             mkdir -p $(DOCKER_CACHE_DIR)
             docker_images=$(grep -h "image:" $(compose_file) | tr -d ' ' | cut -d: -f2- | sort -u)
             docker save $docker_images > $(DOCKER_CACHE_DIR)/cache.tar
