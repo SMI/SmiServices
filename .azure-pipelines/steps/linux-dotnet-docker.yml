@@ -23,10 +23,11 @@ steps:
       parameters:
           name: MsSQL
           cmd: docker exec mssql /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q 'SELECT @@VERSION'
+    - script: docker ps && docker logs mongodb
     - template: ./wait-for.yml
       parameters:
           name: MongoDB
-          cmd: "'test $(docker exec mongodb /usr/bin/mongo --quiet --eval \"db.stats().ok\") -eq 1'"
+          cmd: docker exec mongodb /usr/bin/mongo --quiet --eval 'db.stats().ok'
     - task: Bash@3
       displayName: Start MongoDB replication
       inputs:

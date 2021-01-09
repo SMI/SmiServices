@@ -49,4 +49,4 @@ steps:
             docker-compose -f $(compose_file) pull --quiet
             mkdir -p $(DOCKER_CACHE_DIR)
             docker_images=$(grep -h "image:" $(compose_file) | tr -d ' ' | cut -d: -f2- | sort -u)
-            docker save $docker_images > $(DOCKER_CACHE_DIR)/cache.tar
+            # docker save $docker_images > $(DOCKER_CACHE_DIR)/cache.tar
