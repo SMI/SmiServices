@@ -18,11 +18,11 @@ steps:
     - template: ./wait-for.yml
       parameters:
           name: Redis
-          cmd: docker exec redis bash -c "/usr/local/bin/redis-cli PING"
+          cmd: docker exec redis /usr/local/bin/redis-cli PING
     - template: ./wait-for.yml
       parameters:
           name: MsSQL
-          cmd: docker exec mssql bash -c "/opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q "SELECT @@VERSION""
+          cmd: docker exec mssql /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q "SELECT @@VERSION"
     - template: ./wait-for.yml
       parameters:
           name: MongoDB
