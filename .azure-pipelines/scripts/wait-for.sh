@@ -11,4 +11,4 @@ fi
 set -e
 
 cmd="$@"
-timeout 10s bash -c "until $cmd ; do echo -n . && sleep 1 ; done"
+timeout 30s bash -c "until $cmd ; do echo -n . && sleep 1 ; done"
