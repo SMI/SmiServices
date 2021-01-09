@@ -54,11 +54,6 @@ jobs:
                 - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
-          - task: Bash@3
-            displayName: Start MongoDB replication
-            inputs:
-                targetType: "inline"
-                script: mongo --eval "rs.initiate()"
           - template: ../steps/rdmp-setup.yml
             parameters:
                 os: ${{ parameters.os }}
