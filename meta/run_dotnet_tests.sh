@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 
-# NOTE(rkm 2020-12-04) This script will exit immediately if and command fails. This is
+# NOTE(rkm 2020-12-04) This script will exit immediately if any command fails. This is
 # different to the old Travis builds which would still run each line and only report
 # failures at the end
 
-set -euo pipefail
+set -uxo pipefail
+
+if [ ! -f data/tessdata/eng.traineddata ]
+then
+    echo "Error: tesseract test data missing (data/tessdata/eng.traineddata)"
+    exit 1
+fi
+
+set -e
 
 dotnet build -c Release --verbosity quiet
 
