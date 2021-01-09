@@ -22,7 +22,7 @@ steps:
     - template: ./wait-for.yml
       parameters:
           name: MsSQL
-          cmd: docker exec mssql /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q "SELECT @@VERSION"
+          cmd: docker exec mssql /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q 'SELECT @@VERSION'
     - template: ./wait-for.yml
       parameters:
           name: MongoDB
