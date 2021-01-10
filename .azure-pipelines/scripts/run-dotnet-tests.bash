@@ -14,7 +14,7 @@ fi
 
 set -e
 
-. .azure-pipelines/scripts/dotnet-build.bash
+.azure-pipelines/scripts/dotnet-build.bash
 
 for i in `find . -type d -name netcoreapp3.1`; do
     if [ ! -e $i/default.yaml ]; then
