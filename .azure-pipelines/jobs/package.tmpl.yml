@@ -27,7 +27,8 @@ jobs:
                 script: |
                     set -euxo pipefail
                     os="${{ parameters.os }}"
-                    tag="$( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)"
+                    # tag="$( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)"
+                    tag=test
                     python3 .azure-pipelines/scripts/buildArtefacts.py $os $tag
           - task: Bash@3
             displayName: List files
