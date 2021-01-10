@@ -7,7 +7,7 @@ jobs:
       displayName: Build Artefacts
       pool:
           vmImage: ${{ parameters.vmImage }}
-      condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #   condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [dotnet_tests, java_tests]
       steps:
           - task: Bash@3
@@ -15,12 +15,18 @@ jobs:
             condition: eq('$(Agent.OS)', 'Linux')
             inputs:
                 targetType: "inline"
-                script: >
-                    :
-                    && sudo apt-get update -qq
-                    && sudo apt-get install -y pigz
+                script: |
+                    set -euxo pipefail
+                    sudo apt-get update -qq
+                    sudo apt-get install -y pigz
           - task: Bash@3
             displayName: Build artefacts
             inputs:
-                filePath: ./meta/build_artefacts.py
+                filePath: .azure-pipelines/scripts/buildArtefacts.py
                 arguments: $(Agent.OS) $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
+          - task: Bash@3
+            displayName: List files
+            inputs:
+                targetType: inline
+                script: |
+                  find dist -type f

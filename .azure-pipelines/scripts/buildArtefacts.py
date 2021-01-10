@@ -11,7 +11,6 @@ from typing import Optional
 from typing import Sequence
 from typing import Union
 
-# TODO(rkm 2020-12-23) Remove language output from dotnet archives
 
 _LINUX = "linux"
 _WINDOWS = "win"
@@ -19,7 +18,7 @@ _PLATFORMS = (_LINUX, _WINDOWS)
 _STR_LIKE = Union[str, Path]
 
 
-def _run_cmd(cmd: Sequence[_STR_LIKE]) -> None:
+def _run(cmd: Sequence[_STR_LIKE]) -> None:
     subprocess.check_call(("echo", *cmd))
     subprocess.check_call(cmd)
 
@@ -46,18 +45,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 1
     dist_dir.mkdir(parents=True)
 
+    cmd: Sequence[_STR_LIKE]
+
+    # Build dotnet projects
+
+    cmd = (
+        ".azure-pipelines/scripts/dotnet-build.bash",
+    )
+    _run(cmd)
+
     # Publish dotnet packages
 
-    cmd: Sequence[_STR_LIKE]
     cmd = (
         "dotnet", "publish",
+        "--no-build",
         "-p:PublishTrimmed=false",
         "--configuration", "Release",
         "--runtime", f"{platform}-x64",
         "--output", dist_dir / smi_services_output_dir,
         "-v", "quiet", "--nologo",
     )
-    _run_cmd(cmd)
+    _run(cmd)
 
     if platform == _LINUX:
         cmd = (
@@ -80,7 +88,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"Error: No case for platform {platform}", file=sys.stderr)
         return 1
 
-    _run_cmd(cmd)
+    _run(cmd)
     shutil.rmtree(dist_dir / smi_services_output_dir)
 
     # Build Java microserves
@@ -92,7 +100,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "package",
         "assembly:single@create-deployable",
     )
-    _run_cmd(cmd)
+    _run(cmd)
 
     zips = {
         Path(x) for x in glob.glob("./src/**/*deploy-distribution.zip", recursive=True)
@@ -112,7 +120,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "-DskipTests",
         "package",
     )
-    _run_cmd(cmd)
+    _run(cmd)
 
     nerd_jar, = {
         Path(x)
@@ -127,7 +135,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     # Create checksum file
-    # NOTE(rkm 2020-12-23) No easy cross-platform md5sum tool
+    # NOTE(rkm 2020-12-23) No easy cross-platform md5sum tool, so have to use hashlib
 
     hashes: Dict[str, str] = {}
     for artefact_path in dist_dir.iterdir():

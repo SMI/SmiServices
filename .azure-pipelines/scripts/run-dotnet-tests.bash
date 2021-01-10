@@ -6,7 +6,7 @@
 
 set -uo pipefail
 
-if [ ! -f data/tessdata/eng.traineddata ]
+if [ ! -f ./data/tessdata/eng.traineddata ]
 then
     echo "Error: tesseract test data missing (data/tessdata/eng.traineddata)"
     exit 1
@@ -14,7 +14,7 @@ fi
 
 set -e
 
-dotnet build -c Release --verbosity quiet
+. .azure-pipelines/scripts/dotnet-build.bash
 
 for i in `find . -type d -name netcoreapp3.1`; do
     if [ ! -e $i/default.yaml ]; then
