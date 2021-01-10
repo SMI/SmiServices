@@ -6,6 +6,7 @@ steps:
     inputs:
       targetType: "inline"
       script: |
+        set -euxo pipefail
         cat .azure-pipelines/vars.json
         python3 << EOF
         import json

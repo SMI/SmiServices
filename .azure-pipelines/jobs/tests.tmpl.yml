@@ -41,9 +41,9 @@ jobs:
             inputs:
                 targetType: "inline"
                 script: |
-                    : \
-                    && mkdir -p $(TESS_CACHE_DIR) \
-                    && curl -L \
+                    set -euxo pipefail
+                    mkdir -p $(TESS_CACHE_DIR) \
+                    curl -L \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(TESS_CACHE_DIR)/eng.traineddata
             condition: eq(variables.TESS_CACHE_RESTORED, 'false')

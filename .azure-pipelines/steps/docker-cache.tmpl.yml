@@ -19,6 +19,7 @@ steps:
       inputs:
           targetType: "inline"
           script: |
+            set -euxo pipefail
             docker run \
                 --rm \
                 -v`pwd`/.azure-pipelines/docker-compose:/run \
