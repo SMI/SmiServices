@@ -33,18 +33,16 @@ jobs:
                 targetType: "inline"
                 script: |
                     set -euxo pipefail
-                    mkdir -p $(TESS_CACHE_DIR)
+                    mkdir -p "$(TESS_CACHE_DIR)"
                     curl -L \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
-                        > $(TESS_CACHE_DIR)/eng.traineddata
-                    ls -l $(TESS_CACHE_DIR)
+                        > "$(TESS_CACHE_DIR)/eng.traineddata"
+                    ls -l "$(TESS_CACHE_DIR)"
           - task: Bash@3
             displayName: Symlink tessdata into the repo
             inputs:
                 targetType: "inline"
-                script: |
-                  mkdir -p $(TESS_CACHE_DIR)
-                  ln -s "$(TESS_CACHE_DIR)/eng.traineddata" "$(Build.SourcesDirectory)/eng.traineddata"
+                script: ln -s "$(TESS_CACHE_DIR)/eng.traineddata" "$(Build.SourcesDirectory)/eng.traineddata"
           - ${{ if eq( parameters.os, 'linux' ) }}:
                 - template: ../steps/docker-cache.tmpl.yml
                   parameters:
