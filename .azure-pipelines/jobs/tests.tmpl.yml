@@ -37,6 +37,7 @@ jobs:
                     curl -L \
                         https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
                         > $(TESS_CACHE_DIR)/eng.traineddata
+                    ls -l $(TESS_CACHE_DIR)
           - task: Bash@3
             displayName: Symlink tessdata into the repo
             inputs:
