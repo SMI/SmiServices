@@ -8,7 +8,7 @@ steps:
           targetType: "inline"
           script: choco install rabbitmq
     - task: Bash@3
-      displayName: Install RabbitMQ
+      displayName: Set rmq_diag_path variable
       inputs:
           targetType: "inline"
           script: |
@@ -36,7 +36,7 @@ steps:
     - template: ./wait-for.tmpl.yml
       parameters:
           name: RabbitMQ
-          cmd: $(rmq_diag_path) -q ping
+          cmd: "'$(rmq_diag_path)' -q ping"
     - template: ./wait-for.tmpl.yml
       parameters:
           name: MariaDB
