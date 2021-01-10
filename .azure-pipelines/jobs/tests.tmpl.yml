@@ -10,6 +10,7 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
+          - template: ../steps/use-python.tmpl.yml
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
           - task: Cache@2
@@ -69,6 +70,7 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
+          - template: ../steps/use-python.tmpl.yml
           - template: ../steps/vars.tmpl.yml
           - task: JavaToolInstaller@0
             displayName: Use Java 11
