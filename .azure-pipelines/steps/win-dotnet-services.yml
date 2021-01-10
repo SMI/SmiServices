@@ -22,7 +22,6 @@ steps:
       inputs:
           targetType: "inline"
           script: Restart-Service -Name MongoDB
-    # Wait for everything to be available
     - template: ./wait-for.tmpl.yml
       parameters:
           name: RabbitMQ

@@ -6,4 +6,4 @@ steps:
         packageType: sdk
         version: $(DOTNET_SDK_VERSION)
         installationPath: $(Agent.ToolsDirectory)/dotnet
-        
+

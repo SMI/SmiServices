@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-. .azure-pipelines/scripts/install-ctp.bash
+.azure-pipelines/scripts/install-ctp.bash
 
 # TODO(rkm 2020-12-04) Is this still needed?
 if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ]; then
