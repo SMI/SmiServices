@@ -43,11 +43,8 @@ jobs:
             inputs:
                 targetType: "inline"
                 script: |
-                  source="$(TESS_CACHE_DIR)"
-                  ls $source
-                  target="$(Build.SourcesDirectory)/data/tessdata"
-                  ls $target
-                  ln -s "$source/eng.traineddata" "$target/eng.traineddata"
+                  mkdir -p $(TESS_CACHE_DIR)
+                  ln -s "$(TESS_CACHE_DIR)/eng.traineddata" "$(Build.SourcesDirectory)/eng.traineddata"
           - ${{ if eq( parameters.os, 'linux' ) }}:
                 - template: ../steps/docker-cache.tmpl.yml
                   parameters:
