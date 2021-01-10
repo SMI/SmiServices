@@ -42,7 +42,10 @@ jobs:
             displayName: Symlink tessdata into the repo
             inputs:
                 targetType: "inline"
-                script: ln -s "$(TESS_CACHE_DIR)/eng.traineddata" "$(Build.SourcesDirectory)/data/tessdata/eng.traineddata"
+                script: |
+                  target="$(Build.SourcesDirectory)/data/tessdata"
+                  ls $target
+                  ln -s "$(TESS_CACHE_DIR)/eng.traineddata" "$target/eng.traineddata"
           - ${{ if eq( parameters.os, 'linux' ) }}:
                 - template: ../steps/docker-cache.tmpl.yml
                   parameters:
