@@ -13,7 +13,7 @@ jobs:
       steps:
           - task: Bash@3
             displayName: Install pigz on Linux
-            condition: eq('$(Agent.OS)', 'Linux')
+            condition: eq('${{ parameters.os }}', 'linux')
             inputs:
                 targetType: "inline"
                 script: |
