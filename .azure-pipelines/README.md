@@ -5,8 +5,8 @@ This directory contains the pipeline definitions and all other files used to tes
 ## Pipelines
 
 We currently have the following pipelines:
--   Windows
--   Linux
+-   Windows build & test
+-   Linux build & test
 
 ## Directory Contents
 
@@ -35,13 +35,13 @@ Redis | Docker | Unavailable
 
 ## Docker
 
-We use Docker containers for running the external services wherever possible. This is currently equivalent to saying "on Linux" since the Azure Windows image currently doesn't support WSL2 / running Linux containers. Other options could be investigated, e.g. see a similar discussion [here](https://github.com/opensafely/job-runner/issues/76).
+We use Docker containers for running the external services wherever possible. This currently means "when on Linux", since the Azure Windows OS currently doesn't support WSL2 / running Linux containers. Other options could be investigated, e.g. see a similar discussion [here](https://github.com/opensafely/job-runner/issues/76).
 
-The compose files in the repo reference the `latest` tag for each image. During the pipeline run however, these are replaced with specific image digest versions using the [docker-lock](https://github.com/safe-waters/docker-lock) tool so the files can be used as cache keys to enable repeatable builds.
+The docker-compose files reference the `latest` tag for each image. During the pipeline run however, these are replaced with specific image digest versions using the [docker-lock](https://github.com/safe-waters/docker-lock) tool so the docker-compose files can be used as cache keys to enable repeatable builds.
 
 ## Caches
 
-The [Cache](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/caching?view=azure-devops) task is used in multiple cases to speed-up the build by re-using previously built/downloaded assets. These are restored based on the 
+The [Cache](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/caching?view=azure-devops) task is used in multiple cases to speed-up the build by re-using previously built/downloaded assets. These are restored based on the `key` value, which can contain references to files which are hashed to generate the final key.
 
 ## TODO
 
