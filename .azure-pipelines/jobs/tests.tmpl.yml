@@ -65,7 +65,6 @@ jobs:
                 os: ${{ parameters.os }}
           - task: Bash@3
             displayName: Run Dotnet tests
-            condition: false
             inputs:
                 filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
                 failOnStderr: true
@@ -100,7 +99,6 @@ jobs:
                 - template: ../steps/win-java-services.yml
           - task: Bash@3
             displayName: Run Java tests
-            condition: false
             inputs:
                 filePath: .azure-pipelines/scripts/run-java-tests.bash
                 # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)

@@ -1,6 +1,7 @@
 ---
 parameters:
     vmImage:
+    os:
 
 jobs:
     - job: build_artefacts
@@ -8,7 +9,7 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
     #   condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      dependsOn: [dotnet_tests, java_tests]
+    #   dependsOn: [dotnet_tests, java_tests]
       steps:
           - task: Bash@3
             displayName: Install pigz on Linux
@@ -22,8 +23,12 @@ jobs:
           - task: Bash@3
             displayName: Build artefacts
             inputs:
-                filePath: .azure-pipelines/scripts/buildArtefacts.py
-                arguments: $(Agent.OS) $( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)
+                targetType: inline
+                script: |
+                    set -euxo pipefail
+                    os="${{ parameters.os }}"
+                    tag="$( echo ${{ variables.Build.SourceBranch }} | cut -d'/' -f3)"
+                    python3 .azure-pipelines/scripts/buildArtefacts.py $os $tag
           - task: Bash@3
             displayName: List files
             inputs:
