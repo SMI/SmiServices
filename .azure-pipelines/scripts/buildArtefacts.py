@@ -94,6 +94,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # Build Java microserves
 
     cmd = (
+        ".azure-pipelines/scripts/install-ctp.bash",
+    )
+    _run(cmd)
+
+    cmd = (
         "mvn", "-ntp", "-q",
         "-f", "./src/common/com.smi.microservices.parent",
         "-DskipTests",
