@@ -58,9 +58,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     cmd = (
         "dotnet", "publish",
-        "--no-build",
-        "-p:PublishTrimmed=false",
+        "-p:Platform=x64",
         "--configuration", "Release",
+        "-p:PublishTrimmed=false",
         "--runtime", f"{platform}-x64",
         "--output", dist_dir / smi_services_output_dir,
         "-v", "quiet", "--nologo",

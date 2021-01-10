@@ -3,5 +3,6 @@
 set -euxo pipefail
 
 dotnet build \
-    -c Release \
+    -p:Platform=x64 \
+    --configuration Release \
     --verbosity quiet
