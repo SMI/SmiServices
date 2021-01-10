@@ -8,7 +8,7 @@ steps:
       script: |
         set -euxo pipefail
         cat .azure-pipelines/vars.json
-        python3 << EOF
+        python << EOF
         import json
         import sys
 

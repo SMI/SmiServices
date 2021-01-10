@@ -42,8 +42,3 @@ The docker-compose files reference the `latest` tag for each image. During the p
 ## Caches
 
 The [Cache](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/caching?view=azure-devops) task is used in multiple cases to speed-up the build by re-using previously built/downloaded assets. These are restored based on the `key` value, which can contain references to files which are hashed to generate the final key.
-
-## TODO
-
--   Migrate coverage to here (ideally from the Linux build)
--   Add an auto-update pipeline for the docker-lock files
