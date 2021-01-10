@@ -1,0 +1,9 @@
+---
+steps:
+  - task: UseDotNet@2
+    displayName: Use .NET Core SDK 3.1
+    inputs:
+        packageType: sdk
+        version: $(DOTNET_SDK_VERSION)
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+        

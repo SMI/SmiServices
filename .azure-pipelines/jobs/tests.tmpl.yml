@@ -11,18 +11,7 @@ jobs:
           vmImage: ${{ parameters.vmImage }}
       steps:
           - template: ../steps/vars.tmpl.yml
-          - task: UseDotNet@2
-            displayName: Use .NET Core SDK 3.1
-            inputs:
-                packageType: sdk
-                version: 3.1.x
-                installationPath: $(Agent.ToolsDirectory)/dotnet
-          - task: UseDotNet@2
-            displayName: Use .NET Core Runtime 2.2
-            inputs:
-                packageType: runtime
-                version: 2.2.x
-                installationPath: $(Agent.ToolsDirectory)/dotnet
+          - template: ../steps/use-dotnet.tmpl.yml
           - task: Cache@2
             displayName: Cache NuGet packages
             inputs:
@@ -60,6 +49,12 @@ jobs:
                 - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
+          - task: UseDotNet@2
+            displayName: Use .NET Core Runtime 2.2 for RDMP
+            inputs:
+                packageType: runtime
+                version: 2.2.x
+                installationPath: $(Agent.ToolsDirectory)/dotnet
           - template: ../steps/rdmp-setup.tmpl.yml
             parameters:
                 os: ${{ parameters.os }}
@@ -75,6 +70,7 @@ jobs:
           vmImage: ${{ parameters.vmImage }}
       steps:
           - template: ../steps/vars.tmpl.yml
+          - template: ../steps/use-dotnet.tmpl.yml
           - task: JavaToolInstaller@0
             displayName: Use Java 11
             inputs:
