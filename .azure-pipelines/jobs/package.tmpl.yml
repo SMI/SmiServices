@@ -37,4 +37,6 @@ jobs:
             inputs:
                 targetType: inline
                 script: |
+                  set -euxo pipefail
                   find dist -type f
+                  cat dist/**/MD5SUMS*
