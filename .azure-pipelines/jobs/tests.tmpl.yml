@@ -70,7 +70,6 @@ jobs:
           vmImage: ${{ parameters.vmImage }}
       steps:
           - template: ../steps/vars.tmpl.yml
-          - template: ../steps/use-dotnet.tmpl.yml
           - task: JavaToolInstaller@0
             displayName: Use Java 11
             inputs:
