@@ -55,33 +55,76 @@ namespace IsIdentifiableReviewer.Views
         {
             _treeView.ClearObjects();
             
-            var colliding = new TreeNode("Colliding Rules");
-            var ignore = new TreeNode("Ignore Rules Used");
-            var update = new TreeNode("Update Rules Used");
-            var outstanding = new TreeNode("Outstanding Failures");
-            var unused = new TreeNode("Unused Rules");
-            
+            var colliding = new TreeNode("Loading...");
+            var ignore = new TreeNode("Loading...");
+            var update = new TreeNode("Loading...");
+            var outstanding = new TreeNode("Loading...");
+                        
             var allRules = Ignorer.Rules.Union(Updater.Rules).ToList();
 
             AddDuplicatesToTree(allRules);
 
-            _treeView.AddObjects(new []{ colliding,ignore,update,outstanding,unused});
+            _treeView.AddObjects(new []{ colliding,ignore,update,outstanding});
 
+            Dictionary<IsIdentifiableRule,int> rulesUsed = new Dictionary<IsIdentifiableRule, int>();
+            Dictionary<string,int> outstandingFailures = new Dictionary<string, int>();
+            
             foreach(Failure f in CurrentReport.Failures)
             {
-                
+                var ignoreRule = Ignorer.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
+                var updateRule = Updater.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
+
+                // record how often each reviewer rule was used with a failure
+                foreach(var r in new []{ ignoreRule,updateRule})
+                    if(r != null)
+                        if(!rulesUsed.ContainsKey(r))
+                            rulesUsed.Add(r,1);
+                        else
+                            rulesUsed[r]++;
+
+                // There are 2 conflicting rules for this input value (it should be updated and ignored!)
+                if(ignoreRule != null && updateRule != null)
+                {
+                    var existing = colliding.Children.OfType<CollidingRulesNode>().FirstOrDefault(c=>c.Is(ignoreRule,updateRule));
+
+                    if(existing != null)
+                        existing.Add(f);
+                    else
+                        colliding.Children.Add(new CollidingRulesNode(ignoreRule,updateRule,f));
+                }
+
+                // input value that doesn't match any system rules yet
+                if(ignoreRule == null && updateRule == null)
+                {
+                    if(!outstandingFailures.ContainsKey(f.ProblemValue))
+                        outstandingFailures.Add(f.ProblemValue,1);
+                    else
+                        outstandingFailures[f.ProblemValue]++;
+                }
             }
 
+            foreach(var used in rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).OrderByDescending(kvp=>kvp.Value))
+                ignore.Children.Add(new RuleUsageNode(used.Key,used.Value));
+            
+            foreach(var used in rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).OrderByDescending(kvp=>kvp.Value))
+                update.Children.Add(new RuleUsageNode(used.Key,used.Value));
 
+            foreach(var o in outstandingFailures.OrderByDescending(kvp=>kvp.Value))
+                outstanding.Children.Add(new OutstandingFailureNode(o.Key,o.Value));
+                        
+            colliding.Text = $"Colliding Rules ({colliding.Children.Count})";
+            ignore.Text = $"Ignore Rules Used ({ignore.Children.Count})";
+            update.Text = $"Update Rules Used ({update.Children.Count})";
+            outstanding.Text = $"Outstanding Failures ({outstanding.Children.Count})";
         }
 
         private void AddDuplicatesToTree(List<IsIdentifiableRule> allRules)
         {
-            var root = new TreeNode("Duplicates");
+            var root = new TreeNode("Identical Rules");
             var children = GetDuplicates(allRules).ToArray();
 
             root.Children = children;
-            root.Text = $"Duplicates ({children.Length})";
+            root.Text = $"Identical Rules ({children.Length})";
 
             _treeView.AddObject(root);
         }
