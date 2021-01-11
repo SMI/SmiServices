@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 -   Clarified the CLI help text for `--format` in CohortPackager
+-   CTP calls an external program to anonymise Structured Reports
+  -  Requires an addition to `default.yaml`: `CTPAnonymiserOptions.SRAnonTool` (adding this does not break existing programs).
 -   Consolidate System.IO.Abstractions.TestingHelpers package references into the Smi.Common.Tests package
 
 ### Fixed

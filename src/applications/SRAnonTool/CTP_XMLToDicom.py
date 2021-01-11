@@ -11,7 +11,7 @@
 
 import os, sys
 import argparse
-import logging, logging.handlers
+import logging
 import xml.etree.ElementTree    # untangle and xmltodict not available in NSH
 from deepmerge import Merger    # for deep merging dictionaries
 import pydicom
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     # ---------------------------------------------------------------------
     # Now we know the LogsRoot we can set up logging
-    log_file_handler = logging.handlers.RotatingFileHandler(filename = os.path.join(log_dir,'SRAnonymiser.log'), maxBytes=64*1024*1024, backupCount=9)
+    log_file_handler = logging.FileHandler(filename = os.path.join(log_dir,'SRAnonymiser.log'))
     log_stdout_handler = logging.StreamHandler(sys.stdout)
     logging.basicConfig(level=logging.INFO, handlers=[log_file_handler, log_stdout_handler],
         format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
@@ -91,6 +91,5 @@ if __name__ == "__main__":
 
     dicomtext.write_redacted_text_into_dicom_file(args.output_dcm)
     #print(f'dcm2json {redacted_dcmname} | jq \'..|select(.vr=="UT")?|.Value|.[]\'')
-	logging.info(f'Wrote {args.output_dcm}')
 
     exit(0)

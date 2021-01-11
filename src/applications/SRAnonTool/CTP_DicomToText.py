@@ -11,7 +11,7 @@
 # defined in the former and the rest in the latter.
 
 import argparse
-import logging, logging.handlers
+import logging
 import os
 import sys
 import json
@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------
     # Now we know the LogsRoot we can set up logging
-    log_file_handler = logging.handlers.RotatingFileHandler(filename = os.path.join(log_dir,'SRAnonymiser.log'), maxBytes=64*1024*1024, backupCount=9)
+    log_file_handler = logging.FileHandler(filename = os.path.join(log_dir,'SRAnonymiser.log'))
     log_stdout_handler = logging.StreamHandler(sys.stdout)
     logging.basicConfig(level=logging.INFO, handlers=[log_file_handler, log_stdout_handler],
         format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
