@@ -99,7 +99,7 @@ namespace IsIdentifiableReviewer
                     miRulesOnly = new MenuItem ("_Rules Only", null, ToggleRulesOnly){CheckType = MenuItemCheckStyle.Checked,Checked = opts.OnlyRules}
                 }),
                 new MenuBarItem ("_View", new MenuItem [] {
-                    miCustomPatterns = new MenuItem("_Rules",null,ViewRules),
+                    new MenuItem("_Rules",null,ViewRules),
                 })
             });
 
