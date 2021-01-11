@@ -1,21 +1,30 @@
-﻿using Terminal.Gui;
+﻿using Microservices.IsIdentifiable.Failures;
+using Microservices.IsIdentifiable.Reporting;
+using Terminal.Gui;
 
 namespace IsIdentifiableReviewer.Views
 {
     internal class OutstandingFailureNode : TreeNode
     {
-        public string InputValue { get; }
-        public int NumberOfTimesReported { get; }
+        /// <summary>
+        /// The first failure that was seen after which all <see cref="NumberOfTimesReported"/> only needs to match the <see cref="Failure.ProblemValue"/> (i.e. not the offset or the classification)
+        /// </summary>
+        public Failure Failure{ get; }
 
-        public OutstandingFailureNode(string inputValue, int numberOfTimesReported)
+        /// <summary>
+        /// Number of times the <see cref="FailurePart.Word"/> was seen in the report being evaluated
+        /// </summary>
+        public int NumberOfTimesReported { get; set;}
+
+        public OutstandingFailureNode(Failure failure, int numberOfTimesReported)
         {
-            InputValue = inputValue;
+            Failure = failure;
             NumberOfTimesReported = numberOfTimesReported;
         }
 
         public override string ToString()
         {
-            return $"{ InputValue } x{NumberOfTimesReported:N0}";
+            return $"{ Failure.ProblemValue} x{NumberOfTimesReported:N0}";
         }
     }
 }

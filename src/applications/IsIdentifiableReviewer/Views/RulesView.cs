@@ -1,4 +1,5 @@
 ﻿using IsIdentifiableReviewer.Out;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Rules;
 using System;
@@ -41,6 +42,8 @@ namespace IsIdentifiableReviewer.Views
                 Width = Dim.Fill(),
                 Height = Dim.Fill(1)
                 };
+            _treeView.KeyPress += _treeView_KeyPress;
+
             Add(_treeView);
 
 			var close = new Button("Close",true){
@@ -49,6 +52,42 @@ namespace IsIdentifiableReviewer.Views
             close.Clicked += () => Quit();
 
 			Add (close);
+        }
+
+        private void _treeView_KeyPress(KeyEventEventArgs e)
+        {
+            if(_treeView.HasFocus && _treeView.CanFocus)
+            {
+                switch(e.KeyEvent.Key)
+                {
+                    case Key.Enter:
+
+                        var ofn = _treeView.SelectedObject as  OutstandingFailureNode;
+                        
+                        if(ofn != null)
+                        {
+                            var result = MessageBox.Query(MainWindow.DlgWidth,MainWindow.DlgHeight,"Action",ofn.Failure.ProblemValue,"Ignore","Update","Cancel");
+
+                            if(result == 0)
+                                Ignore(ofn);
+                            if(result == 1)
+                                Update(ofn);
+                        }
+
+                        e.Handled = true;
+                        return;
+                }
+            }
+        }
+
+        private void Update(OutstandingFailureNode ofn)
+        {
+            Updater.Add(ofn.Failure);
+        }
+
+        private void Ignore(OutstandingFailureNode ofn)
+        {
+            Ignorer.Add(ofn.Failure);
         }
 
         private void EvaluateRuleCoverage()
@@ -67,7 +106,7 @@ namespace IsIdentifiableReviewer.Views
             _treeView.AddObjects(new []{ colliding,ignore,update,outstanding});
 
             Dictionary<IsIdentifiableRule,int> rulesUsed = new Dictionary<IsIdentifiableRule, int>();
-            Dictionary<string,int> outstandingFailures = new Dictionary<string, int>();
+            Dictionary<string,OutstandingFailureNode> outstandingFailures = new Dictionary<string, OutstandingFailureNode>();
             
             foreach(Failure f in CurrentReport.Failures)
             {
@@ -97,9 +136,9 @@ namespace IsIdentifiableReviewer.Views
                 if(ignoreRule == null && updateRule == null)
                 {
                     if(!outstandingFailures.ContainsKey(f.ProblemValue))
-                        outstandingFailures.Add(f.ProblemValue,1);
+                        outstandingFailures.Add(f.ProblemValue,new OutstandingFailureNode(f,1));
                     else
-                        outstandingFailures[f.ProblemValue]++;
+                        outstandingFailures[f.ProblemValue].NumberOfTimesReported++;
                 }
             }
 
@@ -109,8 +148,7 @@ namespace IsIdentifiableReviewer.Views
             foreach(var used in rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).OrderByDescending(kvp=>kvp.Value))
                 update.Children.Add(new RuleUsageNode(used.Key,used.Value));
 
-            foreach(var o in outstandingFailures.OrderByDescending(kvp=>kvp.Value))
-                outstanding.Children.Add(new OutstandingFailureNode(o.Key,o.Value));
+            outstanding.Children = outstandingFailures.Select(kvp=>kvp.Value).OrderByDescending(v=>v.NumberOfTimesReported).Cast<ITreeNode>().ToList();
                         
             colliding.Text = $"Colliding Rules ({colliding.Children.Count})";
             ignore.Text = $"Ignore Rules Used ({ignore.Children.Count})";

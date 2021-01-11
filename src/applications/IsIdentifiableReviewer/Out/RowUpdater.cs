@@ -105,6 +105,15 @@ namespace IsIdentifiableReviewer.Out
                 }   
             }
         }
+        
+        /// <summary>
+        /// Adds a rule to update the given failure without sending any update instructions to the server
+        /// </summary>
+        /// <param name="f"></param>
+        public void Add(Failure f)
+        {
+            Add(f, RuleAction.Report);
+        }
 
         /// <summary>
         /// Handler for loading <paramref name="failure"/>.  If the user previously made an update decision an

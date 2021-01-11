@@ -39,17 +39,17 @@ namespace IsIdentifiableReviewer
         /// <summary>
         /// Width of modal popup dialogues
         /// </summary>
-        public int DlgWidth = 78;
+        public static int DlgWidth = 78;
 
         /// <summary>
         /// Height of modal popup dialogues
         /// </summary>
-        public int DlgHeight = 18;
+        public static int DlgHeight = 18;
 
         /// <summary>
         /// Border boundary of modal popup dialogues
         /// </summary>
-        public int DlgBoundary = 2;
+        public static int DlgBoundary = 2;
 
         private ValuePane _valuePane;
         private Label _info;
