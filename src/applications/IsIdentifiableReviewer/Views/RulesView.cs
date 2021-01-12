@@ -182,10 +182,10 @@ namespace IsIdentifiableReviewer.Views
         {
             _treeView.ClearObjects();
             
-            var colliding = new TreeNode("Loading...");
-            var ignore = new TreeNode("Loading...");
-            var update = new TreeNode("Loading...");
-            var outstanding = new TreeNode("Loading...");
+            var colliding = new TreeNodeWithCount("Colliding Rules");
+            var ignore = new TreeNodeWithCount("Ignore Rules Used");
+            var update = new TreeNodeWithCount("Update Rules Used");
+            var outstanding = new TreeNodeWithCount("Outstanding Failures");
                         
             var allRules = Ignorer.Rules.Union(Updater.Rules).ToList();
 
@@ -238,21 +238,14 @@ namespace IsIdentifiableReviewer.Views
                 update.Children.Add(new RuleUsageNode(Updater,used.Key,used.Value));
 
             outstanding.Children = outstandingFailures.Select(kvp=>kvp.Value).OrderByDescending(v=>v.NumberOfTimesReported).Cast<ITreeNode>().ToList();
-                        
-            colliding.Text = $"Colliding Rules ({colliding.Children.Count})";
-            ignore.Text = $"Ignore Rules Used ({ignore.Children.Count})";
-            update.Text = $"Update Rules Used ({update.Children.Count})";
-            outstanding.Text = $"Outstanding Failures ({outstanding.Children.Count})";
         }
 
         private void AddDuplicatesToTree(List<IsIdentifiableRule> allRules)
         {
-            var root = new TreeNode("Identical Rules");
+            var root = new TreeNodeWithCount("Identical Rules");
             var children = GetDuplicates(allRules).ToArray();
 
             root.Children = children;
-            root.Text = $"Identical Rules ({children.Length})";
-
             _treeView.AddObject(root);
         }
 
