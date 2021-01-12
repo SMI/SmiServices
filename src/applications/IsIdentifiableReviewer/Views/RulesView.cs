@@ -115,13 +115,12 @@ namespace IsIdentifiableReviewer.Views
             if(answer == 1 || answer == 2)
             {
                 // tell Updater to forget about this rule
-                Updater.Delete(crn.UpdateRule);
-
-                //no point removing it from UI twice
-                if(answer != 2)
-                    Remove(crn);
-                else
+                if(!Updater.Delete(crn.UpdateRule))
                     CouldNotDeleteRule();
+                else
+                    //no point removing it from UI twice
+                    if(answer != 2)
+                        Remove(crn);
             }
         }
 
