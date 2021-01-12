@@ -51,7 +51,7 @@ namespace IsIdentifiableReviewer
         /// </summary>
         public static int DlgBoundary = 2;
 
-        private ValuePane _valuePane;
+        private FailureView _valuePane;
         private Label _info;
         private TextField _gotoTextField;
         private IRulePatternFactory _origUpdaterRulesFactory;
@@ -113,7 +113,7 @@ namespace IsIdentifiableReviewer
             
             _info.ColorScheme = _greyOnBlack;
             
-            _valuePane = new ValuePane()
+            _valuePane = new FailureView()
             {
                 X = 0,
                 Y = 1,

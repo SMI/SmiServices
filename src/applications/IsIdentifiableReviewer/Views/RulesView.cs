@@ -60,18 +60,23 @@ namespace IsIdentifiableReviewer.Views
             {
                 switch(e.KeyEvent.Key)
                 {
+                    case Key.DeleteChar:
+                        var crn = _treeView.SelectedObject as CollidingRulesNode;
+                        if(crn!=null)
+                            Delete(crn);
+
+                        var usage = _treeView.SelectedObject as RuleUsageNode;
+                        if(usage !=null)
+                            Delete(usage);
+
+                        break;
                     case Key.Enter:
 
                         var ofn = _treeView.SelectedObject as  OutstandingFailureNode;
                         
                         if(ofn != null)
                         {
-                            var result = MessageBox.Query(MainWindow.DlgWidth,MainWindow.DlgHeight,"Action",ofn.Failure.ProblemValue,"Ignore","Update","Cancel");
-
-                            if(result == 0)
-                                Ignore(ofn);
-                            if(result == 1)
-                                Update(ofn);
+                            Activate(ofn);
                         }
 
                         e.Handled = true;
@@ -80,15 +85,98 @@ namespace IsIdentifiableReviewer.Views
             }
         }
 
+        private void Delete(RuleUsageNode usage)
+        {
+            var answer = MessageBox.Query("Delete Rule?","","Yes","No");
+
+            if(answer == 0)
+            {
+                // tell ignorer to forget about this rule
+                if(usage.Rulebase.Delete(usage.Rule))
+                    Remove(usage);
+                else
+                    CouldNotDeleteRule();
+            }
+        }
+
+        private void Delete(CollidingRulesNode crn)
+        {
+            var answer = MessageBox.Query("Delete Rules","Which colliding rule do you want to delete?","Ignore","Update","Both","Cancel");
+
+            if(answer == 0 || answer == 2)
+            {
+                // tell ignorer to forget about this rule
+                if(Ignorer.Delete(crn.IgnoreRule))
+                    Remove(crn);
+                else
+                    CouldNotDeleteRule();
+            }
+                
+            if(answer == 1 || answer == 2)
+            {
+                // tell Updater to forget about this rule
+                Updater.Delete(crn.UpdateRule);
+
+                //no point removing it from UI twice
+                if(answer != 2)
+                    Remove(crn);
+                else
+                    CouldNotDeleteRule();
+            }
+        }
+
+        private void CouldNotDeleteRule()
+        {
+            MessageBox.ErrorQuery("Failed to Remove","Rule could not be found in rule base, perhaps yaml has non standard layout or embedded comments?","Ok");
+        }
+
+        private void Activate(OutstandingFailureNode ofn)
+        {
+            var ignore = new Button("Ignore");
+            ignore.Clicked += ()=>{Ignore(ofn); Application.RequestStop();};
+
+            var update = new Button("Update");
+            update.Clicked += ()=>{Update(ofn); Application.RequestStop();};
+            
+            var cancel = new Button("Cancel");
+            cancel.Clicked += ()=>{Application.RequestStop();};
+
+            var dlg = new Dialog("Failure",MainWindow.DlgWidth,MainWindow.DlgHeight,ignore,update,cancel);
+
+            var lbl = new FailureView(){
+                X = 0,
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Fill(2),
+                CurrentFailure = ofn.Failure
+            };
+
+            dlg.Add(lbl);
+
+            Application.Run(dlg);
+        }
+
         private void Update(OutstandingFailureNode ofn)
         {
             Updater.Add(ofn.Failure);
+            Remove(ofn);
         }
-
         private void Ignore(OutstandingFailureNode ofn)
         {
             Ignorer.Add(ofn.Failure);
+            Remove(ofn);
         }
+
+        /// <summary>
+        /// Removes the node from the tree
+        /// </summary>
+        /// <param name="obj"></param>
+        private void Remove(ITreeNode obj)
+        {
+            _treeView.GetParent(obj)?.Children?.Remove(obj);
+            _treeView.RefreshObject(obj,true);
+        }
+
 
         private void EvaluateRuleCoverage()
         {
@@ -124,7 +212,7 @@ namespace IsIdentifiableReviewer.Views
                 // There are 2 conflicting rules for this input value (it should be updated and ignored!)
                 if(ignoreRule != null && updateRule != null)
                 {
-                    var existing = colliding.Children.OfType<CollidingRulesNode>().FirstOrDefault(c=>c.Is(ignoreRule,updateRule));
+                    var existing = colliding.Children.OfType<CollidingRulesNode>().FirstOrDefault(c=>ignoreRule.AreIdentical(updateRule,false));
 
                     if(existing != null)
                         existing.Add(f);
@@ -143,10 +231,10 @@ namespace IsIdentifiableReviewer.Views
             }
 
             foreach(var used in rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).OrderByDescending(kvp=>kvp.Value))
-                ignore.Children.Add(new RuleUsageNode(used.Key,used.Value));
+                ignore.Children.Add(new RuleUsageNode(Ignorer,used.Key,used.Value));
             
             foreach(var used in rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).OrderByDescending(kvp=>kvp.Value))
-                update.Children.Add(new RuleUsageNode(used.Key,used.Value));
+                update.Children.Add(new RuleUsageNode(Updater,used.Key,used.Value));
 
             outstanding.Children = outstandingFailures.Select(kvp=>kvp.Value).OrderByDescending(v=>v.NumberOfTimesReported).Cast<ITreeNode>().ToList();
                         

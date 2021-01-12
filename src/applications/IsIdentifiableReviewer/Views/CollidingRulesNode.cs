@@ -30,16 +30,6 @@ namespace IsIdentifiableReviewer.Views
             this.CollideOn = new List<Failure>(new []{f });
         }
 
-        /// <summary>
-        /// Returns true if this node describes the provided pair of rules colliding
-        /// </summary>
-        /// <param name="ignoreRule"></param>
-        /// <param name="updateRule"></param>
-        /// <returns></returns>
-        public bool Is(IsIdentifiableRule ignoreRule, IsIdentifiableRule updateRule)
-        {
-            return ignoreRule.Equals(IgnoreRule) && updateRule.Equals(UpdateRule);
-        }
         public override string ToString()
         {
             return $"{IgnoreRule.IfPattern} : {UpdateRule.IfPattern} x{CollideOn.Count:N0}";
