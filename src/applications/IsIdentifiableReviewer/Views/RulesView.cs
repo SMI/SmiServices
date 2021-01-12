@@ -68,6 +68,7 @@ namespace IsIdentifiableReviewer.Views
                         var usage = _treeView.SelectedObject as RuleUsageNode;
                         if(usage !=null)
                             Delete(usage);
+                        e.Handled = true;
 
                         break;
                     case Key.Enter:
@@ -211,7 +212,8 @@ namespace IsIdentifiableReviewer.Views
                 // There are 2 conflicting rules for this input value (it should be updated and ignored!)
                 if(ignoreRule != null && updateRule != null)
                 {
-                    var existing = colliding.Children.OfType<CollidingRulesNode>().FirstOrDefault(c=>ignoreRule.AreIdentical(updateRule,false));
+                    // find an existing collision audit node for this input value
+                    var existing = colliding.Children.OfType<CollidingRulesNode>().FirstOrDefault(c=>c.CollideOn[0].ProblemValue.Equals(f.ProblemValue));
 
                     if(existing != null)
                         existing.Add(f);
