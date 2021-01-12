@@ -62,7 +62,7 @@ namespace IsIdentifiableReviewer.Out
                 {
                     //populated rules file already existed
                     var deserializer = new Deserializer();
-                    Rules = deserializer.Deserialize<List<IsIdentifiableRule>>(existingRules);
+                    Rules = deserializer.Deserialize<List<IsIdentifiableRule>>(existingRules) ?? new List<IsIdentifiableRule>();
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace IsIdentifiableReviewer.Out
         /// <returns>True if the rule existed and was successfully deleted in memory and on disk</returns>
         public bool Delete(IsIdentifiableRule rule)
         {
-            return Rules.Remove(rule) && Purge(Serialize(rule,false),$"# Rule deleted by {Environment.UserName} - {DateTime.Now}");
+            return Rules.Remove(rule) && Purge(Serialize(rule,false),$"# Rule deleted by {Environment.UserName} - {DateTime.Now}{Environment.NewLine}");
         }
 
         /// <summary>
