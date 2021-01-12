@@ -138,6 +138,35 @@ SocketRules:
             Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
         }
 
+        [Test]
+        public void TestAreIdentical()
+        {
+            var rule1 = new IsIdentifiableRule();
+            var rule2 = new IsIdentifiableRule();
+
+            Assert.IsTrue(rule1.AreIdentical(rule2));
+            
+            rule2.IfPattern = "\r\n";
+            Assert.IsFalse(rule1.AreIdentical(rule2));
+            rule1.IfPattern = "\r\n";
+            Assert.IsTrue(rule1.AreIdentical(rule2));
+
+            
+            rule2.IfColumn = "MyCol";
+            Assert.IsFalse(rule1.AreIdentical(rule2));
+            rule1.IfColumn = "MyCol";
+            Assert.IsTrue(rule1.AreIdentical(rule2));
+
+            rule2.Action = RuleAction.Ignore;
+            rule1.Action = RuleAction.Report;
+            Assert.IsFalse(rule1.AreIdentical(rule2,true));
+            Assert.IsTrue(rule1.AreIdentical(rule2,false));
+            
+            rule2.Action = RuleAction.Report;
+            rule1.Action = RuleAction.Report;
+            Assert.IsTrue(rule1.AreIdentical(rule2,false));
+            Assert.IsTrue(rule1.AreIdentical(rule2,true));
+        }
 
         [TestCase(true)]
         [TestCase(false)]
