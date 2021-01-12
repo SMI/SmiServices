@@ -92,7 +92,7 @@ namespace IsIdentifiableReviewer.Views
             if (CurrentFailure != null)
             {
                 Driver.SetAttribute(_attNormal);
-                Driver.Move(0, h);
+                Move(0, h);
 
                 string classification = "C:" +
                               string.Join(",", CurrentFailure.Parts.Select(p => p.Classification).Distinct().ToArray());
