@@ -19,18 +19,18 @@ class DicomText:
     dicomtext.write(redacted_dcmname)    # Writes out the redacted DICOM file
     OR
     write_redacted_text_into_dicom_file  # to rewrite a second file with redacted text
-    """
 
-    """ Class variable determines whether unknown tags are included in the output
-    (ideally this would be True but in practice we are only interested in known tags).
-    Replace HTML entities such as <BR> with newline.
-    Insert a [[Findings]] tag after the header tags so SemEHR can find the body of text.
-    Redaction replaces text with X. Random length uses random number of X instead.
+    Class variables determine whether unknown tags are included in the output
+    (ideally this would be True but in practice we are only interested in known tags
+    and SemEHR ignores them).
+    Replace HTML entities such as <BR> with newline is not done, it might break redaction.
+    Redaction replaces text with X; random length uses random number of X instead,
+    but do not use random length unless you are sure the change in string length won't
+    break something else.
     """
-    _include_unexpected_tags = False
-    _replace_HTML_entities = False
-    _insert_Findings_tag = False
-    _redact_random_length = False
+    _include_unexpected_tags = False # SemEHR does not use unknown tags anyway so ignore them
+    _replace_HTML_entities = False   # do not remove HTML yet, it might break the redaction
+    _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
     _redact_char = 'X'
 
     def __init__(self, filename):
@@ -82,9 +82,10 @@ class DicomText:
         """
         self._p_text = ''
         # Start by enumerating all known desired tags (whitelist)
+        #  except explicitly do not include TextValue, handled below
         list_of_tagname_desired = [ k['tag'] for k in sr_keys_to_extract ]
         for srkey in sr_keys_to_extract:
-            if srkey['tag'] in self._dicom_raw:
+            if srkey['tag'] in self._dicom_raw and srkey['tag'] != 'TextValue':
                 line = '[[%s]] %s\n' % (srkey['label'], srkey['decode_func'](str(self._dicom_raw[srkey['tag']].value)))
                 self._p_text = self._p_text + line
         # Now read ALL tags and use a blacklist (and ignore already done in whitelist).
@@ -92,15 +93,20 @@ class DicomText:
         for drkey in self._dicom_raw:
             tagname = pydicom.datadict.keyword_for_tag(drkey.tag)
             if not drkey.VR == 'SQ' and not tagname in sr_keys_to_ignore and not tagname in list_of_tagname_desired and not tagname == '':
-                print('Warning: unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
                 if DicomText._include_unexpected_tags:
                     line = '[[%s]] %s\n' % (tagname, drkey.value)
                     self._p_text = self._p_text + line
-        # Now for the main event, the text in the ContentSequence
-        # XXX output [[Findings]] so that SemEHR knows where to start
-        if DicomText._insert_Findings_tag:
-            self._dataset_read_callback(None, DataElement(0x00100010, 'UT', 'Findings'))
-        # The text appears as a set of strings inside this tag:
+                    print('Warning: including unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
+                else:
+                    print('Warning: ignored unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
+        # Now handle the TextValue tag
+        # Wrap the text with [[Text]] and [[EndText]] for SemEHR
+        if 'TextValue' in self._dicom_raw:
+            self._p_text = self._p_text + '[[Text]]\n'
+            self._p_text = self._p_text + str(self._dicom_raw['TextValue'].value + '\n')
+            self._p_text = self._p_text + '[[EndText]]\n'
+        # Now the text in the ContentSequence
+        # Wrap the text with [[ContentSequence]] and [[EndContentSequence]] for SemEHR
         if 'ContentSequence' in self._dicom_raw:
             self._p_text = self._p_text + '[[ContentSequence]]\n'
             for content_sequence_item in self._dicom_raw.ContentSequence:
@@ -149,7 +155,7 @@ class DicomText:
                     if rc[annot_at+offset : annot_end+offset] == annot['text']:
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at+offset)
                         replaced = replacedAny = True
-                        #print('REPLACE: %s at offset %d' % (annot['text'], offset))
+                        #print('REPLACE: %s in %s at %d (offset %d)' % (annot['text'], replacement, annot_at, offset))
                         break
                 if not replaced:
                     print('WARNING: offsets slipped:')
@@ -159,9 +165,10 @@ class DicomText:
             replacement = self.redact_string(rc, 0, len(rc))
             replacedAny = True
         if replacedAny:
-            data_element.value = replacement         
+            data_element.value = replacement  
         self._r_text = self._r_text + rc
         self._redacted_text = self._redacted_text + replacement
+        return replacement if replacedAny else None
 
 
     def redact(self, annot_list):
@@ -175,6 +182,8 @@ class DicomText:
         self._r_text = ''    # XXX could start with '\n' to match semehr behaviour
         self._redacted_text = ''
         self._annotations = annot_list
+        if 'TextValue' in self._dicom_raw:
+            self._dataset_redact_callback(None, self._dicom_raw['TextValue'])
         if 'ContentSequence' in self._dicom_raw:
             for content_sequence_item in self._dicom_raw.ContentSequence:
                 content_sequence_item.walk(self._dataset_redact_callback)
@@ -201,7 +210,8 @@ class DicomText:
         DICOM file B.
         """
         dicom_dest = pydicom.dcmread(destfile)
+        if 'TextValue' in self._dicom_raw:
+            dicom_dest.TextValue = self._dicom_raw.TextValue
         if 'ContentSequence' in self._dicom_raw:
             dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
             dicom_dest.save_as(destfile)
-

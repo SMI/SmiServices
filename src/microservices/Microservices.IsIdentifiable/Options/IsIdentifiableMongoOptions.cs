@@ -5,7 +5,7 @@ using CommandLine.Text;
 
 namespace Microservices.IsIdentifiable.Options
 {
-    [Verb("mongo")]
+    [Verb("mongo", HelpText = "Run tool on contents of a MongoDb document collection")]
     public class IsIdentifiableMongoOptions : IsIdentifiableDicomOptions
     {
         [Option('h', "mongo-host", Required = false, HelpText = "The MongoDB hostname or IP", Default = "localhost")]

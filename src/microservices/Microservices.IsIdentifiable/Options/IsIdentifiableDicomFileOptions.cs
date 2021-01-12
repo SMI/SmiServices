@@ -6,7 +6,7 @@ using CommandLine.Text;
 
 namespace Microservices.IsIdentifiable.Options
 {
-    [Verb("dir")]
+    [Verb("dir",HelpText = "Run tool on one or more dicom files and evaluate tag contents")]
     public class IsIdentifiableDicomFileOptions : IsIdentifiableAbstractOptions
     {
         [Option('d', HelpText = "Directory in which to recursively search for dicom files", Required = true)]
