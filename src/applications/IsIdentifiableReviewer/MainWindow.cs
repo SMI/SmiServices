@@ -14,13 +14,6 @@ namespace IsIdentifiableReviewer
 {
     class MainWindow : View,IRulePatternFactory
     {
-        private readonly List<Target> _targets;
-
-        /// <summary>
-        /// The currently selected database which will be updated when performing redactions (when not operating in Rules Only mode)
-        /// </summary>
-        public Target CurrentTarget { get; set; }
-
         /// <summary>
         /// The report CSV file that is currently open
         /// </summary>
@@ -72,11 +65,9 @@ namespace IsIdentifiableReviewer
             Focus = Attribute.Make(Color.Black,Color.Gray),
         };
         private MenuItem miCustomPatterns;
-        private MenuItem miRulesOnly;
 
-        public MainWindow(List<Target> targets, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
-            _targets = targets;
             Ignorer = ignorer;
             Updater = updater;
             _origUpdaterRulesFactory = updater.RulesFactory;
@@ -95,8 +86,7 @@ namespace IsIdentifiableReviewer
                     new MenuItem ("_Quit", null, () => { top.Running = false; })
                 }),
                 new MenuBarItem ("_Options", new MenuItem [] {
-                    miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}, 
-                    miRulesOnly = new MenuItem ("_Rules Only", null, ToggleRulesOnly){CheckType = MenuItemCheckStyle.Checked,Checked = opts.OnlyRules}
+                    miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}
                 }),
                 new MenuBarItem ("_View", new MenuItem [] {
                     new MenuItem("_Rules",null,ViewRules),
@@ -183,7 +173,8 @@ namespace IsIdentifiableReviewer
             frame.Add(_ignoreRuleLabel);
             frame.Add(_updateRuleLabel);
 
-            Updater.RulesOnly = opts.OnlyRules;
+            // always run rules only mode for the manual gui
+            Updater.RulesOnly = true;
             
             top.Add (menu);
             Add(_info);
@@ -191,7 +182,7 @@ namespace IsIdentifiableReviewer
             Add(frame);
 
             if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
-                OpenReport(opts.FailuresCsv,(e)=>throw e, (t)=>throw new Exception("Mode only supported when a single Target is configured"));
+                OpenReport(opts.FailuresCsv,(e)=>throw e);
         }
 
         private void ViewRules()
@@ -203,12 +194,6 @@ namespace IsIdentifiableReviewer
                 var rules = new RulesView(CurrentReport,Ignorer,Updater);
                 Application.Run(rules);
             }
-        }
-
-        private void ToggleRulesOnly()
-        {
-            miRulesOnly.Checked = !miRulesOnly.Checked;
-            Updater.RulesOnly = miRulesOnly.Checked;
         }
 
         private void ToggleCustomPatterns()
@@ -306,7 +291,7 @@ namespace IsIdentifiableReviewer
                     var next = CurrentReport.Current;
 
                     //prefer rules that say we should update the database with redacted over rules that say we should ignore the problem
-                    if (!Updater.OnLoad(CurrentTarget?.Discover(),next, out _))
+                    if (!Updater.OnLoad(null,next, out _))
                         updated++;
                     else if (!Ignorer.OnLoad(next,out _))
                         skipped++;
@@ -362,8 +347,7 @@ namespace IsIdentifiableReviewer
 
             try
             {
-                Updater.Update(miRulesOnly.Checked ? null : CurrentTarget?.Discover()
-                    , _valuePane.CurrentFailure, null /*create one yourself*/);
+                Updater.Update(null, _valuePane.CurrentFailure, null /*create one yourself*/);
 
                 History.Push(new MainWindowHistory(CurrentReport.CurrentIndex,Updater));
             }
@@ -394,26 +378,16 @@ namespace IsIdentifiableReviewer
 
             var f = ofd.FilePaths?.SingleOrDefault();
 
-            OpenReport(f,
-                (e)=>ShowException("Failed to Load", e),
-                (t)=> 
-                    GetChoice("Target", "Pick the database this was generated from", out Target chosen,t.ToArray())
-                    ? chosen : null);
+            OpenReport(f,(e)=>ShowException("Failed to Load", e));
         }
 
-        private void OpenReport(string path, Action<Exception> exceptionHandler, Func<IEnumerable<Target>,Target> targetPicker)
+        private void OpenReport(string path, Action<Exception> exceptionHandler)
         {
             if ( path == null)
                 return;
 
             try
             {
-                //if there are multiple targets
-                CurrentTarget = _targets.Count > 1 ? targetPicker(_targets) : _targets.Single();
-
-                if(CurrentTarget == null)
-                    return;
-
                 CurrentReport = new ReportReader(new FileInfo(path));
                 SetupToShow(CurrentReport.Failures.FirstOrDefault());
                 Next();
