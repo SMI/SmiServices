@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Rules;
@@ -55,6 +56,5 @@ namespace IsIdentifiableReviewer.Out
             //get user ot make a decision only if it is NOT covered by an existing rule
             return !IsCoveredByExistingRule(failure,out existingRule);
         }
-
     }
 }
