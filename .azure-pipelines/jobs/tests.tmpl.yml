@@ -1,0 +1,106 @@
+---
+parameters:
+    vmImage:
+    # NOTE(rkm 2020-12-27) OS is required for the template conditions which are evaluated at compile-time before the Agent.OS is known
+    os:
+
+jobs:
+    - job: dotnet_tests
+      displayName: Dotnet Tests
+      pool:
+          vmImage: ${{ parameters.vmImage }}
+      steps:
+          - template: ../steps/use-python.tmpl.yml
+          - template: ../steps/vars.tmpl.yml
+          - template: ../steps/use-dotnet.tmpl.yml
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            inputs:
+                key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+                path: $(NUGET_PACKAGES)
+          - task: Cache@2
+            displayName: Cache tesseract data
+            inputs:
+                key: 'tessdata | "$(Agent.OS)"'
+                restoreKeys: |
+                    tessdata
+                path: $(TESS_CACHE_DIR)
+                cacheHitVar: TESS_CACHE_RESTORED
+          - task: Bash@3
+            displayName: Download tessdata if cache not restored
+            condition: eq(variables.TESS_CACHE_RESTORED, 'false')
+            inputs:
+                targetType: "inline"
+                script: |
+                    set -euxo pipefail
+                    mkdir -p "$(TESS_CACHE_DIR)"
+                    curl -L \
+                        https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
+                        > "$(TESS_CACHE_DIR)/eng.traineddata"
+                    ls -l "$(TESS_CACHE_DIR)"
+          - task: Bash@3
+            displayName: Symlink tessdata into the repo
+            inputs:
+                targetType: "inline"
+                script: |
+                  ln -s \
+                    "$(TESS_CACHE_DIR)/eng.traineddata" \
+                    "$(Build.SourcesDirectory)/data/tessdata/eng.traineddata"
+          - ${{ if eq( parameters.os, 'linux' ) }}:
+                - template: ../steps/docker-cache.tmpl.yml
+                  parameters:
+                      os: ${{ parameters.os }}
+                      language: dotnet
+                - template: ../steps/linux-dotnet-docker.yml
+          - ${{ if eq( parameters.os, 'win' ) }}:
+                - template: ../steps/win-dotnet-services.yml
+          - task: UseDotNet@2
+            displayName: Use .NET Core Runtime 2.2 for RDMP
+            inputs:
+                packageType: runtime
+                version: 2.2.x
+                installationPath: $(Agent.ToolsDirectory)/dotnet
+          - template: ../steps/rdmp-setup.tmpl.yml
+            parameters:
+                os: ${{ parameters.os }}
+          - task: Bash@3
+            displayName: Run Dotnet tests
+            inputs:
+                filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
+                failOnStderr: true
+
+    - job: java_tests
+      displayName: Java Tests
+      pool:
+          vmImage: ${{ parameters.vmImage }}
+      steps:
+          - template: ../steps/use-python.tmpl.yml
+          - template: ../steps/vars.tmpl.yml
+          - task: JavaToolInstaller@0
+            displayName: Use Java 11
+            inputs:
+                versionSpec: "11"
+                jdkArchitectureOption: "x64"
+                jdkSourceOption: "PreInstalled"
+          - task: Cache@2
+            displayName: Cache Maven local repo
+            inputs:
+                key: 'maven | "$(Agent.OS)" | **/pom.xml'
+                restoreKeys: |
+                    maven | "$(Agent.OS)"
+                    maven
+                path: $(MAVEN_CACHE_FOLDER)
+          - ${{ if eq( parameters.os, 'linux' ) }}:
+                - template: ../steps/docker-cache.tmpl.yml
+                  parameters:
+                      os: ${{ parameters.os }}
+                      language: java
+                - template: ../steps/linux-java-docker.yml
+          - ${{ if eq( parameters.os, 'win' ) }}:
+                - template: ../steps/win-java-services.yml
+          - task: Bash@3
+            displayName: Run Java tests
+            inputs:
+                filePath: .azure-pipelines/scripts/run-java-tests.bash
+                # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
+                failOnStderr: false

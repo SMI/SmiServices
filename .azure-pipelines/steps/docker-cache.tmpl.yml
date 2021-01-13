@@ -1,0 +1,53 @@
+---
+# NOTE(rkm 2021-01-09) Will need to update the new cache tasks for Windows if we decide to use that again
+parameters:
+    os:
+    language:
+
+steps:
+    - task: Bash@3
+      displayName: Set compose file variable
+      inputs:
+          targetType: "inline"
+          script: |
+              set -euxo pipefail
+              compose_file=.azure-pipelines/docker-compose/'*'${{ parameters.os }}'*'${{ parameters.language }}'*'.yml
+              test -f $compose_file
+              echo "##vso[task.setvariable variable=compose_file]$compose_file"
+    - task: Bash@3
+      displayName: Re-write the compose file with tags from the lockfile
+      inputs:
+          targetType: "inline"
+          script: |
+            set -euxo pipefail
+            docker run \
+                --rm \
+                -v`pwd`/.azure-pipelines/docker-compose:/run \
+                --user $(id -u):$(id -g) \
+                safewaters/docker-lock \
+                    lock rewrite \
+                    --lockfile-name $(basename $(compose_file).lock)
+            cat $(compose_file)
+    - task: Cache@2
+      displayName: Use docker iamges cache
+      inputs:
+          key: "docker | $(compose_file) | v2"
+          path: $(DOCKER_CACHE_DIR)
+          cacheHitVar: DOCKER_CACHE_RESTORED
+    - task: Bash@3
+      displayName: Load docker images if cached
+      condition: and(not(canceled()), eq(variables.DOCKER_CACHE_RESTORED, 'true'))
+      inputs:
+          targetType: "inline"
+          script: docker load < $(DOCKER_CACHE_DIR)/cache.tar
+    - task: Bash@3
+      displayName: Pull and save docker images to cache
+      condition: and(not(canceled()), or(failed(), ne(variables.DOCKER_CACHE_RESTORED, 'true')))
+      inputs:
+          targetType: "inline"
+          script: |
+            set -euxo pipefail
+            docker-compose -f $(compose_file) pull --quiet
+            mkdir -p $(DOCKER_CACHE_DIR)
+            docker_images=$(grep -h "image:" $(compose_file) | tr -d ' ' | cut -d: -f2- | sort -u)
+            docker save $docker_images > $(DOCKER_CACHE_DIR)/cache.tar
