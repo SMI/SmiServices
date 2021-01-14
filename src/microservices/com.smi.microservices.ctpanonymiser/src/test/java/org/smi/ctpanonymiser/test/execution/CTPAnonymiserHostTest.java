@@ -122,8 +122,13 @@ public class CTPAnonymiserHostTest extends TestCase {
         _testAdapter.StartConsumer(_extractFileStatusConsumerOptions, _anonFileStatusMessageConsumer);
 
         // Create the host for testing
+        try {
         String[] args = new String[]{"-a", _fsRoot + "/dicom-anonymizer.script"};
         _ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(args));
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	throw e;
+        }
 
         File inFile = new File(Paths.get(_fsRoot, _testFile).toString());
         assertTrue(inFile.exists());
