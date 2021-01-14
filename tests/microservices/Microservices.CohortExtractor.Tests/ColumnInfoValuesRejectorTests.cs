@@ -28,7 +28,7 @@ namespace Microservices.CohortExtractor.Tests
             tbl.Insert(new Dictionary<string, object> { { PatColName, "Frank" } }); //duplication for the lols
             tbl.Insert(new Dictionary<string, object> { { PatColName, "David" } });
 
-            new TableInfoImporter(CatalogueRepository, tbl).DoImport(out TableInfo _, out ColumnInfo[] cols);
+            new TableInfoImporter(CatalogueRepository, tbl).DoImport(out _, out ColumnInfo[] cols);
 
             var rejector = new ColumnInfoValuesRejector(cols[0]);
 
