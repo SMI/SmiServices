@@ -118,7 +118,7 @@ if __name__ == '__main__':
     for cfg_file in args.yamlfile:
         with open(cfg_file, 'r') as fd:
             # Merge all the yaml dicst into one
-            cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.load(fd))
+            cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
     mongo_host = cfg_dict['MongoDatabases']['DicomStoreOptions']['HostName']
     mongo_user = cfg_dict['MongoDatabases']['DicomStoreOptions']['UserName']
