@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   CohortPackager: Don't try and create the jobId file when recreating an existing report
 -   CohortPackager.Tests: Fix a flaky test caused by NUnit setup/teardown code when running tests in parallel
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
+-   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
 
 ### Dependencies
 

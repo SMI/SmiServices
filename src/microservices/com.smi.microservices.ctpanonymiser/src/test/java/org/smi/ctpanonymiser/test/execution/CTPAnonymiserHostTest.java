@@ -67,6 +67,10 @@ public class CTPAnonymiserHostTest extends TestCase {
         _options.FileSystemOptions.setFileSystemRoot(_fsRoot);
         _options.FileSystemOptions.setExtractRoot(_extractRoot);
 
+        String dummySrAnonToolPath = System.getProperty("user.dir") + "/src/test/resources/dummy.sh";
+        _options.CTPAnonymiserOptions.SRAnonTool = dummySrAnonToolPath;
+        new File(dummySrAnonToolPath).createNewFile();
+
         if (!_options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName.startsWith("TEST."))
             _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName = "TEST."
                     + _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName;
