@@ -15,5 +15,14 @@ if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ]; then
     mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java
 fi
 
-mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml test
-mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ test
+for f in \
+    src/common/com.smi.microservices.parent \
+    src/microservices/uk.ac.dundee.hic.nerd
+do
+    mvn \
+        -ntp \
+        -q \
+        -f $f \
+        -DtrimStackTrace=false \
+        test
+done
