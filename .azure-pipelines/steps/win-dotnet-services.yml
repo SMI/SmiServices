@@ -42,4 +42,4 @@ steps:
       displayName: Set RDMP_CONN_STR
       inputs:
           targetType: "inline"
-          script: echo "##vso[task.setvariable variable=RDMP_CONN_STR]$(SQL_SERVER_HOST)"
+          script: echo "##vso[task.setvariable variable=RDMP_CONN_STR]\"$(SQL_SERVER_HOST)\""
