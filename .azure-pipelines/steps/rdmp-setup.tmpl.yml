@@ -35,4 +35,4 @@ steps:
       displayName: Install RDMP databases
       inputs:
           targetType: "inline"
-          script: $(RDMP_CLI_DIR)/rdmp install "$(RDMP_CONN_STR)" TEST_
+          script: $(RDMP_CLI_DIR)/rdmp install $(RDMP_CONN_STR) TEST_
