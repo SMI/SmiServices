@@ -96,8 +96,6 @@ jobs:
                       os: ${{ parameters.os }}
                       language: java
                 - template: ../steps/linux-java-docker.yml
-          - ${{ if eq( parameters.os, 'win' ) }}:
-                - template: ../steps/win-java-services.yml
           - task: Bash@3
             displayName: Run Java tests
             inputs:

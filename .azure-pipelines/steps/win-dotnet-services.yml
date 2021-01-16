@@ -1,12 +1,6 @@
 ---
 
 steps:
-    # TODO(rkm 2021-01-10) Cache this install
-    - task: Bash@3
-      displayName: Install RabbitMQ
-      inputs:
-          targetType: "inline"
-          script: choco install rabbitmq
     # TODO password
     # TODO May have to stop the pre-installed MySQL
     - task: PowerShell@2
@@ -24,19 +18,6 @@ steps:
       inputs:
           targetType: "inline"
           script: Restart-Service -Name MongoDB
-    - task: Bash@3
-      displayName: Set rmq_diag_path variable
-      inputs:
-          targetType: "inline"
-          script: |
-            set -exuo pipefail
-            rmq_diag_path="$(echo "$(find 'C:\Program Files\RabbitMQ Server' -name rabbitmq-diagnostics.bat)" | sed 's/\//\\/g')"
-            echo $rmq_diag_path
-            echo "##vso[task.setvariable variable=rmq_diag_path]$rmq_diag_path"
-    - template: ./wait-for.tmpl.yml
-      parameters:
-          name: RabbitMQ
-          cmd: "\"$(rmq_diag_path)\" -q ping"
     - template: ./wait-for.tmpl.yml
       parameters:
           name: MariaDB
