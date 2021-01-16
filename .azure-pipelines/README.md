@@ -42,3 +42,10 @@ The docker-compose files reference the `latest` tag for each image. During the p
 ## Caches
 
 The [Cache](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/caching?view=azure-devops) task is used in multiple cases to speed-up the build by re-using previously built/downloaded assets. These are restored based on the `key` value, which can contain references to files which are hashed to generate the final key.
+
+## Notes
+
+-   `set -x` in bash tasks may interfere with the `##vso` tasks, as AP will interpret any stdout containing that string as a command. This can cause problems with variables being set twice and having the wrong quote escaping. See:
+    -   https://github.com/Microsoft/azure-pipelines-tasks/issues/10165
+    -   https://github.com/microsoft/azure-pipelines-tasks/issues/10331
+    -   https://developercommunity.visualstudio.com/content/problem/375679/pipeline-variable-incorrectly-inserts-single-quote.html
