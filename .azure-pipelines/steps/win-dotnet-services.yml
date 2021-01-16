@@ -13,10 +13,6 @@ steps:
           script: Restart-Service -Name MongoDB
     - template: ./wait-for.tmpl.yml
       parameters:
-          name: MariaDB
-          cmd: mysqladmin -uroot -p$(DB_PASSWORD) status
-    - template: ./wait-for.tmpl.yml
-      parameters:
           name: MongoDB
           cmd: test $(mongo --quiet --eval 'db.stats().ok') -eq 1
     - task: Bash@3
