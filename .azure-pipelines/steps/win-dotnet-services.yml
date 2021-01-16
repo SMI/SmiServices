@@ -14,7 +14,7 @@ steps:
     - template: ./wait-for.tmpl.yml
       parameters:
           name: MongoDB
-          cmd: test $(mongo --quiet --eval 'db.stats().ok') -eq 1
+          cmd: test '$(mongo --quiet --eval "db.stats().ok")' -eq 1
     - task: Bash@3
       displayName: Start MongoDB replication
       inputs:
