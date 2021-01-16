@@ -1,13 +1,6 @@
 ---
 
 steps:
-    # TODO password
-    # TODO May have to stop the pre-installed MySQL
-    - task: PowerShell@2
-      displayName: Install MariaDB
-      inputs:
-          targetType: "inline"
-          script: choco install mariadb
     - task: PowerShell@2
       displayName: Add replication to MongoDB config
       inputs:
