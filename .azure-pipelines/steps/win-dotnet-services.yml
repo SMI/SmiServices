@@ -20,6 +20,11 @@ steps:
       inputs:
           targetType: "inline"
           script: mongo --eval "rs.initiate()"
+    - task: Bash@3
+      displayName: Set SQL_SERVER_HOST
+      inputs:
+          targetType: "inline"
+          script: echo "##vso[task.setvariable variable=SQL_SERVER_HOST](localdb)\MSSQLLocalDB"
     # https://github.com/actions/virtual-environments/issues/1282#issuecomment-668686268
     - task: PowerShell@2
       displayName: Install SQL 2019 LocalDB
@@ -32,4 +37,9 @@ steps:
           Write-Host "Installing"
           Start-Process -FilePath "SqlLocalDB.msi" -Wait -ArgumentList "/qn", "/norestart", "/l*v SqlLocalDBInstall.log", "IACCEPTSQLLOCALDBLICENSETERMS=YES";
           Write-Host "Checking"
-          sqlcmd -l 60 -S "(localdb)\MSSQLLocalDB" -Q "SELECT @@VERSION;"
+          sqlcmd -l 60 -S "$(SQL_SERVER_HOST)" -Q "SELECT @@VERSION;"
+    - task: Bash@3
+      displayName: Set RDMP_CONN_STR
+      inputs:
+          targetType: "inline"
+          script: echo "##vso[task.setvariable variable=RDMP_CONN_STR]$(SQL_SERVER_HOST)"
