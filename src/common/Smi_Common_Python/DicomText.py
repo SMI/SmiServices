@@ -3,7 +3,41 @@
 
 import pydicom
 import re
-from .StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
+from Smi_Common_Python.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
+
+
+# ---------------------------------------------------------------------
+
+def redact_html_tags_in_string(html_str):
+    """ Replace the HTML tags in a string with equal length of a
+    repeating character (space or dot for example).
+    Handles multi-line tags such as <style> and <script> which
+    should have their enclosed text fully redacted.
+    Doesn't handle embedded html within those sections though,
+    so not truly robust but likely sufficient for simple html from
+    clinical software.
+    Returns the new string.
+    """
+    replchar = '.'
+    def replfunc(s):
+        return replchar.rjust(len(s.group(0)), replchar)
+    # Use re.I (ignore case) re.M (multi-line) re.S (dot matches all)
+    # re.S needed to match CR/LF when scripts are multi-line.
+    # First replace single-instance tags <script.../> and <style.../>
+    html_str = re.sub('<script[^>]*/>', replfunc, html_str)
+    html_str = re.sub('<style[^>]*/>',  replfunc, html_str)
+    # Now replace the whole <script>...</script> and style sequence
+    html_str = re.sub('<script[^>]*>.*?</script>', replfunc, html_str, flags=re.I|re.M|re.S)
+    html_str = re.sub('<style[^>]*>.*?</style>', replfunc, html_str, flags=re.I|re.M|re.S)
+    # Finally remove single-instance tags like <p> and <br>
+    html_str = re.sub('<[^>]*>', replfunc, html_str)
+    return(html_str)
+
+def test_redact_html_tags_in_string():
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <script> script2 </script> text2'
+    dest = redact_html_tags_in_string(src)
+    expected = '.................... ..................................... text1 .......................... text2'
+    assert(dest == expected)
 
 
 # ---------------------------------------------------------------------
@@ -73,19 +107,7 @@ class DicomText:
             rc = rc + ('%s' % (str(data_element.value))) + '\n'
             # Replace HTML tags with spaces
             if DicomText._replace_HTML_entities:
-                replchar = ' '
-                def replfunc(s):
-                    return replchar.rjust(len(s.group(0)), replchar)
-                # Use re.I (ignore case) re.M (multi-line) re.S (dot matches all)
-                # re.S needed to match CR/LF when scripts are multi-line.
-                # First replace single-instance tags <script.../> and <style.../>
-                rc = re.sub('<script[^>]*/>', replfunc, rc)
-                rc = re.sub('<style[^>]*/>',  replfunc, rc)
-                # Now replace the whole <script>...</script> and style sequence
-                rc = re.sub('<script[^>]*>.*?</script>', replfunc, rc, flags=re.I|re.M|re.S)
-                rc = re.sub('<style[^>]*>.*?</style>', replfunc, rc, flags=re.I|re.M|re.S)
-                # Finally remove single-instance tags like <p> and <br>
-                rc = re.sub('<[^>]*>', replfunc, rc)
+                rc = redact_html_tags_in_string(rc)
         if rc == '':
             return
         self._offset_list.append( { 'offset':len(self._p_text), 'string': rc} )
