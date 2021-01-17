@@ -269,7 +269,7 @@ def sr_key_can_be_ignored(keystr):
 def _SR_output_string(keystr, valstr, fp):
     # If it's a list then print each element (but only expecting a single one line ['Findings'])
     if isinstance(valstr, list):
-        return [_SR_output_string(keystr,X) for X in valstr]
+        return [_SR_output_string(keystr,X,fp) for X in valstr]
     # The Key may also be a list but only take first element
     if isinstance(keystr, list):
         keystr = keystr[0]
