@@ -83,3 +83,15 @@ Usage: `-y default.yaml -i input.dcm -x input.xml -o output.dcm`
 `-x input.xml` - full path to the XML file containing annotations
 
 `-o output.dcm` - full path to the anonymised DICOM file, which must already exist, where the redacted text is written
+
+
+## Testing
+
+In the test subdirectory, run
+
+```
+./CTP_SRAnonTool_test.py
+```
+
+That will read `report10html.dcm` and run the above scripts, checking that the output matches what is expected.
+It will print `SUCCESS` if successful.
