@@ -198,7 +198,7 @@ namespace Microservices.CohortExtractor.Tests
             dt.SetDoNotReType(true);
 
             DiscoveredTable tbl = db.CreateTable("FromCataloguesExtractionRequestFulfillerTests", dt);
-            Catalogue catalogue = Import(tbl);
+            ICatalogue catalogue = Import(tbl);
 
             ExtractionInformation ei = catalogue.GetAllExtractionInformation(ExtractionCategory.Any).First();
             var filter = new ExtractionFilter(CatalogueRepository, "Extractable only", ei)
