@@ -51,13 +51,14 @@ namespace Microservices.IsIdentifiable
                 LogManager.Configuration = config;
 
                 return GetParser()
-                    .ParseArguments<IsIdentifiableRelationalDatabaseOptions, IsIdentifiableDicomFileOptions, IsIdentifiableMongoOptions, IsIdentifiableServiceOptions>(args)
+                    .ParseArguments<IsIdentifiableRelationalDatabaseOptions, IsIdentifiableDicomFileOptions, IsIdentifiableMongoOptions, IsIdentifiableServiceOptions, IsIdentifiableFileOptions>(args)
                     .MapResult(
                         //Add new verbs as options here and invoke relevant runner
                         (IsIdentifiableRelationalDatabaseOptions opts) => Run(opts),
                         (IsIdentifiableDicomFileOptions opts) => Run(opts),
                         (IsIdentifiableMongoOptions opts) => Run(opts),
                         (IsIdentifiableServiceOptions opts) => Run(opts),
+                        (IsIdentifiableFileOptions opts) => Run(opts),
                         HandleErrors);
 
             }
@@ -85,6 +86,11 @@ namespace Microservices.IsIdentifiable
         private static int Run(IsIdentifiableRelationalDatabaseOptions opts)
         {
             using(var runner = new DatabaseRunner(opts))
+                return runner.Run();
+        }
+        private static int Run(IsIdentifiableFileOptions opts)
+        {
+            using(var runner = new FileRunner(opts))
                 return runner.Run();
         }
 

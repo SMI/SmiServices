@@ -1,0 +1,21 @@
+---
+
+steps:
+  - task: Bash@3
+    displayName: Load variables
+    inputs:
+      targetType: "inline"
+      script: |
+        set -euxo pipefail
+        cat .azure-pipelines/vars.json
+        python << EOF
+        import json
+        import sys
+
+        with open(".azure-pipelines/vars.json") as f:
+            vars = json.load(f)
+
+        for k, v in vars.items():
+            print(f"##vso[task.setvariable variable={k}]{v}")
+            print(f"##vso[task.setvariable variable={k}]{v}", file=sys.stderr)
+        EOF

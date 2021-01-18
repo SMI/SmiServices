@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+-   Added total job duration to extraction report header
+-   IsIdentifiableReviewer rule review screen
+-   Added CSV input support for IsIdentifiable, use verb `file` from command line
+ 
+### Changed
+
+-   Clarified the CLI help text for `--format` in CohortPackager
+-   CTP calls an external program to anonymise Structured Reports
+  -  Requires an addition to `default.yaml`: `CTPAnonymiserOptions.SRAnonTool` (adding this does not break existing programs).
+-   Consolidate System.IO.Abstractions.TestingHelpers package references into the Smi.Common.Tests package
+
+### Fixed
+
+-   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+-   CohortPackager: Don't try and create the jobId file when recreating an existing report
+-   CohortPackager.Tests: Fix a flaky test caused by NUnit setup/teardown code when running tests in parallel
+-   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
+-   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
+
+### Dependencies
+
+- Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4
+
 ## [1.13.0] - 2020-12-03
 
 ### Added
@@ -21,6 +46,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Added JobCompletedAt to the validation reports
 -   IsIdentifiable: Add support for ignoring OCR output less than `n` characters in length
 -   IsIdentifiable: Add a test case for burned-in image text
+- Added some Python library code
 
 ### Changed
 

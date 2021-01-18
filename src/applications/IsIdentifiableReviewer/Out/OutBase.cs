@@ -62,7 +62,7 @@ namespace IsIdentifiableReviewer.Out
                 {
                     //populated rules file already existed
                     var deserializer = new Deserializer();
-                    Rules = deserializer.Deserialize<List<IsIdentifiableRule>>(existingRules);
+                    Rules = deserializer.Deserialize<List<IsIdentifiableRule>>(existingRules) ?? new List<IsIdentifiableRule>();
                 }
             }
         }
@@ -92,18 +92,43 @@ namespace IsIdentifiableReviewer.Out
 
             Rules.Add(rule);
 
-            var serializer = new SerializerBuilder()
-                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
-                .Build();
-            var yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
-
-            var contents = $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
-                           yaml;
+            var contents = Serialize(rule,true);
 
             File.AppendAllText(RulesFile.FullName,contents);
             History.Push(new OutBaseHistory(rule,contents));
 
             return rule;
+        }
+
+        /// <summary>
+        /// Serializes the <paramref name="rule"/> into yaml optionally with a comment at the start
+        /// </summary>
+        /// <param name="rule"></param>
+        /// <param name="addCreatorComment"></param>
+        /// <returns></returns>
+        private string Serialize(IsIdentifiableRule rule, bool addCreatorComment)
+        {
+            var serializer = new SerializerBuilder()
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+                .Build();
+            
+            string yaml = serializer.Serialize(new List<IsIdentifiableRule> {rule});
+            
+            if(!addCreatorComment)
+                return yaml;
+
+            return $"#{Environment.UserName} - {DateTime.Now}" + Environment.NewLine +
+                           yaml;
+        }
+
+        /// <summary>
+        /// Removes an existing rule and flushes out to disk
+        /// </summary>
+        /// <param name="rule"></param>
+        /// <returns>True if the rule existed and was successfully deleted in memory and on disk</returns>
+        public bool Delete(IsIdentifiableRule rule)
+        {
+            return Rules.Remove(rule) && Purge(Serialize(rule,false),$"# Rule deleted by {Environment.UserName} - {DateTime.Now}{Environment.NewLine}");
         }
 
         /// <summary>
@@ -118,19 +143,35 @@ namespace IsIdentifiableReviewer.Out
 
             if (popped != null)
             {
-                //clear the rule from the serialized text file
-                var oldText = File.ReadAllText(RulesFile.FullName);
-                var newText = oldText.Replace(popped.Yaml, "");
-
-                //write to a new temp file
-                File.WriteAllText(RulesFile.FullName + ".tmp",newText);
-
-                //then hot swap them using in-place replacement added in .Net 3.0
-                File.Move(RulesFile.FullName + ".tmp", RulesFile.FullName, true);
+                Purge(popped.Yaml);
                 
                 //clear the rule from memory
                 Rules.Remove(popped.Rule);
             }
+        }
+
+        /// <summary>
+        /// Attempts to purge the provided block of serialized rules yaml from the rules base on disk
+        /// </summary>
+        /// <param name="yaml"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
+        private bool Purge(string yaml, string replacement = "")
+        {
+            //clear the rule from the serialized text file
+            var oldText = File.ReadAllText(RulesFile.FullName);
+            var newText = oldText.Replace(yaml, replacement);
+
+            if(Equals(oldText,newText))
+                return false;
+
+            //write to a new temp file
+            File.WriteAllText(RulesFile.FullName + ".tmp",newText);
+
+            //then hot swap them using in-place replacement added in .Net 3.0
+            File.Move(RulesFile.FullName + ".tmp", RulesFile.FullName, true);
+            
+            return true;
         }
 
         /// <summary>

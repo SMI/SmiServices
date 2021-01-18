@@ -125,7 +125,7 @@ namespace IsIdentifiableReviewer
 
                     //run interactive
                     Application.Init();
-                    var mainWindow = new MainWindow(targets,opts,ignorer,updater);
+                    var mainWindow = new MainWindow(opts,ignorer,updater);
                     Application.Top.Add(mainWindow);
                     Application.Run();
                 }

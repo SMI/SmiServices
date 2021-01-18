@@ -133,6 +133,7 @@ public class GlobalOptions {
 		public String NoVerifyRoutingKey;
 		public ConsumerOptions AnonFileConsumerOptions;
 		public ProducerOptions ExtractFileStatusProducerOptions;
+		public String SRAnonTool;
 	}
 
 	public class ExtractorClOptions {

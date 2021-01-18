@@ -1,0 +1,30 @@
+---
+steps:
+    - template: ./start-containers.tmpl.yml
+      parameters:
+          composeFile: .azure-pipelines/docker-compose/linux-dotnet.yml
+    - template: ./wait-for.tmpl.yml
+      parameters:
+          name: RabbitMQ
+          cmd: docker exec rabbitmq rabbitmq-diagnostics -q ping
+    - template: ./wait-for.tmpl.yml
+      parameters:
+          name: MariaDB
+          cmd: docker exec mariadb mysqladmin -uroot -p$(DB_PASSWORD) status
+    - template: ./wait-for.tmpl.yml
+      parameters:
+          name: Redis
+          cmd: docker exec redis /usr/local/bin/redis-cli PING
+    - template: ./wait-for.tmpl.yml
+      parameters:
+          name: MsSQL
+          cmd: docker exec mssql /opt/mssql-tools/bin/sqlcmd -U sa -P $(DB_PASSWORD) -l 1 -Q 'SELECT @@VERSION'
+    - template: ./wait-for.tmpl.yml
+      parameters:
+          name: MongoDB
+          cmd: docker exec mongodb /usr/bin/mongo --quiet --eval 'db.stats().ok'
+    - task: Bash@3
+      displayName: Start MongoDB replication
+      inputs:
+          targetType: "inline"
+          script: docker exec mongodb mongo --eval "rs.initiate()"

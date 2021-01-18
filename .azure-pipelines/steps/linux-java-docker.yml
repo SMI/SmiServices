@@ -1,0 +1,9 @@
+---
+steps:
+    - template: ./start-containers.tmpl.yml
+      parameters:
+          composeFile: .azure-pipelines/docker-compose/linux-java.yml
+    - template: ./wait-for.tmpl.yml
+      parameters:
+          name: RabbitMQ
+          cmd: docker exec rabbitmq rabbitmq-diagnostics -q ping

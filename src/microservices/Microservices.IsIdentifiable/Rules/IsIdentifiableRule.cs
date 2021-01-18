@@ -116,11 +116,17 @@ namespace Microservices.IsIdentifiable.Rules
             return RuleAction.None;
         }
 
-        public bool AreIdentical(IsIdentifiableRule other)
+        /// <summary>
+        /// Returns true if the current and <paramref name="other"/> rule match using the same pattern and col.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="requireIdenticalAction">True (default) if identical must also include the same <see cref="Action"/> for values matching the rule</param>
+        /// <returns></returns>
+        public bool AreIdentical(IsIdentifiableRule other, bool requireIdenticalAction = true)
         {
             return
                 string.Equals(IfColumn, other.IfColumn,StringComparison.CurrentCultureIgnoreCase) &&
-                Action == other.Action &&
+                (!requireIdenticalAction || Action == other.Action) &&
                 string.Equals(IfPattern, other.IfPattern,StringComparison.CurrentCultureIgnoreCase);
         }
     }
