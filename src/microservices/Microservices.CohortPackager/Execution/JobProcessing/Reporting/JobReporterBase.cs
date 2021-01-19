@@ -461,7 +461,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         // NOTE(rkm 2020-12-10) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
         // can tell, this is the most straightforward way to parse a "NewLine" from an input string. The input string must already be escaped.
-        // NOTE(jas 2021-01-18 CsvHelper has changed to a strange hack. Any single char = use that for newline; null = use \r\n instead.
+        // NOTE(jas 2021-01-18) CsvHelper has changed to a strange hack. Any single char = use that for newline; null = use \r\n instead.
+        // NOTE(jas 2021-01-19) CsvHelper has switched to using plain strings. Much more sensible. Above notes now historical.
         private static string ParseToCsvNewLine(string newLine) =>
             newLine switch
             {
