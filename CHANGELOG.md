@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Dependencies
 
 - Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4
+- Bump CsvHelper from 19.0.0 to 21.0.2
 
 ## [1.13.0] - 2020-12-03
 
