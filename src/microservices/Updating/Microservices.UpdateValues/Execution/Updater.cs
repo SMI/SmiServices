@@ -1,9 +1,11 @@
 ﻿using FAnsi.Discovery;
+using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.Repositories;
 using Smi.Common.Messages.Updating;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -24,6 +26,8 @@ namespace Microservices.UpdateValues.Execution
         /// List of IDs of <see cref="TableInfo"/> that should be examined for update potential.  If blank/empty then all tables will be considered.
         /// </summary>
         public int[] TableInfosToUpdate { get; internal set; } = new int[0];
+
+        ConcurrentDictionary<DiscoveredTable,UpdateTableAudit> _audits { get;} = new ConcurrentDictionary<DiscoveredTable, UpdateTableAudit>();
 
         public Updater(ICatalogueRepository repository)
         {
@@ -78,7 +82,9 @@ namespace Microservices.UpdateValues.Execution
         /// <param name="message"></param>
         protected virtual int UpdateTable(DiscoveredTable t, UpdateValuesMessage message)
         {
-            StringBuilder builder= new StringBuilder();
+            var audit = _audits.GetOrAdd(t,(k)=>new UpdateTableAudit(k));
+
+            StringBuilder builder = new StringBuilder();
 
             builder.AppendLine("UPDATE ");
             builder.AppendLine(t.GetFullyQualifiedName());
@@ -109,23 +115,32 @@ namespace Microservices.UpdateValues.Execution
             }
 
             var sql = builder.ToString();
+            int affectedRows = 0;
 
-            using(var con = t.Database.Server.GetConnection())
+            audit.StartOne();
+            try
             {
-                con.Open();
-
-                var cmd = t.Database.Server.GetCommand(sql,con);
-                cmd.CommandTimeout = UpdateTimeout;
-
-                try
+                using(var con = t.Database.Server.GetConnection())
                 {
-                   return cmd.ExecuteNonQuery();
-                }
-                catch(Exception ex)
-                {
-                    throw new Exception($"Failed to excute query {sql} " ,ex);
+                    con.Open();
+
+                    var cmd = t.Database.Server.GetCommand(sql,con);
+                    cmd.CommandTimeout = UpdateTimeout;
+
+                    try
+                    {
+                       return affectedRows = cmd.ExecuteNonQuery();
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new Exception($"Failed to excute query {sql} " ,ex);
+                    }
                 }
             }
+            finally
+            {
+                audit.EndOne(affectedRows < 0 ? 0 : affectedRows);
+            }   
         }
 
         /// <summary>
@@ -166,6 +181,16 @@ namespace Microservices.UpdateValues.Execution
 
             // get only those that have all the WHERE/SET columns in them
             return tables.Where(t=>fields.All(f=>t.ColumnInfos.Select(c=>c.GetRuntimeName()).Contains(f)));
+        }
+
+        
+        internal void LogProgress(ILogger logger, LogLevel level)
+        {
+            // ToArray prevents modification during enumeration possibility
+            foreach(var audit in _audits.Values.ToArray())
+            {
+                logger.Log(level,audit.ToString());
+            }
         }
     }
 }
