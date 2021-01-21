@@ -1,8 +1,9 @@
 import collections
+import os
 import re
 import sys
-from . import Dicom
-from .Dicom import tag_is, tag_val, has_tag
+from Smi_Common_Python import Dicom
+from Smi_Common_Python.Dicom import tag_is, tag_val, has_tag
 import pydicom
 
 
@@ -269,7 +270,7 @@ def sr_key_can_be_ignored(keystr):
 def _SR_output_string(keystr, valstr, fp):
     # If it's a list then print each element (but only expecting a single one line ['Findings'])
     if isinstance(valstr, list):
-        return [_SR_output_string(keystr,X) for X in valstr]
+        return [_SR_output_string(keystr,X,fp) for X in valstr]
     # The Key may also be a list but only take first element
     if isinstance(keystr, list):
         keystr = keystr[0]
@@ -350,3 +351,37 @@ def SR_parse(json_dict, doc_name, fp = sys.stdout):
     # Now output all the remaining tags which are not ignored
     for json_key in json_dict:
         _SR_parse_key(json_dict, json_key, fp)
+
+
+#
+def test_SR_parse_key():
+    # Extract a small fragment using: dcm2json report10.dcm | dicom_tag_lookup.py
+    SR_dict = {
+        "ContentSequence": {
+            "vr": "SQ",
+            "Value": [
+                {
+                    "RelationshipType": { "vr": "CS", "Value": [ "CONTAINS" ] },
+                    "ValueType": { "vr": "CS", "Value": [ "TEXT" ] },
+                    "ConceptNameCodeSequence": {
+                        "vr": "SQ",
+                        "Value": [
+                            {
+                                "CodeValue": { "vr": "SH", "Value": [ "RE.02" ] },
+                                "CodingSchemeDesignator": { "vr": "SH", "Value": [ "99_OFFIS_DCMTK" ] },
+                                "CodeMeaning": { "vr": "LO", "Value": [ "Request" ] }
+                            }
+                        ]
+                    },
+                    "TextValue": { "vr": "UT", "Value": [ "MRI: Knee" ] }
+                }
+            ]
+        }
+    }
+    tmpfile = 'tmp_pytest_output.txt'
+    with open(tmpfile, 'w') as fd:
+        _SR_parse_key(SR_dict, 'ContentSequence', fd)
+    with open(tmpfile, 'r') as fd:
+        result = fd.read()
+    os.remove(tmpfile)
+    assert(result == '[[Request]] MRI: Knee\n')
