@@ -10,6 +10,7 @@
     <LangVersion>8.0</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <AssemblyName>UpdateValues</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
