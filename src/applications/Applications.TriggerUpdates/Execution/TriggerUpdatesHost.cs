@@ -19,8 +19,6 @@ namespace TriggerUpdates.Execution
         
         public override void Start()
         {
-            UpdateValuesMessage msg;
-
             foreach(var upd in _source.GetUpdates())
             {
                 _producer.SendMessage(upd,null);
