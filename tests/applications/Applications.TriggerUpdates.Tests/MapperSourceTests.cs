@@ -23,11 +23,12 @@ namespace Applications.TriggerUpdates.Tests
         /// <summary>
         /// Sets up a CHI/ECHI mapping table with fallback guid and populates each table with a single record.
         /// 0101010101 is a known CHI and 0202020202 is an known one (which was assigned a temporary guid mapping).
-        /// Also prepares the main map table for DLE loading (<see cref="TriggerImplementer")/>)
+        /// Also prepares the main map table for DLE loading (<see cref="TriggerImplementer"/>)
         /// </summary>
         /// <param name="dbType"></param>
         /// <param name="map"></param>
         /// <param name="guidTable"></param>
+        /// <param name="mapperOptions"></param>
         /// <param name="guids">true to create a <see cref="TableLookupWithGuidFallbackSwapper"/> otherwise creates a  <see cref="TableLookupSwapper"/></param>
         private void SetupMappers(DatabaseType dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions, bool guids=true)
         {

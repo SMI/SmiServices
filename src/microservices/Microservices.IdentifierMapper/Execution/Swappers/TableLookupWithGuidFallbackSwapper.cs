@@ -49,7 +49,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         }
 
         /// <summary>
-        /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetGuidTable"/>
+        /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetGuidTableIfAny(IMappingTableOptions)"/>
         /// </summary>
         /// <returns></returns>
         public DiscoveredTable GetMappingTable(IMappingTableOptions options)
