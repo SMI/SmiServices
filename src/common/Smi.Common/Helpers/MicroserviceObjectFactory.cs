@@ -17,8 +17,8 @@ namespace Smi.Common.Helpers
         public HostFatalHandler FatalHandler;
 
         /// <summary>
-        /// Constructs an instance of the specified <see cref="toCreate"/> and casts it to Type T (e.g. an interface).  You can pass any 
-        /// required or optional objects required for invoking the class constructor in via <see cref="optionalConstructorParameters"/>.
+        /// Constructs an instance of the specified <paramref name="toCreate"/> and casts it to Type T (e.g. an interface).  You can pass any 
+        /// required or optional objects required for invoking the class constructor in via <paramref name="optionalConstructorParameters"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="toCreate"></param>
@@ -55,8 +55,8 @@ namespace Smi.Common.Helpers
         }
 
         /// <summary>
-        /// Constructs an instance of the specified <see cref="typeName"/> in the specified Assembly and casts it to Type T (e.g. an interface).
-        /// You can pass any required or optional objects required for invoking the class constructor in via <see cref="optionalConstructorParameters"/>.
+        /// Constructs an instance of the specified <paramref name="typeName"/> in the specified Assembly and casts it to Type T (e.g. an interface).
+        /// You can pass any required or optional objects required for invoking the class constructor in via <paramref name="optionalConstructorParameters"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="typeName"></param>

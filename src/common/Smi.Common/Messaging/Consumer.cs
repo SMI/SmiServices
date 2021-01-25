@@ -16,7 +16,7 @@ namespace Smi.Common.Messaging
     public abstract class Consumer<TMessage> : IConsumer where TMessage : IMessage
     {
         /// <summary>
-        /// Count of the messages Acknowledged by this Consumer, use <see cref="Ack"/> to increment this
+        /// Count of the messages Acknowledged by this Consumer, use <see cref="Ack(IMessageHeader, ulong)"/> to increment this
         /// </summary>
         public int AckCount { get; private set; }
 
@@ -173,7 +173,7 @@ namespace Smi.Common.Messaging
         /// 
         /// </summary>
         /// <param name="header"></param>
-        /// <param name="deliverEventArgs"></param>
+        /// <param name="tag"></param>
         protected void Ack(IMessageHeader header, ulong tag)
         {
             if (header != null)

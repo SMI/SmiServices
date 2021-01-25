@@ -106,7 +106,7 @@ namespace Smi.Common.Tests
         /// </summary>
         /// <param name="toConsumer"></param>
         /// <param name="messages"></param>
-        /// <param name="b"></param>
+        /// <param name="generateIMessageHeaders"></param>
         public void SendMessages(ConsumerOptions toConsumer, IEnumerable<IMessage> messages, bool generateIMessageHeaders)
         {
             foreach (IMessage msg in messages)
@@ -132,11 +132,12 @@ namespace Smi.Common.Tests
         /// Creates a self titled RabbitMQ exchange/queue pair where the name of the exchange is the ProducerOptions.ExchangeName and the queue has the same name.
         /// This will delete and recreate the exchange if it already exists (ensuring no old messages are stuck floating around). 
         /// </summary>
-        /// <param name="producer"></param>
-        /// <param name="consumerIfAny"></param>
+        /// <param name="exchangeName"></param>
+        /// <param name="queueName"></param>
         /// <param name="isSecondaryBinding">false to create an entirely new Exchange=>Queue (including deleting any existing queue/exchange). False to simply declare the 
         /// queue and bind it to the exchange which is assumed to already exist (this allows you to set up exchange=>multiple queues).  If you are setting up multiple queues
         /// from a single exchange the first call should be isSecondaryBinding = false and all further calls after that for the same exchange should be isSecondaryBinding=true </param>
+        /// <param name="routingKey"></param>
         public void CreateExchange(string exchangeName, string queueName = null, bool isSecondaryBinding = false, string routingKey = "")
         {
             if (!exchangeName.Contains("TEST."))

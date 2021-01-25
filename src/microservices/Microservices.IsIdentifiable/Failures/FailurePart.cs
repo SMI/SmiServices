@@ -49,7 +49,7 @@ namespace Microservices.IsIdentifiable.Failures
         /// <summary>
         /// Returns true if the failure part includes ANY of the indexes between start and start+length
         /// </summary>
-        /// <param name="offset"></param>
+        /// <param name="start"></param>
         /// <param name="length"></param>
         /// <returns></returns>
         public bool Includes(int start, int length)

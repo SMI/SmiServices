@@ -11,7 +11,7 @@ namespace Microservices.CohortExtractor.Audit
     public interface IAuditExtractions
     {
         /// <summary>
-        /// Audit the fact that a unique ExtractionRequestMessage was received (1 audit record per command line execution uniquely identified by <see cref="ExtractionRequestMessage.ExtractionJobIdentifier"/>).
+        /// Audit the fact that a unique ExtractionRequestMessage was received (1 audit record per command line execution uniquely identified by <see cref="ExtractMessage.ExtractionJobIdentifier"/>).
         /// </summary>
         /// <param name="message"></param>
         void AuditExtractionRequest(ExtractionRequestMessage message);
