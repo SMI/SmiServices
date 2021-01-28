@@ -8,20 +8,20 @@ jobs:
       displayName: Build Artefacts
       pool:
           vmImage: ${{ parameters.vmImage }}
-      condition: true # startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #   condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [dotnet_tests, java_tests]
       steps:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
-          - task: Bash@3
-            displayName: Install pigz on Linux
-            condition: eq('${{ parameters.os }}', 'linux')
-            inputs:
-                targetType: "inline"
-                script: |
-                    set -euxo pipefail
-                    sudo apt-get update -qq
-                    sudo apt-get install -y pigz
+        #   - task: Bash@3
+        #     displayName: Install pigz on Linux
+        #     condition: eq('${{ parameters.os }}', 'linux')
+        #     inputs:
+        #         targetType: "inline"
+        #         script: |
+        #             set -euxo pipefail
+        #             sudo apt-get update -qq
+        #             sudo apt-get install -y pigz
           - task: Bash@3
             displayName: Build artefacts
             inputs:

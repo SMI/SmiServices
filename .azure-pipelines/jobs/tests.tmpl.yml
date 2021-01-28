@@ -59,9 +59,9 @@ jobs:
                 packageType: runtime
                 version: 2.2.x
                 installationPath: $(Agent.ToolsDirectory)/dotnet
-          - template: ../steps/rdmp-setup.tmpl.yml
-            parameters:
-                os: ${{ parameters.os }}
+          # - template: ../steps/rdmp-setup.tmpl.yml
+          #   parameters:
+          #       os: ${{ parameters.os }}
           # - task: Bash@3
           #   displayName: Run Dotnet tests
           #   inputs:
