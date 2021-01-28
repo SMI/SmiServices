@@ -16,6 +16,15 @@ xml.etree (comes with python)
 
 Copy the `Smi_Common_Python` directory to `$SMI_ROOT/lib/python3/Smi_Common_Python`
 
+## Testing
+
+Test each module individually, for example:
+```
+python3 -m pytest Smi_Common_Python/Dicom.py
+python3 -m pytest Smi_Common_Python/DicomText.py
+python3 -m pytest Smi_Common_Python/StructuredReport.py
+```
+
 ## Usage
 
 For example:

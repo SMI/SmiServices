@@ -104,3 +104,41 @@ def dict_to_annotation_xml_string(dictlist):
     xmlstr = minidom.parseString(xml.etree.ElementTree.tostring(xmlroot)).toprettyxml(indent=" ")
     return xmlstr
 
+def test_Knowtator():
+    txml = """<?xml version="1.0" ?>
+<annotations>
+ <annotation>
+  <mention id="filename-1"/>
+  <annotator id="filename-1">semehr</annotator>
+  <span end="7" start="5"/>
+  <spannedText>stuff</spannedText>
+  <creationDate>Wed November 11 13:04:51 2020</creationDate>
+ </annotation>
+ <classMention id="filename-1">
+  <mentionClass id="semehr_sensitive_info">stuff</mentionClass>
+ </classMention>
+ <annotation>
+  <mention id="filename-1"/>
+  <annotator id="filename-1">semehr</annotator>
+  <span end="17" start="15"/>
+  <spannedText>nonsense</spannedText>
+  <creationDate>Wed November 11 13:04:51 2020</creationDate>
+ </annotation>
+ <classMention id="filename-1">
+  <mentionClass id="semehr_sensitive_info">nonsense</mentionClass>
+ </classMention>
+</annotations>
+"""
+    #xmlroot = xml.etree.ElementTree.parse(xmlfilename).getroot()
+    #xmldictlist = knowtator_xml_to_dict(xmlroot)
+    # Test round-trip starting from a dict:
+    adict = [{ 'start_char': 5, 'end_char': 7, 'text': 'stuff' },
+        { 'start_char': 15, 'end_char': 17, 'text': 'nonsense' }]
+    axmlstr = dict_to_annotation_xml_string(adict)
+    axmlroot = xml.etree.ElementTree.fromstring(axmlstr)
+    adict2 = annotation_xml_to_dict(axmlroot)
+    assert(adict == adict2)
+    # Test starting from XML:
+    axmlroot = xml.etree.ElementTree.fromstring(txml)
+    adict3 = annotation_xml_to_dict(axmlroot)
+    assert(adict == adict3)

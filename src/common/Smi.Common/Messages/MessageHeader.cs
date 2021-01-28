@@ -38,7 +38,7 @@ namespace Smi.Common.Messages
             : this(default(MessageHeader)) { }
 
         /// <summary>
-        /// Declares that your process is about to send a message.  Optionally as a result of processing another message (<see cref="parent"/>).
+        /// Declares that your process is about to send a message.  Optionally as a result of processing another message (<paramref name="parent"/>).
         /// </summary>
         /// <param name="parent">The triggering message that caused you to want to send this message</param>
         public MessageHeader(IMessageHeader parent = null)

@@ -34,7 +34,7 @@ namespace Microservices.IsIdentifiable.Runners
                     if(!r.Read() || !r.ReadHeader())
                         throw new Exception("Csv file had no headers");
 
-                    _logger.Info("Headers are:" + string.Join(",",r.Context.HeaderRecord));
+                    _logger.Info("Headers are:" + string.Join(",",r.HeaderRecord));
 
                     while(r.Read())
                     {
@@ -52,7 +52,7 @@ namespace Microservices.IsIdentifiable.Runners
 
         private IEnumerable<Failure> GetFailuresIfAny(CsvReader r)
         {
-            foreach(var h in r.Context.HeaderRecord)
+            foreach(var h in r.HeaderRecord)
             {
                 var parts = new List<FailurePart>();
 

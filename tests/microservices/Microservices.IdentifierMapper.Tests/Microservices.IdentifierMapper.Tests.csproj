@@ -1,24 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Microservices.DicomTagReader.Tests</AssemblyName>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <Platforms>x64</Platforms>
-    <IsPackable>false</IsPackable>
-    <IsPublishable>false</IsPublishable>
-	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <LangVersion>8.0</LangVersion>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.1.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.2.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />

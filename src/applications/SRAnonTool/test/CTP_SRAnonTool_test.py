@@ -15,7 +15,7 @@ os.environ['PYTHONPATH'] = '../../../common'
 sys.path.append('../../../common')
 from Smi_Common_Python import DicomText, Knowtator
 
-source_dcm = 'report10.dcm'
+source_dcm = 'report10html.dcm'
 tmp_file = '/tmp/CTP_SRAnonTool_test_report10.tmp'
 txt_file = '/tmp/CTP_SRAnonTool_test_report10.txt'
 xml_file = '/tmp/CTP_SRAnonTool_test_report10.txt.knowtator.xml'
@@ -72,6 +72,10 @@ with open(xml_file, 'w') as fd:
 
 # Now convert the txt,xml back into a redacted DICOM file:
 os.system(f"{binpath}/CTP_XMLToDicom.py -y {yaml1} -i {source_dcm} -x {xml_file} -o {anon_dcm_file}")
+
+# Extract the text from the DICOM file to the screen if possible
+if shutil.which('jq') and shutil.which('dcm2json'):
+	os.system("dcm2json %s | jq '..|select(.vr==\"UT\")?|.Value[0]'" % anon_dcm_file)
 
 # Finally compare the two text strings
 before = DicomText.DicomText(source_dcm)

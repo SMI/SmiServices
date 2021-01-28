@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using CsvHelper;
+using CsvHelper.Configuration;
 using Microservices.IsIdentifiable.Options;
 using NLog;
 
@@ -53,18 +54,23 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
                 _headerWritten = true;
 
                 var csvFile = new FileInfo(_reportPath);
-                _csvWriter = new CsvWriter(new StreamWriter(csvFile.FullName),System.Globalization.CultureInfo.CurrentCulture);
-
-                // If there is an overriding separator and it's not a comma, then use the users desired delimiter string
+                CsvConfiguration csvconf;
                 string sep = Options.DestinationCsvSeparator;
+                // If there is an overriding separator and it's not a comma, then use the users desired delimiter string
                 if (!string.IsNullOrWhiteSpace(sep) && !sep.Trim().Equals(","))
                 {
-                    _csvWriter.Configuration.Delimiter =
-                        sep.Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n");
-                    _csvWriter.Configuration.ShouldQuote = (s,m) => false;
-
+                    csvconf = new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
+                    {
+                        Delimiter =
+                            sep.Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n"),
+                        ShouldQuote = (s, m) => false
+                    };
                 }
-
+                else
+                {
+                    csvconf = new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture);
+                }
+                _csvWriter = new CsvWriter(new StreamWriter(csvFile.FullName),csvconf);
                 WriteRow(headers);
             }
         }

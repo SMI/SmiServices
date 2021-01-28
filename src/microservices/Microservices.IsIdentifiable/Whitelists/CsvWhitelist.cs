@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using CsvHelper;
+using CsvHelper.Configuration;
 
 namespace Microservices.IsIdentifiable.Whitelists
 {
@@ -18,8 +19,10 @@ namespace Microservices.IsIdentifiable.Whitelists
             if(!File.Exists(filePath))
                 throw new Exception("Could not find whitelist file at '" + filePath +"'");
             
-            _reader = new CsvReader(new StreamReader(filePath),System.Globalization.CultureInfo.CurrentCulture);
-            _reader.Configuration.HasHeaderRecord = false;
+            _reader = new CsvReader(new StreamReader(filePath),new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
+            {
+                HasHeaderRecord=false
+            });
         }
 
         public IEnumerable<string> GetWhitelist()

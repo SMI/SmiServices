@@ -2,7 +2,42 @@
 """
 
 import pydicom
-from .StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
+import re
+from Smi_Common_Python.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
+
+
+# ---------------------------------------------------------------------
+
+def redact_html_tags_in_string(html_str):
+    """ Replace the HTML tags in a string with equal length of a
+    repeating character (space or dot for example).
+    Handles multi-line tags such as <style> and <script> which
+    should have their enclosed text fully redacted.
+    Doesn't handle embedded html within those sections though,
+    so not truly robust but likely sufficient for simple html from
+    clinical software.
+    Returns the new string.
+    """
+    replchar = '.'
+    def replfunc(s):
+        return replchar.rjust(len(s.group(0)), replchar)
+    # Use re.I (ignore case) re.M (multi-line) re.S (dot matches all)
+    # re.S needed to match CR/LF when scripts are multi-line.
+    # First replace single-instance tags <script.../> and <style.../>
+    html_str = re.sub('<script[^>]*/>', replfunc, html_str)
+    html_str = re.sub('<style[^>]*/>',  replfunc, html_str)
+    # Now replace the whole <script>...</script> and style sequence
+    html_str = re.sub('<script[^>]*>.*?</script>', replfunc, html_str, flags=re.I|re.M|re.S)
+    html_str = re.sub('<style[^>]*>.*?</style>', replfunc, html_str, flags=re.I|re.M|re.S)
+    # Finally remove single-instance tags like <p> and <br>
+    html_str = re.sub('<[^>]*>', replfunc, html_str)
+    return(html_str)
+
+def test_redact_html_tags_in_string():
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <script> script2 </script> text2'
+    dest = redact_html_tags_in_string(src)
+    expected = '.................... ..................................... text1 .......................... text2'
+    assert(dest == expected)
 
 
 # ---------------------------------------------------------------------
@@ -26,10 +61,12 @@ class DicomText:
     Replace HTML entities such as <BR> with newline is not done, it might break redaction.
     Redaction replaces text with X; random length uses random number of X instead,
     but do not use random length unless you are sure the change in string length won't
-    break something else.
+    break something else (eg. the string is inside a file format where length matters,
+    or we need to keep the SemEHR annotations around, with their char offsets, for other reasons).
     """
     _include_unexpected_tags = False # SemEHR does not use unknown tags anyway so ignore them
-    _replace_HTML_entities = False   # do not remove HTML yet, it might break the redaction
+    _warn_unexpected_tags = False    # print if an unexpected tag is encountered
+    _replace_HTML_entities = True    # replace HTML tags with same length of space chars
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
     _redact_char = 'X'
 
@@ -68,9 +105,9 @@ class DicomText:
             rc = rc + ('# %s' % str(data_element.value)) + '\n'
         else:
             rc = rc + ('%s' % (str(data_element.value))) + '\n'
-            # XXX replace HTML entities? such as <BR> with newline
+            # Replace HTML tags with spaces
             if DicomText._replace_HTML_entities:
-                rc = re.sub('<[Bb][Rr]>', '\n', rc)
+                rc = redact_html_tags_in_string(rc)
         if rc == '':
             return
         self._offset_list.append( { 'offset':len(self._p_text), 'string': rc} )
@@ -96,9 +133,11 @@ class DicomText:
                 if DicomText._include_unexpected_tags:
                     line = '[[%s]] %s\n' % (tagname, drkey.value)
                     self._p_text = self._p_text + line
-                    print('Warning: including unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
+                    if DicomText._warn_unexpected_tag:
+                        print('Warning: including unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
                 else:
-                    print('Warning: ignored unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
+                    if DicomText._warn_unexpected_tag:
+                        print('Warning: ignored unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
         # Now handle the TextValue tag
         # Wrap the text with [[Text]] and [[EndText]] for SemEHR
         if 'TextValue' in self._dicom_raw:
@@ -128,7 +167,7 @@ class DicomText:
     def _dataset_redact_callback(self, dataset, data_element):
         """ Internal function called during a walk of the dataset during redaction.
         Builds a class-member string _r_text as it goes.
-        Uses the annotation list to redact text.
+        Uses the annotation list in self._annotations to redact text.
         """
 
         rc = ''
@@ -165,7 +204,7 @@ class DicomText:
             replacement = self.redact_string(rc, 0, len(rc))
             replacedAny = True
         if replacedAny:
-            data_element.value = replacement  
+            data_element.value = replacement
         self._r_text = self._r_text + rc
         self._redacted_text = self._redacted_text + replacement
         return replacement if replacedAny else None

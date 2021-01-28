@@ -1,23 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>IsIdentifiable</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <Platforms>x64</Platforms>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <LangVersion>8.0</LangVersion>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Rules.template.yaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\..\data\logging\Smi.NLog.config" Link="Smi.NLog.config">
@@ -39,9 +27,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="19.0.0" />
+    <PackageReference Include="CsvHelper" Version="21.2.1" />
     <PackageReference Include="fo-dicom.Drawing" Version="[4.0.6]" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.22.3" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.23.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />

@@ -29,7 +29,8 @@ namespace Microservices.DicomTagReader.Messaging
         /// Callback method for received messages
         /// </summary>
         /// <param name="header">The audit trail and origin of the IMessage contained in deliverArgs</param>
-        /// <param name="deliverArgs">The message and associated information</param>
+        /// <param name="message">The message and associated information</param>
+        /// <param name="tag"></param>
         protected override void ProcessMessageImpl(IMessageHeader header, AccessionDirectoryMessage message, ulong tag)
         {
             lock (_reader.TagReaderProcessLock)

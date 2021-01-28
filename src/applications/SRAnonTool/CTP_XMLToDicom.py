@@ -46,7 +46,7 @@ if __name__ == "__main__":
     for cfg_file in args.yamlfile:
         with open(cfg_file, 'r') as fd:
             # Merge all the yaml dicst into one
-            cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.load(fd))
+            cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
     log_dir = cfg_dict['LogsRoot']
     root_dir = cfg_dict['FileSystemOptions']['FileSystemRoot']
@@ -91,6 +91,6 @@ if __name__ == "__main__":
 
     dicomtext.write_redacted_text_into_dicom_file(args.output_dcm)
     #print(f'dcm2json {redacted_dcmname} | jq \'..|select(.vr=="UT")?|.Value|.[]\'')
-	logging.info(f'Wrote {args.output_dcm}')
+    logging.info(f'Wrote {args.output_dcm}')
 
     exit(0)

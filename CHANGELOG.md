@@ -11,13 +11,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Added total job duration to extraction report header
 -   IsIdentifiableReviewer rule review screen
 -   Added CSV input support for IsIdentifiable, use verb `file` from command line
- 
+-   Updater microservice now audits performance of queries (cumulative affected rows, queries executed etc)
+
 ### Changed
 
 -   Clarified the CLI help text for `--format` in CohortPackager
 -   CTP calls an external program to anonymise Structured Reports
   -  Requires an addition to `default.yaml`: `CTPAnonymiserOptions.SRAnonTool` (adding this does not break existing programs).
 -   Consolidate System.IO.Abstractions.TestingHelpers package references into the Smi.Common.Tests package
+-   Tidy common csproj options into `Directory.Build.props` files for all, src, and test projects
 
 ### Fixed
 
@@ -26,10 +28,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   CohortPackager.Tests: Fix a flaky test caused by NUnit setup/teardown code when running tests in parallel
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
 -   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
+-   Fixed executable name on UpdateValues microservice
 
 ### Dependencies
 
 - Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4
+- Bump CsvHelper from 19.0.0 to 21.0.4
 
 ## [1.13.0] - 2020-12-03
 
