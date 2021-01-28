@@ -1,0 +1,21 @@
+---
+trigger:
+    tags:
+        include:
+            - "*"
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: GitHubRelease@1
+    inputs:
+      gitHubConnection: 'GitHub - SMI-Bot'
+      repositoryName: '$(Build.Repository.Name)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'gitTag'
+      releaseNotesSource: 'inline'
+      releaseNotesInline: 'TODO'
+      assets:
+      addChangeLog: false
