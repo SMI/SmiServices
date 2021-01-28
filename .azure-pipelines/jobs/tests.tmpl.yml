@@ -45,12 +45,12 @@ jobs:
                   ln -s \
                     "$(TESS_CACHE_DIR)/eng.traineddata" \
                     "$(Build.SourcesDirectory)/data/tessdata/eng.traineddata"
-          - ${{ if eq( parameters.os, 'linux' ) }}:
-                - template: ../steps/docker-cache.tmpl.yml
-                  parameters:
-                      os: ${{ parameters.os }}
-                      language: dotnet
-                - template: ../steps/linux-dotnet-docker.yml
+          # - ${{ if eq( parameters.os, 'linux' ) }}:
+          #       - template: ../steps/docker-cache.tmpl.yml
+          #         parameters:
+          #             os: ${{ parameters.os }}
+          #             language: dotnet
+          #       - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
           - task: UseDotNet@2
@@ -62,11 +62,11 @@ jobs:
           - template: ../steps/rdmp-setup.tmpl.yml
             parameters:
                 os: ${{ parameters.os }}
-          - task: Bash@3
-            displayName: Run Dotnet tests
-            inputs:
-                filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
-                failOnStderr: true
+          # - task: Bash@3
+          #   displayName: Run Dotnet tests
+          #   inputs:
+          #       filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
+          #       failOnStderr: true
 
     - job: java_tests
       displayName: Java Tests
@@ -100,10 +100,10 @@ jobs:
                   inputs:
                       targetType: "inline"
                       script: echo "##vso[task.setvariable variable=MVN_PROFILE]-PunitTests"
-          - task: Bash@3
-            displayName: Run Java tests
-            inputs:
-                filePath: .azure-pipelines/scripts/run-java-tests.bash
-                # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
-                failOnStderr: false
-                arguments: $(MVN_PROFILE)
+          # - task: Bash@3
+          #   displayName: Run Java tests
+          #   inputs:
+          #       filePath: .azure-pipelines/scripts/run-java-tests.bash
+          #       # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
+          #       failOnStderr: false
+          #       arguments: $(MVN_PROFILE)

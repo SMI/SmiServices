@@ -8,7 +8,7 @@ jobs:
       displayName: Build Artefacts
       pool:
           vmImage: ${{ parameters.vmImage }}
-      condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      condition: true # startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [dotnet_tests, java_tests]
       steps:
           - template: ../steps/vars.tmpl.yml
