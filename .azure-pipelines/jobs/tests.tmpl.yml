@@ -46,10 +46,10 @@ jobs:
                     "$(TESS_CACHE_DIR)/eng.traineddata" \
                     "$(Build.SourcesDirectory)/data/tessdata/eng.traineddata"
           - ${{ if eq( parameters.os, 'linux' ) }}:
-                - template: ../steps/docker-cache.tmpl.yml
-                  parameters:
-                      os: ${{ parameters.os }}
-                      language: dotnet
+                # - template: ../steps/docker-cache.tmpl.yml
+                #   parameters:
+                #       os: ${{ parameters.os }}
+                #       language: dotnet
                 - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
