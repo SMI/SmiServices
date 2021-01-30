@@ -1,4 +1,7 @@
 ---
+
+pr: none
+
 trigger:
     tags:
         include:
