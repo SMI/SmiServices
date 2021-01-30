@@ -21,7 +21,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             if not reading:
                 if tag in line:
                     reading = True
-                    release_lines.append(f"## {tag}")
                 continue
             if reading and line.startswith("## ["):
                 break
@@ -33,3 +32,4 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 if __name__ == "__main__":
     exit(main())
+

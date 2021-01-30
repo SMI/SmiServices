@@ -13,15 +13,6 @@ jobs:
       steps:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
-        #   - task: Bash@3
-        #     displayName: Install pigz on Linux
-        #     condition: eq('${{ parameters.os }}', 'linux')
-        #     inputs:
-        #         targetType: "inline"
-        #         script: |
-        #             set -euxo pipefail
-        #             sudo apt-get update -qq
-        #             sudo apt-get install -y pigz
           - template: ../steps/set-git-tag-variable.tmpl.yml
           - task: Bash@3
             displayName: Build artefacts

@@ -12,11 +12,11 @@ jobs:
       steps:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
-          # - task: Cache@2
-          #   displayName: Cache NuGet packages
-          #   inputs:
-          #       key: 'nuget | "$(Agent.OS)" | **/*.csproj'
-          #       path: $(NUGET_PACKAGES)
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            inputs:
+                key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+                path: $(NUGET_PACKAGES)
           - task: Cache@2
             displayName: Cache tesseract data
             inputs:
@@ -45,12 +45,12 @@ jobs:
                   ln -s \
                     "$(TESS_CACHE_DIR)/eng.traineddata" \
                     "$(Build.SourcesDirectory)/data/tessdata/eng.traineddata"
-          # - ${{ if eq( parameters.os, 'linux' ) }}:
-          #       - template: ../steps/docker-cache.tmpl.yml
-          #         parameters:
-          #             os: ${{ parameters.os }}
-          #             language: dotnet
-          #       - template: ../steps/linux-dotnet-docker.yml
+          - ${{ if eq( parameters.os, 'linux' ) }}:
+                - template: ../steps/docker-cache.tmpl.yml
+                  parameters:
+                      os: ${{ parameters.os }}
+                      language: dotnet
+                - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
           - task: UseDotNet@2
@@ -59,14 +59,14 @@ jobs:
                 packageType: runtime
                 version: 2.2.x
                 installationPath: $(Agent.ToolsDirectory)/dotnet
-          # - template: ../steps/rdmp-setup.tmpl.yml
-          #   parameters:
-          #       os: ${{ parameters.os }}
-          # - task: Bash@3
-          #   displayName: Run Dotnet tests
-          #   inputs:
-          #       filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
-          #       failOnStderr: true
+          - template: ../steps/rdmp-setup.tmpl.yml
+            parameters:
+                os: ${{ parameters.os }}
+          - task: Bash@3
+            displayName: Run Dotnet tests
+            inputs:
+                filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
+                failOnStderr: true
 
     - job: java_tests
       displayName: Java Tests
@@ -80,14 +80,14 @@ jobs:
                 versionSpec: "11"
                 jdkArchitectureOption: "x64"
                 jdkSourceOption: "PreInstalled"
-          # - task: Cache@2
-          #   displayName: Cache Maven local repo
-          #   inputs:
-          #       key: 'maven | "$(Agent.OS)" | **/pom.xml'
-          #       restoreKeys: |
-          #           maven | "$(Agent.OS)"
-          #           maven
-          #       path: $(MAVEN_CACHE_FOLDER)
+          - task: Cache@2
+            displayName: Cache Maven local repo
+            inputs:
+                key: 'maven | "$(Agent.OS)" | **/pom.xml'
+                restoreKeys: |
+                    maven | "$(Agent.OS)"
+                    maven
+                path: $(MAVEN_CACHE_FOLDER)
           - ${{ if eq( parameters.os, 'linux' ) }}:
                 - template: ../steps/docker-cache.tmpl.yml
                   parameters:
@@ -100,10 +100,10 @@ jobs:
                   inputs:
                       targetType: "inline"
                       script: echo "##vso[task.setvariable variable=MVN_PROFILE]-PunitTests"
-          # - task: Bash@3
-          #   displayName: Run Java tests
-          #   inputs:
-          #       filePath: .azure-pipelines/scripts/run-java-tests.bash
-          #       # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
-          #       failOnStderr: false
-          #       arguments: $(MVN_PROFILE)
+          - task: Bash@3
+            displayName: Run Java tests
+            inputs:
+                filePath: .azure-pipelines/scripts/run-java-tests.bash
+                # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
+                failOnStderr: false
+                arguments: $(MVN_PROFILE)
