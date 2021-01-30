@@ -10,7 +10,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("tag", help="The git tag for the release")
     args = parser.parse_args(argv)
-    tag = args.tag[1:]
+    tag = f"[{args.tag[1:]}]"
+    print(f"Scanning for '{tag}'")
 
     release_lines = []
     with open("CHANGELOG.md") as f:
