@@ -45,7 +45,7 @@ The [Cache](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/cach
 
 ## Notes
 
--   `set -x` in bash tasks may interfere with the `##vso` tasks, as AP will interpret any stdout containing that string as a command. This can cause problems with variables being set twice and having the wrong quote escaping. See:
+-   `set -x` in bash tasks may interfere with the `##vso` syntax, as AP will interpret any stdout containing that string as a command. This can cause problems with variables being set twice and having the wrong quote escaping. See:
     -   https://github.com/Microsoft/azure-pipelines-tasks/issues/10165
     -   https://github.com/microsoft/azure-pipelines-tasks/issues/10331
     -   https://developercommunity.visualstudio.com/content/problem/375679/pipeline-variable-incorrectly-inserts-single-quote.html
