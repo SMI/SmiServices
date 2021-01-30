@@ -2,7 +2,7 @@
 trigger:
     branches:
         include:
-            - "build_refactor"
+            - "build_refactor*"
     tags:
         include:
             - "*"
