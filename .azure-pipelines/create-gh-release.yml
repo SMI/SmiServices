@@ -8,6 +8,18 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+  - template: steps/set-git-tag-variable.tmpl.yml
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+      architecture: 'x64'
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: .azure-pipelines/scripts/print_release_changelog.py
+      arguments: $(tag)
+      failOnStderr: true
   - task: GitHubRelease@1
     inputs:
       gitHubConnection: 'GitHub - SMI-Bot'
@@ -15,7 +27,6 @@ steps:
       action: 'create'
       target: '$(Build.SourceVersion)'
       tagSource: 'gitTag'
-      releaseNotesSource: 'inline'
-      releaseNotesInline: 'TODO'
+      releaseNotesFilePath: 'release_changelog.md'
       assets:
       addChangeLog: false

@@ -1,0 +1,12 @@
+---
+
+steps:
+- task: Bash@3
+  displayName: Set tag variable
+  inputs:
+    targetType: 'inline'
+    script: |
+        set -euxo pipefail
+        tag=$(git tag --points-at HEAD)
+        [ -z $tag ] && exit 1
+        set +x; echo "##vso[task.setvariable variable=tag]$tag"

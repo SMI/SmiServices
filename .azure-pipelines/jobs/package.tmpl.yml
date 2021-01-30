@@ -22,14 +22,7 @@ jobs:
         #             set -euxo pipefail
         #             sudo apt-get update -qq
         #             sudo apt-get install -y pigz
-          - task: Bash@3
-            displayName: Set tag variable
-            inputs:
-              targetType: 'inline'
-              script: |
-                  set -euxo pipefail
-                  tag=$(git tag --points-at HEAD)
-                  set +x; echo "##vso[task.setvariable variable=tag]$tag"
+          - template: ../steps/set-git-tag-variable.tmpl.yml
           - task: Bash@3
             displayName: Build artefacts
             inputs:
