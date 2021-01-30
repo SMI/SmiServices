@@ -21,7 +21,6 @@ for f in \
 do
     mvn \
         -ntp \
-        -q \
         -f $f \
         -DtrimStackTrace=false \
         "$@" \
