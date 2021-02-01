@@ -99,8 +99,8 @@ namespace Microservices.DicomTagReader.Execution
             Logger.Debug("TagReader: Found " + dicomFilePaths.Length + " dicom files to process");
             Logger.Debug("TagReader: Found " + zipFilePaths.Length + " zip files to process");
 
-            if (dicomFilePaths.Length == 0)
-                throw new ApplicationException("No dicom files found in " + dirPath);
+            if (dicomFilePaths.Length == 0 && zipFilePaths.Length == 0)
+                throw new ApplicationException("No dicom/zip files found in " + dirPath);
 
             // We have files to process, let's do it!
 
