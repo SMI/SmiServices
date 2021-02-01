@@ -13,7 +13,7 @@ steps:
               set -euxo pipefail
               compose_file=.azure-pipelines/docker-compose/'*'${{ parameters.os }}'*'${{ parameters.language }}'*'.yml
               test -f $compose_file
-              echo "##vso[task.setvariable variable=compose_file]$compose_file"
+              set +x; echo "##vso[task.setvariable variable=compose_file]$compose_file"
     - task: Bash@3
       displayName: Re-write the compose file with tags from the lockfile
       inputs:

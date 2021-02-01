@@ -24,5 +24,6 @@ do
         -q \
         -f $f \
         -DtrimStackTrace=false \
+        "$@" \
         test
 done
