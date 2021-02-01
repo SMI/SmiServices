@@ -7,5 +7,6 @@
     "DOCKER_CACHE_DIR": "$(Pipeline.Workspace)/docker-cache",
     "TESS_CACHE_DIR": "$(Pipeline.Workspace)/tessdata",
     "DB_PASSWORD": "YourStrongPassw0rd",
-    "DOTNET_SDK_VERSION": "3.1.x"
+    "DOTNET_SDK_VERSION": "3.1.x",
+    "RDMP_CONN_STR": "set-me"
 }

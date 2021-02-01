@@ -1,28 +1,6 @@
 ---
 
 steps:
-    # TODO(rkm 2021-01-10) Cache this install
-    - task: Bash@3
-      displayName: Install RabbitMQ
-      inputs:
-          targetType: "inline"
-          script: choco install rabbitmq
-    - task: Bash@3
-      displayName: Set rmq_diag_path variable
-      inputs:
-          targetType: "inline"
-          script: |
-            set -exuo pipefail
-            rmq_diag_path="$(find 'C:\Program Files\RabbitMQ Server' -name rabbitmq-diagnostics.bat)"
-            echo $rmq_diag_path
-            echo "##vso[task.setvariable variable=rmq_diag_path]$rmq_diag_path"
-    # TODO password
-    # TODO May have to stop the pre-installed MySQL
-    - task: PowerShell@2
-      displayName: Install MariaDB
-      inputs:
-          targetType: "inline"
-          script: choco install mariadb
     - task: PowerShell@2
       displayName: Add replication to MongoDB config
       inputs:
@@ -35,18 +13,33 @@ steps:
           script: Restart-Service -Name MongoDB
     - template: ./wait-for.tmpl.yml
       parameters:
-          name: RabbitMQ
-          cmd: "\"$(rmq_diag_path)\" -q ping"
-    - template: ./wait-for.tmpl.yml
-      parameters:
-          name: MariaDB
-          cmd: mysqladmin -uroot -p$(DB_PASSWORD) status
-    - template: ./wait-for.tmpl.yml
-      parameters:
           name: MongoDB
-          cmd: test $(mongo --quiet --eval 'db.stats().ok') -eq 1
+          cmd: mongo --quiet --eval 'db.stats().ok'
     - task: Bash@3
       displayName: Start MongoDB replication
       inputs:
           targetType: "inline"
           script: mongo --eval "rs.initiate()"
+    - task: Bash@3
+      displayName: Set SQL_SERVER_HOST
+      inputs:
+          targetType: "inline"
+          script: echo "##vso[task.setvariable variable=SQL_SERVER_HOST](localdb)\MSSQLLocalDB"
+    # https://github.com/actions/virtual-environments/issues/1282#issuecomment-668686268
+    - task: PowerShell@2
+      displayName: Install SQL 2019 LocalDB
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Downloading"
+          Import-Module BitsTransfer
+          Start-BitsTransfer -Source https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi -Destination SqlLocalDB.msi
+          Write-Host "Installing"
+          Start-Process -FilePath "SqlLocalDB.msi" -Wait -ArgumentList "/qn", "/norestart", "/l*v SqlLocalDBInstall.log", "IACCEPTSQLLOCALDBLICENSETERMS=YES";
+          Write-Host "Checking"
+          sqlcmd -l 60 -S "$(SQL_SERVER_HOST)" -Q "SELECT @@VERSION;"
+    - task: Bash@3
+      displayName: Set RDMP_CONN_STR
+      inputs:
+          targetType: "inline"
+          script: echo "##vso[task.setvariable variable=RDMP_CONN_STR]\"$(SQL_SERVER_HOST)\""

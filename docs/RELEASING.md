@@ -61,7 +61,7 @@ One exception are `hotfix` releases, which are branches created directly from `m
 
 -   Merge `master` back into `develop` to ensure that any changes from the release branch are present in develop
 -   Delete the release branch
--   Wait for Travis to build the tagged commit
+-   Wait for Azure Pipelines to build the tagged commit
 -   Check that the built binaries are added to the [releases](https://github.com/SMI/SmiServices/releases) page. Update the title and description using the CHANGELOG.
 
 ## Creating A Hotfix Release

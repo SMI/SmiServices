@@ -10,7 +10,6 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
-          - template: ../steps/use-python.tmpl.yml
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
           - task: Cache@2
@@ -74,7 +73,6 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
-          - template: ../steps/use-python.tmpl.yml
           - template: ../steps/vars.tmpl.yml
           - task: JavaToolInstaller@0
             displayName: Use Java 11
@@ -97,10 +95,15 @@ jobs:
                       language: java
                 - template: ../steps/linux-java-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
-                - template: ../steps/win-java-services.yml
+                - task: Bash@3
+                  displayName: Skip Java integration tests on Windows
+                  inputs:
+                      targetType: "inline"
+                      script: echo "##vso[task.setvariable variable=MVN_PROFILE]-PunitTests"
           - task: Bash@3
             displayName: Run Java tests
             inputs:
                 filePath: .azure-pipelines/scripts/run-java-tests.bash
                 # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
                 failOnStderr: false
+                arguments: $(MVN_PROFILE)
