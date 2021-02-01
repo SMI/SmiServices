@@ -63,7 +63,7 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
                     {
                         Delimiter =
                             sep.Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n"),
-                        ShouldQuote = (s, m) => false
+                        ShouldQuote = (s, t, m) => false
                     };
                 }
                 else
