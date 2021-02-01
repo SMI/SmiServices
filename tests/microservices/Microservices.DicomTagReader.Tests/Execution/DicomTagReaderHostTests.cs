@@ -88,9 +88,9 @@ namespace Microservices.DicomTagReader.Tests.Execution
             dirRoot.Create();
             var julyFolder = dirRoot.CreateSubdirectory("July");
 
-            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.Options.FileSystemOptions.FileSystemRoot = dirRoot.FullName;
 
-            var tester = new MicroserviceTester(_helper.Options.RabbitOptions, _helper.AccessionConsumerOptions);
+            new MicroserviceTester(_helper.Options.RabbitOptions, _helper.AccessionConsumerOptions);
 
             var host = new DicomTagReaderHost(_helper.Options, false);
 
