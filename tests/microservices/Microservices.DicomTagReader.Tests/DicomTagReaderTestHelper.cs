@@ -37,6 +37,17 @@ namespace Microservices.DicomTagReader.Tests
         public DirectoryInfo TestDir;
         public GlobalOptions Options;
 
+        /// <summary>
+        /// Returns the number of image messages in <see cref="TestImageQueueName"/>
+        /// </summary>
+        public uint ImageCount => _testModel.MessageCount(TestImageQueueName);
+
+        /// <summary>
+        /// Returns the number of series messages in <see cref="TestSeriesQueueName"/>
+        /// </summary>
+        public uint SeriesCount => _testModel.MessageCount(TestSeriesQueueName);
+
+
         public void SetUpSuite()
         {
             SetUpDefaults();

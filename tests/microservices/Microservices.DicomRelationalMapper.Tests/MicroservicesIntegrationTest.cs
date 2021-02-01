@@ -15,6 +15,7 @@ using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
+using Microservices.DicomTagReader;
 using Microservices.DicomTagReader.Execution;
 using Microservices.IdentifierMapper.Execution;
 using Microservices.IdentifierMapper.Execution.Swappers;
@@ -478,7 +479,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 processDirectory.Start();
                 tester.StopOnDispose.Add(processDirectory);
 
-                var dicomTagReaderHost = new DicomTagReaderHost(_globals, loadSmiLogConfig: false);
+                var dicomTagReaderHost = new DicomTagReaderHost(_globals,new DicomTagReaderCliOptions(), loadSmiLogConfig: false);
                 dicomTagReaderHost.Start();
                 tester.StopOnDispose.Add(dicomTagReaderHost);
 
