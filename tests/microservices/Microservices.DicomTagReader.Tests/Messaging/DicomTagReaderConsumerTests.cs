@@ -100,7 +100,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
                 .Returns(new MessageHeader());
 
-            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(new FileSystem())), 1, 0);
+            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(new FileSystem()),null), 1, 0);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
                 .Returns(new MessageHeader());
 
-            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader()), 0, 1);
+            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(),null), 0, 1);
         }
     }
 }

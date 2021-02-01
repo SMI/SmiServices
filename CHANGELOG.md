@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   IsIdentifiableReviewer rule review screen
 -   Added CSV input support for IsIdentifiable, use verb `file` from command line
 -   Updater microservice now audits performance of queries (cumulative affected rows, queries executed etc)
+-   Added `-f` option to DicomTagReader to read a single zip/dicom file
 
 ### Changed
 
@@ -33,7 +34,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Dependencies
 
 - Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4
-- Bump CsvHelper from 19.0.0 to 21.0.4
+- Bump CsvHelper from 19.0.0 to 22.1.0
+- Bump NUnit from 3.13.0 to 3.13.1
 
 ## [1.13.0] - 2020-12-03
 
