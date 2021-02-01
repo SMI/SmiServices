@@ -106,6 +106,9 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var julyZip = Path.Combine(dirRoot.FullName,"july.zip");
 
             ZipFile.CreateFromDirectory(julyFolder.FullName,julyZip);
+
+            host.AccessionDirectoryMessageConsumer.RunSingleFile(new FileInfo(julyZip));
+
             Assert.AreEqual(11,_helper.ImageCount);
             Assert.GreaterOrEqual(_helper.SeriesCount,1);
         }
