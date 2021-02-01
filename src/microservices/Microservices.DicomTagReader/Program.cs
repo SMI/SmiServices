@@ -23,6 +23,7 @@ namespace Microservices.DicomTagReader
                     {
                         var host = new DicomTagReaderHost(options);
                         host.AccessionDirectoryMessageConsumer.RunSingleFile(o.File);
+                        return 0;
                     }
                     else
                     {

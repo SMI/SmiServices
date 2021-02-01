@@ -479,7 +479,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 processDirectory.Start();
                 tester.StopOnDispose.Add(processDirectory);
 
-                var dicomTagReaderHost = new DicomTagReaderHost(_globals,new DicomTagReaderCliOptions(), loadSmiLogConfig: false);
+                var dicomTagReaderHost = new DicomTagReaderHost(_globals, loadSmiLogConfig: false);
                 dicomTagReaderHost.Start();
                 tester.StopOnDispose.Add(dicomTagReaderHost);
 
