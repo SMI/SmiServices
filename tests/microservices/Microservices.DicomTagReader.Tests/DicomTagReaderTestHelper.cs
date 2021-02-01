@@ -78,6 +78,9 @@ namespace Microservices.DicomTagReader.Tests
         public void ResetSuite()
         {
             SetUpDefaults();
+
+            _testModel.QueuePurge(TestSeriesQueueName);
+            _testModel.QueuePurge(TestImageQueueName);
         }
 
         private void SetUpDefaults()
