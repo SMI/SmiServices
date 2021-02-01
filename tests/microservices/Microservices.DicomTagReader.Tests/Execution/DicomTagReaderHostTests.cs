@@ -1,9 +1,14 @@
 ﻿
 
+using BadMedicine.Dicom;
 using Microservices.DicomTagReader.Execution;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Tests;
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 
 
@@ -70,6 +75,42 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             if (timeout <= 0)
                 Assert.Fail("Failed to process expected number of messages within the timeout");
+        }
+
+        [Test]
+        public void TestTagReader_SingleFileMode()
+        {
+            var dirRoot = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory,"TestTagReader_SingleFileMode"));
+            
+            if(dirRoot.Exists)
+                dirRoot.Delete(true);
+
+            dirRoot.Create();
+            var julyFolder = dirRoot.CreateSubdirectory("July");
+
+            _helper.Options.FileSystemOptions.FileSystemRoot = dirRoot.FullName;
+
+            new MicroserviceTester(_helper.Options.RabbitOptions, _helper.AccessionConsumerOptions);
+
+            var host = new DicomTagReaderHost(_helper.Options, false);
+
+            var r = new Random(5);
+            var generator = new DicomDataGenerator(r,julyFolder,"CT");
+            var files = generator.GenerateImageFiles(10,r).ToArray();
+
+            host.AccessionDirectoryMessageConsumer.RunSingleFile(files[2]);
+
+            Assert.AreEqual(1,_helper.ImageCount);
+            Assert.AreEqual(1,_helper.SeriesCount);
+            
+            var julyZip = Path.Combine(dirRoot.FullName,"july.zip");
+
+            ZipFile.CreateFromDirectory(julyFolder.FullName,julyZip);
+
+            host.AccessionDirectoryMessageConsumer.RunSingleFile(new FileInfo(julyZip));
+
+            Assert.AreEqual(11,_helper.ImageCount);
+            Assert.GreaterOrEqual(_helper.SeriesCount,1);
         }
     }
 }

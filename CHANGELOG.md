@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   IsIdentifiableReviewer rule review screen
 -   Added CSV input support for IsIdentifiable, use verb `file` from command line
 -   Updater microservice now audits performance of queries (cumulative affected rows, queries executed etc)
+-   Added `-f` option to DicomTagReader to read a single zip/dicom file
 
 ### Changed
 

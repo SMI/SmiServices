@@ -4,6 +4,8 @@ using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Microservices.DicomTagReader.Execution;
 using RabbitMQ.Client.Events;
+using System.IO;
+using Smi.Common.Options;
 
 namespace Microservices.DicomTagReader.Messaging
 {
@@ -13,17 +15,19 @@ namespace Microservices.DicomTagReader.Messaging
     public class DicomTagReaderConsumer : Consumer<AccessionDirectoryMessage>
     {
         private readonly TagReaderBase _reader;
+        private readonly GlobalOptions _opts;
 
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        /// <param name="reader"></param>>
-        public DicomTagReaderConsumer(TagReaderBase reader)
+        /// <param name="reader"></param>
+        /// <param name="dicomTagReaderOptions"></param>>
+        public DicomTagReaderConsumer(TagReaderBase reader, GlobalOptions dicomTagReaderOptions)
         {
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            _opts = dicomTagReaderOptions;
         }
-
 
         /// <summary>
         /// Callback method for received messages
@@ -52,6 +56,20 @@ namespace Microservices.DicomTagReader.Messaging
             }
 
             Ack(header, tag);
+        }
+        
+        /// <summary>
+        /// Runs a single file (dicom or zip) through tag reading process
+        /// </summary>
+        /// <param name="file"></param>
+        public void RunSingleFile(FileInfo file)
+        {
+            // tell reader only to consider our specific file
+            _reader.IncludeFile = f=>new FileInfo(f).FullName.Equals(file.FullName,StringComparison.CurrentCultureIgnoreCase);
+            _reader.ReadTags(null,new AccessionDirectoryMessage(_opts.FileSystemOptions.FileSystemRoot,file.Directory));
+
+            // good practice to clear this afterwards
+            _reader.IncludeFile = null;
         }
     }
 }
