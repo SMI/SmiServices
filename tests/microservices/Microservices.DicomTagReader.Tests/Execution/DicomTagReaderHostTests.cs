@@ -81,7 +81,10 @@ namespace Microservices.DicomTagReader.Tests.Execution
         public void TestTagReader_SingleFileMode()
         {
             var dirRoot = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory,"TestTagReader_SingleFileMode"));
-            dirRoot.Delete(true);
+            
+            if(dirRoot.Exists)
+                dirRoot.Delete(true);
+
             dirRoot.Create();
             var julyFolder = dirRoot.CreateSubdirectory("July");
 

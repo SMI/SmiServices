@@ -3,6 +3,7 @@ using CommandLine;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using Microservices.DicomTagReader.Execution;
+using NLog;
 
 namespace Microservices.DicomTagReader
 {
@@ -21,9 +22,17 @@ namespace Microservices.DicomTagReader
 
                     if(o.File != null)
                     {
-                        var host = new DicomTagReaderHost(options);
-                        host.AccessionDirectoryMessageConsumer.RunSingleFile(o.File);
-                        return 0;
+                        try
+                        {
+                            var host = new DicomTagReaderHost(options);
+                            host.AccessionDirectoryMessageConsumer.RunSingleFile(o.File);
+                            return 0;
+                        }
+                        catch (System.Exception ex)
+                        {
+                            LogManager.GetCurrentClassLogger().Error(ex);
+                            return -1;
+                        }
                     }
                     else
                     {
