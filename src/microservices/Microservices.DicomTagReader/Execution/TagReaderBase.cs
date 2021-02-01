@@ -99,7 +99,9 @@ namespace Microservices.DicomTagReader.Execution
             Logger.Debug("TagReader: Found " + dicomFilePaths.Length + " dicom files to process");
             Logger.Debug("TagReader: Found " + zipFilePaths.Length + " zip files to process");
 
-            if (dicomFilePaths.Length == 0 && zipFilePaths.Length == 0)
+            int toProcess = dicomFilePaths.Length + zipFilePaths.Length;
+
+            if (toProcess == 0)
                 throw new ApplicationException("No dicom/zip files found in " + dirPath);
 
             // We have files to process, let's do it!
@@ -109,7 +111,7 @@ namespace Microservices.DicomTagReader.Execution
             List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(p=>new FileInfo(p)), message);
             fileMessages.AddRange(ReadZipFilesImpl(zipFilePaths.Select(p=>new FileInfo(p)), message));
 
-            _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / dicomFilePaths.Length;
+            _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / toProcess;
 
             var seriesMessages = new Dictionary<string, SeriesMessage>();
 
