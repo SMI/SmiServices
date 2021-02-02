@@ -17,8 +17,8 @@ steps:
       inputs:
         targetType: "inline"
         script: |
-          echo '$(RDMP_CLI_DIR)'
-          mkdir -p '$(RDMP_CLI_DIR)'
+          echo $(RDMP_CLI_DIR)
+          mkdir -p $(RDMP_CLI_DIR)
     - task: Cache@2
       displayName: Cache rdmp-cli
       inputs:
