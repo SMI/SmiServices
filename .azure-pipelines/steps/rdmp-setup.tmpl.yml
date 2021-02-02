@@ -22,7 +22,7 @@ steps:
     - task: Cache@2
       displayName: Cache rdmp-cli
       inputs:
-          key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
+          key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)" | v2'
           path: $(RDMP_CLI_DIR)
           cacheHitVar: RDMP_CACHE_RESTORED
     - task: Bash@3
