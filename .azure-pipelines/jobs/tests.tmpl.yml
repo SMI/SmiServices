@@ -62,6 +62,15 @@ jobs:
           - template: ../steps/rdmp-setup.tmpl.yml
             parameters:
                 os: ${{ parameters.os }}
+          # NOTE(rkm 2021-02-02) See:
+          # https://github.com/actions/setup-dotnet/issues/155
+          # https://github.com/dotnet/core/issues/5881
+          - ${{ if eq( parameters.os, 'win' ) }}:
+                - task: Bash@3
+                  displayName: Attempt to clean Nuget cache in Windows builds
+                  inputs:
+                      targetType: "inline"
+                      script: dotnet nuget locals all --clear
           - task: Bash@3
             displayName: Run Dotnet tests
             inputs:
