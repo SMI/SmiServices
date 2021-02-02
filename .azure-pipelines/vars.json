@@ -1,6 +1,6 @@
 {
     "CI": 1,
-    "NUGET_PACKAGES": "$(Pipeline.Workspace)/.nuget/packages",
+    "NUGET_PACKAGES": "'$(Pipeline.Workspace)/.nuget/packages'",
     "MAVEN_CACHE_FOLDER": "$(Pipeline.Workspace)/.m2/repository",
     "MAVEN_OPTS": "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)",
     "RDMP_CLI_DIR": "'$(Pipeline.Workspace)/rdmp-cli'",
