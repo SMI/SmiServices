@@ -16,7 +16,10 @@ steps:
       displayName: Ensure RDMP_CLI_DIR exists
       inputs:
         targetType: "inline"
-        script: mkdir -p $(RDMP_CLI_DIR)
+        script: |
+          mkdir -p $(RDMP_CLI_DIR)
+          echo $(RDMP_CLI_DIR)
+          ls -l $(RDMP_CLI_DIR)
     - task: Cache@2
       displayName: Cache rdmp-cli
       inputs:
