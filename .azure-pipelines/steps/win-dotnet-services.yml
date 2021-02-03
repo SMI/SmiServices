@@ -43,3 +43,11 @@ steps:
       inputs:
           targetType: "inline"
           script: echo "##vso[task.setvariable variable=RDMP_CONN_STR]\"$(SQL_SERVER_HOST)\""
+    - task: Bash@3
+      displayName: Copy the LocalDB Databases.yaml file for the tests
+      inputs:
+        targetType: "inline"
+        script: |
+          cp \
+            .azure-pipelines/scripts/Databases.yaml \
+            tests/common/Smi.Common.Tests/RelationalDatabases.yaml

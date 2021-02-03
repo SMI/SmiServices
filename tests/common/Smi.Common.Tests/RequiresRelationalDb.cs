@@ -40,10 +40,10 @@ namespace Smi.Common.Tests
                 return;
 
             string msg = $"Could not connect to {_type} at '{server.Name}' with the provided connection options";
-            if (!FailIfUnavailable)
-                Assert.Ignore(msg);
-            else
+            if (FailIfUnavailable)
                 Assert.Fail(msg);
+            else
+                Assert.Ignore(msg);
         }
 
         public static ConStrs GetRelationalDatabaseConnectionStrings()

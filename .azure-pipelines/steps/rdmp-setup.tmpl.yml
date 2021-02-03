@@ -12,10 +12,26 @@ steps:
               rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
               echo $rdmp_ver
               set +x; echo "##vso[task.setvariable variable=rdmp_ver]$rdmp_ver"
+    - ${{ if eq( parameters.os, 'win' ) }}:
+      - task: Bash@3
+        displayName: Fix path separators for RDMP_CLI_DIR on Windows
+        inputs:
+          targetType: "inline"
+          script: |
+            set -euxo pipefail
+            fixed=$(echo "$(RDMP_CLI_DIR)" | sed 's/\//\\/g')
+            echo $fixed
+            set +x; echo "##vso[task.setvariable variable=RDMP_CLI_DIR]$fixed"
+    - task: Bash@3
+      displayName: Ensure RDMP_CLI_DIR exists
+      inputs:
+        targetType: "inline"
+        script: |
+          mkdir -p $(RDMP_CLI_DIR)
     - task: Cache@2
       displayName: Cache rdmp-cli
       inputs:
-          key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)"'
+          key: '"rdmp-cli" | "$(Agent.OS)" | "$(rdmp_ver)" | v2'
           path: $(RDMP_CLI_DIR)
           cacheHitVar: RDMP_CACHE_RESTORED
     - task: Bash@3
@@ -28,11 +44,10 @@ steps:
               echo Downloading rdmp-cli v$(rdmp_ver)
               curl -L https://github.com/HicServices/RDMP/releases/download/v$(rdmp_ver)/rdmp-cli-${{ parameters.os }}-x64.zip -o rdmp-cli-${{ parameters.os }}-x64.zip
               # RDMP is still being packaged using a ZIP tool with a bug Microsoft fixed in .Net 4.6.1; excluding Chinese language support file and keyword help avoids unzip being affected by the bug: https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-ziparchiveentry-fullname-path-separator?redirectedfrom=MSDN
-              mkdir -p $(RDMP_CLI_DIR)
-              unzip -d $(RDMP_CLI_DIR) rdmp-cli-${{ parameters.os }}-x64.zip -x "Curation*" "zh-*"
-              chmod +x $(RDMP_CLI_DIR)/rdmp
+              unzip -d "$(RDMP_CLI_DIR)" rdmp-cli-${{ parameters.os }}-x64.zip -x "Curation*" "zh-*"
+              chmod +x "$(RDMP_CLI_DIR)"/rdmp
     - task: Bash@3
       displayName: Install RDMP databases
       inputs:
           targetType: "inline"
-          script: $(RDMP_CLI_DIR)/rdmp install $(RDMP_CONN_STR) TEST_
+          script: '"$(RDMP_CLI_DIR)"/rdmp install $(RDMP_CONN_STR) TEST_'

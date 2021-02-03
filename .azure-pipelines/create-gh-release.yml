@@ -1,11 +1,19 @@
 ---
 
-pr: none
-
+# NOTE(rkm 2021-02-02) Only trigger for tags on master
+# See https://stackoverflow.com/a/60160047
 trigger:
-    tags:
-        include:
-            - "*"
+  branches:
+    include:
+      - master
+  tags:
+    include:
+      - "*"
+  paths:
+    exclude:
+      - /*
+
+pr: none
 
 pool:
   vmImage: 'ubuntu-latest'

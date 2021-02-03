@@ -42,10 +42,14 @@ namespace Smi.Common.Tests
                 sb.AppendLine("Port:        " + factory.Port);
 
                 string msg = $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
-                if (!FailIfUnavailable)
-                    Assert.Ignore(msg);
-                else
+
+                // NOTE(rkm 2021-01-30) Don't fail for Windows CI builds
+                bool shouldFail = FailIfUnavailable && !Environment.OSVersion.ToString().ToLower().Contains("windows");
+
+                if (shouldFail)
                     Assert.Fail(msg);
+                else
+                    Assert.Ignore(msg);
             }
         }
 
