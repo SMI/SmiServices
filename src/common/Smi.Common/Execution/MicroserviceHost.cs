@@ -70,6 +70,7 @@ namespace Smi.Common.Execution
                 if (!File.Exists(logConfigPath))
                     throw new FileNotFoundException("Could not find the logging configuration in the current directory (Smi.NLog.config), or at the path specified by FileSystemOptions.LogConfigFile");
 
+                LogManager.ThrowConfigExceptions = true;
                 LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath);
 
                 if (globals.FileSystemOptions.ForceSmiLogsRoot)

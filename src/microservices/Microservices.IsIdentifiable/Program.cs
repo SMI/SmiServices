@@ -47,8 +47,8 @@ namespace Microservices.IsIdentifiable
                     return -5;
                 }
 
-                var config = new NLog.Config.XmlLoggingConfiguration(location);
-                LogManager.Configuration = config;
+                LogManager.ThrowConfigExceptions = true;
+                LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(location);
 
                 return GetParser()
                     .ParseArguments<IsIdentifiableRelationalDatabaseOptions, IsIdentifiableDicomFileOptions, IsIdentifiableMongoOptions, IsIdentifiableServiceOptions, IsIdentifiableFileOptions>(args)

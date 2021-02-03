@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
 -   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
 -   Fixed executable name on UpdateValues microservice
+-   Fixed exceptions not being thrown when loading invalid NLog configs
 
 ### Dependencies
 
