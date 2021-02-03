@@ -2,11 +2,10 @@
 trigger:
     branches:
         include:
-            - "build_refactor*"
+            - "*"
     tags:
         include:
             - "*"
-pr: none
 
 jobs:
     - template: jobs/tests.tmpl.yml
