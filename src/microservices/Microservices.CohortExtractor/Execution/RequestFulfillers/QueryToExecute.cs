@@ -98,7 +98,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// Returns the SeriesInstanceUID and a set of any file paths matching the query
         /// </summary>
         /// <param name="valueToLookup"></param>
-        /// <param name="rejector">Required, determines whether records are returned as good or bad</param>
+        /// <param name="rejectors">Required, determines whether records are returned as good or bad</param>
         /// <returns></returns>
         public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup, List<IRejector> rejectors)
         {

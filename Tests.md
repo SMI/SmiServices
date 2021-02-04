@@ -20,5 +20,5 @@ $ wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-lin
 $ unzip -d rdmp-cli rdmp-cli-linux-x64.zip || true # Ignore exit code since unzip returns 1 for a warning we don't care about
 $ cd rdmp-cli
 $ chmod +x rdmp
-$ ./rdmp install localhost TEST_ -u sa -p 'YourStrong!Passw0rd'
+$ ./rdmp install localhost TEST_ -u sa -p 'YourStrongPassw0rd'
 ```

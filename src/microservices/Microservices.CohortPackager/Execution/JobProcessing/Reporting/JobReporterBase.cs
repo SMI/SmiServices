@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
@@ -48,13 +49,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             }
             else
             {
-                Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ({Environment.NewLine})");
+                Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ('{Regex.Escape(Environment.NewLine)}')");
                 ReportNewLine = Environment.NewLine;
             }
 
             _csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                NewLine = ParseToCsvNewLine(ReportNewLine),
+                NewLine = ParseToCsvNewLine(Regex.Escape(ReportNewLine)),
             };
         }
 
@@ -322,6 +323,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 "Job info:",
                 $"-   Job submitted at:             {jobInfo.JobSubmittedAt.ToString("s", CultureInfo.InvariantCulture)}",
                 $"-   Job completed at:             {jobInfo.JobCompletedAt.ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {(jobInfo.JobCompletedAt - jobInfo.JobSubmittedAt)}",
                 $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
                 $"-   Extraction tag:               {jobInfo.KeyTag}",
                 $"-   Extraction modality:          {jobInfo.ExtractionModality ?? "Unspecified"}",
@@ -457,15 +459,17 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             sb.Append(ReportNewLine);
         }
 
-        // NOTE(rkm 2020-11-20) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
-        // can tell, this is the most straightforward way to parse a "NewLine" from one of the "NewLines" string constants they provide...
-        private static NewLine ParseToCsvNewLine(string newLine) =>
+        // NOTE(rkm 2020-12-10) The NewLine class only exists in the CsvHelper lib, so can't really use throughout the sln. As far as I
+        // can tell, this is the most straightforward way to parse a "NewLine" from an input string. The input string must already be escaped.
+        // NOTE(jas 2021-01-18) CsvHelper has changed to a strange hack. Any single char = use that for newline; null = use \r\n instead.
+        // NOTE(jas 2021-01-19) CsvHelper has switched to using plain strings. Much more sensible. Above notes now historical.
+        private static string ParseToCsvNewLine(string newLine) =>
             newLine switch
             {
-                NewLines.CR => NewLine.CR,
-                NewLines.CRLF => NewLine.CRLF,
-                NewLines.LF => NewLine.LF,
-                _ => throw new ArgumentException($"No case for '{newLine}'")
+                @"\r" => "\r",
+                @"\r\n" => "\r\n",
+                @"\n" => "\n",
+                _ => throw new ArgumentException($"No case for '{Regex.Escape(newLine)}'")
             };
 
         protected abstract void ReleaseUnmanagedResources();

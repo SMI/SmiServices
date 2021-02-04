@@ -1,0 +1,53 @@
+---
+
+steps:
+    - task: PowerShell@2
+      displayName: Add replication to MongoDB config
+      inputs:
+          targetType: "inline"
+          script: 'Add-Content "C:\Program Files\MongoDB\Server\4.4\bin\mongod.cfg" "`r`nreplication:`r`n  replSetName: rs0`r`n"'
+    - task: PowerShell@2
+      displayName: Restart MongoDB
+      inputs:
+          targetType: "inline"
+          script: Restart-Service -Name MongoDB
+    - template: ./wait-for.tmpl.yml
+      parameters:
+          name: MongoDB
+          cmd: mongo --quiet --eval 'db.stats().ok'
+    - task: Bash@3
+      displayName: Start MongoDB replication
+      inputs:
+          targetType: "inline"
+          script: mongo --eval "rs.initiate()"
+    - task: Bash@3
+      displayName: Set SQL_SERVER_HOST
+      inputs:
+          targetType: "inline"
+          script: echo "##vso[task.setvariable variable=SQL_SERVER_HOST](localdb)\MSSQLLocalDB"
+    # https://github.com/actions/virtual-environments/issues/1282#issuecomment-668686268
+    - task: PowerShell@2
+      displayName: Install SQL 2019 LocalDB
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Downloading"
+          Import-Module BitsTransfer
+          Start-BitsTransfer -Source https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi -Destination SqlLocalDB.msi
+          Write-Host "Installing"
+          Start-Process -FilePath "SqlLocalDB.msi" -Wait -ArgumentList "/qn", "/norestart", "/l*v SqlLocalDBInstall.log", "IACCEPTSQLLOCALDBLICENSETERMS=YES";
+          Write-Host "Checking"
+          sqlcmd -l 60 -S "$(SQL_SERVER_HOST)" -Q "SELECT @@VERSION;"
+    - task: Bash@3
+      displayName: Set RDMP_CONN_STR
+      inputs:
+          targetType: "inline"
+          script: echo "##vso[task.setvariable variable=RDMP_CONN_STR]\"$(SQL_SERVER_HOST)\""
+    - task: Bash@3
+      displayName: Copy the LocalDB Databases.yaml file for the tests
+      inputs:
+        targetType: "inline"
+        script: |
+          cp \
+            .azure-pipelines/scripts/Databases.yaml \
+            tests/common/Smi.Common.Tests/RelationalDatabases.yaml

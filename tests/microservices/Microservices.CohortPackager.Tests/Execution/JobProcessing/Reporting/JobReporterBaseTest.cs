@@ -658,6 +658,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"Job info:",
                 $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
                 $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
                 $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
                 $"-   Extraction tag:               keyTag",
                 $"-   Extraction modality:          Unspecified",

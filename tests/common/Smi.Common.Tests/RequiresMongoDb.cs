@@ -28,10 +28,10 @@ namespace Smi.Common.Tests
             catch (Exception e)
             {
                 var msg = $"Could not connect to MongoDB at {address}: {e}";
-                if (!FailIfUnavailable)
-                    Assert.Ignore(msg);
-                else
+                if (FailIfUnavailable)
                     Assert.Fail(msg);
+                else
+                    Assert.Ignore(msg);
             }
         }
 

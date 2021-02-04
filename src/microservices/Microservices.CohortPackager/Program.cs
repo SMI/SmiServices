@@ -52,7 +52,8 @@ namespace Microservices.CohortPackager
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
                 cliOptions.ReportFormat.ToString(),
-                cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine
+                cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine,
+                createJobIdFile: false
             );
 
             try
@@ -78,7 +79,7 @@ namespace Microservices.CohortPackager
             if (!File.Exists(logConfigPath))
                 throw new FileNotFoundException("Could not find the logging configuration in the current directory (Smi.NLog.config), or at the path specified by FileSystemOptions.LogConfigFile");
 
-            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath, false);
+            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath);
         }
     }
 }

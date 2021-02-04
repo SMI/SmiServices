@@ -1,2 +1,0 @@
-﻿MySql: 'server=127.0.0.1;Uid=root;Pwd=Password12!;SslMode=None'
-SqlServer: 'Server=localhost\SQL2017;User Id=sa;Password=Password12!;'

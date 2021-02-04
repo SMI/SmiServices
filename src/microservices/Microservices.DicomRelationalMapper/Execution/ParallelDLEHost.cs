@@ -52,7 +52,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         /// in the batch.
         /// </summary>
         /// <param name="lmd"></param>
-        /// <param name="filesAndOrDirectories"></param>
+        /// <param name="payload"></param>
         /// <returns>The exit code of the data load after it completes</returns>
         private ExitCodeType RunDLE(LoadMetadata lmd, object payload)
         {

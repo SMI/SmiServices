@@ -1,0 +1,44 @@
+---
+
+# NOTE(rkm 2021-02-02) Only trigger for tags on master
+# See https://stackoverflow.com/a/60160047
+trigger:
+  branches:
+    include:
+      - master
+  tags:
+    include:
+      - "*"
+  paths:
+    exclude:
+      - /*
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - template: steps/set-git-tag-variable.tmpl.yml
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+      architecture: 'x64'
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: .azure-pipelines/scripts/write_release_changelog.py
+      arguments: $(tag)
+      failOnStderr: true
+  - task: GitHubRelease@1
+    inputs:
+      gitHubConnection: 'GitHub - SMI-Bot'
+      repositoryName: '$(Build.Repository.Name)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'gitTag'
+      releaseNotesFilePath: 'release_changelog.md'
+      assets:
+      addChangeLog: false
+

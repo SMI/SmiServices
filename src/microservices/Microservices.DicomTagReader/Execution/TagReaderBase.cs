@@ -40,7 +40,11 @@ namespace Microservices.DicomTagReader.Execution
 
         public bool IsExiting;
         public readonly object TagReaderProcessLock = new object();
-
+        
+        /// <summary>
+        /// Optional function for last minute filtering of which files in an <see cref="AccessionDirectoryMessage"/> folder get processed
+        /// </summary>
+        public Func<string,bool> IncludeFile {get;set;}
 
         /// <summary>
         /// Interrogates directory tree for dicom files and produces series info and individual file info
@@ -88,15 +92,17 @@ namespace Microservices.DicomTagReader.Execution
                 throw new ApplicationException("Directory " + dirPath + " is not below the given FileSystemRoot (" +
                                                _filesystemRoot + ")");
             long beginEnumerate = _stopwatch.ElapsedTicks;
-            string[] dicomFilePaths = _fs.Directory.EnumerateFiles(dirPath, _searchPattern).ToArray();
-            string[] zipFilePaths =  _fs.Directory.EnumerateFiles(dirPath).Where(ZipHelper.IsZip).ToArray();
+            string[] dicomFilePaths = _fs.Directory.EnumerateFiles(dirPath, _searchPattern).Where(Include).ToArray();
+            string[] zipFilePaths =  _fs.Directory.EnumerateFiles(dirPath).Where(ZipHelper.IsZip).Where(Include).ToArray();
 
             _swTotals[0] += _stopwatch.ElapsedTicks - beginEnumerate;
             Logger.Debug("TagReader: Found " + dicomFilePaths.Length + " dicom files to process");
             Logger.Debug("TagReader: Found " + zipFilePaths.Length + " zip files to process");
 
-            if (dicomFilePaths.Length == 0)
-                throw new ApplicationException("No dicom files found in " + dirPath);
+            int toProcess = dicomFilePaths.Length + zipFilePaths.Length;
+
+            if (toProcess == 0)
+                throw new ApplicationException("No dicom/zip files found in " + dirPath);
 
             // We have files to process, let's do it!
 
@@ -105,7 +111,7 @@ namespace Microservices.DicomTagReader.Execution
             List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(p=>new FileInfo(p)), message);
             fileMessages.AddRange(ReadZipFilesImpl(zipFilePaths.Select(p=>new FileInfo(p)), message));
 
-            _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / dicomFilePaths.Length;
+            _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / toProcess;
 
             var seriesMessages = new Dictionary<string, SeriesMessage>();
 
@@ -156,7 +162,7 @@ namespace Microservices.DicomTagReader.Execution
 
             _fileMessageProducerModel.WaitForConfirms();
 
-            headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {header.MessageGuid}"));
+            headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {header?.MessageGuid}"));
 
             Logger.Info($"Sending {seriesMessages.Count} SeriesMessage(s)");
 
@@ -173,6 +179,12 @@ namespace Microservices.DicomTagReader.Execution
 
             if (++_nAccMessagesProcessed % 10 == 0)
                 LogRates();
+        }
+
+
+        public bool Include(string filePath)
+        {
+            return IncludeFile?.Invoke(filePath) ?? true;
         }
 
         /// <summary>

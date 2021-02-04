@@ -6,6 +6,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.14.0]
+
+### Added
+
+-   Added total job duration to extraction report header
+-   IsIdentifiableReviewer rule review screen
+-   Added CSV input support for IsIdentifiable, use verb `file` from command line
+-   Updater microservice now audits performance of queries (cumulative affected rows, queries executed etc)
+-   Added `-f` option to DicomTagReader to read a single zip/dicom file
+-   Added some Python library code
+
+### Changed
+
+-   Clarified the CLI help text for `--format` in CohortPackager
+-   CTP calls an external program to anonymise Structured Reports
+    -   Requires an addition to `default.yaml`: `CTPAnonymiserOptions.SRAnonTool` (adding this does not break existing programs).
+-   Consolidate System.IO.Abstractions.TestingHelpers package references into the Smi.Common.Tests package
+-   Tidy common csproj options into `Directory.Build.props` files for all, src, and test projects
+
+### Fixed
+
+-   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+-   CohortPackager: Don't try and create the jobId file when recreating an existing report
+-   CohortPackager.Tests: Fix a flaky test caused by NUnit setup/teardown code when running tests in parallel
+-   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
+-   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
+-   Fixed executable name on UpdateValues microservice
+
+### Dependencies
+
+-   Bump CsvHelper from 17.0.1 to 22.1.1
+-   Bump HIC.RDMP.Dicom from 2.1.11 to 2.2.2
+-   Bump HIC.RDMP.Plugin from 4.1.9 to 4.2.3
+-   Bump HIC.RDMP.Plugin.Test from 4.1.9 to 4.2.3
+-   Bump Magick.NET-Q16-AnyCPU 7.22.2.2 to 7.23.1
+-   Bump Microsoft.NET.Test.Sdk 16.8.0 to 16.8.3
+-   Bump Moq from 4.15.2 to 4.16.0
+-   Bump NUnit from 3.12.0 to 3.13.1
+-   Bump NunitXml.TestLogger from 2.1.80 to 3.0.91
+-   Bump System.IO.Abstractions from 13.2.2 to 13.2.9
+-   Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.9
+-   Bump YamlDotNet from 9.1.0 to 9.1.4
+
 ## [1.13.0] - 2020-12-03
 
 ### Added

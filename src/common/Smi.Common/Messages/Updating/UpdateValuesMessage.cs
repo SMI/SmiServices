@@ -11,7 +11,7 @@ namespace Smi.Common.Messages.Updating
     public class UpdateValuesMessage : IMessage
     {
         /// <summary>
-        /// Optional Sql operators e.g. "=", "<" etc to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>.  If null or empty "=" is assumed for all WHERE comparisons
+        /// Optional Sql operators e.g. "=", "&lt;" etc to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>.  If null or empty "=" is assumed for all WHERE comparisons
         /// </summary>
         public string[] Operators {get;set;} = null;
 

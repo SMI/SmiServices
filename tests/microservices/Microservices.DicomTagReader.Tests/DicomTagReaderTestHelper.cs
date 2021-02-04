@@ -37,6 +37,17 @@ namespace Microservices.DicomTagReader.Tests
         public DirectoryInfo TestDir;
         public GlobalOptions Options;
 
+        /// <summary>
+        /// Returns the number of image messages in <see cref="TestImageQueueName"/>
+        /// </summary>
+        public uint ImageCount => _testModel.MessageCount(TestImageQueueName);
+
+        /// <summary>
+        /// Returns the number of series messages in <see cref="TestSeriesQueueName"/>
+        /// </summary>
+        public uint SeriesCount => _testModel.MessageCount(TestSeriesQueueName);
+
+
         public void SetUpSuite()
         {
             SetUpDefaults();
@@ -44,8 +55,8 @@ namespace Microservices.DicomTagReader.Tests
             // Create the test Series/Image exchanges
             Options.RabbitOptions.RabbitMqControlExchangeName = "TEST.ControlExchange";
             var tester = new MicroserviceTester(Options.RabbitOptions);
-            tester.CreateExchange(Options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, TestSeriesQueueName );
-            tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, TestImageQueueName );
+            tester.CreateExchange(Options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName,  TestImageQueueName);
+            tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, TestSeriesQueueName);
             tester.CreateExchange(Options.RabbitOptions.FatalLoggingExchange, null);
             tester.CreateExchange(Options.RabbitOptions.RabbitMqControlExchangeName, null);
             tester.Shutdown();
@@ -67,6 +78,9 @@ namespace Microservices.DicomTagReader.Tests
         public void ResetSuite()
         {
             SetUpDefaults();
+
+            _testModel.QueuePurge(TestSeriesQueueName);
+            _testModel.QueuePurge(TestImageQueueName);
         }
 
         private void SetUpDefaults()

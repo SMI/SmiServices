@@ -47,6 +47,11 @@ private final GlobalOptions _options;
 			throw new FileNotFoundException("Given extraction root is not valid: " + exRoot);
 		}
 
+		String SRAnonTool = options.CTPAnonymiserOptions.SRAnonTool;
+		if (!CheckValidFile(SRAnonTool)) {
+			throw new FileNotFoundException("Given SRAnonTool is not valid: " + SRAnonTool);
+		}
+
 		_rabbitMqAdapter = new RabbitMqAdapter(options.RabbitOptions, "CTPAnonymiserHost");
 		_logger.debug("Connected to RabbitMQ server version " + _rabbitMqAdapter.getRabbitMqServerVersion());
 
@@ -60,7 +65,7 @@ private final GlobalOptions _options;
 		}
 
 		// Build the SMI Anonymiser tool
-		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).buildDat();
+		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).SRAnonTool(SRAnonTool).buildDat();
 
 		_consumer = new CTPAnonymiserConsumer(
 				_options,
@@ -84,6 +89,13 @@ private final GlobalOptions _options;
 		_logger.info("Host shutdown called");
 
 		_rabbitMqAdapter.Shutdown();
+	}
+
+	private boolean CheckValidFile(String path) {
+
+		File f = new File(Paths.get(path).toString());
+
+		return (f.exists() && !f.isDirectory() && f.canRead());
 	}
 
 	private boolean CheckValidDirectory(String path) {

@@ -24,8 +24,10 @@ namespace Microservices.CohortExtractor.Tests
     public class FromCataloguesExtractionRequestFulfillerTests : DatabaseTests
     {
         [SetUp]
-        public void SetUp()
+        protected override void SetUp()
         {
+            base.SetUp();
+
             TestLogger.Setup();
         }
 
@@ -198,7 +200,7 @@ namespace Microservices.CohortExtractor.Tests
             dt.SetDoNotReType(true);
 
             DiscoveredTable tbl = db.CreateTable("FromCataloguesExtractionRequestFulfillerTests", dt);
-            Catalogue catalogue = Import(tbl);
+            ICatalogue catalogue = Import(tbl);
 
             ExtractionInformation ei = catalogue.GetAllExtractionInformation(ExtractionCategory.Any).First();
             var filter = new ExtractionFilter(CatalogueRepository, "Extractable only", ei)

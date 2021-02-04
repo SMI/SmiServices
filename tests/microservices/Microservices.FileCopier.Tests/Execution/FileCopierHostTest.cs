@@ -14,6 +14,7 @@ using System.Text;
 
 namespace Microservices.FileCopier.Tests.Execution
 {
+    [RequiresRabbit]
     public class FileCopierHostTest
     {
         #region Fixture Methods 
