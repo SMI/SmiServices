@@ -23,10 +23,58 @@ def _run(cmd: Sequence[_STR_LIKE]) -> None:
     subprocess.check_call(cmd)
 
 
-def _windows_cmd_fixup(platform: str, cmd: Sequence[_STR_LIKE]) -> Sequence[_STR_LIKE]:
-    if platform == _WINDOWS:
-        cmd = ("powershell", "bash", *cmd)
-    return cmd
+def _windows_bash_fixup(platform: str, cmd: Sequence[_STR_LIKE]) -> Sequence[_STR_LIKE]:
+    return cmd if platform != _WINDOWS else ("powershell", "bash", *cmd)
+
+
+def _build_java_packages(dist_dir: Path, tag: str) -> None:
+
+    # Build Java microserves
+
+    cmd = (".azure-pipelines/scripts/install-ctp.bash",)
+    _run(cmd)
+
+    cmd = (
+        "mvn",
+        "-ntp",
+        "-f", "./src/common/com.smi.microservices.parent",
+        "-DskipTests",
+        "package",
+        "assembly:single@create-deployable",
+    )
+    _run(cmd)
+
+    zips = {
+        Path(x) for x in glob.glob("./src/**/*deploy-distribution.zip", recursive=True)
+    }
+    assert 2 == len(zips), "Expected 2 zip files (CTP and ExtractorCLI)"
+    for zip_path in zips:
+        shutil.copyfile(
+            zip_path,
+            dist_dir / f"{zip_path.name.split('-')[0]}-{tag}.zip",
+        )
+
+    # Build nerd
+
+    cmd = (
+        "mvn", "-ntp",
+        "-f", "./src/microservices/uk.ac.dundee.hic.nerd",
+        "-DskipTests",
+        "package",
+    )
+    _run(cmd)
+
+    nerd_jar, = {
+        Path(x)
+        for x in glob.glob(
+            "./src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar",
+            recursive=True,
+        )
+    }
+    shutil.copyfile(
+        nerd_jar,
+        dist_dir / f"smi-nerd-{tag}.jar",
+    )
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -56,7 +104,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # Build dotnet projects
 
     cmd = (".azure-pipelines/scripts/dotnet-build.bash",)
-    cmd = _windows_cmd_fixup(platform, cmd)
+    cmd = _windows_bash_fixup(platform, cmd)
     _run(cmd)
 
     # Publish dotnet packages
@@ -96,52 +144,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     _run(cmd)
     shutil.rmtree(dist_dir / smi_services_output_dir)
 
-    # Build Java microserves
-
-    cmd = (".azure-pipelines/scripts/install-ctp.bash",)
-    cmd = _windows_cmd_fixup(platform, cmd)
-    _run(cmd)
-
-    cmd = (
-        "mvn", "-ntp", "-q",
-        "-f", "./src/common/com.smi.microservices.parent",
-        "-DskipTests",
-        "package",
-        "assembly:single@create-deployable",
-    )
-    _run(cmd)
-
-    zips = {
-        Path(x) for x in glob.glob("./src/**/*deploy-distribution.zip", recursive=True)
-    }
-    assert 2 == len(zips), "Expected 2 zip files (CTP and ExtractorCLI)"
-    for zip_path in zips:
-        shutil.copyfile(
-            zip_path,
-            dist_dir / f"{zip_path.name.split('-')[0]}-{tag}.zip",
-        )
-
-    # Build nerd
-
-    cmd = (
-        "mvn", "-ntp", "-q",
-        "-f", "./src/microservices/uk.ac.dundee.hic.nerd",
-        "-DskipTests",
-        "package",
-    )
-    _run(cmd)
-
-    nerd_jar, = {
-        Path(x)
-        for x in glob.glob(
-            "./src/microservices/uk.ac.dundee.hic.nerd/target/nerd-*.jar",
-            recursive=True,
-        )
-    }
-    shutil.copyfile(
-        nerd_jar,
-        dist_dir / f"smi-nerd-{tag}.jar",
-    )
+    if platform == _LINUX:
+        _build_java_packages(dist_dir, tag)
 
     # Create checksum file
     # NOTE(rkm 2020-12-23) No easy cross-platform md5sum tool, so have to use hashlib
