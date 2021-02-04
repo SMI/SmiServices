@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [1.14.0]
+-
+
+## [1.14.1] - 2021-02-04
+
+-   [#576](https://github.com/SMI/SmiServices/pull/576) Fixup Windows package build
+
+## [1.14.0] - 2021-02-04
 
 ### Added
 
@@ -24,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     -   Requires an addition to `default.yaml`: `CTPAnonymiserOptions.SRAnonTool` (adding this does not break existing programs).
 -   Consolidate System.IO.Abstractions.TestingHelpers package references into the Smi.Common.Tests package
 -   Tidy common csproj options into `Directory.Build.props` files for all, src, and test projects
+-   Replace TravisCI and AppVeyor builds with Azure Pipelines
 
 ### Fixed
 
@@ -502,7 +509,9 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.13.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.14.1...master
+[1.14.1]:  https://github.com/SMI/SmiServices/compare/v1.14.0...v1.14.1
+[1.14.0]:  https://github.com/SMI/SmiServices/compare/v1.13.0...v1.14.0
 [1.13.0]:  https://github.com/SMI/SmiServices/compare/v1.12.2...v1.13.0
 [1.12.2]:  https://github.com/SMI/SmiServices/compare/v1.12.1...v1.12.2
 [1.12.1]:  https://github.com/SMI/SmiServices/compare/v1.12.0...v1.12.1
