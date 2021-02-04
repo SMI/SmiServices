@@ -50,9 +50,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # Build dotnet projects
 
     cmd = (
-        "bash",
         ".azure-pipelines/scripts/dotnet-build.bash",
     )
+    if platform == _WINDOWS:
+        cmd = ("powershell", "bash", *cmd)
     _run(cmd)
 
     # Publish dotnet packages
