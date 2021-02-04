@@ -38,6 +38,7 @@ steps:
       action: 'create'
       target: '$(Build.SourceVersion)'
       tagSource: 'gitTag'
+      title: $(tag)
       releaseNotesFilePath: 'release_changelog.md'
       assets:
       addChangeLog: false
