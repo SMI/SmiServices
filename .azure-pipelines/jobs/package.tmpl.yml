@@ -8,7 +8,7 @@ jobs:
       displayName: Build Artefacts
       pool:
           vmImage: ${{ parameters.vmImage }}
-      # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [dotnet_tests, java_tests]
       steps:
           - template: ../steps/vars.tmpl.yml
@@ -33,7 +33,6 @@ jobs:
                 find dist -type f
                 cat dist/**/MD5SUMS*
           - task: GitHubRelease@1
-            condition: false
             inputs:
               gitHubConnection: 'GitHub - SMI-Bot'
               repositoryName: '$(Build.Repository.Name)'

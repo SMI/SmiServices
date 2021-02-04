@@ -65,7 +65,6 @@ jobs:
           - ${{ if eq( parameters.os, 'win' ) }}:
               - template: ../steps/win-nuget-fixup.tmpl.yml
           - task: Bash@3
-            condition: false
             displayName: Run Dotnet tests
             inputs:
                 filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
