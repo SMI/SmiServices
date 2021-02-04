@@ -50,6 +50,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # Build dotnet projects
 
     cmd = (
+        "bash",
         ".azure-pipelines/scripts/dotnet-build.bash",
     )
     _run(cmd)

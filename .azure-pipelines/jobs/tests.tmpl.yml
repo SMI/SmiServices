@@ -72,6 +72,7 @@ jobs:
                       targetType: "inline"
                       script: dotnet nuget locals all --clear
           - task: Bash@3
+            condition: false
             displayName: Run Dotnet tests
             inputs:
                 filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
