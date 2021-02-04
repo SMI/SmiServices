@@ -4,13 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Each entry in the changelog should use the following template:
+
+```text
+-   [#<PR ref>](https://github.com/SMI/SmiServices/pull/<PR ref>) by <user>. <PR Title>
+```
+
 ## [Unreleased]
 
--
+-   [#577](https://github.com/SMI/SmiServices/pull/577) by rkm. Simplify branch workflow by dropping develop
 
 ## [1.14.1] - 2021-02-04
 
--   [#576](https://github.com/SMI/SmiServices/pull/576) Fixup Windows package build
+## Fixed
+
+-   [#576](https://github.com/SMI/SmiServices/pull/576) by rkm. Fixup Windows package build
 
 ## [1.14.0] - 2021-02-04
 
