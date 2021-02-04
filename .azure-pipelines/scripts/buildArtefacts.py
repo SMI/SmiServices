@@ -23,6 +23,12 @@ def _run(cmd: Sequence[_STR_LIKE]) -> None:
     subprocess.check_call(cmd)
 
 
+def _windows_cmd_fixup(platform: str, cmd: Sequence[_STR_LIKE]) -> Sequence[_STR_LIKE]:
+    if platform == _WINDOWS:
+        cmd = ("powershell", "bash", *cmd)
+    return cmd
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = argparse.ArgumentParser()
@@ -49,11 +55,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # Build dotnet projects
 
-    cmd = (
-        ".azure-pipelines/scripts/dotnet-build.bash",
-    )
-    if platform == _WINDOWS:
-        cmd = ("powershell", "bash", *cmd)
+    cmd = (".azure-pipelines/scripts/dotnet-build.bash",)
+    cmd = _windows_cmd_fixup(platform, cmd)
     _run(cmd)
 
     # Publish dotnet packages
@@ -95,9 +98,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # Build Java microserves
 
-    cmd = (
-        ".azure-pipelines/scripts/install-ctp.bash",
-    )
+    cmd = (".azure-pipelines/scripts/install-ctp.bash",)
+    cmd = _windows_cmd_fixup(platform, cmd)
     _run(cmd)
 
     cmd = (
