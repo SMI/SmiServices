@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
--
+### Fixed
+
+-   [#581](https://github.com/SMI/SmiServices/pull/581) Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 
 ## [1.14.1] - 2021-02-04
+
+### Fixed
 
 -   [#576](https://github.com/SMI/SmiServices/pull/576) Fixup Windows package build
 
@@ -34,7 +38,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
--   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 -   CohortPackager: Don't try and create the jobId file when recreating an existing report
 -   CohortPackager.Tests: Fix a flaky test caused by NUnit setup/teardown code when running tests in parallel
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
