@@ -73,6 +73,7 @@ namespace Smi.Common.Execution
                 LogManager.ThrowConfigExceptions = true;
                 LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath);
 
+                // add a test to make sure destination is writeable and throws an exception
                 if (globals.FileSystemOptions.ForceSmiLogsRoot)
                 {
                     string smiLogsRoot = globals.LogsRoot;
@@ -99,9 +100,11 @@ namespace Smi.Common.Execution
             HostProcessID = Process.GetCurrentProcess().Id;
             Logger.Info($"Starting {HostProcessName} (Host={Environment.MachineName} PID={HostProcessID} User={Environment.UserName})");
 
+            // log centrally
             Globals = globals;
             Logger.Debug("Loaded global options:\n" + globals);
 
+            // should also be centralized for non-host uses
             // Ensure this is false in case the default changes
             DicomTypeTranslater.SerializeBinaryData = false;
 
