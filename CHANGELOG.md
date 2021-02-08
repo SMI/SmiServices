@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+-
+
+## [1.14.1] - 2021-02-04
+
+-   [#576](https://github.com/SMI/SmiServices/pull/576) Fixup Windows package build
+
+## [1.14.0] - 2021-02-04
+
 ### Added
 
 -   Added total job duration to extraction report header
@@ -13,14 +21,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Added CSV input support for IsIdentifiable, use verb `file` from command line
 -   Updater microservice now audits performance of queries (cumulative affected rows, queries executed etc)
 -   Added `-f` option to DicomTagReader to read a single zip/dicom file
+-   Added some Python library code
 
 ### Changed
 
 -   Clarified the CLI help text for `--format` in CohortPackager
 -   CTP calls an external program to anonymise Structured Reports
-  -  Requires an addition to `default.yaml`: `CTPAnonymiserOptions.SRAnonTool` (adding this does not break existing programs).
+    -   Requires an addition to `default.yaml`: `CTPAnonymiserOptions.SRAnonTool` (adding this does not break existing programs).
 -   Consolidate System.IO.Abstractions.TestingHelpers package references into the Smi.Common.Tests package
 -   Tidy common csproj options into `Directory.Build.props` files for all, src, and test projects
+-   Replace TravisCI and AppVeyor builds with Azure Pipelines
 
 ### Fixed
 
@@ -33,9 +43,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Dependencies
 
-- Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.4
-- Bump CsvHelper from 19.0.0 to 22.1.0
-- Bump NUnit from 3.13.0 to 3.13.1
+-   Bump CsvHelper from 17.0.1 to 22.1.1
+-   Bump HIC.RDMP.Dicom from 2.1.11 to 2.2.2
+-   Bump HIC.RDMP.Plugin from 4.1.9 to 4.2.3
+-   Bump HIC.RDMP.Plugin.Test from 4.1.9 to 4.2.3
+-   Bump Magick.NET-Q16-AnyCPU 7.22.2.2 to 7.23.1
+-   Bump Microsoft.NET.Test.Sdk 16.8.0 to 16.8.3
+-   Bump Moq from 4.15.2 to 4.16.0
+-   Bump NUnit from 3.12.0 to 3.13.1
+-   Bump NunitXml.TestLogger from 2.1.80 to 3.0.91
+-   Bump System.IO.Abstractions from 13.2.2 to 13.2.9
+-   Bump System.IO.Abstractions.TestingHelpers from 13.2.2 to 13.2.9
+-   Bump YamlDotNet from 9.1.0 to 9.1.4
 
 ## [1.13.0] - 2020-12-03
 
@@ -52,7 +71,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   Added JobCompletedAt to the validation reports
 -   IsIdentifiable: Add support for ignoring OCR output less than `n` characters in length
 -   IsIdentifiable: Add a test case for burned-in image text
-- Added some Python library code
 
 ### Changed
 
@@ -491,7 +509,9 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.13.0...develop
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.14.1...master
+[1.14.1]:  https://github.com/SMI/SmiServices/compare/v1.14.0...v1.14.1
+[1.14.0]:  https://github.com/SMI/SmiServices/compare/v1.13.0...v1.14.0
 [1.13.0]:  https://github.com/SMI/SmiServices/compare/v1.12.2...v1.13.0
 [1.12.2]:  https://github.com/SMI/SmiServices/compare/v1.12.1...v1.12.2
 [1.12.1]:  https://github.com/SMI/SmiServices/compare/v1.12.0...v1.12.1
