@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
--
+-   [#574](https://github.com/SMI/SmiServices/pull/574) Fix small build warning for missing XML doc
 
 ## [1.14.1] - 2021-02-04
 
