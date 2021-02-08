@@ -3,7 +3,7 @@
     <AssemblyName>Microservices.DicomTagReader.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.2.3" />
+    <PackageReference Include="HIC.RDMP.Plugin.Test" Version="4.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />
