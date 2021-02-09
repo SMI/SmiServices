@@ -312,6 +312,11 @@ namespace Smi.Common.Options
         public string ReporterType { get; set; }
         public string NotifierType { get; set; }
         public string ReportFormat { get; set; }
+
+        /// <summary>
+        /// The newline to use when writing extraction report files. Note that a "\r\n" string
+        /// in the YAML config will bee automatically escaped to "\\r\\n" in this string.
+        /// </summary>
         public string ReportNewLine { get; set; }
 
         public override string ToString()
