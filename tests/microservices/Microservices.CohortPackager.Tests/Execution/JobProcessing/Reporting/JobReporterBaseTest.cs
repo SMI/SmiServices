@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
+using Smi.Common.Options;
 
 
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
@@ -15,8 +17,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
     [TestFixture]
     public class JobReporterBaseTest
     {
-        private const string WindowsNewLine = "\r\n";
-        private const string LinuxNewLine = "\n";
+        private const string WindowsNewLine = @"\r\n";
+        private const string LinuxNewLine = @"\n";
 
         private static readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
@@ -754,7 +756,22 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
         {
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             var reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, null);
-            Assert.AreEqual(Environment.NewLine, reporter.ReportNewLine);
+            Assert.AreEqual(Regex.Escape(Environment.NewLine), reporter.ReportNewLine);
+        }
+        
+        [Test]
+        public void ReportNewLine_LoadFromYaml_EscapesNewlines()
+        {
+            string yaml = @"
+CurrentDirectory:
+CohortPackagerOptions:
+    ReportNewLine: '\r\n'
+";
+            string tmpConfig = Path.GetTempFileName() + ".yaml";
+            File.WriteAllText(tmpConfig, yaml);
+            GlobalOptions globals = new GlobalOptionsFactory().Load(tmpConfig);
+
+            Assert.AreEqual(WindowsNewLine, globals.CohortPackagerOptions.ReportNewLine);
         }
     }
 

@@ -12,13 +12,17 @@ Each entry in the changelog should use the following template:
 
 ## [Unreleased]
 
--   [#577](https://github.com/SMI/SmiServices/pull/577) by rkm. Simplify branch workflow by dropping develop
+-   [#577](https://github.com/SMI/SmiServices/pull/577) Simplify branch workflow by dropping develop
+
+### Fixed
+
+-   [#581](https://github.com/SMI/SmiServices/pull/581) Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 
 ## [1.14.1] - 2021-02-04
 
-## Fixed
+### Fixed
 
--   [#576](https://github.com/SMI/SmiServices/pull/576) by rkm. Fixup Windows package build
+-   [#576](https://github.com/SMI/SmiServices/pull/576) Fixup Windows package build
 
 ## [1.14.0] - 2021-02-04
 
@@ -42,7 +46,6 @@ Each entry in the changelog should use the following template:
 
 ### Fixed
 
--   Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 -   CohortPackager: Don't try and create the jobId file when recreating an existing report
 -   CohortPackager.Tests: Fix a flaky test caused by NUnit setup/teardown code when running tests in parallel
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
