@@ -1,5 +1,4 @@
-﻿
-using NLog;
+﻿using NLog;
 using NLog.Config;
 using NLog.Targets;
 
@@ -7,22 +6,27 @@ namespace Smi.Common.Tests
 {
     public static class TestLogger
     {
+        private const string TestLoggerName = "TestLogger";
+
         public static void Setup()
         {
-            var logConfig = new LoggingConfiguration();
+            if (LogManager.Configuration == null)
+                LogManager.Configuration = new LoggingConfiguration();
+            else if (LogManager.Configuration.FindTargetByName<ConsoleTarget>(TestLoggerName) != null)
+                return;
 
-            var consoleTarget = new ConsoleTarget("TestConsole")
+            var consoleTarget = new ConsoleTarget(TestLoggerName)
             {
                 Layout = @"${longdate}|${level}|${logger}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}",
                 AutoFlush = true
             };
-            
-            logConfig.AddTarget(consoleTarget);
-            logConfig.AddRuleForAllLevels(consoleTarget);
-            
+
+            LoggingConfiguration config = LogManager.Configuration;
+            config.AddTarget(consoleTarget);
+            config.AddRuleForAllLevels(consoleTarget);
+
             LogManager.GlobalThreshold = LogLevel.Trace;
-            LogManager.Configuration = logConfig;
-            LogManager.GetCurrentClassLogger().Info("TestLogger setup, previous configuration replaced");
+            LogManager.GetCurrentClassLogger().Info("TestLogger added to LogManager config");
         }
     }
 }

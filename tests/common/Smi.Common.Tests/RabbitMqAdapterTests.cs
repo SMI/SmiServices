@@ -1,5 +1,7 @@
-﻿
+
 using Moq;
+using NLog;
+using NLog.Targets;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
@@ -9,11 +11,8 @@ using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
-using NLog;
-using NLog.Targets;
 
 namespace Smi.Common.Tests
 {
@@ -40,7 +39,7 @@ namespace Smi.Common.Tests
         [SetUp]
         public void SetUp()
         {
-            _testOptions = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _testOptions = new GlobalOptionsFactory().Load();
 
             _testProducerOptions = new ProducerOptions
             {
@@ -223,7 +222,7 @@ namespace Smi.Common.Tests
                                                                                            
             NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);          
 
-            var o = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var o = new GlobalOptionsFactory().Load();
 
             var consumer = (IConsumer)Activator.CreateInstance(consumerType);
 

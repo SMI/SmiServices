@@ -1,47 +1,75 @@
-﻿using System;
+﻿using NLog;
+using Smi.Common.Options;
+using System;
 using System.IO;
-using NLog;
 
 
 namespace Smi.Common
 {
-    public class SmiLogging
+    public static class SmiLogging
     {
-        public void Setup()
-        {
-            /*
-            logConfigPath = !string.IsNullOrWhiteSpace(globals.FileSystemOptions.LogConfigFile)
-                ? globals.FileSystemOptions.LogConfigFile
-                : Path.Combine(globals.CurrentDirectory, "Smi.NLog.config");
+        private const string DefaultLogConfigName = "Smi.NLog.config";
 
-            if (!File.Exists(logConfigPath))
-                throw new FileNotFoundException("Could not find the logging configuration in the current directory (Smi.NLog.config), or at the path specified by FileSystemOptions.LogConfigFile");
+        private static bool _initialised;
+
+        public static void Setup(LoggingOptions loggingOptions, string hostProcessName)
+        {
+            if (_initialised)
+                throw new Exception("SmiLogging already initialised");
+            _initialised = true;
+
+            string localConfig = Path.Combine(Directory.GetCurrentDirectory(), DefaultLogConfigName);
+            string configFilePathToLoad = !string.IsNullOrWhiteSpace(loggingOptions.LogConfigFile)
+                ? loggingOptions.LogConfigFile
+                : localConfig;
+
+            if (!File.Exists(configFilePathToLoad))
+                throw new FileNotFoundException($"Could not find the specified logging configuration '{configFilePathToLoad})'");
 
             LogManager.ThrowConfigExceptions = true;
-            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath);
+            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(configFilePathToLoad);
 
-            // add a test to make sure destination is writeable and throws a warning
-            if (globals.FileSystemOptions.ForceSmiLogsRoot)
+            if (!string.IsNullOrWhiteSpace(loggingOptions.LogsRoot))
             {
-                string smiLogsRoot = globals.LogsRoot;
+                if (!Directory.Exists(loggingOptions.LogsRoot))
+                    throw new ApplicationException($"Invalid log root '{loggingOptions.LogsRoot}'");
 
-                if (string.IsNullOrWhiteSpace(smiLogsRoot) || !Directory.Exists(smiLogsRoot))
-                    throw new ApplicationException($"Invalid logs root: {smiLogsRoot}");
+                VerifyCanWrite(loggingOptions.LogsRoot);
 
                 LogManager.Configuration.Variables["baseFileName"] =
-                    $"{smiLogsRoot}/{HostProcessName}/${{cached:cached=true:clearCache=None:inner=${{date:format=yyyy-MM-dd-HH-mm-ss}}}}-${{processid}}";
+                    $"{loggingOptions.LogsRoot}/" +
+                    $"{hostProcessName}/" +
+                    $"${{cached:cached=true:clearCache=None:inner=${{date:format=yyyy-MM-dd-HH-mm-ss}}}}-${{processid}}";
             }
+            else
+                VerifyCanWrite(Directory.GetCurrentDirectory());
 
+            Logger logger = LogManager.GetLogger(nameof(SmiLogging));
+            LogManager.GlobalThreshold = LogLevel.Trace;
 
-            if (!string.IsNullOrWhiteSpace(logConfigPath))
-                Logger.Debug($"Logging config loaded from {logConfigPath}");
-
-            if (!globals.MicroserviceOptions.TraceLogging)
+            if (!loggingOptions.TraceLogging)
                 LogManager.GlobalThreshold = LogLevel.Debug;
+            logger.Trace("Trace logging enabled!");
 
-            Logger = LogManager.GetLogger(GetType().Name);
-            Logger.Trace("Trace logging enabled!");
-            */
+            logger.Info($"Logging config loaded from {configFilePathToLoad}");
+        }
+
+        private static void VerifyCanWrite(string logsRoot)
+        {
+            string[] tmpFileParts = Path.GetTempFileName().Split(Path.DirectorySeparatorChar);
+            string tmpFileInLogsRoot = Path.Combine(logsRoot, tmpFileParts[tmpFileParts.Length - 1]);
+            try
+            {
+                File.WriteAllText(tmpFileInLogsRoot, "");
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                throw new UnauthorizedAccessException($"Couldn't create a file in the logs root '{logsRoot}'; possible permissions error", e);
+            }
+            finally
+            {
+                File.Delete(tmpFileInLogsRoot);
+            }
         }
     }
 }

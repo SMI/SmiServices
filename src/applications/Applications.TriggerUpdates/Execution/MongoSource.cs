@@ -1,8 +1,10 @@
-﻿using Smi.Common.Messages.Updating;
+﻿using System.Collections.Generic;
+using Applications.TriggerUpdates.Options;
+using Smi.Common.Messages.Updating;
 using Smi.Common.Options;
-using System.Collections.Generic;
 
-namespace TriggerUpdates.Execution
+
+namespace Applications.TriggerUpdates.Execution
 {
     public class MongoSource : ITriggerUpdatesSource
     {

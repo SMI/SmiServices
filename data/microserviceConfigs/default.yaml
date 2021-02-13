@@ -8,11 +8,14 @@ RabbitOptions:
     RabbitMqControlExchangeName: 'TEST.ControlExchange'
     FatalLoggingExchange: 'TEST.FatalLoggingExchange'
 
+LoggingOptions:  
+    LogConfigFile: ''
+    LogsRoot: ''
+    TraceLogging: true
+
 FileSystemOptions:
     FileSystemRoot: 'C:\temp'
     ExtractRoot: 'C:\temp'
-    ForceSmiLogsRoot: false
-    LogConfigFile: ''
     DicomSearchPattern: "*.dcm"
 
 RDMPOptions:

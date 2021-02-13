@@ -1,8 +1,9 @@
 ﻿using NUnit.Framework;
 using Smi.Common.Options;
 using System;
-using TriggerUpdates;
-using TriggerUpdates.Execution;
+using Applications.TriggerUpdates.Execution;
+using Applications.TriggerUpdates.Options;
+
 
 namespace Applications.TriggerUpdates.Tests
 {

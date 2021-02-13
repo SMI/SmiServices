@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+-   [#575](https://github.com/SMI/SmiServices/pull/575) Standardised logging setup and Program entries across whole solution
+    -   Breaking: YAML config change required
+    -   Removes the `SMI_LOGS_ROOT` variable - now in YAML config
+    -   Removes the `--trace-logging` CLI option - now in YAML config
+    -   All invokations of IsIdentifiable now require a YAML config to ensure logging is properly configured
 -   [#581](https://github.com/SMI/SmiServices/pull/581) Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 
 ## [1.14.1] - 2021-02-04
@@ -43,7 +48,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
 -   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
 -   Fixed executable name on UpdateValues microservice
--   Fixed exceptions not being thrown when loading invalid NLog configs
 
 ### Dependencies
 

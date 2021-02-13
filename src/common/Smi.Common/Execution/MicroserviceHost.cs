@@ -10,8 +10,6 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 
 namespace Smi.Common.Execution
 {
@@ -45,57 +43,19 @@ namespace Smi.Common.Execution
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="rabbitMqAdapter"></param>
-        /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Smi.NLog.config" of the current directory)</param>
         /// <param name="threaded"></param>
         protected MicroserviceHost(
             [NotNull] GlobalOptions globals,
             IRabbitMqAdapter rabbitMqAdapter = null,
-            bool loadSmiLogConfig = true,
             bool threaded = false)
         {
-            if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.MicroserviceOptions == null)
+            if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)
                 throw new ArgumentException("All or part of the global options are null");
 
-            HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
-
-            string logConfigPath = null;
-
-            // We may not want to do this during tests, however this should always be true otherwise
-            if (loadSmiLogConfig)
-            {
-                logConfigPath = !string.IsNullOrWhiteSpace(globals.FileSystemOptions.LogConfigFile)
-                    ? globals.FileSystemOptions.LogConfigFile
-                    : Path.Combine(globals.CurrentDirectory, "Smi.NLog.config");
-
-                if (!File.Exists(logConfigPath))
-                    throw new FileNotFoundException("Could not find the logging configuration in the current directory (Smi.NLog.config), or at the path specified by FileSystemOptions.LogConfigFile");
-
-                LogManager.ThrowConfigExceptions = true;
-                LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(logConfigPath);
-
-                // add a test to make sure destination is writeable and throws an exception
-                if (globals.FileSystemOptions.ForceSmiLogsRoot)
-                {
-                    string smiLogsRoot = globals.LogsRoot;
-
-                    if (string.IsNullOrWhiteSpace(smiLogsRoot) || !Directory.Exists(smiLogsRoot))
-                        throw new ApplicationException($"Invalid logs root: {smiLogsRoot}");
-
-                    LogManager.Configuration.Variables["baseFileName"] =
-                        $"{smiLogsRoot}/{HostProcessName}/${{cached:cached=true:clearCache=None:inner=${{date:format=yyyy-MM-dd-HH-mm-ss}}}}-${{processid}}";
-                }
-            }
+            HostProcessName = SmiCliInit.HostProcessName;
 
             Logger = LogManager.GetLogger(GetType().Name);
-            Logger.Info("Host logger created with " + (loadSmiLogConfig ? "SMI" : "existing") + " logging config");
-
-            if (!string.IsNullOrWhiteSpace(logConfigPath))
-                Logger.Debug($"Logging config loaded from {logConfigPath}");
-
-            if (!globals.MicroserviceOptions.TraceLogging)
-                LogManager.GlobalThreshold = LogLevel.Debug;
-
-            Logger.Trace("Trace logging enabled!");
+            Logger.Info("Host logger created");
 
             HostProcessID = Process.GetCurrentProcess().Id;
             Logger.Info($"Starting {HostProcessName} (Host={Environment.MachineName} PID={HostProcessID} User={Environment.UserName})");

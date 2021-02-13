@@ -1,9 +1,8 @@
-﻿
-using CommandLine;
+﻿using Microservices.DicomTagReader.Execution;
+using NLog;
 using Smi.Common.Execution;
 using Smi.Common.Options;
-using Microservices.DicomTagReader.Execution;
-using NLog;
+using System;
 
 namespace Microservices.DicomTagReader
 {
@@ -15,35 +14,30 @@ namespace Microservices.DicomTagReader
         /// <param name="args"></param>
         private static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<DicomTagReaderCliOptions>(args).MapResult(
-                (o) =>
+            int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, OnParse);
+            return ret;
+        }
+
+        private static int OnParse(GlobalOptions globals, DicomTagReaderCliOptions opts)
+        {
+            if (opts.File != null)
+            {
+                try
                 {
-                    GlobalOptions options = new GlobalOptionsFactory().Load(o);
+                    var host = new DicomTagReaderHost(globals);
+                    host.AccessionDirectoryMessageConsumer.RunSingleFile(opts.File);
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    LogManager.GetCurrentClassLogger().Error(ex);
+                    return 1;
+                }
+            }
 
-                    if(o.File != null)
-                    {
-                        try
-                        {
-                            var host = new DicomTagReaderHost(options);
-                            host.AccessionDirectoryMessageConsumer.RunSingleFile(o.File);
-                            return 0;
-                        }
-                        catch (System.Exception ex)
-                        {
-                            LogManager.GetCurrentClassLogger().Error(ex);
-                            return -1;
-                        }
-                    }
-                    else
-                    {
-                        // run in service mode
-                        var bootstrapper = new MicroserviceHostBootstrapper(() => new DicomTagReaderHost(options));
-
-                        return bootstrapper.Main();
-                    }
-
-                },
-                err => -100);
+            var bootstrapper = new MicroserviceHostBootstrapper(() => new DicomTagReaderHost(globals));
+            int ret = bootstrapper.Main();
+            return ret;
         }
     }
 }

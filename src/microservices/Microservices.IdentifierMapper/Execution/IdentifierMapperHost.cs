@@ -12,6 +12,7 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using NLog;
 using RabbitMQ.Client.Exceptions;
+using Smi.Common;
 using StackExchange.Redis;
 
 
@@ -30,16 +31,12 @@ namespace Microservices.IdentifierMapper.Execution
 
 
 
-        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig: loadSmiLogConfig)
+        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null)
+            : base(options)
         {
             _consumerOptions = options.IdentifierMapperOptions;
 
-            //load all supported implementations
-            ImplementationManager.Load<MySqlImplementation>();
-            ImplementationManager.Load<OracleImplementation>();
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-            ImplementationManager.Load<PostgreSqlImplementation>();
+            FansiImplementations.Load();
 
             if (swapper == null)
             {

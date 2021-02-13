@@ -63,7 +63,7 @@ namespace Microservices.FileCopier.Tests.Execution
             mockFileSystem.AddDirectory(globals.FileSystemOptions.ExtractRoot);
             mockFileSystem.AddFile(mockFileSystem.Path.Combine(globals.FileSystemOptions.FileSystemRoot, "file.dcm"), MockFileData.NullObject);
 
-            var host = new FileCopierHost(globals, mockFileSystem, false);
+            var host = new FileCopierHost(globals, mockFileSystem);
             tester.StopOnDispose.Add(host);
             host.Start();
 

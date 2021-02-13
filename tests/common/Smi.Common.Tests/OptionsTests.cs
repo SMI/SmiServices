@@ -10,10 +10,10 @@ namespace Smi.Common.Tests
     [TestFixture]
     public class OptionsTests
     {
-        [TestCase("default.yaml")]
-        public void GlobalOptions_Test(string template)
+        [TestCase]
+        public void GlobalOptions_Test()
         {
-            GlobalOptions globals = new GlobalOptionsFactory().Load(template, TestContext.CurrentContext.TestDirectory);
+            GlobalOptions globals = new GlobalOptionsFactory().Load();
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RabbitOptions.RabbitMqHostName));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.FileSystemOptions.FileSystemRoot));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RDMPOptions.CatalogueConnectionString));
@@ -47,7 +47,7 @@ namespace Smi.Common.Tests
         [Test]
         public void Test_GlobalOptionsUseTestValues_Nulls()
         {
-            GlobalOptions g = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions g = new GlobalOptionsFactory().Load();
 
             Assert.IsNotNull(g.RabbitOptions.RabbitMqHostName);
             g.UseTestValues(null, null, null, null, null);
@@ -57,7 +57,7 @@ namespace Smi.Common.Tests
         [Test]
         public void Test_GlobalOptions_FileReadOption_ThrowsException()
         {
-            GlobalOptions g = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions g = new GlobalOptionsFactory().Load();
             g.DicomTagReaderOptions.FileReadOption = "SkipLargeTags";
 
             Assert.Throws<ApplicationException>(() => g.DicomTagReaderOptions.GetReadOption());

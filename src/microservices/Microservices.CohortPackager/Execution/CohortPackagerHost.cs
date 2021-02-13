@@ -42,7 +42,6 @@ namespace Microservices.CohortPackager.Execution
         /// <param name="notifier"></param>
         /// <param name="rabbitMqAdapter"></param>
         /// <param name="dateTimeProvider"></param>
-        /// <param name="loadSmiLogConfig"></param>
         public CohortPackagerHost(
             [NotNull] GlobalOptions globals,
             [CanBeNull] ExtractJobStore jobStore = null,
@@ -50,10 +49,9 @@ namespace Microservices.CohortPackager.Execution
             [CanBeNull] IJobReporter reporter = null,
             [CanBeNull] IJobCompleteNotifier notifier = null,
             [CanBeNull] IRabbitMqAdapter rabbitMqAdapter = null,
-            [CanBeNull] DateTimeProvider dateTimeProvider = null,
-            bool loadSmiLogConfig = true
+            [CanBeNull] DateTimeProvider dateTimeProvider = null
         )
-            : base(globals, rabbitMqAdapter, loadSmiLogConfig)
+            : base(globals, rabbitMqAdapter)
         {
             if (jobStore == null)
             {
