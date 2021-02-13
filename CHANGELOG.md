@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+-   [#588](https://github.com/SMI/SmiServices/pull/588) Prevent additional language packs being included in published packages. Reduces overall package size a bit.
+
 ### Fixed
 
 -   [#581](https://github.com/SMI/SmiServices/pull/581) Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
