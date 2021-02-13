@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NLog.Targets;
 
 
 namespace Smi.Common.Options
@@ -109,7 +110,7 @@ namespace Smi.Common.Options
         {
             // Create a default console logger - SMI one may not be available at this point
             var config = new LoggingConfiguration();
-            var consoleTarget = new NLog.Targets.ConsoleTarget(nameof(SmiCliInit));
+            using var consoleTarget = new ConsoleTarget(nameof(SmiCliInit));
             config.AddRule(LogLevel.Trace, LogLevel.Fatal, consoleTarget);
             Logger logger = LogManager.GetCurrentClassLogger();
 

@@ -35,7 +35,9 @@ namespace Smi.Common.Options
                 throw new ArgumentException($"Could not find config file '{configFilePath}'");
 
             string yamlContents = File.ReadAllText(configFilePath);
-            var globals = deserializer.Deserialize<GlobalOptions>(new StringReader(yamlContents));
+
+            using var sr = new StringReader(yamlContents);
+            var globals = deserializer.Deserialize<GlobalOptions>(sr);
 
             return Decorate(globals);
         }
