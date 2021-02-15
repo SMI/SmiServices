@@ -1,10 +1,4 @@
 
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Reflection;
-using System.Text;
 using Dicom;
 using FAnsi.Discovery;
 using JetBrains.Annotations;
@@ -12,7 +6,11 @@ using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
 using Smi.Common.Messages;
-using YamlDotNet.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Reflection;
+using System.Text;
 using DatabaseType = FAnsi.DatabaseType;
 
 
@@ -25,23 +23,16 @@ namespace Smi.Common.Options
 
     public class GlobalOptions : IOptions
     {
-        
+
         #region AllOptions
 
-        /// <summary>
-        /// The directory where local files should be when CopyAlways etc.  
-        /// 
-        /// <para>Should be either Environment.CurrentDirectory or TestContext.CurrentContext.TestDirectory</para>
-        /// </summary>
-        public string CurrentDirectory;
-
-        public MicroserviceOptions MicroserviceOptions { get; set; }
+        public LoggingOptions LoggingOptions { get; set; }
         public RabbitOptions RabbitOptions { get; set; }
         public FileSystemOptions FileSystemOptions { get; set; }
         public RDMPOptions RDMPOptions { get; set; }
         public MongoDatabases MongoDatabases { get; set; }
         public DicomRelationalMapperOptions DicomRelationalMapperOptions { get; set; }
-        public UpdateValuesOptions UpdateValuesOptions {get;set;}
+        public UpdateValuesOptions UpdateValuesOptions { get; set; }
         public CohortExtractorOptions CohortExtractorOptions { get; set; }
         public CohortPackagerOptions CohortPackagerOptions { get; set; }
         public DicomReprocessorOptions DicomReprocessorOptions { get; set; }
@@ -55,7 +46,6 @@ namespace Smi.Common.Options
         public TriggerUpdatesOptions TriggerUpdatesOptions {get;set;}
 
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
-        public string LogsRoot { get; set; }
 
         #endregion
 
@@ -77,7 +67,17 @@ namespace Smi.Common.Options
             return GenerateToString(this);
         }
     }
-    
+
+    [UsedImplicitly]
+    public class LoggingOptions
+    {
+        public string LogConfigFile { get; set; }
+        public string LogsRoot { get; set; }
+        public bool TraceLogging { get; set; } = true;
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
+    }
+
     [UsedImplicitly]
     public class IsIdentifiableOptions : ConsumerOptions
     {
@@ -93,24 +93,6 @@ namespace Smi.Common.Options
         public string DataDirectory { get; set; }
 
         public ProducerOptions IsIdentifiableProducerOptions {get; set;}
-    }
-
-    [UsedImplicitly]
-    public class MicroserviceOptions : IOptions
-    {
-        public bool TraceLogging { get; set; } = true;
-
-        public MicroserviceOptions() { }
-
-        public MicroserviceOptions(CliOptions cliOptions)
-        {
-            TraceLogging = cliOptions.TraceLogging;
-        }
-
-        public override string ToString()
-        {
-            return GlobalOptions.GenerateToString(this);
-        }
     }
 
     [UsedImplicitly]
@@ -538,14 +520,6 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class FileSystemOptions : IOptions
     {
-        /// <summary>
-        /// If set, services will require that <see cref="GlobalOptions.LogsRoot"/> is set and points to a valid directory.
-        /// This helps to ensure that we log to a central location on the production system.
-        /// </summary>
-        public bool ForceSmiLogsRoot { get; set; } = false;
-
-        public string LogConfigFile { get; set; }
-
         public string DicomSearchPattern { get; set; } = "*.dcm";
 
         private string _fileSystemRoot;

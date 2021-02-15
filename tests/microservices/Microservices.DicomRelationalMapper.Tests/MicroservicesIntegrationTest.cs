@@ -58,7 +58,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             TestLogger.Setup();
 
-            _globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globals = new GlobalOptionsFactory().Load();
 
             _globals.UseTestValues(
                 RequiresRabbit.GetConnectionFactory(),
@@ -475,19 +475,19 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 #region Running Microservices
 
-                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions, loadSmiLogConfig: false);
+                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions);
                 processDirectory.Start();
                 tester.StopOnDispose.Add(processDirectory);
 
-                var dicomTagReaderHost = new DicomTagReaderHost(_globals, loadSmiLogConfig: false);
+                var dicomTagReaderHost = new DicomTagReaderHost(_globals);
                 dicomTagReaderHost.Start();
                 tester.StopOnDispose.Add(dicomTagReaderHost);
 
-                var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals, loadSmiLogConfig: false);
+                var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals);
                 mongoDbPopulatorHost.Start();
                 tester.StopOnDispose.Add(mongoDbPopulatorHost);
 
-                var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"), loadSmiLogConfig: false);
+                var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"));
                 identifierMapperHost.Start();
                 tester.StopOnDispose.Add(identifierMapperHost);
 
@@ -498,7 +498,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
                 logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
-                using (var relationalMapperHost = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+                using (var relationalMapperHost = new DicomRelationalMapperHost(_globals))
                 {
                     var start = DateTime.Now;
 
@@ -559,7 +559,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 }
 
                 //Now do extraction
-                var extractorHost = new CohortExtractorHost(_globals, null, null, loadSmiLogConfig: false);
+                var extractorHost = new CohortExtractorHost(_globals, null, null);
 
                 extractorHost.Start();
 

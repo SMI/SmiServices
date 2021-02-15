@@ -1,4 +1,4 @@
-﻿
+
 using NUnit.Framework;
 using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
@@ -14,7 +14,7 @@ namespace Smi.Common.Tests
         [Test]
         public void SendHeader()
         {
-            var o = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var o = new GlobalOptionsFactory().Load();
 
             var consumerOptions = new ConsumerOptions();
             consumerOptions.QueueName = "TEST.HeaderPreservationTest_Read1";

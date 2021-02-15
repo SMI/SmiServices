@@ -31,7 +31,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [SetUp]
         public void SetUp()
         {
-            _testOptions = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _testOptions = new GlobalOptionsFactory().Load();
         }
 
         /// <summary>

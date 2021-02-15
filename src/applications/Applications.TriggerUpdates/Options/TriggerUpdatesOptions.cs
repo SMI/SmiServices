@@ -1,9 +1,7 @@
 ﻿using Smi.Common.Options;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace TriggerUpdates
+
+namespace Applications.TriggerUpdates.Options
 {
     public abstract class TriggerUpdatesCliOptions : CliOptions
     {

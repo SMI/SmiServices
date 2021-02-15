@@ -3,8 +3,6 @@ using Microservices.FileCopier.Messaging;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using System;
-using System.IO;
 using System.IO.Abstractions;
 
 
@@ -16,13 +14,11 @@ namespace Microservices.FileCopier.Execution
 
         public FileCopierHost(
             [NotNull] GlobalOptions options,
-            [CanBeNull]IFileSystem fileSystem = null,
-            bool loadSmiLogConfig = true
-            )
+            [CanBeNull] IFileSystem fileSystem = null
+        )
         : base(
-            options,
-            loadSmiLogConfig: loadSmiLogConfig
-            )
+            options
+        )
         {
             Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions.FileSystemRoot);
 

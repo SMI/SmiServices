@@ -1,25 +1,22 @@
-﻿using FAnsi.Discovery;
-using FAnsi.Discovery.QuerySyntax;
-using FAnsi.Implementation;
-using FAnsi.Implementations.MicrosoftSQL;
-using FAnsi.Implementations.MySql;
-using FAnsi.Implementations.Oracle;
-using FAnsi.Implementations.PostgreSql;
-using Microservices.IdentifierMapper.Execution.Swappers;
-using NLog;
-using Rdmp.Core.DataLoad.Triggers;
-using Smi.Common.Helpers;
-using Smi.Common.Messages.Updating;
-using Smi.Common.Options;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
+using Applications.TriggerUpdates.Options;
+using FAnsi.Discovery;
+using FAnsi.Discovery.QuerySyntax;
 using JetBrains.Annotations;
+using Microservices.IdentifierMapper.Execution.Swappers;
+using NLog;
+using Rdmp.Core.DataLoad.Triggers;
+using Smi.Common;
+using Smi.Common.Helpers;
+using Smi.Common.Messages.Updating;
+using Smi.Common.Options;
 
 
-namespace TriggerUpdates.Execution
+namespace Applications.TriggerUpdates.Execution
 {
     public class MapperSource : ITriggerUpdatesSource
     {
@@ -43,10 +40,7 @@ namespace TriggerUpdates.Execution
             _cliOptions = cliOptions;
             _globalOptions = globalOptions;
 
-            ImplementationManager.Load<MySqlImplementation>();
-            ImplementationManager.Load<OracleImplementation>();
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-            ImplementationManager.Load<PostgreSqlImplementation>();
+            FansiImplementations.Load();
 
             try
             {

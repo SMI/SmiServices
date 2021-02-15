@@ -1,7 +1,5 @@
-﻿
-using Applications.DicomDirectoryProcessor.Execution;
+﻿using Applications.DicomDirectoryProcessor.Execution;
 using Applications.DicomDirectoryProcessor.Options;
-using CommandLine;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 
@@ -23,15 +21,19 @@ namespace Applications.DicomDirectoryProcessor
         /// </param>
         private static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<DicomDirectoryProcessorCliOptions>(args).MapResult(
-                processDirectoryOptions =>
-                {
-                    GlobalOptions globalOptions = new GlobalOptionsFactory().Load(processDirectoryOptions);
+            int ret = SmiCliInit
+                .ParseAndRun<DicomDirectoryProcessorCliOptions>(
+                    args,
+                    OnParse
+                );
+            return ret;
+        }
 
-                    var bootStrapper = new MicroserviceHostBootstrapper(() => new DicomDirectoryProcessorHost(globalOptions, processDirectoryOptions));
-                    return bootStrapper.Main();
-                },
-                errs => -100);
+        private static int OnParse(GlobalOptions globals, DicomDirectoryProcessorCliOptions parsedOptions)
+        {
+            var bootstrapper = new MicroserviceHostBootstrapper(() => new DicomDirectoryProcessorHost(globals, parsedOptions));
+            int ret = bootstrapper.Main();
+            return ret;
         }
     }
 }

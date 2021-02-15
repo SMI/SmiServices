@@ -23,7 +23,7 @@ namespace Smi.Common.MongoDB.Tests
         {
             TestLogger.Setup();
 
-            GlobalOptions globalOptions = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions globalOptions = new GlobalOptionsFactory().Load();
             _mongoOptions = globalOptions.MongoDatabases.DicomStoreOptions;
         }
 

@@ -17,8 +17,8 @@ namespace Microservices.MongoDBPopulator.Execution
         public readonly List<IMongoDbPopulatorMessageConsumer> Consumers = new List<IMongoDbPopulatorMessageConsumer>();
 
 
-        public MongoDbPopulatorHost(GlobalOptions options, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig: loadSmiLogConfig)
+        public MongoDbPopulatorHost(GlobalOptions options)
+            : base(options)
         {
             Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.SeriesQueueConsumerOptions));
             Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions));

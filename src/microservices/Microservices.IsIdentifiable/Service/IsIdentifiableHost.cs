@@ -20,10 +20,9 @@ namespace Microservices.IsIdentifiable.Service
 
         public IsIdentifiableHost(
             [NotNull] GlobalOptions globals,
-            [NotNull] IsIdentifiableServiceOptions serviceOpts,
-            bool loadSmiLogConfig = true
+            [NotNull] IsIdentifiableServiceOptions serviceOpts
         )
-            : base(globals, loadSmiLogConfig: loadSmiLogConfig)
+            : base(globals)
         {
             _consumerOptions = globals.IsIdentifiableOptions;
 

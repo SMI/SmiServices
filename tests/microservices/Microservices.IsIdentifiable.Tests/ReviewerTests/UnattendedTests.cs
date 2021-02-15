@@ -8,16 +8,22 @@ using FAnsi.Implementations.MicrosoftSQL;
 using IsIdentifiableReviewer;
 using IsIdentifiableReviewer.Out;
 using NUnit.Framework;
+using Smi.Common;
 using Smi.Common.Tests;
 
 namespace Microservices.IsIdentifiable.Tests.ReviewerTests
 {
-    class UnattendedTests
+    public class UnattendedTests
     {
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            FansiImplementations.Load();
+        }
+
         [Test]
         public void NoFileToProcess_Throws()
         {
-
             var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions(),null, new IgnoreRuleGenerator(),new RowUpdater() ));
             Assert.AreEqual("Unattended requires a file of errors to process",ex.Message);
         }
@@ -25,7 +31,6 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void NonExistantFileToProcess_Throws()
         {
-
             var ex = Assert.Throws<FileNotFoundException>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
             {
                 FailuresCsv = "troll.csv"
@@ -36,7 +41,6 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void NoTarget_Throws()
         {
-
             var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.txt");
             File.WriteAllText(fi,"fff");
             
@@ -64,9 +68,6 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void Passes_NoFailures()
         {
-            //the default Target() will be this DatabaseType
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-
             var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.csv");
             File.WriteAllText(fi,"fff");
 
@@ -87,9 +88,6 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void Passes_FailuresAllUnprocessed()
         {
-            //the default Target() will be this DatabaseType
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-
             var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
 
@@ -129,9 +127,6 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
         [TestCase(false)]
         public void Passes_FailuresAllIgnored(bool rulesOnly)
         {
-            //the default Target() will be this DatabaseType
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-
             var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
 
@@ -178,9 +173,6 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
         [Test]
         public void Passes_FailuresAllUpdated()
         {
-            //the default Target() will be this DatabaseType
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-
             var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
 

@@ -15,9 +15,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Applications.TriggerUpdates.Options;
 using Tests.Common;
-using TriggerUpdates;
-using TriggerUpdates.Execution;
+
 
 namespace Applications.TriggerUpdates.Execution
 {
@@ -102,7 +102,7 @@ namespace Applications.TriggerUpdates.Execution
                 {SpecialFieldNames.DataLoadRunID,55},
                 });
 
-            var globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var globals = new GlobalOptionsFactory().Load();
             
             var cliOptions = new TriggerUpdatesFromMapperOptions()
             {
