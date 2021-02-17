@@ -267,6 +267,9 @@ namespace Microservices.IsIdentifiable.Runners
             if(ruleSet.SocketRules != null)
                 CustomRules.AddRange(ruleSet.SocketRules);
 
+            if(ruleSet.ConsensusRules != null)
+                CustomRules.AddRange(ruleSet.ConsensusRules);
+
             if(ruleSet.WhiteListRules != null)
                 CustomWhiteListRules.AddRange(ruleSet.WhiteListRules);
         }
