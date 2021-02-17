@@ -14,7 +14,13 @@ Each entry in the changelog should use the following template:
 
 -
 
-## [1.15.0]
+## [1.15.1] 2021-02-17
+
+### Fixed
+
+-   [#610](https://github.com/SMI/SmiServices/pull/610) by `howff`. Fixed CTP logging
+
+## [1.15.0] 2021-02-17
 
 ### Changed
 
@@ -29,7 +35,6 @@ Each entry in the changelog should use the following template:
 
 -   [#581](https://github.com/SMI/SmiServices/pull/581) by `rkm`. Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 -   [#597](https://github.com/SMI/SmiServices/pull/597) by `tznind`. Fixed ConsensusRules not being run
--   [#610](https://github.com/SMI/SmiServices/pull/610) by `howff`. Fixed CTP logging
 
 ### Dependencies
 
@@ -546,7 +551,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.15.0...master
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.15.1...master
+[1.15.1]:  https://github.com/SMI/SmiServices/compare/v1.15.0...v1.15.1
 [1.15.0]:  https://github.com/SMI/SmiServices/compare/v1.14.1...v1.15.0
 [1.14.1]:  https://github.com/SMI/SmiServices/compare/v1.14.0...v1.14.1
 [1.14.0]:  https://github.com/SMI/SmiServices/compare/v1.13.0...v1.14.0
