@@ -7,21 +7,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 Each entry in the changelog should use the following template:
 
 ```text
--   [#<PR ref>](https://github.com/SMI/SmiServices/pull/<PR ref>) by <user>. <PR Title>
+-   [#<PR ref>](https://github.com/SMI/SmiServices/pull/<PR ref>) by `<user>`. <PR Title>
 ```
 
 ## [Unreleased]
 
--   [#577](https://github.com/SMI/SmiServices/pull/577) Simplify branch workflow by dropping develop
+-
 
-### Fixed
+## [1.15.0]
 
--   [#575](https://github.com/SMI/SmiServices/pull/575) Standardised logging setup and Program entries across whole solution
+### Changed
+
+-   [#575](https://github.com/SMI/SmiServices/pull/575) by `rkm`. Standardised logging setup and Program entries across whole solution
     -   Breaking: YAML config change required
     -   Removes the `SMI_LOGS_ROOT` variable - now in YAML config
     -   Removes the `--trace-logging` CLI option - now in YAML config
     -   All invokations of IsIdentifiable now require a YAML config to ensure logging is properly configured
--   [#581](https://github.com/SMI/SmiServices/pull/581) Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+-   [#577](https://github.com/SMI/SmiServices/pull/577) by `rkm`. Simplify branch workflow by dropping develop
+
+### Fixed
+
+-   [#581](https://github.com/SMI/SmiServices/pull/581) by `rkm`. Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+-   [#597](https://github.com/SMI/SmiServices/pull/597) by `tznind`. Fixed ConsensusRules not being run
+
+### Dependencies
+
+-   Bump CsvHelper from 22.1.1 to 22.1.2
+-   Bump HIC.RDMP.Plugin from 4.2.3 to 4.2.4
+-   Bump HIC.RDMP.Plugin.Test from 4.2.3 to 4.2.4
+-   Bump Magick.NET-Q16-AnyCPU from 7.23.1 to 7.23.2
+-   Bump SecurityCodeScan from 3.5.3 to 3.5.4
+-   Bump System.Drawing.Common from 5.0.0 to 5.0.1
+-   Bump System.IO.Abstractions from 13.2.9 to 13.2.11
+-   Bump System.IO.Abstractions.TestingHelpers from 13.2.9 to 13.2.11
+-   Bump jansi from 2.2.0 to 2.3.1
+-   Bump junit from 4.13.1 to 4.13.2
 
 ## [1.14.1] - 2021-02-04
 
@@ -56,7 +76,6 @@ Each entry in the changelog should use the following template:
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
 -   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
 -   Fixed executable name on UpdateValues microservice
--   Fixed ConsensusRules not being run
 
 ### Dependencies
 
@@ -526,7 +545,8 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.14.1...master
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.15.0...master
+[1.15.0]:  https://github.com/SMI/SmiServices/compare/v1.14.1...v1.15.0
 [1.14.1]:  https://github.com/SMI/SmiServices/compare/v1.14.0...v1.14.1
 [1.14.0]:  https://github.com/SMI/SmiServices/compare/v1.13.0...v1.14.0
 [1.13.0]:  https://github.com/SMI/SmiServices/compare/v1.12.2...v1.13.0
@@ -561,3 +581,4 @@ First stable release after importing the repository from the private [SMIPlugin]
 
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
 [SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules
+
