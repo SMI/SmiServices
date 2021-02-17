@@ -30,6 +30,19 @@ Each entry in the changelog should use the following template:
 -   [#581](https://github.com/SMI/SmiServices/pull/581) by `rkm`. Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 -   [#597](https://github.com/SMI/SmiServices/pull/597) by `tznind`. Fixed ConsensusRules not being run
 
+### Dependencies
+
+-   Bump CsvHelper from 22.1.1 to 22.1.2
+-   Bump HIC.RDMP.Plugin from 4.2.3 to 4.2.4
+-   Bump HIC.RDMP.Plugin.Test from 4.2.3 to 4.2.4
+-   Bump Magick.NET-Q16-AnyCPU from 7.23.1 to 7.23.2
+-   Bump SecurityCodeScan from 3.5.3 to 3.5.4
+-   Bump System.Drawing.Common from 5.0.0 to 5.0.1
+-   Bump System.IO.Abstractions from 13.2.9 to 13.2.11
+-   Bump System.IO.Abstractions.TestingHelpers from 13.2.9 to 13.2.11
+-   Bump jansi from 2.2.0 to 2.3.1
+-   Bump junit from 4.13.1 to 4.13.2
+
 ## [1.14.1] - 2021-02-04
 
 ### Fixed
@@ -568,3 +581,4 @@ First stable release after importing the repository from the private [SMIPlugin]
 
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
 [SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules
+
