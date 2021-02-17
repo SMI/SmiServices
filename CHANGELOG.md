@@ -29,6 +29,7 @@ Each entry in the changelog should use the following template:
 
 -   [#581](https://github.com/SMI/SmiServices/pull/581) by `rkm`. Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
 -   [#597](https://github.com/SMI/SmiServices/pull/597) by `tznind`. Fixed ConsensusRules not being run
+-   [#610](https://github.com/SMI/SmiServices/pull/610) by `howff`. Fixed CTP logging
 
 ### Dependencies
 
