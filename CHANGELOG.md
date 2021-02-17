@@ -56,6 +56,7 @@ Each entry in the changelog should use the following template:
 -   CohortPackager.Tests: Fix a flaky test caused by using the same MongoDB database name when running tests in parallel
 -   Fixed the existing CTPAnonymiser tests which had not been updated for the SRAnonTool changes
 -   Fixed executable name on UpdateValues microservice
+-   Fixed ConsensusRules not being run
 
 ### Dependencies
 
