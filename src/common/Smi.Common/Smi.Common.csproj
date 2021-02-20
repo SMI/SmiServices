@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>Smi.Common</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPublishable>false</IsPublishable>
   </PropertyGroup>
