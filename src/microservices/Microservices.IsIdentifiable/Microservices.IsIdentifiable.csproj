@@ -27,16 +27,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="22.1.2" />
-    <PackageReference Include="fo-dicom.Drawing" Version="[4.0.6]" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.23.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.1" />
-    <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Include="System.Security.AccessControl" Version="5.0.0" />
-    <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
   </ItemGroup>
   <ItemGroup>

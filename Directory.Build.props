@@ -1,16 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
- <PropertyGroup>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <LangVersion>8.0</LangVersion>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <Platforms>x64</Platforms>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <!-- Many build warnings for missing docstrings when enabling this - we may want to fix and enable per-project where needed instead? -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <!---->
- </PropertyGroup>
+    <PropertyGroup>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <LangVersion>8.0</LangVersion>
+        <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+        <Platforms>x64</Platforms>
+        <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+        <!-- Many build warnings for missing docstrings when enabling this - we may want to fix and enable per-project where needed instead? -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <!---->
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="CommandLineParser" Version="2.8.0" />
+        <PackageReference Include="coveralls.io" Version="1.4.2" />
+        <PackageReference Include="CsvHelper" Version="22.1.2" />
+        <PackageReference Include="fo-dicom.Drawing" Version="[4.0.6]" />
+        <PackageReference Include="fo-dicom.NetCore" Version="[4.0.6]" />
+        <PackageReference Include="HIC.DicomTypeTranslation" Version="2.3.1" />
+        <PackageReference Include="HIC.FAnsiSql" Version="1.0.6" />
+        <PackageReference Include="HIC.RDMP.Dicom" Version="2.2.2" />
+        <PackageReference Include="HIC.RDMP.Plugin" Version="4.2.4" />
+        <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
+        <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.23.2" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.8.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="OpenCover" Version="4.7.922" />
+        <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
+        <PackageReference Include="SecurityCodeScan" Version="3.5.4">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+        <PackageReference Include="System.Drawing.Common" Version="5.0.1" />
+        <PackageReference Include="System.IO.Abstractions" Version="13.2.15" />
+        <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
+        <PackageReference Include="System.Security.AccessControl" Version="5.0.0" />
+        <PackageReference Include="Terminal.Gui" Version="0.90.3" />
+        <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
+        <PackageReference Include="YamlDotNet" Version="9.1.4" />
+    </ItemGroup>
 </Project>
