@@ -33,6 +33,7 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from subprocess import CalledProcessError
 from typing import Dict
 from typing import Optional
 from typing import Sequence
@@ -153,7 +154,7 @@ def _build_csproj(build_dir: Path, platform: str, csproj_path: Path) -> None:
         print(f"STDERR\n{stderr}\n")
 
     if proc.returncode:
-        raise subprocess.CalledProcessError(f"Build failed for {csproj_path}")
+        raise CalledProcessError(f"Build failed for {csproj_path}")
 
     return None
 
@@ -164,6 +165,27 @@ def _md5sum(file_path: Path) -> str:
         for buf in iter(functools.partial(f.read, 128), b""):
             d.update(buf)
     return d.hexdigest()
+
+
+def _get_assembly_version(file_path: Path) -> str:
+    try:
+        proc = subprocess.run(
+            (
+                "/usr/bin/exiftool",
+                "-S",
+                "-AssemblyVersion",
+                file_path,
+            ),
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        version = proc.stdout.decode().strip().split()[1]
+        return version
+    except CalledProcessError as exc:
+        if "File format error" in exc.stderr.decode():
+            return "<Unknown>"
+        raise
 
 
 def _merge_files(build_dir: Path, base_output_dir: Path) -> bool:
@@ -206,8 +228,17 @@ def _merge_files(build_dir: Path, base_output_dir: Path) -> bool:
 
     for file_path in sorted(clobbered):
         print(f"=== Clobbered {file_path.name} ===")
+        uniq = {}
         for f in files[file_path]:
-            print(f"{_md5sum(f)}\t{f}")
+            md5 = _md5sum(f)
+            print(f"{md5}\t{f}")
+            if f.suffix == ".dll":
+                uniq[md5] = f
+        if uniq:
+            print("Versions:")
+        for md5, f in uniq.items():
+            dll_version = _get_assembly_version(f)
+            print(f"  {dll_version} ({md5})")
         print()
     else:
         return False
