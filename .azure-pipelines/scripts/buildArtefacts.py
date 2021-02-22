@@ -332,7 +332,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     _run(cmd)
     shutil.rmtree(dist_tag_dir / smi_services_output_dir)
 
-    if platform == _LINUX and False:
+    if platform == _LINUX:
         _build_java_packages(dist_tag_dir, tag)
 
     # Create checksum files
