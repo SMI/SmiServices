@@ -20,6 +20,7 @@ Each entry in the changelog should use the following template:
 ### Fixed
 
 - Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer
+- Reduce memory consumption in nerd
 
 ## [1.15.1] 2021-02-17
 
