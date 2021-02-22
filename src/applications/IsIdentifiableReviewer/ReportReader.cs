@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Reports;
 
@@ -21,6 +22,11 @@ namespace IsIdentifiableReviewer
         {
             var report = new FailureStoreReport("", 0);
             Failures = report.Deserialize(csvFile).ToArray();
+        }
+        public ReportReader(FileInfo csvFile,Action<int> loadedRows, CancellationToken token)
+        {
+            var report = new FailureStoreReport("", 0);
+            Failures = report.Deserialize(csvFile,loadedRows,token).ToArray();
         }
 
         public bool Next()

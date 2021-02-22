@@ -4,12 +4,16 @@ namespace IsIdentifiableReviewer.Views
 {
     internal class TreeNodeWithCount : TreeNode
     {
-        public TreeNodeWithCount(string text):base(text)
+        public string Heading { get; }
+
+        public TreeNodeWithCount(string heading)
         {
+            Heading = heading;
         }
+
         public override string ToString()
         {
-            return base.ToString() + $" ({Children.Count:N0})";
+            return Heading + $" ({Children.Count:N0})";
         }
     }
 }

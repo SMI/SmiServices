@@ -11,8 +11,15 @@ Each entry in the changelog should use the following template:
 ```
 
 ## [Unreleased]
+### Added
 
--   [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
+- IsIdentifiableReviewer shows progress when loading large files (with cancellation support)
+- IsIdentifiableReviewer groups outstanding failures by column
+- [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
+
+### Fixed
+
+- Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer
 
 ## [1.15.1] 2021-02-17
 
