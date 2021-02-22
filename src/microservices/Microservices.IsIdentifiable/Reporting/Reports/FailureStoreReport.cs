@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using CsvHelper;
 using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;
@@ -80,6 +81,11 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
 
         public IEnumerable<Failure> Deserialize(FileInfo oldFile)
         {
+            return Deserialize(oldFile,(s)=>{ },CancellationToken.None);
+        }
+
+        public IEnumerable<Failure> Deserialize(FileInfo oldFile,Action<int> loadedRows, CancellationToken token)
+        {
             int lineNumber = 0;
 
             using (var r = new CsvReader(new StreamReader(File.OpenRead(oldFile.FullName)),System.Globalization.CultureInfo.CurrentCulture))
@@ -93,6 +99,8 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
 
                 while (r.Read())
                 {
+                    token.ThrowIfCancellationRequested();
+
                     lineNumber++;
                     var parts = new List<FailurePart>();
 
@@ -121,7 +129,11 @@ namespace Microservices.IsIdentifiable.Reporting.Reports
                         ProblemValue = r["ProblemValue"],
                     };
 
+                    if(lineNumber % 1000 == 0)
+                        loadedRows(lineNumber);
                 }
+
+                loadedRows(lineNumber);
             }
         }
     }
