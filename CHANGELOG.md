@@ -14,6 +14,11 @@ Each entry in the changelog should use the following template:
 
 
 
+### Added
+
+- IsIdentifiableReviewer shows progress when loading large files (with cancellation support)
+- IsIdentifiableReviewer groups outstanding failures by column
+
 ### Fixed
 
 - Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer

@@ -395,7 +395,7 @@ namespace IsIdentifiableReviewer
             Action closeFunc = ()=>{Application.RequestStop();};
             btn.Clicked += cancelFunc;
 
-            var dlg = new Dialog("Opening",btn);
+            var dlg = new Dialog("Opening",MainWindow.DlgWidth,5,btn);
             var rows = new Label($"Loaded: 0 rows"){
                 Width = Dim.Fill() };
             dlg.Add(rows);

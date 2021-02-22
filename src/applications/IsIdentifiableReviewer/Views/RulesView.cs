@@ -202,7 +202,7 @@ namespace IsIdentifiableReviewer.Views
             Action closeFunc = ()=>{Application.RequestStop();};
             btn.Clicked += cancelFunc;
 
-            var dlg = new Dialog("Evaluating",btn);
+            var dlg = new Dialog("Evaluating",MainWindow.DlgWidth,6,btn);
 
             var stage = new Label("Evaluating Failures"){Width = Dim.Fill(), X = 0,Y = 0};
             var progress = new ProgressBar(){Height= 2,Width = Dim.Fill(), X=0,Y = 1};
@@ -314,7 +314,13 @@ namespace IsIdentifiableReviewer.Views
             SetProgress(progress,textProgress,done,max);
 
             stage.Text = "Evaluating Outstanding Failures";
-            outstanding.Children = outstandingFailures.Select(kvp=>kvp.Value).OrderByDescending(v=>v.NumberOfTimesReported).Cast<ITreeNode>().ToList();
+
+            outstanding.Children = 
+                outstandingFailures.Select(f=>f.Value).GroupBy(f=>f.Failure.ProblemField)               
+                    .Select(g=>new FailureGroupingNode(g.Key,g.ToArray()))
+                    .OrderByDescending(v=>v.Failures.Sum(f=>f.NumberOfTimesReported))
+                    .Cast<ITreeNode>()
+                    .ToList();
         }
 
         private void SetProgress(ProgressBar pb, Label tp, int done, int max)
