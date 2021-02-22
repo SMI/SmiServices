@@ -1,6 +1,4 @@
-﻿// NOTE: Delete this class once it becomes available either from RDMP or Terminal.gui (PR https://github.com/migueldeicaza/gui.cs/pull/1022)
-
-// This code is based on http://objectlistview.sourceforge.net (GPLv3 tree/list controls by phillip.piper@gmail.com).  Phillip has explicitly granted permission for his design and code to be used in this library under the MIT license.
+﻿// This code is based on http://objectlistview.sourceforge.net (GPLv3 tree/list controls by phillip.piper@gmail.com).  Phillip has explicitly granted permission for his design and code to be used in this library under the MIT license.
 
 using System;
 using System.Collections.Generic;
@@ -15,16 +13,20 @@ namespace Terminal.Gui {
 	public interface ITreeNode
 	{
 		/// <summary>
+		/// Text to display when rendering the node
+		/// </summary>
+		string Text {get;set;}
+
+		/// <summary>
 		/// The children of your class which should be rendered underneath it when expanded
 		/// </summary>
 		/// <value></value>
 		IList<ITreeNode> Children {get;}
 
 		/// <summary>
-		/// The textual representation to be rendered when your class is visible in the tree
+		/// Optionally allows you to store some custom data/class here.
 		/// </summary>
-		/// <value></value>
-		string Text {get;}
+		object Tag {get;set;}
 	}
 
 	/// <summary>
@@ -43,6 +45,11 @@ namespace Terminal.Gui {
 		/// </summary>
 		/// <value></value>
 		public string Text {get;set;}
+
+		/// <summary>
+		/// Optionally allows you to store some custom data/class here.
+		/// </summary>
+		public object Tag {get;set;}
 
 		/// <summary>
 		/// returns <see cref="Text"/>
@@ -236,6 +243,7 @@ namespace Terminal.Gui {
 		public TreeView ()
 		{
 			TreeBuilder = new TreeNodeBuilder();
+			AspectGetter = o=>o == null ? "Null" : (o.Text ?? o?.ToString() ?? "Unamed Node");
 		}
 	}
 	
@@ -270,14 +278,21 @@ namespace Terminal.Gui {
 		/// </summary>
 		public bool InvertExpandSymbolColors {get;set;}
 
-	}
+		/// <summary>
+		/// True to leave the last row of the control free for overwritting (e.g. by a scrollbar). When True scrolling will be triggered on the second last row of the control rather than the last.
+		/// </summary>
+		/// <value></value>
+		public bool LeaveLastRow {get;set;}
 
+	}
+	
 	/// <summary>
 	/// Hierarchical tree view with expandable branches.  Branch objects are dynamically determined when expanded using a user defined <see cref="ITreeBuilder{T}"/>
 	/// </summary>
 	public class TreeView<T> : View, ITreeView where T:class
 	{   
-		private int scrollOffset;
+		private int scrollOffsetVertical;
+		private int scrollOffsetHorizontal;
 
 		/// <summary>
 		/// Determines how sub branches of the tree are dynamically built at runtime as the user expands root nodes
@@ -296,8 +311,15 @@ namespace Terminal.Gui {
 		/// </summary>
 		public TreeStyle Style {get;set;} = new TreeStyle();
 
+
 		/// <summary>
-		/// The currently selected object in the tree
+		/// True to allow multiple objects to be selected at once
+		/// </summary>
+		/// <value></value>
+		public bool MultiSelect {get;set;} = true;
+
+		/// <summary>
+		/// The currently selected object in the tree.  When <see cref="MultiSelect"/> is true this is the object at which the cursor is at
 		/// </summary>
 		public T SelectedObject { 
 			get => selectedObject; 
@@ -306,10 +328,26 @@ namespace Terminal.Gui {
 				selectedObject = value; 
 
 				if(!ReferenceEquals(oldValue,value))
-					SelectionChanged?.Invoke(this,new SelectionChangedEventArgs<T>(this,oldValue,value));
+					OnSelectionChanged(new SelectionChangedEventArgs<T>(this,oldValue,value));
 			}
 		}
+
+		/// <summary>
+		/// Secondary selected regions of tree when <see cref="MultiSelect"/> is true
+		/// </summary>
+		private Stack<TreeSelection<T>> multiSelectedRegions = new Stack<TreeSelection<T>>();
 		
+		/// <summary>
+		/// Cached result of <see cref="BuildLineMap"/>
+		/// </summary>
+		private Branch<T>[] cachedLineMap;
+
+
+		/// <summary>
+		/// Error message to display when the control is not properly initialized at draw time (nodes added but no tree builder set)
+		/// </summary>
+		public static ustring NoBuilderError = "ERROR: Builder Not Set";
+
 		/// <summary>
 		/// Called when the <see cref="SelectedObject"/> changes
 		/// </summary>
@@ -328,13 +366,30 @@ namespace Terminal.Gui {
 		/// <summary>
 		/// The amount of tree view that has been scrolled off the top of the screen (by the user scrolling down)
 		/// </summary>
-		/// <remarks>Setting a value of less than 0 will result in a ScrollOffset of 0.  To see changes in the UI call <see cref="View.SetNeedsDisplay()"/></remarks>
-		public int ScrollOffset { 
-			get => scrollOffset;
+		/// <remarks>Setting a value of less than 0 will result in a offset of 0.  To see changes in the UI call <see cref="View.SetNeedsDisplay()"/></remarks>
+		public int ScrollOffsetVertical { 
+			get => scrollOffsetVertical;
 			set {
-				scrollOffset = Math.Max(0,value); 
+				scrollOffsetVertical = Math.Max(0,value); 
 			}
 		}
+
+
+		/// <summary>
+		/// The amount of tree view that has been scrolled to the right (horizontally)
+		/// </summary>
+		/// <remarks>Setting a value of less than 0 will result in a offset of 0.  To see changes in the UI call <see cref="View.SetNeedsDisplay()"/></remarks>
+		public int ScrollOffsetHorizontal { 
+			get => scrollOffsetHorizontal;
+			set {
+				scrollOffsetHorizontal = Math.Max(0,value); 
+			}
+		}
+
+		/// <summary>
+		/// The current number of rows in the tree (ignoring the controls bounds)
+		/// </summary>
+		public int ContentHeight => BuildLineMap().Count();
 
 		/// <summary>
 		/// Returns the string representation of model objects hosted in the tree.  Default implementation is to call <see cref="object.ToString"/>
@@ -366,9 +421,11 @@ namespace Terminal.Gui {
 		{
 			if(!roots.ContainsKey(o)) {
 				roots.Add(o,new Branch<T>(this,null,o));
+				InvalidateLineMap();
 				SetNeedsDisplay();
 			}
 		}
+
 
 		/// <summary>
 		/// Removes all objects from the tree and clears <see cref="SelectedObject"/>
@@ -376,7 +433,9 @@ namespace Terminal.Gui {
 		public void ClearObjects()
 		{
 			SelectedObject = default(T);
+			multiSelectedRegions.Clear();
 			roots = new Dictionary<T, Branch<T>>();
+			InvalidateLineMap();
 			SetNeedsDisplay();
 		}
 
@@ -389,6 +448,7 @@ namespace Terminal.Gui {
 		{
 			if(roots.ContainsKey(o)) {
 				roots.Remove(o);
+				InvalidateLineMap();
 				SetNeedsDisplay();
 
 				if(Equals(SelectedObject,o))
@@ -410,9 +470,11 @@ namespace Terminal.Gui {
 					objectsAdded = true;
 				}	
 			}
-				
-			if(objectsAdded)
+
+			if (objectsAdded) {
+				InvalidateLineMap();
 				SetNeedsDisplay();
+			}
 		}
 
 		/// <summary>
@@ -426,6 +488,7 @@ namespace Terminal.Gui {
 			var branch = ObjectToBranch(o);
 			if(branch != null) {
 				branch.Refresh(startAtTop);
+				InvalidateLineMap();
 				SetNeedsDisplay();
 			}
 
@@ -439,6 +502,7 @@ namespace Terminal.Gui {
 			foreach(var branch in roots.Values)
 				branch.Rebuild();
 			
+			InvalidateLineMap();
 			SetNeedsDisplay();
 		}
 
@@ -472,11 +536,17 @@ namespace Terminal.Gui {
 			if(roots == null)
 				return;
 
+			if(TreeBuilder == null) {
+				Move(0,0);
+				Driver.AddStr(NoBuilderError);
+				return;
+			}
+
 			var map = BuildLineMap();
 
 			for(int line = 0 ; line < bounds.Height; line++){
 
-				var idxToRender = ScrollOffset + line;
+				var idxToRender = ScrollOffsetVertical + line;
 
 				// Is there part of the tree view to render?
 				if(idxToRender < map.Length) {
@@ -494,7 +564,7 @@ namespace Terminal.Gui {
 		}
 		
 		/// <summary>
-		/// Returns the index of the object <paramref name="o"/> if it is currently exposed (it's parent(s) have been expanded).  This can be used with <see cref="ScrollOffset"/> and <see cref="View.SetNeedsDisplay()"/> to scroll to a specific object
+		/// Returns the index of the object <paramref name="o"/> if it is currently exposed (it's parent(s) have been expanded).  This can be used with <see cref="ScrollOffsetVertical"/> and <see cref="View.SetNeedsDisplay()"/> to scroll to a specific object
 		/// </summary>
 		/// <remarks>Uses the Equals method and returns the first index at which the object is found or -1 if it is not found</remarks>
 		/// <param name="o">An object that appears in your tree and is currently exposed</param>
@@ -513,19 +583,52 @@ namespace Terminal.Gui {
 		}
 
 		/// <summary>
+		/// Returns the maximum width line in the tree including prefix and expansion symbols
+		/// </summary>
+		/// <param name="visible">True to consider only rows currently visible (based on window bounds and <see cref="ScrollOffsetVertical"/>.  False to calculate the width of every exposed branch in the tree</param>
+		/// <returns></returns>
+		public int GetContentWidth(bool visible){
+			
+			var map = BuildLineMap();
+
+			if(map.Length == 0)
+				return 0;
+
+			if(visible){
+
+				//Somehow we managed to scroll off the end of the control
+				if(ScrollOffsetVertical >= map.Length)
+					return 0;
+
+				// If control has no height to it then there is no visible area for content
+				if(Bounds.Height == 0)
+					return 0;
+
+				return map.Skip(ScrollOffsetVertical).Take(Bounds.Height).Max(b=>b.GetWidth(Driver));
+			}
+			else{
+
+				return map.Max(b=>b.GetWidth(Driver));
+			}
+		}
+
+		/// <summary>
 		/// Calculates all currently visible/expanded branches (including leafs) and outputs them by index from the top of the screen
 		/// </summary>
 		/// <remarks>Index 0 of the returned array is the first item that should be visible in the top of the control, index 1 is the next etc.</remarks>
 		/// <returns></returns>
 		private Branch<T>[] BuildLineMap()
 		{
+			if(cachedLineMap != null)
+				return cachedLineMap;
+
 			List<Branch<T>> toReturn = new List<Branch<T>>();
 
 			foreach(var root in roots.Values) {
 				toReturn.AddRange(AddToLineMap(root));
 			}
 
-			return toReturn.ToArray();
+			return cachedLineMap = toReturn.ToArray();
 		}
 
 		private IEnumerable<Branch<T>> AddToLineMap (Branch<T> currentBranch)
@@ -549,23 +652,34 @@ namespace Terminal.Gui {
 				case Key.CursorRight:
 					Expand(SelectedObject);
 				break;
+				case Key.CursorRight | Key.CtrlMask:
+					ExpandAll(SelectedObject);
+				break;
 				case Key.CursorLeft:
-					CursorLeft();
+				case Key.CursorLeft | Key.CtrlMask:
+					CursorLeft(keyEvent.Key.HasFlag(Key.CtrlMask));
 				break;
 			
 				case Key.CursorUp:
-					AdjustSelection(-1);
+				case Key.CursorUp | Key.ShiftMask:
+					AdjustSelection(-1,keyEvent.Key.HasFlag(Key.ShiftMask));
 				break;
 				case Key.CursorDown:
-					AdjustSelection(1);
+				case Key.CursorDown | Key.ShiftMask:
+					AdjustSelection(1,keyEvent.Key.HasFlag(Key.ShiftMask));
 				break;
 				case Key.PageUp:
-					AdjustSelection(-Bounds.Height);
+				case Key.PageUp | Key.ShiftMask:
+					AdjustSelection(-Bounds.Height,keyEvent.Key.HasFlag(Key.ShiftMask));
 				break;
 				
 				case Key.PageDown:
-					AdjustSelection(Bounds.Height);
+				case Key.PageDown | Key.ShiftMask:
+					AdjustSelection(Bounds.Height,keyEvent.Key.HasFlag(Key.ShiftMask));
 				break;
+				case Key.ControlA:
+					SelectAll();
+					break;
 				case Key.Home:
 					GoToFirst();
 				break;
@@ -586,7 +700,7 @@ namespace Terminal.Gui {
 		public override bool MouseEvent (MouseEvent me)
 		{
 			if (!me.Flags.HasFlag (MouseFlags.Button1Clicked) && !me.Flags.HasFlag (MouseFlags.Button1DoubleClicked) &&
-				me.Flags != MouseFlags.WheeledDown && me.Flags != MouseFlags.WheeledUp)
+				me.Flags != MouseFlags.WheeledDown && me.Flags != MouseFlags.WheeledUp /*&& me.Flags != MouseFlags.WheeledRight&& me.Flags != MouseFlags.WheeledLeft*/)
 				return false;
 
 			if (!HasFocus && CanFocus) {
@@ -596,22 +710,35 @@ namespace Terminal.Gui {
 
 			if (me.Flags == MouseFlags.WheeledDown) {
 
-				ScrollOffset++;
+				ScrollOffsetVertical++;
 				SetNeedsDisplay();
 
 				return true;
 			} else if (me.Flags == MouseFlags.WheeledUp) {
-				ScrollOffset--;
+				ScrollOffsetVertical--;
 				SetNeedsDisplay();
 
 				return true;
 			}
+			/*
+			if (me.Flags == MouseFlags.WheeledRight) {
 
-			if(me.Flags == MouseFlags.Button1Clicked) {
+				ScrollOffsetHorizontal++;
+				SetNeedsDisplay();
+
+				return true;
+			} else if (me.Flags == MouseFlags.WheeledLeft) {
+				ScrollOffsetHorizontal--;
+				SetNeedsDisplay();
+
+				return true;
+			}*/
+
+			if(me.Flags.HasFlag(MouseFlags.Button1Clicked)) {
 
 				var map = BuildLineMap();
 				
-				var idx = me.OfY + ScrollOffset;
+				var idx = me.Y + ScrollOffsetVertical;
 
 				// click is outside any visible nodes
 				if(idx < 0 || idx >= map.Length) {
@@ -621,7 +748,7 @@ namespace Terminal.Gui {
 				// The line they clicked on
 				var clickedBranch = map[idx];
 
-				bool isExpandToggleAttempt = clickedBranch.IsHitOnExpandableSymbol(Driver,me.OfX);
+				bool isExpandToggleAttempt = clickedBranch.IsHitOnExpandableSymbol(Driver,me.X);
 				
 				// If we are already selected (double click)
 				if(Equals(SelectedObject,clickedBranch.Model)) 
@@ -638,11 +765,14 @@ namespace Terminal.Gui {
 						clickedBranch.Expand();
 					else {
 						SelectedObject = clickedBranch.Model; // It is a leaf node
+						multiSelectedRegions.Clear();
 					}
 				}
 				else {
+
 					// It is a first click somewhere in the current line that doesn't look like an expansion/collapse attempt
 					SelectedObject = clickedBranch.Model;
+					multiSelectedRegions.Clear();
 				}
 
 				SetNeedsDisplay();
@@ -663,8 +793,8 @@ namespace Terminal.Gui {
 				var idx = Array.FindIndex(map,b=>b.Model.Equals(SelectedObject));
 
 				// if currently selected line is visible
-				if(idx - ScrollOffset >= 0 && idx - ScrollOffset  < Bounds.Height)
-					Move(0,idx - ScrollOffset);
+				if(idx - ScrollOffsetVertical >= 0 && idx - ScrollOffsetVertical  < Bounds.Height)
+					Move(0,idx - ScrollOffsetVertical);
 				else
 					base.PositionCursor();
 
@@ -677,10 +807,16 @@ namespace Terminal.Gui {
 		/// <summary>
 		/// Determines systems behaviour when the left arrow key is pressed.  Default behaviour is to collapse the current tree node if possible otherwise changes selection to current branches parent
 		/// </summary>
-		protected virtual void CursorLeft()
+		protected virtual void CursorLeft(bool ctrl)
 		{
-			if(IsExpanded(SelectedObject))
-				Collapse(SelectedObject);
+			if(IsExpanded(SelectedObject)) {
+				
+				if(ctrl)
+					CollapseAll(SelectedObject);
+				else
+					Collapse(SelectedObject);
+
+			}
 			else
 			{
 				var parent = GetParent(SelectedObject);
@@ -693,11 +829,11 @@ namespace Terminal.Gui {
 		}
 
 		/// <summary>
-		/// Changes the <see cref="SelectedObject"/> to the first root object and resets the <see cref="ScrollOffset"/> to 0
+		/// Changes the <see cref="SelectedObject"/> to the first root object and resets the <see cref="ScrollOffsetVertical"/> to 0
 		/// </summary>
 		public void GoToFirst()
 		{
-			ScrollOffset = 0;
+			ScrollOffsetVertical = 0;
 			SelectedObject = roots.Keys.FirstOrDefault();
 
 			SetNeedsDisplay();
@@ -709,7 +845,7 @@ namespace Terminal.Gui {
 		public void GoToEnd ()
 		{
 			var map = BuildLineMap();
-			ScrollOffset = Math.Max(0,map.Length - Bounds.Height +1);
+			ScrollOffsetVertical = Math.Max(0,map.Length - Bounds.Height +1);
 			SelectedObject = map.Last().Model;
 						
 			SetNeedsDisplay();
@@ -720,8 +856,13 @@ namespace Terminal.Gui {
 		/// </summary>
 		/// <remarks>If nothing is currently selected the first root is selected.  If the selected object is no longer in the tree the first object is selected</remarks>
 		/// <param name="offset"></param>
-		public void AdjustSelection (int offset)
+		/// <param name="expandSelection">True to expand the selection (assuming <see cref="MultiSelect"/> is enabled).  False to replace</param>
+		public void AdjustSelection (int offset, bool expandSelection = false)
 		{
+			// if it is not a shift click or we don't allow multi select
+			if(!expandSelection || !MultiSelect)
+				multiSelectedRegions.Clear();
+
 			if(SelectedObject == null){
 				SelectedObject = roots.Keys.FirstOrDefault();
 			}
@@ -737,23 +878,44 @@ namespace Terminal.Gui {
 				}
 				else {
 					var newIdx = Math.Min(Math.Max(0,idx+offset),map.Length-1);
-					SelectedObject = map[newIdx].Model;
-
 					
-					if(newIdx < ScrollOffset) {
-						//if user has scrolled up too far to see their selection
-						ScrollOffset = newIdx;
+					var newBranch = map[newIdx];
+
+					// If it is a multi selection
+					if(expandSelection && MultiSelect)
+					{
+						if(multiSelectedRegions.Any())
+						{
+							// expand the existing head selection
+							var head = multiSelectedRegions.Pop();
+							multiSelectedRegions.Push(new TreeSelection<T>(head.Origin,newIdx,map));
+						}
+						else
+						{
+							// or start a new multi selection region
+							multiSelectedRegions.Push(new TreeSelection<T>(map[idx],newIdx,map));
+						}
 					}
-					else if(newIdx >= ScrollOffset + Bounds.Height){
+
+					SelectedObject = newBranch.Model;
+
+ 					/*this -1 allows for possible horizontal scroll bar in the last row of the control*/
+					int leaveSpace = Style.LeaveLastRow ? 1 :0;
+					
+					if(newIdx < ScrollOffsetVertical) {
+						//if user has scrolled up too far to see their selection
+						ScrollOffsetVertical = newIdx;
+					}
+					else if(newIdx >= ScrollOffsetVertical + Bounds.Height - leaveSpace){
 						
 						//if user has scrolled off bottom of visible tree
-						ScrollOffset = Math.Max(0,(newIdx+1) - Bounds.Height);
-
+						ScrollOffsetVertical = Math.Max(0,(newIdx+1) - (Bounds.Height-leaveSpace));
 					}
 				}
 
 			}
-						
+
+			InvalidateLineMap();						
 			SetNeedsDisplay();
 		}
 
@@ -767,9 +929,35 @@ namespace Terminal.Gui {
 				return;
 			
 			ObjectToBranch(toExpand)?.Expand();
+			InvalidateLineMap();
 			SetNeedsDisplay();
 		}
 		
+		/// <summary>
+		/// Expands the supplied object and all child objects
+		/// </summary>
+		/// <param name="toExpand">The object to expand</param>
+		public void ExpandAll(T toExpand)
+		{
+			if(toExpand == null)
+				return;
+			
+			ObjectToBranch(toExpand)?.ExpandAll();
+			InvalidateLineMap();
+			SetNeedsDisplay();
+		}
+		/// <summary>
+		/// Fully expands all nodes in the tree, if the tree is very big and built dynamically this may take a while (e.g. for file system)
+		/// </summary>
+		public void ExpandAll()
+		{
+			foreach (var item in roots) {
+				item.Value.ExpandAll();
+			}
+			
+			InvalidateLineMap();
+			SetNeedsDisplay();
+		}
 		/// <summary>
 		/// Returns true if the given object <paramref name="o"/> is exposed in the tree and can be expanded otherwise false
 		/// </summary>
@@ -796,11 +984,70 @@ namespace Terminal.Gui {
 		/// <param name="toCollapse">The object to collapse</param>
 		public void Collapse(T toCollapse)
 		{
+			CollapseImpl(toCollapse,false);
+		}
+		
+		/// <summary>
+		/// Collapses the supplied object if it is currently expanded.  Also collapses all children branches (this will only become apparent when/if the user expands it again)
+		/// </summary>
+		/// <param name="toCollapse">The object to collapse</param>
+		public void CollapseAll(T toCollapse)
+		{
+			CollapseImpl(toCollapse,true);
+		}
+
+		/// <summary>
+		/// Collapses all root nodes in the tree
+		/// </summary>
+		public void CollapseAll()
+		{
+			foreach (var item in roots) {
+				item.Value.Collapse();
+			}
+			
+			InvalidateLineMap();
+			SetNeedsDisplay();
+		}
+
+		/// <summary>
+		/// Implementation of <see cref="Collapse(T)"/> and <see cref="CollapseAll(T)"/>.  Performs operation and updates selection if disapeared
+		/// </summary>
+		/// <param name="toCollapse"></param>
+		/// <param name="all"></param>
+		protected void CollapseImpl(T toCollapse, bool all)
+		{
+			
 			if(toCollapse == null)
 				return;
 
-			ObjectToBranch(toCollapse)?.Collapse();
+			var branch = ObjectToBranch(toCollapse);
+			
+			// Nothing to collapse
+			if(branch == null)
+				return;
+
+			if (all) {
+				branch.CollapseAll();
+			} else {
+				branch.Collapse();
+			}
+
+			if(SelectedObject != null && ObjectToBranch(SelectedObject) == null)
+			{
+				// If the old selection suddenly became invalid then clear it
+				SelectedObject = null;
+			}	
+			
+			InvalidateLineMap();
 			SetNeedsDisplay();
+		}
+		
+		/// <summary>
+		/// Clears any cached results of <see cref="BuildLineMap"/>
+		/// </summary>
+		protected void InvalidateLineMap()
+		{
+			cachedLineMap = null;
 		}
 
 		/// <summary>
@@ -811,6 +1058,103 @@ namespace Terminal.Gui {
 		private Branch<T> ObjectToBranch(T toFind)
 		{
 			return BuildLineMap().FirstOrDefault(o=>o.Model.Equals(toFind));
+		}
+
+		/// <summary>
+		/// Returns true if the <paramref name="model"/> is either the <see cref="SelectedObject"/> or part of a <see cref="MultiSelect"/>
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
+		public bool IsSelected (T model)
+		{
+			return Equals(SelectedObject , model) ||
+				(MultiSelect && multiSelectedRegions.Any(s=>s.Contains(model)));
+		}
+
+		/// <summary>
+		/// Returns <see cref="SelectedObject"/> (if not null) and all multi selected objects if <see cref="MultiSelect"/> is true
+		/// </summary>
+		/// <returns></returns>
+		public IEnumerable<T> GetAllSelectedObjects()
+		{
+			var map = BuildLineMap();
+
+			// To determine multi selected objects, start with the line map, that avoids yielding hidden nodes that were selected then the parent collapsed e.g. programmatically or with mouse click
+			if(MultiSelect){
+				foreach(var m in map.Select(b=>b.Model).Where(IsSelected)){
+					yield return m;
+				}	
+			}
+			else
+			{
+				if(SelectedObject != null)
+					yield return SelectedObject;
+			}
+		}
+
+		/// <summary>
+		/// Selects all objects in the tree when <see cref="MultiSelect"/> is enabled otherwise does nothing
+		/// </summary>
+		public void SelectAll()
+		{
+			if(!MultiSelect)
+				return;
+
+			multiSelectedRegions.Clear();
+
+			var map = BuildLineMap();
+
+			if(map.Length == 0)
+				return;
+
+			multiSelectedRegions.Push(new TreeSelection<T>(map[0],map.Length,map));
+			SetNeedsDisplay();
+			
+			OnSelectionChanged(new SelectionChangedEventArgs<T>(this,SelectedObject,SelectedObject));
+		}
+
+
+		/// <summary>
+		/// Raises the SelectionChanged event
+		/// </summary>
+		/// <param name="e"></param>
+		protected virtual void OnSelectionChanged (SelectionChangedEventArgs<T> e)
+		{
+			SelectionChanged?.Invoke(this,e);
+		}
+	}
+
+	class TreeSelection<T> where T : class {
+
+		public Branch<T> Origin {get;}
+
+		private HashSet<T> included = new HashSet<T>();
+
+		/// <summary>
+		/// Creates a new selection between two branches in the tree
+		/// </summary>
+		/// <param name="from"></param>
+		/// <param name="toIndex"></param>
+		/// <param name="map"></param>
+		public TreeSelection(Branch<T> from, int toIndex, Branch<T>[] map )
+		{
+			Origin = from;
+			included.Add(Origin.Model);
+
+			var oldIdx = Array.IndexOf(map,from);
+
+			var lowIndex = Math.Min(oldIdx,toIndex);
+			var highIndex = Math.Max(oldIdx,toIndex);
+
+			// Select everything between the old and new indexes
+			foreach(var alsoInclude in map.Skip(lowIndex).Take(highIndex-lowIndex)){
+				included.Add(alsoInclude.Model);
+			}
+		
+		}
+		public bool Contains(T model)
+		{
+			return included.Contains(model);
 		}
 	}
 
@@ -875,6 +1219,18 @@ namespace Terminal.Gui {
 		}
 
 		/// <summary>
+		/// Returns the width of the line including prefix and the results of <see cref="TreeView{T}.AspectGetter"/> (the line body).
+		/// </summary>
+		/// <returns></returns>
+		public virtual int GetWidth (ConsoleDriver driver)
+		{
+			return 
+				GetLinePrefix(driver).Sum(Rune.ColumnWidth) + 
+				Rune.ColumnWidth(GetExpandableSymbol(driver)) + 
+				(tree.AspectGetter(Model) ?? "").Length;
+		}
+
+		/// <summary>
 		/// Renders the current <see cref="Model"/> on the specified line <paramref name="y"/>
 		/// </summary>
 		/// <param name="driver"></param>
@@ -884,7 +1240,7 @@ namespace Terminal.Gui {
 		public virtual void Draw(ConsoleDriver driver,ColorScheme colorScheme, int y, int availableWidth)
 		{
 			// true if the current line of the tree is the selected one and control has focus
-			bool isSelected = tree.SelectedObject == Model && tree.HasFocus;
+			bool isSelected = tree.IsSelected(Model) && tree.HasFocus;
 			Attribute lineColor = isSelected? colorScheme.Focus : colorScheme.Normal;
 
 			driver.SetAttribute(lineColor);
@@ -892,28 +1248,23 @@ namespace Terminal.Gui {
 			// Everything on line before the expansion run and branch text
 			Rune[] prefix = GetLinePrefix(driver).ToArray();
 			Rune expansion = GetExpandableSymbol(driver);
-			string lineBody = tree.AspectGetter(Model);
-
-			// How much space is left after prefix and expansion symbol?
-			var remainingWidth = availableWidth - (prefix.Sum(Rune.ColumnWidth) + Rune.ColumnWidth(expansion) );
-
-			// If body of line is too long
-			if(lineBody.Sum(l=>Rune.ColumnWidth(l)) > remainingWidth)
-			{
-				// remaining space is zero and truncate the line
-				lineBody = new string(lineBody.TakeWhile(c=>(remainingWidth -= Rune.ColumnWidth(c)) > 0).ToArray());
-				remainingWidth = 0;
-			}
-			else{
-
-				// line is short so remaining width will be whatever comes after the line body
-				remainingWidth -= lineBody.Length;
-			}
+			string lineBody = tree.AspectGetter(Model) ?? "";
 
 			tree.Move(0,y);
 
+			// if we have scrolled to the right then bits of the prefix will have dispeared off the screen
+			int toSkip = tree.ScrollOffsetHorizontal;
+
+			// Draw the line prefix (all paralell lanes or whitespace and an expand/collapse/leaf symbol)
 			foreach(Rune r in prefix){
-				driver.AddRune(r);
+
+				if(toSkip > 0){
+					toSkip--;
+				}
+				else{
+					driver.AddRune(r);
+					availableWidth -= Rune.ColumnWidth(r);
+				}
 			}
 
 			// pick color for expanded symbol
@@ -932,14 +1283,44 @@ namespace Terminal.Gui {
 				driver.SetAttribute(color);
 			}
 
-			driver.AddRune(expansion);
+			if(toSkip > 0){
+				toSkip--;
+			}
+			else{
+				driver.AddRune(expansion);
+				availableWidth -= Rune.ColumnWidth(expansion);
+			}
+
+			// horizontal scrolling has already skipped the prefix but now must also skip some of the line body
+			if(toSkip > 0)
+			{
+				if(toSkip > lineBody.Length){
+					lineBody = "";
+				}
+				else{
+					lineBody = lineBody.Substring(toSkip);
+				}
+			}
 			
+			// If body of line is too long
+			if(lineBody.Sum(l=>Rune.ColumnWidth(l)) > availableWidth)
+			{
+				// remaining space is zero and truncate the line
+				lineBody = new string(lineBody.TakeWhile(c=>(availableWidth -= Rune.ColumnWidth(c)) >= 0).ToArray());
+				availableWidth = 0;
+			}
+			else{
+
+				// line is short so remaining width will be whatever comes after the line body
+				availableWidth -= lineBody.Length;
+			}
+
 			//reset the line color if it was changed for rendering expansion symbol
 			driver.SetAttribute(lineColor);
 			driver.AddStr(lineBody);
 
-			if(remainingWidth > 0)
-				driver.AddStr(new string(' ',remainingWidth));
+			if(availableWidth > 0)
+				driver.AddStr(new string(' ',availableWidth));
 
 			driver.SetAttribute(colorScheme.Normal);
 		}
@@ -1112,7 +1493,7 @@ namespace Terminal.Gui {
 				if(IsExpanded) {
 					//if we are expanded we need to updatethe visible children
 					foreach(var child in ChildBranches) {
-						child.Value.Refresh(false);
+						child.Value.Rebuild();
 					}
 					
 				}
@@ -1160,6 +1541,32 @@ namespace Terminal.Gui {
 			}
 
 			return false;
+		}
+
+		/// <summary>
+		/// Expands the current branch and all children branches
+		/// </summary>
+		internal void ExpandAll ()
+		{
+			Expand();
+
+			if(ChildBranches != null)
+				foreach (var child in ChildBranches) {
+					child.Value.ExpandAll();
+				}
+		}
+
+		/// <summary>
+		/// Collapses the current branch and all children branches (even though those branches are no longer visible they retain collapse/expansion state)
+		/// </summary>
+		internal void CollapseAll ()
+		{
+			Collapse();
+
+			if(ChildBranches != null)
+				foreach (var child in ChildBranches) {
+					child.Value.CollapseAll();
+				}
 		}
 	}
 
