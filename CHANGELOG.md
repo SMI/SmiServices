@@ -12,7 +12,7 @@ Each entry in the changelog should use the following template:
 
 ## [Unreleased]
 
--
+-   [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
 
 ## [1.15.1] 2021-02-17
 
