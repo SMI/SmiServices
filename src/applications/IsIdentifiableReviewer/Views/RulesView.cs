@@ -220,6 +220,8 @@ namespace IsIdentifiableReviewer.Views
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
                     dlg.SetNeedsDisplay();
+
+                    cts.Dispose();
             });;
             
             Application.Run(dlg);
@@ -238,10 +240,7 @@ namespace IsIdentifiableReviewer.Views
                 done++;
                 token.ThrowIfCancellationRequested();
                 if(done % 1000 == 0)
-                {
-                    progress.Fraction = done/max;
-                    textProgress.Text = $"{done:N0}/{max:N0}";
-                }
+                    SetProgress(progress,textProgress,done,max);
 
                 var ignoreRule = Ignorer.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
                 var updateRule = Updater.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
@@ -326,7 +325,7 @@ namespace IsIdentifiableReviewer.Views
         private void SetProgress(ProgressBar pb, Label tp, int done, int max)
         {
             if(max != 0)
-                pb.Fraction = done/max;
+                pb.Fraction = done/(float)max;
             tp.Text = $"{done:N0}/{max:N0}";
         }
 

@@ -420,6 +420,8 @@ namespace IsIdentifiableReviewer
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
                     dlg.SetNeedsDisplay();
+
+                    cts.Dispose();
             });
             
             Application.Run(dlg);
