@@ -20,6 +20,8 @@ dist/
 The files in the merged dir are checked for accidental overwriting, which can occur when
 publishing a solution of multiple projects into a single directory. See
 https://github.com/dotnet/sdk/issues/9984.
+
+NOTE: Requires exiftool when running on Linux
 """
 import argparse
 import concurrent
@@ -108,7 +110,7 @@ def _build_java_packages(dist_tag_dir: Path, tag: str) -> None:
     )
 
 
-def _build_csproj(build_dir: Path, platform: str, csproj_path: Path) -> None:
+def _publish_csproj(build_dir: Path, platform: str, csproj_path: Path) -> None:
 
     assembly_name: Optional[str] = None
     with open(csproj_path) as f:
@@ -188,7 +190,7 @@ def _get_assembly_version(file_path: Path) -> str:
         raise
 
 
-def _merge_files(build_dir: Path, base_output_dir: Path) -> bool:
+def _merge_files(build_dir: Path, base_output_dir: Path, platform: str) -> bool:
 
     base_output_dir.mkdir()
     files = {}
@@ -234,6 +236,11 @@ def _merge_files(build_dir: Path, base_output_dir: Path) -> bool:
             print(f"{md5}\t{f}")
             if f.suffix == ".dll":
                 uniq[md5] = f
+
+        # TODO(rkm 2021-02-22) Find some way to get AssemblyVersions on Windows
+        if platform == _WINDOWS:
+            continue
+
         if uniq:
             print("Versions:")
         for md5, f in uniq.items():
@@ -241,6 +248,7 @@ def _merge_files(build_dir: Path, base_output_dir: Path) -> bool:
             print(f"  {dll_version} ({md5})")
         print()
     else:
+        # Did not clobber anything
         return False
 
     return True
@@ -279,27 +287,32 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     tmp_build_dir = dist_tag_dir / "smi-services-build-tmp"
     tmp_build_dir.mkdir()
-    build_csproj = functools.partial(_build_csproj, tmp_build_dir, platform)
+    publish_csproj = functools.partial(_publish_csproj, tmp_build_dir, platform)
     csproj_paths = {Path(x) for x in glob.glob("src/**/*.csproj", recursive=True)}
-    build_failed = False
+    failed_builds = []
 
     # NOTE(rkm 2021-02-20) Might get a bit of a benefit here - runs on Standard_DS2_v2 (2 vCPU)
     with ThreadPoolExecutor() as executor:
-        build_results = {executor.submit(build_csproj, p): p for p in csproj_paths}
+        build_results = {executor.submit(publish_csproj, p): p for p in csproj_paths}
         for future in concurrent.futures.as_completed(build_results):
             csproj_path = build_results[future]
             try:
                 future.result()
             except Exception as exc:
                 print(f"{csproj_path} generated an exception: {exc}")
-                build_failed = True
+                failed_builds.append(csproj_path)
 
-    if build_failed:
-        print("A build failed - exiting")
+    if failed_builds:
+        failed = "\n".join([x.name for x in failed_builds])
+        print(f"At least one build failed:\n{failed}")
         return 1
 
     smi_services_output_dir = f"smi-services-{tag}-{platform}-x64"
-    did_clobber = _merge_files(tmp_build_dir, dist_tag_dir / smi_services_output_dir)
+    did_clobber = _merge_files(
+        tmp_build_dir,
+        dist_tag_dir / smi_services_output_dir,
+        platform,
+    )
     if did_clobber:
         return 1
 
