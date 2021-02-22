@@ -11,13 +11,11 @@ Each entry in the changelog should use the following template:
 ```
 
 ## [Unreleased]
-
-
-
 ### Added
 
 - IsIdentifiableReviewer shows progress when loading large files (with cancellation support)
 - IsIdentifiableReviewer groups outstanding failures by column
+- [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
 
 ### Fixed
 
