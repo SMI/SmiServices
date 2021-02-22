@@ -217,7 +217,7 @@ namespace IsIdentifiableReviewer.Views
                 },cts.Token).ContinueWith((t)=>{
                 
                     btn.Clicked -= cancelFunc;
-                    btn.Text = "Close";
+                    btn.Text = "Done";
                     btn.Clicked += closeFunc;
                     dlg.SetNeedsDisplay();
             });;
