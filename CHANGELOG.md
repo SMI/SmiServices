@@ -11,11 +11,16 @@ Each entry in the changelog should use the following template:
 ```
 
 ## [Unreleased]
+
 ### Added
 
 - IsIdentifiableReviewer shows progress when loading large files (with cancellation support)
 - IsIdentifiableReviewer groups outstanding failures by column
 - [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
+
+### Changed
+
+-   [#620](https://github.com/SMI/SmiServices/pull/620) by `rkm`. Replace the legacy SecurityCodeScan with SecurityCodeScan.VS2019.
 
 ### Fixed
 
