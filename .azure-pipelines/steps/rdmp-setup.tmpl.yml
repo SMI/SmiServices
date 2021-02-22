@@ -9,7 +9,7 @@ steps:
           targetType: "inline"
           script: |
               set -euxo pipefail
-              rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+              rdmp_ver=$(grep -F -m1 HIC.RDMP.Plugin Directory.Build.props | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
               echo $rdmp_ver
               set +x; echo "##vso[task.setvariable variable=rdmp_ver]$rdmp_ver"
     - ${{ if eq( parameters.os, 'win' ) }}:
