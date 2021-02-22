@@ -12,8 +12,19 @@ Each entry in the changelog should use the following template:
 
 ## [Unreleased]
 
+### Added
+
+-   IsIdentifiableReviewer shows progress when loading large files (with cancellation support)
+-   IsIdentifiableReviewer groups outstanding failures by column
 -   [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
+
+### Changed
+
 -   [#617](https://github.com/SMI/SmiServices/pull/617) by `rkm`. Move all PackageReferences to Directory.Build.props files
+
+### Fixed
+
+-   Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer
 
 ## [1.15.1] 2021-02-17
 
