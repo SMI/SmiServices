@@ -340,7 +340,11 @@ namespace IsIdentifiableReviewer.Views
             {
                 var duplicateRules = dup.ToArray();
 
-                if(duplicateRules.Length > 1)
+                if(
+                    // Multiple rules with same pattern
+                    duplicateRules.Length > 1 &&
+                    // targeting the same column
+                    duplicateRules.Select(r=>r.IfColumn).Distinct().Count() == 1)
                 {
                     yield return new DuplicateRulesNode(dup.Key,duplicateRules);
                 }

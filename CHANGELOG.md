@@ -12,7 +12,11 @@ Each entry in the changelog should use the following template:
 
 ## [Unreleased]
 
--
+
+
+### Fixed
+
+- Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer
 
 ## [1.15.1] 2021-02-17
 
