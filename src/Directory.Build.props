@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+    <PropertyGroup Label="BasePath">
+        <BaseOutputPath>$(MSBuildThisFileDirectory)/bin/</BaseOutputPath>
+        <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <Compile Include="$(MSBuildThisFileDirectory)\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
     </ItemGroup>
