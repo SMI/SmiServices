@@ -22,9 +22,14 @@ Each entry in the changelog should use the following template:
 
 -   [#617](https://github.com/SMI/SmiServices/pull/617) by `rkm`. Move all PackageReferences to Directory.Build.props files
 
+### Changed
+
+-   [#620](https://github.com/SMI/SmiServices/pull/620) by `rkm`. Replace the legacy SecurityCodeScan with SecurityCodeScan.VS2019.
+
 ### Fixed
 
 -   Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer
+-   Reduce memory consumption in nerd
 
 ## [1.15.1] 2021-02-17
 
