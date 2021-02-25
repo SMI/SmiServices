@@ -55,7 +55,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             _csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                NewLine = ReportNewLine,
+                // NewLine = ReportNewLine,
             };
         }
 

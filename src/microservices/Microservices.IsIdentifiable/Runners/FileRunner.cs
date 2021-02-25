@@ -34,7 +34,7 @@ namespace Microservices.IsIdentifiable.Runners
                     if(!r.Read() || !r.ReadHeader())
                         throw new Exception("Csv file had no headers");
 
-                    _logger.Info("Headers are:" + string.Join(",",r.HeaderRecord));
+                    //_logger.Info("Headers are:" + string.Join(",",r.HeaderRecord));
 
                     while(r.Read())
                     {
@@ -52,21 +52,22 @@ namespace Microservices.IsIdentifiable.Runners
 
         private IEnumerable<Failure> GetFailuresIfAny(CsvReader r)
         {
-            foreach(var h in r.HeaderRecord)
-            {
-                var parts = new List<FailurePart>();
+            // foreach(var h in r.HeaderRecord)
+            // {
+            //     var parts = new List<FailurePart>();
 
-                parts.AddRange(Validate(h, r[h]));
+            //     parts.AddRange(Validate(h, r[h]));
 
-                if(parts.Any())
-                    yield return new Failure(parts){
-                        Resource = _opts.File.FullName,
-                        ResourcePrimaryKey = "Unknown",
-                        ProblemValue = r[h],
-                        ProblemField = h };
-            }
+            //     if(parts.Any())
+            //         yield return new Failure(parts){
+            //             Resource = _opts.File.FullName,
+            //             ResourcePrimaryKey = "Unknown",
+            //             ProblemValue = r[h],
+            //             ProblemField = h };
+            // }
 
             DoneRows(1);
+            return null;
         }
     }
 }
