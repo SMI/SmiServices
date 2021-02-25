@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using NLog;
 using NLog.Config;
 using System;
@@ -88,6 +88,20 @@ namespace Smi.Common.Options
 
                         return onParse(globals, parsed);
                     },
+                    OnErrors
+                );
+            return ret;
+        }
+
+        public static int ParseServiceVerbAndRun(IEnumerable<string> args, Type[] targetVerbTypes, Func<object, int> onParse)
+        {
+            int ret = _parser
+                .ParseArguments(
+                    args,
+                    targetVerbTypes
+                )
+                .MapResult(
+                    parsed => onParse(parsed),
                     OnErrors
                 );
             return ret;
