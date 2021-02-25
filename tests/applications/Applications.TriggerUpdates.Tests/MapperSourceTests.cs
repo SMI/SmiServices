@@ -11,9 +11,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Applications.TriggerUpdates.Execution;
+using Applications.TriggerUpdates.Options;
 using Tests.Common;
-using TriggerUpdates;
-using TriggerUpdates.Execution;
+
 
 namespace Applications.TriggerUpdates.Tests
 {

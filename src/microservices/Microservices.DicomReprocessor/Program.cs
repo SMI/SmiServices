@@ -1,9 +1,7 @@
-﻿
-using CommandLine;
+﻿using Microservices.DicomReprocessor.Execution;
+using Microservices.DicomReprocessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
-using Microservices.DicomReprocessor.Execution;
-using Microservices.DicomReprocessor.Options;
 
 namespace Microservices.DicomReprocessor
 {
@@ -16,15 +14,15 @@ namespace Microservices.DicomReprocessor
     {
         private static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<DicomReprocessorCliOptions>(args)
-                .MapResult(dicomReprocessorCliOptions =>
-                {
-                    GlobalOptions options = new GlobalOptionsFactory().Load(dicomReprocessorCliOptions);
+            int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, OnParse);
+            return ret;
+        }
 
-                    var bootStrapper = new MicroserviceHostBootstrapper(() => new DicomReprocessorHost(options, dicomReprocessorCliOptions));
-                    return bootStrapper.Main();
-
-                }, err => -100);
+        private static int OnParse(GlobalOptions globals, DicomReprocessorCliOptions opts)
+        {
+            var bootstrapper = new MicroserviceHostBootstrapper(() => new DicomReprocessorHost(globals, opts));
+            int ret = bootstrapper.Main();
+            return ret;
         }
     }
 }

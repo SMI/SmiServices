@@ -2,16 +2,16 @@
 
 The steps to cut a new release of SmiServices are as follows.
 
-All normal releases should come from the `develop` branch, which new features and changes are merged into after review. The release worflow is to create a `release/vX.Y.Z` branch from `develop` which is reviewed via PR, merged into `master`, and tagged.
+All development is done via a simple branching workflow, which are merged into `master` via a reviewed PR. `master` therefore contains all the latest reviewed changes since the previous release, and the CI checks should always be passing. It is not possible to push to `master` directly.
 
-One exception are `hotfix` releases, which are branches created directly from `master` and merged back as a new release in order to address a critical bug in the previous release.
+The release worflow is to checkout a new `release/` branch from master, update the `CHANGELOG` etc. as per below, then open a release PR with just those updates. Once this is merged, a tag is pushed to `master`. This triggers a pipeline in Azure DevOps which creates a GitHub release. The other pipelines will then push artefacts to this release when they pass.
 
 ## Creating A Normal Release
 
--   Check that the CHANGELOG is up-to-date. To do this, checkout the latest develop commit and list all the merged PRs since the last release, e.g.:
+-   Check that the CHANGELOG is up-to-date. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
     ```console
-    $ git fetch origin
-    $ git log --merges --first-parent origin/develop --oneline v1.12.2..origin/develop | grep -v dependabot
+    $ git checkout master && git pull
+    $ git log --merges --oneline <previous tag>.. | grep -v dependabot
     ec182696 Merge pull request #430 from SMI/feature/extraction-fixes
     051a134e Merge pull request #444 from SMI/feature/trigger-updates
     65fcfe41 Merge pull request #440 from SMI/feature/value-updater
@@ -25,32 +25,31 @@ One exception are `hotfix` releases, which are branches created directly from `m
     ```
     Go through these PRs on GitHub and check each has an accurate CHANGELOG entry.
 
--   Identify the next release version. This can be determined by looking at the previous release and deciding if the new code to be released (from the `develop` branch) is a major, minor, or patch change as per [semver](https://semver.org). E.g. if the previous release was `v1.2.3` and only new non-breaking features are in the `Unreleased` section of the CHANGELOG, then the next release should be`v1.3.0`. The definition of "breaking" can often be subjective though, so ask other members of the project if you're unsure.
+-   Identify the next release version. This can be determined by looking at the previous release and deciding if the new code to be released is a major, minor, or patch change as per [semver](https://semver.org). E.g. if the previous release was `v1.2.3` and only new non-breaking features are in the `Unreleased` section of the CHANGELOG, then the next release should be`v1.3.0`. The definition of "breaking" can often be subjective though, so ask other members of the project if you're unsure.
 
--   Ensure you are on the latest commit on the `develop` branch , and create a new release branch:
+-   Ensure you are on the latest commit on the `master` branch , and create a new release branch:
 
     ```console
+    $ git fetch
     $ git status
-    On branch develop
-    Your branch is up to date with 'origin/develop'.
+    On branch master
+    Your branch is up to date with 'origin/master'.
 
     nothing to commit, working tree clean
-
-    $ git pull
-    Already up to date.
 
     $ git checkout -b release/v1.2.3
     Switched to a new branch 'release/v1.2.3'
     ```
 
--   Update the CHANGELOG for the new release. This involves adding a new header and link for the release tag. See [this](https://github.com/SMI/SmiServices/commit/c8e198f937779debcc65b72d074b9bce7dad4691#diff-06572a96a58dc510037d5efa622f9bec8519bc1beab13c9f251e97e657a9d4ed) commit as an example
--   Update any other files referencing the version. To see an example, check the previous release commit: `git log --all --grep="Start release branch" -1 --name-only --format=`. E.g.:
-    -   `README.md`: Bump the version
-    -   `src/SharedAssemblyInfo.cs`: Bump the versions
+-   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves adding a new header and link for the release tag. See [this](https://github.com/SMI/SmiServices/commit/d98af52960214b6ae2c26510e3310f10038b494d) commit as an example
+
+-   Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
+    -   `README.md`: Bump the version in the header
+    -   `src/SharedAssemblyInfo.cs`: Bump the versions in each property
 
 -   Commit these changes and push the new branch with the message "Start release branch for v1.2.3"
--   Open a PR for this branch with the title "Release <version>". Request a review from `@tznind` and `@rkm`
--   If there are any further changes which need to be included in the release, then these can be merged into the release branch from `develop`
+-   Open a PR for this branch with the title `Release <version>`. Request a review from `@tznind` and `@rkm`
+-   If there are any further changes which need to be included in the release PR, then these can be merged into the release branch from `master`
 -   Wait for the PR to be reviewed and merged
 -   Checkout `master` and pull the merge commit
 -   Tag the release, e.g.:
@@ -58,12 +57,16 @@ One exception are `hotfix` releases, which are branches created directly from `m
     $ git tag v1.2.3
     $ git push origin v1.2.3
     ```
-
--   Merge `master` back into `develop` to ensure that any changes from the release branch are present in develop
 -   Delete the release branch
--   Wait for Azure Pipelines to build the tagged commit
--   Check that the built binaries are added to the [releases](https://github.com/SMI/SmiServices/releases) page. Update the title and description using the CHANGELOG.
+-   Wait for Azure Pipelines to build the release
+-   Check that the built binaries are added to the [releases](https://github.com/SMI/SmiServices/releases) page.
 
 ## Creating A Hotfix Release
 
-TODO
+Hotfixes are small patches which are created in response to some show-stopper bug in the previous release.
+
+The process is similar to above, except:
+
+-   The branch name should be `hotfix/v...`
+-   The commit message should be "Start hotfix branch for v1.2.3"
+-   The PR should be titled `Hotfix <version>`

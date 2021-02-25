@@ -10,12 +10,6 @@ namespace Smi.Common.Options
         public override GlobalOptions Decorate(GlobalOptions options)
         {
             ForAll<MongoDbOptions>(options, SetMongoPassword);
-
-            var logsRoot = Environment.GetEnvironmentVariable("SMI_LOGS_ROOT");
-
-            if (!string.IsNullOrWhiteSpace(logsRoot))
-                options.LogsRoot = logsRoot;
-
             return options;
         }
 

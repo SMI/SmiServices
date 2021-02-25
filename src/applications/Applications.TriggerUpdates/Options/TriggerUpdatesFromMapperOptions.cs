@@ -1,7 +1,8 @@
-﻿using CommandLine;
-using System;
+﻿using System;
+using CommandLine;
 
-namespace TriggerUpdates
+
+namespace Applications.TriggerUpdates.Options
 {
     [Verb("mapper", HelpText = "Triggers updates based on new identifier mapping table updates")]
     public class TriggerUpdatesFromMapperOptions : TriggerUpdatesCliOptions

@@ -34,7 +34,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             BlitzMainDataTables();
 
-            _globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globals = new GlobalOptionsFactory().Load();
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource));
@@ -76,7 +76,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
             tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+            using (var host = new DicomRelationalMapperHost(_globals))
             {
                 host.Start();
 
@@ -125,7 +125,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
             tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+            using (var host = new DicomRelationalMapperHost(_globals))
             {
                 host.Start();
 
@@ -204,7 +204,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
             tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
 
-            using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+            using (var host = new DicomRelationalMapperHost(_globals))
             {
                 host.Start();
 
@@ -315,7 +315,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 _globals.DicomRelationalMapperOptions.RunChecks = true;
 
-                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+                using (var host = new DicomRelationalMapperHost(_globals))
                 {
                     host.Start();
 

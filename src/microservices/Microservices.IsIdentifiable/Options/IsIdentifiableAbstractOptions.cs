@@ -1,11 +1,12 @@
 ﻿using CommandLine;
 using FAnsi;
+using Smi.Common.Options;
+
 
 namespace Microservices.IsIdentifiable.Options
 {
-    public abstract class IsIdentifiableAbstractOptions
+    public abstract class IsIdentifiableAbstractOptions : CliOptions
     {
-        
         [Option(HelpText = "Optional. Full connection string to the database storing the whitelist of valid entries")]
         public string WhitelistConnectionString { get; set; }
 
@@ -29,7 +30,7 @@ namespace Microservices.IsIdentifiable.Options
 
         [Option(HelpText = "Optional. Generate a full failure storage report that persists Failure objects in a manner that they can be retrieved.")]
         public bool StoreReport { get; set; }
-        
+
         [Option(HelpText = "Optional - If specified reports will be generated in the given folder.  If not specified, current directory is used (unless an alternate destination option is picked)")]
         public string DestinationCsvFolder { get; set; }
 
@@ -63,8 +64,8 @@ namespace Microservices.IsIdentifiable.Options
         [Option(HelpText = "Optional. Directory of additional rules in yaml format.")]
         public string RulesDirectory { get; set; }
 
-        [Option(HelpText = "Optional.  Maximum number of answers to cache per column.",Default = 1_000_000)]
-        public int MaxValidationCacheSize {get;set;} = 1_000_000;
+        [Option(HelpText = "Optional.  Maximum number of answers to cache per column.", Default = 1_000_000)]
+        public int MaxValidationCacheSize { get; set; } = 1_000_000;
 
         /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used

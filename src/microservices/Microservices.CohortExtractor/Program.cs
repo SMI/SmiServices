@@ -1,11 +1,4 @@
-﻿
-using CommandLine;
-using FAnsi.Implementation;
-using FAnsi.Implementations.MicrosoftSQL;
-using FAnsi.Implementations.MySql;
-using FAnsi.Implementations.Oracle;
-using FAnsi.Implementations.PostgreSql;
-using Microservices.CohortExtractor.Execution;
+﻿using Microservices.CohortExtractor.Execution;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 
@@ -15,22 +8,23 @@ namespace Microservices.CohortExtractor
     {
         private static int Main(string[] args)
         {
-            ImplementationManager.Load<MySqlImplementation>();
-            ImplementationManager.Load<OracleImplementation>();
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-            ImplementationManager.Load<PostgreSqlImplementation>();
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, OnParse);
+            return ret;
+        }
 
-            return Parser.Default.ParseArguments<CliOptions>(args).MapResult(
-                (a) =>
-                {
-                    GlobalOptions options = new GlobalOptionsFactory().Load(a);
+        private static int OnParse(GlobalOptions globals, CliOptions opts)
+        {
+            //Use the auditor and request fullfilers specified in the yaml
+            var bootstrapper = new MicroserviceHostBootstrapper(
+                () => new CohortExtractorHost(
+                    globals,
+                    auditor: null,
+                    fulfiller: null
+                )
+            );
 
-                    var bootStrapper = new MicroserviceHostBootstrapper(() =>
-                        new CohortExtractorHost(options, null, null)); //Use the auditor and request fullfilers specified in the yaml
-
-                    return bootStrapper.Main();
-                },
-                err => -100); //not parsed
+            int ret = bootstrapper.Main();
+            return ret;
         }
     }
 }

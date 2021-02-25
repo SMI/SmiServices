@@ -1,33 +1,44 @@
-﻿using CommandLine;
-using FAnsi.Implementation;
-using FAnsi.Implementations.MicrosoftSQL;
-using FAnsi.Implementations.MySql;
-using FAnsi.Implementations.Oracle;
-using FAnsi.Implementations.PostgreSql;
-using Smi.Common.Execution;
+﻿using Smi.Common.Execution;
 using Smi.Common.Options;
 using System;
-using TriggerUpdates.Execution;
+using Applications.TriggerUpdates.Execution;
+using Applications.TriggerUpdates.Options;
+using Smi.Common;
 
-namespace TriggerUpdates
+
+namespace Applications.TriggerUpdates
 {
-    class Program
+    public static class Program
     {
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<TriggerUpdatesFromMapperOptions,TriggerUpdatesFromMongoOptions>(args)
-                .MapResult(
-                (TriggerUpdatesFromMapperOptions opts) => Run(opts,(g)=>new MapperSource(g,opts)),
-                (TriggerUpdatesFromMongoOptions opts) => Run(opts,(g)=>new MongoSource(g,opts)),
-                errs => -100);
+            int ret = SmiCliInit
+                .ParseAndRun(
+                    args,
+                    new[]
+                    {
+                        typeof(TriggerUpdatesFromMapperOptions),
+                        typeof(TriggerUpdatesFromMongoOptions)
+                    },
+                    OnParse
+                );
+            return ret;
         }
 
-        private static int Run(TriggerUpdatesCliOptions opts, Func<GlobalOptions,ITriggerUpdatesSource> sourceFactory)
+        private static int OnParse(GlobalOptions globals, object opts)
         {
-            GlobalOptions globalOptions = new GlobalOptionsFactory().Load(opts);
+            var parsedOptions = SmiCliInit.Verify<TriggerUpdatesCliOptions>(opts);
 
-            var bootStrapper = new MicroserviceHostBootstrapper(() => new TriggerUpdatesHost(globalOptions, sourceFactory(globalOptions)));
-            return bootStrapper.Main();
+            ITriggerUpdatesSource source = parsedOptions switch
+            {
+                TriggerUpdatesFromMapperOptions o => new MapperSource(globals, o),
+                TriggerUpdatesFromMongoOptions o => new MongoSource(globals, o),
+                _ => throw new NotImplementedException($"No case for '{parsedOptions.GetType()}'")
+            };
+
+            var bootstrapper = new MicroserviceHostBootstrapper(() => new TriggerUpdatesHost(globals, source));
+            int ret = bootstrapper.Main();
+            return ret;
         }
     }
 }

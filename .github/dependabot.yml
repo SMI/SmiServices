@@ -5,7 +5,7 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 99
-  target-branch: develop
+  target-branch: master
   reviewers:
   - rkm
   - tznind
@@ -16,7 +16,7 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 99
-  target-branch: develop
+  target-branch: master
   reviewers:
   - rkm
   - tznind

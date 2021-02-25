@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Terminal.Gui;
 
 namespace IsIdentifiableReviewer.Views
@@ -193,11 +195,53 @@ namespace IsIdentifiableReviewer.Views
 
             _treeView.AddObjects(new []{ colliding,ignore,update,outstanding});
 
+            var cts = new CancellationTokenSource();
+
+            var btn = new Button("Cancel");
+            Action cancelFunc = ()=>{cts.Cancel();};
+            Action closeFunc = ()=>{Application.RequestStop();};
+            btn.Clicked += cancelFunc;
+
+            var dlg = new Dialog("Evaluating",MainWindow.DlgWidth,6,btn);
+
+            var stage = new Label("Evaluating Failures"){Width = Dim.Fill(), X = 0,Y = 0};
+            var progress = new ProgressBar(){Height= 2,Width = Dim.Fill(), X=0,Y = 1};
+            var textProgress = new Label("0/0"){TextAlignment = TextAlignment.Right ,Width = Dim.Fill(), X=0,Y = 2};
+
+            dlg.Add(stage);
+            dlg.Add(progress);
+            dlg.Add(textProgress);
+                
+            Task.Run(()=>{
+                EvaluateRuleCoverageAsync(stage,progress,textProgress,cts.Token,colliding,ignore,update,outstanding);
+                },cts.Token).ContinueWith((t)=>{
+                
+                    btn.Clicked -= cancelFunc;
+                    btn.Text = "Done";
+                    btn.Clicked += closeFunc;
+                    dlg.SetNeedsDisplay();
+
+                    cts.Dispose();
+            });;
+            
+            Application.Run(dlg);
+        }
+        
+        private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress, CancellationToken token,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding)
+        {
             Dictionary<IsIdentifiableRule,int> rulesUsed = new Dictionary<IsIdentifiableRule, int>();
             Dictionary<string,OutstandingFailureNode> outstandingFailures = new Dictionary<string, OutstandingFailureNode>();
             
+            int done = 0;
+            var max = CurrentReport.Failures.Count();
+
             foreach(Failure f in CurrentReport.Failures)
             {
+                done++;
+                token.ThrowIfCancellationRequested();
+                if(done % 1000 == 0)
+                    SetProgress(progress,textProgress,done,max);
+
                 var ignoreRule = Ignorer.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
                 var updateRule = Updater.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
 
@@ -230,14 +274,59 @@ namespace IsIdentifiableReviewer.Views
                         outstandingFailures[f.ProblemValue].NumberOfTimesReported++;
                 }
             }
-
-            foreach(var used in rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).OrderByDescending(kvp=>kvp.Value))
-                ignore.Children.Add(new RuleUsageNode(Ignorer,used.Key,used.Value));
             
-            foreach(var used in rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).OrderByDescending(kvp=>kvp.Value))
-                update.Children.Add(new RuleUsageNode(Updater,used.Key,used.Value));
+            SetProgress(progress,textProgress,done,max);
+            
+            var ignoreRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).ToList();
+            stage.Text = "Evaluating Ignore Rules Used";
+            max = ignoreRulesUsed.Count();
+            done = 0;
 
-            outstanding.Children = outstandingFailures.Select(kvp=>kvp.Value).OrderByDescending(v=>v.NumberOfTimesReported).Cast<ITreeNode>().ToList();
+            foreach(var used in ignoreRulesUsed.OrderByDescending(kvp => kvp.Value))
+            {
+                done++;
+                token.ThrowIfCancellationRequested();
+                if(done % 1000 == 0)
+                    SetProgress(progress,textProgress,done,max);
+
+                ignore.Children.Add(new RuleUsageNode(Ignorer,used.Key,used.Value));
+            }
+            
+            SetProgress(progress,textProgress,done,max);
+                
+            
+            stage.Text = "Evaluating Update Rules Used";
+            var updateRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).ToList();
+            max = updateRulesUsed.Count();
+            done = 0;
+
+            foreach(var used in updateRulesUsed.OrderByDescending(kvp=>kvp.Value)){
+                done++;
+
+                token.ThrowIfCancellationRequested();
+                if(done % 1000 == 0)
+                    SetProgress(progress,textProgress,done,max);
+
+                update.Children.Add(new RuleUsageNode(Updater,used.Key,used.Value)); 
+            }
+            
+            SetProgress(progress,textProgress,done,max);
+
+            stage.Text = "Evaluating Outstanding Failures";
+
+            outstanding.Children = 
+                outstandingFailures.Select(f=>f.Value).GroupBy(f=>f.Failure.ProblemField)               
+                    .Select(g=>new FailureGroupingNode(g.Key,g.ToArray()))
+                    .OrderByDescending(v=>v.Failures.Sum(f=>f.NumberOfTimesReported))
+                    .Cast<ITreeNode>()
+                    .ToList();
+        }
+
+        private void SetProgress(ProgressBar pb, Label tp, int done, int max)
+        {
+            if(max != 0)
+                pb.Fraction = done/(float)max;
+            tp.Text = $"{done:N0}/{max:N0}";
         }
 
         private void AddDuplicatesToTree(List<IsIdentifiableRule> allRules)
@@ -256,7 +345,11 @@ namespace IsIdentifiableReviewer.Views
             {
                 var duplicateRules = dup.ToArray();
 
-                if(duplicateRules.Length > 1)
+                if(
+                    // Multiple rules with same pattern
+                    duplicateRules.Length > 1 &&
+                    // targeting the same column
+                    duplicateRules.Select(r=>r.IfColumn).Distinct().Count() == 1)
                 {
                     yield return new DuplicateRulesNode(dup.Key,duplicateRules);
                 }

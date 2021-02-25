@@ -126,6 +126,7 @@ public class Program {
 						} catch (IOException e) {
 							// Ignore IOExceptions, since they are client disconnections
 						}
+						System.gc();
 					}
 				}.start();
 			} catch (IOException e) {

@@ -16,6 +16,8 @@ using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
+using Smi.Common;
+
 
 namespace Microservices.DicomRelationalMapper.Execution
 {
@@ -23,20 +25,15 @@ namespace Microservices.DicomRelationalMapper.Execution
     {
         public DicomRelationalMapperQueueConsumer Consumer { get; private set; }
 
-        public DicomRelationalMapperHost(GlobalOptions globals, bool loadSmiLogConfig = true)
-            : base(globals, loadSmiLogConfig: loadSmiLogConfig) { }
-
+        public DicomRelationalMapperHost(GlobalOptions globals)
+            : base(globals)
+        {
+            FansiImplementations.Load();
+        }
 
         //TODO Should most of this not be in the constructor?
         public override void Start()
         {
-            
-            //load all supported implementations
-            ImplementationManager.Load<MySqlImplementation>();
-            ImplementationManager.Load<OracleImplementation>();
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-            ImplementationManager.Load<PostgreSqlImplementation>();
-
             IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
 
             Logger.Info("About to run Startup");

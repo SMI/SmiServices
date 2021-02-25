@@ -106,7 +106,7 @@ namespace Microservices.IdentifierMapper.Tests
         public void TestIdentifierSwap_RegexVsDeserialize(DatabaseType type, int batchSize, int numberOfRandomTagsPerDicom)
         {
 
-            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load();
 
             var mappingDataTable = new DataTable("IdMap");
             mappingDataTable.Columns.Add("priv");
@@ -174,7 +174,7 @@ namespace Microservices.IdentifierMapper.Tests
                 Console.WriteLine("Pushing good messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, goodChis, true);
 
-                var host = new IdentifierMapperHost(options, swapper, false);
+                var host = new IdentifierMapperHost(options, swapper);
                 tester.StopOnDispose.Add(host);
 
                 Console.WriteLine("Starting host");
@@ -197,7 +197,7 @@ namespace Microservices.IdentifierMapper.Tests
                 Console.WriteLine("Pushing bad messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, badChis, true);
 
-                var host = new IdentifierMapperHost(options, swapper,loadSmiLogConfig:false);
+                var host = new IdentifierMapperHost(options, swapper);
                 tester.StopOnDispose.Add(host);
 
                 Console.WriteLine("Starting host");
@@ -535,7 +535,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             DiscoveredDatabase db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
-            GlobalOptions options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions options = new GlobalOptionsFactory().Load();
             options.IdentifierMapperOptions = new IdentifierMapperOptions
             {
                 MappingConnectionString = db.Server.Builder.ConnectionString,

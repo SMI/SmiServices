@@ -1,15 +1,15 @@
-﻿using CommandLine;
+using CommandLine;
 using IsIdentifiableReviewer.Out;
+using Smi.Common.Options;
+
 
 namespace IsIdentifiableReviewer
 {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     /// <summary>
     /// CLI options for the reviewer
     /// </summary>
-    public class IsIdentifiableReviewerOptions
+    public class IsIdentifiableReviewerOptions : CliOptions
     {
-
         [Option('f', "file",
             Required = false,
             HelpText = "[Optional] Pre load an existing failures file"
@@ -51,5 +51,4 @@ namespace IsIdentifiableReviewer
         )]
         public bool OnlyRules { get; set; }
     }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }
