@@ -19,8 +19,8 @@ namespace Microservices.DicomReprocessor.Execution
         private readonly string _queryString;
 
 
-        public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig: loadSmiLogConfig)
+        public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
+            : base(options)
         {
             string key = cliOptions.ReprocessingRoutingKey;
 

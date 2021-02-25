@@ -1,7 +1,8 @@
-﻿using Smi.Common.Messages.Updating;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Smi.Common.Messages.Updating;
 
-namespace TriggerUpdates.Execution
+
+namespace Applications.TriggerUpdates.Execution
 {
     public interface ITriggerUpdatesSource
     {

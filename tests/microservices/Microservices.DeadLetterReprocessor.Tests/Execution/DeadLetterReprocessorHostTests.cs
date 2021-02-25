@@ -117,7 +117,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             Assert.AreEqual(1, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
             // Start the host and check message has been read from DLQ into store
-            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
+            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
@@ -126,7 +126,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
 
             // Now run the host again with the FlushMessages option set
             _cliOptions.FlushMessages = true;
-            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
+            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             // Check the message has been sent back to the exchange and received by the consumer
@@ -208,7 +208,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
                 Assert.AreEqual(1, _testHelper.TestModel.MessageCount(DeadLetterTestHelper.TestDlQueueName));
 
                 // Start the host and check message has been read from DLQ into store
-                var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
+                var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
                 host.Start();
 
                 Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 0);
@@ -259,7 +259,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             _cliOptions.FlushMessages = false;
 
             // Start the host and check message has been read from DLQ into store
-            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
+            var host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
@@ -271,7 +271,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             _cliOptions.FlushMessages = true;
             _cliOptions.ReprocessFromQueue = "FakeQueueName";
 
-            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
+            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             Assert.True(_deadLetterCollection.CountDocuments(FilterDefinition<MongoDeadLetterDocument>.Empty) == 1);
@@ -282,7 +282,7 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
 
             _cliOptions.ReprocessFromQueue = DeadLetterTestHelper.RejectQueueName;
 
-            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions,loadSmiLogConfig:false);
+            host = new DeadLetterReprocessorHost(_testHelper.GlobalOptions, _cliOptions);
             host.Start();
 
             // Check the message has been sent back to the exchange and received by the consumer

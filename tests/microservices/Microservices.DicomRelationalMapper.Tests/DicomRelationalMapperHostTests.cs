@@ -31,7 +31,7 @@ namespace Microservices.Tests.RDMPTests
 
             var cata = Import(tbl);
 
-            var globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var globals = new GlobalOptionsFactory().Load();
             var consumerOptions = globals.DicomRelationalMapperOptions;
 
             var lmd = new LoadMetadata(CatalogueRepository, "MyLoad");
@@ -47,7 +47,7 @@ namespace Microservices.Tests.RDMPTests
 
             using (new MicroserviceTester(globals.RabbitOptions, globals.DicomRelationalMapperOptions))
             {
-                using (var host = new DicomRelationalMapperHost(globals,loadSmiLogConfig:false))
+                using (var host = new DicomRelationalMapperHost(globals))
                 {
                     host.Start();
 

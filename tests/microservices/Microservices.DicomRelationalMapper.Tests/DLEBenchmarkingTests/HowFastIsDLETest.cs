@@ -76,7 +76,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
-            _globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globals = new GlobalOptionsFactory().Load();
 
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = typeof(MyFixedStagingDatabaseNamer).FullName;
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = ushort.MaxValue;
@@ -100,7 +100,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
             {
-                using (var host = new DicomRelationalMapperHost(_globals, loadSmiLogConfig: false))
+                using (var host = new DicomRelationalMapperHost(_globals))
                 {
                     tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
 
@@ -158,7 +158,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
-            _globals = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            _globals = new GlobalOptionsFactory().Load();
 
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = typeof(MyFixedStagingDatabaseNamer).FullName;
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = ushort.MaxValue;

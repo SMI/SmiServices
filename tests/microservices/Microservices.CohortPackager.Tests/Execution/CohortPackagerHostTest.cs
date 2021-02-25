@@ -90,10 +90,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 foreach ((ConsumerOptions consumerOptions, IMessage message) in toSend)
                     tester.SendMessage(consumerOptions, new MessageHeader(), message);
 
-                var host = new CohortPackagerHost(
-                    globals,
-                    loadSmiLogConfig: false
-                );
+                var host = new CohortPackagerHost(globals);
 
                 host.Start();
 

@@ -13,6 +13,7 @@ using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
 using ReusableLibraryCode.Checks;
+using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -47,9 +48,8 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Microservices.NLog.config" of the current directory)</param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig: loadSmiLogConfig)
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller)
+            : base(options)
         {
             _consumerOptions = options.CohortExtractorOptions;
             _consumerOptions.Validate();
@@ -63,6 +63,8 @@ namespace Microservices.CohortExtractor.Execution
         /// </summary>
         public override void Start()
         {
+            FansiImplementations.Load();
+
             IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
 
             var startup = new Startup(new EnvironmentInfo("netcoreapp2.2"), repositoryLocator);

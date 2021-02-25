@@ -3,8 +3,18 @@
 # SocketRules specify the connection to the nerd (Named Entity Recogniser daemon)
 
 SocketRules:   
- - Host: localhost
-   Port: 1881
+ #- Host: localhost
+ #  Port: 1881
+
+
+ConsensusRules:
+    - Rules:
+      - !SocketRule
+          Host: 127.0.123.123
+          Port: 1234
+      - !SocketRule
+          Host: 127.0.123.123
+          Port: 567
 
 # WhiteListRules specify the failures which can be ignored
 
@@ -12,70 +22,70 @@ WhiteListRules:
  # Things which NER classifies as a Person but clearly are not
  - Action: Ignore
    IfPartPattern: ^SAFIRE$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Topogram$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Urogram$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Pneumocolon$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Mesinteric$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^ABDO$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Angio$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^HRCT$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPattern: Circle of Willis
    IfPartPattern: ^Willis$
  - Action: Ignore
    IfPartPattern: ^Surestart$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Kidneys$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Angiogram$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^CT$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^CT$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^CTPA$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^CTPA$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^(IAM|IAMS)$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^ISO$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^Pelvis$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^Colo$
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: ^SEC$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^SPECT$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^AIF$
@@ -136,7 +146,7 @@ WhiteListRules:
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^CRIC$
-   IfClassification: Organization
+   As: Organization
  # These have no Column or Class qualifiers because they are so common and clearly not a Person or Organization
  - Action: Ignore
    IfPartPattern: ^AC$
@@ -273,11 +283,11 @@ WhiteListRules:
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^Vertex$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfColumn: ProtocolName
    IfPartPattern: ^Vertex$
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfPartPattern: ^TOSH$
    IfPattern: CT TOSH
@@ -309,10 +319,10 @@ WhiteListRules:
  - Action: Ignore
    IfPattern: Low Dose
    IfPartPattern: Low
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPartPattern: Dose
-   IfClassification: Person
+   As: Person
  - Action: Ignore
    IfPattern: Body Low Dose
    IfPartPattern: ^Body$
@@ -327,10 +337,10 @@ WhiteListRules:
  # Some like GJNH are reported by our own rule below but we filter them out here.
  - Action: Ignore
    IfColumn: InstitutionName
-   IfClassification: Organization
+   As: Organization
  - Action: Ignore
    IfColumn: InstitutionName
-   IfClassification: Location
+   As: Location
  - Action: Ignore
    IfColumn: InstitutionName
    IfPartPattern: GJNH

@@ -78,7 +78,7 @@ namespace Microservices.MongoDBPopulator.Tests
 
         public static GlobalOptions GetNewMongoDbPopulatorOptions()
         {
-            GlobalOptions options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            GlobalOptions options = new GlobalOptionsFactory().Load();
 
             options.MongoDatabases.DicomStoreOptions.DatabaseName = TestDbName;
             options.MongoDbPopulatorOptions.MongoDbFlushTime = 1; //1 second

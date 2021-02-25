@@ -56,7 +56,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             var tester = new MicroserviceTester(_helper.Options.RabbitOptions, _helper.AccessionConsumerOptions);
 
-            var host = new DicomTagReaderHost(_helper.Options, false);
+            var host = new DicomTagReaderHost(_helper.Options);
             host.Start();
 
             tester.SendMessage(_helper.AccessionConsumerOptions, new MessageHeader(), _helper.TestAccessionDirectoryMessage);
@@ -92,7 +92,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             new MicroserviceTester(_helper.Options.RabbitOptions, _helper.AccessionConsumerOptions);
 
-            var host = new DicomTagReaderHost(_helper.Options, false);
+            var host = new DicomTagReaderHost(_helper.Options);
 
             var r = new Random(5);
             var generator = new DicomDataGenerator(r,julyFolder,"CT");

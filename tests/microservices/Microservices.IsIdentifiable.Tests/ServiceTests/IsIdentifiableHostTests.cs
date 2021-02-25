@@ -26,28 +26,28 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestClassifierName_NoClassifier()
         {
-            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load();
 
             options.IsIdentifiableOptions.ClassifierType = "";
-            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false));
+            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions()));
             StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableOptions.ClassifierType), ex.Message);
         }
 
         [Test]
         public void TestClassifierName_NotRecognized()
         {
-            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load();
             options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableOptions.ClassifierType = "HappyFunTimes";
-            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false));
+            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions()));
             StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex.Message);
         }
 
         [Test]
         public void TestClassifierName_ValidClassifier()
         {
-            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load();
 
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
@@ -59,7 +59,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 options.IsIdentifiableOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
                 options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
-                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false);
+                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions());
                 Assert.IsNotNull(host);
                 host.Start();
 
@@ -81,7 +81,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestIsIdentifiable_TesseractStanfordDicomFileClassifier()
         {
-            var options = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
+            var options = new GlobalOptionsFactory().Load();
 
             // Create a test data directory containing IsIdentifiableRules with 0 rules, and tessdata with the eng.traineddata classifier
             // TODO(rkm 2020-04-14) This is a stop-gap solution until the tests are properly refactored
@@ -103,7 +103,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             {
                 options.IsIdentifiableOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
 
-                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions(), false);
+                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions());
                 host.Start();
 
                 tester.SendMessage(options.IsIdentifiableOptions, new ExtractedFileStatusMessage

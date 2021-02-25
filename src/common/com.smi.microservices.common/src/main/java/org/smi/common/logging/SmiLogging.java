@@ -102,7 +102,7 @@ public final class SmiLogging {
 
         // Turn off log4j warnings from library code
         Logger l = Logger.getRootLogger();
-        l.setLevel(Level.OFF);
+        //l.setLevel(Level.OFF);
 
         PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C{1}| %m%n");
 
@@ -112,7 +112,7 @@ public final class SmiLogging {
 
         WriterAppender fa = new WriterAppender(pl,new FileWriter(logfile.getAbsolutePath(),true));
         fa.setThreshold(Level.ALL);
-        fa.setImmediateFlush(false);
+        fa.setImmediateFlush(true);
         fa.setLayout(pl);
         fa.activateOptions();
         l.addAppender(fa);

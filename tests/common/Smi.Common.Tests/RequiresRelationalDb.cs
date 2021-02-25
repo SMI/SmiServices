@@ -28,11 +28,8 @@ namespace Smi.Common.Tests
 
         public void ApplyToContext(TestExecutionContext context)
         {
-            ImplementationManager.Load<MySqlImplementation>();
-            ImplementationManager.Load<MicrosoftSQLImplementation>();
-            ImplementationManager.Load<OracleImplementation>();
-            ImplementationManager.Load<PostgreSqlImplementation>();
-
+            FansiImplementations.Load();
+            
             var connectionStrings = GetRelationalDatabaseConnectionStrings();
             var server = connectionStrings.GetServer(_type);
 

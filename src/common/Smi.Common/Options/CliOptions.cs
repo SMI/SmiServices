@@ -1,5 +1,4 @@
-﻿
-using CommandLine;
+﻿using CommandLine;
 
 namespace Smi.Common.Options
 {
@@ -13,13 +12,5 @@ namespace Smi.Common.Options
             HelpText = "[Optional] Name of the yaml config file to load"
         )]
         public string YamlFile { get; set; }
-
-        [Option(
-            "trace-logging",
-            Default = true,
-            Required = false,
-            HelpText = "[Optional] Enable trace logging"
-        )]
-        public bool TraceLogging { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using IsIdentifiableReviewer.Out;
 using IsIdentifiableReviewer.Views;
 using Microservices.IsIdentifiable.Reporting;
@@ -386,16 +388,43 @@ namespace IsIdentifiableReviewer
             if ( path == null)
                 return;
 
-            try
-            {
-                CurrentReport = new ReportReader(new FileInfo(path));
-                SetupToShow(CurrentReport.Failures.FirstOrDefault());
-                Next();
-            }
-            catch (Exception e)
-            {
-                exceptionHandler(e);
-            }
+            var cts = new CancellationTokenSource();
+
+            var btn = new Button("Cancel");
+            Action cancelFunc = ()=>{cts.Cancel();};
+            Action closeFunc = ()=>{Application.RequestStop();};
+            btn.Clicked += cancelFunc;
+
+            var dlg = new Dialog("Opening",MainWindow.DlgWidth,5,btn);
+            var rows = new Label($"Loaded: 0 rows"){
+                Width = Dim.Fill() };
+            dlg.Add(rows);
+
+            Task.Run(()=>{
+                    try
+                    {
+                        CurrentReport = new ReportReader(new FileInfo(path),(s)=>
+                        rows.Text = $"Loaded: {s:N0} rows",cts.Token);
+                        SetupToShow(CurrentReport.Failures.FirstOrDefault());
+                        Next();
+                    }
+                    catch (Exception e)
+                    {
+                        exceptionHandler(e);
+                    } 
+              
+                }
+            ).ContinueWith((t)=>{
+                
+                    btn.Clicked -= cancelFunc;
+                    btn.Text = "Done";
+                    btn.Clicked += closeFunc;
+                    dlg.SetNeedsDisplay();
+
+                    cts.Dispose();
+            });
+            
+            Application.Run(dlg);
         }
 
         public void ShowMessage(string title, string body)

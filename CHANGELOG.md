@@ -4,15 +4,64 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Each entry in the changelog should use the following template:
+
+```text
+-   [#<PR ref>](https://github.com/SMI/SmiServices/pull/<PR ref>) by `<user>`. <PR Title>
+```
+
 ## [Unreleased]
+
+### Added
+
+- IsIdentifiableReviewer shows progress when loading large files (with cancellation support)
+- IsIdentifiableReviewer groups outstanding failures by column
+- [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
 
 ### Changed
 
 -   [#588](https://github.com/SMI/SmiServices/pull/588) Prevent additional language packs being included in published packages. Reduces overall package size a bit.
+-   [#620](https://github.com/SMI/SmiServices/pull/620) by `rkm`. Replace the legacy SecurityCodeScan with SecurityCodeScan.VS2019.
 
 ### Fixed
 
--   [#581](https://github.com/SMI/SmiServices/pull/581) Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+- Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer
+- Reduce memory consumption in nerd
+
+## [1.15.1] 2021-02-17
+
+### Fixed
+
+-   [#610](https://github.com/SMI/SmiServices/pull/610) by `howff`. Fixed CTP logging
+
+## [1.15.0] 2021-02-17
+
+### Changed
+
+-   [#575](https://github.com/SMI/SmiServices/pull/575) by `rkm`. Standardised logging setup and Program entries across whole solution
+    -   Breaking: YAML config change required
+    -   Removes the `SMI_LOGS_ROOT` variable - now in YAML config
+    -   Removes the `--trace-logging` CLI option - now in YAML config
+    -   All invokations of IsIdentifiable now require a YAML config to ensure logging is properly configured
+-   [#577](https://github.com/SMI/SmiServices/pull/577) by `rkm`. Simplify branch workflow by dropping develop
+
+### Fixed
+
+-   [#581](https://github.com/SMI/SmiServices/pull/581) by `rkm`. Fixed a bug where newlines would never be correctly parsed from the config option in CohortPackager
+-   [#597](https://github.com/SMI/SmiServices/pull/597) by `tznind`. Fixed ConsensusRules not being run
+
+### Dependencies
+
+-   Bump CsvHelper from 22.1.1 to 22.1.2
+-   Bump HIC.RDMP.Plugin from 4.2.3 to 4.2.4
+-   Bump HIC.RDMP.Plugin.Test from 4.2.3 to 4.2.4
+-   Bump Magick.NET-Q16-AnyCPU from 7.23.1 to 7.23.2
+-   Bump SecurityCodeScan from 3.5.3 to 3.5.4
+-   Bump System.Drawing.Common from 5.0.0 to 5.0.1
+-   Bump System.IO.Abstractions from 13.2.9 to 13.2.11
+-   Bump System.IO.Abstractions.TestingHelpers from 13.2.9 to 13.2.11
+-   Bump jansi from 2.2.0 to 2.3.1
+-   Bump junit from 4.13.1 to 4.13.2
 
 ## [1.14.1] - 2021-02-04
 
@@ -516,7 +565,9 @@ First stable release after importing the repository from the private [SMIPlugin]
 - Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
 
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.14.1...master
+[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.15.1...master
+[1.15.1]:  https://github.com/SMI/SmiServices/compare/v1.15.0...v1.15.1
+[1.15.0]:  https://github.com/SMI/SmiServices/compare/v1.14.1...v1.15.0
 [1.14.1]:  https://github.com/SMI/SmiServices/compare/v1.14.0...v1.14.1
 [1.14.0]:  https://github.com/SMI/SmiServices/compare/v1.13.0...v1.14.0
 [1.13.0]:  https://github.com/SMI/SmiServices/compare/v1.12.2...v1.13.0
@@ -551,3 +602,4 @@ First stable release after importing the repository from the private [SMIPlugin]
 
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
 [SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules
+
