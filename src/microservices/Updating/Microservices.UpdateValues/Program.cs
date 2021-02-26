@@ -2,13 +2,14 @@
 using Microservices.UpdateValues.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
+using System.Collections.Generic;
 
 
 namespace Microservices.UpdateValues
 {
     public static class Program
     {
-        public static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             return SmiCliInit
                 .ParseAndRun<UpdateValuesCliOptions>(
