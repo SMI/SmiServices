@@ -1,9 +1,10 @@
-using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Smi.Common.Options;
 
-namespace SmiRunner
+
+namespace Applications.SmiRunner
 {
     public static class Program
     {
@@ -19,7 +20,7 @@ namespace SmiRunner
                     // Applications
                     typeof(TriggerUpdatesVerb),
                     typeof(DicomDirectoryProcessorVerb),
-                    typeof(IsIdentifiableReviewer),
+                    typeof(IsIdentifiableReviewerVerb),
                     // Microservices
                     typeof(CohortExtractorVerb),
                     typeof(CohortPackagerVerb),
@@ -41,7 +42,7 @@ namespace SmiRunner
                         // Applications
                         TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                         DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
-                        IsIdentifiableReviewer _ => Applications.IsIdentifiableReviewer.Program.Main(rest),
+                        IsIdentifiableReviewerVerb _ => Applications.IsIdentifiableReviewer.Program.Main(rest),
                         // Microservices
                         CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
                         CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),

@@ -1,9 +1,8 @@
 ﻿using CommandLine;
 
-namespace SmiRunner
+
+namespace Applications.SmiRunner
 {
-    // TODO test all urls resolve to correct thing
-    // TODO test verb name matches class name (cmdline lib allows repeated)
     public abstract class VerbBase
     {
         protected const string BaseHelpText = "See here at your release version: https://github.com/SMI/SmiServices/tree/master/";
@@ -20,7 +19,7 @@ namespace SmiRunner
     public sealed class DicomDirectoryProcessorVerb : ApplicationVerbBase { }
 
     [Verb("is-identifiable-reviewer", HelpText = BaseHelpText + "IsIdentifiableReviewer")]
-    public sealed class IsIdentifiableReviewer : ApplicationVerbBase { }
+    public sealed class IsIdentifiableReviewerVerb : ApplicationVerbBase { }
 
     [Verb("trigger-updates", HelpText = BaseHelpText + "TriggerUpdates")]
     public sealed class TriggerUpdatesVerb : ApplicationVerbBase { }
