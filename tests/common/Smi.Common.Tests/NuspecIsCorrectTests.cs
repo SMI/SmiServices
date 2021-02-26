@@ -25,7 +25,7 @@ namespace Smi.Common.Tests
 
         // Applications
         [TestCase("../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj", null, null)]
-        [TestCase("../../../../../../../src/applications/Applications.IsIdentifiableReviewer/IsIdentifiableReviewer.csproj", null, null)]
+        [TestCase("../../../../../../../src/applications/Applications.IsIdentifiableReviewer/Applications.IsIdentifiableReviewer.csproj", null, null)]
 
         // Common
         [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null, null)]
