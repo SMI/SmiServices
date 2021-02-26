@@ -1,16 +1,16 @@
-﻿using Smi.Common.Execution;
+﻿using Applications.TriggerUpdates.Execution;
+using Applications.TriggerUpdates.Options;
+using Smi.Common.Execution;
 using Smi.Common.Options;
 using System;
-using Applications.TriggerUpdates.Execution;
-using Applications.TriggerUpdates.Options;
-using Smi.Common;
+using System.Collections.Generic;
 
 
 namespace Applications.TriggerUpdates
 {
     public static class Program
     {
-        public static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit
                 .ParseAndRun(
