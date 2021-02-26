@@ -1,44 +1,51 @@
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Smi.Common.Options;
 
 
 namespace Applications.SmiRunner
 {
     public static class Program
     {
+        public static readonly Type[] AllApplications =
+        {
+            typeof(TriggerUpdatesVerb),
+            typeof(DicomDirectoryProcessorVerb),
+            typeof(IsIdentifiableReviewerVerb),
+        };
+
+        public static readonly Type[] AllServices =
+        {
+            typeof(CohortExtractorVerb),
+            typeof(CohortPackagerVerb),
+            typeof(DeadLetterReprocessorVerb),
+            typeof(DicomRelationalMapperVerb),
+            typeof(DicomReprocessorVerb),
+            typeof(DicomTagReaderVerb),
+            typeof(FileCopierVerb),
+            typeof(IdentifierMapperVerb),
+            typeof(IsIdentifiableVerb),
+            typeof(MongoDbPopulatorVerb),
+            typeof(UpdateValuesVerb),
+        };
+
         internal static int Main(string[] args)
         {
             IEnumerable<string> rest = args.Skip(1);
 
-            // TODO probably want some tests to ensure the below includes all apps/services
+            var allTypes = new List<Type>();
+            allTypes.AddRange(AllApplications);
+            allTypes.AddRange(AllServices);
+
             int res = SmiCliInit.ParseServiceVerbAndRun(
                 args.Take(1),
-                new[]
-                {
-                    // Applications
-                    typeof(TriggerUpdatesVerb),
-                    typeof(DicomDirectoryProcessorVerb),
-                    typeof(IsIdentifiableReviewerVerb),
-                    // Microservices
-                    typeof(CohortExtractorVerb),
-                    typeof(CohortPackagerVerb),
-                    typeof(DeadLetterReprocessorVerb),
-                    typeof(DicomRelationalMapperVerb),
-                    typeof(DicomReprocessorVerb),
-                    typeof(DicomTagReaderVerb),
-                    typeof(FileCopierVerb),
-                    typeof(IdentifierMapperVerb),
-                    typeof(IsIdentifiableVerb),
-                    typeof(MongoDbPopulatorVerb),
-                    typeof(UpdateValuesVerb),
-                },
+                allTypes.ToArray(),
                 service =>
                 {
+                    // TODO(rkm 2021-02-26) Probably want to test that every case is covered here
                     return service switch
                     {
-                        // DicomTagReaderVerb _ => Microservices.DicomTagReader.Program.Main(rest),
                         // Applications
                         TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                         DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),

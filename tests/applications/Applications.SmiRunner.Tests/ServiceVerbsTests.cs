@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace Applications.SmiRunner.Tests
 {
-    public class TestClassTemplate
+    public class ServiceVerbsTests
     {
         #region Fixture Methods
 
