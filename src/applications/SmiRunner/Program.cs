@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-namespace SmiServices
+namespace SmiRunner
 {
     public class Program
     {
