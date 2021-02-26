@@ -20,6 +20,7 @@ Each entry in the changelog should use the following template:
 
 ### Changed
 
+-   [#588](https://github.com/SMI/SmiServices/pull/588) Prevent additional language packs being included in published packages. Reduces overall package size a bit.
 -   [#620](https://github.com/SMI/SmiServices/pull/620) by `rkm`. Replace the legacy SecurityCodeScan with SecurityCodeScan.VS2019.
 
 ### Fixed
