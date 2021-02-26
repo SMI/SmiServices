@@ -63,7 +63,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | [IsIdentifiable]  | Evaluates data being prepared for extraction for personally identifiable data (PII).  See also [IsIdentifiableReviewer]|
 | [ExtractorCL] | Reads UIDs from a CSV file and generates [ExtractionRequestMessage] and audit message [ExtractionRequestInfoMessage].|
 | [CohortExtractor] | Looks up SeriesInstanceUIDs in [ExtractionRequestMessage] and does relational database lookup(s) to resolve into physical image file location.  Generates  [ExtractFileMessage] and audit message [ExtractFileCollectionInfoMessage].|
-| [CTPAnonymiser]  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  [ExtractFileMessage] and copies to specified output directory.  Generates audit message [ExtractFileStatusMessage].|
+| [CTPAnonymiser]  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  [ExtractFileMessage] and copies to specified output directory.  Generates audit message [ExtractedFileStatusMessage].|
 | [CohortPackager] | Records all audit messages and determines when jobs are complete.|
 
 ### Audit and Logging Systems
@@ -220,14 +220,14 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [Dicom]: ./Glossary.md#dicom
 [Dicom tags]: ./Glossary.md#dicom-tags
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
-[IsIdentifiableReviewer]: ./src/applications/IsIdentifiableReviewer/README.md
+[IsIdentifiableReviewer]: ./src/applications/Applications.IsIdentifiableReviewer/README.md
 [DicomFileMessage]: ./src/common/Smi.Common/Messages/DicomFileMessage.cs
 [SeriesMessage]: ./src/common/Smi.Common/Messages/SeriesMessage.cs
 [ExtractionRequestMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractionRequestMessage.cs
 [ExtractionRequestInfoMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractionRequestInfoMessage.cs
 [ExtractFileMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractFileMessage.cs
 [ExtractFileCollectionInfoMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractFileCollectionInfoMessage.cs
-[ExtractFileStatusMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractFileStatusMessage.cs
+[ExtractedFileStatusMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractedFileStatusMessage.cs
 [RDMP]: https://github.com/HicServices/RDMP
 [ProcessDirectory]: ./src/applications/Applications.DicomDirectoryProcessor/README.md
 [DicomTagReader]: ./src/microservices/Microservices.DicomTagReader/README.md
