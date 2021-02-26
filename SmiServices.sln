@@ -72,7 +72,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IsIdentifiabl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.IsIdentifiable.Tests", "tests\microservices\Microservices.IsIdentifiable.Tests\Microservices.IsIdentifiable.Tests.csproj", "{E632E673-0766-4A4D-ABE3-4B6D4F5BEFE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiableReviewer", "src\applications\IsIdentifiableReviewer\IsIdentifiableReviewer.csproj", "{C2031E86-81B4-405A-A923-9B82E0CE196F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.IsIdentifiableReviewer", "src\applications\Applications.IsIdentifiableReviewer\Applications.IsIdentifiableReviewer.csproj", "{C2031E86-81B4-405A-A923-9B82E0CE196F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.FileCopier", "src\microservices\Microservices.FileCopier\Microservices.FileCopier.csproj", "{D4E52707-FFF7-41E6-8057-C6DB344B8CD7}"
 EndProject

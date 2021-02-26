@@ -26,7 +26,7 @@
     <ProjectReference Include="..\..\microservices\Updating\Microservices.UpdateValues\Microservices.UpdateValues.csproj" />
     <ProjectReference Include="..\Applications.DicomDirectoryProcessor\Applications.DicomDirectoryProcessor.csproj" />
     <ProjectReference Include="..\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj" />
-    <ProjectReference Include="..\IsIdentifiableReviewer\IsIdentifiableReviewer.csproj" />
+    <ProjectReference Include="..\Applications.IsIdentifiableReviewer\Applications.IsIdentifiableReviewer.csproj" />
   </ItemGroup>
 
 </Project>
