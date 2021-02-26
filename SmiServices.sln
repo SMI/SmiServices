@@ -88,7 +88,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.TriggerUpdates
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.TriggerUpdates.Tests", "tests\applications\Applications.TriggerUpdates.Tests\Applications.TriggerUpdates.Tests.csproj", "{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiRunner", "src\applications\SmiRunner\SmiRunner.csproj", "{245CDB6C-3444-443D-B455-0FFDF37179FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.SmiRunner", "src\applications\Applications.SmiRunner\Applications.SmiRunner.csproj", "{245CDB6C-3444-443D-B455-0FFDF37179FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
