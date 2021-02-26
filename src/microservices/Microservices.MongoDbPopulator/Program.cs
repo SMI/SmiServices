@@ -1,15 +1,16 @@
 ﻿using Microservices.MongoDBPopulator.Execution;
 using Smi.Common.Execution;
 using Smi.Common.Options;
+using System.Collections.Generic;
 
 namespace Microservices.MongoDBPopulator
 {
-    internal static class Program
+    public static class Program
     {
         /// <summary>
         /// Program entry point when run from command line
         /// </summary>
-        private static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<CliOptions>(args, OnParse);
             return ret;

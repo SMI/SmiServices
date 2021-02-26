@@ -4,21 +4,20 @@ using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Options;
 using MongoDB.Driver;
 using NLog;
-using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Reflection;
 
 
 namespace Microservices.CohortPackager
 {
-    internal static class Program
+    public static class Program
     {
-        private static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, OnParse);
             return ret;
@@ -39,7 +38,7 @@ namespace Microservices.CohortPackager
             Logger logger = LogManager.GetCurrentClassLogger();
 
             logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
-            
+
             MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases.ExtractionStoreOptions;
             MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, SmiCliInit.HostProcessName);
             var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);

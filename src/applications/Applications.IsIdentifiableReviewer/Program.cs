@@ -1,4 +1,5 @@
-﻿using IsIdentifiableReviewer.Out;
+﻿using IsIdentifiableReviewer;
+using IsIdentifiableReviewer.Out;
 using Smi.Common;
 using Smi.Common.Options;
 using System;
@@ -8,11 +9,12 @@ using System.Linq;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 
-namespace IsIdentifiableReviewer
+
+namespace Applications.IsIdentifiableReviewer
 {
     public static class Program
     {
-        public static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit
                 .ParseAndRun<IsIdentifiableReviewerOptions>(
