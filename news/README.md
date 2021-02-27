@@ -25,7 +25,7 @@ Where `type` is one of
 -   `bugfix`
 -   `doc`
 -   `removal`
--   `misc`
+-   `meta`
 
 The file should contain a short description of the patch as one or more lines of markdown, either as a top-level list element
 

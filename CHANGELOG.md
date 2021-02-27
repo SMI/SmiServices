@@ -4,23 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Changes since the previous release can be found in the [news](./news) directory.
-
-### Added
-
-- IsIdentifiableReviewer shows progress when loading large files (with cancellation support)
-- IsIdentifiableReviewer groups outstanding failures by column
-- [#616](https://github.com/SMI/SmiServices/pull/616) by `rkm`. Check for clobbered files during package build
-
-### Changed
-
--   [#588](https://github.com/SMI/SmiServices/pull/588) Prevent additional language packs being included in published packages. Reduces overall package size a bit.
--   [#620](https://github.com/SMI/SmiServices/pull/620) by `rkm`. Replace the legacy SecurityCodeScan with SecurityCodeScan.VS2019.
-
-### Fixed
-
-- Fixed rules being flagged as 'Identical' when classifying different input columns in IsIdentifiableReviewer
-- Reduce memory consumption in nerd
+Changes since the previous release can be found in the [news](./news) directory. A raw git diff can be seen [here][Unreleased].
 
 ## [1.15.1] 2021-02-17
 
