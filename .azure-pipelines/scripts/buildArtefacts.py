@@ -181,7 +181,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 1
 
     _run(cmd)
-    return 0
     shutil.rmtree(dist_tag_dir / smi_services_output_dir)
 
     if platform == _LINUX:
