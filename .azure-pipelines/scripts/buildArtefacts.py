@@ -20,8 +20,6 @@ dist/
 The files in the merged dir are checked for accidental overwriting, which can occur when
 publishing a solution of multiple projects into a single directory. See
 https://github.com/dotnet/sdk/issues/9984.
-
-NOTE: Requires exiftool when running on Linux
 """
 import argparse
 import functools

@@ -16,12 +16,6 @@ jobs:
           - template: ../steps/set-git-tag-variable.tmpl.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
               - template: ../steps/win-nuget-fixup.tmpl.yml
-          - ${{ if eq( parameters.os, 'linux' ) }}:
-              - task: Bash@3
-                displayName: Install exiftool
-                inputs:
-                  targetType: inline
-                  script: sudo apt-get install -y exiftool
           - task: Bash@3
             displayName: Build artefacts
             inputs:
