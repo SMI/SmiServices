@@ -2,7 +2,7 @@
 
 This directory contains files describing changes since the previous release of SmiServices.
 
-When a release is built, these files are automatically combined into the main CHANGELOG, and are then deleted.
+When a release is built, these files are automatically combined into the main [CHANGELOG](/CHANGELOG.md), and are then deleted.
 
 ## File naming
 
