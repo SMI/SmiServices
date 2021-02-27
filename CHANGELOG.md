@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 Changes since the previous release can be found in the [news](./news) directory. A raw git diff can be seen [here][Unreleased].
 
+<!--next-->
+
 ## [1.15.1] 2021-02-17
 
 ### Fixed
