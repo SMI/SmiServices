@@ -2,11 +2,11 @@
 
 This directory contains files describing changes since the previous release of SmiServices.
 
-When a release is built, these files are automatically combined into the main CHANGELOG.
+When a release is built, these files are automatically combined into the main CHANGELOG, and are then deleted.
 
 ## File naming
 
-News files should be of the form
+News file names should be of the form
 
 ```txt
 <pr#>-<type>.md
