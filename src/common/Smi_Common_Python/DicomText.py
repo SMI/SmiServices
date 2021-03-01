@@ -34,9 +34,9 @@ def redact_html_tags_in_string(html_str):
     return(html_str)
 
 def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <script> script2 </script> text2'
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\n<BR>text2 <script> script2 </script> text3'
     dest = redact_html_tags_in_string(src)
-    expected = '.................... ..................................... text1 .......................... text2'
+    expected = '.................... ..................................... text1\n....text2 .......................... text3'
     assert(dest == expected)
 
 
@@ -254,3 +254,89 @@ class DicomText:
         if 'ContentSequence' in self._dicom_raw:
             dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
             dicom_dest.save_as(destfile)
+
+def test_DicomText():
+    """ The test function requires a specially-crafted DICOM file
+    as provided with SRAnonTool that has been modified to include HTML.
+    """
+    dcm = '../applications/SRAnonTool/test/report10html.dcm'
+    expected_without_header = """[[ContentSequence]]
+# Request
+MRI: Knee
+# History
+16 year old with right knee pain after an injury playing basketball.
+# Findings
+# Finding
+......
+..................................
+..........
+There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
+# Finding
+There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
+# Finding
+Internal derangement of the right knee with marked injury and with partial tear of the ACL; there is a tear of the posterior limb of the medial meniscus. There is a Baker's Cyst and joint effusion and intrasubstance injury to the medial collateral ligament.
+# Best illustration of finding
+[[EndContentSequence]]
+"""
+    expected_without_header_with_html = """[[ContentSequence]]
+# Request
+MRI: Knee
+# History
+16 year old with right knee pain after an injury playing basketball.
+# Findings
+# Finding
+<html>
+<style>
+P { color: red; }
+</style>
+<P><BR><P>
+There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
+# Finding
+There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
+# Finding
+Internal derangement of the right knee with marked injury and with partial tear of the ACL; there is a tear of the posterior limb of the medial meniscus. There is a Baker's Cyst and joint effusion and intrasubstance injury to the medial collateral ligament.
+# Best illustration of finding
+[[EndContentSequence]]
+"""
+    expected_with_header = """[[Study Description]] OFFIS Structured Reporting Samples
+[[Study Date]] 
+[[Series Description]] RSNA '95, Picker, MR
+[[Content Date]] 20050530
+[[Patient ID]] PIKR752962
+[[Patient Name]] John R Walz
+[[Patient Birth Date]] 19781024
+[[Patient Sex]] M
+[[Referring Physician Name]] 
+[[ContentSequence]]
+# Request
+MRI: Knee
+# History
+16 year old with right knee pain after an injury playing basketball.
+# Findings
+# Finding
+......
+..................................
+..........
+There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
+# Finding
+There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
+# Finding
+Internal derangement of the right knee with marked injury and with partial tear of the ACL; there is a tear of the posterior limb of the medial meniscus. There is a Baker's Cyst and joint effusion and intrasubstance injury to the medial collateral ligament.
+# Best illustration of finding
+[[EndContentSequence]]
+"""
+
+    # Parse with the normal header tags included
+    dt = DicomText(dcm)
+    dt.parse()
+    assert(dt.text() == expected_with_header)
+
+    # Parse without including the header tags
+    dt = DicomText(dcm, include_header = False)
+    dt.parse()
+    assert(dt.text() == expected_without_header)
+
+    # Parse without including the header tags
+    dt = DicomText(dcm, include_header = False, replace_HTML_entities = False)
+    dt.parse()
+    assert(dt.text() == expected_without_header_with_html)
