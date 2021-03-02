@@ -53,10 +53,6 @@ A raw git diff can be seen [here][unreleased].
 -   Bump jansi from 2.2.0 to 2.3.1
 -   Bump junit from 4.13.1 to 4.13.2
 
-### Dependencies
-
--   Manually updated CsvHelper from 22.1.2 to 25.0.0
-
 ## [1.14.1] - 2021-02-04
 
 ### Fixed
