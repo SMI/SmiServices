@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""
+Automatically updates the CHANGELOG with the fragments from each news file.
+
+Requires git and npx/prettier to be available on the PATH. The npx/prettier
+dependency will hopefully be removed in favour of pre-commit in future.
+"""
 import argparse
 import collections
 import datetime
@@ -11,6 +17,7 @@ from pathlib import Path
 from typing import Dict
 from typing import Optional
 from typing import Sequence
+from typing import Union
 
 
 _NEWS_DIR = Path("./news/")
@@ -19,6 +26,13 @@ _UNRELEASED_LINK = "[Unreleased]:"
 
 _ORG = "SMI"
 _REPO = "SmiServices"
+
+_STR_LIKE = Union[str, Path]
+
+
+def _run(cmd: Sequence[_STR_LIKE]):
+    subprocess.check_call(("echo", *cmd))
+    subprocess.check_call(cmd)
 
 
 def _get_pr_author(pr_ref: int) -> str:
@@ -122,8 +136,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "git", "rm",
             news_file
         )
-        subprocess.check_call(("echo", *cmd))
-        subprocess.check_call(cmd)
+        _run(cmd)
+
+    # Finally, auto-format using prettier
+    cmd = (
+        "npx",
+        "prettier",
+        "--config", ".meta/prettierrc.yml",
+        "--write", "CHANGELOG.md",
+    )
+    _run(cmd)
 
     return 0
 
