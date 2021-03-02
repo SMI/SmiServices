@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-"""
-TODO:
-Run formatter
-Delete news files
-"""
 import argparse
 import collections
 import datetime
 import fileinput
 import json
+import subprocess
 import sys
 import urllib.request
 from pathlib import Path
@@ -99,13 +95,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    # Gather the news files for the next release
     fragments = collections.defaultdict(dict)
-    for fragment_file in _NEWS_DIR.glob("*-*.md"):
+    fragment_files = list(_NEWS_DIR.glob("*-*.md"))
+    for fragment_file in fragment_files:
         with open(fragment_file) as f:
             contents = f.read()
         pr_ref, _, frag_type = fragment_file.stem.partition("-")
         fragments[frag_type][pr_ref] = contents
 
+    # Write-out the new CHANGELOG
     with fileinput.FileInput("CHANGELOG.md", inplace=True) as f:
         for line in f:
             if _MARKER in line:
@@ -117,8 +116,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 continue
             print(line, end="")
 
+    # Now delete all the news files
+    for news_file in fragment_files:
+        cmd = (
+            "git", "rm",
+            news_file
+        )
+        subprocess.check_call(("echo", *cmd))
+        subprocess.check_call(cmd)
+
     return 0
+
 
 if __name__ == "__main__":
     exit(main())
-
