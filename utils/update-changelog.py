@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 TODO:
-Update links at bottom of changelog
 Run formatter
 Delete news files
 """
@@ -20,6 +19,7 @@ from typing import Sequence
 
 _NEWS_DIR = Path("./news/")
 _MARKER = "<!--next-->"
+_UNRELEASED_LINK = "[Unreleased]:"
 
 _ORG = "SMI"
 _REPO = "SmiServices"
@@ -69,15 +69,35 @@ def _print_fragments(version: str, fragments: Dict[str, Dict[int, str]]) -> None
         _print_type_fragment(frag_type, fragments)
 
 
+def _print_links(last_tag: str, next_tag: str) -> None:
+
+    unreleased_str = (
+        "[Unreleased]: "
+        f"https://github.com/SMI/SmiServices/compare/{next_tag}"
+        "...master"
+    )
+    print(unreleased_str)
+
+    diff_link_str = (
+        f"[{next_tag[1:]}]: "
+        f"https://github.com/SMI/SmiServices/compare/"
+        f"{last_tag}...{next_tag}"
+    )
+    print(diff_link_str)
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "release_tag",
+        "last_tag",
+        help="The tag for the last release",
+    )
+    parser.add_argument(
+        "next_tag",
         help="The tag for the next release",
     )
     args = parser.parse_args(argv)
-    tag = args.release_tag
 
     fragments = collections.defaultdict(dict)
     for fragment_file in _NEWS_DIR.glob("*-*.md"):
@@ -90,7 +110,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         for line in f:
             if _MARKER in line:
                 print(line)
-                _print_fragments(tag, fragments)
+                _print_fragments(args.next_tag, fragments)
+                continue
+            elif line.startswith(_UNRELEASED_LINK):
+                _print_links(args.last_tag, args.next_tag)
                 continue
             print(line, end="")
 
