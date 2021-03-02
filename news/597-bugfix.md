@@ -1,1 +1,1 @@
--   Fixed ConsensusRules not being run
+Fixed ConsensusRules not being run

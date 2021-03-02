@@ -1,1 +1,1 @@
--   Reduce memory consumption in nerd
+Reduce memory consumption in nerd

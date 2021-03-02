@@ -27,15 +27,15 @@ Where `type` is one of
 -   `removal`
 -   `meta`
 
-The file should contain a short description of the patch as one or more lines of markdown, either as a top-level list element
+The file should contain a short description of the patch as one or more lines of markdown, either as a top-level sentence
 
 ```md
--   Fixed a foobar
+Fixed a foobar
 ```
 
 or, if more detail is requried, multiple lines formatted as a sub-list
 
 ```md
--   Fixed a foobar
-    -   Requires users to change xyz
+Fixed a foobar
+-   Requires users to change xyz
 ```

@@ -1,1 +1,1 @@
--   Check for clobbered files during package build
+Check for clobbered files during package build
