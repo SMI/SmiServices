@@ -8,7 +8,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
 
 ## Creating A Normal Release
 
--   Check that the CHANGELOG is up-to-date. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
+-   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
     ```console
     $ git checkout master && git pull
     $ git log --merges --oneline <previous tag>.. | grep -v dependabot
@@ -23,9 +23,9 @@ The release worflow is to checkout a new `release/` branch from master, update t
     d7d90f4a Merge pull request #402 from SMI/feature/update-docs
     830bac67 Merge branch 'master' into develop
     ```
-    Go through these PRs on GitHub and check each has an accurate CHANGELOG entry.
+    Go through these PRs and check each has an accurate [news file][news_files] entry.
 
--   Identify the next release version. This can be determined by looking at the previous release and deciding if the new code to be released is a major, minor, or patch change as per [semver](https://semver.org). E.g. if the previous release was `v1.2.3` and only new non-breaking features are in the `Unreleased` section of the CHANGELOG, then the next release should be`v1.3.0`. The definition of "breaking" can often be subjective though, so ask other members of the project if you're unsure.
+-   Identify the next release version. This can be determined by looking at the previous release and deciding if the new code to be released is a major, minor, or patch change as per [semver](https://semver.org). E.g. if the previous release was `v1.2.3` and only new non-breaking features are in the news files directory, then the next release should be`v1.3.0`. The definition of "breaking" can often be subjective though, so ask other members of the project if you're unsure.
 
 -   Ensure you are on the latest commit on the `master` branch , and create a new release branch:
 
@@ -41,7 +41,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
     Switched to a new branch 'release/v1.2.3'
     ```
 
--   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves adding a new header and link for the release tag. See [this](https://github.com/SMI/SmiServices/commit/d98af52960214b6ae2c26510e3310f10038b494d) commit as an example
+-   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running the `utils/update-changelog.py` script. Review the diff and check for any obvious errors.
 
 -   Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
     -   `README.md`: Bump the version in the header
@@ -70,3 +70,7 @@ The process is similar to above, except:
 -   The branch name should be `hotfix/v...`
 -   The commit message should be "Start hotfix branch for v1.2.3"
 -   The PR should be titled `Hotfix <version>`
+
+<!-- Links -->
+
+[news_files]: /news/README.md
