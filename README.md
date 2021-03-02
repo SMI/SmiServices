@@ -18,18 +18,19 @@ A suite of microservices for [loading*](./Glossary.md#loading), anonymising, lin
 
 The platform allows [dicom tags] (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
-The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest).
+The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest). See the instructions below on how to run the services.
 
 ## Contents
 
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
-   2. [Image Extraction Microservices](#image-extraction-microservices)
-2. [Solution Overivew](#solution-overview)
-3. [Building](#building)
-4. [Testing](#testing)
-5. [Package Hierarchy](#package-hierarchy)
-6. [Scaleability](#scaleability)
+   1. [Image Extraction Microservices](#image-extraction-microservices)
+1. [Solution Overivew](#solution-overview)
+1. [Building](#building)
+1. [Running](#running)
+1. [Testing](#testing)
+1. [Package Hierarchy](#package-hierarchy)
+1. [Scaleability](#scaleability)
 
 ## Microservices
 
@@ -146,6 +147,10 @@ $ mvn -f src/common/com.smi.microservices.parent/pom.xml test -pl com.smi.micros
 ```
 
 Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
+
+## Running
+
+All applications and services are runnable through the `smi` program. This is available either in the binary distribution, or in the `src/Applications/Applications.SmiRunner/bin` directory if developing locally. See the SmiRunner [README](/src/applications/Applications.SmiRunner/README.md) for more information.
 
 ## Developing
 
