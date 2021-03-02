@@ -34,9 +34,9 @@ def redact_html_tags_in_string(html_str):
     return(html_str)
 
 def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <script> script2 </script> text2'
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\n<BR>text2 <script> script2 </script> text3'
     dest = redact_html_tags_in_string(src)
-    expected = '.................... ..................................... text1 .......................... text2'
+    expected = '.................... ..................................... text1\n....text2 .......................... text3'
     assert(dest == expected)
 
 
@@ -64,13 +64,16 @@ class DicomText:
     break something else (eg. the string is inside a file format where length matters,
     or we need to keep the SemEHR annotations around, with their char offsets, for other reasons).
     """
+    _include_header = True           # SemEHR uses some header fields to give context to body
     _include_unexpected_tags = False # SemEHR does not use unknown tags anyway so ignore them
     _warn_unexpected_tags = False    # print if an unexpected tag is encountered
     _replace_HTML_entities = True    # replace HTML tags with same length of space chars
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
     _redact_char = 'X'
 
-    def __init__(self, filename):
+    def __init__(self, filename, \
+        include_header = _include_header, \
+        replace_HTML_entities = _replace_HTML_entities):
         """ The DICOM file is read during construction.
         """
         self._p_text = '' # maintain string progress during plaintext walk
@@ -80,6 +83,9 @@ class DicomText:
         self._annotations = []
         self._filename = filename
         self._dicom_raw = pydicom.dcmread(filename)
+        # Copy class settings to instance settings with overrides
+        self._include_header = include_header
+        self._replace_HTML_entities = replace_HTML_entities
         # XXX do we need to decode the text?
         self._dicom_raw.decode()
 
@@ -106,7 +112,7 @@ class DicomText:
         else:
             rc = rc + ('%s' % (str(data_element.value))) + '\n'
             # Replace HTML tags with spaces
-            if DicomText._replace_HTML_entities:
+            if self._replace_HTML_entities:
                 rc = redact_html_tags_in_string(rc)
         if rc == '':
             return
@@ -121,23 +127,25 @@ class DicomText:
         # Start by enumerating all known desired tags (whitelist)
         #  except explicitly do not include TextValue, handled below
         list_of_tagname_desired = [ k['tag'] for k in sr_keys_to_extract ]
-        for srkey in sr_keys_to_extract:
-            if srkey['tag'] in self._dicom_raw and srkey['tag'] != 'TextValue':
-                line = '[[%s]] %s\n' % (srkey['label'], srkey['decode_func'](str(self._dicom_raw[srkey['tag']].value)))
-                self._p_text = self._p_text + line
+        if self._include_header:
+            for srkey in sr_keys_to_extract:
+                if srkey['tag'] in self._dicom_raw and srkey['tag'] != 'TextValue':
+                    line = '[[%s]] %s\n' % (srkey['label'], srkey['decode_func'](str(self._dicom_raw[srkey['tag']].value)))
+                    self._p_text = self._p_text + line
         # Now read ALL tags and use a blacklist (and ignore already done in whitelist).
         # Private tags will have tagname='' so ignore those too.
-        for drkey in self._dicom_raw:
-            tagname = pydicom.datadict.keyword_for_tag(drkey.tag)
-            if not drkey.VR == 'SQ' and not tagname in sr_keys_to_ignore and not tagname in list_of_tagname_desired and not tagname == '':
-                if DicomText._include_unexpected_tags:
-                    line = '[[%s]] %s\n' % (tagname, drkey.value)
-                    self._p_text = self._p_text + line
-                    if DicomText._warn_unexpected_tag:
-                        print('Warning: including unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
-                else:
-                    if DicomText._warn_unexpected_tag:
-                        print('Warning: ignored unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
+        if self._include_header:
+            for drkey in self._dicom_raw:
+                tagname = pydicom.datadict.keyword_for_tag(drkey.tag)
+                if not drkey.VR == 'SQ' and not tagname in sr_keys_to_ignore and not tagname in list_of_tagname_desired and not tagname == '':
+                    if DicomText._include_unexpected_tags:
+                        line = '[[%s]] %s\n' % (tagname, drkey.value)
+                        self._p_text = self._p_text + line
+                        if DicomText._warn_unexpected_tag:
+                            print('Warning: including unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
+                    else:
+                        if DicomText._warn_unexpected_tag:
+                            print('Warning: ignored unexpected tag "%s" = "%s"' % (tagname, str(drkey.value)[0:20]))
         # Now handle the TextValue tag
         # Wrap the text with [[Text]] and [[EndText]] for SemEHR
         if 'TextValue' in self._dicom_raw:
@@ -254,3 +262,89 @@ class DicomText:
         if 'ContentSequence' in self._dicom_raw:
             dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
             dicom_dest.save_as(destfile)
+
+def test_DicomText():
+    """ The test function requires a specially-crafted DICOM file
+    as provided with SRAnonTool that has been modified to include HTML.
+    """
+    dcm = '../applications/SRAnonTool/test/report10html.dcm'
+    expected_without_header = """[[ContentSequence]]
+# Request
+MRI: Knee
+# History
+16 year old with right knee pain after an injury playing basketball.
+# Findings
+# Finding
+......
+..................................
+..........
+There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
+# Finding
+There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
+# Finding
+Internal derangement of the right knee with marked injury and with partial tear of the ACL; there is a tear of the posterior limb of the medial meniscus. There is a Baker's Cyst and joint effusion and intrasubstance injury to the medial collateral ligament.
+# Best illustration of finding
+[[EndContentSequence]]
+"""
+    expected_without_header_with_html = """[[ContentSequence]]
+# Request
+MRI: Knee
+# History
+16 year old with right knee pain after an injury playing basketball.
+# Findings
+# Finding
+<html>
+<style>
+P { color: red; }
+</style>
+<P><BR><P>
+There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
+# Finding
+There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
+# Finding
+Internal derangement of the right knee with marked injury and with partial tear of the ACL; there is a tear of the posterior limb of the medial meniscus. There is a Baker's Cyst and joint effusion and intrasubstance injury to the medial collateral ligament.
+# Best illustration of finding
+[[EndContentSequence]]
+"""
+    expected_with_header = """[[Study Description]] OFFIS Structured Reporting Samples
+[[Study Date]] 
+[[Series Description]] RSNA '95, Picker, MR
+[[Content Date]] 20050530
+[[Patient ID]] PIKR752962
+[[Patient Name]] John R Walz
+[[Patient Birth Date]] 19781024
+[[Patient Sex]] M
+[[Referring Physician Name]] 
+[[ContentSequence]]
+# Request
+MRI: Knee
+# History
+16 year old with right knee pain after an injury playing basketball.
+# Findings
+# Finding
+......
+..................................
+..........
+There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
+# Finding
+There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
+# Finding
+Internal derangement of the right knee with marked injury and with partial tear of the ACL; there is a tear of the posterior limb of the medial meniscus. There is a Baker's Cyst and joint effusion and intrasubstance injury to the medial collateral ligament.
+# Best illustration of finding
+[[EndContentSequence]]
+"""
+
+    # Parse with the normal header tags included
+    dt = DicomText(dcm)
+    dt.parse()
+    assert(dt.text() == expected_with_header)
+
+    # Parse without including the header tags
+    dt = DicomText(dcm, include_header = False)
+    dt.parse()
+    assert(dt.text() == expected_without_header)
+
+    # Parse without including the header tags
+    dt = DicomText(dcm, include_header = False, replace_HTML_entities = False)
+    dt.parse()
+    assert(dt.text() == expected_without_header_with_html)
