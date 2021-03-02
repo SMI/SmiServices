@@ -54,6 +54,13 @@ namespace Applications.SmiRunner.Tests
                 // Split into two parts at the first instance of ':' and return the second part
                 string urlString = verbAttribute.HelpText.Split(new[] { ':' }, 2)[1].Trim();
 
+                // TODO(rkm 2021-03-02) Figure-out a better way to manage projects in nested directories
+                if (t == typeof(UpdateValuesVerb))
+                {
+                    var idx = urlString.LastIndexOf("/") + 1;
+                    urlString = urlString.Insert(idx, "Updating/");
+                }
+
                 var uri = new Uri(urlString);
                 Assert.AreEqual(Uri.UriSchemeHttps, uri.Scheme);
 
@@ -70,10 +77,7 @@ namespace Applications.SmiRunner.Tests
                 }
                 catch (WebException e)
                 {
-                    // NOTE Won't pass for IsIdentifiableReviewerVerb since moved
-                    if (t.Name == "IsIdentifiableReviewerVerb")
-                        Assert.Inconclusive();
-                    throw new WebException(t.Name, e);
+                    throw new WebException($"Expected {uri} for {t.Name}", e);
                 }
             }
         }
