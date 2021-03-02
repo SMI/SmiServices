@@ -1,7 +1,7 @@
 
 ## Proposed Changes
 
-Summarise your proposed changes here.
+Summarise your proposed changes here, including any notes for reviewers.
 
 ## Types of changes
 
@@ -21,7 +21,7 @@ By opening this PR, I confirm that I have:
 - [ ] Ensured that the PR branch is in sync with the target branch (i.e. it is automatically merge-able)
 - [ ] Updated any relevant API documentation
 - [ ] Created or updated any tests if relevant
-- [ ] Created a [news](https://github.com/SMI/SmiServices/blob/master/news) file following the guide in the README.
+- [ ] Created a [news](https://github.com/SMI/SmiServices/blob/master/news/README.md) file
     -   NOTE: This ***must*** include any changes to any of the following files: default.yaml, any of the RabbitMQ server configurations, GlobalOptions.cs
 - [ ] Listed myself in the [CONTRIBUTORS](https://github.com/SMI/SmiServices/blob/master/CONTRIBUTORS.md) file 🚀
 - [ ] Requested a review by one of the repository maintainers
