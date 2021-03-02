@@ -62,7 +62,7 @@ def _print_fragments(version: str, fragments: Dict[str, Dict[int, str]]) -> None
             author = _get_pr_author(pr_ref)
             line = (
                 "-   "
-                f"[#{pr_ref}](https://github.com/SMI/SmiServices/pull/{pr_ref})"
+                f"[#{pr_ref}](https://github.com/{_ORG}/{_REPO}/pull/{pr_ref})"
                 f" by {author}. "
                 f"{first}"
                 f"{list_items}"
@@ -83,14 +83,14 @@ def _print_links(last_tag: str, next_tag: str) -> None:
 
     unreleased_str = (
         "[Unreleased]: "
-        f"https://github.com/SMI/SmiServices/compare/{next_tag}"
+        f"https://github.com/{_ORG}/{_REPO}/compare/{next_tag}"
         "...master"
     )
     print(unreleased_str)
 
     diff_link_str = (
         f"[{next_tag[1:]}]: "
-        f"https://github.com/SMI/SmiServices/compare/"
+        f"https://github.com/{_ORG}/{_REPO}/compare/"
         f"{last_tag}...{next_tag}"
     )
     print(diff_link_str)
