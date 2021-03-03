@@ -7,14 +7,6 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <!--
-        NOTE(rkm 2021-03-03) Required because:
-        error NU1605: Detected package downgrade: MathNet.Numerics from 4.15.0 to 4.9.1. Reference the package directly from the project to select a different version
-        error NU1605:  Smi.Common.Tests -> HIC.BadMedicine.Dicom 0.0.8 -> HIC.BadMedicine 1.0.0 -> MathNet.Numerics (>= 4.15.0)
-        error NU1605:  Smi.Common.Tests -> HIC.BadMedicine.Dicom 0.0.8 -> MathNet.Numerics (>= 4.9.1)
-        -->
-        <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
-
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
             <PrivateAssets>all</PrivateAssets>
