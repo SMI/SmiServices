@@ -1,12 +1,13 @@
 ﻿using Microservices.IdentifierMapper.Execution;
 using Smi.Common.Execution;
 using Smi.Common.Options;
+using System.Collections.Generic;
 
 namespace Microservices.IdentifierMapper
 {
-    internal static class Program
+    public static class Program
     {
-        public static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<CliOptions>(args, OnParse);
             return ret;

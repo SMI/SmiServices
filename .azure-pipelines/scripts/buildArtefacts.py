@@ -20,12 +20,8 @@ dist/
 The files in the merged dir are checked for accidental overwriting, which can occur when
 publishing a solution of multiple projects into a single directory. See
 https://github.com/dotnet/sdk/issues/9984.
-
-NOTE: Requires exiftool when running on Linux
 """
 import argparse
-import concurrent
-import filecmp
 import functools
 import glob
 import hashlib
@@ -33,12 +29,10 @@ import re
 import shutil
 import subprocess
 import sys
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from subprocess import CalledProcessError
-from typing import Dict
 from typing import Optional
 from typing import Sequence
+from typing import Tuple
 from typing import Union
 
 
@@ -63,6 +57,7 @@ def _build_java_packages(dist_tag_dir: Path, tag: str) -> None:
 
     # Build Java microserves
 
+    cmd: Tuple[str, ...]
     cmd = (".azure-pipelines/scripts/install-ctp.bash",)
     _run(cmd)
 
@@ -110,148 +105,12 @@ def _build_java_packages(dist_tag_dir: Path, tag: str) -> None:
     )
 
 
-def _publish_csproj(build_dir: Path, platform: str, csproj_path: Path) -> None:
-
-    assembly_name: Optional[str] = None
-    with open(csproj_path) as f:
-        for line in f:
-
-            pub_match = _IS_PUBLISHABLE_RE.match(line)
-            if pub_match:
-                print(f"{cproj_path} not publishable")
-                return None
-
-            aname_match = _ASSEMBLY_NAME_RE.match(line)
-            if aname_match:
-                assembly_name = aname_match.group(1)
-                break
-
-    if not assembly_name:
-        raise AssertionError(f"Couldn't find AssemblyName in {csproj_path}")
-
-    publish_dir = build_dir / assembly_name
-    publish_dir.mkdir()
-    cmd = (
-        "dotnet", "publish",
-        "-p:Platform=x64",
-        "--configuration", "Release",
-        "-p:PublishTrimmed=false",
-        "--runtime", f"{platform}-x64",
-        "--output", publish_dir,
-        "--nologo",
-        csproj_path,
-    )
-
-    proc = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    # TODO(rkm 2021-02-20) Runs in parallel so need to capture output and log properly
-    stdout = proc.stdout.decode().strip()
-    stderr = proc.stderr.decode().strip()
-    if stdout or stderr:
-        print(f"=== {csproj_path} ===")
-        print(f"STDOUT\n{stdout}\n")
-        print(f"STDERR\n{stderr}\n")
-
-    if proc.returncode:
-        raise CalledProcessError(f"Build failed for {csproj_path}")
-
-    return None
-
-
 def _md5sum(file_path: Path) -> str:
     with open(file_path, mode="rb") as f:
         d = hashlib.md5()
         for buf in iter(functools.partial(f.read, 128), b""):
             d.update(buf)
     return d.hexdigest()
-
-
-def _get_assembly_version(file_path: Path) -> str:
-    try:
-        proc = subprocess.run(
-            (
-                "/usr/bin/exiftool",
-                "-S",
-                "-AssemblyVersion",
-                file_path,
-            ),
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        version = proc.stdout.decode().strip().split()[1]
-        return version
-    except CalledProcessError as exc:
-        if "File format error" in exc.stderr.decode():
-            return "<Unknown>"
-        raise
-
-
-def _merge_files(build_dir: Path, base_output_dir: Path, platform: str) -> bool:
-
-    base_output_dir.mkdir()
-    files = {}
-    clobbered = set()
-
-    def _check_clobber_and_copy(src: Path, output_dir=None) -> None:
-
-        output_dir = output_dir or base_output_dir
-
-        if src.is_dir():
-            sub_dir = output_dir / src.name
-            sub_dir.mkdir(exist_ok=True)
-            for f in src.iterdir():
-                _check_clobber_and_copy(f, sub_dir)
-            return None
-
-        nonlocal files, clobbered
-        existing = output_dir / src.name
-        if existing.is_file() and not filecmp.cmp(
-            existing,
-            src,
-            # NOTE(rkm 2021-02-20) Don't just compare on os.stat
-            shallow=False,
-        ):
-            clobbered.add(existing)
-
-        if not existing in files:
-            files[existing] = []
-        files[existing].append(src)
-
-        shutil.copy2(src, output_dir)
-        return None
-
-    for csproj_dir in [d for d in build_dir.iterdir() if d.is_dir()]:
-        for file_or_dir_path in csproj_dir.iterdir():
-            _check_clobber_and_copy(file_or_dir_path)
-
-    for file_path in sorted(clobbered):
-        print(f"=== Clobbered {file_path.name} ===")
-        uniq = {}
-        for f in files[file_path]:
-            md5 = _md5sum(f)
-            print(f"{md5}\t{f}")
-            if f.suffix == ".dll":
-                uniq[md5] = f
-
-        # TODO(rkm 2021-02-22) Find some way to get AssemblyVersions on Windows
-        if platform == _WINDOWS:
-            continue
-
-        if uniq:
-            print("Versions:")
-        for md5, f in uniq.items():
-            dll_version = _get_assembly_version(f)
-            print(f"  {dll_version} ({md5})")
-        print()
-    else:
-        # Did not clobber anything
-        return False
-
-    return True
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -285,38 +144,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # Publish dotnet packages
 
-    tmp_build_dir = dist_tag_dir / "smi-services-build-tmp"
-    tmp_build_dir.mkdir()
-    publish_csproj = functools.partial(_publish_csproj, tmp_build_dir, platform)
-    csproj_paths = {Path(x) for x in glob.glob("src/**/*.csproj", recursive=True)}
-    failed_builds = []
-
-    # NOTE(rkm 2021-02-20) Might get a bit of a benefit here - runs on Standard_DS2_v2 (2 vCPU)
-    with ThreadPoolExecutor() as executor:
-        build_results = {executor.submit(publish_csproj, p): p for p in csproj_paths}
-        for future in concurrent.futures.as_completed(build_results):
-            csproj_path = build_results[future]
-            try:
-                future.result()
-            except Exception as exc:
-                print(f"{csproj_path} generated an exception: {exc}")
-                failed_builds.append(csproj_path)
-
-    if failed_builds:
-        failed = "\n".join([x.name for x in failed_builds])
-        print(f"At least one build failed:\n{failed}")
-        return 1
-
     smi_services_output_dir = f"smi-services-{tag}-{platform}-x64"
-    did_clobber = _merge_files(
-        tmp_build_dir,
-        dist_tag_dir / smi_services_output_dir,
-        platform,
+    cmd = (
+        "dotnet", "publish",
+        "-p:Platform=x64",
+        "--configuration", "Release",
+        "-p:PublishTrimmed=false",
+        "--runtime", f"{platform}-x64",
+        "--output", dist_tag_dir / smi_services_output_dir,
+        "--nologo",
     )
-    if did_clobber:
-        return 1
-
-    shutil.rmtree(tmp_build_dir)
+    _run(cmd)
 
     if platform == _LINUX:
         cmd = (

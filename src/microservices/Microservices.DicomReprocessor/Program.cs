@@ -2,17 +2,13 @@
 using Microservices.DicomReprocessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
+using System.Collections.Generic;
 
 namespace Microservices.DicomReprocessor
 {
-    /// <summary>
-    /// Command line program to reprocess documents from MongoDb
-    /// and push them back onto the IdentifiableImageQueue for
-    /// reprocessing into the relational database.
-    /// </summary>
-    internal static class Program
+    public static class Program
     {
-        private static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, OnParse);
             return ret;

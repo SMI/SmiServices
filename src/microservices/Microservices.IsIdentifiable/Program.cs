@@ -5,15 +5,16 @@ using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Microservices.IsIdentifiable
 {
-    internal static class Program
+    public static class Program
     {
         private static readonly Process _process = Process.GetCurrentProcess();
 
-        public static int Main(string[] args)
+        public static int Main(IEnumerable<string> args)
         {
             int res = SmiCliInit.ParseAndRun(
                 args,
