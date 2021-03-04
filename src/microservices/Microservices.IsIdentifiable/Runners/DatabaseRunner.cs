@@ -33,6 +33,7 @@ namespace Microservices.IsIdentifiable.Runners
             _factory = new DatabaseFailureFactory(tbl);
 
             _columns = tbl.DiscoverColumns();
+            Int64 numRows = tbl.GetRowCount();
             _columnsNames = _columns.Select(c => c.GetRuntimeName()).ToArray();
             _stringColumns = _columns.Select(c => c.GetGuesser().Guess.CSharpType == typeof(string)).ToArray();
 
@@ -48,9 +49,18 @@ namespace Microservices.IsIdentifiable.Runners
                 _logger.Info("About to send command:" + Environment.NewLine + cmd.CommandText);
 
                 var reader = cmd.ExecuteReader();
+                Int64 rowNum = 0;
 
                 foreach (Failure failure in reader.Cast<DbDataRecord>().SelectMany(GetFailuresIfAny))
+                {
                     AddToReports(failure);
+                    rowNum++;
+                    if (rowNum % 1000 == 0)
+                    {
+                        _logger.Info("Completed " + (rowNum / numRows * 100.0) + " %");
+                        GC.Collect();
+                    }
+                }
 
                 CloseReports();
             }
