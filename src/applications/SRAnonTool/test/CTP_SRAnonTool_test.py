@@ -23,7 +23,9 @@ anon_dcm_file = '/tmp/CTP_SRAnonTool_test_report10.dcm'
 test_before = '/tmp/CTP_SRAnonTool_test_report10.txt.before'
 test_after  = '/tmp/CTP_SRAnonTool_test_report10.txt.after'
 
-yaml1 = '/home/arb/src/SmiServices/data/microserviceConfigs/default.yaml'
+# yaml1 = '/home/arb/src/SmiServices/data/microserviceConfigs/default.yaml'
+# yaml1 = os.path.join(os.environ['SMI_ROOT'], 'config', 'smi_dataExtract.yaml')
+yaml1 = "../../../../data/microserviceConfigs/default.yaml"
 binpath = '..'
 
 # Copy the input DICOM to the output filename, to simulate running CTP
@@ -37,38 +39,7 @@ with open(source_dcm, 'rb') as fdin:
 os.system(f"{binpath}/CTP_DicomToText.py -y {yaml1} -i {source_dcm}  -o {tmp_file}")
 
 # Fake the output from SemEHR, both txt and xml.
-# Create the text file by stripping off the headers:
-fdin = open(tmp_file, 'r')
-fdout = open(txt_file, 'w')
-in_text = False
-in_cs = False
-for line in fdin:
-	if re.match(r'^\[\[Text\]\]', line):
-		in_text = True
-		continue
-	if re.match(r'^\[\[ContentSequence\]\]', line):
-		in_cs = True
-		continue
-	if re.match(r'^\[\[EndText\]\]', line):
-		in_text = False
-		continue
-	if re.match(r'^\[\[EndContentSequence\]\]', line):
-		in_cs = False
-		continue
-	if not in_text and not in_cs:
-		continue
-	fdout.write(line)
-fdin.close()
-fdout.close()
-# Create the XML dict by finding the pattern in the text:
-with open(txt_file, 'r') as fd:
-	txt = fd.read()
-pattern = 'Baker'
-xml_dict = [{ 'start_char': m.start(), 'end_char': m.end(), 'text': pattern } for m in re.finditer(pattern, txt)]
-# Create the XML file:
-xml_str = Knowtator.dict_to_annotation_xml_string(xml_dict)
-with open(xml_file, 'w') as fd:
-	fd.write(xml_str)
+os.system("./clinical_doc_wrapper.py")
 
 # Now convert the txt,xml back into a redacted DICOM file:
 os.system(f"{binpath}/CTP_XMLToDicom.py -y {yaml1} -i {source_dcm} -x {xml_file} -o {anon_dcm_file}")
