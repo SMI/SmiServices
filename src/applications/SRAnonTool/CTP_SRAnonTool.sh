@@ -5,12 +5,14 @@
 # It extracts the text from DICOMfile, passes it through the SemEHR anonymiser,
 # and reconstructs the structured text into OutputDICOMfile.
 # NOTE: the -o file must already exist! because only the text part is updated.
+# NOTE: semehr needs python2 but all other tools need python3.
 # XXX TODO: copy the input to the output if it doesn't exist?
 
 prog=$(basename "$0")
-usage="usage: ${prog} [-d] [-v]  -i read_from.dcm  -o write_into.dcm"
-options="dvi:o:"
-log="$SMI_LOGS_ROOT/${prog}.log"
+usage="usage: ${prog} [-d] [-v] [-s semehr_root] -i read_from.dcm  -o write_into.dcm"
+options="dvs:i:o:"
+log="$SMI_LOGS_ROOT/${prog}/${prog}.log"
+semehr_dir="/opt/semehr"
 dcm=""
 debug=0
 verbose=0
@@ -26,6 +28,7 @@ if [ "$SMI_LOGS_ROOT" == "" ]; then
 fi
 
 # Configure logging
+mkdir -p `dirname "${log}"`
 touch $log
 echo "`date` $@" >> $log
 
@@ -43,6 +46,8 @@ tidy_exit()
 	  if [ -f "${anon_doc}" ]; then rm -f "${anon_doc}"; fi
 	  if [ -f "${anon_xml}" ]; then rm -f "${anon_xml}"; fi
 	fi
+	# Tell user where log file is when failure occurs
+	if [ $rc -ne 0 ]; then echo "See log file $log" >&2; fi
 	exit $rc
 }
 
@@ -57,6 +62,7 @@ case $var in
 	v) verbose=1;;
 	i) input_dcm="$OPTARG";;
 	o) output_dcm="$OPTARG";;
+	s) semehr_dir="$OPTARG";;
 	?) echo "$usage" >&2; exit 1;;
 esac
 done
@@ -88,14 +94,14 @@ CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 
 # Run the SemEHR anonymiser
 doc_filename=$(basename "$input_dcm")
-input_doc="/data/input_docs/$doc_filename"
-anon_doc="/data/anonymised/$doc_filename"
-anon_xml="/data/anonymised/$doc_filename.knowtator.xml"
+input_doc="${semehr_dir}/data/input_docs/$doc_filename"
+anon_doc="${semehr_dir}/data/anonymised/$doc_filename"
+anon_xml="${semehr_dir}/data/anonymised/$doc_filename.knowtator.xml"
 cp  "${input_dcm}.SRtext"  "$input_doc" || tidy_exit 5 "Cannot copy ${input_dcm}.SRtext to ${input_doc}"
 if [ $verbose -gt 0 ]; then
-	echo "RUN: /opt/semehr/CogStack-SemEHR/analysis/clinical_doc_wrapper.py"
+	echo "RUN: ${semehr_dir}/CogStack-SemEHR/analysis/clinical_doc_wrapper.py"
 fi
-(cd /opt/semehr/CogStack-SemEHR/analysis; python2 ./clinical_doc_wrapper.py) >> $log 2>&1
+(cd ${semehr_dir}/CogStack-SemEHR/analysis; python2 ./clinical_doc_wrapper.py) >> $log 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
 	tidy_exit $rc "Possible failure (exit code $rc) of SemEHR-anon given ${input_doc} from ${input_dcm}"

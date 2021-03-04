@@ -14,7 +14,10 @@ Python library requirements:
 
 External tool requirements:
 * The SmiServices CTP anonymiser
-* SemEHR/CogStack anonymiser
+* SemEHR/CogStack anonymiser (or the test stub)
+* dcm2json (from the dcmtk package), for testing
+* jq, for testing
+* diff, for testing
 
 ## Installation
 
@@ -24,7 +27,7 @@ Copy the scripts to `$SMI_ROOT/scripts`
 
 Copy the python library `Smi_Common_Python` to `$SMI_ROOT/lib/python3/`
 
-Ensure the python package dependencies are installed system-wide on the host machine.
+Ensure the python package dependencies are installed system-wide or in a virtualenv on the host machine.
 
 Modify the `default.yaml` file: in the section `CTPAnonymiserOptions` add `SRAnonTool: /path/to/SRAnonTool.sh`
 
@@ -33,10 +36,13 @@ Ensure the `default.yaml` file contains the necessary `FileSystemOptions`, `Logs
 Install the SemEHR/CogStack anonymiser, which currently uses the following directories (which may be symbolic links):
 
 * `/opt/semehr/CogStack` - contains the scripts
-* `/data/input_docs` - raw text copied here will be anonymised
-* `/data/anonymised` - output anonymous text and xml files
+* `/opt/semehr/data/input_docs` - raw text copied here will be anonymised
+* `/opt/semehr/data/anonymised` - output anonymous text and xml files
 * `/opt/gcp/bio-yodie-1-2-1` - the UMLS dictionary
 * `/opt/gcp/gcp-2.5-18658` - java libraries
+
+The anonymiser requires Python2 and all the other scripts require Python3.
+If using the test stub then only the data directories are required and Python2 is not required.
 
 ## Usage as part of CTP
 
@@ -53,6 +59,10 @@ The script `SRAnonTool.sh` calls three components:
 * `CTP_DicomToText.py` - extracts the text from the raw DICOM file into a format suitable for SemEHR-CogStack.
 * `clinical_doc_wrapper.py` - this is the component within SemEHR-CogStack which anonymises the text.
 * `CTP_XMLToDicom.py` - redacts the text from the raw DICOM file and write the redacted text into the output DICOM file.
+
+Usage: `[-s semehr_dir]  -i read_from.dcm  -o write_into.dcm`
+
+The SemEHR directory (`/opt/semehr`) can be changed with the `-s` option for testing (it's not set when called by CTP).
 
 ### `CTP_DicomToText.py`
 
@@ -71,6 +81,10 @@ Usage: no command line arguments
 It must be called with the current directory being the location of the script.
 
 It reads all the files in the `/data/input_docs` directory. For each input file it write a slightly modified file with the same name into the `/data/anonymised` directory, basically the text with some header metadata removed, plus it writes a file of the same name plus `.knowtator.xml` appended containing annotations in XML format.
+
+It requires Python2.
+
+The test stub of this program has no requirement on current directory and uses Python3. It is best suited when tested with the given test DICOM file as it only fakes the anonymisation of the word `Baker`.
 
 ### `CTP_XMLToDicom.py`
 
