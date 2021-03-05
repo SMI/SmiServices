@@ -48,7 +48,7 @@ if __name__ == "__main__":
             # Merge all the yaml dicst into one
             cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
-    log_dir = cfg_dict['LogsRoot']
+    log_dir = cfg_dict['LoggingOptions']['LogsRoot']
     root_dir = cfg_dict['FileSystemOptions']['FileSystemRoot']
     extract_dir = cfg_dict['FileSystemOptions']['ExtractRoot']
 

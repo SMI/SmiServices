@@ -125,7 +125,7 @@ if __name__ == '__main__':
     mongo_pass = cfg_dict['MongoDatabases']['DicomStoreOptions']['Password']
     mongo_db   = cfg_dict['MongoDatabases']['DicomStoreOptions']['DatabaseName']
 
-    log_dir = cfg_dict['LogsRoot']
+    log_dir = cfg_dict['LoggingOptions']['LogsRoot']
     root_dir = cfg_dict['FileSystemOptions']['FileSystemRoot']
     extract_dir = cfg_dict['FileSystemOptions']['ExtractRoot']
 

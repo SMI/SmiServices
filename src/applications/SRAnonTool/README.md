@@ -15,8 +15,8 @@ Python library requirements:
 External tool requirements:
 * The SmiServices CTP anonymiser
 * SemEHR/CogStack anonymiser (or the test stub)
-* dcm2json (from the dcmtk package), for testing
-* jq, for testing
+* dcm2json (from the dcmtk package), for testing, optional
+* jq, for testing, optional
 * diff, for testing
 
 ## Installation
@@ -31,7 +31,7 @@ Ensure the python package dependencies are installed system-wide or in a virtual
 
 Modify the `default.yaml` file: in the section `CTPAnonymiserOptions` add `SRAnonTool: /path/to/SRAnonTool.sh`
 
-Ensure the `default.yaml` file contains the necessary `FileSystemOptions`, `LogsRoot`, `MongoDatabases`, `RabbitOptions`, etc.
+Ensure the `default.yaml` file contains the necessary `FileSystemOptions`, `LoggingOptions>LogsRoot`, `MongoDatabases`, `RabbitOptions`, etc.
 
 Install the SemEHR/CogStack anonymiser, which currently uses the following directories (which may be symbolic links):
 
@@ -76,7 +76,7 @@ Usage: `-y default.yaml -i input.dcm -o outfile`
 
 ### `clinical_doc_wrapper.py`
 
-Usage: no command line arguments
+Usage: `[-s semehr_dir]` in the stub version
 
 It must be called with the current directory being the location of the script.
 
@@ -84,7 +84,7 @@ It reads all the files in the `/data/input_docs` directory. For each input file 
 
 It requires Python2.
 
-The test stub of this program has no requirement on current directory and uses Python3. It is best suited when tested with the given test DICOM file as it only fakes the anonymisation of the word `Baker`.
+The test stub of this program has no requirement on current directory and uses Python3. It is best suited when tested with the given test DICOM file as it only fakes the anonymisation of the word `Baker`. The `-s` option can be used to specify the SemEHR directory instead of `/opt/semehr` which is useful when testing; this option is not present in the original.
 
 ### `CTP_XMLToDicom.py`
 
@@ -104,8 +104,18 @@ Usage: `-y default.yaml -i input.dcm -x input.xml -o output.dcm`
 In the test subdirectory, run
 
 ```
-./CTP_SRAnonTool_test.py
+./CTP_SRAnonTool_test.py [-s semehr_dir] [-d file.dcm] [-p pattern_to_redact] [-y default.yaml]
 ```
 
 That will read `report10html.dcm` and run the above scripts, checking that the output matches what is expected.
-It will print `SUCCESS` if successful.
+It will print `SUCCESS` and exit 0 if successful, exit 1 if the output is not as expected.
+
+The defaults are:
+
+`-s semehr_dir` - `/opt/semehr`
+
+`-d file.dcm` - `report10html.dcm` (a public sample file manually edited to include HTML fragments)
+
+`-p pattern_to_redact` - `Baker` (to suit the example DICOM file)
+
+`-y default.yaml` - `../../../../data/microserviceConfigs/default.yaml`
