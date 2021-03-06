@@ -10,22 +10,21 @@
 
 import argparse
 import os
+from os.path import join, abspath, dirname
 import pydicom
 import re
 import shutil
 import sys
-os.environ['PYTHONPATH'] = '../../../common'
-sys.path.append('../../../common')
-from Smi_Common_Python import DicomText, Knowtator
+from SmiServices import DicomText, Knowtator
 
 # Configurable:
 semehr_dir = '/opt/semehr'
-source_dcm = 'report10html.dcm'
+source_dcm = join(abspath(dirname(__file__)), 'report10html.dcm')
 fake_pattern = 'Baker'  # This appears in the test document so anonymise it
 # yaml1 = '/home/arb/src/SmiServices/data/microserviceConfigs/default.yaml'
 # yaml1 = os.path.join(os.environ['SMI_ROOT'], 'config', 'smi_dataExtract.yaml')
-yaml1 = "../../../../data/microserviceConfigs/default.yaml"
-binpath = '..'
+yaml1 = join(abspath(dirname(__file__)), "../../../../data/microserviceConfigs/default.yaml")
+binpath = join(abspath(dirname(__file__)), '..')
 
 parser = argparse.ArgumentParser(description='SemEHR-Anonymiser-test')
 parser.add_argument('-s', dest='semehr_dir', action="store", help=f'root path for semehr, default {semehr_dir}')
@@ -44,9 +43,9 @@ if args.yaml:
 
 # Intermediate files:
 anon_dcm_file = 'report10html.anon.dcm'
-source_txt_file = os.path.join(semehr_dir, 'data', 'input_docs', 'report10html.txt')
-txt_file = os.path.join(semehr_dir, 'data', 'anonymised', 'report10html.txt')
-xml_file = os.path.join(semehr_dir, 'data', 'anonymised', 'report10html.txt.knowtator.xml')
+source_txt_file = join(semehr_dir, 'data', 'input_docs', 'report10html.txt')
+txt_file = join(semehr_dir, 'data', 'anonymised', 'report10html.txt')
+xml_file = join(semehr_dir, 'data', 'anonymised', 'report10html.txt.knowtator.xml')
 test_before = '/tmp/CTP_SRAnonTool_test_report10html.txt.before'
 test_after  = '/tmp/CTP_SRAnonTool_test_report10html.txt.after'
 
@@ -61,7 +60,7 @@ with open(source_dcm, 'rb') as fdin:
 os.system(f"{binpath}/CTP_DicomToText.py -y {yaml1} -i {source_dcm}  -o {source_txt_file}")
 
 # Fake the output from SemEHR, both txt and xml.
-os.system(f"./clinical_doc_wrapper.py -s {semehr_dir}")
+os.system(join(abspath(dirname(__file__)), f"clinical_doc_wrapper.py -s {semehr_dir}"))
 
 # Now convert the txt,xml back into a redacted DICOM file:
 os.system(f"{binpath}/CTP_XMLToDicom.py -y {yaml1} -i {source_dcm} -x {xml_file} -o {anon_dcm_file}")

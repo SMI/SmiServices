@@ -2,8 +2,8 @@ import collections
 import os
 import re
 import sys
-from Smi_Common_Python import Dicom
-from Smi_Common_Python.Dicom import tag_is, tag_val, has_tag
+from SmiServices import Dicom
+from SmiServices.Dicom import tag_is, tag_val, has_tag
 import pydicom
 
 

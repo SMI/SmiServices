@@ -20,7 +20,7 @@ import glob
 import logging
 import os
 import re
-from Smi_Common_Python import Knowtator
+from SmiServices import Knowtator
 
 semehr_root_dir = '/opt/semehr'
 fake_pattern = 'Baker'  # This appears in the test document so anonymise it

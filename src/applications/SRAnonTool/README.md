@@ -15,9 +15,9 @@ Python library requirements:
 External tool requirements:
 * The SmiServices CTP anonymiser
 * SemEHR/CogStack anonymiser (or the test stub)
-* dcm2json (from the dcmtk package), for testing, optional
-* jq, for testing, optional
-* diff, for testing
+* dcm2json (for testing; optional; from the dcmtk package)
+* jq (for testing; optional)
+* diff (for testing)
 
 ## Installation
 
@@ -25,7 +25,7 @@ The scripts require dependencies which need to be found via the `PATH` or `PYTHO
 
 Copy the scripts to `$SMI_ROOT/scripts`
 
-Copy the python library `Smi_Common_Python` to `$SMI_ROOT/lib/python3/`
+Install the python library `SmiServices` to `$SMI_ROOT/lib/python3/` or a virtualenv
 
 Ensure the python package dependencies are installed system-wide or in a virtualenv on the host machine.
 
@@ -41,7 +41,7 @@ Install the SemEHR/CogStack anonymiser, which currently uses the following direc
 * `/opt/gcp/bio-yodie-1-2-1` - the UMLS dictionary
 * `/opt/gcp/gcp-2.5-18658` - java libraries
 
-The anonymiser requires Python2 and all the other scripts require Python3.
+The SemEHR anonymiser requires Python2; all the other scripts require Python3.
 If using the test stub then only the data directories are required and Python2 is not required.
 
 ## Usage as part of CTP
@@ -82,9 +82,9 @@ It must be called with the current directory being the location of the script.
 
 It reads all the files in the `/data/input_docs` directory. For each input file it write a slightly modified file with the same name into the `/data/anonymised` directory, basically the text with some header metadata removed, plus it writes a file of the same name plus `.knowtator.xml` appended containing annotations in XML format.
 
-It requires Python2.
+The SemEHR version requires Python2; the test stub requires Python3.
 
-The test stub of this program has no requirement on current directory and uses Python3. It is best suited when tested with the given test DICOM file as it only fakes the anonymisation of the word `Baker`. The `-s` option can be used to specify the SemEHR directory instead of `/opt/semehr` which is useful when testing; this option is not present in the original.
+The test stub of this program has no requirement on current directory. It is best suited when tested with the given test DICOM file as it only fakes the anonymisation of the word `Baker`. The `-s` option can be used to specify the SemEHR directory instead of `/opt/semehr` which is useful when testing; this option is not present in the original.
 
 ### `CTP_XMLToDicom.py`
 

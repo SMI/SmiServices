@@ -19,15 +19,11 @@ import yaml
 import pydicom
 import xml.etree.ElementTree    # untangle and xmltodict not available in NSH
 from deepmerge import Merger    # for deep merging dictionaries
-sys.path.append('../../common/') # if we are in the application directory
-sys.path.append('src/common')    # if we are in the root of the repo
-if 'SMI_ROOT' in os.environ:     # $SMI_ROOT/lib/python3
-    sys.path.append(os.path.join(os.environ['SMI_ROOT'], 'lib', 'python3'))
-from Smi_Common_Python import Mongo
-from Smi_Common_Python import Rabbit
-from Smi_Common_Python import Dicom
-from Smi_Common_Python import DicomText
-from Smi_Common_Python import StructuredReport as SR
+from SmiServices import Mongo
+from SmiServices import Rabbit
+from SmiServices import Dicom
+from SmiServices import DicomText
+from SmiServices import StructuredReport as SR
 
 # ---------------------------------------------------------------------
 
