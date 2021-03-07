@@ -9,14 +9,26 @@ deepmerge
 pika
 pydicom
 pymongo
+PyYAML
 xml.etree (comes with python)
 ```
 
 ## Installation
 
-Copy the `Smi_Common_Python` directory to `$SMI_ROOT/lib/python3/Smi_Common_Python`
+Run `python3 setup.py bdist_wheel` to create `Smi_Services_Python-0.0.0-py3-none-any.whl`
+
+Run `python3 setup.py install` to install (including dependencies) into your python site-packages
+(whether that be global or inside a current virtualenv).
+
+Note that the version number is read from AssemblyInfo.cs in a parent directory.
 
 ## Testing
+
+Test all modules:
+
+```
+pytest SmiServices/*.py
+```
 
 Test each module individually, for example:
 ```
@@ -32,11 +44,11 @@ For example:
 ```
 if 'SMI_ROOT' in os.environ:     # $SMI_ROOT/lib/python3
     sys.path.append(os.path.join(os.environ['SMI_ROOT'], 'lib', 'python3'))
-from Smi_Common_Python import Mongo
-from Smi_Common_Python import Rabbit
-from Smi_Common_Python import Dicom
-from Smi_Common_Python import DicomText
-from Smi_Common_Python import StructuredReport as SR
+from SmiServices import Mongo
+from SmiServices import Rabbit
+from SmiServices import Dicom
+from SmiServices import DicomText
+from SmiServices import StructuredReport as SR
 ```
 
 ## Dicom.py
@@ -63,7 +75,7 @@ write_redacted_text_into_dicom_file  # to rewrite a second file with redacted te
 
 ## Knowtator.py
 
-Provides a single function for parsing the XML files containing annotations
+Provides a function for parsing the XML files containing annotations
 as output by the SemEHR anonymiser and input to eHOST. The files are typically
 named `.knowtator.xml` and have the format:
 
@@ -81,6 +93,8 @@ named `.knowtator.xml` and have the format:
 ```
 
 The function `annotation_xml_to_dict` parses the XML and returns a suitable Python dict.
+
+Also contains a function to write such XML files, useful when testing.
 
 ## Mongo.py
 
@@ -113,7 +127,7 @@ messages.
 
 ## StructuredReport.py
 
-Provide a function `SR_parse` which can parse a Python dict containing a DICOM
+Provides a function `SR_parse` which can parse a Python dict containing a DICOM
 Structured Report and return the content as a usable string.  The dict can be
 read from a DICOM file using pydicom or can be obtained from the MongoDB database
 which represents the data in a similar but different format (i.e. no VR tag).

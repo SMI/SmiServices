@@ -5,6 +5,8 @@
 #
 # NOTE!  This program uses python3 but the real clinical_doc_wrapper
 # still uses python2 so this stub does not verify that python2 works.
+# NOTE!  This program accepts the -s option to set the semehr_dir for
+# testing but the real clinical_doc_wrapper uses a hard-coded path.
 #
 # It expects the input documents (from CTP_DicomToText.py) in
 #   ${semehr_dir}/data/input_docs/
@@ -13,23 +15,15 @@
 #
 #   ${semehr_dir} is typically /opt/semehr
 
+import argparse
 import glob
 import logging
 import os
 import re
-from Smi_Common_Python import Knowtator
+from SmiServices import Knowtator
 
 semehr_root_dir = '/opt/semehr'
-input_dir = os.path.join(semehr_root_dir, 'data/input_docs')
-output_dir = os.path.join(semehr_root_dir, 'data/anonymised')
 fake_pattern = 'Baker'  # This appears in the test document so anonymise it
-
-if not os.path.isdir(input_dir):
-	logging.error(f'no such input directory {input_dir}')
-	exit(1)
-if not os.path.isdir(output_dir):
-	logging.error(f'no such output directory {output_dir}')
-	exit(1)
 
 
 def fake_anonymise(doc_filename):
@@ -75,14 +69,35 @@ def fake_anonymise(doc_filename):
 	with open(xml_file, 'w') as fd:
 		fd.write(xml_str)
 
-
 	return
 
 
 def main():
-	logging.basicConfig(level=logging.DEBUG)
+	global semehr_root_dir
+	global input_dir
+	global output_dir
+
+	logging.basicConfig(level=logging.DEBUG,
+		format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
+
+	parser = argparse.ArgumentParser(description='SemEHR-Anonymiser')
+	parser.add_argument('-s', dest='semehr_dir', action="store", help=f'root path for semehr, default {semehr_root_dir}')
+	args = parser.parse_args()
+	if args.semehr_dir:
+		semehr_root_dir = args.semehr_dir
+
+	input_dir = os.path.join(semehr_root_dir, 'data', 'input_docs')
+	output_dir = os.path.join(semehr_root_dir, 'data', 'anonymised')
+	if not os.path.isdir(input_dir):
+		logging.error(f'no such input directory {input_dir}')
+		exit(1)
+	if not os.path.isdir(output_dir):
+		logging.error(f'no such output directory {output_dir}')
+		exit(1)
+
 	for doc_filename in glob.glob(os.path.join(input_dir, '*')):
 		fake_anonymise(os.path.basename(doc_filename))
+
 
 main()
 

@@ -21,9 +21,9 @@ sys.path.append('../../common/') # if we are in the application directory
 sys.path.append('src/common')    # if we are in the root of the repo
 if 'SMI_ROOT' in os.environ:     # $SMI_ROOT/lib/python3
     sys.path.append(os.path.join(os.environ['SMI_ROOT'], 'lib', 'python3'))
-from Smi_Common_Python import Knowtator
-from Smi_Common_Python import Dicom
-from Smi_Common_Python import DicomText
+from SmiServices import Knowtator
+from SmiServices import Dicom
+from SmiServices import DicomText
 
 
 # ---------------------------------------------------------------------
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             # Merge all the yaml dicst into one
             cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
-    log_dir = cfg_dict['LogsRoot']
+    log_dir = cfg_dict['LoggingOptions']['LogsRoot']
     root_dir = cfg_dict['FileSystemOptions']['FileSystemRoot']
     extract_dir = cfg_dict['FileSystemOptions']['ExtractRoot']
 

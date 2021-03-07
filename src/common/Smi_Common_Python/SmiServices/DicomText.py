@@ -1,9 +1,10 @@
 """ Functions to assist with decoding text in DICOM files
 """
 
+import os
 import pydicom
 import re
-from Smi_Common_Python.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
+from SmiServices.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
 
 
 # ---------------------------------------------------------------------
@@ -267,7 +268,7 @@ def test_DicomText():
     """ The test function requires a specially-crafted DICOM file
     as provided with SRAnonTool that has been modified to include HTML.
     """
-    dcm = '../applications/SRAnonTool/test/report10html.dcm'
+    dcm = os.path.join(os.path.dirname(__file__), '../../../applications/SRAnonTool/test/report10html.dcm')
     expected_without_header = """[[ContentSequence]]
 # Request
 MRI: Knee
