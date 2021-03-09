@@ -129,6 +129,7 @@ jobs:
             inputs:
                 targetType: "inline"
                 script: |
+                    set -exuo pipefail
                     python3 -m pip install virtualenv
                     python3 -m virtualenv $(Build.SourcesDirectory)/venv
           - task: Bash@3
@@ -136,6 +137,7 @@ jobs:
             inputs:
                 targetType: "inline"
                 script: |
+                    set -euxo pipefail
                     $(Build.SourcesDirectory)/venv/bin/python \
                     -m pip install -r src/common/Smi_Common_Python/SmiServices/requirements.txt
           - task: Bash@3
