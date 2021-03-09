@@ -140,7 +140,7 @@ jobs:
                     set -euxo pipefail
                     "$(Pipeline.Workspace)"/venv/bin/python \
                     -m pip \
-                    install -r src/common/Smi_Common_Python/SmiServices/requirements.txt
+                    install -r src/common/Smi_Common_Python/requirements.txt
           - task: Bash@3
             displayName: Run Python Tests
             inputs:
