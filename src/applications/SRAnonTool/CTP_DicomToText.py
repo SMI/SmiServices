@@ -116,10 +116,10 @@ if __name__ == '__main__':
             # Merge all the yaml dicst into one
             cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
-    mongo_host = cfg_dict['MongoDatabases']['DicomStoreOptions']['HostName']
-    mongo_user = cfg_dict['MongoDatabases']['DicomStoreOptions']['UserName']
-    mongo_pass = cfg_dict['MongoDatabases']['DicomStoreOptions']['Password']
-    mongo_db   = cfg_dict['MongoDatabases']['DicomStoreOptions']['DatabaseName']
+    mongo_host = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('HostName',{})
+    mongo_user = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('UserName',{})
+    mongo_pass = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('Password',{})
+    mongo_db   = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('DatabaseName',{}) 
 
     log_dir = cfg_dict['LoggingOptions']['LogsRoot']
     root_dir = cfg_dict['FileSystemOptions']['FileSystemRoot']
@@ -144,7 +144,7 @@ if __name__ == '__main__':
         for root, dirs, files in os.walk(args.input, topdown=False):
             for name in files:
                 extract_file(os.path.join(root, name), args.output_dir)
-    else:
+    elif mongodb != {}:
         # could be a SOPInstanceUID in Mongo
         # except SOPInstanceUID is not in the Mongo index,
         # only the DicomFilePath.
@@ -152,3 +152,5 @@ if __name__ == '__main__':
         mongodb.setImageCollection('SR')
         mongojson = mongodb.DicomFilePathToJSON(args.input)
         extract_mongojson(mongojson, output_dir)
+    else:
+        logging.error(f'Cannot find {args.input} in as file or in MongoDB')
