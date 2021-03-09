@@ -131,17 +131,22 @@ jobs:
                 script: |
                     set -exuo pipefail
                     python3 -m pip install virtualenv
-                    python3 -m virtualenv $(Build.SourcesDirectory)/venv
+                    python3 -m virtualenv "$(Pipeline.Workspace)"/venv
           - task: Bash@3
             displayName: Install requirements
             inputs:
                 targetType: "inline"
                 script: |
                     set -euxo pipefail
-                    $(Build.SourcesDirectory)/venv/bin/python \
-                    -m pip install -r src/common/Smi_Common_Python/SmiServices/requirements.txt
+                    "$(Pipeline.Workspace)"/venv/bin/python \
+                    -m pip \
+                    install -r src/common/Smi_Common_Python/SmiServices/requirements.txt
           - task: Bash@3
             displayName: Run Python Tests
             inputs:
-                file: .azure_pipelines/scripts/run-python-tests.bash
-                failOnStderr: true
+                targetType: "inline"
+                script: |
+                    set -exuo pipefail
+                    "$(Pipeline.Workspace)"/venv/bin/python \
+                    -m pytest \
+                    src/common/Smi_Common_Python/SmiServices/*.py
