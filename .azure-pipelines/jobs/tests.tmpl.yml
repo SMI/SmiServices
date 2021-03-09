@@ -7,6 +7,7 @@ parameters:
 jobs:
     - job: dotnet_tests
       displayName: Dotnet Tests
+      condition: false
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
@@ -72,6 +73,7 @@ jobs:
 
     - job: java_tests
       displayName: Java Tests
+      condition: false
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
@@ -109,3 +111,35 @@ jobs:
                 # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
                 failOnStderr: false
                 arguments: $(MVN_PROFILE)
+
+    - job: python_tests
+      displayName: Python Tests
+      pool:
+          vmImage: ${{ parameters.vmImage }}
+      steps:
+          - template: ../steps/vars.tmpl.yml
+          # NOTE(rkm 2021-03-09) Matches what we have in the live environment
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.6'
+              addToPath: true
+              architecture: 'x64'
+          - task: Bash@3
+            displayName: Create virtualenv
+            inputs:
+                targetType: "inline"
+                script: |
+                    python3 -m pip install --user virtualenv
+                    virtualenv "$(Build.SourcesDirectory)/venv"
+          - task: Bash@3
+            displayName: Install requirements
+            inputs:
+                targetType: "inline"
+                script: |
+                    "$(Build.SourcesDirectory)/venv/bin/python" \
+                    -m pip install -r src/common/Smi_Common_Python/SmiServices/requirements.txt
+          - task: Bash@3
+            displayName: Run Python Tests
+            inputs:
+                file: .azure_pipelines/scripts/run-python-tests.bash
+                failOnStderr: true
