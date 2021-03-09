@@ -60,7 +60,10 @@ The script `SRAnonTool.sh` calls three components:
 * `clinical_doc_wrapper.py` - this is the component within SemEHR-CogStack which anonymises the text.
 * `CTP_XMLToDicom.py` - redacts the text from the raw DICOM file and write the redacted text into the output DICOM file.
 
-Usage: `[-s semehr_dir]  -i read_from.dcm  -o write_into.dcm`
+Usage: `[-e virtualenv] [-s semehr_dir]  -i read_from.dcm  -o write_into.dcm`
+
+The `-e` option can be used to activate a virtual environment by sourcing the `bin/activate` script.
+The default is to set `PYTHONPATH` to `$SMI_ROOT/lib/python3`
 
 The SemEHR directory (`/opt/semehr`) can be changed with the `-s` option for testing (it's not set when called by CTP).
 
