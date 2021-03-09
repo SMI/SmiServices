@@ -132,7 +132,7 @@ jobs:
                     set -exuo pipefail
                     python3 -m pip install virtualenv
                     venv_dir="$(Pipeline.Workspace)"/venv
-                    python3 -m virtualenv venv_dir
+                    python3 -m virtualenv $venv_dir
                     set +x; echo "##vso[task.setvariable variable=PYTHON]$venv_dir/bin/python"
                     # Debug
                     echo $(PYTHON)
