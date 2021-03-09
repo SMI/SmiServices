@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euxo pipefail
 
-python src/common/Smi_Common_Python/setup.py bdist_wheel
+venv/bin/python src/common/Smi_Common_Python/setup.py bdist_wheel

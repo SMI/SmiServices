@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euxo pipefail
 
 ./venv/bin/python -m pytest src/common/Smi_Common_Python/SmiServices/*.py
