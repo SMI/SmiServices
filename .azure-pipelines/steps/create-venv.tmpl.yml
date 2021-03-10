@@ -1,6 +1,9 @@
 ---
 # Creates an empty virtualenv and sets the python_exe variable
 
+parameters:
+  os:
+
 steps:
   # NOTE(rkm 2021-03-09) Matches what we have in the live environment
   - task: UsePythonVersion@0

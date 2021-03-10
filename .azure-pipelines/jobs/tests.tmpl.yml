@@ -119,6 +119,8 @@ jobs:
       steps:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/create-venv.tmpl.yml
+            parameters:
+              os: ${{ parameters.os }}
           - task: Bash@3
             displayName: Install requirements
             inputs:

@@ -17,6 +17,9 @@ jobs:
           - template: ../steps/set-git-tag-variable.tmpl.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
               - template: ../steps/win-nuget-fixup.tmpl.yml
+          - template: ../steps/create-venv.tmpl.yml
+            parameters:
+              os: ${{ parameters.os }}
           - task: Bash@3
             displayName: Build artefacts
             inputs:
@@ -25,7 +28,6 @@ jobs:
                   set -euxo pipefail
                   os="${{ parameters.os }}"
                   python .azure-pipelines/scripts/buildArtefacts.py $os $(tag)
-          - template: ../steps/create-venv.tmpl.yml
           - task: Bash@3
             displayName: List files
             inputs:
