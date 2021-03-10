@@ -150,7 +150,7 @@ jobs:
                 targetType: "inline"
                 script: |
                     set -euxo pipefail
-                    $(python_exe) -m pip \
+                    "$(python_exe)" -m pip \
                     install \
                         -r src/common/Smi_Common_Python/requirements.txt \
                         -r src/common/Smi_Common_Python/requirements-dev.txt
@@ -160,5 +160,5 @@ jobs:
                 targetType: "inline"
                 script: |
                     set -exuo pipefail
-                    $(python_exe) -m pytest \
+                    "$(python_exe)" -m pytest \
                     src/common/Smi_Common_Python/SmiServices/*.py
