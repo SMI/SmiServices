@@ -9,11 +9,11 @@
 # XXX TODO: copy the input to the output if it doesn't exist?
 
 prog=$(basename "$0")
-usage="usage: ${prog} [-d] [-v] [-s semehr_root] -i read_from.dcm  -o write_into.dcm"
-options="dvs:i:o:"
+usage="usage: ${prog} [-d] [-v] [-e virtualenv] [-s semehr_root] -i read_from.dcm  -o write_into.dcm"
+options="dve:s:i:o:"
 log="$SMI_LOGS_ROOT/${prog}/${prog}.log"
 semehr_dir="/opt/semehr"
-dcm=""
+virtenv=""
 debug=0
 verbose=0
 
@@ -53,13 +53,14 @@ tidy_exit()
 
 # Default executable PATHs and Python libraries
 export PATH=${PATH}:${SMI_ROOT}/bin:${SMI_ROOT}/scripts:$(dirname "$0")
-export PYTHONPATH=${SMI_ROOT}/lib/python3
+export PYTHONPATH=${SMI_ROOT}/lib/python3:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib/python3.6/site-packages
 
 # Command line arguments
 while getopts ${options} var; do
 case $var in
 	d) debug=1;;
 	v) verbose=1;;
+	e) virtenv="$OPTARG";;
 	i) input_dcm="$OPTARG";;
 	o) output_dcm="$OPTARG";;
 	s) semehr_dir="$OPTARG";;
@@ -73,6 +74,16 @@ if [ ! -f "$input_dcm" ]; then
 fi
 if [ ! -f "$output_dcm" ]; then
 	tidy_exit 3 "ERROR: cannot write to ${output_dcm} because it must already exist"
+fi
+
+# Activate the virtual environment
+if [ "$virtenv" != "" ]; then
+	if [ -f "$virtenv/bin/activate" ]; then
+		source "$virtenv/bin/activate"
+	else
+		echo "ERROR: Cannot activate virtual environment ${virtenv} - no bin/activate script" >&2
+		exit 1
+	fi
 fi
 
 # Find the config files
