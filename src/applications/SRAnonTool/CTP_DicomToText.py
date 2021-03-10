@@ -57,12 +57,8 @@ def extract_dicom_file(input, output):
     into the output, which can be a filename,
     or a directory in which case the file is named by SOPInstanceUID.
     """
-    # Old method using hand-crafted code
-    #dicom_raw = pydicom.dcmread(input)
-    #dicom_raw_json = dicom_raw.to_json_dict(None, 0)
-    #SR.SR_parse(dicom_raw_json, 'TEST_DICOM_NAME', sys.stdout)
 
-    # New method using DicomText class
+    # Extract text using DicomText class
     dicomtext = DicomText.DicomText(input)
     dicomtext.parse()
 
@@ -113,7 +109,7 @@ if __name__ == '__main__':
         args.yamlfile = [os.path.join(os.environ['SMI_ROOT'], 'configs', 'smi_dataExtract.yaml')]
     for cfg_file in args.yamlfile:
         with open(cfg_file, 'r') as fd:
-            # Merge all the yaml dicst into one
+            # Merge all the yaml dicts into one
             cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
     mongo_host = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('HostName',{})
@@ -144,7 +140,7 @@ if __name__ == '__main__':
         for root, dirs, files in os.walk(args.input, topdown=False):
             for name in files:
                 extract_file(os.path.join(root, name), args.output_dir)
-    elif mongodb != {}:
+    elif mongo_db != {}:
         # could be a SOPInstanceUID in Mongo
         # except SOPInstanceUID is not in the Mongo index,
         # only the DicomFilePath.
@@ -153,4 +149,5 @@ if __name__ == '__main__':
         mongojson = mongodb.DicomFilePathToJSON(args.input)
         extract_mongojson(mongojson, output_dir)
     else:
-        logging.error(f'Cannot find {args.input} in as file or in MongoDB')
+        logging.error(f'Cannot find {args.input} as file and MongoDB not configured')
+        exit(1)
