@@ -27,7 +27,10 @@ jobs:
               script: |
                   set -euxo pipefail
                   os="${{ parameters.os }}"
-                  python .azure-pipelines/scripts/buildArtefacts.py $os $(tag)
+                  python .azure-pipelines/scripts/buildArtefacts.py \
+                    $os \
+                    $(tag) \
+                    "$(python_exe)"
           - task: Bash@3
             displayName: List files
             inputs:
