@@ -8,8 +8,9 @@ jobs:
       displayName: Build Artefacts
       pool:
           vmImage: ${{ parameters.vmImage }}
-      condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      dependsOn: [dotnet_tests, java_tests, python_tests]
+      # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      # dependsOn: [dotnet_tests, java_tests, python_tests]
+      dependsOn: [python_tests]
       steps:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
@@ -33,13 +34,13 @@ jobs:
                 set -euxo pipefail
                 find dist -type f
                 cat dist/**/MD5SUMS*
-          - task: GitHubRelease@1
-            inputs:
-              gitHubConnection: 'GitHub - SMI-Bot'
-              repositoryName: '$(Build.Repository.Name)'
-              action: 'edit'
-              target: '$(Build.SourceVersion)'
-              tag: '$(tag)'
-              assets: dist/$(tag)/*
-              assetUploadMode: 'replace'
-              addChangeLog: false
+          # - task: GitHubRelease@1
+          #   inputs:
+          #     gitHubConnection: 'GitHub - SMI-Bot'
+          #     repositoryName: '$(Build.Repository.Name)'
+          #     action: 'edit'
+          #     target: '$(Build.SourceVersion)'
+          #     tag: '$(tag)'
+          #     assets: dist/$(tag)/*
+          #     assetUploadMode: 'replace'
+          #     addChangeLog: false
