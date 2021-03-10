@@ -144,7 +144,7 @@ jobs:
                   # Directory separators
                   fixed=$(echo "$(python_exe)" | sed 's/\//\\/g')
                   # exe location
-                  fixed="${fixed%bin\python}"\\Scripts\\python.exe
+                  fixed="${fixed%bin\\python}"Scripts\\python.exe
                   echo $fixed
                   set +x; echo "##vso[task.setvariable variable=python_exe]$fixed"
           - task: Bash@3
