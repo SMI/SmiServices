@@ -9,7 +9,7 @@ steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.6'
-      addToPath: true
+      addToPath: false
       architecture: 'x64'
   - task: Bash@3
     displayName: Create virtualenv
