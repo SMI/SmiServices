@@ -80,6 +80,7 @@ class DicomText:
         self._p_text = '' # maintain string progress during plaintext walk
         self._r_text = '' # maintain string progress during redaction walk
         self._redacted_text = ''
+        self._redact_offset = 0
         self._offset_list = [] # XXX not used
         self._annotations = []
         self._filename = filename
@@ -194,16 +195,24 @@ class DicomText:
         replacement = rc
         replacedAny = False
         for annot in self._annotations:
-            if annot['start_char'] >= current_start and annot['start_char'] < current_end:
+            # Sometimes it reports text:None so ignore
+            if not annot['text']:
+                continue
+            # Use the previously found offset to check if this annotation is within the current string
+            if ((annot['start_char'] + self._redact_offset >= current_start) and
+                    (annot['start_char'] + self._redact_offset < current_end)):
                 annot_at = annot['start_char'] - current_start
                 annot_end = annot['end_char'] - current_start
                 replaced = replacedAny = False
-                # SemEHR may have an extra LF at the start so start_char offset need adjusting
-                for offset in [-1, 0, +1, -2, +2]:
-                    if rc[annot_at+offset : annot_end+offset] == annot['text']:
-                        replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at+offset)
+                # SemEHR may have an extra line at the start so start_char offset need adjusting
+                for offset in [self._redact_offset] + list(range(-32, 32)):
+                    # Do the comparison using text without html but replace inside text with html
+                    rc_without_html = redact_html_tags_in_string(rc) if self._replace_HTML_entities else rc
+                    if rc_without_html[annot_at+offset : annot_end+offset] == annot['text']:
+                        replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at)
                         replaced = replacedAny = True
                         #print('REPLACE: %s in %s at %d (offset %d)' % (annot['text'], replacement, annot_at, offset))
+                        self._redact_offset = offset
                         break
                 if not replaced:
                     print('WARNING: offsets slipped:')
