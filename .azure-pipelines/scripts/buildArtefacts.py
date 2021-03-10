@@ -1,25 +1,6 @@
 #!/usr/bin/env python3
 """
-Builds compiled packages for the C# and Java services in this repo.
-
-The build output for the C# services looks like:
-dist/
-  v1.2.3/
-    # Temporary during build. Contains all C# services and DLLs separated by csproj
-    smi-services-build-tmp/
-      DicomTagReader/
-        ...
-
-    # Temporary during build. Contains all C# services and DLLs merged into one dir
-    smi-services-{tag}-{platform}-x64/
-      ...
-
-    # The final output archive
-    smi-services-{tag}-{platform}-x64.tgz
-
-The files in the merged dir are checked for accidental overwriting, which can occur when
-publishing a solution of multiple projects into a single directory. See
-https://github.com/dotnet/sdk/issues/9984.
+Builds compiled packages for the C#, Java, and Python services in this repo.
 """
 import argparse
 import functools
@@ -42,6 +23,7 @@ _PLATFORMS = (_LINUX, _WINDOWS)
 _STR_LIKE = Union[str, Path]
 _ASSEMBLY_NAME_RE = re.compile(".*AssemblyName>(.*)<", re.IGNORECASE)
 _IS_PUBLISHABLE_RE = re.compile(".*IsPublishable>false<", re.IGNORECASE)
+_PYTHON_DIR = Path("src/common/Smi_Common_Python")
 
 
 def _run(cmd: Sequence[_STR_LIKE]) -> None:
@@ -105,6 +87,25 @@ def _build_java_packages(dist_tag_dir: Path, tag: str) -> None:
     )
 
 
+def _build_python_package(dist_tag_dir: Path, python_exe: Path) -> None:
+
+    cmd = (
+        python_exe,
+        "-m", "pip",
+        "install",
+        "-r", _PYTHON_DIR / "requirements.txt",
+    )
+    _run(cmd)
+
+    cmd = (
+        python_exe,
+        _PYTHON_DIR / "setup.py",
+        "bdist_wheel",
+        "-d", dist_tag_dir,
+    )
+    _run(cmd)
+
+
 def _md5sum(file_path: Path) -> str:
     with open(file_path, mode="rb") as f:
         d = hashlib.md5()
@@ -123,6 +124,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="The platform to build for",
     )
     parser.add_argument("tag", help="The git tag for the release")
+    parser.add_argument(
+        "python_build_exe",
+        type=Path,
+        help="Path to the python  exe to use for the build",
+    )
     args = parser.parse_args(argv)
 
     tag = args.tag
@@ -133,6 +139,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"Error: {dist_tag_dir} already exists", file=sys.stderr)
         return 1
     dist_tag_dir.mkdir(parents=True)
+
+    python_exe = args.python_build_exe
+    if not python_exe.is_file():
+        print(f"Error: {python_exe} not found", file=sys.stderr)
+        return 1
 
     cmd: Sequence[_STR_LIKE]
 
@@ -183,8 +194,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     _run(cmd)
     shutil.rmtree(dist_tag_dir / smi_services_output_dir)
 
+    # Build Java and Python packages
+    # These don't need separate packages for each OS - create on Linux only
     if platform == _LINUX:
         _build_java_packages(dist_tag_dir, tag)
+        _build_python_package(dist_tag_dir, python_exe)
 
     # Create checksum files
     file_checksums = {x.name: _md5sum(x) for x in dist_tag_dir.iterdir()}
