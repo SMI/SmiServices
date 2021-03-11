@@ -116,7 +116,7 @@ namespace IsIdentifiableReviewer
             var frame = new FrameView("Options")
             {
                 X = 0,
-                Y = 11,
+                Y = 12,
                 Width = Dim.Fill(),
                 Height = Dim.Fill()
             };
