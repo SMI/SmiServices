@@ -313,3 +313,5 @@ global.json
 
 .vscode/
 venv/
+
+*.egg-info/

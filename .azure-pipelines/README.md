@@ -52,3 +52,5 @@ The [Cache](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/cach
     -   https://developercommunity.visualstudio.com/content/problem/375679/pipeline-variable-incorrectly-inserts-single-quote.html
 
 -   Dealing with variables containing path separators across multiple platforms (i.e. Linux and Windows) can be tricky. Variables pre-defined by AP will have the correct separators for the current OS. When used in `Bash` tasks, it's safe enough for either OS to just use Linux (`/`) separators when combining paths, so long as they are always quoted. However, if the variable is also used as part of a cache `path`, it may need to be manually re-created with Windows-style (`\`) separators before use.
+
+-   The `##vso[task.setvariable variable=foo]bar` syntax requires that the variable name be lowercase. This is not documented explicitly but results in `command not found` errors if uppercase names are used.

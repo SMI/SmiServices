@@ -109,3 +109,31 @@ jobs:
                 # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
                 failOnStderr: false
                 arguments: $(MVN_PROFILE)
+
+    - job: python_tests
+      displayName: Python Tests
+      pool:
+          vmImage: ${{ parameters.vmImage }}
+      steps:
+          - template: ../steps/vars.tmpl.yml
+          - template: ../steps/create-venv.tmpl.yml
+            parameters:
+              os: ${{ parameters.os }}
+          - task: Bash@3
+            displayName: Install requirements
+            inputs:
+                targetType: "inline"
+                script: |
+                    set -euxo pipefail
+                    "$(python_exe)" -m pip \
+                    install \
+                        -r src/common/Smi_Common_Python/requirements.txt \
+                        -r src/common/Smi_Common_Python/requirements-dev.txt
+          - task: Bash@3
+            displayName: Run Python Tests
+            inputs:
+                targetType: "inline"
+                script: |
+                    set -exuo pipefail
+                    "$(python_exe)" -m pytest \
+                    src/common/Smi_Common_Python/SmiServices/*.py

@@ -9,13 +9,16 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
       condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      dependsOn: [dotnet_tests, java_tests]
+      dependsOn: [dotnet_tests, java_tests, python_tests]
       steps:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
           - template: ../steps/set-git-tag-variable.tmpl.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
               - template: ../steps/win-nuget-fixup.tmpl.yml
+          - template: ../steps/create-venv.tmpl.yml
+            parameters:
+              os: ${{ parameters.os }}
           - task: Bash@3
             displayName: Build artefacts
             inputs:
@@ -23,7 +26,10 @@ jobs:
               script: |
                   set -euxo pipefail
                   os="${{ parameters.os }}"
-                  python .azure-pipelines/scripts/buildArtefacts.py $os $(tag)
+                  python .azure-pipelines/scripts/buildArtefacts.py \
+                    $os \
+                    $(tag) \
+                    "$(python_exe)"
           - task: Bash@3
             displayName: List files
             inputs:
