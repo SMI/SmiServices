@@ -72,6 +72,20 @@ namespace IsIdentifiableReviewer.Views
                             Delete(usage);
                         e.Handled = true;
 
+                        var ignoreAll = _treeView.GetAllSelectedObjects().OfType<OutstandingFailureNode>().ToArray();
+                        
+                        if(ignoreAll.Any())
+                        {
+                            if(MessageBox.Query("Ignore",$"Ignore {ignoreAll.Length} failures?","Yes","No") == 0)
+                            {
+                                foreach (var f in ignoreAll)
+                                {
+                                    Ignore(f);
+                                }
+                            }
+                        }
+
+
                         break;
                     case Key.Enter:
 
