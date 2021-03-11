@@ -43,7 +43,17 @@ namespace IsIdentifiableReviewer.Out
         {
             Add(f, RuleAction.Ignore);
         }
-        
+
+        /// <summary>
+        /// Adds a rule to ignore the given failure using <paramref name="customPatternFactory"/> instead of the current <see cref="OutBase.RulesFactory"/> 
+        /// </summary>
+        /// <param name="f"></param>
+        /// <param name="customPatternFactory"></param>
+        public void Add(Failure f, IRulePatternFactory customPatternFactory)
+        {
+            Add(f, RuleAction.Ignore, customPatternFactory);
+        }
+
         /// <summary>
         /// When a new <paramref name="failure"/> is loaded, is it already covered by existing rules i.e. rules you are
         /// working on now that have been added since the report was generated
@@ -56,5 +66,7 @@ namespace IsIdentifiableReviewer.Out
             //get user ot make a decision only if it is NOT covered by an existing rule
             return !IsCoveredByExistingRule(failure,out existingRule);
         }
+
+        
     }
 }

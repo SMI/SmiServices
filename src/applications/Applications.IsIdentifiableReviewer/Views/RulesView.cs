@@ -20,11 +20,24 @@ namespace IsIdentifiableReviewer.Views
 
         private TreeView _treeView;
 
-        public RulesView(ReportReader currentReport, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        /// <summary>
+        /// When the user bulk ignores many records at once how should the ignore patterns be generated
+        /// </summary>
+        private readonly IRulePatternFactory bulkIgnorePatternFactory;
+
+        /// <summary>
+        /// Creates a new window depicting current failures/rules/outstanding for a given opened <paramref name="currentReport"/>
+        /// </summary>
+        /// <param name="currentReport"></param>
+        /// <param name="ignorer">When the user uses this UI to ignore something what should happen</param>
+        /// <param name="updater">When the user uses this UI to create a report rule what should happen</param>
+        /// <param name="bulkIgnorePatternFactory">When the user bulk ignores many records at once how should the ignore patterns be generated</param>
+        public RulesView(ReportReader currentReport, IgnoreRuleGenerator ignorer, RowUpdater updater, IRulePatternFactory bulkIgnorePatternFactory)
         {
             CurrentReport = currentReport;
             Ignorer = ignorer;
             Updater = updater;
+            this.bulkIgnorePatternFactory = bulkIgnorePatternFactory;
             Modal = true;
 
             var lblInitialSummary = new Label($"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures");
@@ -63,16 +76,28 @@ namespace IsIdentifiableReviewer.Views
                 switch(e.KeyEvent.Key)
                 {
                     case Key.DeleteChar:
+
+                        var all = _treeView.GetAllSelectedObjects().ToArray();
+
                         var crn = _treeView.SelectedObject as CollidingRulesNode;
-                        if(crn!=null)
+                        if(crn!=null && all.Length == 1)
                             Delete(crn);
 
-                        var usage = _treeView.SelectedObject as RuleUsageNode;
-                        if(usage !=null)
-                            Delete(usage);
+                        var usages = all.OfType<RuleUsageNode>().ToArray();
+                        if (usages.Any())
+                        {
+                            var answer = MessageBox.Query("Delete",$"Delete {usages.Length} Rules?", "Yes", "No");
+
+                            if (answer == 0)
+                            {
+                                foreach (var u in usages)
+                                    Delete(u);
+                            }
+                        }
+
                         e.Handled = true;
 
-                        var ignoreAll = _treeView.GetAllSelectedObjects().OfType<OutstandingFailureNode>().ToArray();
+                        var ignoreAll = all.OfType<OutstandingFailureNode>().ToArray();
                         
                         if(ignoreAll.Any())
                         {
@@ -80,7 +105,7 @@ namespace IsIdentifiableReviewer.Views
                             {
                                 foreach (var f in ignoreAll)
                                 {
-                                    Ignore(f);
+                                    Ignore(f,ignoreAll.Length > 1);
                                 }
                             }
                         }
@@ -104,16 +129,12 @@ namespace IsIdentifiableReviewer.Views
 
         private void Delete(RuleUsageNode usage)
         {
-            var answer = MessageBox.Query("Delete Rule?","","Yes","No");
-
-            if(answer == 0)
-            {
-                // tell ignorer to forget about this rule
-                if(usage.Rulebase.Delete(usage.Rule))
-                    Remove(usage);
-                else
-                    CouldNotDeleteRule();
-            }
+            // tell ignorer to forget about this rule
+            if(usage.Rulebase.Delete(usage.Rule))
+                Remove(usage);
+            else
+                CouldNotDeleteRule();
+            
         }
 
         private void Delete(CollidingRulesNode crn)
@@ -149,7 +170,7 @@ namespace IsIdentifiableReviewer.Views
         private void Activate(OutstandingFailureNode ofn)
         {
             var ignore = new Button("Ignore");
-            ignore.Clicked += ()=>{Ignore(ofn); Application.RequestStop();};
+            ignore.Clicked += ()=>{Ignore(ofn,false); Application.RequestStop();};
 
             var update = new Button("Update");
             update.Clicked += ()=>{Update(ofn); Application.RequestStop();};
@@ -177,9 +198,17 @@ namespace IsIdentifiableReviewer.Views
             Updater.Add(ofn.Failure);
             Remove(ofn);
         }
-        private void Ignore(OutstandingFailureNode ofn)
+        private void Ignore(OutstandingFailureNode ofn, bool isBulkIgnore)
         {
-            Ignorer.Add(ofn.Failure);
+            if (isBulkIgnore)
+            {
+                Ignorer.Add(ofn.Failure, bulkIgnorePatternFactory);
+            }
+            else
+            {
+                Ignorer.Add(ofn.Failure);
+            }
+                
             Remove(ofn);
         }
 
