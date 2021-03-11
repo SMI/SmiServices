@@ -1,0 +1,1 @@
+Added ability to ignore multiple failures at once in Is Identifiable Reviewer

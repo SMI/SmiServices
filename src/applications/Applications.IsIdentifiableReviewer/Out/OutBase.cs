@@ -72,14 +72,17 @@ namespace IsIdentifiableReviewer.Out
         /// </summary>
         /// <param name="f"></param>
         /// <param name="action"></param>
+        /// <param name="overrideRuleFactory">Overrides the current <see cref="RulesFactory"/> and uses this instead</param>
         /// <returns>The new / existing rule that covers failure</returns>
-        protected IsIdentifiableRule Add(Failure f, RuleAction action)
+        protected IsIdentifiableRule Add(Failure f, RuleAction action,IRulePatternFactory overrideRuleFactory = null)
         {
+            var factory = overrideRuleFactory ?? RulesFactory;
+
             var rule = new IsIdentifiableRule
             {
                 Action = action,
                 IfColumn = f.ProblemField,
-                IfPattern = RulesFactory.GetPattern(this,f),
+                IfPattern = factory.GetPattern(this,f),
                 As = 
                     action == RuleAction.Ignore? 
                         FailureClassification.None : 

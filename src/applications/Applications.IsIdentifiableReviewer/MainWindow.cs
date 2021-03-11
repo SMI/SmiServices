@@ -193,7 +193,7 @@ namespace IsIdentifiableReviewer
                 MessageBox.Query(DlgWidth,DlgHeight,"No Report Open","You must open a report first","Ok");
             else
             {
-                var rules = new RulesView(CurrentReport,Ignorer,Updater);
+                var rules = new RulesView(CurrentReport,Ignorer,Updater, _origIgnorerRulesFactory);
                 Application.Run(rules);
             }
         }
