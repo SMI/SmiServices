@@ -1,7 +1,7 @@
 """ Functions to assist with decoding DICOM files representing from JSON as Python dicts
 """
 
-import collections
+from collections import Mapping
 import re
 import pydicom
 
@@ -50,7 +50,7 @@ def tag_val(dicomdict, tagname):
         retval = dicomdict[alt_tagname]
     # The dcm2jsom or pydicom style has 'vr' and 'Value' keys
     # so extract the Value (also sometimes has vr but no Value).
-    if isinstance(retval, collections.Mapping):
+    if isinstance(retval, Mapping):
         if 'vr' in retval:
             val = retval.get('Value', '') # pydicom and dcm2json write Value
             if val == '':
