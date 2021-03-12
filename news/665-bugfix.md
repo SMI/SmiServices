@@ -1,0 +1,1 @@
+Fixed tree view loosing selected index when updating/ignoring a failure (in tree view)
