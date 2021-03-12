@@ -218,8 +218,25 @@ namespace IsIdentifiableReviewer.Views
         /// <param name="obj"></param>
         private void Remove(ITreeNode obj)
         {
-            _treeView.GetParent(obj)?.Children?.Remove(obj);
-            _treeView.RefreshObject(obj,true);
+            var siblings = _treeView.GetParent(obj)?.Children;
+
+            if(siblings == null)
+            {
+                return;
+            }
+
+            var idxToRemove = siblings.IndexOf(obj);
+            
+            // remove us
+            siblings.Remove(obj);
+
+            // but preserve the selected index
+            if (idxToRemove < siblings.Count)
+            {
+                _treeView.SelectedObject = siblings[idxToRemove];
+            }
+
+            _treeView.RefreshObject(obj, true);
         }
 
 
