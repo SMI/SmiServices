@@ -227,6 +227,12 @@ namespace IsIdentifiableReviewer.Views
 
             var idxToRemove = siblings.IndexOf(obj);
             
+            if(idxToRemove == -1)
+            {
+                return;
+            }
+
+
             // remove us
             siblings.Remove(obj);
 
