@@ -11,6 +11,73 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [2.0.0] 2021-03-13
+
+## Feature
+
+-   [#618](https://github.com/SMI/SmiServices/pull/618) by tznind.
+    IsIdentifiableReviewer
+    -   Added progress when loading large files (with cancellation support)
+    -   Now groups outstanding failures by column
+    -   Fixed rules being flagged as 'Identical' when classifying different
+        input columns
+-   [#634](https://github.com/SMI/SmiServices/pull/634) by rkm. Convert to
+    single entry-point app
+    -   Breaking: Existing scripts and processes which reference the old
+        applications
+-   [#636](https://github.com/SMI/SmiServices/pull/636) by howff. Improvements
+    to Python scripts, tests, documentation
+-   [#647](https://github.com/SMI/SmiServices/pull/647) by howff. Improved
+    testing of SR anonymiser with a standalone stub
+-   [#662](https://github.com/SMI/SmiServices/pull/662) by tznind. Added ability
+    to ignore multiple failures at once in Is Identifiable Reviewer
+
+## Bugfix
+
+-   [#597](https://github.com/SMI/SmiServices/pull/597) by tznind. Fixed
+    ConsensusRules not being run
+-   [#619](https://github.com/SMI/SmiServices/pull/619) by jas88. Reduce memory
+    consumption in nerd
+-   [#632](https://github.com/SMI/SmiServices/pull/632) by rkm. Normalise the
+    IsIdentifiableReviewer namespace to match the other Applications
+-   [#646](https://github.com/SMI/SmiServices/pull/646) by howff. Call the
+    garbage collector (and report progress) every 1000 records processed from a
+    database source in IsIdentifiable.
+-   [#650](https://github.com/SMI/SmiServices/pull/650) by howff. Create python
+    package called SmiServices so a wheel can be created.
+    -   Rename all the imports for the new package name
+    -   Remove references to PYTHONPATH Replace all paths and relative imports
+        to be independent of current directory Fixes to python tests
+-   [#656](https://github.com/SMI/SmiServices/pull/656) by howff. SRAnonTool
+    updated to handle the output from the latest SemEHR anonymiser and ignore
+    None-type annotations
+-   [#661](https://github.com/SMI/SmiServices/pull/661) by tznind. Fixed layout
+    of main window so it no longer obscures classification/type
+-   [#665](https://github.com/SMI/SmiServices/pull/665) by tznind. Fixed tree
+    view loosing selected index when updating/ignoring a failure (in tree view)
+-   [#666](https://github.com/SMI/SmiServices/pull/666) by howff. Silence
+    deprecation warning from newer Python as noted by the azure pipeline test
+
+## Meta
+
+-   [#588](https://github.com/SMI/SmiServices/pull/588) by rkm. Prevent
+    additional language packs being included in published packages. Reduces
+    overall package size a bit.
+-   [#592](https://github.com/SMI/SmiServices/pull/592) by rkm. Manually update
+    csvhelper to 25.0.0, fo-dicom to 4.0.7
+-   [#616](https://github.com/SMI/SmiServices/pull/616) by rkm. Check for
+    clobbered files during package build
+-   [#620](https://github.com/SMI/SmiServices/pull/620) by rkm. Replace the
+    legacy SecurityCodeScan with SecurityCodeScan.VS2019
+-   [#637](https://github.com/SMI/SmiServices/pull/637) by rkm. Change to
+    tracking PR changes in news fragment files. Add a script to auto-update the
+    CHANGELOG from these files.
+-   [#648](https://github.com/SMI/SmiServices/pull/648) by rkm. Remove the
+    temporary reference to BadMedicine added in
+    [#592](https://github.com/SMI/SmiServices/pull/592)
+-   [#654](https://github.com/SMI/SmiServices/pull/654) by howff. Add Azure
+    Pipelines test and packaging for the Python scripts
+
 ## [1.15.1] 2021-02-17
 
 ### Fixed
@@ -671,7 +738,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v1.15.1...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v2.0.0...master
+[2.0.0]: https://github.com/SMI/SmiServices/compare/v1.15.1...v2.0.0
 [1.15.1]: https://github.com/SMI/SmiServices/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/SMI/SmiServices/compare/v1.14.1...v1.15.0
 [1.14.1]: https://github.com/SMI/SmiServices/compare/v1.14.0...v1.14.1

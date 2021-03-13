@@ -23,7 +23,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
     d7d90f4a Merge pull request #402 from SMI/feature/update-docs
     830bac67 Merge branch 'master' into develop
     ```
-    Go through these PRs and check each has an accurate [news file][news_files] entry.
+    Go through these PRs and check each has an accurate [news file][news_files] entry. Create any missing files if needed.
 
 -   Identify the next release version. This can be determined by looking at the previous release and deciding if the new code to be released is a major, minor, or patch change as per [semver](https://semver.org). E.g. if the previous release was `v1.2.3` and only new non-breaking features are in the news files directory, then the next release should be`v1.3.0`. The definition of "breaking" can often be subjective though, so ask other members of the project if you're unsure.
 

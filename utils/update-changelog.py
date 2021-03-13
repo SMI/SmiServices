@@ -22,7 +22,7 @@ from typing import Union
 
 _NEWS_DIR = Path("./news/")
 _MARKER = "<!--next-->"
-_UNRELEASED_LINK = "[Unreleased]:"
+_UNRELEASED_LINK = "[unreleased]:"
 
 _ORG = "SMI"
 _REPO = "SmiServices"
@@ -96,6 +96,15 @@ def _print_links(last_tag: str, next_tag: str) -> None:
     print(diff_link_str)
 
 
+def _check_requirements() -> None:
+
+    cmd = ("npx", "--version")
+    _run(cmd)
+
+    cmd = ("npm", "list", "prettier")
+    _run(cmd)
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = argparse.ArgumentParser()
@@ -108,6 +117,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="The tag for the next release",
     )
     args = parser.parse_args(argv)
+
+    _check_requirements()
 
     # Gather the news files for the next release
     fragments = collections.defaultdict(dict)
