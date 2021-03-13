@@ -738,7 +738,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v1.15.1...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v2.0.0...master
+[2.0.0]: https://github.com/SMI/SmiServices/compare/v1.15.1...v2.0.0
 [1.15.1]: https://github.com/SMI/SmiServices/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/SMI/SmiServices/compare/v1.14.1...v1.15.0
 [1.14.1]: https://github.com/SMI/SmiServices/compare/v1.14.0...v1.14.1

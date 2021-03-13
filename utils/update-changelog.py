@@ -22,7 +22,7 @@ from typing import Union
 
 _NEWS_DIR = Path("./news/")
 _MARKER = "<!--next-->"
-_UNRELEASED_LINK = "[Unreleased]:"
+_UNRELEASED_LINK = "[unreleased]:"
 
 _ORG = "SMI"
 _REPO = "SmiServices"
