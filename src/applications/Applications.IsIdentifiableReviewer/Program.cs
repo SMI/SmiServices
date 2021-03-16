@@ -113,9 +113,51 @@ namespace Applications.IsIdentifiableReviewer
 
                     //run interactive
                     Application.Init();
+
+                    var top = Application.Top;
+
                     var mainWindow = new MainWindow(opts, ignorer, updater);
-                    Application.Top.Add(mainWindow);
+                    
+
+                    // Creates the top-level window to show
+                    var win = new Window("IsIdentifiable Reviewer")
+                    {
+                        X = 0,
+                        Y = 1, // Leave one row for the toplevel menu
+
+                        // By using Dim.Fill(), it will automatically resize without manual intervention
+                        Width = Dim.Fill(),
+                        Height = Dim.Fill()
+                    };
+
+                    top.Add(win);
+
+                    top.Add(mainWindow.Menu);
+
+                    var login = new Label("Login: ") { X = 3, Y = 2 };
+                    var password = new Label("Password: ")
+                    {
+                        X = Pos.Left(login),
+                        Y = Pos.Top(login) + 1
+                    };
+                    var loginText = new TextField("")
+                    {
+                        X = Pos.Right(password),
+                        Y = Pos.Top(login),
+                        Width = 40
+                    };
+                    var passText = new TextField("")
+                    {
+                        Secret = true,
+                        X = Pos.Left(loginText),
+                        Y = Pos.Top(password),
+                        Width = Dim.Width(loginText)
+                    };
+
+                    win.Add(mainWindow.Body);
+
                     Application.Run();
+
                     return 0;
                 }
             }

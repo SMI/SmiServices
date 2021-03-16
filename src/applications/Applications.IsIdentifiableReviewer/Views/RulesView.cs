@@ -12,61 +12,69 @@ using Terminal.Gui;
 
 namespace IsIdentifiableReviewer.Views
 {
-    class RulesView : Window
+    class RulesView : View
     {
-        public ReportReader CurrentReport { get; }
-        public IgnoreRuleGenerator Ignorer { get; }
-        public RowUpdater Updater { get; }
+        public ReportReader CurrentReport { get; private set; }
+        public IgnoreRuleGenerator Ignorer { get; private set; }
+        public RowUpdater Updater { get; private set; }
 
         private TreeView _treeView;
 
         /// <summary>
         /// When the user bulk ignores many records at once how should the ignore patterns be generated
         /// </summary>
-        private readonly IRulePatternFactory bulkIgnorePatternFactory;
+        private IRulePatternFactory bulkIgnorePatternFactory;
+
+
+        Label lblInitialSummary;
+
+        public RulesView()
+        {
+            Width = Dim.Fill();
+            Height = Dim.Fill();
+
+            lblInitialSummary = new Label("No report loaded") { Width = Dim.Fill() };
+            Add(lblInitialSummary);
+
+            var lblEvaluate = new Label($"Evaluate:") { Y = Pos.Bottom(lblInitialSummary) + 1 };
+            Add(lblEvaluate);
+
+
+            var ruleCollisions = new Button("Rule Coverage")
+            {
+                Y = Pos.Bottom(lblEvaluate)
+            };
+
+            ruleCollisions.Clicked += () => EvaluateRuleCoverage();
+            Add(ruleCollisions);
+
+            _treeView = new TreeView()
+            {
+                Y = Pos.Bottom(ruleCollisions) + 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill(1)
+            };
+            _treeView.KeyPress += _treeView_KeyPress;
+
+            Add(_treeView);
+        }
 
         /// <summary>
-        /// Creates a new window depicting current failures/rules/outstanding for a given opened <paramref name="currentReport"/>
+        /// Sets up the UI to show a new report
         /// </summary>
         /// <param name="currentReport"></param>
         /// <param name="ignorer">When the user uses this UI to ignore something what should happen</param>
         /// <param name="updater">When the user uses this UI to create a report rule what should happen</param>
         /// <param name="bulkIgnorePatternFactory">When the user bulk ignores many records at once how should the ignore patterns be generated</param>
-        public RulesView(ReportReader currentReport, IgnoreRuleGenerator ignorer, RowUpdater updater, IRulePatternFactory bulkIgnorePatternFactory)
+        public void LoadReport(ReportReader currentReport, IgnoreRuleGenerator ignorer, RowUpdater updater, IRulePatternFactory bulkIgnorePatternFactory)
         {
             CurrentReport = currentReport;
             Ignorer = ignorer;
             Updater = updater;
             this.bulkIgnorePatternFactory = bulkIgnorePatternFactory;
-            Modal = true;
 
-            var lblInitialSummary = new Label($"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures");
-            Add(lblInitialSummary);
-
-            var lblEvaluate = new Label($"Evaluate:"){Y = Pos.Bottom(lblInitialSummary)+1 };
-            Add(lblEvaluate);
+            lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
             
-			var ruleCollisions = new Button("Rule Coverage"){
-                Y = Pos.Bottom(lblEvaluate) };
-
-            ruleCollisions.Clicked += () => EvaluateRuleCoverage();
-            Add(ruleCollisions);
-            
-            _treeView = new TreeView(){
-                Y = Pos.Bottom(ruleCollisions) + 1,
-                Width = Dim.Fill(),
-                Height = Dim.Fill(1)
-                };
-            _treeView.KeyPress += _treeView_KeyPress;
-
-            Add(_treeView);
-
-			var close = new Button("Close",true){
-                Y = Pos.Bottom(_treeView) };
-
-            close.Clicked += () => Quit();
-
-			Add (close);
         }
 
         private void _treeView_KeyPress(KeyEventEventArgs e)
@@ -249,6 +257,12 @@ namespace IsIdentifiableReviewer.Views
         private void EvaluateRuleCoverage()
         {
             _treeView.ClearObjects();
+
+            if(Ignorer == null || Updater == null || CurrentReport == null)
+            {
+                return;
+            }
+                
             
             var colliding = new TreeNodeWithCount("Colliding Rules");
             var ignore = new TreeNodeWithCount("Ignore Rules Used");
@@ -420,11 +434,6 @@ namespace IsIdentifiableReviewer.Views
                     yield return new DuplicateRulesNode(dup.Key,duplicateRules);
                 }
             }
-        }
-
-        private void Quit()
-        {
-			Application.RequestStop ();
         }
     }
 }

@@ -14,7 +14,7 @@ using Attribute = Terminal.Gui.Attribute;
 
 namespace IsIdentifiableReviewer
 {
-    class MainWindow : View,IRulePatternFactory
+    class MainWindow : IRulePatternFactory
     {
         /// <summary>
         /// The report CSV file that is currently open
@@ -67,6 +67,11 @@ namespace IsIdentifiableReviewer
             Focus = Attribute.Make(Color.Black,Color.Gray),
         };
         private MenuItem miCustomPatterns;
+        private RulesView rulesView;
+
+        public MenuBar Menu { get; private set; }
+
+        public View Body { get; private set; }
 
         public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
@@ -75,25 +80,21 @@ namespace IsIdentifiableReviewer
             _origUpdaterRulesFactory = updater.RulesFactory;
             _origIgnorerRulesFactory = ignorer.RulesFactory;
 
-            X = 0;
-            Y = 1;
-            Width = Dim.Fill();
-            Height = Dim.Fill();
-            
-            var top = Application.Top;
 
-            var menu = new MenuBar (new MenuBarItem [] {
+            Menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File (F9)", new MenuItem [] {
-                    new MenuItem("_Open Report",null, OpenReport), 
-                    new MenuItem ("_Quit", null, () => { top.Running = false; })
+                    new MenuItem("_Open Report",null, OpenReport),
+                    new MenuItem ("_Quit", null, Application.RequestStop)
                 }),
                 new MenuBarItem ("_Options", new MenuItem [] {
                     miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}
-                }),
-                new MenuBarItem ("_View", new MenuItem [] {
-                    new MenuItem("_Rules",null,ViewRules),
                 })
             });
+
+
+            var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
+            rulesView = new RulesView();
+
 
             _info = new Label("Info")
             {
@@ -102,9 +103,9 @@ namespace IsIdentifiableReviewer
                 Width = Dim.Fill(),
                 Height = 1
             };
-            
+
             _info.ColorScheme = _greyOnBlack;
-            
+
             _valuePane = new FailureView()
             {
                 X = 0,
@@ -134,15 +135,15 @@ namespace IsIdentifiableReviewer
             };
             updateButton.Clicked += Update;
             frame.Add(updateButton);
-            
+
             _gotoTextField = new TextField("1")
             {
-                X=28,
+                X = 28,
                 Width = 5
             };
             _gotoTextField.TextChanged += (s) => GoTo();
             frame.Add(_gotoTextField);
-            frame.Add(new Label(23,0,"GoTo:"));
+            frame.Add(new Label(23, 0, "GoTo:"));
 
             var prevButton = new Button("Prev")
             {
@@ -168,35 +169,40 @@ namespace IsIdentifiableReviewer
             undoButton.Clicked += () => Undo();
             frame.Add(undoButton);
 
-            frame.Add(new Label(0,4,"Default Patterns"));
+            frame.Add(new Label(0, 4, "Default Patterns"));
 
-            _ignoreRuleLabel = new Label(0,5,"Ignore:");
-            _updateRuleLabel= new Label(0,6,"Update:");;
+            _ignoreRuleLabel = new Label(0, 5, "Ignore:");
+            _updateRuleLabel = new Label(0, 6, "Update:"); ;
             frame.Add(_ignoreRuleLabel);
             frame.Add(_updateRuleLabel);
 
             // always run rules only mode for the manual gui
             Updater.RulesOnly = true;
-            
-            top.Add (menu);
-            Add(_info);
-            Add(_valuePane);
-            Add(frame);
 
-            if(!string.IsNullOrWhiteSpace(opts.FailuresCsv))
-                OpenReport(opts.FailuresCsv,(e)=>throw e);
-        }
+            viewMain.Add(_info);
+            viewMain.Add(_valuePane);
+            viewMain.Add(frame);
 
-        private void ViewRules()
-        {
-            if(CurrentReport == null)
-                MessageBox.Query(DlgWidth,DlgHeight,"No Report Open","You must open a report first","Ok");
-            else
+            if (!string.IsNullOrWhiteSpace(opts.FailuresCsv))
+                OpenReport(opts.FailuresCsv, (e) => throw e);
+
+            var tabView = new TabView()
             {
-                var rules = new RulesView(CurrentReport,Ignorer,Updater, _origIgnorerRulesFactory);
-                Application.Run(rules);
-            }
+                Width = Dim.Fill(),
+                Height = Dim.Fill()
+            };
+
+            tabView.Style.ShowBorder = false;
+            tabView.Style.ShowHeaderOverline = false;
+            tabView.Style.TabsOnBottom = true;
+            tabView.ApplyStyleChanges();
+
+            tabView.AddTab(new Tab("Sequential", viewMain), true);
+            tabView.AddTab(new Tab("Tree View", rulesView), false);
+
+            Body = tabView;
         }
+
 
         private void ToggleCustomPatterns()
         {
@@ -407,6 +413,8 @@ namespace IsIdentifiableReviewer
                         rows.Text = $"Loaded: {s:N0} rows",cts.Token);
                         SetupToShow(CurrentReport.Failures.FirstOrDefault());
                         Next();
+
+                        rulesView.LoadReport(CurrentReport, Ignorer, Updater, _origIgnorerRulesFactory);
                     }
                     catch (Exception e)
                     {
@@ -420,6 +428,7 @@ namespace IsIdentifiableReviewer
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
                     dlg.SetNeedsDisplay();
+
 
                     cts.Dispose();
             });
