@@ -55,8 +55,36 @@ namespace IsIdentifiableReviewer.Views
                 Height = Dim.Fill(1)
             };
             _treeView.KeyPress += _treeView_KeyPress;
+            _treeView.SelectionChanged += _treeView_SelectionChanged;
 
             Add(_treeView);
+        }
+
+        private void _treeView_SelectionChanged(object sender, SelectionChangedEventArgs<ITreeNode> e)
+        {
+            // when selecting a node 
+
+            if (e.NewValue is OutstandingFailureNode ofn){
+
+                // if it is now covered by an existing rule! Like maybe they have 500 outstanding failures 
+                // and on the first one they add a rule .* (ignore EVERYTHING) then we had better disapear the rest of the tree too
+
+                var ignoreRule = Ignorer.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
+
+                if (ignoreRule != null)
+                {
+                    Remove(ofn);
+                    return;
+                }
+
+                var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
+
+                if(updateRule != null)
+                {
+                    Remove(ofn);
+                    return;
+                }
+            }
         }
 
         /// <summary>
