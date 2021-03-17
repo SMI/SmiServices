@@ -170,8 +170,9 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             Assert.AreEqual(0,reviewer.Updates);
         }
 
-        [Test]
-        public void Passes_FailuresAllUpdated()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Passes_FailuresAllUpdated(bool ruleCoversThis)
         {
             var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
@@ -192,11 +193,14 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
                 File.Delete(fiRedlist);
 
             //add a redlist to UPDATE these
-            File.WriteAllText(fiRedlist,
-                @"
+            if(ruleCoversThis)
+            {
+                File.WriteAllText(fiRedlist,
+               @"
 - Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$");
+            }           
             
             var reviewer = new UnattendedReviewer(new IsIdentifiableReviewerOptions()
             {
@@ -208,13 +212,29 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             Assert.AreEqual(0,reviewer.Run());
             
             //it matches the UPDATE rule but since OnlyRules is true it didn't actually update the database! so the record should definitely be in the output
-            TestHelpers.AreEqualIgnoringCaseAndLineEndings(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
-FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28",File.ReadAllText(fiOut).TrimEnd());
+            
+            if(!ruleCoversThis)
+            {
+                // no rule covers this so the miss should appear in the output file
+
+                TestHelpers.AreEqualIgnoringCaseAndLineEndings(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
+FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28", File.ReadAllText(fiOut).TrimEnd());
+            }
+            else
+            {
+
+                // a rule covers this so even though we do not update the database there shouldn't be a 'miss' in the output file
+
+                TestHelpers.AreEqualIgnoringCaseAndLineEndings(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
+                    File.ReadAllText(fiOut).TrimEnd());
+
+            }
+            
 
             Assert.AreEqual(1,reviewer.Total);
             Assert.AreEqual(0,reviewer.Ignores);
-            Assert.AreEqual(1,reviewer.Unresolved);
-            Assert.AreEqual(0,reviewer.Updates);
+            Assert.AreEqual(ruleCoversThis ? 0 : 1,reviewer.Unresolved);
+            Assert.AreEqual(ruleCoversThis ? 1 : 0, reviewer.Updates);
         }
     }
 }
