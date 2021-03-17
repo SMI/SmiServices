@@ -125,11 +125,9 @@ namespace IsIdentifiableReviewer.Out
         /// <returns>True if <paramref name="failure"/> is novel and not seen before</returns>
         public bool OnLoad(DiscoveredServer server,Failure failure, out IsIdentifiableRule rule)
         {
-            rule = null;
-
-            //we have bigger problems than if this is novel!
+            // if we are not updating the server just tell them if it is novel or not
             if (server == null)
-                return true;
+                return !IsCoveredByExistingRule(failure, out rule);
 
             //if we have seen this before
             if (IsCoveredByExistingRule(failure, out rule))
