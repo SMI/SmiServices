@@ -46,7 +46,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             var factory = new MatchProblemValuesPatternFactory();
             
             //fallback onto full match because of overlapping problem words
-            Assert.AreEqual("^Frequent\\ Problems$",factory.GetPattern(null,f));
+            Assert.AreEqual("(req)",factory.GetPattern(null,f));
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
                 {ProblemValue = "Frequent Problems"};
 
             var factory = new MatchProblemValuesPatternFactory();
-            Assert.AreEqual("(re).*(quent)",factory.GetPattern(null,f));
+            Assert.AreEqual("(requent)",factory.GetPattern(null,f));
         }
     }
 }
