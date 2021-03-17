@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using Microservices.IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Reporting
@@ -43,6 +44,7 @@ namespace Microservices.IsIdentifiable.Reporting
             Parts = new ReadOnlyCollection<FailurePart>(parts.ToList());
         }
 
+
         /// <summary>
         /// Returns true if the user looking at the <paramref name="other"/> would consider
         /// it the same as this (same problem value in same column).  Does not have to be the same
@@ -77,6 +79,44 @@ namespace Microservices.IsIdentifiable.Reporting
                     
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns all distinct words from the <see cref="ProblemValue"/> that appear in any parts.  Adjacent matches are
+        /// joined, overlapping matches are also joined.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> ConflateParts()
+        {
+            var origValue = ProblemValue;
+            StringBuilder sb = new StringBuilder();
+
+            // for each character in the input string
+            for(int i=0;i<origValue.Length;i++)
+            {
+                // while there are failures that include this element
+                if(Parts.Any(p=>p.Includes(i)))
+                {
+                    //add it to the current value we are returning
+                    sb.Append(origValue[i]);
+                }
+                else
+                {
+                    // we ran off the end of a current problem word(s) or theres no current problem word(s)
+                    if(sb.Length > 0)
+                    {
+                        yield return sb.ToString();
+                        sb.Clear();
+                    }
+                }
+            }
+
+            // if input string ends in a failure yield that too
+            if (sb.Length > 0)
+            {
+                yield return sb.ToString();
+                sb.Clear();
+            }
         }
     }
 }
