@@ -134,26 +134,6 @@ namespace Applications.IsIdentifiableReviewer
 
                     top.Add(mainWindow.Menu);
 
-                    var login = new Label("Login: ") { X = 3, Y = 2 };
-                    var password = new Label("Password: ")
-                    {
-                        X = Pos.Left(login),
-                        Y = Pos.Top(login) + 1
-                    };
-                    var loginText = new TextField("")
-                    {
-                        X = Pos.Right(password),
-                        Y = Pos.Top(login),
-                        Width = 40
-                    };
-                    var passText = new TextField("")
-                    {
-                        Secret = true,
-                        X = Pos.Left(loginText),
-                        Y = Pos.Top(password),
-                        Width = Dim.Width(loginText)
-                    };
-
                     win.Add(mainWindow.Body);
 
                     Application.Run();
