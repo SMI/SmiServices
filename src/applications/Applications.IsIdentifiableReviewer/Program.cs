@@ -113,9 +113,31 @@ namespace Applications.IsIdentifiableReviewer
 
                     //run interactive
                     Application.Init();
+
+                    var top = Application.Top;
+
                     var mainWindow = new MainWindow(opts, ignorer, updater);
-                    Application.Top.Add(mainWindow);
+                    
+
+                    // Creates the top-level window to show
+                    var win = new Window("IsIdentifiable Reviewer")
+                    {
+                        X = 0,
+                        Y = 1, // Leave one row for the toplevel menu
+
+                        // By using Dim.Fill(), it will automatically resize without manual intervention
+                        Width = Dim.Fill(),
+                        Height = Dim.Fill()
+                    };
+
+                    top.Add(win);
+
+                    top.Add(mainWindow.Menu);
+
+                    win.Add(mainWindow.Body);
+
                     Application.Run();
+
                     return 0;
                 }
             }

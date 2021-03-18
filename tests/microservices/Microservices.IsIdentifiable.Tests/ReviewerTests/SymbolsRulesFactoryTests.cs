@@ -46,7 +46,8 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
             Assert.AreEqual(expectedOutput,f.GetPattern(this, failure));
         }
 
-        [TestCase("Clowns","Cl","lowns",@"^[A-Z][a-z][a-z][a-z][a-z][a-z]$")]
+        [TestCase("Theres a candy coloured clown they call the Sandman", "clown they", "they call", @"([a-z][a-z][a-z][a-z][a-z]\ [a-z][a-z][a-z][a-z]\ [a-z][a-z][a-z][a-z])")]
+        [TestCase("Clowns","Cl","lowns",@"^([A-Z][a-z][a-z][a-z][a-z][a-z])$")]
         public void TestSymbols_TwoParts_Overlap(string input,string part1,string part2, string expectedOutput)
         {
             var f = new SymbolsRulesFactory();

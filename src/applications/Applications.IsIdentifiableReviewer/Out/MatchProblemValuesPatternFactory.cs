@@ -23,28 +23,31 @@ namespace IsIdentifiableReviewer.Out
         {
             StringBuilder sb = new StringBuilder();
 
-            if (failure.HasOverlappingParts(false))
-                return _fallback.GetPattern(sender,failure);
-            
-            foreach (var p in failure.Parts.Distinct().OrderBy(p=>p.Offset))
+
+            var minOffset = failure.Parts.Min(p => p.Offset);
+            var maxPartEnding = failure.Parts.Max(p => p.Offset + p.Word.Length);
+
+            if (minOffset == 0)
+                sb.Append("^");
+
+            foreach (var p in failure.ConflateParts())
             {
-                if (p.Offset == 0)
-                    sb.Append("^");
-
                 //match with capture group the given Word
-                sb.Append( "(" +Regex.Escape(p.Word) + ")");
+                sb.Append( "(" +Regex.Escape(p) + ")");
 
-                if (p.Offset + p.Word.Length == failure.ProblemValue.Length)
-                    sb.Append("$");
-                else
-                    sb.Append(".*");
+                sb.Append(".*");
             }
 
-            //trim last .*
-            if (sb.ToString().EndsWith(".*"))
+            // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
+            // to denote that we only care about problem values ending in this pattern (user can always override that decision)
+            if (maxPartEnding == failure.ProblemValue.Length)
+            {
+                return sb.ToString(0, sb.Length - 2) + '$';
+            }
+            else
+            {
                 return sb.ToString(0, sb.Length - 2);
-            
-            return sb.ToString();
+            }
         }
     }
 }
