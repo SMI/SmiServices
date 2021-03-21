@@ -8,6 +8,8 @@ namespace Smi.Common
 {
     public static class SmiLogging
     {
+        public static string HostProcessName;
+        
         private const string DefaultLogConfigName = "Smi.NLog.config";
 
         private static bool _initialised;
@@ -18,6 +20,8 @@ namespace Smi.Common
                 throw new Exception("SmiLogging already initialised");
             _initialised = true;
 
+            HostProcessName = hostProcessName;
+            
             string localConfig = Path.Combine(Directory.GetCurrentDirectory(), DefaultLogConfigName);
             string configFilePathToLoad = !string.IsNullOrWhiteSpace(loggingOptions.LogConfigFile)
                 ? loggingOptions.LogConfigFile

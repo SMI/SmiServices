@@ -1,11 +1,10 @@
 using CommandLine;
 using NLog;
 using NLog.Config;
+using NLog.Targets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using NLog.Targets;
 
 
 namespace Smi.Common.Options
@@ -16,8 +15,6 @@ namespace Smi.Common.Options
     public static class SmiCliInit
     {
         public static bool InitSmiLogging { get; set; } = true;
-
-        public static readonly string HostProcessName;
 
         private static readonly Parser _parser;
 
@@ -34,17 +31,16 @@ namespace Smi.Common.Options
                 settings.MaximumDisplayWidth = defaults.MaximumDisplayWidth;
                 settings.ParsingCulture = defaults.ParsingCulture;
             });
-
-            HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
         }
 
         /// <summary>
         /// Parse CLI arguments to the specified type, and runs the provided function if parsing is successful
         /// </summary>
         /// <param name="args">Arguments passed to Main</param>
+        /// <param name="programType"></param>
         /// <param name="onParse">The function to call on a successful parse</param>
         /// <returns>The return code from the onParse function</returns>
-        public static int ParseAndRun<T>(IEnumerable<string> args, Func<GlobalOptions, T, int> onParse) where T : CliOptions
+        public static int ParseAndRun<T>(IEnumerable<string> args, Type programType, Func<GlobalOptions, T, int> onParse) where T : CliOptions
         {
             int ret = _parser
                 .ParseArguments<T>(args)
@@ -54,7 +50,7 @@ namespace Smi.Common.Options
                         GlobalOptions globals = new GlobalOptionsFactory().Load(parsed);
 
                         if (InitSmiLogging)
-                            SmiLogging.Setup(globals.LoggingOptions, HostProcessName);
+                            SmiLogging.Setup(globals.LoggingOptions, GetHostProcessName(programType));
 
                         return onParse(globals, parsed);
                     },
@@ -67,10 +63,11 @@ namespace Smi.Common.Options
         /// Parse CLI arguments to one of the specified types, and runs the provided function if parsing is successful
         /// </summary>
         /// <param name="args">Arguments passed to Main</param>
+        /// <param name="programType"></param>
         /// <param name="targetVerbTypes">The list of possible target verb types to construct from the args</param>
         /// <param name="onParse">The function to call on a successful parse</param>
         /// <returns>The return code from the onParse function</returns>
-        public static int ParseAndRun(IEnumerable<string> args, Type[] targetVerbTypes, Func<GlobalOptions, object, int> onParse)
+        public static int ParseAndRun(IEnumerable<string> args, Type programType, Type[] targetVerbTypes, Func<GlobalOptions, object, int> onParse)
         {
             int ret = _parser
                 .ParseArguments(
@@ -84,7 +81,7 @@ namespace Smi.Common.Options
                         GlobalOptions globals = new GlobalOptionsFactory().Load(cliOptions);
 
                         if (InitSmiLogging)
-                            SmiLogging.Setup(globals.LoggingOptions, HostProcessName);
+                            SmiLogging.Setup(globals.LoggingOptions, GetHostProcessName(programType));
 
                         return onParse(globals, parsed);
                     },
@@ -118,6 +115,16 @@ namespace Smi.Common.Options
             if (!(parsedOptions is T asExpected))
                 throw new NotImplementedException($"Did not construct expected type '{typeof(T).Name}'");
             return asExpected;
+        }
+
+        private static string GetHostProcessName(Type t)
+        {
+            string hostProcessName = t.Namespace?.Split('.')[1];
+
+            if (string.IsNullOrWhiteSpace(hostProcessName))
+                throw new ArgumentException(nameof(hostProcessName));
+
+            return hostProcessName;
         }
 
         private static int OnErrors(IEnumerable<Error> errors)

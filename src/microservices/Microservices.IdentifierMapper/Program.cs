@@ -9,7 +9,7 @@ namespace Microservices.IdentifierMapper
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(Program), OnParse);
             return ret;
         }
 

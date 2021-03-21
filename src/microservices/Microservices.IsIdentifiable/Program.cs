@@ -18,6 +18,7 @@ namespace Microservices.IsIdentifiable
         {
             int res = SmiCliInit.ParseAndRun(
                 args,
+                typeof(Program),
                 new[]
                 {
                     typeof(IsIdentifiableRelationalDatabaseOptions),
