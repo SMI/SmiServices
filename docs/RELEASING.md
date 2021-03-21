@@ -60,6 +60,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
 -   Delete the release branch
 -   Wait for Azure Pipelines to build the release
 -   Check that the built binaries are added to the [releases](https://github.com/SMI/SmiServices/releases) page.
+-   (Internal) Ping the Mattermost ~developers channel to let everyone know there is a release available, and to not start any long-running tasks
 
 ## Creating A Hotfix Release
 
