@@ -31,7 +31,7 @@ namespace Microservices.Tests.RDMPTests
 
             var cata = Import(tbl);
 
-            var globals = new GlobalOptionsFactory().Load();
+            var globals = new GlobalOptionsFactory().Load(nameof(TestCreatingNamer_CorrectType));
             var consumerOptions = globals.DicomRelationalMapperOptions;
 
             var lmd = new LoadMetadata(CatalogueRepository, "MyLoad");

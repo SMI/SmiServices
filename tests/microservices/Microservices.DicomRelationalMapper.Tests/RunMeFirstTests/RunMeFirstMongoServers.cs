@@ -19,7 +19,7 @@ namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
         [Test, RequiresRabbit]
         public void RabbitAvailable()
         {
-            var options = new GlobalOptionsFactory().Load();
+            var options = new GlobalOptionsFactory().Load(nameof(RabbitAvailable));
             var rabbitOptions = options.RabbitOptions;
 
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + rabbitOptions);

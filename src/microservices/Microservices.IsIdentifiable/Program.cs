@@ -12,8 +12,6 @@ namespace Microservices.IsIdentifiable
 {
     public static class Program
     {
-        private static readonly Process _process = Process.GetCurrentProcess();
-
         public static int Main(IEnumerable<string> args)
         {
             int res = SmiCliInit.ParseAndRun(
@@ -40,8 +38,8 @@ namespace Microservices.IsIdentifiable
             {
                 IsIdentifiableRelationalDatabaseOptions o => Run(o),
                 IsIdentifiableDicomFileOptions o => Run(o),
-                IsIdentifiableMongoOptions o => Run(o),
-                IsIdentifiableServiceOptions o => Run(o),
+                IsIdentifiableMongoOptions o => Run(globals, o),
+                IsIdentifiableServiceOptions o => Run(globals, o),
                 IsIdentifiableFileOptions o => Run(o),
                 _ => throw new NotImplementedException($"No case for '{opts.GetType()}'")
             };
@@ -66,9 +64,10 @@ namespace Microservices.IsIdentifiable
                 return runner.Run();
         }
 
-        private static int Run(IsIdentifiableMongoOptions opts)
+        private static int Run(GlobalOptions globals, IsIdentifiableMongoOptions opts)
         {
-            string appId = _process.ProcessName + "-" + _process.Id;
+            var appId = $"{globals.HostProcessName}-{Process.GetCurrentProcess().Id}";
+
             using (var runner = new IsIdentifiableMongoRunner(opts, appId))
             {
                 Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
@@ -81,12 +80,10 @@ namespace Microservices.IsIdentifiable
             }
         }
 
-        private static int Run(IsIdentifiableServiceOptions serviceOpts)
+        private static int Run(GlobalOptions globals, IsIdentifiableServiceOptions serviceOpts)
         {
-            var options = new GlobalOptionsFactory().Load(serviceOpts.YamlFile);
-
             var bootstrapper = new MicroserviceHostBootstrapper(
-                () => new IsIdentifiableHost(options, serviceOpts));
+                () => new IsIdentifiableHost(globals, serviceOpts));
             return bootstrapper.Main();
         }
     }

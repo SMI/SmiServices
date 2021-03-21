@@ -31,7 +31,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [SetUp]
         public void SetUp()
         {
-            _testOptions = new GlobalOptionsFactory().Load();
+            _testOptions = new GlobalOptionsFactory().Load(nameof(ImageMessageProcessorTests_NoMongo));
         }
 
         /// <summary>

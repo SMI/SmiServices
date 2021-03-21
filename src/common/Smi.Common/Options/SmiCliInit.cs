@@ -47,10 +47,12 @@ namespace Smi.Common.Options
                 .MapResult(
                     parsed =>
                     {
-                        GlobalOptions globals = new GlobalOptionsFactory().Load(parsed);
+                        string hostProcessName = GetHostProcessName(programType);
+
+                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, parsed);
 
                         if (InitSmiLogging)
-                            SmiLogging.Setup(globals.LoggingOptions, GetHostProcessName(programType));
+                            SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
 
                         return onParse(globals, parsed);
                     },
@@ -77,11 +79,13 @@ namespace Smi.Common.Options
                 .MapResult(
                     parsed =>
                     {
+                        string hostProcessName = GetHostProcessName(programType);
+
                         var cliOptions = Verify<CliOptions>(parsed);
-                        GlobalOptions globals = new GlobalOptionsFactory().Load(cliOptions);
+                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, cliOptions);
 
                         if (InitSmiLogging)
-                            SmiLogging.Setup(globals.LoggingOptions, GetHostProcessName(programType));
+                            SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
 
                         return onParse(globals, parsed);
                     },

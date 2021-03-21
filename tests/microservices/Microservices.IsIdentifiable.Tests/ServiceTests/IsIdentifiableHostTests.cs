@@ -26,7 +26,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestClassifierName_NoClassifier()
         {
-            var options = new GlobalOptionsFactory().Load();
+            var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_NoClassifier));
 
             options.IsIdentifiableOptions.ClassifierType = "";
             var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions()));
@@ -36,7 +36,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestClassifierName_NotRecognized()
         {
-            var options = new GlobalOptionsFactory().Load();
+            var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_NotRecognized));
             options.IsIdentifiableOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableOptions.ClassifierType = "HappyFunTimes";
@@ -47,7 +47,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestClassifierName_ValidClassifier()
         {
-            var options = new GlobalOptionsFactory().Load();
+            var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_ValidClassifier));
 
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
@@ -81,7 +81,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void TestIsIdentifiable_TesseractStanfordDicomFileClassifier()
         {
-            var options = new GlobalOptionsFactory().Load();
+            var options = new GlobalOptionsFactory().Load(nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier));
 
             // Create a test data directory containing IsIdentifiableRules with 0 rules, and tessdata with the eng.traineddata classifier
             // TODO(rkm 2020-04-14) This is a stop-gap solution until the tests are properly refactored

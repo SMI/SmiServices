@@ -41,7 +41,7 @@ namespace Microservices.CohortPackager
             logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
 
             MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases.ExtractionStoreOptions;
-            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, SmiLogging.HostProcessName);
+            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
             var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
 
             // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory

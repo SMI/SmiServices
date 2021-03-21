@@ -14,7 +14,7 @@ namespace Smi.Common.Tests
         [Test]
         public void SendHeader()
         {
-            var o = new GlobalOptionsFactory().Load();
+            var o = new GlobalOptionsFactory().Load(nameof(SendHeader));
 
             var consumerOptions = new ConsumerOptions();
             consumerOptions.QueueName = "TEST.HeaderPreservationTest_Read1";

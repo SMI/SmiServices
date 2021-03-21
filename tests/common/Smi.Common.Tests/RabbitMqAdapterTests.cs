@@ -39,7 +39,7 @@ namespace Smi.Common.Tests
         [SetUp]
         public void SetUp()
         {
-            _testOptions = new GlobalOptionsFactory().Load();
+            _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMqAdapterTests));
 
             _testProducerOptions = new ProducerOptions
             {
@@ -222,7 +222,7 @@ namespace Smi.Common.Tests
                                                                                            
             NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);          
 
-            var o = new GlobalOptionsFactory().Load();
+            var o = new GlobalOptionsFactory().Load(nameof(Test_Shutdown));
 
             var consumer = (IConsumer)Activator.CreateInstance(consumerType);
 

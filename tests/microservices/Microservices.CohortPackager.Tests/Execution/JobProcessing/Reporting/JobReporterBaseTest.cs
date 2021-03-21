@@ -769,7 +769,7 @@ CohortPackagerOptions:
 ";
             string tmpConfig = Path.GetTempFileName() + ".yaml";
             File.WriteAllText(tmpConfig, yaml);
-            GlobalOptions globals = new GlobalOptionsFactory().Load(tmpConfig);
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ReportNewLine_LoadFromYaml_EscapesNewlines), tmpConfig);
 
             Assert.AreEqual(WindowsNewLine, globals.CohortPackagerOptions.ReportNewLine);
         }

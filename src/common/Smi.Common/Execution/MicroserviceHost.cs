@@ -52,8 +52,8 @@ namespace Smi.Common.Execution
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)
                 throw new ArgumentException("All or part of the global options are null");
 
-            HostProcessName = SmiLogging.HostProcessName;
-
+            HostProcessName = globals.HostProcessName;
+            
             Logger = LogManager.GetLogger(GetType().Name);
             Logger.Info("Host logger created");
 

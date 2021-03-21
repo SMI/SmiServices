@@ -23,8 +23,25 @@ namespace Smi.Common.Options
 
     public class GlobalOptions : IOptions
     {
-
         #region AllOptions
+
+        private string _hostProcessName;
+
+        public string HostProcessName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_hostProcessName))
+                    throw new ArgumentException("HostProcessName not set");
+                return _hostProcessName;
+            }
+            set
+            {
+                if (_hostProcessName != null)
+                    throw new ArgumentException("HostProcessName already set");
+                _hostProcessName = value;
+            }
+        }
 
         public LoggingOptions LoggingOptions { get; set; }
         public RabbitOptions RabbitOptions { get; set; }
