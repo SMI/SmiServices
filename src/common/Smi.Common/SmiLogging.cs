@@ -17,7 +17,7 @@ namespace Smi.Common
             if (_initialised)
                 throw new Exception("SmiLogging already initialised");
             _initialised = true;
-
+            
             string localConfig = Path.Combine(Directory.GetCurrentDirectory(), DefaultLogConfigName);
             string configFilePathToLoad = !string.IsNullOrWhiteSpace(loggingOptions.LogConfigFile)
                 ? loggingOptions.LogConfigFile

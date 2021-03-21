@@ -180,7 +180,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 DicomFilePath = "series-1-orig-1.dcm",
             };
 
-            GlobalOptions globals = new GlobalOptionsFactory().Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Integration_HappyPath));
 
             VerifyReports(
                 globals,
@@ -293,7 +293,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 DicomFilePath = "series-2-orig-2.dcm",
             };
 
-            GlobalOptions globals = new GlobalOptionsFactory().Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Integration_BumpyRoad));
 
             VerifyReports(
                 globals,
@@ -371,7 +371,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 IsIdentifiableExtraction = true,
             };
 
-            GlobalOptions globals = new GlobalOptionsFactory().Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Integration_IdentifiableExtraction_HappyPath));
 
             VerifyReports(
                 globals,

@@ -15,6 +15,7 @@ namespace Applications.TriggerUpdates
             int ret = SmiCliInit
                 .ParseAndRun(
                     args,
+                    typeof(Program),
                     new[]
                     {
                         typeof(TriggerUpdatesFromMapperOptions),

@@ -10,7 +10,7 @@ namespace Microservices.DeadLetterReprocessor
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<DeadLetterReprocessorCliOptions>(args, OnParse);
+            int ret = SmiCliInit.ParseAndRun<DeadLetterReprocessorCliOptions>(args, typeof(Program), OnParse);
             return ret;
         }
 

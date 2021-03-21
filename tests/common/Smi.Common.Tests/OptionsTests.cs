@@ -13,7 +13,7 @@ namespace Smi.Common.Tests
         [TestCase]
         public void GlobalOptions_Test()
         {
-            GlobalOptions globals = new GlobalOptionsFactory().Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(GlobalOptions_Test));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RabbitOptions.RabbitMqHostName));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.FileSystemOptions.FileSystemRoot));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RDMPOptions.CatalogueConnectionString));
@@ -47,7 +47,7 @@ namespace Smi.Common.Tests
         [Test]
         public void Test_GlobalOptionsUseTestValues_Nulls()
         {
-            GlobalOptions g = new GlobalOptionsFactory().Load();
+            GlobalOptions g = new GlobalOptionsFactory().Load(nameof(Test_GlobalOptionsUseTestValues_Nulls));
 
             Assert.IsNotNull(g.RabbitOptions.RabbitMqHostName);
             g.UseTestValues(null, null, null, null, null);
@@ -57,7 +57,7 @@ namespace Smi.Common.Tests
         [Test]
         public void Test_GlobalOptions_FileReadOption_ThrowsException()
         {
-            GlobalOptions g = new GlobalOptionsFactory().Load();
+            GlobalOptions g = new GlobalOptionsFactory().Load(nameof(Test_GlobalOptions_FileReadOption_ThrowsException));
             g.DicomTagReaderOptions.FileReadOption = "SkipLargeTags";
 
             Assert.Throws<ApplicationException>(() => g.DicomTagReaderOptions.GetReadOption());
@@ -77,7 +77,7 @@ namespace Smi.Common.Tests
         public void TestDecorators()
         {
             var factory = new GlobalOptionsFactory(new List<IOptionsDecorator> { new TestDecorator() });
-            var g = factory.Load();
+            var g = factory.Load(nameof(TestDecorators));
             Assert.AreEqual("FFFFF", g.MongoDatabases.DeadLetterStoreOptions.DatabaseName);
             Assert.AreEqual("FFFFF", g.MongoDatabases.DicomStoreOptions.DatabaseName);
             Assert.AreEqual("FFFFF", g.MongoDatabases.ExtractionStoreOptions.DatabaseName);

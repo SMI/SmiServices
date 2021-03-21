@@ -25,7 +25,7 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
         {
             TestLogger.Setup();
 
-            GlobalOptions globals = new GlobalOptionsFactory().Load();
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(DicomFileRunnerTest));
 
             var testRulesDir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "data", "IsIdentifiableRules"));
             testRulesDir.Create();

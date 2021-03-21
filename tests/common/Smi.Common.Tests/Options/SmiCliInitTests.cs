@@ -72,7 +72,7 @@ namespace Smi.Common.Tests.Options
                 "-f", "bar"
             };
 
-            int ret = SmiCliInit.ParseAndRun<FakeCliOpts>(args, OnParse);
+            int ret = SmiCliInit.ParseAndRun<FakeCliOpts>(args, typeof(SmiCliInitTests), OnParse);
             Assert.AreEqual(123, ret);
         }
 
@@ -81,7 +81,7 @@ namespace Smi.Common.Tests.Options
         {
             var args = new[] { "--help" };
 
-            int ret = SmiCliInit.ParseAndRun<FakeCliOpts>(args, (_, __) => -1);
+            int ret = SmiCliInit.ParseAndRun<FakeCliOpts>(args, typeof(SmiCliInitTests), (_, __) => -1);
             Assert.AreEqual(0, ret);
         }
 
@@ -104,7 +104,7 @@ namespace Smi.Common.Tests.Options
                 "-f", "bar"
             };
 
-            int ret = SmiCliInit.ParseAndRun(args, new[] { typeof(FakeCliVerbOpts) }, OnParse);
+            int ret = SmiCliInit.ParseAndRun(args, typeof(SmiCliInitTests), new[] { typeof(FakeCliVerbOpts) }, OnParse);
             Assert.AreEqual(123, ret);
         }
 
@@ -117,7 +117,7 @@ namespace Smi.Common.Tests.Options
                 "--help"
             };
 
-            int ret = SmiCliInit.ParseAndRun(args, new[] { typeof(FakeCliVerbOpts) }, (_, __) => -1);
+            int ret = SmiCliInit.ParseAndRun(args, typeof(SmiCliInitTests), new[] { typeof(FakeCliVerbOpts) }, (_, __) => -1);
             Assert.AreEqual(0, ret);
         }
 

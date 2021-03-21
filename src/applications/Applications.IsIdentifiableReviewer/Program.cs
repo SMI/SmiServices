@@ -19,6 +19,7 @@ namespace Applications.IsIdentifiableReviewer
             int ret = SmiCliInit
                 .ParseAndRun<IsIdentifiableReviewerOptions>(
                     args,
+                    typeof(Program),
                     OnParse
                 );
             return ret;

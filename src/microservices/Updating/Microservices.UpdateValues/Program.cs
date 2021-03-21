@@ -14,6 +14,7 @@ namespace Microservices.UpdateValues
             return SmiCliInit
                 .ParseAndRun<UpdateValuesCliOptions>(
                     args,
+                    typeof(Program),
                     OnParse
                 );
         }

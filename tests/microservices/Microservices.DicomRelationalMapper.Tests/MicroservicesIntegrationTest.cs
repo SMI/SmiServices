@@ -58,7 +58,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             TestLogger.Setup();
 
-            _globals = new GlobalOptionsFactory().Load();
+            _globals = new GlobalOptionsFactory().Load(nameof(MicroservicesIntegrationTest));
 
             _globals.UseTestValues(
                 RequiresRabbit.GetConnectionFactory(),

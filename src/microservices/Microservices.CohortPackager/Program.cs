@@ -4,6 +4,7 @@ using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Options;
 using MongoDB.Driver;
 using NLog;
+using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
@@ -19,7 +20,7 @@ namespace Microservices.CohortPackager
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, OnParse);
+            int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, typeof(Program), OnParse);
             return ret;
         }
 
@@ -40,7 +41,7 @@ namespace Microservices.CohortPackager
             logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
 
             MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases.ExtractionStoreOptions;
-            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, SmiCliInit.HostProcessName);
+            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
             var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
 
             // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory

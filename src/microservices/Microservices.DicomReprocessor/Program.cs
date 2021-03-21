@@ -10,7 +10,7 @@ namespace Microservices.DicomReprocessor
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, OnParse);
+            int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, typeof(Program), OnParse);
             return ret;
         }
 

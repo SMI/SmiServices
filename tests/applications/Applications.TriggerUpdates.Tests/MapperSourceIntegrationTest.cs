@@ -102,7 +102,7 @@ namespace Applications.TriggerUpdates.Execution
                 {SpecialFieldNames.DataLoadRunID,55},
                 });
 
-            var globals = new GlobalOptionsFactory().Load();
+            var globals = new GlobalOptionsFactory().Load(nameof(MapperSource_IntegrationTest));
             
             var cliOptions = new TriggerUpdatesFromMapperOptions()
             {

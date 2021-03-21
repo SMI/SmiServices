@@ -15,10 +15,10 @@ namespace Microservices.DicomTagReader
         /// <param name="args"></param>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, OnParse);
+            int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, typeof(Program), OnParse);
             return ret;
         }
-        
+
         private static int OnParse(GlobalOptions globals, DicomTagReaderCliOptions opts)
         {
             if (opts.File != null)

@@ -23,8 +23,14 @@ namespace Smi.Common.Options
             else
                 _decorators.Add(new EnvironmentVariableDecorator());
         }
-
-        public GlobalOptions Load(string configFilePath = "default.yaml")
+        
+        /// <summary>
+        /// Loads and decorates a GlobalOptions object from the specified YAML config file
+        /// </summary>
+        /// <param name="hostProcessName"></param>
+        /// <param name="configFilePath"></param>
+        /// <returns></returns>
+        public GlobalOptions Load(string hostProcessName, string configFilePath = "default.yaml")
         {
             IDeserializer deserializer = new DeserializerBuilder()
                                     .WithObjectFactory(GetGlobalOption)
@@ -39,6 +45,8 @@ namespace Smi.Common.Options
             using var sr = new StringReader(yamlContents);
             var globals = deserializer.Deserialize<GlobalOptions>(sr);
 
+            globals.HostProcessName = hostProcessName;
+            
             return Decorate(globals);
         }
 
@@ -55,9 +63,15 @@ namespace Smi.Common.Options
             return globals;
         }
 
-        public GlobalOptions Load(CliOptions cliOptions)
+        /// <summary>
+        /// Loads and decorates a GlobalOptions object from the YAML config file specified in the CliOptions
+        /// </summary>
+        /// <param name="hostProcessName"></param>
+        /// <param name="cliOptions"></param>
+        /// <returns></returns>
+        public GlobalOptions Load(string hostProcessName, CliOptions cliOptions)
         {
-            GlobalOptions globalOptions = Load(cliOptions.YamlFile);
+            GlobalOptions globalOptions = Load(hostProcessName, cliOptions.YamlFile);
             
             // The above Load call does the decoration - don't do it here.
             return globalOptions;
