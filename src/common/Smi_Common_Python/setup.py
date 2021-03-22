@@ -7,7 +7,7 @@
 #   Uses the find_packages function but skips tests
 
 from setuptools import setup, find_packages
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, isdir
 import sys
 
 # Read requirements.txt in current directory
@@ -37,10 +37,17 @@ def version_from_AssemblyInfo():
         ver = '0.0.0'
     return(ver)
 
+def find_source_path():
+    """ The path to the packages, so you can call setup.py from its own directory or from the repo root """
+    if isdir('src/common/Smi_Common_Python'):
+        return('src/common/Smi_Common_Python')
+    return('.')
+
 setup(
     name='SmiServices',
     version=version_from_AssemblyInfo(),
-    packages=find_packages(exclude=('tests',)),
+    packages=find_packages(where=find_source_path(), exclude=('tests',)),
+    package_dir={'':find_source_path()},
     url='https://github.com/SMI/SmiServices',
     license='GPLv3',
     description='Common Python modules for SmiServices',
