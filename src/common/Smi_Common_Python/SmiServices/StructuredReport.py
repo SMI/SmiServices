@@ -185,6 +185,13 @@ sr_keys_to_ignore = [
     'OverlayBitPosition',
     'OverlayData',
     'PixelData',
+    'TimeOfSecondaryCapture',
+    'SecondaryCaptureDeviceManufacturer',
+    'SecondaryCaptureDeviceManufacturerModelName',
+    'SecondaryCaptureDeviceSoftwareVersions',
+    'SeriesInStudy',
+    'PlanarConfiguration',
+    #'VerifyingObserverSequence', # may contain PII
     'AcquisitionDateTime',
     'AcquisitionDeviceProcessingCode',
     'AcquisitionDeviceProcessingDescription',

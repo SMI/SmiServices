@@ -20,6 +20,8 @@ import glob
 import logging
 import os
 import re
+import sys
+
 from SmiServices import Knowtator
 
 semehr_root_dir = '/opt/semehr'
@@ -37,7 +39,7 @@ def fake_anonymise(doc_filename):
 	tmp_file = os.path.join(input_dir, doc_filename)
 	txt_file = os.path.join(output_dir, doc_filename)
 	xml_file = os.path.join(output_dir, doc_filename+'.knowtator.xml')
-	logging.debug(f'Fake-anonymising {doc_filename} -> {txt_file}')
+	logging.debug('Fake-anonymising %s -> %s' % (doc_filename, txt_file))
 	fdin = open(tmp_file, 'r')
 	fdout = open(txt_file, 'w')
 	in_text = False
@@ -77,22 +79,31 @@ def main():
 	global input_dir
 	global output_dir
 
+	input_dir = os.path.join(semehr_root_dir, 'data', 'input_docs')
+	output_dir = os.path.join(semehr_root_dir, 'data', 'anonymised')
+
 	logging.basicConfig(level=logging.DEBUG,
 		format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
 
 	parser = argparse.ArgumentParser(description='SemEHR-Anonymiser')
-	parser.add_argument('-s', dest='semehr_dir', action="store", help=f'root path for semehr, default {semehr_root_dir}')
+	parser.add_argument('-s', dest='semehr_dir', action="store", help='root path for semehr, default %s' % semehr_root_dir)
+	parser.add_argument('-i', dest='inp', action="store", help='semehr input_docs directory, default %s' % input_dir)
+	parser.add_argument('-o', dest='out', action="store", help='semehr anonymised directory, default %s' % output_dir)
 	args = parser.parse_args()
 	if args.semehr_dir:
 		semehr_root_dir = args.semehr_dir
+		input_dir = os.path.join(semehr_root_dir, 'data', 'input_docs')
+		output_dir = os.path.join(semehr_root_dir, 'data', 'anonymised')
+	if args.inp:
+		input_dir = args.inp
+	if args.out:
+		output_dir = args.out
 
-	input_dir = os.path.join(semehr_root_dir, 'data', 'input_docs')
-	output_dir = os.path.join(semehr_root_dir, 'data', 'anonymised')
 	if not os.path.isdir(input_dir):
-		logging.error(f'no such input directory {input_dir}')
+		logging.error('no such input directory %s', input_dir)
 		exit(1)
 	if not os.path.isdir(output_dir):
-		logging.error(f'no such output directory {output_dir}')
+		logging.error('no such output directory %s', output_dir)
 		exit(1)
 
 	for doc_filename in glob.glob(os.path.join(input_dir, '*')):

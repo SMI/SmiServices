@@ -9,9 +9,9 @@
 # XXX TODO: copy the input to the output if it doesn't exist?
 
 prog=$(basename "$0")
+progdir=$(dirname "$0")
 usage="usage: ${prog} [-d] [-v] [-e virtualenv] [-s semehr_root] -i read_from.dcm  -o write_into.dcm"
 options="dve:s:i:o:"
-log="$SMI_LOGS_ROOT/${prog}/${prog}.log"
 semehr_dir="/opt/semehr"
 virtenv=""
 debug=0
@@ -28,6 +28,7 @@ if [ "$SMI_LOGS_ROOT" == "" ]; then
 fi
 
 # Configure logging
+log="$SMI_LOGS_ROOT/${prog}/${prog}.log"
 mkdir -p `dirname "${log}"`
 touch $log
 echo "`date` $@" >> $log
@@ -41,10 +42,14 @@ tidy_exit()
 	echo "`date` $msg" >> $log
 	# Tidy up, if not debugging
 	if [ $debug -eq 0 ]; then
-	  if [ -f "${input_dcm}.SRtext" ]; then rm -f "${input_dcm}.SRtext"; fi
 	  if [ -f "${input_doc}" ]; then rm -f "${input_doc}"; fi
 	  if [ -f "${anon_doc}" ]; then rm -f "${anon_doc}"; fi
 	  if [ -f "${anon_xml}" ]; then rm -f "${anon_xml}"; fi
+	  # Prefer not to use rm -fr for safety
+	  if [ -d "${semehr_input_dir}" ]; then rm -f "${semehr_input_dir}/*"; fi
+	  if [ -d "${semehr_input_dir}" ]; then rmdir "${semehr_input_dir}"; fi
+	  if [ -d "${semehr_output_dir}" ]; then rm -f "${semehr_output_dir}/*"; fi
+	  if [ -d "${semehr_output_dir}" ]; then rmdir "${semehr_output_dir}"; fi
 	fi
 	# Tell user where log file is when failure occurs
 	if [ $rc -ne 0 ]; then echo "See log file $log" >&2; fi
@@ -52,7 +57,7 @@ tidy_exit()
 }
 
 # Default executable PATHs and Python libraries
-export PATH=${PATH}:${SMI_ROOT}/bin:${SMI_ROOT}/scripts:$(dirname "$0")
+export PATH=${PATH}:${SMI_ROOT}/bin:${SMI_ROOT}/scripts:${progdir}
 export PYTHONPATH=${SMI_ROOT}/lib/python3:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib/python3.6/site-packages
 
 # Command line arguments
@@ -70,7 +75,7 @@ done
 shift $(($OPTIND - 1))
 
 if [ ! -f "$input_dcm" ]; then
-	tidy_exit 2 "ERROR: cannot read ${input_dcm}"
+	tidy_exit 2 "ERROR: cannot read input file '${input_dcm}'"
 fi
 if [ ! -f "$output_dcm" ]; then
 	tidy_exit 3 "ERROR: cannot write to ${output_dcm} because it must already exist"
@@ -91,28 +96,46 @@ if [ -d $SMI_ROOT/configs ]; then
 	default_yaml0="$SMI_ROOT/configs/smi_dataLoad_mysql.yaml"
 	default_yaml1="$SMI_ROOT/configs/smi_dataExtract.yaml"
 else
-	default_yaml0="$HOME/src/SmiServices/data/microserviceConfigs/default.yaml"
+	default_yaml0="${progdir}/../../../data/microserviceConfigs/default.yaml"
 	default_yaml1="$default_yaml0"
 fi
 
+# ---------------------------------------------------------------------
+# Determine the SemEHR filenames - create per-process directories
+semehr_input_dir=$(mktemp  -d -t input_docs.XXXX --tmpdir=${semehr_dir}/data)
+semehr_output_dir=$(mktemp -d -t anonymised.XXXX --tmpdir=${semehr_dir}/data)
+if [ "$semehr_input_dir" == "" ]; then
+	tidy_exit 8 "Cannot create temporary directory in ${semehr_dir}/data"
+fi
+if [ "$semehr_output_dir" == "" ]; then
+	tidy_exit 9 "Cannot create temporary directory in ${semehr_dir}/data"
+fi
+
+doc_filename=$(basename "$input_dcm")
+input_doc="${semehr_input_dir}/${doc_filename}"
+anon_doc="${semehr_output_dir}/${doc_filename}"
+anon_xml="${semehr_output_dir}/${doc_filename}.knowtator.xml"
+
+# ---------------------------------------------------------------------
 # Convert DICOM to text
+#  Reads  $input_dcm
+#  Writes $input_doc
 if [ $verbose -gt 0 ]; then
 	echo "RUN: CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 -i ${input_dcm} -o ${input_dcm}.SRtext"
 fi
 CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 	-i "${input_dcm}" \
-	-o "${input_dcm}.SRtext"  || tidy_exit 4 "Error $? from CTP_DicomToText.py while converting ${input_dcm} to ${input_dcm}.SRtext"
+	-o "${input_doc}"  || tidy_exit 4 "Error $? from CTP_DicomToText.py while converting ${input_dcm} to ${input_doc}"
 
-# Run the SemEHR anonymiser
-doc_filename=$(basename "$input_dcm")
-input_doc="${semehr_dir}/data/input_docs/$doc_filename"
-anon_doc="${semehr_dir}/data/anonymised/$doc_filename"
-anon_xml="${semehr_dir}/data/anonymised/$doc_filename.knowtator.xml"
-cp  "${input_dcm}.SRtext"  "$input_doc" || tidy_exit 5 "Cannot copy ${input_dcm}.SRtext to ${input_doc}"
+# ---------------------------------------------------------------------
+# Run the SemEHR anonymiser using a set of private directories
+#  Reads  $input_doc
+#  Writes $anon_doc and $anon_xml
+# NOTE: This requires that SemEHR be modified to accept the -i and -o options.
 if [ $verbose -gt 0 ]; then
-	echo "RUN: ${semehr_dir}/CogStack-SemEHR/analysis/clinical_doc_wrapper.py"
+	echo "RUN: ${semehr_dir}/CogStack-SemEHR/analysis/clinical_doc_wrapper.py -i ${semehr_input_dir} -o ${semehr_output_dir}"
 fi
-(cd ${semehr_dir}/CogStack-SemEHR/analysis; python2 ./clinical_doc_wrapper.py) >> $log 2>&1
+(cd ${semehr_dir}/CogStack-SemEHR/analysis; ./clinical_doc_wrapper.py -i ${semehr_input_dir} -o ${semehr_output_dir}) >> $log 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
 	tidy_exit $rc "Possible failure (exit code $rc) of SemEHR-anon given ${input_doc} from ${input_dcm}"
@@ -122,7 +145,10 @@ if [ ! -f "$anon_xml" ]; then
 	tidy_exit 6 "ERROR: SemEHR-anon failed to convert $input_doc to $anon_xml"
 fi
 
+# ---------------------------------------------------------------------
 # Convert XML back to DICOM
+#  Reads  $input_dcm and $anon_xml
+#  Writes $output_dcm (must already exist)
 if [ $verbose -gt 0 ]; then
 	echo "RUN: CTP_XMLToDicom.py -y $default_yaml1 	-i $input_dcm -x $anon_xml -o $output_dcm"
 fi

@@ -17,6 +17,7 @@ import sys
 import json
 import yaml
 import pydicom
+import re
 import xml.etree.ElementTree    # untangle and xmltodict not available in NSH
 from deepmerge import Merger    # for deep merging dictionaries
 from SmiServices import Mongo
@@ -141,13 +142,18 @@ if __name__ == '__main__':
             for name in files:
                 extract_file(os.path.join(root, name), args.output_dir)
     elif mongo_db != {}:
-        # could be a SOPInstanceUID in Mongo
-        # except SOPInstanceUID is not in the Mongo index,
-        # only the DicomFilePath.
-        mongodb = Mongo.SmiPyMongoCollection(mongo_host)
+        # Only DicomFilePath and StudyDate are indexed in MongoDB.
+        # Passing a SOPInstanceUID would be handy but no point if not indexed.
+        mongodb = Mongo.SmiPyMongoCollection(mongo_host, mongo_user, mongo_host)
         mongodb.setImageCollection('SR')
-        mongojson = mongodb.DicomFilePathToJSON(args.input)
-        extract_mongojson(mongojson, output_dir)
+        # If it looks like a date YYYY/MM/DD or YYYYMMDD:
+        if re.match('^\\s*\\d+/\\d+/\\d+\\s*$|^\\s*\\d{6}\\s*$', args.input):
+            for mongojson in mongodb.StudyDateToJSONList(args.input):
+                extract_mongojson(mongojson, args.output_dir)
+        # Otherwise assume a DICOM file path
+        else:
+            mongojson = mongodb.DicomFilePathToJSON(args.input)
+            extract_mongojson(mongojson, args.output_dir)
     else:
         logging.error(f'Cannot find {args.input} as file and MongoDB not configured')
         exit(1)
