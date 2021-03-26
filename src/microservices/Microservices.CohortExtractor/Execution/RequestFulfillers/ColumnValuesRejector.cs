@@ -33,12 +33,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             }
             catch (IndexOutOfRangeException ex)
             {
-                throw new IndexOutOfRangeException($"An error occurred determining the PatientID of the record(s) being extracted. Expected a column called {_columnToCheck}", ex);
+                throw new IndexOutOfRangeException($"An error occurred determining the identifier of the record(s) being extracted. Expected a column called {_columnToCheck}", ex);
             }
 
             if (_rejectPatients.Contains(patientId))
             {
-                reason = "Patient was in reject list";
+                reason = "Patient or Identifier was in reject list";
                 return true;
             }
 
