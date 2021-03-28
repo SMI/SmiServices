@@ -42,14 +42,14 @@ namespace Microservices.CohortExtractor.Tests
                 .Returns("Frank");
 
             Assert.IsTrue(rejector.Reject(moqFrank.Object, out reason));
-            Assert.AreEqual("Patient was in reject list", reason);
+            Assert.AreEqual("Patient or Identifier was in reject list", reason);
 
             var moqLowerCaseFrank = new Mock<DbDataReader>();
             moqLowerCaseFrank.Setup(x => x[PatColName])
                 .Returns("frank");
 
             Assert.IsTrue(rejector.Reject(moqLowerCaseFrank.Object, out reason));
-            Assert.AreEqual("Patient was in reject list", reason);
+            Assert.AreEqual("Patient or Identifier was in reject list", reason);
         }
     }
 }

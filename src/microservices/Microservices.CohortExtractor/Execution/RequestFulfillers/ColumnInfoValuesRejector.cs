@@ -29,7 +29,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             qb.AddColumn(new ColumnInfoToIColumn(new MemoryRepository(), columnInfo));
 
             string sql = qb.SQL;
-            logger.Info("Running PatientID fetch SQL:" + sql);
+            logger.Info("Running rejection-id fetch SQL:" + sql);
 
             DiscoveredTable server = columnInfo.TableInfo.Discover(DataAccessContext.DataExport);
 
@@ -43,7 +43,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     toReturn.Add(reader[0].ToString());
             }
 
-            logger.Info($"Found {toReturn.Count} patients in the reject list");
+            logger.Info($"Found {toReturn.Count} identifiers in the reject list");
 
             return toReturn;
         }
