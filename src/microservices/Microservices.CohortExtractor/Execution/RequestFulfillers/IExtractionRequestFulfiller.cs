@@ -1,6 +1,7 @@
 
 using Microservices.CohortExtractor.Audit;
 using Smi.Common.Messages.Extraction;
+using Smi.Common.Options;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -21,6 +22,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// Controls what records that are fetched back should be reported as non extractable (including the reason why)
         /// </summary>
         List<IRejector> Rejectors { get; set; }
+
+        /// <summary>
+        /// Collection of <see cref="IRejector"/> that are to be used only on specific Modality(s) either instead of or
+        /// in addition to the basic <see cref="Rejectors"/>
+        /// </summary>
+        Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
 
         /// <summary>
         /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which
