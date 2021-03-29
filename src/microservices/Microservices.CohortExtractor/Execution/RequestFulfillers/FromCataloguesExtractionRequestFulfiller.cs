@@ -88,7 +88,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 return Enumerable.Empty<IRejector>();
             }
 
-            if((ModalitySpecificRejectors?.Any() ?? false) && string.IsNullOrWhiteSpace(query.Modality))
+            if(ModalitySpecificRejectors.Any()  && string.IsNullOrWhiteSpace(query.Modality))
                 throw new Exception("Could not evaluate ModalitySpecificRejectors because query Modality was null");
 
             var applicableRejectors = 
