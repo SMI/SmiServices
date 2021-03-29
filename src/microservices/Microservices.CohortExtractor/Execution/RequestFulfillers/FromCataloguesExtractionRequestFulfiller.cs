@@ -3,6 +3,7 @@ using Microservices.CohortExtractor.Audit;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using Smi.Common.Messages.Extraction;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         protected readonly Logger Logger;
 
         public List<IRejector> Rejectors { get; set; } = new List<IRejector>();
+        public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
+            = new Dictionary<ModalitySpecificRejectorOptions, IRejector>();
         public Regex ModalityRoutingRegex { get; set; }
 
         public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
@@ -58,7 +61,6 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             if (queries.Count == 0)
                 throw new Exception($"Couldn't find any compatible Catalogues to run extraction queries against for query {message}");
 
-            List<IRejector> rejectorsToUse = message.IsNoFilterExtraction ? new List<IRejector>() : Rejectors;
 
             foreach (string valueToLookup in message.ExtractionIdentifiers)
             {
@@ -66,7 +68,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 foreach (QueryToExecute query in queries)
                 {
-                    foreach (QueryToExecuteResult result in query.Execute(valueToLookup, rejectorsToUse))
+                    foreach (QueryToExecuteResult result in query.Execute(valueToLookup, GetRejectorsFor(message,query).ToList()))
                     {
                         if (!results.ContainsKey(result.SeriesTagValue))
                             results.Add(result.SeriesTagValue, new HashSet<QueryToExecuteResult>());
@@ -79,6 +81,38 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             }
         }
 
+        private IEnumerable<IRejector> GetRejectorsFor(ExtractionRequestMessage message, QueryToExecute query)
+        {
+            if (message.IsNoFilterExtraction)
+            {
+                return Enumerable.Empty<IRejector>();
+            }
+
+            var applicableRejectors = 
+                ModalitySpecificRejectors
+                .Where(
+                    // Do the modalities covered by this rejector apply to the images returned by the query
+                    k => k.Key.GetModalities().Any(m => string.Equals(m, query.Modality,StringComparison.CurrentCultureIgnoreCase))
+                    )
+                .ToArray();
+
+            // if modality specific rejectors override regular rejectors
+            if (applicableRejectors.Any(r => r.Key.Overrides))
+            {
+                // they had better all override or none of them!
+                if (!applicableRejectors.All(r => r.Key.Overrides))
+                {
+                    throw new Exception($"You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was '{query.Modality}'");
+                }
+
+                // yes we have custom rejection rules for this modality
+                return applicableRejectors.Select(r => r.Value);
+            }
+
+            // The modality specific rejectors run in addition to the basic Rejectors so serve both
+            return applicableRejectors.Select(r => r.Value).Union(Rejectors);
+        }
+
         /// <summary>
         /// Creates a <see cref="QueryToExecute"/> based on the current <paramref name="message"/> and a <paramref name="columnSet"/> to
         /// fetch back / filter using.
@@ -88,19 +122,23 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <returns></returns>
         protected virtual QueryToExecute GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
         {
+            string modality = GetModalityFor(columnSet.Catalogue);
+
+            // do they want only records from a specific modality
             if (!string.IsNullOrWhiteSpace(message.Modality))
             {
                 if (ModalityRoutingRegex == null)
                     throw new NotSupportedException("Filtering on Modality requires setting a ModalityRoutingRegex");
 
+                // Use Modality routing regex to identify which modality 
                 var anyModality = message.Modality.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                var match = ModalityRoutingRegex.Match(columnSet.Catalogue.Name);
-
-                if (match.Success)
+                
+                // if we know the modality
+                if (modality != null)
                 {
-                    //if none of the modalities match the table name
-                    if (!anyModality.Any(m => m.Equals(match.Groups[1].Value)))
-                        return null;
+                    //but it is not one we are extracting 
+                    if (!anyModality.Any(m => m.Equals(modality)))
+                        return null; // i.e. do not query
                 }
                 else
                 {
@@ -110,7 +148,25 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             }
 
 
-            return new QueryToExecute(columnSet, message.KeyTag);
+            return new QueryToExecute(columnSet, message.KeyTag) { Modality = modality };
+        }
+
+        /// <summary>
+        /// Returns the Modality of images that should be returned by querying the given <paramref name="catalogue"/>.
+        /// Based on the <see cref="ModalityRoutingRegex"/> or null if unknown / mixed modalities 
+        /// </summary>
+        /// <param name="catalogue"></param>
+        /// <returns></returns>
+        private string GetModalityFor(ICatalogue catalogue)
+        {
+            // We don't know how to 
+            if(ModalityRoutingRegex == null)
+                return null;
+
+            var match = ModalityRoutingRegex.Match(catalogue.Name);
+
+            return match.Success ? match.Groups[1].Value : null;
+
         }
 
         /// <summary>

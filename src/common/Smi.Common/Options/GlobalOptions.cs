@@ -9,6 +9,7 @@ using Smi.Common.Messages;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using DatabaseType = FAnsi.DatabaseType;
@@ -362,6 +363,11 @@ namespace Smi.Common.Options
         /// </summary>
         public string RejectorType { get; set; }
 
+        /// <summary>
+        /// Modality specific rejection rules that can either override the <see cref="RejectorType"/> for specific Modalities or be applied in addition
+        /// </summary>
+        public ModalitySpecificRejectorOptions[] ModalitySpecificRejectors { get; set; }
+
         public bool AllCatalogues { get; private set; }
         public List<int> OnlyCatalogues { get; private set; }
 
@@ -388,6 +394,11 @@ namespace Smi.Common.Options
 
         public void Validate()
         {
+            if(ModalitySpecificRejectors != null && ModalitySpecificRejectors.Any() && string.IsNullOrWhiteSpace(ModalityRoutingRegex))
+            {
+                throw new Exception("ModalitySpecificRejectors requires providing a ModalityRoutingRegex");
+            }
+
             if (string.IsNullOrEmpty(RequestFulfillerType))
                 throw new Exception("No RequestFulfillerType set on CohortExtractorOptions.  This must be set to a class implementing IExtractionRequestFulfiller");
 

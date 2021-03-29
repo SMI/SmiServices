@@ -31,6 +31,11 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         readonly object _oLockExecute = new object();
 
+        /// <summary>
+        /// Modality (if known) for records that the query should return
+        /// </summary>
+        public string Modality { get; set; }
+
         public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag)
         {
             Columns = columns;
