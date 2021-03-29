@@ -81,12 +81,15 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             }
         }
 
-        private IEnumerable<IRejector> GetRejectorsFor(ExtractionRequestMessage message, QueryToExecute query)
+        public IEnumerable<IRejector> GetRejectorsFor(ExtractionRequestMessage message, QueryToExecute query)
         {
             if (message.IsNoFilterExtraction)
             {
                 return Enumerable.Empty<IRejector>();
             }
+
+            if((ModalitySpecificRejectors?.Any() ?? false) && string.IsNullOrWhiteSpace(query.Modality))
+                throw new Exception("Could not evaluate ModalitySpecificRejectors because query Modality was null");
 
             var applicableRejectors = 
                 ModalitySpecificRejectors
