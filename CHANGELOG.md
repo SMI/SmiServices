@@ -11,6 +11,41 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [2.1.0] 2021-03-30
+
+## Feature
+
+-   [#676](https://github.com/SMI/SmiServices/pull/676) by tznind. Improvements
+    to IsIdentifiable Reviewer
+    -   Tab based navigation
+    -   Better pattern generation for overlapping failure parts
+    -   Fixed sequential mode always showing failures covered by existing UPDATE
+        rules
+    -   Fixed tree view not adapting as new rules are added e.g. when used to
+        interactively process many failures
+-   [#690](https://github.com/SMI/SmiServices/pull/690) by tznind. Added
+    ModalitySpecificRejectorOptions
+
+## Bugfix
+
+-   [#678](https://github.com/SMI/SmiServices/pull/678) by rkm. Fix log
+    directory naming for single-entrypoint app. Fixes #677
+-   [#681](https://github.com/SMI/SmiServices/pull/681) by howff. Fix Python
+    packaging when run from repo root dir
+-   [#684](https://github.com/SMI/SmiServices/pull/684) by howff.
+    -   Minor fixes to python for compatibility (eg. semehr using python2)
+    -   Use a unique temporary directory for input and output files
+    -   Enable extraction from MongoDB by StudyDate (the only field other than
+        FilePath which has an index)
+-   [#688](https://github.com/SMI/SmiServices/pull/688) by howff. Reword the
+    CohortExtractor log/info messages as it's not just patients which can be
+    rejected
+
+## Meta
+
+-   [#668](https://github.com/SMI/SmiServices/pull/668) by rkm. Add note to the
+    releasing documentation to alert the Mattermost channel
+
 ## [2.0.0] 2021-03-13
 
 ## Feature
@@ -738,7 +773,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v2.0.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v2.1.0...master
+[2.1.0]: https://github.com/SMI/SmiServices/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/SMI/SmiServices/compare/v1.15.1...v2.0.0
 [1.15.1]: https://github.com/SMI/SmiServices/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/SMI/SmiServices/compare/v1.14.1...v1.15.0
