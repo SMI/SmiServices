@@ -1,1 +1,1 @@
-Add logging of query statements to QueryToExecute for exceptions
+CohortExtractor database queries that crash during execution are now logged
