@@ -1,22 +1,22 @@
-using ReusableLibraryCode.DataAccess;
 using FAnsi.Discovery;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using MapsDirectlyToDatabaseTable;
+using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
-using Rdmp.Core.Repositories;
 using Rdmp.Core.QueryBuilding;
+using Rdmp.Core.Repositories;
+using ReusableLibraryCode.DataAccess;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
     public class QueryToExecute
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         protected QueryToExecuteColumnSet Columns { get; }
-        
+
         /// <summary>
         /// The column to search for in the WHERE logic
         /// </summary>
@@ -125,7 +125,11 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             using (DbConnection con = Server.GetConnection())
             {
                 con.Open();
-                DbDataReader r = Server.GetCommand(GetSqlForKeyValue(valueToLookup), con).ExecuteReader();
+
+                string sqlString = GetSqlForKeyValue(valueToLookup);
+                _logger.Debug($"Query: {sqlString}");
+
+                DbDataReader r = Server.GetCommand(sqlString, con).ExecuteReader();
 
                 while (r.Read())
                 {
