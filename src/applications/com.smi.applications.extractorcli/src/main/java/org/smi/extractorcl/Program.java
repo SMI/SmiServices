@@ -84,7 +84,7 @@ public class Program {
 			Option        
 			.builder("m")
 			.argName("modality")
-			.desc("Extraction modality. Should only be specified if extracting at the Study level")
+			.desc("Extraction modality")
 			.hasArg()
 			.longOpt("modality")
 			.build());

@@ -64,11 +64,6 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		_extractionModality = extractionModality;
 		_isIdentifiableExtraction = isIdentifiableExtraction;
 		_isNoFilterExtraction = isNoFilterExtraction;
-
-        // TODO(rkm 2020-01-30) Properly handle parsing of the supported modalities
-        if (_extractionModality != null && (!_extractionModality.equals("CT") && !_extractionModality.equals("MR"))) {
-			throw new IllegalArgumentException("Invalid value " + _extractionModality + " for extractionModality. Supported values are: CT, MR");
-		}
 	}
 
 	@Override
@@ -92,8 +87,6 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 
 		if (_extractionKey == ExtractionKey.StudyInstanceUID && _extractionModality == null)
 			throw new IllegalArgumentException("Extracting by StudyInstanceUID, but extraction modality not set");
-		if (_extractionKey != ExtractionKey.StudyInstanceUID && _extractionModality != null)
-			throw new IllegalArgumentException("Extraction modality set, but extraction identifier is " + _extractionKey);
 
 		_logger.debug("extractionKey: " + _extractionKey);
 	}
@@ -177,8 +170,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		sb.append("    ExtractionKey:                         " + _extractionKey + System.lineSeparator());
 		sb.append("    IsIdentifiableExtraction:              " + _isIdentifiableExtraction + System.lineSeparator());
 		sb.append("    IsNoFilterExtraction:                  " + _isNoFilterExtraction + System.lineSeparator());
-		if (_extractionKey == ExtractionKey.StudyInstanceUID)
-			sb.append("    ExtractionModality:                    " + _extractionModality + System.lineSeparator());
+		sb.append("    ExtractionModality:                    " + _extractionModality + System.lineSeparator());
 		sb.append("    KeyValueCount:                         " + _identifierSet.size() + System.lineSeparator());
 		sb.append("    Number of ExtractionRequestMessage(s): " + split.size() + System.lineSeparator());
 		System.out.println(sb);

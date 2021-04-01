@@ -68,10 +68,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             message.KeyTag = "StudyInstanceUID";
             message.ExtractionModality = null;
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, mockHeader));
-
-            message.KeyTag = "SeriesInstanceUID";
-            message.ExtractionModality = "MR";
-            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, mockHeader));
         }
 
         [Test]
