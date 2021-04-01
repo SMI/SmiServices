@@ -170,8 +170,7 @@ public class ExtractMessagesCsvHandler implements CsvHandler {
 		sb.append("    ExtractionKey:                         " + _extractionKey + System.lineSeparator());
 		sb.append("    IsIdentifiableExtraction:              " + _isIdentifiableExtraction + System.lineSeparator());
 		sb.append("    IsNoFilterExtraction:                  " + _isNoFilterExtraction + System.lineSeparator());
-		if (_extractionKey == ExtractionKey.StudyInstanceUID)
-			sb.append("    ExtractionModality:                    " + _extractionModality + System.lineSeparator());
+		sb.append("    ExtractionModality:                    " + _extractionModality + System.lineSeparator());
 		sb.append("    KeyValueCount:                         " + _identifierSet.size() + System.lineSeparator());
 		sb.append("    Number of ExtractionRequestMessage(s): " + split.size() + System.lineSeparator());
 		System.out.println(sb);
