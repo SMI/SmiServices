@@ -36,6 +36,6 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions" Version="13.2.28" />
-    <PackageReference Include="YamlDotNet" Version="10.0.0" />
+    <PackageReference Include="YamlDotNet" Version="10.1.0" />
   </ItemGroup>
 </Project>
