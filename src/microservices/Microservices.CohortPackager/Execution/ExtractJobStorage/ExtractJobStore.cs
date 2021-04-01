@@ -26,9 +26,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         {
             Logger.Info($"Received new job info {message}");
 
-            // If KeyTag is StudyInstanceUID then ExtractionModality must be specified, otherwise must be null
-            if (message.KeyTag == "StudyInstanceUID" ^ !string.IsNullOrWhiteSpace(message.ExtractionModality))
-                throw new ApplicationException($"Invalid combination of KeyTag and ExtractionModality (KeyTag={message.KeyTag}, ExtractionModality={message.ExtractionModality}");
+            // If KeyTag is StudyInstanceUID then ExtractionModality must be specified
+            if (message.KeyTag == "StudyInstanceUID" && string.IsNullOrWhiteSpace(message.ExtractionModality))
+                throw new ApplicationException($"ExtractionModality must be specified when the extraction key is StudyInstanceUID");
 
             PersistMessageToStoreImpl(message, header);
         }
