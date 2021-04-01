@@ -1,4 +1,5 @@
 using FAnsi.Discovery;
+using MySqlConnector;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
@@ -127,35 +128,43 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 con.Open();
 
                 string sqlString = GetSqlForKeyValue(valueToLookup);
-                _logger.Debug($"Query: {sqlString}");
 
-                DbDataReader r = Server.GetCommand(sqlString, con).ExecuteReader();
-
-                while (r.Read())
+                DbDataReader reader;
+                try
                 {
-                    object imagePath = r[path];
+                    reader = Server.GetCommand(sqlString, con).ExecuteReader();
+                }
+                catch (MySqlException)
+                {
+                    _logger.Error($"The following query resulted in an exception: {sqlString}");
+                    throw;
+                }
+
+                while (reader.Read())
+                {
+                    object imagePath = reader[path];
 
                     if (imagePath == DBNull.Value)
                         continue;
 
                     bool reject = false;
                     string rejectReason = null;
-                    
+
                     //Ask the rejectors how good this record is
                     foreach (IRejector rejector in rejectors)
                     {
-                        if (rejector.Reject(r, out rejectReason))
+                        if (rejector.Reject(reader, out rejectReason))
                         {
                             reject = true;
                             break;
                         }
                     }
-                    
-                    yield return 
-                    new QueryToExecuteResult((string) imagePath,
-                        study == null ? null : (string) r[study],
-                        series == null ? null : (string) (string) r[series],
-                        instance == null ? null : (string) (string) r[instance],
+
+                    yield return
+                    new QueryToExecuteResult((string)imagePath,
+                        study == null ? null : (string)reader[study],
+                        series == null ? null : (string)(string)reader[series],
+                        instance == null ? null : (string)(string)reader[instance],
                         reject,
                         rejectReason);
                 }
