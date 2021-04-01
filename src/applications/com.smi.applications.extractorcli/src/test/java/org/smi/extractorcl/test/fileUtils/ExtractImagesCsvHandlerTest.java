@@ -250,14 +250,6 @@ public class ExtractImagesCsvHandlerTest extends TestCase {
 		// Yes, I know there's probably some way to do this with JUnit
 		boolean thrown = false;
 
-		try {
-			handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", "aaaaa",false,false,
-					extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
-		} catch (IllegalArgumentException e) {
-			thrown = true;
-		}
-		assertTrue(thrown);
-
 		handler = new ExtractMessagesCsvHandler(uuid, "MyProjectID", "MyProjectFolder", null,false,false,
 				extractRequestMessageProducerModel, extractRequestInfoMessageProducerModel);
 
