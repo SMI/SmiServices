@@ -1,1 +1,1 @@
-Add loging of query statements to QueryToExecute
+Add logging of query statements to QueryToExecute for exceptions
