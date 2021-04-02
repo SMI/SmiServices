@@ -120,7 +120,6 @@ if __name__ == '__main__':
 
     log_dir = cfg_dict['LoggingOptions']['LogsRoot']
     root_dir = cfg_dict['FileSystemOptions']['FileSystemRoot']
-    extract_dir = cfg_dict['FileSystemOptions']['ExtractRoot']
 
     # ---------------------------------------------------------------------
     # Now we know the LogsRoot we can set up logging
@@ -144,10 +143,10 @@ if __name__ == '__main__':
     elif mongo_db != {}:
         # Only DicomFilePath and StudyDate are indexed in MongoDB.
         # Passing a SOPInstanceUID would be handy but no point if not indexed.
-        mongodb = Mongo.SmiPyMongoCollection(mongo_host, mongo_user, mongo_host)
+        mongodb = Mongo.SmiPyMongoCollection(mongo_host, mongo_user, mongo_pass)
         mongodb.setImageCollection('SR')
         # If it looks like a date YYYY/MM/DD or YYYYMMDD:
-        if re.match('^\\s*\\d+/\\d+/\\d+\\s*$|^\\s*\\d{6}\\s*$', args.input):
+        if re.match('^\\s*\\d+/\\d+/\\d+\\s*$|^\\s*\\d{8}\\s*$', args.input):
             for mongojson in mongodb.StudyDateToJSONList(args.input):
                 extract_mongojson(mongojson, args.output_dir)
         # Otherwise assume a DICOM file path
