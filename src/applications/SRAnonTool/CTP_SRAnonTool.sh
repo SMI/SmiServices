@@ -58,7 +58,7 @@ tidy_exit()
 
 # Default executable PATHs and Python libraries
 export PATH=${PATH}:${SMI_ROOT}/bin:${SMI_ROOT}/scripts:${progdir}
-export PYTHONPATH=${SMI_ROOT}/lib/python3:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib/python3.6/site-packages
+export PYTHONPATH=${SMI_ROOT}/lib/python3:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib/python3.6/site-packages:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib64/python3.6/site-packages
 
 # Command line arguments
 while getopts ${options} var; do
