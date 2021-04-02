@@ -15,7 +15,7 @@ import pydicom
 import re
 import shutil
 import sys
-from SmiServices import DicomText, Knowtator
+from SmiServices import DicomText
 
 # Configurable:
 semehr_dir = '/opt/semehr'
