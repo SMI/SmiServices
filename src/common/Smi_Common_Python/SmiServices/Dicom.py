@@ -172,6 +172,24 @@ def test_sr_decode_ConceptNameCodeSequence():
 
 
 # ---------------------------------------------------------------------
+# Decode a SourceImageSequence by returning a string consisting of the
+# UID of the referenced image.
+# XXX ignores the ReferencedSOPClassUID.
+# XXX this is the same as ReferencedSOPSequence above.
+
+def sr_decode_SourceImageSequence(sis):
+    assert isinstance(sis, list)
+    for sis_item in sis:
+        if has_tag(sis_item, 'ReferencedSOPInstanceUID'):
+            return tag_val(sis_item, 'ReferencedSOPInstanceUID')
+    return ''
+
+def test_sr_decode_SourceImageSequence():
+    assert sr_decode_SourceImageSequence([]) == ''
+    assert sr_decode_SourceImageSequence( [ {'ReferencedSOPClassUID':'1.2', 'ReferencedSOPInstanceUID':'1.2.3.4.5'} ] ) == '1.2.3.4.5'
+
+
+# ---------------------------------------------------------------------
 # Decode a MeasuredValueSequence by returning a string consisting of the
 # NumericValue inside, and having the short form of the units appended
 # eg. 23mm.
@@ -204,10 +222,14 @@ def sr_decode_MeasuredValueSequence(mvs):
             num_str = tag_val(mvs_item, 'NumericValue')
         if has_tag(mvs_item, 'MeasurementUnitsCodeSequence'):
             units_str = sr_decode_MeasurementUnitsCodeSequence(tag_val(mvs_item, 'MeasurementUnitsCodeSequence'))
-    return num_str+' '+units_str
+    # Have to use str() because sometimes the value is missing, i.e. None(!)
+    return str(num_str)+' '+str(units_str)
 
 def test_sr_decode_MeasuredValueSequence():
     assert sr_decode_MeasuredValueSequence(None) == ''
+    assert sr_decode_MeasuredValueSequence( [ { 'NumericValue': None, 'MeasurementUnitsCodeSequence': [ { 'CodeMeaning': 'cm', 'CodeValue': 'mm' } ] } ] ) == 'None mm'
+    assert sr_decode_MeasuredValueSequence( [ { 'NumericValue': { 'vr':'DS' }, 'MeasurementUnitsCodeSequence': [ { 'CodeMeaning': 'cm', 'CodeValue': 'mm' } ] } ] ) == ' mm'
+    assert sr_decode_MeasuredValueSequence( [ { 'NumericValue': { 'vr':'DS', 'Value': '23' }, 'MeasurementUnitsCodeSequence': [ { 'CodeMeaning': 'cm', 'CodeValue': 'mm' } ] } ] ) == '23 mm'
     assert sr_decode_MeasuredValueSequence( [ { 'NumericValue': '23', 'MeasurementUnitsCodeSequence': [ { 'CodeMeaning': 'cm', 'CodeValue': 'mm' } ] } ] ) == '23 mm'
 
 
