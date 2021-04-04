@@ -19,11 +19,15 @@ class SmiPyMongoCollection:
       self.mongoConnection = MongoClient(host=hostname)
 
 
+  def setSemEHRCollection(self, collection_name):
+    """ After initialisation set the desired collection using the two-letter modality, eg. SR selects dicom.image_SR """
+
+    self.mongoCollection = self.mongoConnection['semehr'][collection_name]
+
   def setImageCollection(self, modality):
     """ After initialisation set the desired collection using the two-letter modality, eg. SR selects dicom.image_SR """
 
     self.mongoCollection = self.mongoConnection['dicom']['image_'+modality]
-
 
   def DicomFilePathToJSON(self, DicomFilePath):
     """ After setting a collection(modality) you can extract a document given a DICOM path (can be absolute, as everything upto PACS stripped off, or relative to root of collection)"""
@@ -42,3 +46,10 @@ class SmiPyMongoCollection:
     assert(len(StudyDate) == 8)
 
     return self.mongoCollection.find( { "StudyDate" : StudyDate } )
+
+  def findSOPInstanceUID(self, sopinstanceuid):
+    """ This is intended to check for the existance of a document having the
+    given SOPInstanceUID but since it also returns that document is can be
+    used as a query """
+    
+    return self.mongoCollection.find_one( { 'SOPInstanceUID': sopinstanceuid } )
