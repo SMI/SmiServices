@@ -333,7 +333,8 @@ def _SR_parse_key(json_dict, json_key, fp):
                     elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
                         # Sometimes it has no ContentSequence or is 'null'
                         if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
-                            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
+                            if has_tag(cs_item, 'ConceptNameCodeSequence'):
+                                _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
                             _SR_parse_key(cs_item, 'ContentSequence', fp)
                     # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
                     # as they have no useful text to return
