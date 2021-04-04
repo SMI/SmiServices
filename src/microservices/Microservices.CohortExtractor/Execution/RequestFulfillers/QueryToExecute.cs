@@ -1,22 +1,23 @@
-using ReusableLibraryCode.DataAccess;
 using FAnsi.Discovery;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using MapsDirectlyToDatabaseTable;
+using MySqlConnector;
+using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
-using Rdmp.Core.Repositories;
 using Rdmp.Core.QueryBuilding;
+using Rdmp.Core.Repositories;
+using ReusableLibraryCode.DataAccess;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
     public class QueryToExecute
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         protected QueryToExecuteColumnSet Columns { get; }
-        
+
         /// <summary>
         /// The column to search for in the WHERE logic
         /// </summary>
@@ -125,33 +126,45 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             using (DbConnection con = Server.GetConnection())
             {
                 con.Open();
-                DbDataReader r = Server.GetCommand(GetSqlForKeyValue(valueToLookup), con).ExecuteReader();
 
-                while (r.Read())
+                string sqlString = GetSqlForKeyValue(valueToLookup);
+
+                DbDataReader reader;
+                try
                 {
-                    object imagePath = r[path];
+                    reader = Server.GetCommand(sqlString, con).ExecuteReader();
+                }
+                catch (MySqlException)
+                {
+                    _logger.Error($"The following query resulted in an exception: {sqlString}");
+                    throw;
+                }
+
+                while (reader.Read())
+                {
+                    object imagePath = reader[path];
 
                     if (imagePath == DBNull.Value)
                         continue;
 
                     bool reject = false;
                     string rejectReason = null;
-                    
+
                     //Ask the rejectors how good this record is
                     foreach (IRejector rejector in rejectors)
                     {
-                        if (rejector.Reject(r, out rejectReason))
+                        if (rejector.Reject(reader, out rejectReason))
                         {
                             reject = true;
                             break;
                         }
                     }
-                    
-                    yield return 
-                    new QueryToExecuteResult((string) imagePath,
-                        study == null ? null : (string) r[study],
-                        series == null ? null : (string) (string) r[series],
-                        instance == null ? null : (string) (string) r[instance],
+
+                    yield return
+                    new QueryToExecuteResult((string)imagePath,
+                        study == null ? null : (string)reader[study],
+                        series == null ? null : (string)(string)reader[series],
+                        instance == null ? null : (string)(string)reader[instance],
                         reject,
                         rejectReason);
                 }
