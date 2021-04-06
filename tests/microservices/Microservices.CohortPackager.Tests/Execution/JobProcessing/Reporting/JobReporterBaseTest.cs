@@ -773,6 +773,14 @@ CohortPackagerOptions:
 
             Assert.AreEqual(Regex.Escape(WindowsNewLine), globals.CohortPackagerOptions.ReportNewLine);
         }
+
+        [Test]
+        public void ReportNewline_EscapedString_IsDetected()
+        {
+            const string newLine = @"\n";
+            var exc = Assert.Throws<ArgumentException>(() => new TestJobReporter(new Mock<IExtractJobStore>().Object, ReportFormat.Combined, newLine));
+            Assert.AreEqual("ReportNewLine contained an escaped backslash", exc.Message);
+        }
     }
 
     #endregion
