@@ -56,6 +56,9 @@ namespace Applications.ExtractionLauncher.Tests
                     {"foo.csv", "SeriesInstanceUID\n1.2.3.4"},
                 }
             );
+            var extractRoot = fs.Path.Join(fs.Path.GetTempPath(), "extract-root");
+            fs.Directory.CreateDirectory(extractRoot);
+            globals.FileSystemOptions.ExtractRoot = extractRoot;
 
             Expression<Action<IExtractionMessageSender>> expr = x => x.SendMessages(ExtractionKey.SeriesInstanceUID, new List<string> { "1.2.3.4" });
             var mockExtractionMessageSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
