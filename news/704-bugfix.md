@@ -1,0 +1,1 @@
+Fix ReportNewLine being incorrectly set to a pre-escaped string. Fixes #703
