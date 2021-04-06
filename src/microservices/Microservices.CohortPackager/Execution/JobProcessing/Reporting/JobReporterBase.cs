@@ -45,12 +45,17 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             // NOTE(rkm 2020-11-20) IsNullOrWhiteSpace returns true for newline characters!
             if (!string.IsNullOrEmpty(reportNewLine))
             {
+                if (reportNewLine.Contains(@"\"))
+                    throw new ArgumentException("ReportNewLine contained an escaped backslash");
+
                 ReportNewLine = reportNewLine;
             }
             else
             {
+                // NOTE(rkm 2021-04-06) Escape the newline here so it prints correctly...
                 Logger.Warn($"Not passed a specific newline string for creating reports. Defaulting to Environment.NewLine ('{Regex.Escape(Environment.NewLine)}')");
-                ReportNewLine = Regex.Escape(Environment.NewLine);
+                // ... and just use the (unescaped) value as-is
+                ReportNewLine = Environment.NewLine;
             }
 
             _csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
