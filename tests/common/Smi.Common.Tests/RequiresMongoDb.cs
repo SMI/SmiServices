@@ -1,4 +1,4 @@
-﻿
+
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -23,11 +23,17 @@ namespace Smi.Common.Tests
 
             try
             {
-                IAsyncCursor<BsonDocument> dbs = client.ListDatabases();
+                IAsyncCursor<BsonDocument> _ = client.ListDatabases();
             }
             catch (Exception e)
             {
-                var msg = $"Could not connect to MongoDB at {address}: {e}";
+                string msg =
+                    e is MongoNotPrimaryException
+                    ? "Connected to non-primary MongoDB server. Check replication is enabled"
+                    : $"Could not connect to MongoDB at {address}";
+
+                msg += $": {e}";
+
                 if (FailIfUnavailable)
                     Assert.Fail(msg);
                 else
