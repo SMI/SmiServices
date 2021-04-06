@@ -10,6 +10,7 @@
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <Platforms>x64</Platforms>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+    <TargetFramework>net5</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <!-- Many build warnings for missing docstrings when enabling this - we may want to fix and enable per-project where needed instead? -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

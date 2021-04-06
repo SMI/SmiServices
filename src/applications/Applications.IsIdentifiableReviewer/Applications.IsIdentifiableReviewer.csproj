@@ -2,7 +2,6 @@
   <PropertyGroup>
     <AssemblyName>IsIdentifiableReviewer</AssemblyName>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="ExampleReport.csv" />

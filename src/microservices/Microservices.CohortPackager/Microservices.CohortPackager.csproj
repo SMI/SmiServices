@@ -2,7 +2,6 @@
   <PropertyGroup>
     <AssemblyName>CohortPackager</AssemblyName>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
