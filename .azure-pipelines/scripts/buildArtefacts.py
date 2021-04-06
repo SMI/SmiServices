@@ -56,7 +56,7 @@ def _build_java_packages(dist_tag_dir: Path, tag: str) -> None:
     zips = {
         Path(x) for x in glob.glob("./src/**/*deploy-distribution.zip", recursive=True)
     }
-    assert 2 == len(zips), "Expected 2 zip files (CTP and ExtractorCLI)"
+    assert 1 == len(zips), "Expected 1 zip file (CTP)"
     for zip_path in zips:
         shutil.copyfile(
             zip_path,
