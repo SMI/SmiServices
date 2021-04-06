@@ -185,7 +185,7 @@ namespace Microservices.CohortExtractor.Tests
             msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
             
             //extract only MR (this is what we are actually testing).
-            msgIn.Modality = "MR";
+            msgIn.Modalities = "MR";
             msgIn.ExtractionIdentifiers = studies;
 
             int matches = 0;
@@ -210,25 +210,25 @@ namespace Microservices.CohortExtractor.Tests
 
 
             // Ask for something that doesn't exist
-            msgIn.Modality = "Hello";
+            msgIn.Modalities = "Hello";
             var ex = Assert.Throws<Exception>(()=>fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
             StringAssert.Contains("Modality=Hello",ex.Message);
 
             // Ask for all modalities at once by not specifying any
-            msgIn.Modality = null;
+            msgIn.Modalities = null;
             Assert.AreEqual(100,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
             
             // Ask for both modalities specifically
-            msgIn.Modality = "CT,Hello";
+            msgIn.Modalities = "CT,Hello";
             Assert.AreEqual(70,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
 
             // Ask for both modalities specifically
-            msgIn.Modality = "CT,MR";
+            msgIn.Modalities = "CT,MR";
             Assert.AreEqual(100,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
 
             //when we don't have that flag anymore the error should tell us that
             tblCT.DropColumn(tblCT.DiscoverColumn("IsOriginal"));
-            msgIn.Modality = "CT,MR";
+            msgIn.Modalities = "CT,MR";
 
             ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
             StringAssert.Contains("IsOriginal",ex.Message);

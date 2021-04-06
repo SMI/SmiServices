@@ -128,13 +128,13 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             string modality = GetModalityFor(columnSet.Catalogue);
 
             // do they want only records from a specific modality
-            if (!string.IsNullOrWhiteSpace(message.Modality))
+            if (!string.IsNullOrWhiteSpace(message.Modalities))
             {
                 if (ModalityRoutingRegex == null)
                     throw new NotSupportedException("Filtering on Modality requires setting a ModalityRoutingRegex");
 
                 // Use Modality routing regex to identify which modality 
-                var anyModality = message.Modality.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                var anyModality = message.Modalities.Split(',', StringSplitOptions.RemoveEmptyEntries);
                 
                 // if we know the modality
                 if (modality != null)
@@ -174,7 +174,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         /// <summary>
         /// Return all valid query targets for the given <paramref name="message"/>.  Use this to handle throwing out queries
-        /// because they go to the wrong table for the given <see cref="ExtractionRequestMessage.Modality"/> etc.
+        /// because they go to the wrong table for the given <see cref="ExtractionRequestMessage.Modalities"/> etc.
         ///
         /// <para>Default implementation returns all <see cref="Catalogues"/> in which the <see cref="ExtractionRequestMessage.KeyTag"/>
         /// appears</para>
