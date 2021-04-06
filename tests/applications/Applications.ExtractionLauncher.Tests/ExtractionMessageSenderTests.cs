@@ -185,7 +185,7 @@ namespace Applications.ExtractionLauncher.Tests
         {
             var sender = new ExtractionMessageSender(
                 new ExtractionLauncherOptions(),
-                new ExtractionLauncherCliOptions {ProjectId = "1234-5678"},
+                new ExtractionLauncherCliOptions { ProjectId = "1234-5678" },
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 "extractDir",
@@ -200,6 +200,43 @@ namespace Applications.ExtractionLauncher.Tests
             Assert.AreEqual("ID list is empty", exc.Message);
         }
 
+        [Test]
+        public void ListChunking_CorrectIds()
+        {
+            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+
+            var calledWith = new List<string>();
+
+            var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
+            mockExtractionRequestProducer
+                .Setup(expr)
+                .Returns((IMessageHeader)null)
+                .Callback((IMessage msg, IMessageHeader _, string __) =>
+                {
+                    calledWith.AddRange(((ExtractionRequestMessage)msg).ExtractionIdentifiers);
+                });
+
+            var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+
+            var processor = new ExtractionMessageSender(
+                new ExtractionLauncherOptions { MaxIdentifiersPerMessage = 1 },
+                new ExtractionLauncherCliOptions { ProjectId = "1234-5678", NonInteractive = true },
+                mockExtractionRequestProducer.Object,
+                mockExtractionRequestInfoProducer.Object,
+                "extractDir",
+                new TestDateTimeProvider(),
+                new RealConsoleInput()
+            );
+
+            List<string> idList = Enumerable.Range(0, 5).Select(x => x.ToString()).ToList();
+            processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
+
+            mockExtractionRequestProducer.Verify(expr, Times.Exactly(5));
+            mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
+
+            Assert.True(idList.SequenceEqual(calledWith));
+        }
 
         [TestCase(1, 1, 1)] // nIds = maxPerMessage  => 1 message
         [TestCase(1, 10, 1)] // nIds < maxPerMessage => 1 message
