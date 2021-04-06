@@ -35,6 +35,18 @@ namespace Smi.Common.Messages.Extraction
             ExtractionIdentifiers = new List<string>();
         }
 
+        /// <summary>
+        /// (Shallow) copy constructor
+        /// </summary>
+        /// <param name="other"></param>
+        public ExtractionRequestMessage(ExtractionRequestMessage other)
+        : base(other)
+        {
+            KeyTag = other.KeyTag;
+            Modalities = other.Modalities;
+            ExtractionIdentifiers = other.ExtractionIdentifiers;
+        }
+
         public override string ToString()
             => base.ToString() + ", " +
                $"KeyTag={KeyTag}, " +

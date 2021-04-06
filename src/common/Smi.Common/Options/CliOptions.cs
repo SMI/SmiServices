@@ -12,5 +12,10 @@ namespace Smi.Common.Options
             HelpText = "[Optional] Name of the yaml config file to load"
         )]
         public string YamlFile { get; set; }
+
+        public override string ToString()
+        {
+            return $"YamlFile={YamlFile},";
+        }
     }
 }

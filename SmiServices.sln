@@ -90,7 +90,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.TriggerUpdates
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.SmiRunner", "src\applications\Applications.SmiRunner\Applications.SmiRunner.csproj", "{245CDB6C-3444-443D-B455-0FFDF37179FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.SmiRunner.Tests", "tests\applications\Applications.SmiRunner.Tests\Applications.SmiRunner.Tests.csproj", "{1CC94BFB-4BA5-4236-BD63-E23A86FDDCD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.SmiRunner.Tests", "tests\applications\Applications.SmiRunner.Tests\Applications.SmiRunner.Tests.csproj", "{1CC94BFB-4BA5-4236-BD63-E23A86FDDCD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.ExtractionLauncher", "src\applications\Applications.ExtractionLauncher\Applications.ExtractionLauncher.csproj", "{810CAAE4-BA20-4D4B-BE8C-F7CAB64C3BCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.ExtractionLauncher.Tests", "tests\applications\Applications.ExtractionLauncher.Tests\Applications.ExtractionLauncher.Tests.csproj", "{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -230,6 +234,14 @@ Global
 		{1CC94BFB-4BA5-4236-BD63-E23A86FDDCD2}.Debug|x64.Build.0 = Debug|x64
 		{1CC94BFB-4BA5-4236-BD63-E23A86FDDCD2}.Release|x64.ActiveCfg = Release|x64
 		{1CC94BFB-4BA5-4236-BD63-E23A86FDDCD2}.Release|x64.Build.0 = Release|x64
+		{810CAAE4-BA20-4D4B-BE8C-F7CAB64C3BCA}.Debug|x64.ActiveCfg = Debug|x64
+		{810CAAE4-BA20-4D4B-BE8C-F7CAB64C3BCA}.Debug|x64.Build.0 = Debug|x64
+		{810CAAE4-BA20-4D4B-BE8C-F7CAB64C3BCA}.Release|x64.ActiveCfg = Release|x64
+		{810CAAE4-BA20-4D4B-BE8C-F7CAB64C3BCA}.Release|x64.Build.0 = Release|x64
+		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}.Debug|x64.ActiveCfg = Debug|x64
+		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}.Debug|x64.Build.0 = Debug|x64
+		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}.Release|x64.ActiveCfg = Release|x64
+		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -269,6 +281,8 @@ Global
 		{ED2CD7B5-4C4C-4F2D-ABAE-4FF2CDA141B2} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{245CDB6C-3444-443D-B455-0FFDF37179FA} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{1CC94BFB-4BA5-4236-BD63-E23A86FDDCD2} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{810CAAE4-BA20-4D4B-BE8C-F7CAB64C3BCA} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}
