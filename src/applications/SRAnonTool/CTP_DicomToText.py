@@ -149,7 +149,7 @@ if __name__ == '__main__':
         # Passing a SOPInstanceUID would be handy but no point if not indexed.
         mongodb_in = Mongo.SmiPyMongoCollection(mongo_dicom_host, mongo_dicom_user, mongo_dicom_pass)
         mongodb_in.setImageCollection('SR')
-        mongodb_out = Mongo.SmiPyMongoCollection(mongo_dicom_host, mongo_dicom_user, mongo_dicom_pass)
+        mongodb_out = Mongo.SmiPyMongoCollection(mongo_semehr_host, mongo_semehr_user, mongo_semehr_pass)
         mongodb_out.setSemEHRCollection('semehr_results')
         # If it looks like a date YYYY/MM/DD or YYYYMMDD extract all on that day:
         if re.match('^\\s*\\d+/\\d+/\\d+\\s*$|^\\s*\\d{8}\\s*$', args.input):
