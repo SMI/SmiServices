@@ -1,7 +1,7 @@
 ---
 steps:
   - task: UseDotNet@2
-    displayName: Use .NET Core SDK 3.1
+    displayName: Use .NET Core SDK
     inputs:
         packageType: sdk
         version: $(DOTNET_SDK_VERSION)
