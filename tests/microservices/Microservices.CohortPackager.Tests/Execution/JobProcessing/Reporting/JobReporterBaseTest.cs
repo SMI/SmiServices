@@ -771,6 +771,7 @@ CohortPackagerOptions:
             File.WriteAllText(tmpConfig, yaml);
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ReportNewLine_LoadFromYaml_EscapesNewlines), tmpConfig);
 
+            // NOTE(rkm 2021-04-06) Verify we get an *escaped* newline from the YAML load here
             Assert.AreEqual(Regex.Escape(WindowsNewLine), globals.CohortPackagerOptions.ReportNewLine);
         }
 
