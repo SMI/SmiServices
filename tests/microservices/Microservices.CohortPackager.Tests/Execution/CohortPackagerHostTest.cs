@@ -105,21 +105,21 @@ namespace Microservices.CohortPackager.Tests.Execution
                 host.Stop("Test end");
             }
 
-            var firstLine = $"# SMI extraction validation report for testProj1/{pf.ExtractName}";
+            var firstLine = $"# SMI extraction validation report for testProj1/{pf.ExtractName}{globals.CohortPackagerOptions.ReportNewLine}";
             switch (reportFormat)
             {
                 case ReportFormat.Combined:
                     {
-                        string reportContent = File.ReadAllText(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
-                        Assert.True(reportContent.StartsWith(firstLine));
+                        string[] reportContent = File.ReadAllLines(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
+                        Assert.AreEqual(firstLine, reportContent[0]);
                         break;
                     }
                 case ReportFormat.Split:
                     {
                         string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
                         Assert.AreEqual(6, Directory.GetFiles(extractReportsDirAbsolute).Length);
-                        string reportContent = File.ReadAllText(Path.Combine(extractReportsDirAbsolute, "README.md"));
-                        Assert.True(reportContent.StartsWith(firstLine));
+                        string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
+                        Assert.AreEqual(firstLine, reportContent[0]);
                         break;
                     }
                 default:
