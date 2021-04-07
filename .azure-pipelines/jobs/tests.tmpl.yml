@@ -62,8 +62,6 @@ jobs:
           - template: ../steps/rdmp-setup.tmpl.yml
             parameters:
                 os: ${{ parameters.os }}
-          - ${{ if eq( parameters.os, 'win' ) }}:
-              - template: ../steps/win-nuget-fixup.tmpl.yml
           - task: Bash@3
             displayName: Run Dotnet tests
             inputs:
