@@ -70,7 +70,8 @@ def _print_fragments(version: str, fragments: Dict[str, Dict[int, str]]) -> None
             print(line)
 
     # New features first
-    _print_type_fragment("feature", fragments)
+    if "feature" in fragments:
+        _print_type_fragment("feature", fragments)
 
     # Then the rest
     for frag_type in sorted(fragments):
