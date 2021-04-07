@@ -256,6 +256,7 @@ def sr_key_can_be_ignored(keystr):
         if keystr == sr_extract_dict['tag']:
             return True
     # We cannot definitively decode private tags, BUT some contain information which is not anywhere else, even person names!
+    # XXX TODO: add the ones we know (study description, hospital name, etc)
     if '-PrivateCreator' in keystr:
         return True
     if '-Unknown' in keystr:
@@ -305,6 +306,8 @@ def _SR_output_string(keystr, valstr, fp):
 def _SR_parse_key(json_dict, json_key, fp):
         if tag_is(json_key, 'ConceptNameCodeSequence'):
             _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
+        elif tag_is(json_key, 'SourceImageSequence'):
+            _SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
         elif tag_is(json_key, 'ContentSequence'):
             for cs_item in tag_val(json_dict, json_key):
                 if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
@@ -326,19 +329,31 @@ def _SR_parse_key(json_dict, json_key, fp):
                     elif value_type == 'UIDREF' or value_type == ['UIDREF']:
                         _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
                     elif value_type == 'IMAGE' or value_type == ['IMAGE']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
+                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
                     elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
                         # Sometimes it has no ContentSequence or is 'null'
                         if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
-                            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
+                            if has_tag(cs_item, 'ConceptNameCodeSequence'):
+                                _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
                             _SR_parse_key(cs_item, 'ContentSequence', fp)
+                    # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
+                    # as they have no useful text to return
+                    elif value_type == 'SCOORD' or value_type == ['SCOORD']:
+                        pass
+                    elif value_type == 'TCOORD' or value_type == ['TCOORD']:
+                        pass
+                    elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
+                        pass
+                    elif value_type == 'TIME' or value_type == ['TIME']:
+                        pass
+                    elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
+                        pass
                     else:
                         print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
                 #print('ITEM %s' % cs_item)
         else:
             if not sr_key_can_be_ignored(json_key):
-                print('UNEXPECTED KEY %s' % json_key, file=sys.stderr)
-                print(json_dict[json_key])
+                print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
 
 
 # ---------------------------------------------------------------------
