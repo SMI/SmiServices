@@ -45,9 +45,29 @@ In the GUI you can open `ExampleReport.csv` and begin marking reports as `Ignore
 
 ## Usage
 
-Review the reports and mark either `Ignore` (this is a false positive) or `Update` (this is PII and needs to be redacted).  This will result in a new rule being added to either `NewRules.yaml` (Ignore) or `RedList.yaml` (Update).  Once  a rule is written it will be applied automatically to future reports loaded eliminating the lead to make duplicate decisions.
+Review the reports and mark either `Ignore` (this is a false positive) or `Update` (this is PII and needs to be redacted).  This will result in a new rule being added to either `NewRules.yaml` (Ignore) or `RedList.yaml` (Update).  Once  a rule is written it will be applied automatically to future reports loaded eliminating the lead to make duplicate decisions. After using `Ignore` or `Update` the display moves onto the next failure, skipping over those which are matched by existing rules.
+
+The `Next` and `Prev` buttons move sequentially through the failures, i.e. `Next` does not skip over failures that are matched by existing rules.
 
 If you are not in `RulesOnly` mode an SQL UPDATE statement will be issued for the PrimaryKey / Table of the report.
+
+Conceptually these rules are slightly different from the IsIdentifiable rules. IsIdentifiable first uses rules to spot known PII. Then it uses a NLP(NER) tool which attempts to find more PII. Finally it uses whitelist rules to ignore known false positives. Ideally these rules should be fine-tuned to reduce the work of the reviewer so, for example, if the reviewer shows 90% of failures are due to `Manufacturer=AGFA` it would be wise to manually edit IsIdentifiable rules. The Reviewer rules are different in that they are used filter the IsIdentifiable output and either ignore or redact its failure reports. The syntax of the rules files looks similar but is used differently, and has no effect on future runs of IsIdentifiable, only on future Reviews.
+
+The standard view operates on one failure at a time. It shows the full string at the top, with the failures highlighted in green. At the bottom left is the classification of the failure: Person, Organisation, Date, etc. At the bottom right is the column (or DICOM tag) where the failure was found. It is important to check this column because, for example, you should Ignore a hospital name if the column is InstitutionName, but Update it if the column is StudyDescription.
+
+An alternative view available from the `View` menu sorts all of the failures by number of occurences. This tree view shows all the categories of rules and then all the categories of failures. It also shows the list of Conflicting rules which is where a failure matches both an Ignore and an Update rule.
+
+The menu `Options | Custom Patterns` menu, when ticked, will provide the opportunity to edit the Ignore/Update rule before it is saved. This allows you to make fine adjustments to the exact pattern which will be redacted. Note that all bracketed patterns are redacted so you can add (or remove) any as necessary. For example, if the full string is `John Smith Hospital^MRI Head^(20/11/2020)` but only the date has been detected you could still redact the hospital name as well by editing the pattern to be `(John Smith Hospital)^.*^\((\d\d/\d\d/\d\d\d\d)\)$` (i.e. adding the name in brackets).
+
+The Custom Patterns window provides several options to edit the pattern:
+
+* `x` - clears currently typed pattern
+* `F` - creates a regex pattern that matches the full input value
+* `G` - creates a regex pattern that matches only the failing part(s)
+* `\d` - replaces all digits with regex wildcards
+* `\c` - replaces all characters with regex wildcards
+* `\d\c` - replaces all digits and characters with regex wildcards
+
 
 ## Unattended Mode
 
