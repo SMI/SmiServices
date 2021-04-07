@@ -49,7 +49,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
     -   `README.md`: Bump the version in the header
     -   `src/SharedAssemblyInfo.cs`: Bump the versions in each property
 
--   Commit these changes and push the new branch with the message "Start release branch for v1.2.3"
+-   Commit these changes and push the new branch
 -   Open a PR for this branch with the title `Release <version>`. Request a review from `@tznind` and `@rkm`
 -   If there are any further changes which need to be included in the release PR, then these can be merged into the release branch from `master`
 -   Wait for the PR to be reviewed and merged
@@ -71,7 +71,6 @@ Hotfixes are small patches which are created in response to some show-stopper bu
 The process is similar to above, except:
 
 -   The branch name should be `hotfix/v...`
--   The commit message should be "Start hotfix branch for v1.2.3"
 -   The PR should be titled `Hotfix <version>`
 
 <!-- Links -->
