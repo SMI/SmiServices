@@ -27,6 +27,15 @@ Where `type` is one of
 -   `removal`
 -   `meta`
 
+*Note* Ensure that the file is named with the _PR_ number, rather than any associated _issue_ number.
+
+Quick tip: You can get the most recent issue or PR number with the following one-liner. Then add one to determine the new one for your PR (so long as you're quick!)
+
+```console
+$ curl -s "https://api.github.com/repos/smi/smiservices/issues?sort=created&direction=desc&per_page=1&page=1" | jq .[].number
+702
+```
+
 The file should contain a short description of the patch as one or more lines of markdown, either as a top-level sentence
 
 ```md
