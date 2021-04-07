@@ -27,7 +27,7 @@
     <PackageReference Include="HIC.DicomTypeTranslation" Version="2.3.2" />
     <PackageReference Include="HIC.FAnsiSql" Version="1.0.6" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="4.2.4" />
-    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
