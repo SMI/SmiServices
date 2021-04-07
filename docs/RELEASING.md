@@ -8,6 +8,8 @@ The release worflow is to checkout a new `release/` branch from master, update t
 
 ## Creating A Normal Release
 
+-   Review all open PRs and check if any have been approved and can be merged to be included in the release.
+
 -   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
     ```console
     $ git checkout master && git pull
