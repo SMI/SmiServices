@@ -2,4 +2,7 @@ extraction:
   csharp:
     index:
       dotnet:
-        version: 3.1.404
+        version: 5.0.202
+      msbuild:
+        configuration: Release
+        platform: x64
