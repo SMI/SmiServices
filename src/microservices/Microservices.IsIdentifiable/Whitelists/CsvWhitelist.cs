@@ -12,14 +12,16 @@ namespace Microservices.IsIdentifiable.Whitelists
     /// </summary>
     public class CsvWhitelist : IWhitelistSource
     {
+        private readonly StreamReader _streamreader;
         private readonly CsvReader _reader;
 
         public CsvWhitelist(string filePath)
         {
             if(!File.Exists(filePath))
                 throw new Exception("Could not find whitelist file at '" + filePath +"'");
-            
-            _reader = new CsvReader(new StreamReader(filePath),new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
+
+            _streamreader = new StreamReader(filePath);
+            _reader = new CsvReader(_streamreader,new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
             {
                 HasHeaderRecord=false
             });
@@ -29,6 +31,12 @@ namespace Microservices.IsIdentifiable.Whitelists
         {
             while (_reader.Read())
                 yield return _reader[0];
+        }
+
+        public void Dispose()
+        {
+            _reader.Dispose();
+            _streamreader.Dispose();
         }
     }
 }
