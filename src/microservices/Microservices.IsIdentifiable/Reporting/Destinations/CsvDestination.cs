@@ -15,6 +15,7 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private string _reportPath;
+        private StreamWriter _streamwriter;
         private CsvWriter _csvWriter;
 
         private readonly object _oHeaderLock = new object();
@@ -70,7 +71,9 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
                 {
                     csvconf = new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture);
                 }
-                _csvWriter = new CsvWriter(new StreamWriter(csvFile.FullName),csvconf);
+
+                _streamwriter = new StreamWriter(csvFile.FullName);
+                _csvWriter = new CsvWriter(_streamwriter,csvconf);
                 WriteRow(headers);
             }
         }
@@ -87,6 +90,7 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
         public override void Dispose()
         {
             _csvWriter.Dispose();
+            _streamwriter.Dispose();
         }
 
         private void WriteRow(IEnumerable<object> rowItems)
