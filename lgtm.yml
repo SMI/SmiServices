@@ -1,8 +1,6 @@
 extraction:
   csharp:
     index:
+      buildless: true
       dotnet:
         version: 5.0.202
-      msbuild:
-        configuration: Release
-        platform: x64
