@@ -93,7 +93,8 @@ namespace Microservices.IdentifierMapper.Execution
             }
             catch (AlreadyClosedException)
             {
-                
+                // TODO(rkm 2021-04-09) This might be a genuine error if we are not exiting due to a connection loss
+                Logger.Warn("Got AlreadyClosedException when waiting for confirmations");
             }
 
             _swapper?.LogProgress(Logger, LogLevel.Info);

@@ -355,6 +355,7 @@ namespace IsIdentifiableReviewer
 
             try
             {
+                // TODO(rkm 2021-04-09) Server always passed as null here, but Update seems to require it?
                 Updater.Update(null, _valuePane.CurrentFailure, null /*create one yourself*/);
 
                 History.Push(new MainWindowHistory(CurrentReport.CurrentIndex,Updater));
