@@ -57,7 +57,7 @@ namespace Microservices.IsIdentifiable.Runners
                     rowNum++;
                     if (rowNum % 1000 == 0)
                     {
-                        _logger.Info("Completed " + (rowNum / numRows * 100.0) + " %");
+                        _logger.Info($"Completed {(rowNum * 1.0 / numRows) * 100}%");
                         GC.Collect();
                     }
                 }
