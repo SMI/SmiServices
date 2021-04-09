@@ -41,6 +41,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <param name="mappingTableOptions"></param>
         public override void Setup(IMappingTableOptions mappingTableOptions)
         {
+            // TODO(rkm 2021-04-09) Check if this can be in a constructor instead?
             _options = mappingTableOptions;
             _table = _options.Discover();
 
@@ -157,6 +158,9 @@ where not exists(select *
         {
             try
             {
+                if (_table == null)
+                    throw new NullReferenceException("_table was null. Try calling Setup()");
+
                 //create the database if it doesn't exist
                 if(!_table.Database.Exists())
                     _table.Database.Create();
