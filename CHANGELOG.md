@@ -11,6 +11,25 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [2.1.1] 2021-04-07
+
+## Bugfix
+
+-   [#697](https://github.com/SMI/SmiServices/pull/697) by rkm. Fixes #695.
+    Removes the checks preventing modality being specified with other extraction
+    keys
+-   [#698](https://github.com/SMI/SmiServices/pull/698) by rkm. CohortExtractor
+    database queries that crash during execution are now logged
+-   [#701](https://github.com/SMI/SmiServices/pull/701) by howff. Several
+    improvements to Python code for handling unusually-formatted SR documents.
+-   [#704](https://github.com/SMI/SmiServices/pull/704) by rkm. Fix
+    ReportNewLine being incorrectly set to a pre-escaped string. Fixes #703
+
+## Doc
+
+-   [#672](https://github.com/SMI/SmiServices/pull/672) by howff.
+    IsIdentifiableReviewer document updated
+
 ## [2.1.0] 2021-03-30
 
 ## Feature
@@ -773,7 +792,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v2.1.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v2.1.1...master
+[2.1.1]: https://github.com/SMI/SmiServices/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/SMI/SmiServices/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/SMI/SmiServices/compare/v1.15.1...v2.0.0
 [1.15.1]: https://github.com/SMI/SmiServices/compare/v1.15.0...v1.15.1

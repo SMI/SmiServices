@@ -8,6 +8,8 @@ The release worflow is to checkout a new `release/` branch from master, update t
 
 ## Creating A Normal Release
 
+-   Review all open PRs and check if any have been approved and can be merged to be included in the release.
+
 -   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
     ```console
     $ git checkout master && git pull
@@ -47,7 +49,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
     -   `README.md`: Bump the version in the header
     -   `src/SharedAssemblyInfo.cs`: Bump the versions in each property
 
--   Commit these changes and push the new branch with the message "Start release branch for v1.2.3"
+-   Commit these changes and push the new branch
 -   Open a PR for this branch with the title `Release <version>`. Request a review from `@tznind` and `@rkm`
 -   If there are any further changes which need to be included in the release PR, then these can be merged into the release branch from `master`
 -   Wait for the PR to be reviewed and merged
@@ -69,7 +71,6 @@ Hotfixes are small patches which are created in response to some show-stopper bu
 The process is similar to above, except:
 
 -   The branch name should be `hotfix/v...`
--   The commit message should be "Start hotfix branch for v1.2.3"
 -   The PR should be titled `Hotfix <version>`
 
 <!-- Links -->

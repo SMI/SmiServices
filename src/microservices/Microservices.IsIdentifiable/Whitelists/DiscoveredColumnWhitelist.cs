@@ -34,5 +34,9 @@ namespace Microservices.IsIdentifiable.Whitelists
                 }
             }
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

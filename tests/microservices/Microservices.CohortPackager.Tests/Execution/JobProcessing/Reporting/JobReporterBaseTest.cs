@@ -17,8 +17,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
     [TestFixture]
     public class JobReporterBaseTest
     {
-        private const string WindowsNewLine = @"\r\n";
-        private const string LinuxNewLine = @"\n";
+        private const string WindowsNewLine = "\r\n";
+        private const string LinuxNewLine = "\n";
 
         private static readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
@@ -756,7 +756,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
         {
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             var reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, null);
-            Assert.AreEqual(Regex.Escape(Environment.NewLine), reporter.ReportNewLine);
+            Assert.AreEqual(Environment.NewLine, reporter.ReportNewLine);
         }
         
         [Test]
@@ -771,7 +771,16 @@ CohortPackagerOptions:
             File.WriteAllText(tmpConfig, yaml);
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ReportNewLine_LoadFromYaml_EscapesNewlines), tmpConfig);
 
-            Assert.AreEqual(WindowsNewLine, globals.CohortPackagerOptions.ReportNewLine);
+            // NOTE(rkm 2021-04-06) Verify we get an *escaped* newline from the YAML load here
+            Assert.AreEqual(Regex.Escape(WindowsNewLine), globals.CohortPackagerOptions.ReportNewLine);
+        }
+
+        [Test]
+        public void ReportNewline_EscapedString_IsDetected()
+        {
+            const string newLine = @"\n";
+            var exc = Assert.Throws<ArgumentException>(() => new TestJobReporter(new Mock<IExtractJobStore>().Object, ReportFormat.Combined, newLine));
+            Assert.AreEqual("ReportNewLine contained an escaped backslash", exc.Message);
         }
     }
 

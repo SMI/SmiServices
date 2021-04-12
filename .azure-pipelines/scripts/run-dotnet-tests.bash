@@ -16,7 +16,7 @@ set -e
 
 .azure-pipelines/scripts/dotnet-build.bash
 
-for i in `find . -type d -name netcoreapp3.1`; do
+for i in `find . -type d -name net5`; do
     if [ ! -e $i/default.yaml ]; then
         ln data/microserviceConfigs/default.yaml $i/ ;
     fi

@@ -149,7 +149,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
                    {
                        lock (_oQueueLock)
                        {
-                           foreach (Tuple<BasicDeliverEventArgs, IMessageHeader> item in _storageQueue)
+                           foreach (Tuple<BasicDeliverEventArgs, IMessageHeader> _ in _storageQueue)
                            {
 
                            }

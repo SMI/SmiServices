@@ -12,6 +12,7 @@ using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
 using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 
 
 namespace Microservices.CohortPackager.Execution
@@ -76,7 +77,7 @@ namespace Microservices.CohortPackager.Execution
                     fileSystem ?? new FileSystem(),
                     Globals.FileSystemOptions.ExtractRoot,
                     reportFormatStr,
-                    Globals.CohortPackagerOptions.ReportNewLine
+                    Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine)
                 );
             }
             else

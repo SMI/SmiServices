@@ -159,8 +159,8 @@ namespace Microservices.IsIdentifiable.Runners
                 // Sometimes throws "Input string was not in a correct format"
                 //var value = DicomTypeTranslaterReader.GetCSharpValue(dataset, dicomItem);
 
-                if (value is string)
-                    Validate(fi, dicomFile, dicomItem, value as string);
+                if (value is string asString)
+                    Validate(fi, dicomFile, dicomItem, asString);
 
                 if (value is IEnumerable<string>)
                     foreach (var s in (IEnumerable<string>)value)

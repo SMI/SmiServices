@@ -2,7 +2,6 @@
   <PropertyGroup>
     <AssemblyName>DicomReprocessor</AssemblyName>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
     <None Include="DicomReprocessor.cd" />
