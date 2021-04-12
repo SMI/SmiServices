@@ -33,7 +33,7 @@ namespace Applications.ExtractImages
 
 
         public ExtractionMessageSender(
-            ExtractImagesOptionsOptions optionsOptions,
+            ExtractImagesOptions options,
             ExtractImagesCliOptions cliOptions,
             IProducerModel extractionRequestProducer,
             IProducerModel extractionRequestInfoProducer,
@@ -49,9 +49,9 @@ namespace Applications.ExtractImages
             _dateTimeProvider = dateTimeProvider;
             _consoleInput = consoleInput;
 
-            _maxIdentifiersPerMessage = optionsOptions.MaxIdentifiersPerMessage;
+            _maxIdentifiersPerMessage = options.MaxIdentifiersPerMessage;
             if (_maxIdentifiersPerMessage <= 0)
-                throw new ArgumentOutOfRangeException(nameof(optionsOptions.MaxIdentifiersPerMessage));
+                throw new ArgumentOutOfRangeException(nameof(options.MaxIdentifiersPerMessage));
 
             _projectId = (!string.IsNullOrWhiteSpace(cliOptions.ProjectId)) ? cliOptions.ProjectId : throw new ArgumentException(nameof(cliOptions.ProjectId));
             _modalities = cliOptions.Modalities?.ToUpper().Split(',', StringSplitOptions.RemoveEmptyEntries);

@@ -36,9 +36,9 @@ namespace Applications.ExtractImages
             threaded
         )
         {
-            ExtractImagesOptionsOptions optionsOptions = Globals.ExtractImagesOptionsOptions;
-            if (optionsOptions == null)
-                throw new ArgumentException(nameof(Globals.ExtractImagesOptionsOptions));
+            ExtractImagesOptions options = Globals.ExtractImagesOptions;
+            if (options == null)
+                throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
 
             _fileSystem = fileSystem ?? new FileSystem();
 
@@ -65,11 +65,11 @@ namespace Applications.ExtractImages
 
             if (extractionMessageSender == null)
             {
-                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(optionsOptions.ExtractionRequestProducerOptions, isBatch: false);
-                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(optionsOptions.ExtractionRequestInfoProducerOptions, isBatch: false);
+                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestProducerOptions, isBatch: false);
+                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestInfoProducerOptions, isBatch: false);
 
                 _extractionMessageSender = new ExtractionMessageSender(
-                    optionsOptions,
+                    options,
                     cliOptions,
                     extractionRequestProducer,
                     extractionRequestInfoProducer,
@@ -80,7 +80,7 @@ namespace Applications.ExtractImages
             }
             else
             {
-                Logger.Warn($"{nameof(Globals.ExtractImagesOptionsOptions.MaxIdentifiersPerMessage)} will be ignored here");
+                Logger.Warn($"{nameof(Globals.ExtractImagesOptions.MaxIdentifiersPerMessage)} will be ignored here");
                 _extractionMessageSender = extractionMessageSender;
             }
         }

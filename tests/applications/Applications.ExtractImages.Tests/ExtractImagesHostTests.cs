@@ -46,7 +46,7 @@ namespace Applications.ExtractImages.Tests
         public void HappyPath()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(HappyPath));
-            globals.ExtractImagesOptionsOptions.MaxIdentifiersPerMessage = 1;
+            globals.ExtractImagesOptions.MaxIdentifiersPerMessage = 1;
 
             var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "foo.csv", ProjectId = "1234-5678", NonInteractive = true };
 
@@ -78,7 +78,7 @@ namespace Applications.ExtractImages.Tests
             string extractRoot = Path.GetTempPath();
             globals.FileSystemOptions.ExtractRoot = extractRoot;
 
-            ExtractImagesOptionsOptions optionsOptions = globals.ExtractImagesOptionsOptions;
+            ExtractImagesOptions options = globals.ExtractImagesOptions;
 
             string tmpFile = Path.GetTempFileName();
             File.WriteAllText(tmpFile, "SeriesInstanceUID\n1.2.3.4");
@@ -93,8 +93,8 @@ namespace Applications.ExtractImages.Tests
                 IsNoFiltersExtraction = true,
             };
 
-            var extReqExchName = optionsOptions.ExtractionRequestProducerOptions.ExchangeName;
-            var extReqInfoExchName = optionsOptions.ExtractionRequestInfoProducerOptions.ExchangeName;
+            var extReqExchName = options.ExtractionRequestProducerOptions.ExchangeName;
+            var extReqInfoExchName = options.ExtractionRequestInfoProducerOptions.ExchangeName;
 
             var consumedExtReqMsgs = new List<Tuple<IMessageHeader, ExtractionRequestMessage>>();
             var consumedExtReqInfoMsgs = new List<Tuple<IMessageHeader, ExtractionRequestInfoMessage>>();
@@ -148,7 +148,7 @@ namespace Applications.ExtractImages.Tests
         public void ExtractImagesOptions_AreValid()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractImagesOptions_AreValid));
-            globals.ExtractImagesOptionsOptions = null;
+            globals.ExtractImagesOptions = null;
 
             var exc = Assert.Throws<ArgumentException>(() =>
             {

@@ -71,7 +71,7 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractImagesOptionsOptions(),
+                new ExtractImagesOptions(),
                 new ExtractImagesCliOptions { ProjectId = "1234-5678" },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
@@ -107,7 +107,7 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractImagesOptionsOptions(),
+                new ExtractImagesOptions(),
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
@@ -130,7 +130,7 @@ namespace Applications.ExtractImages.Tests
             var exc = Assert.Throws<ArgumentException>(() =>
             {
                 var _ = new ExtractionMessageSender(
-                    new ExtractImagesOptionsOptions(),
+                    new ExtractImagesOptions(),
                     new ExtractImagesCliOptions(),
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
@@ -149,7 +149,7 @@ namespace Applications.ExtractImages.Tests
             var exc = Assert.Throws<ArgumentException>(() =>
             {
                 var _ = new ExtractionMessageSender(
-                    new ExtractImagesOptionsOptions(),
+                    new ExtractImagesOptions(),
                     new ExtractImagesCliOptions { ProjectId = projectId },
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
@@ -167,7 +167,7 @@ namespace Applications.ExtractImages.Tests
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 var _ = new ExtractionMessageSender(
-                    new ExtractImagesOptionsOptions { MaxIdentifiersPerMessage = 0 },
+                    new ExtractImagesOptions { MaxIdentifiersPerMessage = 0 },
                     new ExtractImagesCliOptions(),
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
@@ -184,7 +184,7 @@ namespace Applications.ExtractImages.Tests
         public void IdList_IsNotEmpty()
         {
             var sender = new ExtractionMessageSender(
-                new ExtractImagesOptionsOptions(),
+                new ExtractImagesOptions(),
                 new ExtractImagesCliOptions { ProjectId = "1234-5678" },
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
@@ -220,7 +220,7 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractImagesOptionsOptions { MaxIdentifiersPerMessage = 1 },
+                new ExtractImagesOptions { MaxIdentifiersPerMessage = 1 },
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
@@ -252,7 +252,7 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractImagesOptionsOptions { MaxIdentifiersPerMessage = maxPerMessage },
+                new ExtractImagesOptions { MaxIdentifiersPerMessage = maxPerMessage },
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
