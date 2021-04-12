@@ -89,15 +89,15 @@ namespace Applications.ExtractionLauncher
                 ExtractionIdentifiers = null,
             };
 
-            var ermList = new List<ExtractionRequestMessage>();
-            for (var i = 0; i <= (idList.Count / _maxIdentifiersPerMessage); ++i)
-            {
-                int start = i * _maxIdentifiersPerMessage;
-                int count = Math.Min(_maxIdentifiersPerMessage, idList.Count - start);
-                List<string> chunk = idList.GetRange(start, count);
-                if (chunk.Any())
-                    ermList.Add(new ExtractionRequestMessage(erm) { ExtractionIdentifiers = chunk });
-            }
+            List<ExtractionRequestMessage> ermList =
+                idList
+                .Chunk(_maxIdentifiersPerMessage)
+                .Select(x =>
+                    new ExtractionRequestMessage(erm)
+                    {
+                        ExtractionIdentifiers = x.ToList()
+                    }
+            ).ToList();
 
             var erim = new ExtractionRequestInfoMessage
             {
