@@ -18,7 +18,7 @@ namespace Applications.SmiRunner
     [Verb("dicom-directory-processor", HelpText = "Queue dicom files on disk for ETL")]
     public sealed class DicomDirectoryProcessorVerb : ApplicationVerbBase { }
 
-    [Verb("extraction-launcher", HelpText = "Launch an extraction job")]
+    [Verb("extract-images", HelpText = "Launch an image extraction job")]
     public sealed class ExtractionLauncherVerb : ApplicationVerbBase { }
 
     [Verb("is-identifiable-reviewer", HelpText = "Review identifiable information found by is-identifiable")]
