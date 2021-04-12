@@ -2,7 +2,6 @@
   <PropertyGroup>
     <AssemblyName>ExtractImages</AssemblyName>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
