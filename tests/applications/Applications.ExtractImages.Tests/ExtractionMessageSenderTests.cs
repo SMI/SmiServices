@@ -1,4 +1,8 @@
-﻿using Moq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Moq;
 using NUnit.Framework;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
@@ -6,13 +10,9 @@ using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 
 
-namespace Applications.ExtractionLauncher.Tests
+namespace Applications.ExtractImages.Tests
 {
     public class ExtractionMessageSenderTests
     {
@@ -71,8 +71,8 @@ namespace Applications.ExtractionLauncher.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractionLauncherOptions(),
-                new ExtractionLauncherCliOptions { ProjectId = "1234-5678" },
+                new ExtractImagesOptionsOptions(),
+                new ExtractImagesCliOptions { ProjectId = "1234-5678" },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 "extractDir",
@@ -107,8 +107,8 @@ namespace Applications.ExtractionLauncher.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractionLauncherOptions(),
-                new ExtractionLauncherCliOptions { ProjectId = "1234-5678", NonInteractive = true },
+                new ExtractImagesOptionsOptions(),
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 "extractDir",
@@ -130,8 +130,8 @@ namespace Applications.ExtractionLauncher.Tests
             var exc = Assert.Throws<ArgumentException>(() =>
             {
                 var _ = new ExtractionMessageSender(
-                    new ExtractionLauncherOptions(),
-                    new ExtractionLauncherCliOptions(),
+                    new ExtractImagesOptionsOptions(),
+                    new ExtractImagesCliOptions(),
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     extractionDir,
@@ -149,8 +149,8 @@ namespace Applications.ExtractionLauncher.Tests
             var exc = Assert.Throws<ArgumentException>(() =>
             {
                 var _ = new ExtractionMessageSender(
-                    new ExtractionLauncherOptions(),
-                    new ExtractionLauncherCliOptions { ProjectId = projectId },
+                    new ExtractImagesOptionsOptions(),
+                    new ExtractImagesCliOptions { ProjectId = projectId },
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     "extractDir",
@@ -167,8 +167,8 @@ namespace Applications.ExtractionLauncher.Tests
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 var _ = new ExtractionMessageSender(
-                    new ExtractionLauncherOptions { MaxIdentifiersPerMessage = 0 },
-                    new ExtractionLauncherCliOptions(),
+                    new ExtractImagesOptionsOptions { MaxIdentifiersPerMessage = 0 },
+                    new ExtractImagesCliOptions(),
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     "extractDir",
@@ -184,8 +184,8 @@ namespace Applications.ExtractionLauncher.Tests
         public void IdList_IsNotEmpty()
         {
             var sender = new ExtractionMessageSender(
-                new ExtractionLauncherOptions(),
-                new ExtractionLauncherCliOptions { ProjectId = "1234-5678" },
+                new ExtractImagesOptionsOptions(),
+                new ExtractImagesCliOptions { ProjectId = "1234-5678" },
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 "extractDir",
@@ -220,8 +220,8 @@ namespace Applications.ExtractionLauncher.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractionLauncherOptions { MaxIdentifiersPerMessage = 1 },
-                new ExtractionLauncherCliOptions { ProjectId = "1234-5678", NonInteractive = true },
+                new ExtractImagesOptionsOptions { MaxIdentifiersPerMessage = 1 },
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 "extractDir",
@@ -252,8 +252,8 @@ namespace Applications.ExtractionLauncher.Tests
             mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
 
             var processor = new ExtractionMessageSender(
-                new ExtractionLauncherOptions { MaxIdentifiersPerMessage = maxPerMessage },
-                new ExtractionLauncherCliOptions { ProjectId = "1234-5678", NonInteractive = true },
+                new ExtractImagesOptionsOptions { MaxIdentifiersPerMessage = maxPerMessage },
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 "extractDir",

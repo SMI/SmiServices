@@ -2,7 +2,7 @@
 using Smi.Common.Messages.Extraction;
 
 
-namespace Applications.ExtractionLauncher
+namespace Applications.ExtractImages
 {
     public interface IExtractionMessageSender
     {

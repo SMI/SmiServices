@@ -1,15 +1,15 @@
-﻿using CommandLine;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using CommandLine;
 using CommandLine.Text;
 using JetBrains.Annotations;
 using Smi.Common.Options;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 
-namespace Applications.ExtractionLauncher
+namespace Applications.ExtractImages
 {
-    public class ExtractionLauncherCliOptions : CliOptions
+    public class ExtractImagesCliOptions : CliOptions
     {
         // Required
 
@@ -54,9 +54,9 @@ namespace Applications.ExtractionLauncher
             get
             {
                 yield return new Example(helpText: "Normal Scenario",
-                    new ExtractionLauncherCliOptions { CohortCsvFile = "my.csv", ProjectId = "1234-5678" });
+                    new ExtractImagesCliOptions { CohortCsvFile = "my.csv", ProjectId = "1234-5678" });
                 yield return new Example(helpText: "Extract CTs without anonymisation",
-                    new ExtractionLauncherCliOptions
+                    new ExtractImagesCliOptions
                     {
                         CohortCsvFile = "my.csv",
                         ProjectId = "1234-5678",
@@ -64,7 +64,7 @@ namespace Applications.ExtractionLauncher
                         IsIdentifiableExtraction = true
                     });
                 yield return new Example(helpText: "Extract without applying any rejection filters",
-                    new ExtractionLauncherCliOptions
+                    new ExtractImagesCliOptions
                     { CohortCsvFile = "my.csv", ProjectId = "1234-5678", IsNoFiltersExtraction = true });
             }
         }

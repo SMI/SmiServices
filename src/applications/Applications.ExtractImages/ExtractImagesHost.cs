@@ -11,9 +11,9 @@ using System.IO;
 using System.IO.Abstractions;
 
 
-namespace Applications.ExtractionLauncher
+namespace Applications.ExtractImages
 {
-    public class ExtractionLauncherHost : MicroserviceHost
+    public class ExtractImagesHost : MicroserviceHost
     {
         private readonly IFileSystem _fileSystem;
 
@@ -22,9 +22,9 @@ namespace Applications.ExtractionLauncher
         private readonly IExtractionMessageSender _extractionMessageSender;
 
 
-        public ExtractionLauncherHost(
+        public ExtractImagesHost(
             [NotNull] GlobalOptions globals,
-            [NotNull] ExtractionLauncherCliOptions cliOptions,
+            [NotNull] ExtractImagesCliOptions cliOptions,
             IExtractionMessageSender extractionMessageSender = null,
             IRabbitMqAdapter rabbitMqAdapter = null,
             IFileSystem fileSystem = null,
@@ -36,9 +36,9 @@ namespace Applications.ExtractionLauncher
             threaded
         )
         {
-            ExtractionLauncherOptions options = Globals.ExtractionLauncherOptions;
-            if (options == null)
-                throw new ArgumentException(nameof(Globals.ExtractionLauncherOptions));
+            ExtractImagesOptionsOptions optionsOptions = Globals.ExtractImagesOptionsOptions;
+            if (optionsOptions == null)
+                throw new ArgumentException(nameof(Globals.ExtractImagesOptionsOptions));
 
             _fileSystem = fileSystem ?? new FileSystem();
 
@@ -47,7 +47,7 @@ namespace Applications.ExtractionLauncher
                 throw new DirectoryNotFoundException($"Could not find the extraction root '{extractRoot}'");
 
             _csvFilePath = cliOptions.CohortCsvFile;
-            if(string.IsNullOrWhiteSpace(_csvFilePath))
+            if (string.IsNullOrWhiteSpace(_csvFilePath))
                 throw new ArgumentNullException(nameof(cliOptions.CohortCsvFile));
             if (!_fileSystem.File.Exists(_csvFilePath))
                 throw new FileNotFoundException($"Could not find the cohort CSV file '{_csvFilePath}'");
@@ -65,11 +65,11 @@ namespace Applications.ExtractionLauncher
 
             if (extractionMessageSender == null)
             {
-                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestProducerOptions, isBatch: false);
-                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestInfoProducerOptions, isBatch: false);
+                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(optionsOptions.ExtractionRequestProducerOptions, isBatch: false);
+                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(optionsOptions.ExtractionRequestInfoProducerOptions, isBatch: false);
 
                 _extractionMessageSender = new ExtractionMessageSender(
-                    options,
+                    optionsOptions,
                     cliOptions,
                     extractionRequestProducer,
                     extractionRequestInfoProducer,
@@ -80,7 +80,7 @@ namespace Applications.ExtractionLauncher
             }
             else
             {
-                Logger.Warn("Globals.ExtractionLauncherOptions.MaxIdentifiersPerMessage will be ignored here");
+                Logger.Warn($"{nameof(Globals.ExtractImagesOptionsOptions.MaxIdentifiersPerMessage)} will be ignored here");
                 _extractionMessageSender = extractionMessageSender;
             }
         }

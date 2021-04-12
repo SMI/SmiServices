@@ -15,7 +15,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public Guid ExtractionJobIdentifier { get; }
 
         /// <summary>
-        /// DateTime the job was submitted at (the time the ExtractionLauncher was run)
+        /// DateTime the job was submitted at (the time the ExtractImages service was run)
         /// </summary>
         public DateTime JobSubmittedAt { get; }
 

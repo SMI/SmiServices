@@ -4,7 +4,7 @@ using Smi.Common.Execution;
 using Smi.Common.Options;
 
 
-namespace Applications.ExtractionLauncher
+namespace Applications.ExtractImages
 {
     [ExcludeFromCodeCoverage]
     public static class Program
@@ -12,7 +12,7 @@ namespace Applications.ExtractionLauncher
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit
-                .ParseAndRun<ExtractionLauncherCliOptions>(
+                .ParseAndRun<ExtractImagesCliOptions>(
                     args,
                     typeof(Program),
                     OnParse
@@ -20,10 +20,10 @@ namespace Applications.ExtractionLauncher
             return ret;
         }
 
-        private static int OnParse(GlobalOptions globals, ExtractionLauncherCliOptions parsedOptions)
+        private static int OnParse(GlobalOptions globals, ExtractImagesCliOptions parsedOptions)
         {
             var bootstrapper =
-                new MicroserviceHostBootstrapper(() => new ExtractionLauncherHost(globals, parsedOptions));
+                new MicroserviceHostBootstrapper(() => new ExtractImagesHost(globals, parsedOptions));
             int ret = bootstrapper.Main();
             return ret;
         }

@@ -27,7 +27,7 @@ A RabbitMQ instance is required - you can run a test version inside a Docker con
 sudo docker run -d --hostname my-rabbit --name some-rabbit-mgt -p 5671:5671 -p 5672:5672 -p 5673:5673 -p 15671:15671 -p 15672:15672 -p 25672:25672 rabbitmq:3-management
 ```
 
-# ExtractionLauncher
+# ExtractImages
 
 ```console
 # Example CSV file
@@ -50,7 +50,7 @@ ProjectNum=001
 rmdir /tmp/${ProjectNum}/tmp  # program gives error if dir already exists
 
 # Interactive - answer y to create messages, or run with --non-interactive
-$ ./smi extraction-launcher -y default.yaml -p "$ProjectNum" extractme.csv
+$ ./smi extract-images -y default.yaml -p "$ProjectNum" extractme.csv
 ```
 
 Two messages are created:

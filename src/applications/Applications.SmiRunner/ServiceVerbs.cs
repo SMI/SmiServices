@@ -19,7 +19,7 @@ namespace Applications.SmiRunner
     public sealed class DicomDirectoryProcessorVerb : ApplicationVerbBase { }
 
     [Verb("extract-images", HelpText = "Launch an image extraction job")]
-    public sealed class ExtractionLauncherVerb : ApplicationVerbBase { }
+    public sealed class ExtractImagesVerb : ApplicationVerbBase { }
 
     [Verb("is-identifiable-reviewer", HelpText = "Review identifiable information found by is-identifiable")]
     public sealed class IsIdentifiableReviewerVerb : ApplicationVerbBase { }

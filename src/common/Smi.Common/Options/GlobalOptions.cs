@@ -65,7 +65,7 @@ namespace Smi.Common.Options
         public TriggerUpdatesOptions TriggerUpdatesOptions {get;set;}
 
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
-        public ExtractionLauncherOptions ExtractionLauncherOptions { get; set; }
+        public ExtractImagesOptionsOptions ExtractImagesOptionsOptions { get; set; }
 
         #endregion
 
@@ -477,7 +477,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class ExtractionLauncherOptions : IOptions
+    public class ExtractImagesOptionsOptions : IOptions
     {
         public const int MaxIdentifiersPerMessageDefault = 1000;
 

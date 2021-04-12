@@ -1,13 +1,13 @@
+using System.Collections.Generic;
 using CommandLine;
 using NUnit.Framework;
 using Smi.Common.Options;
 using Smi.Common.Tests;
-using System.Collections.Generic;
 
 
-namespace Applications.ExtractionLauncher.Tests
+namespace Applications.ExtractImages.Tests
 {
-    public class ExtractionLauncherCliOptionsTests
+    public class ExtractImagesCliOptionsTests
     {
         #region Fixture Methods
 
@@ -41,7 +41,7 @@ namespace Applications.ExtractionLauncher.Tests
 
             void Verify(IEnumerable<string> args, string modalities, bool ident, bool noFilters)
             {
-                parser.ParseArguments<ExtractionLauncherCliOptions>(args)
+                parser.ParseArguments<ExtractImagesCliOptions>(args)
                     .WithParsed(options =>
                     {
                         Assert.AreEqual("1234-5678", options.ProjectId);

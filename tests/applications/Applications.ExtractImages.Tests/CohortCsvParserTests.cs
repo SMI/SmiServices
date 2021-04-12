@@ -1,12 +1,12 @@
-﻿using NUnit.Framework;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Tests;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
+using NUnit.Framework;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Tests;
 
 
-namespace Applications.ExtractionLauncher.Tests
+namespace Applications.ExtractImages.Tests
 {
     public class CohortCsvParserTests
     {

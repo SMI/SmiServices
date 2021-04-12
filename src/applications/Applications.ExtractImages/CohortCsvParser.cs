@@ -9,7 +9,7 @@ using CsvHelper.Configuration;
 using Smi.Common.Messages.Extraction;
 
 
-namespace Applications.ExtractionLauncher
+namespace Applications.ExtractImages
 {
     public class CohortCsvParser
     {

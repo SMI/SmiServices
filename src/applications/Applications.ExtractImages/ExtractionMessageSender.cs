@@ -1,15 +1,15 @@
-﻿using NLog;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using NLog;
 using Smi.Common.Helpers;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 
-namespace Applications.ExtractionLauncher
+namespace Applications.ExtractImages
 {
     public class ExtractionMessageSender : IExtractionMessageSender
     {
@@ -33,8 +33,8 @@ namespace Applications.ExtractionLauncher
 
 
         public ExtractionMessageSender(
-            ExtractionLauncherOptions options,
-            ExtractionLauncherCliOptions cliOptions,
+            ExtractImagesOptionsOptions optionsOptions,
+            ExtractImagesCliOptions cliOptions,
             IProducerModel extractionRequestProducer,
             IProducerModel extractionRequestInfoProducer,
             string extractionDir,
@@ -49,9 +49,9 @@ namespace Applications.ExtractionLauncher
             _dateTimeProvider = dateTimeProvider;
             _consoleInput = consoleInput;
 
-            _maxIdentifiersPerMessage = options.MaxIdentifiersPerMessage;
+            _maxIdentifiersPerMessage = optionsOptions.MaxIdentifiersPerMessage;
             if (_maxIdentifiersPerMessage <= 0)
-                throw new ArgumentOutOfRangeException(nameof(options.MaxIdentifiersPerMessage));
+                throw new ArgumentOutOfRangeException(nameof(optionsOptions.MaxIdentifiersPerMessage));
 
             _projectId = (!string.IsNullOrWhiteSpace(cliOptions.ProjectId)) ? cliOptions.ProjectId : throw new ArgumentException(nameof(cliOptions.ProjectId));
             _modalities = cliOptions.Modalities?.ToUpper().Split(',', StringSplitOptions.RemoveEmptyEntries);

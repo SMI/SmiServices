@@ -62,7 +62,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | Microservice / Console App| Description |
 | ------------- | ------------- |
 | [IsIdentifiable]  | Evaluates data being prepared for extraction for personally identifiable data (PII).  See also [IsIdentifiableReviewer]|
-| [ExtractionLauncher] | Reads UIDs from a CSV file and generates [ExtractionRequestMessage] and audit message [ExtractionRequestInfoMessage].|
+| [ExtractImages] | Reads UIDs from a CSV file and generates [ExtractionRequestMessage] and audit message [ExtractionRequestInfoMessage].|
 | [CohortExtractor] | Looks up SeriesInstanceUIDs in [ExtractionRequestMessage] and does relational database lookup(s) to resolve into physical image file location.  Generates  [ExtractFileMessage] and audit message [ExtractFileCollectionInfoMessage].|
 | [CTPAnonymiser]  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  [ExtractFileMessage] and copies to specified output directory.  Generates audit message [ExtractedFileStatusMessage].|
 | [CohortPackager] | Records all audit messages and determines when jobs are complete.|
@@ -240,7 +240,7 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [MongoDBPopulator]: ./src/microservices/Microservices.MongoDbPopulator/Readme.md
 [DicomRelationalMapper]: ./src/microservices/Microservices.DicomRelationalMapper/Readme.md
 [DicomReprocessor]: ./src/microservices/Microservices.DicomReprocessor/README.md
-[ExtractionLauncher]: ./src/applications/Applications.ExtractionLauncher/README.md
+[ExtractImages]: ./src/applications/Applications.ExtractImages/README.md
 [CohortExtractor]: ./src/microservices/Microservices.CohortExtractor/README.md
 [CTPAnonymiser]: ./src/microservices/com.smi.microservices.ctpanonymiser/README.md
 [CohortPackager]: ./src/microservices/Microservices.CohortPackager/README.md

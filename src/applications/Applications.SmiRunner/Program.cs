@@ -11,7 +11,7 @@ namespace Applications.SmiRunner
         public static readonly Type[] AllApplications =
         {
             typeof(DicomDirectoryProcessorVerb),
-            typeof(ExtractionLauncherVerb),
+            typeof(ExtractImagesVerb),
             typeof(IsIdentifiableReviewerVerb),
             typeof(TriggerUpdatesVerb),
         };
@@ -51,7 +51,7 @@ namespace Applications.SmiRunner
                         TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                         DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
                         IsIdentifiableReviewerVerb _ => Applications.IsIdentifiableReviewer.Program.Main(rest),
-                        ExtractionLauncherVerb _ => Applications.ExtractionLauncher.Program.Main(rest),
+                        ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
                         // Microservices
                         CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
                         CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),

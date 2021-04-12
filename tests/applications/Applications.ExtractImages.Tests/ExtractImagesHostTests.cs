@@ -1,21 +1,21 @@
-﻿using Moq;
-using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Options;
-using Smi.Common.Tests;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq.Expressions;
 using System.Threading;
+using Moq;
+using NUnit.Framework;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Options;
+using Smi.Common.Tests;
 
 
-namespace Applications.ExtractionLauncher.Tests
+namespace Applications.ExtractImages.Tests
 {
     [RequiresRabbit]
-    public class ExtractionLauncherHostTests
+    public class ExtractImagesHostTests
     {
         #region Fixture Methods
 
@@ -46,9 +46,9 @@ namespace Applications.ExtractionLauncher.Tests
         public void HappyPath()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(HappyPath));
-            globals.ExtractionLauncherOptions.MaxIdentifiersPerMessage = 1;
+            globals.ExtractImagesOptionsOptions.MaxIdentifiersPerMessage = 1;
 
-            var cliOptions = new ExtractionLauncherCliOptions { CohortCsvFile = "foo.csv", ProjectId = "1234-5678", NonInteractive = true };
+            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "foo.csv", ProjectId = "1234-5678", NonInteractive = true };
 
             var fs = new MockFileSystem(
                 new Dictionary<string, MockFileData>
@@ -64,7 +64,7 @@ namespace Applications.ExtractionLauncher.Tests
             var mockExtractionMessageSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
             mockExtractionMessageSender.Setup(expr);
 
-            var host = new ExtractionLauncherHost(globals, cliOptions, mockExtractionMessageSender.Object, fileSystem: fs);
+            var host = new ExtractImagesHost(globals, cliOptions, mockExtractionMessageSender.Object, fileSystem: fs);
             host.Start();
 
             mockExtractionMessageSender.Verify(expr, Times.Once);
@@ -78,12 +78,12 @@ namespace Applications.ExtractionLauncher.Tests
             string extractRoot = Path.GetTempPath();
             globals.FileSystemOptions.ExtractRoot = extractRoot;
 
-            ExtractionLauncherOptions options = globals.ExtractionLauncherOptions;
+            ExtractImagesOptionsOptions optionsOptions = globals.ExtractImagesOptionsOptions;
 
             string tmpFile = Path.GetTempFileName();
             File.WriteAllText(tmpFile, "SeriesInstanceUID\n1.2.3.4");
 
-            var cliOptions = new ExtractionLauncherCliOptions
+            var cliOptions = new ExtractImagesCliOptions
             {
                 CohortCsvFile = tmpFile,
                 ProjectId = "1234-5678",
@@ -93,8 +93,8 @@ namespace Applications.ExtractionLauncher.Tests
                 IsNoFiltersExtraction = true,
             };
 
-            var extReqExchName = options.ExtractionRequestProducerOptions.ExchangeName;
-            var extReqInfoExchName = options.ExtractionRequestInfoProducerOptions.ExchangeName;
+            var extReqExchName = optionsOptions.ExtractionRequestProducerOptions.ExchangeName;
+            var extReqInfoExchName = optionsOptions.ExtractionRequestInfoProducerOptions.ExchangeName;
 
             var consumedExtReqMsgs = new List<Tuple<IMessageHeader, ExtractionRequestMessage>>();
             var consumedExtReqInfoMsgs = new List<Tuple<IMessageHeader, ExtractionRequestInfoMessage>>();
@@ -104,7 +104,7 @@ namespace Applications.ExtractionLauncher.Tests
                 tester.CreateExchange(extReqExchName);
                 tester.CreateExchange(extReqInfoExchName);
 
-                var host = new ExtractionLauncherHost(globals, cliOptions);
+                var host = new ExtractImagesHost(globals, cliOptions);
                 host.Start();
 
                 var timeoutSecs = 10.0;
@@ -145,16 +145,16 @@ namespace Applications.ExtractionLauncher.Tests
         }
 
         [Test]
-        public void ExtractionLauncherOptions_AreValid()
+        public void ExtractImagesOptions_AreValid()
         {
-            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractionLauncherOptions_AreValid));
-            globals.ExtractionLauncherOptions = null;
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractImagesOptions_AreValid));
+            globals.ExtractImagesOptionsOptions = null;
 
             var exc = Assert.Throws<ArgumentException>(() =>
             {
-                var _ = new ExtractionLauncherHost(globals, new ExtractionLauncherCliOptions());
+                var _ = new ExtractImagesHost(globals, new ExtractImagesCliOptions());
             });
-            Assert.AreEqual("ExtractionLauncherOptions", exc?.Message);
+            Assert.AreEqual("ExtractImagesOptions", exc?.Message);
         }
 
         [Test]
@@ -165,7 +165,7 @@ namespace Applications.ExtractionLauncher.Tests
 
             var exc = Assert.Throws<DirectoryNotFoundException>(() =>
             {
-                var _ = new ExtractionLauncherHost(globals, new ExtractionLauncherCliOptions());
+                var _ = new ExtractImagesHost(globals, new ExtractImagesCliOptions());
             });
             Assert.AreEqual("Could not find the extraction root 'nope'", exc?.Message);
         }
@@ -179,17 +179,17 @@ namespace Applications.ExtractionLauncher.Tests
             var fs = new MockFileSystem();
             fs.Directory.CreateDirectory(globals.FileSystemOptions.ExtractRoot);
 
-            var cliOptions = new ExtractionLauncherCliOptions { CohortCsvFile = null };
+            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = null };
             var exc = Assert.Throws<ArgumentNullException>(() =>
             {
-                var _ = new ExtractionLauncherHost(globals, cliOptions, fileSystem: fs);
+                var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
             });
             Assert.AreEqual("Value cannot be null. (Parameter 'CohortCsvFile')", exc?.Message);
 
             cliOptions.CohortCsvFile = "missing.csv";
             var exc2 = Assert.Throws<FileNotFoundException>(() =>
             {
-                var _ = new ExtractionLauncherHost(globals, cliOptions, fileSystem: fs);
+                var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
             });
             Assert.AreEqual("Could not find the cohort CSV file 'missing.csv'", exc2?.Message);
         }
@@ -200,7 +200,7 @@ namespace Applications.ExtractionLauncher.Tests
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractionDirectory_VerifyAbsent));
             globals.FileSystemOptions.ExtractRoot = "extract-root";
 
-            var cliOptions = new ExtractionLauncherCliOptions { CohortCsvFile = "test.csv", ProjectId = "foo" };
+            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "test.csv", ProjectId = "foo" };
 
             var fs = new MockFileSystem();
             fs.Directory.CreateDirectory(globals.FileSystemOptions.ExtractRoot);
@@ -209,7 +209,7 @@ namespace Applications.ExtractionLauncher.Tests
 
             var exc = Assert.Throws<DirectoryNotFoundException>(() =>
             {
-                var _ = new ExtractionLauncherHost(globals, cliOptions, fileSystem: fs);
+                var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
             });
             Assert.True(exc?.Message.StartsWith("Extraction directory already exists"));
         }
