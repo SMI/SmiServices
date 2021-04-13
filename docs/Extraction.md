@@ -27,11 +27,10 @@ A RabbitMQ instance is required - you can run a test version inside a Docker con
 sudo docker run -d --hostname my-rabbit --name some-rabbit-mgt -p 5671:5671 -p 5672:5672 -p 5673:5673 -p 15671:15671 -p 15672:15672 -p 25672:25672 rabbitmq:3-management
 ```
 
-# ExtractorCLI
+# ExtractImages
 
-```
-cd ~/src/SmiServices/src/applications/com.smi.applications.extractorcli/target
-
+```console
+# Example CSV file
 cat > extractme.csv << _EOF
 SeriesInstanceUID,foo
 1.2.826.0.1.3680043.2.1125.1.78969117856457473538394301521877227,1
@@ -50,8 +49,8 @@ Add bindings from those exchanges to any queue (TEST.xxx)
 ProjectNum=001
 rmdir /tmp/${ProjectNum}/tmp  # program gives error if dir already exists
 
-java -jar ExtractorCL-portable-1.0.0.jar -y default.yaml -c 0 -e tmp -p ${ProjectNum} extractme.csv 
-(interactive - answer y to create messages)
+# Interactive - answer y to create messages, or run with --non-interactive
+$ ./smi extract-images -y default.yaml -p "$ProjectNum" extractme.csv
 ```
 
 Two messages are created:

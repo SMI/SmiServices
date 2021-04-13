@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -67,6 +67,12 @@ namespace Smi.Common.MessageSerialization
 
             //TODO This might crash if for some reason we have invalid Unicode points
             return DeserializeObject<T>(enc.GetString(deliverArgs.Body));
+        }
+
+        public static T DeserializeObject<T>(byte[] body) where T : IMessage
+        {
+            Encoding enc = Encoding.UTF8;
+            return DeserializeObject<T>(enc.GetString(body));
         }
     }
 }

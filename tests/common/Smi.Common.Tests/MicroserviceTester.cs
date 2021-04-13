@@ -2,10 +2,12 @@
 using RabbitMQ.Client;
 using Smi.Common.Execution;
 using Smi.Common.Messages;
+using Smi.Common.MessageSerialization;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace Smi.Common.Tests
@@ -164,6 +166,27 @@ namespace Smi.Common.Tests
                 model.QueueBind(queueNameToUse, exchangeName, routingKey);
 
                 Console.WriteLine("Created Exchange " + exchangeName + "=>" + queueNameToUse);
+            }
+        }
+
+        /// <summary>
+        /// Consumes all messages from the specified queue. Must all be of type T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queueName"></param>
+        /// <returns></returns>
+        public IEnumerable<Tuple<IMessageHeader, T>> ConsumeMessages<T>(string queueName) where T : IMessage
+        {
+            IModel model = _adapter.GetModel($"ConsumeMessages-{queueName}");
+
+            while (true)
+            {
+                BasicGetResult message = model.BasicGet(queueName, autoAck: true);
+                if (message == null)
+                    break;
+                var header = new MessageHeader(message.BasicProperties.Headers, Encoding.UTF8);
+                var iMessage = JsonConvert.DeserializeObject<T>(message.Body);
+                yield return new Tuple<IMessageHeader, T>(header, iMessage);
             }
         }
 

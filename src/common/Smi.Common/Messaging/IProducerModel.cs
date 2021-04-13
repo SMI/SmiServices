@@ -4,6 +4,7 @@ using Smi.Common.Messages;
 
 namespace Smi.Common.Messaging
 {
+    // TODO(rkm 2021-04-01) Make this generic over the message type it's expected to send(?)
     /// <summary>
     /// Interface for an object which can send messages to RabbitMQ.
     /// </summary>

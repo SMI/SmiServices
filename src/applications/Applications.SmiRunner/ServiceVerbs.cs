@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 
 
 namespace Applications.SmiRunner
@@ -17,6 +17,9 @@ namespace Applications.SmiRunner
 
     [Verb("dicom-directory-processor", HelpText = "Queue dicom files on disk for ETL")]
     public sealed class DicomDirectoryProcessorVerb : ApplicationVerbBase { }
+
+    [Verb("extract-images", HelpText = "Launch an image extraction job")]
+    public sealed class ExtractImagesVerb : ApplicationVerbBase { }
 
     [Verb("is-identifiable-reviewer", HelpText = "Review identifiable information found by is-identifiable")]
     public sealed class IsIdentifiableReviewerVerb : ApplicationVerbBase { }

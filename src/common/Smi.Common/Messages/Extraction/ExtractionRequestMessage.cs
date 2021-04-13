@@ -17,10 +17,11 @@ namespace Smi.Common.Messages.Extraction
         public string KeyTag { get; set; }
         
         /// <summary>
-        /// Optional modality to extract when <see cref="KeyTag"/> could include multiple modalities
+        /// Optional list of modalities to extract when <see cref="KeyTag"/> could include multiple modalities
         /// (e.g. extracting based on patient or study (study can include e.g. CT + SR).
         /// </summary>
-        public string Modality { get; set; }
+        [JsonProperty(Required = Required.AllowNull)]
+        public string Modalities { get; set; }
 
         /// <summary>
         /// The unique set of identifiers of Type <see cref="KeyTag"/> which should be extracted
@@ -34,10 +35,22 @@ namespace Smi.Common.Messages.Extraction
             ExtractionIdentifiers = new List<string>();
         }
 
+        /// <summary>
+        /// (Shallow) copy constructor
+        /// </summary>
+        /// <param name="other"></param>
+        public ExtractionRequestMessage(ExtractionRequestMessage other)
+        : base(other)
+        {
+            KeyTag = other.KeyTag;
+            Modalities = other.Modalities;
+            ExtractionIdentifiers = other.ExtractionIdentifiers;
+        }
+
         public override string ToString()
             => base.ToString() + ", " +
                $"KeyTag={KeyTag}, " +
-               $"Modality={Modality ?? "Unspecified"}, " +
+               $"Modality={Modalities ?? "Unspecified"}, " +
                $"nIdentifiers={ExtractionIdentifiers.Count}";
 
         #region Equality Members
@@ -46,7 +59,7 @@ namespace Smi.Common.Messages.Extraction
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && KeyTag == other.KeyTag && Modality == other.Modality && ExtractionIdentifiers.SequenceEqual(other.ExtractionIdentifiers);
+            return base.Equals(other) && KeyTag == other.KeyTag && Modalities == other.Modalities && ExtractionIdentifiers.SequenceEqual(other.ExtractionIdentifiers);
         }
 
         public override bool Equals(object obj)
@@ -54,7 +67,7 @@ namespace Smi.Common.Messages.Extraction
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ExtractionRequestMessage) obj);
+            return Equals((ExtractionRequestMessage)obj);
         }
 
         public override int GetHashCode()
@@ -63,7 +76,7 @@ namespace Smi.Common.Messages.Extraction
             {
                 int hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ (KeyTag != null ? KeyTag.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Modality != null ? Modality.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Modalities != null ? Modalities.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ExtractionIdentifiers != null ? ExtractionIdentifiers.GetHashCode() : 0);
                 return hashCode;
             }

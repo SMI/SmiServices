@@ -20,8 +20,17 @@ namespace Smi.Common.Options
 
         static SmiCliInit()
         {
+            _parser = GetDefaultParser();
+        }
+
+        /// <summary>
+        /// Create an instance of the default Parser
+        /// </summary>
+        /// <returns></returns>
+        public static Parser GetDefaultParser()
+        {
             ParserSettings defaults = Parser.Default.Settings;
-            _parser = new Parser(settings =>
+            return new Parser(settings =>
             {
                 settings.CaseInsensitiveEnumValues = true;
                 settings.CaseSensitive = false;

@@ -74,7 +74,6 @@ public class GlobalOptions {
 	public RabbitOptions RabbitOptions;
 	public FileSystemOptions FileSystemOptions;
 	public CTPAnonymiserOptions CTPAnonymiserOptions;
-	public ExtractorClOptions ExtractorClOptions;
 
 	// endregion
 
@@ -134,12 +133,5 @@ public class GlobalOptions {
 		public ConsumerOptions AnonFileConsumerOptions;
 		public ProducerOptions ExtractFileStatusProducerOptions;
 		public String SRAnonTool;
-	}
-
-	public class ExtractorClOptions {
-
-		public int MaxIdentifiersPerMessage = 1000;
-		public ProducerOptions ExtractionRequestProducerOptions;
-		public ProducerOptions ExtractionRequestInfoProducerOptions;
 	}
 }

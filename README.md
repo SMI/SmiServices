@@ -62,7 +62,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | Microservice / Console App| Description |
 | ------------- | ------------- |
 | [IsIdentifiable]  | Evaluates data being prepared for extraction for personally identifiable data (PII).  See also [IsIdentifiableReviewer]|
-| [ExtractorCL] | Reads UIDs from a CSV file and generates [ExtractionRequestMessage] and audit message [ExtractionRequestInfoMessage].|
+| [ExtractImages] | Reads UIDs from a CSV file and generates [ExtractionRequestMessage] and audit message [ExtractionRequestInfoMessage].|
 | [CohortExtractor] | Looks up SeriesInstanceUIDs in [ExtractionRequestMessage] and does relational database lookup(s) to resolve into physical image file location.  Generates  [ExtractFileMessage] and audit message [ExtractFileCollectionInfoMessage].|
 | [CTPAnonymiser]  | Microservice wrapper for [CTP](https://github.com/johnperry/CTP).  Anonymises images specified in  [ExtractFileMessage] and copies to specified output directory.  Generates audit message [ExtractedFileStatusMessage].|
 | [CohortPackager] | Records all audit messages and determines when jobs are complete.|
@@ -143,7 +143,7 @@ This will compile and run the tests for the projects. The full test suite requir
 To build a single project and its dependencies, you can do:
 
 ```bash
-$ mvn -f src/common/com.smi.microservices.parent/pom.xml test -pl com.smi.microservices:extractorcli -am
+$ mvn -f src/common/com.smi.microservices.parent/pom.xml test -pl com.smi.microservices:ctpanonymiser -am
 ```
 
 Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
@@ -240,7 +240,7 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [MongoDBPopulator]: ./src/microservices/Microservices.MongoDbPopulator/Readme.md
 [DicomRelationalMapper]: ./src/microservices/Microservices.DicomRelationalMapper/Readme.md
 [DicomReprocessor]: ./src/microservices/Microservices.DicomReprocessor/README.md
-[ExtractorCL]: ./src/applications/com.smi.applications.extractorcli/README.md
+[ExtractImages]: ./src/applications/Applications.ExtractImages/README.md
 [CohortExtractor]: ./src/microservices/Microservices.CohortExtractor/README.md
 [CTPAnonymiser]: ./src/microservices/com.smi.microservices.ctpanonymiser/README.md
 [CohortPackager]: ./src/microservices/Microservices.CohortPackager/README.md

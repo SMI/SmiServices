@@ -15,7 +15,6 @@
 	<modules>
 		<module>../com.smi.microservices.common</module>
 		<module>../../microservices/com.smi.microservices.ctpanonymiser</module>
-		<module>../../applications/com.smi.applications.extractorcli</module>
 	</modules>
 
 	<properties>

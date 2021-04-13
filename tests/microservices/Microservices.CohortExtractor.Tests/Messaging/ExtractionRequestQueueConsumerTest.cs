@@ -100,7 +100,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
                 IsIdentifiableExtraction = isIdentifiableExtraction,
                 KeyTag = "foo",
                 ExtractionIdentifiers = new List<string> { "foo" },
-                Modality = null,
+                Modalities = null,
             };
             var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>(MockBehavior.Strict);
             mockDeliverArgs.DeliveryTag = 1;

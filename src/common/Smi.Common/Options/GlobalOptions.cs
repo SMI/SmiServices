@@ -6,6 +6,7 @@ using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
 using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -64,6 +65,7 @@ namespace Smi.Common.Options
         public TriggerUpdatesOptions TriggerUpdatesOptions {get;set;}
 
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
+        public ExtractImagesOptions ExtractImagesOptions { get; set; }
 
         #endregion
 
@@ -472,6 +474,29 @@ namespace Smi.Common.Options
         {
             return GlobalOptions.GenerateToString(this);
         }
+    }
+
+    [UsedImplicitly]
+    public class ExtractImagesOptions : IOptions
+    {
+        public const int MaxIdentifiersPerMessageDefault = 1000;
+
+        /// <summary>
+        /// The maximum number of identifiers in each <see cref="ExtractionRequestMessage"/>
+        /// </summary>
+        public int MaxIdentifiersPerMessage { get; set; } = MaxIdentifiersPerMessageDefault;
+
+        /// <summary>
+        /// Options for publishing <see cref="ExtractionRequestMessage"/>s
+        /// </summary>
+        public ProducerOptions ExtractionRequestProducerOptions { get; set; }
+
+        /// <summary>
+        /// Options for publishing <see cref="ExtractionRequestInfoMessage"/>s
+        /// </summary>
+        public ProducerOptions ExtractionRequestInfoProducerOptions { get; set; }
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
     [UsedImplicitly]
