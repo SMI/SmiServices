@@ -14,8 +14,6 @@ jobs:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
           - template: ../steps/set-git-tag-variable.tmpl.yml
-          - ${{ if eq( parameters.os, 'win' ) }}:
-              - template: ../steps/win-nuget-fixup.tmpl.yml
           - template: ../steps/create-venv.tmpl.yml
             parameters:
               os: ${{ parameters.os }}
