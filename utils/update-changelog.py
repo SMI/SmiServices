@@ -42,7 +42,10 @@ def _get_pr_author(pr_ref: int) -> str:
         f"{_ORG}/{_REPO}/"
         f"pulls/{pr_ref}"
     )
-    resp = urllib.request.urlopen(url)
+    try:
+        resp = urllib.request.urlopen(url)
+    except urllib.error.HTTPError as e:
+        raise Exception(f"Could not open {url}") from e
     data = json.loads(resp.read().decode())
     return data["user"]["login"]
 
