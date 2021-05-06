@@ -11,6 +11,34 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [3.0.0] 2021-05-06
+
+## Feature
+
+-   [#702](https://github.com/SMI/SmiServices/pull/702) by rkm. Replace Java
+    ExtractorCLI with C# ExtractImages service
+    -   _Breaking_ Existing scripts and documentation
+    -   _Breaking_ Change ExtractorClOptions -> ExtractImagesOptions in YAML
+        configs
+-   [#713](https://github.com/SMI/SmiServices/pull/713) by rkm. Upgrade all
+    projects and related CI scripts to `net5`.
+-   [#734](https://github.com/SMI/SmiServices/pull/734) by tznind. Updated to
+    RDMP 5.0.0 (and Dicom Plugin 3.0.0)
+
+## Bugfix
+
+-   [#708](https://github.com/SMI/SmiServices/pull/708) by rkm. Add nuget.config
+    file to fix flaky issues with Azure CI Runners. Ref:
+    -   https://github.com/NuGet/Home/issues/10586
+    -   https://github.com/actions/virtual-environments/issues/3038
+-   [#714](https://github.com/SMI/SmiServices/pull/714) by rkm. Fixup current
+    LGTM alerts.
+-   [#715](https://github.com/SMI/SmiServices/pull/715) by rkm. Revert to the
+    hack-y method of fixing the Nuget cache for Azure Windows agents.
+-   [#722](https://github.com/SMI/SmiServices/pull/722) by rkm. Remove
+    workaround for Windows agents in Azure CI since fixed upstream. Ref:
+    -   https://github.com/actions/virtual-environments/issues/3038
+
 ## [2.1.1] 2021-04-07
 
 ## Bugfix
@@ -792,7 +820,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v2.1.1...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v3.0.0...master
+[3.0.0]: https://github.com/SMI/SmiServices/compare/v2.1.1...v3.0.0
 [2.1.1]: https://github.com/SMI/SmiServices/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/SMI/SmiServices/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/SMI/SmiServices/compare/v1.15.1...v2.0.0
