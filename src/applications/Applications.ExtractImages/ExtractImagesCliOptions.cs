@@ -46,9 +46,9 @@ namespace Applications.ExtractImages
         public bool NonInteractive { get; set; }
 
 
-        [ExcludeFromCodeCoverage]
         [UsedImplicitly]
         [Usage]
+        [ExcludeFromCodeCoverage]
         public static IEnumerable<Example> Examples
         {
             get
