@@ -193,12 +193,12 @@ namespace IsIdentifiableReviewer
             };
 
             tabView.Style.ShowBorder = false;
-            tabView.Style.ShowHeaderOverline = false;
+            tabView.Style.ShowTopLine = false;
             tabView.Style.TabsOnBottom = true;
             tabView.ApplyStyleChanges();
 
-            tabView.AddTab(new Tab("Sequential", viewMain), true);
-            tabView.AddTab(new Tab("Tree View", rulesView), false);
+            tabView.AddTab(new TabView.Tab("Sequential", viewMain), true);
+            tabView.AddTab(new TabView.Tab("Tree View", rulesView), false);
 
             Body = tabView;
         }

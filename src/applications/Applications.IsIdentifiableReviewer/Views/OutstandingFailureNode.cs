@@ -1,6 +1,7 @@
 ﻿using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Reporting;
 using Terminal.Gui;
+using Terminal.Gui.Trees;
 
 namespace IsIdentifiableReviewer.Views
 {
