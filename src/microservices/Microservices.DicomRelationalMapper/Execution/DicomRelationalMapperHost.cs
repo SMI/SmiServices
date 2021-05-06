@@ -38,7 +38,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             Logger.Info("About to run Startup");
 
-            var startup = new Startup(new EnvironmentInfo("netcoreapp2.2"),repositoryLocator);
+            var startup = new Startup(new EnvironmentInfo(PluginFolders.Main), repositoryLocator);
             startup.DatabaseFound += Startup_DatabaseFound;
 
             var toMemory = new ToMemoryCheckNotifier();
