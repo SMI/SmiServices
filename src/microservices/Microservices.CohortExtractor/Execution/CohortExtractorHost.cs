@@ -67,7 +67,7 @@ namespace Microservices.CohortExtractor.Execution
 
             IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
 
-            var startup = new Startup(new EnvironmentInfo("netcoreapp2.2"), repositoryLocator);
+            var startup = new Startup(new EnvironmentInfo(PluginFolders.Main), repositoryLocator);
 
             var toMemory = new ToMemoryCheckNotifier();
             startup.DoStartup(toMemory);
