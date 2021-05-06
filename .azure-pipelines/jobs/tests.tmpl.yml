@@ -53,12 +53,6 @@ jobs:
                 - template: ../steps/linux-dotnet-docker.yml
           - ${{ if eq( parameters.os, 'win' ) }}:
                 - template: ../steps/win-dotnet-services.yml
-          - task: UseDotNet@2
-            displayName: Use .NET Core Runtime 2.2 for RDMP
-            inputs:
-                packageType: runtime
-                version: 2.2.x
-                installationPath: $(Agent.ToolsDirectory)/dotnet
           - template: ../steps/rdmp-setup.tmpl.yml
             parameters:
                 os: ${{ parameters.os }}
