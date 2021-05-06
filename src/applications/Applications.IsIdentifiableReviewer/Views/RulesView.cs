@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
+using Terminal.Gui.Trees;
 
 namespace IsIdentifiableReviewer.Views
 {
@@ -55,10 +56,12 @@ namespace IsIdentifiableReviewer.Views
                 Height = Dim.Fill(1)
             };
             _treeView.KeyPress += _treeView_KeyPress;
+            _treeView.ObjectActivated += _treeView_ObjectActivated;
             _treeView.SelectionChanged += _treeView_SelectionChanged;
 
             Add(_treeView);
         }
+
 
         private void _treeView_SelectionChanged(object sender, SelectionChangedEventArgs<ITreeNode> e)
         {
@@ -105,6 +108,16 @@ namespace IsIdentifiableReviewer.Views
             
         }
 
+        private void _treeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
+        {
+            var ofn = obj.ActivatedObject as OutstandingFailureNode;
+
+            if (ofn != null)
+            {
+                Activate(ofn);
+            }
+        }
+
         private void _treeView_KeyPress(KeyEventEventArgs e)
         {
             if(_treeView.HasFocus && _treeView.CanFocus)
@@ -146,19 +159,7 @@ namespace IsIdentifiableReviewer.Views
                             }
                         }
 
-
                         break;
-                    case Key.Enter:
-
-                        var ofn = _treeView.SelectedObject as  OutstandingFailureNode;
-                        
-                        if(ofn != null)
-                        {
-                            Activate(ofn);
-                        }
-
-                        e.Handled = true;
-                        return;
                 }
             }
         }
