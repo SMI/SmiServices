@@ -39,35 +39,47 @@ namespace Applications.SmiRunner
             allTypes.AddRange(AllApplications);
             allTypes.AddRange(AllServices);
 
-            int res = SmiCliInit.ParseServiceVerbAndRun(
-                args.Take(1),
-                allTypes.ToArray(),
-                service =>
-                {
-                    // TODO(rkm 2021-02-26) Probably want to test that every case is covered here
-                    return service switch
+            int res;
+
+            try
+            {
+                res = SmiCliInit.ParseServiceVerbAndRun(
+                    args.Take(1),
+                    allTypes.ToArray(),
+                    service =>
                     {
-                        // Applications
-                        TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
-                        DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
-                        IsIdentifiableReviewerVerb _ => Applications.IsIdentifiableReviewer.Program.Main(rest),
-                        ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
-                        // Microservices
-                        CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
-                        CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),
-                        DeadLetterReprocessorVerb _ => Microservices.DeadLetterReprocessor.Program.Main(rest),
-                        DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.Program.Main(rest),
-                        DicomReprocessorVerb _ => Microservices.DicomReprocessor.Program.Main(rest),
-                        DicomTagReaderVerb _ => Microservices.DicomTagReader.Program.Main(rest),
-                        FileCopierVerb _ => Microservices.FileCopier.Program.Main(rest),
-                        IdentifierMapperVerb _ => Microservices.IdentifierMapper.Program.Main(rest),
-                        IsIdentifiableVerb _ => Microservices.IsIdentifiable.Program.Main(rest),
-                        MongoDbPopulatorVerb _ => Microservices.MongoDBPopulator.Program.Main(rest),
-                        UpdateValuesVerb _ => Microservices.UpdateValues.Program.Main(rest),
-                        _ => throw new ArgumentException($"No case for {nameof(service)}")
-                    };
-                }
-            );
+                        // TODO(rkm 2021-02-26) Probably want to test that every case is covered here
+                        return service switch
+                        {
+                            // Applications
+                            TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
+                            DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
+                            IsIdentifiableReviewerVerb _ => Applications.IsIdentifiableReviewer.Program.Main(rest),
+                            ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
+                            // Microservices
+                            CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
+                            CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),
+                            DeadLetterReprocessorVerb _ => Microservices.DeadLetterReprocessor.Program.Main(rest),
+                            DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.Program.Main(rest),
+                            DicomReprocessorVerb _ => Microservices.DicomReprocessor.Program.Main(rest),
+                            DicomTagReaderVerb _ => Microservices.DicomTagReader.Program.Main(rest),
+                            FileCopierVerb _ => Microservices.FileCopier.Program.Main(rest),
+                            IdentifierMapperVerb _ => Microservices.IdentifierMapper.Program.Main(rest),
+                            IsIdentifiableVerb _ => Microservices.IsIdentifiable.Program.Main(rest),
+                            MongoDbPopulatorVerb _ => Microservices.MongoDBPopulator.Program.Main(rest),
+                            UpdateValuesVerb _ => Microservices.UpdateValues.Program.Main(rest),
+                            _ => throw new ArgumentException($"No case for {nameof(service)}")
+                        };
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e);
+                const int rc = 1;
+                Console.Error.WriteLine($"\nError (exit code {rc}): {e.Message}");
+                return rc;
+            }
 
             if(args.Any(a=>a.Equals("--help")))
             {

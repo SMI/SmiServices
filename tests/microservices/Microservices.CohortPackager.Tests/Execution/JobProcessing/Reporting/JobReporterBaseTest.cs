@@ -763,7 +763,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
         public void ReportNewLine_LoadFromYaml_EscapesNewlines()
         {
             string yaml = @"
-CurrentDirectory:
+LoggingOptions:
+    LogConfigFile:
 CohortPackagerOptions:
     ReportNewLine: '\r\n'
 ";

@@ -45,6 +45,9 @@ namespace Smi.Common.Options
             using var sr = new StringReader(yamlContents);
             var globals = deserializer.Deserialize<GlobalOptions>(sr);
 
+            if (globals.LoggingOptions == null)
+                throw new Exception($"Loaded YAML did not contain a {nameof(globals.LoggingOptions)} key. Did you provide a valid config file?");
+
             globals.HostProcessName = hostProcessName;
             
             return Decorate(globals);

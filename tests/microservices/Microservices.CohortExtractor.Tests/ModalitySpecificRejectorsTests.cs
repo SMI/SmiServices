@@ -17,6 +17,8 @@ namespace Microservices.CohortExtractor.Tests
             string file;
             var yaml =
             @"
+LoggingOptions:
+    LogConfigFile:
 CohortExtractorOptions:
     QueueName: 'TEST.RequestQueue'
     AllCatalogues: true
@@ -46,6 +48,8 @@ CohortExtractorOptions:
             string file;
             var yaml =
             @"
+LoggingOptions:
+    LogConfigFile:
 CohortExtractorOptions:
     QueueName: 'TEST.RequestQueue'
     AllCatalogues: true
