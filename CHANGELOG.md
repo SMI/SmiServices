@@ -11,6 +11,26 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [3.0.1] 2021-05-06
+
+## Feature
+
+-   [#738](https://github.com/SMI/SmiServices/pull/738) by rkm. Improvements to
+    CLI user experience
+    -   Immediately verify that the config file (GlobalOptions) we've loaded is
+        somewhat valid
+    -   Improve visibility of exception messages on CLI exit
+
+## Bugfix
+
+-   [#737](https://github.com/SMI/SmiServices/pull/737) by rkm. Switch ordering
+    of annotations in ExtractImagesCliOption to fix a runtime exception.
+
+## Meta
+
+-   [#736](https://github.com/SMI/SmiServices/pull/736) by rkm. Remove .NET Core
+    2.2 runtime from the Azure Pipelines builds
+
 ## [3.0.0] 2021-05-06
 
 ## Feature
@@ -820,7 +840,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v3.0.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v3.0.1...master
+[3.0.1]: https://github.com/SMI/SmiServices/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/SMI/SmiServices/compare/v2.1.1...v3.0.0
 [2.1.1]: https://github.com/SMI/SmiServices/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/SMI/SmiServices/compare/v2.0.0...v2.1.0
