@@ -28,7 +28,6 @@
     <PackageReference Include="HIC.RDMP.Plugin" Version="5.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="SecurityCodeScan.VS2019" Version="5.1.0">
         <PrivateAssets>all</PrivateAssets>
