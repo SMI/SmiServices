@@ -65,6 +65,11 @@ namespace IsIdentifiableReviewer.Views
 
         private void _treeView_SelectionChanged(object sender, SelectionChangedEventArgs<ITreeNode> e)
         {
+            if(e.NewValue != null)
+            {
+                e.Tree.RefreshObject(e.NewValue);
+            }
+            
             // when selecting a node 
 
             if (e.NewValue is OutstandingFailureNode ofn){
@@ -320,7 +325,17 @@ namespace IsIdentifiableReviewer.Views
             dlg.Add(stage);
             dlg.Add(progress);
             dlg.Add(textProgress);
-                
+
+
+            bool done = false;
+
+            Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
+            {
+                _treeView.RebuildTree();
+                dlg.SetNeedsDisplay();
+                return !done;
+            });
+
             Task.Run(()=>{
                 EvaluateRuleCoverageAsync(stage,progress,textProgress,cts.Token,colliding,ignore,update,outstanding);
                 },cts.Token).ContinueWith((t)=>{
@@ -328,10 +343,9 @@ namespace IsIdentifiableReviewer.Views
                     btn.Clicked -= cancelFunc;
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
-                    dlg.SetNeedsDisplay();
-
+                    done = true;
                     cts.Dispose();
-            });;
+            });
             
             Application.Run(dlg);
         }
