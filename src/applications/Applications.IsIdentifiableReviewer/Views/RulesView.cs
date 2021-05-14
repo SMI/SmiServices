@@ -65,6 +65,11 @@ namespace IsIdentifiableReviewer.Views
 
         private void _treeView_SelectionChanged(object sender, SelectionChangedEventArgs<ITreeNode> e)
         {
+            if(e.NewValue != null)
+            {
+                e.Tree.RefreshObject(e.NewValue);
+            }
+            
             // when selecting a node 
 
             if (e.NewValue is OutstandingFailureNode ofn){
