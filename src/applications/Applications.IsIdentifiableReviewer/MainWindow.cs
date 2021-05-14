@@ -409,7 +409,7 @@ namespace IsIdentifiableReviewer
 
             bool done = false;
 
-            var refresh = Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1),(s) =>
+            Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1),(s) =>
             {
                 dlg.SetNeedsDisplay();
                 return !done;

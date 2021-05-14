@@ -329,7 +329,7 @@ namespace IsIdentifiableReviewer.Views
 
             bool done = false;
 
-            var refresh = Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
+            Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
             {
                 _treeView.RebuildTree();
                 dlg.SetNeedsDisplay();
