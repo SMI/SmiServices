@@ -11,6 +11,13 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [3.0.2] 2021-05-14
+
+## Bugfix
+
+-   [#745](https://github.com/SMI/SmiServices/pull/745) by tznind. Fixed
+    reviewer tree view refresh/async code
+
 ## [3.0.1] 2021-05-06
 
 ## Feature
@@ -840,7 +847,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v3.0.1...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v3.0.2...master
+[3.0.2]: https://github.com/SMI/SmiServices/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/SMI/SmiServices/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/SMI/SmiServices/compare/v2.1.1...v3.0.0
 [2.1.1]: https://github.com/SMI/SmiServices/compare/v2.1.0...v2.1.1
