@@ -436,8 +436,6 @@ namespace IsIdentifiableReviewer
                 btn.Clicked -= cancelFunc;
                 btn.Text = "Done";
                 btn.Clicked += closeFunc;
-
-                Application.MainLoop.RemoveTimeout(refresh);
                 done = true;
 
                 cts.Dispose();

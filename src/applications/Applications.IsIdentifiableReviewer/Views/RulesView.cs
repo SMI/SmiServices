@@ -331,6 +331,7 @@ namespace IsIdentifiableReviewer.Views
 
             var refresh = Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
             {
+                _treeView.RebuildTree();
                 dlg.SetNeedsDisplay();
                 return !done;
             });
@@ -342,9 +343,7 @@ namespace IsIdentifiableReviewer.Views
                     btn.Clicked -= cancelFunc;
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
-                    Application.MainLoop.RemoveTimeout(refresh);
                     done = true;
-
                     cts.Dispose();
             });
             
