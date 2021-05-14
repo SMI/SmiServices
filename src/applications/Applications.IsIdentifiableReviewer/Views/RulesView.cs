@@ -320,7 +320,16 @@ namespace IsIdentifiableReviewer.Views
             dlg.Add(stage);
             dlg.Add(progress);
             dlg.Add(textProgress);
-                
+
+
+            bool done = false;
+
+            var refresh = Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
+            {
+                dlg.SetNeedsDisplay();
+                return !done;
+            });
+
             Task.Run(()=>{
                 EvaluateRuleCoverageAsync(stage,progress,textProgress,cts.Token,colliding,ignore,update,outstanding);
                 },cts.Token).ContinueWith((t)=>{
@@ -328,10 +337,11 @@ namespace IsIdentifiableReviewer.Views
                     btn.Clicked -= cancelFunc;
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
-                    dlg.SetNeedsDisplay();
+                    Application.MainLoop.RemoveTimeout(refresh);
+                    done = true;
 
                     cts.Dispose();
-            });;
+            });
             
             Application.Run(dlg);
         }

@@ -407,6 +407,14 @@ namespace IsIdentifiableReviewer
                 Width = Dim.Fill() };
             dlg.Add(rows);
 
+            bool done = false;
+
+            var refresh = Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1),(s) =>
+            {
+                dlg.SetNeedsDisplay();
+                return !done;
+            });
+
             Task.Run(()=>{
                     try
                     {
@@ -425,13 +433,14 @@ namespace IsIdentifiableReviewer
                 }
             ).ContinueWith((t)=>{
                 
-                    btn.Clicked -= cancelFunc;
-                    btn.Text = "Done";
-                    btn.Clicked += closeFunc;
-                    dlg.SetNeedsDisplay();
+                btn.Clicked -= cancelFunc;
+                btn.Text = "Done";
+                btn.Clicked += closeFunc;
 
+                Application.MainLoop.RemoveTimeout(refresh);
+                done = true;
 
-                    cts.Dispose();
+                cts.Dispose();
             });
             
             Application.Run(dlg);
