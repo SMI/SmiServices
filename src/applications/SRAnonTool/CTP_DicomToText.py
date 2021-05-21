@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 
 # Convert a DICOM file into plain text in a suitable format
-# for passing into the anonymisation part of SemEHR.
+# for passing into the anonymisation/annotations parts of SemEHR.
+# Can alternatively read from the MongoDB dicom database instead of files.
 # Usage: -y default.yaml -i input -o output
 #  -y = path to the default.yaml file to get FileSystemRoot and Mongo
 #  -i = input DICOM file, full path or relative to FileSystemRoot,
 #       or if not found then looked up in the MongoDB.
 #  -o = output filename or directory for the plain text file
+#  --semehr-unique = only extract records from Mongo dicom database
+#    if they are not already in the SemEHR database.
 # Needs both dataLoad and dataExtract yaml files because Mongo is
 # defined in the former and the rest in the latter.
+# The Mongo definitions expected in yaml are:
+#   MongoDatabases | DicomStoreOptions for reading records from
+#     the dicom database instead of from DICOM files.
+#   MongoDatabases | SemEHRStoreOptions for testing if the record
+#     read from the dicom database already exists in the SemEHR db.
 
 import argparse
 import logging, logging.handlers

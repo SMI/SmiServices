@@ -81,25 +81,25 @@ def dict_to_annotation_xml_string(dictlist):
     xmlroot = xml.etree.ElementTree.Element('annotations')
     match_num=0
     for match in dictlist:
-    	match_num = match_num+1
-    	xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'annotation')
-    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mention')
-    	xmlsubitem.set('id', f'filename-{match_num}')
-    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'annotator')
-    	xmlsubitem.set('id', f'filename-{match_num}')
-    	xmlsubitem.text = 'semehr'
-    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'span')
-    	xmlsubitem.set('start', str(match['start_char']))
-    	xmlsubitem.set('end', str(match['end_char']))
-    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'spannedText')
-    	xmlsubitem.text = match['text']
-    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'creationDate')
-    	xmlsubitem.text = 'Wed November 11 13:04:51 2020'
-    	xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'classMention')
-    	xmlitem.set('id', f'filename-{match_num}')
-    	xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mentionClass')
-    	xmlsubitem.set('id', 'semehr_sensitive_info')
-    	xmlsubitem.text = match['text']
+        match_num = match_num+1
+        xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'annotation')
+        xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mention')
+        xmlsubitem.set('id', f'filename-{match_num}')
+        xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'annotator')
+        xmlsubitem.set('id', f'filename-{match_num}')
+        xmlsubitem.text = 'semehr'
+        xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'span')
+        xmlsubitem.set('start', str(match['start_char']))
+        xmlsubitem.set('end', str(match['end_char']))
+        xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'spannedText')
+        xmlsubitem.text = match['text']
+        xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'creationDate')
+        xmlsubitem.text = 'Wed November 11 13:04:51 2020'
+        xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'classMention')
+        xmlitem.set('id', f'filename-{match_num}')
+        xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mentionClass')
+        xmlsubitem.set('id', 'semehr_sensitive_info')
+        xmlsubitem.text = match['text']
 
     xmlstr = minidom.parseString(xml.etree.ElementTree.tostring(xmlroot)).toprettyxml(indent=" ")
     return xmlstr

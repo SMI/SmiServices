@@ -69,17 +69,31 @@ The SemEHR directory (`/opt/semehr`) can be changed with the `-s` option for tes
 
 ### `CTP_DicomToText.py`
 
-Usage: `-y default.yaml -i input.dcm -o outfile`
+This program can be used as part of the SRAnonTool pipeline or it can be used standalone to extract documents in bulk for later SemEHR processing.
 
-`-y default.yaml` - may be specified more than once if the configuration parameters are spread across multiple yaml files
+Usage: `-y default.yaml -i input.dcm -o outfile [--semehr-unique]`
 
-`-i input.dcm` - full path to the input DICOM file
+`-y default.yaml` - may be specified more than once if the configuration parameters are spread across multiple yaml files.
 
-`-o output` - full path to the output text file, or directory
+`-i input.dcm` - full path to the input DICOM file, or a partial path to be extracted from MongoDB, or a StudyDate to extract all records that day from MongoDB.
+
+`-o output` - full path to the output text file, or directory for multiple files.
+
+`--semehr-unique` - if extracting a StudyDate from MongoDB then ignore any documents which have a SOPInstanceUID that is already in the SemEHR MongoDB database. This is intended to allow reprocessing of any documents that previously failed without having to reprocess the whole day.
+
+The MongoDB configuration read from the yaml files needs to be in `MongoDatabases | DicomStoreOptions` and `SemEHRStoreOptions`. The former is to read DICOM documents from the `dicom.image_SR` database.collection; the latter is to check if the SOPInstanceUID is already in the `semehr.semehr_results` database.collection.
+
+Examples:
+
+```
+* CTP_DicomToText.py -i /path/to/file.dcm -o output.txt
+* CTP_DicomToText.py -i 2015/01/01/AccNum/file.dcm -o output.txt -y smi_dataLoad.yaml
+* CTP_DicomToText.py -i 20150101 -o output_dir -y smi_dataLoad.yaml
+```
 
 ### `clinical_doc_wrapper.py`
 
-Usage: `[-s semehr_dir]` in the stub version
+Usage: `[-s semehr_dir] [-i input_docs] [-o anonymised]` in the stub version
 
 It must be called with the current directory being the location of the script.
 
