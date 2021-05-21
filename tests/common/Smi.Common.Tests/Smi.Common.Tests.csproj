@@ -27,7 +27,7 @@
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="NunitXml.TestLogger" Version="3.0.97" />
+    <PackageReference Include="NunitXml.TestLogger" Version="3.0.107" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.33" />
   </ItemGroup>
   <ItemGroup>
