@@ -104,7 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('-y', dest='yamlfile', action="append", help='path to yaml config file (can be used more than once)')
     parser.add_argument('-i', dest='input', action="store", help='SOPInstanceUID or path to raw DICOM file from which text will be redacted')
     parser.add_argument('-o', dest='output_dir', action="store", help='path to directory where extracted text will be written')
-    parser.add_argument('--semehr-unique', dest='semehr_unique', action="store_true", help='only extra from MongoDB/dicom if not already in MongoDB/semehr')
+    parser.add_argument('--semehr-unique', dest='semehr_unique', action="store_true", help='only extract from MongoDB/dicom if not already in MongoDB/semehr')
     args = parser.parse_args()
     if not args.input:
         parser.print_help()
