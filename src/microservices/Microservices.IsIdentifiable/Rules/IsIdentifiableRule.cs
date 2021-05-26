@@ -72,7 +72,7 @@ namespace Microservices.IsIdentifiable.Rules
 
         public virtual RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
-            badParts = new List<FailurePart>();
+            badParts = null;
 
             if (Action == RuleAction.None)
                 return RuleAction.None;
@@ -86,6 +86,9 @@ namespace Microservices.IsIdentifiable.Rules
             //if there is no column restriction or restriction applies to the current column
             if (string.IsNullOrWhiteSpace(IfColumn) || string.Equals(IfColumn,fieldName,StringComparison.InvariantCultureIgnoreCase))
             {
+                // only allocate this variable if there is an action to take
+                badParts = new List<FailurePart>();
+
                 //if there is no pattern
                 if (IfPattern == null)
                 {
