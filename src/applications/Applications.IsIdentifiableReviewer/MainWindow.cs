@@ -53,6 +53,7 @@ namespace IsIdentifiableReviewer
         private IRulePatternFactory _origIgnorerRulesFactory;
         private Label _ignoreRuleLabel;
         private Label _updateRuleLabel;
+        private Label _currentReportLabel;
 
         /// <summary>
         /// Record of new rules added (e.g. Ignore with pattern X) along with the index of the failure.  This allows undoing user decisions
@@ -171,10 +172,13 @@ namespace IsIdentifiableReviewer
 
             frame.Add(new Label(0, 4, "Default Patterns"));
 
-            _ignoreRuleLabel = new Label(0, 5, "Ignore:");
-            _updateRuleLabel = new Label(0, 6, "Update:"); ;
+            _ignoreRuleLabel = new Label() { X = 0, Y = 5, Text = "Ignore:", Width = 30, Height = 1 }; ;
+            _updateRuleLabel = new Label() { X = 0, Y = 6, Text = "Update:", Width = 30, Height = 1 }; ;
+            _currentReportLabel = new Label() { X = 0, Y= 8, Text = "Report:", Width = 30, Height = 1};
+
             frame.Add(_ignoreRuleLabel);
             frame.Add(_updateRuleLabel);
+            frame.Add(_currentReportLabel);
 
             // always run rules only mode for the manual gui
             Updater.RulesOnly = true;
@@ -442,7 +446,10 @@ namespace IsIdentifiableReviewer
 
                 cts.Dispose();
             });
-            
+
+            _currentReportLabel.Text = "Report:" + Path.GetFileName(path);
+            _currentReportLabel.SetNeedsDisplay();
+
             Application.Run(dlg);
         }
 
