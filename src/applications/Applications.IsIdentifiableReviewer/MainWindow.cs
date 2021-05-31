@@ -75,6 +75,8 @@ namespace IsIdentifiableReviewer
 
         public View Body { get; private set; }
 
+        Task taskToLoadNext;
+
         public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             Ignorer = ignorer;
@@ -296,6 +298,12 @@ namespace IsIdentifiableReviewer
             }
         }
 
+
+        private void BeginNext()
+        {
+            taskToLoadNext = Task.Run(Next);   
+        }
+
         private void Next()
         {
             if(_valuePane.CurrentFailure == null)
@@ -355,6 +363,12 @@ namespace IsIdentifiableReviewer
             if(_valuePane.CurrentFailure == null)
                 return;
 
+            if(taskToLoadNext!= null && !taskToLoadNext.IsCompleted)
+            {
+                MessageBox.Query("StillLoading", "Load next is still running");
+                return;
+            }
+
             try
             {
                 Ignorer.Add(_valuePane.CurrentFailure);
@@ -365,12 +379,18 @@ namespace IsIdentifiableReviewer
                 //if user cancels adding the ignore then stay on the same record
                 return;
             }
-            Next();
+            BeginNext();
         }
         private void Update()
         {
             if(_valuePane.CurrentFailure == null)
                 return;
+
+            if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
+            {
+                MessageBox.Query("StillLoading", "Load next is still running");
+                return;
+            }
 
             try
             {
@@ -390,7 +410,7 @@ namespace IsIdentifiableReviewer
                 return;
             }
 
-            Next();
+            BeginNext();
         }
 
         private void OpenReport()
@@ -440,7 +460,7 @@ namespace IsIdentifiableReviewer
                         CurrentReport = new ReportReader(new FileInfo(path),(s)=>
                         rows.Text = $"Loaded: {s:N0} rows",cts.Token);
                         SetupToShow(CurrentReport.Failures.FirstOrDefault());
-                        Next();
+                        BeginNext();
 
                         rulesView.LoadReport(CurrentReport, Ignorer, Updater, _origIgnorerRulesFactory);
                     }
