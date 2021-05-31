@@ -48,6 +48,7 @@ namespace IsIdentifiableReviewer
 
         private FailureView _valuePane;
         private Label _info;
+        private SpinnerView spinner;
         private TextField _gotoTextField;
         private IRulePatternFactory _origUpdaterRulesFactory;
         private IRulePatternFactory _origIgnorerRulesFactory;
@@ -101,7 +102,7 @@ namespace IsIdentifiableReviewer
             {
                 X = 0,
                 Y = 0,
-                Width = Dim.Fill(),
+                Width = Dim.Fill()-1,
                 Height = 1
             };
 
@@ -184,6 +185,12 @@ namespace IsIdentifiableReviewer
             Updater.RulesOnly = true;
 
             viewMain.Add(_info);
+
+            spinner = new SpinnerView();
+            spinner.X = Pos.Right(_info);
+            viewMain.Add(spinner);
+            spinner.Visible = false;
+
             viewMain.Add(_valuePane);
             viewMain.Add(frame);
 
@@ -294,6 +301,8 @@ namespace IsIdentifiableReviewer
             if(_valuePane.CurrentFailure == null)
                 return;
 
+            spinner.Visible = true;
+
             int skipped = 0;
             int updated = 0;
             try
@@ -318,6 +327,10 @@ namespace IsIdentifiableReviewer
             catch (Exception e)
             {
                 ShowException("Error moving to next record",e);
+            }
+            finally
+            {
+                spinner.Visible = false;
             }
 
             StringBuilder info = new StringBuilder();
