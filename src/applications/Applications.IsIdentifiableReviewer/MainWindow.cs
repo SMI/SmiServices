@@ -315,10 +315,7 @@ namespace IsIdentifiableReviewer
             {
                 ShowException("Error moving to next record",e);
             }
-            
-            if(CurrentReport.Exhausted)
-                ShowMessage("End", "End of Failures");
-            
+
             StringBuilder info = new StringBuilder();
 
             info.Append(CurrentReport.DescribeProgress());
@@ -327,6 +324,11 @@ namespace IsIdentifiableReviewer
                 info.Append(" Skipped " + skipped);
             if (updated > 0)
                 info.Append(" Auto Updated " + updated);
+
+            if (CurrentReport.Exhausted)
+            {
+                info.Append(" (End of Failures)");
+            }
 
             _info.Text = info.ToString();
         }
