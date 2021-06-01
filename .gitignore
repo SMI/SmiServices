@@ -318,3 +318,5 @@ venv/
 
 # for prettier in scripts/update-changelog.py
 package-lock.json
+
+coverage/

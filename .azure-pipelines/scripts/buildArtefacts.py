@@ -27,7 +27,7 @@ _PYTHON_DIR = Path("src/common/Smi_Common_Python")
 
 
 def _run(cmd: Sequence[_STR_LIKE]) -> None:
-    subprocess.check_call(("echo", *cmd))
+    subprocess.check_call(("echo", "$ ", *cmd))
     subprocess.check_call(cmd)
 
 

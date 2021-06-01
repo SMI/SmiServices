@@ -59,7 +59,8 @@ jobs:
           - task: Bash@3
             displayName: Run Dotnet tests
             inputs:
-                filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
+                targetType: inline
+                script: python .azure-pipelines/scripts/run-dotnet-tests.py
                 failOnStderr: true
 
     - job: java_tests
