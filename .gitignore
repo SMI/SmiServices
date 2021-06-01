@@ -320,3 +320,4 @@ venv/
 package-lock.json
 
 coverage/
+htmlcov/
