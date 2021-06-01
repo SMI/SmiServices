@@ -74,11 +74,11 @@ jobs:
                   -i coverage/coverage.opencover.xml \
                   --repoToken "foo" \
                   --commitId "$(Build.SourceVersion)" \
-                  --commitBranch "$(git rev-parse --abbrev-ref HEAD)" \
+                  --commitBranch "$(Build.SourceBranchName)" \
                   --commitAuthor "$(git show -s --format='%an')" \
                   --commitEmail "$(git show -s --format='%ae')" \
                   --commitMessage "$(Build.SourceVersionMessage)" \
-                  --jobId "$(Build.BuildUri)" \
+                  --jobId "$(Build.BuildId)" \
                   --dryrun
 
     - job: java_tests
