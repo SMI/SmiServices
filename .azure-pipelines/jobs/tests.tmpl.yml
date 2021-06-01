@@ -73,6 +73,8 @@ jobs:
                 targetType: inline
                 script: |
                   set -euxo pipefail
+                  # Strip directory prefixes from coverage report
+                  sed -i "s|$pwd||g" coverage/coverage.opencover.xml
                   dotnet tool update --global coveralls.net
                   csmacnz.Coveralls \
                     --opencover \
