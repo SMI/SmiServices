@@ -20,7 +20,7 @@ _COV_DIR = Path("coverage")
 
 def _run(cmd: Sequence[_STR_LIKE]) -> None:
 
-    subprocess.check_call(("echo", "$ ", *cmd))
+    subprocess.check_call(("echo", "$", *cmd))
     subprocess.check_call(cmd)
 
 
