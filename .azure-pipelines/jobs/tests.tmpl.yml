@@ -62,6 +62,24 @@ jobs:
                 targetType: inline
                 script: python .azure-pipelines/scripts/run-dotnet-tests.py
                 failOnStderr: true
+          - task: Bash@3
+            displayName: Upload coverage
+            inputs:
+              targetType: inline
+              script: |
+                set -euxo pipefail
+                dotnet tool update --global coveralls.net
+                csmacnz.Coveralls \
+                  --opencover \
+                  -i coverage/coverage.opencover.xml \
+                  --repoToken "$(...)" \
+                  --commitId "$(Build.SourceVersion)" \
+                  --commitBranch "$(Build.SourceBranch)" \
+                  --commitAuthor "$(Build.RequestedFor)" \
+                  --commitEmail "$(Build.RequestedForEmail)" \
+                  --commitMessage "$(Build.SourceVersionMessage)" \
+                  --jobId "$(Build.BuildId)" \
+                  --dryrun
 
     - job: java_tests
       displayName: Java Tests
