@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import glob
 import os
 import shutil
@@ -10,6 +11,9 @@ from typing import Sequence
 from typing import Union
 
 
+_LINUX = "linux"
+_WINDOWS = "win"
+_PLATFORMS = (_LINUX, _WINDOWS)
 _STR_LIKE = Union[str, Path]
 _COV_DIR = Path("coverage")
 
@@ -42,7 +46,20 @@ def _run_tests(test_csproj: Path, *args: str) -> None:
     _run(cmd)
 
 
+def _windows_bash_fixup(platform: str, cmd: Sequence[_STR_LIKE]) -> Sequence[_STR_LIKE]:
+    return cmd if platform != _WINDOWS else ("powershell", "bash", *cmd)
+
+
 def main() -> int:
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "platform",
+        type=str.lower,
+        choices=_PLATFORMS,
+        help="The current platform",
+    )
+    args = parser.parse_args()
 
     tessdata = Path("./data/tessdata/eng.traineddata")
     if not tessdata.is_file():
@@ -52,7 +69,9 @@ def main() -> int:
         )
         return 1
 
-    _run((".azure-pipelines/scripts/dotnet-build.bash",))
+    cmd = (".azure-pipelines/scripts/dotnet-build.bash",)
+    _windows_bash_fixup(args.platform, cmd)
+    _run(cmd)
 
     # TODO(rkm 2021-05-31) Check if this is still needed
     net5_glob = {Path(x) for x in glob.glob("**/net5", recursive=True)}

@@ -60,7 +60,11 @@ jobs:
             displayName: Run Dotnet tests
             inputs:
                 targetType: inline
-                script: python .azure-pipelines/scripts/run-dotnet-tests.py
+                script: |
+                  set -euxo pipefail
+                  python \
+                    .azure-pipelines/scripts/run-dotnet-tests.py \
+                    "${{ parameters.os }}"
                 failOnStderr: true
           - task: Bash@3
             displayName: Upload coverage
