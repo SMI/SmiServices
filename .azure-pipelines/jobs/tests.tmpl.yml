@@ -59,8 +59,37 @@ jobs:
           - task: Bash@3
             displayName: Run Dotnet tests
             inputs:
-                filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
-                failOnStderr: true
+                targetType: inline
+                script: |
+                  set -euxo pipefail
+                  python \
+                    .azure-pipelines/scripts/run-dotnet-tests.py \
+                    "${{ parameters.os }}"
+          - ${{ if eq( parameters.os, 'linux' ) }}:
+            - task: Bash@3
+              displayName: Upload coverage
+              inputs:
+                targetType: inline
+                script: |
+                  set -euxo pipefail
+                  dotnet tool update --global coveralls.net
+                  pull_request_arg=""
+                  if [ ! -z "$(System.PullRequest.PullRequestId)" ]; then
+                    pull_request_arg="--pullRequest $(System.PullRequest.PullRequestId)"
+                  fi
+                  csmacnz.Coveralls \
+                    --opencover \
+                    -i coverage/coverage.opencover.xml \
+                    --useRelativePaths \
+                    --commitId "$(Build.SourceVersion)" \
+                    --commitBranch "$(Build.SourceBranchName)" \
+                    --commitAuthor "$(git show -s --format='%an')" \
+                    --commitEmail "$(git show -s --format='%ae')" \
+                    --commitMessage "$(Build.SourceVersionMessage)" \
+                    --jobId "$(Build.BuildId)" \
+                    $pull_request_arg
+              env:
+                COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
     - job: java_tests
       displayName: Java Tests

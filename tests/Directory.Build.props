@@ -6,6 +6,10 @@
         <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-       </PackageReference>
+        </PackageReference>
+        <PackageReference Include="coverlet.msbuild" Version="3.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 </Project>
