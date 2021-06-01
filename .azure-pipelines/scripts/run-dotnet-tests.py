@@ -88,6 +88,8 @@ def main() -> int:
     _COV_DIR.mkdir()
 
     test_csprojs = [Path(x) for x in glob.glob("tests/**/*.csproj", recursive=True)]
+
+    # NOTE(rkm 2021-06-01) Run last test with additional option to generate merged opencover file
     for csproj in test_csprojs[:-1]:
         _run_tests(csproj)
     _run_tests(test_csprojs[-1], '/p:CoverletOutputFormat="opencover"')
