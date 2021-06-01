@@ -72,7 +72,6 @@ jobs:
                 csmacnz.Coveralls \
                   --opencover \
                   -i coverage/coverage.opencover.xml \
-                  --repoToken "foo" \
                   --commitId "$(Build.SourceVersion)" \
                   --commitBranch "$(Build.SourceBranchName)" \
                   --commitAuthor "$(git show -s --format='%an')" \
@@ -80,6 +79,8 @@ jobs:
                   --commitMessage "$(Build.SourceVersionMessage)" \
                   --jobId "$(Build.BuildId)" \
                   --dryrun
+            env:
+              COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
     - job: java_tests
       displayName: Java Tests
