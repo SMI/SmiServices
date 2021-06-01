@@ -66,24 +66,25 @@ jobs:
                     .azure-pipelines/scripts/run-dotnet-tests.py \
                     "${{ parameters.os }}"
                 failOnStderr: true
-          - task: Bash@3
-            displayName: Upload coverage
-            inputs:
-              targetType: inline
-              script: |
-                set -euxo pipefail
-                dotnet tool update --global coveralls.net
-                csmacnz.Coveralls \
-                  --opencover \
-                  -i coverage/coverage.opencover.xml \
-                  --commitId "$(Build.SourceVersion)" \
-                  --commitBranch "$(Build.SourceBranchName)" \
-                  --commitAuthor "$(git show -s --format='%an')" \
-                  --commitEmail "$(git show -s --format='%ae')" \
-                  --commitMessage "$(Build.SourceVersionMessage)" \
-                  --jobId "$(Build.BuildId)"
-            env:
-              COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
+          - ${{ if eq( parameters.os, 'linux' ) }}:
+            - task: Bash@3
+              displayName: Upload coverage
+              inputs:
+                targetType: inline
+                script: |
+                  set -euxo pipefail
+                  dotnet tool update --global coveralls.net
+                  csmacnz.Coveralls \
+                    --opencover \
+                    -i coverage/coverage.opencover.xml \
+                    --commitId "$(Build.SourceVersion)" \
+                    --commitBranch "$(Build.SourceBranchName)" \
+                    --commitAuthor "$(git show -s --format='%an')" \
+                    --commitEmail "$(git show -s --format='%ae')" \
+                    --commitMessage "$(Build.SourceVersionMessage)" \
+                    --jobId "$(Build.BuildId)"
+              env:
+                COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
     - job: java_tests
       displayName: Java Tests

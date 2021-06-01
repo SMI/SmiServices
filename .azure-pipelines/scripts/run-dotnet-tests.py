@@ -70,7 +70,7 @@ def main() -> int:
         return 1
 
     cmd = (".azure-pipelines/scripts/dotnet-build.bash",)
-    _windows_bash_fixup(args.platform, cmd)
+    cmd = _windows_bash_fixup(args.platform, cmd)
     _run(cmd)
 
     # TODO(rkm 2021-05-31) Check if this is still needed
