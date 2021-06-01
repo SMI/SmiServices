@@ -73,6 +73,10 @@ jobs:
                 script: |
                   set -euxo pipefail
                   dotnet tool update --global coveralls.net
+                  pull_request_arg=""
+                  if [ ! -z "$(System.PullRequest.PullRequestId)" ]; then
+                    pull_request_arg="--pullRequest=$(System.PullRequest.PullRequestId)"
+                  fi
                   csmacnz.Coveralls \
                     --opencover \
                     -i coverage/coverage.opencover.xml \
@@ -82,7 +86,9 @@ jobs:
                     --commitAuthor "$(git show -s --format='%an')" \
                     --commitEmail "$(git show -s --format='%ae')" \
                     --commitMessage "$(Build.SourceVersionMessage)" \
-                    --jobId "$(Build.BuildId)"
+                    --jobId "$(Build.BuildId)" \
+                    "$pull_request_arg" \
+                    --dryrun
               env:
                 COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
