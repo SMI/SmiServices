@@ -65,7 +65,6 @@ jobs:
                   python \
                     .azure-pipelines/scripts/run-dotnet-tests.py \
                     "${{ parameters.os }}"
-                failOnStderr: true
           - ${{ if eq( parameters.os, 'linux' ) }}:
             - task: Bash@3
               displayName: Upload coverage
