@@ -112,6 +112,13 @@ namespace Applications.IsIdentifiableReviewer
                     Console.WriteLine("Press any key to launch GUI");
                     Console.ReadKey();
 
+
+                    if (opts.UseSystemConsole)
+                    {
+                        Application.UseSystemConsole = true;
+                    }
+                        
+
                     //run interactive
                     Application.Init();
 

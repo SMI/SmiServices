@@ -50,5 +50,11 @@ namespace IsIdentifiableReviewer
             HelpText = "Specify to make GUI UPDATE choices only create new rules instead of going to database"
         )]
         public bool OnlyRules { get; set; }
+
+        /// <summary>
+        /// Sets UseSystemConsole to true for Terminal.gui (i.e. uses the NetDriver which is based on System.Console)
+        /// </summary>
+        [Option("usc",HelpText = "Sets UseSystemConsole to true for Terminal.gui (i.e. uses the NetDriver which is based on System.Console)")]
+        public bool UseSystemConsole { get; internal set; }
     }
 }

@@ -213,10 +213,32 @@ namespace IsIdentifiableReviewer.Views
         private void Activate(OutstandingFailureNode ofn)
         {
             var ignore = new Button("Ignore");
-            ignore.Clicked += ()=>{Ignore(ofn,false); Application.RequestStop();};
+            ignore.Clicked += ()=> {
+                try
+                {
+                    Ignore(ofn, false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // user cancelled the interactive ignore e.g. with Ctrl+Q
+                }
+
+                Application.RequestStop();
+            };
 
             var update = new Button("Update");
-            update.Clicked += ()=>{Update(ofn); Application.RequestStop();};
+            update.Clicked += ()=>{
+                try
+                {
+                    Update(ofn);
+                }
+                catch (OperationCanceledException)
+                {
+                    // user cancelled the interactive update e.g. with Ctrl+Q
+                }
+
+                Application.RequestStop();
+            };
             
             var cancel = new Button("Cancel");
             cancel.Clicked += ()=>{Application.RequestStop();};

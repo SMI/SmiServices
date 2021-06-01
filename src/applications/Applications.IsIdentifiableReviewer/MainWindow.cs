@@ -48,11 +48,13 @@ namespace IsIdentifiableReviewer
 
         private FailureView _valuePane;
         private Label _info;
+        private SpinnerView spinner;
         private TextField _gotoTextField;
         private IRulePatternFactory _origUpdaterRulesFactory;
         private IRulePatternFactory _origIgnorerRulesFactory;
         private Label _ignoreRuleLabel;
         private Label _updateRuleLabel;
+        private Label _currentReportLabel;
 
         /// <summary>
         /// Record of new rules added (e.g. Ignore with pattern X) along with the index of the failure.  This allows undoing user decisions
@@ -72,6 +74,8 @@ namespace IsIdentifiableReviewer
         public MenuBar Menu { get; private set; }
 
         public View Body { get; private set; }
+
+        Task taskToLoadNext;
 
         public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
@@ -100,7 +104,7 @@ namespace IsIdentifiableReviewer
             {
                 X = 0,
                 Y = 0,
-                Width = Dim.Fill(),
+                Width = Dim.Fill()-1,
                 Height = 1
             };
 
@@ -171,15 +175,24 @@ namespace IsIdentifiableReviewer
 
             frame.Add(new Label(0, 4, "Default Patterns"));
 
-            _ignoreRuleLabel = new Label(0, 5, "Ignore:");
-            _updateRuleLabel = new Label(0, 6, "Update:"); ;
+            _ignoreRuleLabel = new Label() { X = 0, Y = 5, Text = "Ignore:", Width = 30, Height = 1 }; ;
+            _updateRuleLabel = new Label() { X = 0, Y = 6, Text = "Update:", Width = 30, Height = 1 }; ;
+            _currentReportLabel = new Label() { X = 0, Y= 8, Text = "Report:", Width = 30, Height = 1};
+
             frame.Add(_ignoreRuleLabel);
             frame.Add(_updateRuleLabel);
+            frame.Add(_currentReportLabel);
 
             // always run rules only mode for the manual gui
             Updater.RulesOnly = true;
 
             viewMain.Add(_info);
+
+            spinner = new SpinnerView();
+            spinner.X = Pos.Right(_info);
+            viewMain.Add(spinner);
+            spinner.Visible = false;
+
             viewMain.Add(_valuePane);
             viewMain.Add(frame);
 
@@ -285,10 +298,18 @@ namespace IsIdentifiableReviewer
             }
         }
 
+
+        private void BeginNext()
+        {
+            taskToLoadNext = Task.Run(Next);   
+        }
+
         private void Next()
         {
             if(_valuePane.CurrentFailure == null)
                 return;
+
+            spinner.Visible = true;
 
             int skipped = 0;
             int updated = 0;
@@ -315,10 +336,11 @@ namespace IsIdentifiableReviewer
             {
                 ShowException("Error moving to next record",e);
             }
-            
-            if(CurrentReport.Exhausted)
-                ShowMessage("End", "End of Failures");
-            
+            finally
+            {
+                spinner.Visible = false;
+            }
+
             StringBuilder info = new StringBuilder();
 
             info.Append(CurrentReport.DescribeProgress());
@@ -328,6 +350,11 @@ namespace IsIdentifiableReviewer
             if (updated > 0)
                 info.Append(" Auto Updated " + updated);
 
+            if (CurrentReport.Exhausted)
+            {
+                info.Append(" (End of Failures)");
+            }
+
             _info.Text = info.ToString();
         }
         
@@ -335,6 +362,12 @@ namespace IsIdentifiableReviewer
         {
             if(_valuePane.CurrentFailure == null)
                 return;
+
+            if(taskToLoadNext!= null && !taskToLoadNext.IsCompleted)
+            {
+                MessageBox.Query("StillLoading", "Load next is still running");
+                return;
+            }
 
             try
             {
@@ -346,12 +379,18 @@ namespace IsIdentifiableReviewer
                 //if user cancels adding the ignore then stay on the same record
                 return;
             }
-            Next();
+            BeginNext();
         }
         private void Update()
         {
             if(_valuePane.CurrentFailure == null)
                 return;
+
+            if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
+            {
+                MessageBox.Query("StillLoading", "Load next is still running");
+                return;
+            }
 
             try
             {
@@ -371,7 +410,7 @@ namespace IsIdentifiableReviewer
                 return;
             }
 
-            Next();
+            BeginNext();
         }
 
         private void OpenReport()
@@ -421,7 +460,7 @@ namespace IsIdentifiableReviewer
                         CurrentReport = new ReportReader(new FileInfo(path),(s)=>
                         rows.Text = $"Loaded: {s:N0} rows",cts.Token);
                         SetupToShow(CurrentReport.Failures.FirstOrDefault());
-                        Next();
+                        BeginNext();
 
                         rulesView.LoadReport(CurrentReport, Ignorer, Updater, _origIgnorerRulesFactory);
                     }
@@ -440,7 +479,10 @@ namespace IsIdentifiableReviewer
 
                 cts.Dispose();
             });
-            
+
+            _currentReportLabel.Text = "Report:" + Path.GetFileName(path);
+            _currentReportLabel.SetNeedsDisplay();
+
             Application.Run(dlg);
         }
 
