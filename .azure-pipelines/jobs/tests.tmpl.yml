@@ -72,13 +72,11 @@ jobs:
                 targetType: inline
                 script: |
                   set -euxo pipefail
-                  # Strip directory prefixes from coverage report
-                  pwd="$(pwd)"
-                  sed -i "s|$pwd||g" coverage/coverage.opencover.xml
                   dotnet tool update --global coveralls.net
                   csmacnz.Coveralls \
                     --opencover \
                     -i coverage/coverage.opencover.xml \
+                    --useRelativePaths \
                     --commitId "$(Build.SourceVersion)" \
                     --commitBranch "$(Build.SourceBranchName)" \
                     --commitAuthor "$(git show -s --format='%an')" \
