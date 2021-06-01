@@ -87,8 +87,7 @@ jobs:
                     --commitEmail "$(git show -s --format='%ae')" \
                     --commitMessage "$(Build.SourceVersionMessage)" \
                     --jobId "$(Build.BuildId)" \
-                    "$pull_request_arg" \
-                    --dryrun
+                    "$pull_request_arg"
               env:
                 COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
