@@ -36,6 +36,7 @@ def _run_tests(test_csproj: Path, *args: str) -> None:
         "/p:CollectCoverage=true",
         f'/p:CoverletOutput="{_COV_DIR.resolve()}/"',
         f'/p:MergeWith="{cov_json.resolve()}"',
+        '/p:Exclude="[*.Tests]*"',
         *args,
     )
     _run(cmd)
