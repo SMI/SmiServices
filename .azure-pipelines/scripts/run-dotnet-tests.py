@@ -73,7 +73,6 @@ def main() -> int:
     cmd = _windows_bash_fixup(args.platform, cmd)
     _run(cmd)
 
-    # TODO(rkm 2021-05-31) Check if this is still needed
     net5_glob = {Path(x) for x in glob.glob("**/net5", recursive=True)}
     for build_dir in net5_glob:
         try:
