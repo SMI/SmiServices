@@ -77,8 +77,7 @@ jobs:
                   --commitAuthor "$(git show -s --format='%an')" \
                   --commitEmail "$(git show -s --format='%ae')" \
                   --commitMessage "$(Build.SourceVersionMessage)" \
-                  --jobId "$(Build.BuildId)" \
-                  --dryrun
+                  --jobId "$(Build.BuildId)"
             env:
               COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
