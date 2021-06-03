@@ -126,7 +126,7 @@ jobs:
           - task: Bash@3
             displayName: Run Java tests
             inputs:
-                filePath: utils/runJavaTests.bash
+                filePath: utils/run-java-tests.bash
                 # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
                 failOnStderr: false
                 arguments: $(MVN_PROFILE)
