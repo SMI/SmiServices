@@ -149,7 +149,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # Build dotnet projects
 
-    cmd = (".azure-pipelines/scripts/dotnet-build.bash",)
+    cmd = ("utils/dotnet-build.bash",)
     cmd = _windows_bash_fixup(platform, cmd)
     _run(cmd)
 

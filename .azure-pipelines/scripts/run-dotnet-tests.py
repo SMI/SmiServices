@@ -69,7 +69,7 @@ def main() -> int:
         )
         return 1
 
-    cmd = (".azure-pipelines/scripts/dotnet-build.bash",)
+    cmd = ("utils/dotnet-build.bash",)
     cmd = _windows_bash_fixup(args.platform, cmd)
     _run(cmd)
 
