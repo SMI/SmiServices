@@ -63,7 +63,7 @@ jobs:
                 script: |
                   set -euxo pipefail
                   python \
-                    .azure-pipelines/scripts/run-dotnet-tests.py \
+                    utils/runDotnetTests.py \
                     "${{ parameters.os }}"
           - ${{ if eq( parameters.os, 'linux' ) }}:
             - task: Bash@3
