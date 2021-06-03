@@ -1,4 +1,3 @@
-
 # RabbitMQ Tidy Queues Utility
 
 Language: `Go`
