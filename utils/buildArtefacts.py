@@ -40,7 +40,7 @@ def _build_java_packages(dist_tag_dir: Path, tag: str) -> None:
     # Build Java microserves
 
     cmd: Tuple[str, ...]
-    cmd = (".azure-pipelines/scripts/install-ctp.bash",)
+    cmd = ("utils/install-ctp.bash",)
     _run(cmd)
 
     cmd = (
