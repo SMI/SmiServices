@@ -316,7 +316,7 @@ venv/
 
 *.egg-info/
 
-# for prettier in scripts/update-changelog.py
+# for prettier in scripts/updateChangelog.py
 package-lock.json
 
 coverage/
