@@ -7,7 +7,7 @@ Following the process described [here](https://docs.microsoft.com/en-us/dotnet/c
 ```console
 $ dotnet tool update -g dotnet-reportgenerator-globaltool
 ...
-$ .azure-pipelines/scripts/run-dotnet-tests.py
+$ utils/runDotnetTests.py
 ...
 
 $ reportgenerator \

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import re
 from typing import Optional
 from typing import Sequence
 
@@ -17,7 +18,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     with open("CHANGELOG.md") as f:
         reading = False
         while True:
-            line = f.readline().strip()
+            line = f.readline().strip("\n")
             if not reading:
                 if tag in line:
                     reading = True
@@ -26,8 +27,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 break
             release_lines.append(line)
 
+    content = "\n".join(release_lines)
+    # NOTE(rkm 2021-06-03) GH's Releases display doesn't properly wrap markdown
+    content = re.sub(r"\n(\s+(?=\w))", " ", content)
+
     with open("release_changelog.md", "w") as f:
-        f.write("\n".join(release_lines))
+        f.write(content)
 
 
 if __name__ == "__main__":

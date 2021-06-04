@@ -28,7 +28,7 @@ steps:
   - task: PythonScript@0
     inputs:
       scriptSource: 'filePath'
-      scriptPath: .azure-pipelines/scripts/write_release_changelog.py
+      scriptPath: utils/printReleaseChangelog.py
       arguments: $(tag)
       failOnStderr: true
   - task: GitHubRelease@1

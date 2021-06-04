@@ -24,7 +24,7 @@ jobs:
               script: |
                   set -euxo pipefail
                   os="${{ parameters.os }}"
-                  python .azure-pipelines/scripts/buildArtefacts.py \
+                  python utils/buildArtefacts.py \
                     $os \
                     $(tag) \
                     "$(python_exe)"
