@@ -2,7 +2,11 @@
 
 set -exo pipefail
 
-#dotnet tool update --global coveralls.net
+dotnet tool update --global coveralls.net
+
+# debug
+env | grep SYSTEM_
+env | grep BUILD_
 
 if [ ! -z "$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER" ]
 then
