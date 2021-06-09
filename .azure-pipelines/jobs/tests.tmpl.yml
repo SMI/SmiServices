@@ -74,8 +74,8 @@ jobs:
                   set -euxo pipefail
                   dotnet tool update --global coveralls.net
                   pull_request_arg=""
-                  if [ ! -z "$(System.PullRequest.PullRequestId)" ]; then
-                    pull_request_arg="--pullRequest $(System.PullRequest.PullRequestId)"
+                  if [ ! -z "$(System.PullRequest.PullRequestNumber)" ]; then
+                    pull_request_arg="--pullRequest $(System.PullRequest.PullRequestNumber)"
                   fi
                   csmacnz.Coveralls \
                     --opencover \
