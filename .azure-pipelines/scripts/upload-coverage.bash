@@ -26,7 +26,7 @@ echo csmacnz.Coveralls \
     -i coverage/coverage.opencover.xml \
     --useRelativePaths \
     --commitAuthor "$BUILD_SOURCEVERSIONAUTHOR" \
-    --commitEmail "$BUILD_REQUESTEDFOREMAIL" \
+    --commitEmail "$(git show -s --format='%ae')" \
     --commitMessage "$BUILD_SOURCEVERSIONMESSAGE" \
     --jobId "$BUILD_BUILDID" \
     $commit_id_arg \
