@@ -66,10 +66,12 @@ jobs:
                     utils/runDotnetTests.py \
                     "${{ parameters.os }}"
           - ${{ if eq( parameters.os, 'linux' ) }}:
-            - task: Bash@3
+            - task: PythonScript@0
               displayName: Upload coverage
               inputs:
-                filePath: .azure-pipelines/scripts/upload-coverage.py
+                scriptSource: 'filePath'
+                scriptPath: .azure-pipelines/scripts/upload-coverage.py
+                failOnStderr: true
               env:
                 COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
