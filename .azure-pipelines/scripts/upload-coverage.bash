@@ -10,7 +10,8 @@ then
     commit_id_arg="--commitId $SYSTEM_PULLREQUEST_SOURCECOMMITID"
     pull_request_arg="--pullRequest $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"
 else
-    commit_branch_arg="--commitBranch $BUILD_SOURCEBRANCHNAME"
+    # NOTE(rkm 2021-06-09) Build.SourceBranchName only contains the last part of any paths
+    commit_branch_arg="--commitBranch $(git branch --show-current)"
     commit_id_arg="--commitId $BUILD_SOURCEVERSION"
     pull_request_arg=""
 fi
