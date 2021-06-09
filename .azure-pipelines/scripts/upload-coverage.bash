@@ -4,11 +4,7 @@ set -exo pipefail
 
 dotnet tool update --global coveralls.net
 
-# debug
-env | grep SYSTEM_
-env | grep BUILD_
-
-if [ ! -z "$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER" ]
+if [ -n "$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER" ]
 then
     commit_branch_arg="--commitBranch $SYSTEM_PULLREQUEST_SOURCEBRANCH"
     commit_id_arg="--commitId $SYSTEM_PULLREQUEST_SOURCECOMMITID"
@@ -21,7 +17,7 @@ fi
 
 set -u
 
-echo csmacnz.Coveralls \
+csmacnz.Coveralls \
     --opencover \
     -i coverage/coverage.opencover.xml \
     --useRelativePaths \
@@ -29,6 +25,6 @@ echo csmacnz.Coveralls \
     --commitEmail "$(git show -s --format='%ae')" \
     --commitMessage "$BUILD_SOURCEVERSIONMESSAGE" \
     --jobId "$BUILD_BUILDID" \
-    $commit_id_arg \
-    $commit_branch_arg \
-    $pull_request_arg
+    "$commit_id_arg" \
+    "$commit_branch_arg" \
+    "$pull_request_arg"
