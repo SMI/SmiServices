@@ -24,7 +24,7 @@ echo csmacnz.Coveralls \
     --commitAuthor "$BUILD_SOURCEVERSIONAUTHOR" \
     --commitEmail "$BUILD_REQUESTEDFOREMAIL" \
     --commitMessage "$BUILD_SOURCEVERSIONMESSAGE" \
-    --jobId "$BUILD_BUILDID"
+    --jobId "$BUILD_BUILDID" \
     $commit_id_arg \
     $commit_branch_arg \
     $pull_request_arg
