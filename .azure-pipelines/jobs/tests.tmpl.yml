@@ -10,11 +10,6 @@ jobs:
       pool:
           vmImage: ${{ parameters.vmImage }}
       steps:
-          # tmp
-          - task: Bash@3
-            inputs:
-                targetType: "inline"
-                script: aaaaaaaaaaa
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
           - task: Cache@2
