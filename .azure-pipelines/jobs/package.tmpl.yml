@@ -8,8 +8,15 @@ jobs:
       displayName: Build Artefacts
       pool:
           vmImage: ${{ parameters.vmImage }}
-      condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       dependsOn: [dotnet_tests, java_tests, python_tests]
+      condition: |
+        and
+        (
+            eq(dependencies.dotnet_tests.result, 'Succeeded'),
+            eq(dependencies.java_tests.result, 'Succeeded'),
+            eq(dependencies.python_tests.result, 'Succeeded'),
+            startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        )
       steps:
           - template: ../steps/vars.tmpl.yml
           - template: ../steps/use-dotnet.tmpl.yml
