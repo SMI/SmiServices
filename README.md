@@ -8,7 +8,7 @@
 
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-Version: `3.0.2`
+Version: `3.1.0`
 
 # SMI Services
 

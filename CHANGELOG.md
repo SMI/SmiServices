@@ -11,6 +11,41 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [3.1.0] 2021-06-11
+
+## Feature
+
+-   [#759](https://github.com/SMI/SmiServices/pull/759) by tznind. Added
+    parallelisation to load process in IsIdentifiableReviewer rules view
+
+## Bugfix
+
+-   [#756](https://github.com/SMI/SmiServices/pull/756) by howff. Open CSV file
+    read-only
+-   [#771](https://github.com/SMI/SmiServices/pull/771) by tznind.
+    IsIdentifiableReviewer:
+    -   Added --usc (UseSystemConsole) for alternative display driver based on
+        System.Console
+    -   Removed modal dialog that could cause errors opening a previously
+        completed report
+    -   Added label with currently opened file and fixed ignore/update labels
+    -   Added spinner indicator for when loading the Next report in sequential
+        mode takes a while
+    -   Fixed bug where Ctrl+Q in Ignore/Update with custom patterns in
+        RulesView results in hard crash
+-   [#785](https://github.com/SMI/SmiServices/pull/785) by tznind. Fixed bug
+    with multiple enumeration during loading very large failure reports in
+    IsIdentifiableReviewer
+
+## Meta
+
+-   [#773](https://github.com/SMI/SmiServices/pull/773) by rkm. Add code
+    coverage
+-   [#775](https://github.com/SMI/SmiServices/pull/775) by rkm. Move useful
+    scripts from .azure-pipelines/scripts to utils. Update utils/README.md.
+-   [#781](https://github.com/SMI/SmiServices/pull/781) by rkm. Fixup coverage
+    variables between pushes/PRs
+
 ## [3.0.2] 2021-05-14
 
 ## Bugfix
@@ -847,7 +882,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v3.0.2...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v3.1.0...master
+[3.1.0]: https://github.com/SMI/SmiServices/compare/v3.0.2...v3.1.0
 [3.0.2]: https://github.com/SMI/SmiServices/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/SMI/SmiServices/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/SMI/SmiServices/compare/v2.1.1...v3.0.0
