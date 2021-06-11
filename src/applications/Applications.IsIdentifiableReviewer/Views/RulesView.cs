@@ -330,7 +330,6 @@ namespace IsIdentifiableReviewer.Views
 
             AddDuplicatesToTree(allRules);
 
-            _treeView.AddObjects(new []{ colliding,ignore,update,outstanding});
 
             var cts = new CancellationTokenSource();
 
@@ -354,21 +353,23 @@ namespace IsIdentifiableReviewer.Views
 
             Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
             {
-                _treeView.RebuildTree();
                 dlg.SetNeedsDisplay();
                 return !done;
             });
 
             Task.Run(()=>{
                 EvaluateRuleCoverageAsync(stage,progress,textProgress,cts.Token,colliding,ignore,update,outstanding);
-                },cts.Token).ContinueWith((t)=>{
+                },cts.Token).ContinueWith((t,s)=>{
                 
                     btn.Clicked -= cancelFunc;
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
                     done = true;
                     cts.Dispose();
-            });
+
+                    _treeView.RebuildTree();
+                    _treeView.AddObjects(new[] { colliding, ignore, update, outstanding });
+                },SynchronizationContext.Current);
             
             Application.Run(dlg);
         }
