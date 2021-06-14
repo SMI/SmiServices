@@ -426,7 +426,13 @@ namespace IsIdentifiableReviewer
 
             var f = ofd.FilePaths?.SingleOrDefault();
 
-            OpenReport(f,(e)=>ShowException("Failed to Load", e));
+            Exception ex = null;
+            OpenReport(f, (e) => ex = e);
+
+            if(ex != null)
+            {
+                ShowException("Failed to Load", ex);
+            }
         }
 
         private void OpenReport(string path, Action<Exception> exceptionHandler)
@@ -467,6 +473,7 @@ namespace IsIdentifiableReviewer
                     catch (Exception e)
                     {
                         exceptionHandler(e);
+                        rows.Text = "Error";
                     } 
               
                 }
