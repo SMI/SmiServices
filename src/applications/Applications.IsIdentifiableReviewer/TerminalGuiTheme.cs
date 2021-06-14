@@ -7,7 +7,7 @@ using Terminal.Gui;
 
 namespace IsIdentifiableReviewer
 {
-    class TerminalGuiTheme
+    public class TerminalGuiTheme
     {
         public Color FocusForeground { get; set; }
         public Color FocusBackground { get; set; }
