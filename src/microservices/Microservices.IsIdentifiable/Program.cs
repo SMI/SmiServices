@@ -34,6 +34,9 @@ namespace Microservices.IsIdentifiable
         {
             var opts = SmiCliInit.Verify<IsIdentifiableAbstractOptions>(parsedOpts);
 
+            // For any values not specified on the command line - use the yaml values
+            opts.FillMissingWithValuesUsing(globals.IsIdentifiableOptions);
+
             return opts switch
             {
                 IsIdentifiableRelationalDatabaseOptions o => Run(o),
