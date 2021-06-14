@@ -1,0 +1,1 @@
+Fixed bug opening corrupted reports in IsIdentifiableReviewer crashing the application
