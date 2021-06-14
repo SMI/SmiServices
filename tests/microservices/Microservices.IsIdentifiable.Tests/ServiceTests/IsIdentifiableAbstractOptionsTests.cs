@@ -23,9 +23,6 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         [Test]
         public void FillMissingWithValuesUsing_Override()
         {
-            var opts = new IsIdentifiableDicomFileOptions();
-            var globalOpts = new IsIdentifiableOptions();
-
             int propsCounted = 0;
 
             foreach(var gProp in typeof(IsIdentifiableOptions).GetProperties())
@@ -37,6 +34,8 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                     continue;
                 }
 
+                var opts = new IsIdentifiableDicomFileOptions();
+                var globalOpts = new IsIdentifiableOptions();
 
                 var testVal = GetTestValue(cliProp);
                 gProp.SetValue(globalOpts, testVal);
