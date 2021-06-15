@@ -29,6 +29,8 @@ namespace Applications.IsIdentifiableReviewer
         {
             FansiImplementations.Load();
 
+            opts.FillMissingWithValuesUsing(globals.IsIdentifiableReviewerOptions);
+
             Deserializer d = new Deserializer();
             List<Target> targets;
 

@@ -61,8 +61,19 @@ namespace IsIdentifiableReviewer
         /// Sets the user interface to use a specific color pallette yaml file
         /// </summary>
         [Option("theme", HelpText = "Sets the user interface to use a specific color pallette yaml file")]
-        public FileInfo Theme { get; internal set; }
+        public FileInfo Theme { get; set; }
 
 
+        public virtual void FillMissingWithValuesUsing(IsIdentifiableReviewerGlobalOptions globalOpts)
+        {
+            if (string.IsNullOrWhiteSpace(TargetsFile))
+                TargetsFile = globalOpts.TargetsFile;
+            if (string.IsNullOrWhiteSpace(IgnoreList))
+                IgnoreList = globalOpts.IgnoreList;
+            if (string.IsNullOrWhiteSpace(RedList))
+                RedList = globalOpts.RedList;
+            if (Theme == null && !string.IsNullOrWhiteSpace(globalOpts.Theme))
+                Theme = new FileInfo(globalOpts.Theme);
+        }
     }
 }
