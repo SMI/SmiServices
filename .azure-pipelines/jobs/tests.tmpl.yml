@@ -68,6 +68,7 @@ jobs:
           - ${{ if eq( parameters.os, 'linux' ) }}:
             - task: PythonScript@0
               displayName: Upload coverage
+              condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
               inputs:
                 scriptSource: 'filePath'
                 scriptPath: .azure-pipelines/scripts/upload-coverage.py
