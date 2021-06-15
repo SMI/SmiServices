@@ -31,8 +31,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # NOTE(rkm 2021-06-03) GH's Releases display doesn't properly wrap markdown
     content = re.sub(r"\n(\s+(?=\w))", " ", content)
 
-    with open("release_changelog.md", "w") as f:
+    output_file = "release_changelog.md"
+    with open(output_file, "w") as f:
         f.write(content)
+
+    print(f"Wrote {output_file}")
 
 
 if __name__ == "__main__":
