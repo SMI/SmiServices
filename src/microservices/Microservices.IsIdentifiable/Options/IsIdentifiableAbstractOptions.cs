@@ -55,8 +55,10 @@ namespace Microservices.IsIdentifiable.Options
         [Option(HelpText = "Optional. If set and using a 7 class NER model then DATE and TIME objects will not be considered failures.")]
         public bool IgnoreDatesInText { get; set; }
 
-        [Option(HelpText = "Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data", Default = 10000)]
-        public int MaxCacheSize { get; set; }
+        [Option(HelpText = "Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data", Default = MaxCacheSizeDefault)]
+        public int MaxCacheSize { get; set; } = MaxCacheSizeDefault;
+
+        public const int MaxCacheSizeDefault = 10000;
 
         [Option(HelpText = "Optional. Filename of additional rules in yaml format.")]
         public string RulesFile { get; set; }
@@ -64,8 +66,10 @@ namespace Microservices.IsIdentifiable.Options
         [Option(HelpText = "Optional. Directory of additional rules in yaml format.")]
         public string RulesDirectory { get; set; }
 
-        [Option(HelpText = "Optional.  Maximum number of answers to cache per column.", Default = 1_000_000)]
-        public int MaxValidationCacheSize { get; set; } = 1_000_000;
+        [Option(HelpText = "Optional.  Maximum number of answers to cache per column.", Default = MaxValidationCacheSizeDefault)]
+        public int MaxValidationCacheSize { get; set; } = MaxValidationCacheSizeDefault;
+
+        public const int MaxValidationCacheSizeDefault = 1_000_000;
 
         /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
@@ -80,6 +84,75 @@ namespace Microservices.IsIdentifiable.Options
         public virtual void ValidateOptions()
         {
 
+        }
+
+
+        /// <summary>
+        /// Populates class options that have not been specified on the command line directly by using the values (if any) in the
+        /// default yaml file for smi services
+        /// </summary>
+        /// <param name="globalOpts"></param>
+        public virtual void FillMissingWithValuesUsing(IsIdentifiableOptions globalOpts)
+        {
+            if (string.IsNullOrWhiteSpace(WhitelistConnectionString))
+                WhitelistConnectionString = globalOpts.WhitelistConnectionString;
+
+            if (WhitelistDatabaseType == default(DatabaseType) && globalOpts.WhitelistDatabaseType.HasValue)
+                WhitelistDatabaseType = globalOpts.WhitelistDatabaseType.Value;
+            
+            if (string.IsNullOrWhiteSpace(WhitelistTableName))
+                WhitelistTableName = globalOpts.WhitelistTableName;
+
+            if (string.IsNullOrWhiteSpace(WhitelistColumn))
+                WhitelistColumn = globalOpts.WhitelistColumn;
+
+            if (string.IsNullOrWhiteSpace(WhitelistCsv))
+                WhitelistCsv = globalOpts.WhitelistCsv;
+
+            if (ColumnReport == default(bool) && globalOpts.ColumnReport.HasValue)
+                ColumnReport = globalOpts.ColumnReport.Value;
+
+            if (ValuesReport == default(bool) && globalOpts.ValuesReport.HasValue)
+                ValuesReport = globalOpts.ValuesReport.Value;
+
+            if (StoreReport == default(bool) && globalOpts.StoreReport.HasValue)
+                StoreReport = globalOpts.StoreReport.Value;
+
+            if (string.IsNullOrWhiteSpace(DestinationCsvFolder))
+                DestinationCsvFolder = globalOpts.DestinationCsvFolder;
+
+            if (string.IsNullOrWhiteSpace(DestinationCsvSeparator))
+                DestinationCsvSeparator = globalOpts.DestinationCsvSeparator;
+
+            if (DestinationNoWhitespace == default(bool) && globalOpts.DestinationNoWhitespace.HasValue)
+                DestinationNoWhitespace = globalOpts.DestinationNoWhitespace.Value;
+
+            if (string.IsNullOrWhiteSpace(DestinationConnectionString))
+                DestinationConnectionString = globalOpts.DestinationConnectionString;
+
+            if (DestinationDatabaseType == default(DatabaseType) && globalOpts.DestinationDatabaseType.HasValue)
+                DestinationDatabaseType = globalOpts.DestinationDatabaseType.Value;
+
+            if (IgnorePostcodes == default(bool) && globalOpts.IgnorePostcodes.HasValue)
+                IgnorePostcodes = globalOpts.IgnorePostcodes.Value;
+
+            if (string.IsNullOrWhiteSpace(SkipColumns))
+                SkipColumns = globalOpts.SkipColumns;
+
+            if (IgnoreDatesInText == default(bool) && globalOpts.IgnoreDatesInText.HasValue)
+                IgnoreDatesInText = globalOpts.IgnoreDatesInText.Value;
+
+            if (MaxCacheSize == MaxCacheSizeDefault && globalOpts.MaxCacheSize.HasValue)
+                MaxCacheSize = globalOpts.MaxCacheSize.Value;
+
+            if (string.IsNullOrWhiteSpace(RulesFile))
+                RulesFile = globalOpts.RulesFile;
+
+            if (string.IsNullOrWhiteSpace(RulesDirectory))
+                RulesDirectory = globalOpts.RulesDirectory;
+
+            if (MaxValidationCacheSize == MaxValidationCacheSizeDefault && globalOpts.MaxValidationCacheSize.HasValue)
+                MaxValidationCacheSize = globalOpts.MaxValidationCacheSize.Value;
         }
     }
 }
