@@ -1,0 +1,1 @@
+Added help and cancel buttons to custom pattern dialog in reviewer
