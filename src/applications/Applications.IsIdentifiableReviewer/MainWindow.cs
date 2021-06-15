@@ -8,7 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using IsIdentifiableReviewer.Out;
 using IsIdentifiableReviewer.Views;
+using IsIdentifiableReviewer.Views.Manager;
 using Microservices.IsIdentifiable.Reporting;
+using Smi.Common.Options;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 using Attribute = Terminal.Gui.Attribute;
@@ -73,6 +75,7 @@ namespace IsIdentifiableReviewer
         };
         private MenuItem miCustomPatterns;
         private RulesView rulesView;
+        private AllRulesManagerView rulesManager;
 
         public MenuBar Menu { get; private set; }
 
@@ -80,7 +83,7 @@ namespace IsIdentifiableReviewer
 
         Task taskToLoadNext;
 
-        public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        public MainWindow(GlobalOptions globalOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             Ignorer = ignorer;
             Updater = updater;
@@ -121,7 +124,7 @@ namespace IsIdentifiableReviewer
             Menu.ColorScheme = GlobalColorScheme;
 
             rulesView = new RulesView(){ColorScheme = GlobalColorScheme};
-
+            rulesManager = new AllRulesManagerView(globalOpts.IsIdentifiableOptions,opts) { ColorScheme = GlobalColorScheme };
 
             _info = new Label("Info")
             {
@@ -236,6 +239,7 @@ namespace IsIdentifiableReviewer
 
             tabView.AddTab(new TabView.Tab("Sequential", viewMain), true);
             tabView.AddTab(new TabView.Tab("Tree View", rulesView), false);
+            tabView.AddTab(new TabView.Tab("Rules Manager", rulesManager), false);
 
             Body = tabView;
         }

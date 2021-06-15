@@ -124,7 +124,7 @@ namespace Applications.IsIdentifiableReviewer
 
                     var top = Application.Top;
 
-                    var mainWindow = new MainWindow(opts, ignorer, updater);
+                    var mainWindow = new MainWindow(globals, opts, ignorer, updater);
                     
 
                     // Creates the top-level window to show
