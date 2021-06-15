@@ -698,7 +698,7 @@ G - creates a regex pattern that matches only the failing part(s)
             {
                 X = x
             };
-            x += 11;
+            //x += 11;
             btnCancel.Clicked += () =>
             {
                 optionChosen = false;
