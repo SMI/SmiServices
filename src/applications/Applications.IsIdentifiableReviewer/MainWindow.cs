@@ -10,6 +10,7 @@ using IsIdentifiableReviewer.Out;
 using IsIdentifiableReviewer.Views;
 using Microservices.IsIdentifiable.Reporting;
 using Terminal.Gui;
+using YamlDotNet.Serialization;
 using Attribute = Terminal.Gui.Attribute;
 
 namespace IsIdentifiableReviewer
@@ -61,12 +62,14 @@ namespace IsIdentifiableReviewer
         /// </summary>
         Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
 
+        public static ColorScheme GlobalColorScheme;
+
         ColorScheme _greyOnBlack = new ColorScheme()
         {
-            Normal = Attribute.Make(Color.Black,Color.Gray),
-            HotFocus = Attribute.Make(Color.Black,Color.Gray),
-            Disabled = Attribute.Make(Color.Black,Color.Gray),
-            Focus = Attribute.Make(Color.Black,Color.Gray),
+            Normal = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
+            HotFocus = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
+            Disabled = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
+            Focus = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
         };
         private MenuItem miCustomPatterns;
         private RulesView rulesView;
@@ -84,7 +87,6 @@ namespace IsIdentifiableReviewer
             _origUpdaterRulesFactory = updater.RulesFactory;
             _origIgnorerRulesFactory = ignorer.RulesFactory;
 
-
             Menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File (F9)", new MenuItem [] {
                     new MenuItem("_Open Report",null, OpenReport),
@@ -97,7 +99,28 @@ namespace IsIdentifiableReviewer
 
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
-            rulesView = new RulesView();
+
+            if (opts.Theme != null && opts.Theme.Exists)
+            {
+                try
+                {
+                    var des = new Deserializer();
+                    var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(opts.Theme.FullName));
+                    viewMain.ColorScheme = GlobalColorScheme = theme.GetScheme();
+                }
+                catch (Exception ex)
+                {
+                    ShowException("Could not deserialize theme", ex);
+                }
+            }
+            else
+            {
+                GlobalColorScheme = viewMain.ColorScheme;
+            }
+
+            Menu.ColorScheme = GlobalColorScheme;
+
+            rulesView = new RulesView(){ColorScheme = GlobalColorScheme};
 
 
             _info = new Label("Info")
@@ -202,7 +225,8 @@ namespace IsIdentifiableReviewer
             var tabView = new TabView()
             {
                 Width = Dim.Fill(),
-                Height = Dim.Fill()
+                Height = Dim.Fill(),
+                ColorScheme = GlobalColorScheme
             };
 
             tabView.Style.ShowBorder = false;

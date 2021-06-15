@@ -1,7 +1,7 @@
 using CommandLine;
 using IsIdentifiableReviewer.Out;
 using Smi.Common.Options;
-
+using System.IO;
 
 namespace IsIdentifiableReviewer
 {
@@ -56,5 +56,13 @@ namespace IsIdentifiableReviewer
         /// </summary>
         [Option("usc",HelpText = "Sets UseSystemConsole to true for Terminal.gui (i.e. uses the NetDriver which is based on System.Console)")]
         public bool UseSystemConsole { get; internal set; }
+
+        /// <summary>
+        /// Sets the user interface to use a specific color pallette yaml file
+        /// </summary>
+        [Option("theme", HelpText = "Sets the user interface to use a specific color pallette yaml file")]
+        public FileInfo Theme { get; internal set; }
+
+
     }
 }

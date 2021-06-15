@@ -135,7 +135,8 @@ namespace Applications.IsIdentifiableReviewer
 
                         // By using Dim.Fill(), it will automatically resize without manual intervention
                         Width = Dim.Fill(),
-                        Height = Dim.Fill()
+                        Height = Dim.Fill(),
+                        ColorScheme = MainWindow.GlobalColorScheme
                     };
 
                     top.Add(win);
