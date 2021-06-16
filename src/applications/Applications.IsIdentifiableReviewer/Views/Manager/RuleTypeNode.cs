@@ -11,7 +11,7 @@ namespace IsIdentifiableReviewer.Views.Manager
         public RuleTypeNode(RuleSetFileNode ruleSet, string categoryName, ICustomRule[] rules)
         {
             _categoryName = categoryName;
-            Rules = rules;
+            Rules = rules ?? new ICustomRule[0];
         }
 
         public override string ToString()

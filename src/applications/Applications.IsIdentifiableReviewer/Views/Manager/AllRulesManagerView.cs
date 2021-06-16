@@ -1,4 +1,5 @@
-﻿using Smi.Common.Options;
+﻿using Microservices.IsIdentifiable.Rules;
+using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,10 +32,29 @@ namespace IsIdentifiableReviewer.Views.Manager
             var tv = new TreeView<object>(this);
             tv.Width = Dim.Percent(50);
             tv.Height = Dim.Fill();
-
+            tv.AspectGetter = NodeAspectGetter;
             tv.AddObject(Analyser);
             tv.AddObject(Reviewer);
             Add(tv);
+        }
+
+        private string NodeAspectGetter(object toRender)
+        {
+            if(toRender is IsIdentifiableRule basicrule)
+            {
+                return basicrule.IfPattern;
+            }
+
+            if (toRender is SocketRule socketRule)
+            {
+                return socketRule.Host + ":" + socketRule.Port;
+            }
+            if (toRender is WhiteListRule ignoreRule)
+            {
+                return ignoreRule.IfPattern ?? ignoreRule.IfPartPattern;
+            }
+
+            return toRender.ToString();
         }
 
         public bool SupportsCanExpand => true;
