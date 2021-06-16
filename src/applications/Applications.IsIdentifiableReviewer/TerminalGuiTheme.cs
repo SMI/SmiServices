@@ -4,11 +4,11 @@ namespace IsIdentifiableReviewer
 {
     public class TerminalGuiTheme
     {
-        public ColorSchemeBlueprint TopLevel { get; set; }
-        public ColorSchemeBlueprint Base { get; set; }
-        public ColorSchemeBlueprint Dialog { get; set; }
-        public ColorSchemeBlueprint Menu { get; set; }
-        public ColorSchemeBlueprint Error { get; set; }
+        public ColorSchemeBlueprint TopLevel { get; set; } = new ColorSchemeBlueprint();
+        public ColorSchemeBlueprint Base { get; set; } = new ColorSchemeBlueprint();
+        public ColorSchemeBlueprint Dialog { get; set; } = new ColorSchemeBlueprint();
+        public ColorSchemeBlueprint Menu { get; set; } = new ColorSchemeBlueprint();
+        public ColorSchemeBlueprint Error { get; set; } = new ColorSchemeBlueprint();
     }
 
     public class ColorSchemeBlueprint
