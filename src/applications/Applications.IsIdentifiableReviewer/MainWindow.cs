@@ -62,8 +62,6 @@ namespace IsIdentifiableReviewer
         /// </summary>
         Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
 
-        public static ColorScheme GlobalColorScheme;
-
         ColorScheme _greyOnBlack = new ColorScheme()
         {
             Normal = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
@@ -105,28 +103,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
-
-            if (opts.Theme != null && opts.Theme.Exists)
-            {
-                try
-                {
-                    var des = new Deserializer();
-                    var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(opts.Theme.FullName));
-                    viewMain.ColorScheme = GlobalColorScheme = theme.GetScheme();
-                }
-                catch (Exception ex)
-                {
-                    ShowException("Could not deserialize theme", ex);
-                }
-            }
-            else
-            {
-                GlobalColorScheme = viewMain.ColorScheme;
-            }
-
-            Menu.ColorScheme = GlobalColorScheme;
-
-            rulesView = new RulesView(){ColorScheme = GlobalColorScheme};
+            rulesView = new RulesView();
 
 
             _info = new Label("Info")
@@ -231,8 +208,7 @@ G - creates a regex pattern that matches only the failing part(s)
             var tabView = new TabView()
             {
                 Width = Dim.Fill(),
-                Height = Dim.Fill(),
-                ColorScheme = GlobalColorScheme
+                Height = Dim.Fill()
             };
 
             tabView.Style.ShowBorder = false;

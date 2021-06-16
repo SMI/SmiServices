@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terminal.Gui;
+﻿using Terminal.Gui;
 
 namespace IsIdentifiableReviewer
 {
     public class TerminalGuiTheme
+    {
+        public ColorSchemeBlueprint TopLevel { get; set; }
+        public ColorSchemeBlueprint Base { get; set; }
+        public ColorSchemeBlueprint Dialog { get; set; }
+        public ColorSchemeBlueprint Menu { get; set; }
+        public ColorSchemeBlueprint Error { get; set; }
+    }
+
+    public class ColorSchemeBlueprint
     {
         public Color FocusForeground { get; set; }
         public Color FocusBackground { get; set; }
@@ -24,8 +28,6 @@ namespace IsIdentifiableReviewer
         public Color NormalForeground { get; set; }
         public Color NormalBackground { get; set; }
 
-
-
         public ColorScheme GetScheme()
         {
             return new ColorScheme
@@ -38,4 +40,5 @@ namespace IsIdentifiableReviewer
             };
         }
     }
+    
 }
