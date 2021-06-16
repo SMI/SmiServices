@@ -17,18 +17,85 @@
 # BrightYellow
 # White
 
-FocusForeground: Black
-FocusBackground: Gray
+TopLevel:
+  #Normal
+  NormalForeground: White
+  NormalBackground: Blue
+  #Focus
+  FocusForeground: Black
+  FocusBackground: Gray
+  #Disabled
+  DisabledForeground: Black
+  DisabledBackground: Black
+  #HotFocus
+  HotFocusForeground: BrightBlue
+  HotFocusBackground: Gray
+  #HotNormal
+  HotNormalForeground: BrightBlue
+  HotNormalBackground: Blue
+Base:
+  #Normal
+  NormalForeground: White
+  NormalBackground: Blue
+  #Focus
+  FocusForeground: Black
+  FocusBackground: Gray
+  #Disabled
+  DisabledForeground: Black
+  DisabledBackground: Black
+  #HotFocus
+  HotFocusForeground: BrightBlue
+  HotFocusBackground: Gray
+  #HotNormal
+  HotNormalForeground: BrightBlue
+  HotNormalBackground: Blue
+Dialog:
+  #Normal
+  NormalForeground: White
+  NormalBackground: Blue
+  #Focus
+  FocusForeground: Black
+  FocusBackground: Gray
+  #Disabled
+  DisabledForeground: Black
+  DisabledBackground: Black
+  #HotFocus
+  HotFocusForeground: BrightBlue
+  HotFocusBackground: Gray
+  #HotNormal
+  HotNormalForeground: BrightBlue
+  HotNormalBackground: Blue
+Menu:
+  #Normal
+  NormalForeground: White
+  NormalBackground: Blue
+  #Focus
+  FocusForeground: Black
+  FocusBackground: Gray
+  #Disabled
+  DisabledForeground: Black
+  DisabledBackground: Black
+  #HotFocus
+  HotFocusForeground: BrightBlue
+  HotFocusBackground: Gray
+  #HotNormal
+  HotNormalForeground: BrightBlue
+  HotNormalBackground: Blue
+Error:
+  #Normal
+  NormalForeground: White
+  NormalBackground: Blue
+  #Focus
+  FocusForeground: Black
+  FocusBackground: Gray
+  #Disabled
+  DisabledForeground: Black
+  DisabledBackground: Black
+  #HotFocus
+  HotFocusForeground: BrightBlue
+  HotFocusBackground: Gray
+  #HotNormal
+  HotNormalForeground: BrightBlue
+  HotNormalBackground: Blue
 
-DisabledForeground: Black
-DisabledBackground: Black
-
-HotFocusForeground: BrightBlue
-HotFocusBackground: Gray
-
-HotNormalForeground: BrightBlue
-HotNormalBackground: Blue
-
-NormalForeground: White
-NormalBackground: Blue
 
