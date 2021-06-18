@@ -25,7 +25,7 @@
     <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="2.3.2" />
     <PackageReference Include="HIC.FAnsiSql" Version="1.0.7" />
-    <PackageReference Include="HIC.RDMP.Plugin" Version="5.0.2" />
+    <PackageReference Include="HIC.RDMP.Plugin" Version="5.0.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
