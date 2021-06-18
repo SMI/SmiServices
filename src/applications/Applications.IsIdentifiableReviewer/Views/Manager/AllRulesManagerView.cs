@@ -20,6 +20,7 @@ namespace IsIdentifiableReviewer.Views.Manager
         private const string Reviewer = "Reviewer Rules";
         private readonly IsIdentifiableOptions _analyserOpts;
         private readonly IsIdentifiableReviewerOptions _reviewerOpts;
+        private RuleDetailView detailView;
 
         public AllRulesManagerView(IsIdentifiableOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
         {
@@ -36,6 +37,25 @@ namespace IsIdentifiableReviewer.Views.Manager
             tv.AddObject(Analyser);
             tv.AddObject(Reviewer);
             Add(tv);
+
+            detailView = new RuleDetailView()
+            {
+                X = Pos.Right(tv),
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Fill()
+            };
+            Add(detailView);
+
+            tv.SelectionChanged += Tv_SelectionChanged;
+        }
+
+        private void Tv_SelectionChanged(object sender, SelectionChangedEventArgs<object> e)
+        {
+            if(e.NewValue is ICustomRule r)
+            {
+                detailView.SetRule(r);
+            }
         }
 
         private string NodeAspectGetter(object toRender)
