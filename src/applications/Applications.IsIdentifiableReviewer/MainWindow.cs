@@ -521,12 +521,12 @@ namespace IsIdentifiableReviewer
             Application.Run(dlg);
         }
 
-        public void ShowMessage(string title, string body)
+        public static void ShowMessage(string title, string body)
         {
             RunDialog(title,body,out _,"Ok");
         }
 
-        private void ShowException(string msg, Exception e)
+        public static void ShowException(string msg, Exception e)
         {
             var e2 = e;
             const string stackTraceOption = "Stack Trace";
@@ -543,12 +543,12 @@ namespace IsIdentifiableReviewer
                     ShowMessage("Stack Trace",e.ToString());
 
         }
-        public bool GetChoice<T>(string title, string body, out T chosen, params T[] options)
+        public static bool GetChoice<T>(string title, string body, out T chosen, params T[] options)
         {
             return RunDialog(title, body, out chosen, options);
         }
 
-         bool RunDialog<T>(string title, string message,out T chosen, params T[] options)
+        public static bool RunDialog<T>(string title, string message,out T chosen, params T[] options)
         {
             var result = default(T);
             bool optionChosen = false;

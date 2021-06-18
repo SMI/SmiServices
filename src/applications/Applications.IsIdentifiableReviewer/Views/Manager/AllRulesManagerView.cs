@@ -48,13 +48,26 @@ namespace IsIdentifiableReviewer.Views.Manager
             Add(detailView);
 
             tv.SelectionChanged += Tv_SelectionChanged;
+            tv.ObjectActivated += Tv_ObjectActivated;
+        }
+
+        private void Tv_ObjectActivated(ObjectActivatedEventArgs<object> obj)
+        {
+            if (obj.ActivatedObject is Exception ex)
+            {
+                MainWindow.ShowException("Exception Details", ex);
+            }
         }
 
         private void Tv_SelectionChanged(object sender, SelectionChangedEventArgs<object> e)
         {
             if(e.NewValue is ICustomRule r)
             {
-                detailView.SetRule(r);
+                detailView.SetupFor(r);
+            }
+            if (e.NewValue is FileInfo f)
+            {
+                detailView.SetupFor(f);
             }
         }
 
