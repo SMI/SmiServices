@@ -57,12 +57,40 @@ namespace IsIdentifiableReviewer.Views.Manager
 
         private void Tv_KeyPress(KeyEventEventArgs obj)
         {
-            if(obj.KeyEvent.Key == Key.DeleteChar)
+            try
             {
-                if(treeView.SelectedObject is ICustomRule rule)
+                if (obj.KeyEvent.Key == Key.DeleteChar)
                 {
-                    // TODO : Delete
+                    var allSelected = treeView.GetAllSelectedObjects().ToArray();
+
+                    // if all the things selected are rules
+                    if (allSelected.All(s=>s is IsIdentifiableRule))
+                    {
+                        // and the unique parents among them
+                        var parents = allSelected.Select(r => treeView.GetParent(r)).Distinct().ToArray();
+                        
+                        //is only 1 and it is an OutBase (rules file
+                        if(parents.Length == 1 && parents[0] is OutBase outBase)
+                        {
+                            if(MessageBox.Query("Delete Rules", $"Delete {allSelected.Length} rules?", "Yes", "No") == 0)
+                            {
+                                foreach(var r in allSelected.Cast<IsIdentifiableRule>())
+                                {
+                                    // remove the rules
+                                    outBase.Rules.Remove(r);
+                                }
+
+                                // and save;
+                                outBase.Save();
+                                treeView.RefreshObject(outBase);
+                            }
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.ShowException("Failed to delete", ex);
             }
         }
 
@@ -186,6 +214,14 @@ namespace IsIdentifiableReviewer.Views.Manager
             if(forObject is RuleTypeNode ruleType)
             {
                 foreach(var r in ruleType.Rules)
+                {
+                    yield return r;
+                }
+            }
+
+            if (forObject is OutBase outBase)
+            {
+                foreach (var r in outBase.Rules)
                 {
                     yield return r;
                 }
