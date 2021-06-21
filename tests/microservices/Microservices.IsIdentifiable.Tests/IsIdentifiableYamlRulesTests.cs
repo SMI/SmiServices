@@ -38,12 +38,12 @@ SocketRules:
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
 
-            Assert.AreEqual(3,ruleSet.BasicRules.Length);
+            Assert.AreEqual(3,ruleSet.BasicRules.Count);
 
             Assert.AreEqual(RuleAction.Ignore,ruleSet.BasicRules[0].Action);
 
             
-            Assert.AreEqual(1,ruleSet.SocketRules.Length);
+            Assert.AreEqual(1,ruleSet.SocketRules.Count);
 
             Assert.AreEqual("127.0.123.123",ruleSet.SocketRules[0].Host);
             Assert.AreEqual(8080,ruleSet.SocketRules[0].Port);

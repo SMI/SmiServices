@@ -73,12 +73,13 @@ namespace IsIdentifiableReviewer.Views.Manager
                     var allSelected = treeView.GetAllSelectedObjects().ToArray();
 
                     // if all the things selected are rules
-                    if (allSelected.All(s=>s is IsIdentifiableRule))
+                    if (allSelected.All(s=>s is ICustomRule))
                     {
                         // and the unique parents among them
                         var parents = allSelected.Select(r => treeView.GetParent(r)).Distinct().ToArray();
-                        
-                        //is only 1 and it is an OutBase (rules file
+
+                        //is only 1 and it is an OutBase (rules file)
+                        // then it is a Reviewer rule being deleted
                         if(parents.Length == 1 && parents[0] is OutBase outBase)
                         {
                             if(MessageBox.Query("Delete Rules", $"Delete {allSelected.Length} rules?", "Yes", "No") == 0)
@@ -93,6 +94,18 @@ namespace IsIdentifiableReviewer.Views.Manager
                                 outBase.Save();
                                 treeView.RefreshObject(outBase);
                             }
+                        }
+
+                        //is only 1 and it is an Analyser rule under a RuleTypeNode
+                        if (parents.Length == 1 && parents[0] is RuleTypeNode ruleTypeNode)
+                        {
+                            foreach(ICustomRule rule in allSelected)
+                            {
+                                ruleTypeNode.Rules.Remove(rule);
+                            }
+
+                            ruleTypeNode.Parent.Save();
+                            treeView.RefreshObject(ruleTypeNode);
                         }
                     }
                 }
@@ -214,10 +227,11 @@ namespace IsIdentifiableReviewer.Views.Manager
 
             if (forObject is RuleSetFileNode ruleSet)
             {
-                yield return new RuleTypeNode(ruleSet, "BasicRules", ruleSet.GetRuleSet().BasicRules);
-                yield return new RuleTypeNode(ruleSet, "SocketRules", ruleSet.GetRuleSet().SocketRules);
-                yield return new RuleTypeNode(ruleSet, "WhiteListRules", ruleSet.GetRuleSet().WhiteListRules);
-                yield return new RuleTypeNode(ruleSet, "ConsensusRules", ruleSet.GetRuleSet().ConsensusRules);                
+                
+                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.BasicRules));
+                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.SocketRules));
+                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.WhiteListRules));
+                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.ConsensusRules));                
             }
 
             if(forObject is RuleTypeNode ruleType)

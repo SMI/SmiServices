@@ -1,22 +1,38 @@
 ﻿using Microservices.IsIdentifiable.Rules;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace IsIdentifiableReviewer.Views.Manager
 {
     internal class RuleTypeNode
     {
-        private string _categoryName;
-        public ICustomRule[] Rules { get; internal set; }
+        public RuleSetFileNode Parent { get; set; }
+        private PropertyInfo prop;
 
-        public RuleTypeNode(RuleSetFileNode ruleSet, string categoryName, ICustomRule[] rules)
+        public IList Rules { get; internal set; }
+
+        /// <summary>
+        /// Creates a new instance 
+        /// </summary>
+        /// <param name="ruleSet"></param>
+        /// <param name="ruleProperty"></param>
+        public RuleTypeNode(RuleSetFileNode ruleSet, string ruleProperty)
         {
-            _categoryName = categoryName;
-            Rules = rules ?? new ICustomRule[0];
+            prop = typeof(RuleSet).GetProperty(ruleProperty);
+            if(prop == null)
+            {
+                throw new ArgumentException($"No property called {ruleProperty} exists on Type RuleSet");
+            }
+
+            Parent = ruleSet;
+            Rules = (IList)prop.GetValue(ruleSet.GetRuleSet());
         }
 
         public override string ToString()
         {
-            return _categoryName;
+            return prop.Name;
         }
     }
 }
