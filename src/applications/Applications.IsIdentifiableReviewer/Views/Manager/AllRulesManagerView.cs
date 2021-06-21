@@ -55,6 +55,15 @@ namespace IsIdentifiableReviewer.Views.Manager
             treeView.KeyPress += Tv_KeyPress;
         }
 
+        /// <summary>
+        /// Rebuilds the tree and refreshes rules to match the current state of rules on disk
+        /// </summary>
+        /// <returns></returns>
+        public void RebuildTree()
+        {
+            treeView.RebuildTree();
+        }
+
         private void Tv_KeyPress(KeyEventEventArgs obj)
         {
             try

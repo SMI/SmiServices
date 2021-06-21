@@ -167,11 +167,16 @@ namespace IsIdentifiableReviewer.Out
             //populated rules file already existed
             var builder = new SerializerBuilder()
                 .WithIndentedSequences();
-
+            
             var serializer = builder.Build();
             using (var sw = new StreamWriter(toFile.FullName))
             {
-                serializer.Serialize(sw,Rules);
+                if(Rules.Count > 0)
+                {
+                    serializer.Serialize(sw, Rules);
+                }
+                // else we get a blank file which is good because the append rules wouldn't play nice
+                // with an [] deal
             }
         }
 

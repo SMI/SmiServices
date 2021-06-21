@@ -241,9 +241,16 @@ namespace IsIdentifiableReviewer
             tabView.AddTab(new TabView.Tab("Tree View", rulesView), false);
             tabView.AddTab(new TabView.Tab("Rules Manager", rulesManager), false);
 
+            tabView.SelectedTabChanged += TabView_SelectedTabChanged;
+
             Body = tabView;
         }
 
+        private void TabView_SelectedTabChanged(object sender, TabView.TabChangedEventArgs e)
+        {
+            // sync the rules up incase people are adding new ones using the other UIs
+            rulesManager.RebuildTree();
+        }
 
         private void ToggleCustomPatterns()
         {
