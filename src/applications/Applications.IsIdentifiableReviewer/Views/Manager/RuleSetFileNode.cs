@@ -6,13 +6,13 @@ namespace IsIdentifiableReviewer.Views.Manager
 {
     internal class RuleSetFileNode
     {
-        private readonly FileInfo _file;
+        public FileInfo File { get; set; }
         private RuleSet _ruleSet;
 
 
         public RuleSetFileNode(FileInfo file)
         {
-            this._file = file;
+            this.File = file;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace IsIdentifiableReviewer.Views.Manager
                 return _ruleSet;
             }
 
-            var yaml = File.ReadAllText(_file.FullName);
+            var yaml = System.IO.File.ReadAllText(File.FullName);
 
             var deserializer = IsIdentifiableAbstractRunner.GetDeserializer();
             return _ruleSet = deserializer.Deserialize<RuleSet>(yaml);
@@ -42,7 +42,7 @@ namespace IsIdentifiableReviewer.Views.Manager
 
         public override string ToString()
         {
-            return _file.Name;
+            return File.Name;
         }
     }
 }

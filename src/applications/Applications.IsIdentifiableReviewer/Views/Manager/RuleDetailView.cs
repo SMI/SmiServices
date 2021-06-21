@@ -17,31 +17,39 @@ namespace IsIdentifiableReviewer.Views.Manager
             Add(lblType);
         }
 
-        public void SetupFor(FileInfo file)
+        public void SetupFor(object obj, FileInfo file)
         {
             ClearProperties();
-            lblType.Text = "Path:";
 
-            var lbl1 = new Label(file.DirectoryName)
+            var type = obj.GetType();
+            lblType.Text = "Type:" + type.Name;
+
+            var lbl1 = new Label("Path:")
             {
                 Y = 1
             };
-            var lbl2 = new Label($"File:")
+            var lbl2 = new Label(file.DirectoryName)
             {
                 Y = 2
             };
-            var lbl3 = new Label(file.Name)
+            var lbl3 = new Label($"File:")
             {
                 Y = 3
+            };
+            var lbl4 = new Label(file.Name)
+            {
+                Y = 4
             };
 
             Add(lbl1);
             Add(lbl2);
             Add(lbl3);
+            Add(lbl4);
 
             properties.Add(lbl1);
             properties.Add(lbl2);
             properties.Add(lbl3);
+            properties.Add(lbl4);
 
             SetNeedsDisplay();
         }

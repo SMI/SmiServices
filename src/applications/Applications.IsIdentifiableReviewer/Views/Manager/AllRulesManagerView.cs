@@ -1,4 +1,5 @@
-﻿using Microservices.IsIdentifiable.Rules;
+﻿using IsIdentifiableReviewer.Out;
+using Microservices.IsIdentifiable.Rules;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace IsIdentifiableReviewer.Views.Manager
         private readonly IsIdentifiableOptions _analyserOpts;
         private readonly IsIdentifiableReviewerOptions _reviewerOpts;
         private RuleDetailView detailView;
+        private TreeView<object> treeView;
+
 
         public AllRulesManagerView(IsIdentifiableOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
         {
@@ -30,25 +33,37 @@ namespace IsIdentifiableReviewer.Views.Manager
             this._analyserOpts = analyserOpts;
             this._reviewerOpts = reviewerOpts;
 
-            var tv = new TreeView<object>(this);
-            tv.Width = Dim.Percent(50);
-            tv.Height = Dim.Fill();
-            tv.AspectGetter = NodeAspectGetter;
-            tv.AddObject(Analyser);
-            tv.AddObject(Reviewer);
-            Add(tv);
+            treeView = new TreeView<object>(this);
+            treeView.Width = Dim.Percent(50);
+            treeView.Height = Dim.Fill();
+            treeView.AspectGetter = NodeAspectGetter;
+            treeView.AddObject(Analyser);
+            treeView.AddObject(Reviewer);
+            Add(treeView);
 
             detailView = new RuleDetailView()
             {
-                X = Pos.Right(tv),
+                X = Pos.Right(treeView),
                 Y = 0,
                 Width = Dim.Fill(),
                 Height = Dim.Fill()
             };
             Add(detailView);
 
-            tv.SelectionChanged += Tv_SelectionChanged;
-            tv.ObjectActivated += Tv_ObjectActivated;
+            treeView.SelectionChanged += Tv_SelectionChanged;
+            treeView.ObjectActivated += Tv_ObjectActivated;
+            treeView.KeyPress += Tv_KeyPress;
+        }
+
+        private void Tv_KeyPress(KeyEventEventArgs obj)
+        {
+            if(obj.KeyEvent.Key == Key.DeleteChar)
+            {
+                if(treeView.SelectedObject is ICustomRule rule)
+                {
+                    // TODO : Delete
+                }
+            }
         }
 
         private void Tv_ObjectActivated(ObjectActivatedEventArgs<object> obj)
@@ -65,9 +80,14 @@ namespace IsIdentifiableReviewer.Views.Manager
             {
                 detailView.SetupFor(r);
             }
-            if (e.NewValue is FileInfo f)
+            if (e.NewValue is OutBase rulesFile)
             {
-                detailView.SetupFor(f);
+                detailView.SetupFor(rulesFile,rulesFile.RulesFile);
+            }
+
+            if(e.NewValue is RuleSetFileNode rsf)
+            {
+                detailView.SetupFor(rsf,rsf.File);
             }
         }
 
@@ -87,6 +107,11 @@ namespace IsIdentifiableReviewer.Views.Manager
                 return ignoreRule.IfPattern ?? ignoreRule.IfPartPattern;
             }
 
+            if(toRender is OutBase outBase)
+            {
+                return outBase.RulesFile.Name;
+            }
+
             return toRender.ToString();
         }
 
@@ -96,6 +121,14 @@ namespace IsIdentifiableReviewer.Views.Manager
 
         public bool CanExpand(object toExpand)
         {
+            // These are the things that cannot be expanded upon
+            if (toExpand is Exception)
+                return false;
+
+            if (toExpand is ICustomRule)
+                return false;
+
+            //everything else can be expanded
             return true;
         }
 
@@ -134,11 +167,11 @@ namespace IsIdentifiableReviewer.Views.Manager
             {
                 if(!string.IsNullOrWhiteSpace(_reviewerOpts.RedList))
                 {
-                    yield return new FileInfo(_reviewerOpts.RedList);
+                    yield return new RowUpdater(new FileInfo(_reviewerOpts.RedList));
                 }
                 if (!string.IsNullOrWhiteSpace(_reviewerOpts.IgnoreList))
                 {
-                    yield return new FileInfo(_reviewerOpts.IgnoreList);
+                    yield return new IgnoreRuleGenerator(new FileInfo(_reviewerOpts.IgnoreList));
                 }
             }
 
