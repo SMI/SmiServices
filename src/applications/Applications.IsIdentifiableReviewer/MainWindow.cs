@@ -106,28 +106,8 @@ G - creates a regex pattern that matches only the failing part(s)
 
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
-            if (opts.Theme != null && opts.Theme.Exists)
-            {
-                try
-                {
-                    var des = new Deserializer();
-                    var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(opts.Theme.FullName));
-                    viewMain.ColorScheme = GlobalColorScheme = theme.GetScheme();
-                }
-                catch (Exception ex)
-                {
-                    ShowException("Could not deserialize theme", ex);
-                }
-            }
-            else
-            {
-                GlobalColorScheme = viewMain.ColorScheme;
-            }
-
-            Menu.ColorScheme = GlobalColorScheme;
-
-            rulesView = new RulesView(){ColorScheme = GlobalColorScheme};
-            rulesManager = new AllRulesManagerView(globalOpts.IsIdentifiableOptions,opts) { ColorScheme = GlobalColorScheme };
+            rulesView = new RulesView();
+            rulesManager = new AllRulesManagerView(globalOpts.IsIdentifiableOptions, opts);
 
             _info = new Label("Info")
             {
