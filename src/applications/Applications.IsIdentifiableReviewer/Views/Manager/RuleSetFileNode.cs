@@ -52,6 +52,7 @@ namespace IsIdentifiableReviewer.Views.Manager
             
             //populated rules file already existed
             var builder = new SerializerBuilder()
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
                 .WithIndentedSequences();
 
             var serializer = builder.Build();
