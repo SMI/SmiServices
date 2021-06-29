@@ -271,7 +271,15 @@ namespace IsIdentifiableReviewer.Views
             }
             else
             {
-                Ignorer.Add(ofn.Failure);
+                try
+                {
+                    Ignorer.Add(ofn.Failure);
+                }
+                catch (OperationCanceledException)
+                {
+                    // user cancelled the interactive dialog
+                    return;
+                }
             }
                 
             Remove(ofn);

@@ -29,6 +29,8 @@ namespace Applications.IsIdentifiableReviewer
         {
             FansiImplementations.Load();
 
+            opts.FillMissingWithValuesUsing(globals.IsIdentifiableReviewerOptions);
+
             Deserializer d = new Deserializer();
             List<Target> targets;
 
@@ -122,6 +124,25 @@ namespace Applications.IsIdentifiableReviewer
                     //run interactive
                     Application.Init();
 
+                    if (opts.Theme != null && opts.Theme.Exists)
+                    {
+                        try
+                        {
+                            var des = new Deserializer();
+                            var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(opts.Theme.FullName));
+
+                            Colors.Base = theme.Base.GetScheme();
+                            Colors.Dialog = theme.Dialog.GetScheme();
+                            Colors.Error = theme.Error.GetScheme();
+                            Colors.Menu = theme.Menu.GetScheme();
+                            Colors.TopLevel = theme.TopLevel.GetScheme();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.ErrorQuery("Could not deserialize theme",ex.Message);
+                        }
+                    }
+
                     var top = Application.Top;
 
                     var mainWindow = new MainWindow(globals, opts, ignorer, updater);
@@ -135,8 +156,7 @@ namespace Applications.IsIdentifiableReviewer
 
                         // By using Dim.Fill(), it will automatically resize without manual intervention
                         Width = Dim.Fill(),
-                        Height = Dim.Fill(),
-                        ColorScheme = MainWindow.GlobalColorScheme
+                        Height = Dim.Fill()
                     };
 
                     top.Add(win);

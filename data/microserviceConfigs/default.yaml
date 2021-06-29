@@ -266,3 +266,13 @@ IsIdentifiableOptions:
     RulesDirectory:
     #Optional.  Maximum number of answers to cache per column.
     MaxValidationCacheSize:
+    
+IsIdentifiableReviewerOptions:
+    #Location of database connection strings file (for issuing UPDATE statements)    
+    TargetsFile:
+    #File containing rules for ignoring validation errors
+    IgnoreList:
+    #File containing rules for when to issue UPDATE statements
+    RedList:
+    #Sets the user interface to use a specific color pallette yaml file
+    Theme:

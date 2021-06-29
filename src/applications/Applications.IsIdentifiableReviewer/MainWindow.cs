@@ -64,8 +64,6 @@ namespace IsIdentifiableReviewer
         /// </summary>
         Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
 
-        public static ColorScheme GlobalColorScheme;
-
         ColorScheme _greyOnBlack = new ColorScheme()
         {
             Normal = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
@@ -82,6 +80,12 @@ namespace IsIdentifiableReviewer
         public View Body { get; private set; }
 
         Task taskToLoadNext;
+        private const string PatternHelp = @"x - clears currently typed pattern
+F - creates a regex pattern that matches the full input value
+G - creates a regex pattern that matches only the failing part(s)
+\d - replaces all digits with regex wildcards
+\c - replaces all characters with regex wildcards
+\d\c - replaces all digits and characters with regex wildcards";
 
         public MainWindow(GlobalOptions globalOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
@@ -102,7 +106,6 @@ namespace IsIdentifiableReviewer
 
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
-
             if (opts.Theme != null && opts.Theme.Exists)
             {
                 try
@@ -228,8 +231,7 @@ namespace IsIdentifiableReviewer
             var tabView = new TabView()
             {
                 Width = Dim.Fill(),
-                Height = Dim.Fill(),
-                ColorScheme = GlobalColorScheme
+                Height = Dim.Fill()
             };
 
             tabView.Style.ShowBorder = false;
@@ -673,6 +675,7 @@ namespace IsIdentifiableReviewer
             };
             dlg.Add(btn);
 
+
             int x = 10;
             if(buttons != null)
                 foreach (var kvp in buttons)
@@ -682,6 +685,33 @@ namespace IsIdentifiableReviewer
                     dlg.Add(button);
                     x += kvp.Key.Length + 5;
                 }
+
+
+            // add help button
+            var btnHelp = new Button(0, line, "?")
+            {
+                   X = x
+            };
+            x += 6;
+
+            btnHelp.Clicked += () =>
+            {
+                MessageBox.Query("Pattern Help", PatternHelp, "Ok");
+            };
+            dlg.Add(btnHelp);
+
+            // add cancel button
+            var btnCancel = new Button(0, line, "Cancel")
+            {
+                X = x
+            };
+            //x += 11;
+            btnCancel.Clicked += () =>
+            {
+                optionChosen = false;
+                Application.RequestStop();
+            };
+            dlg.Add(btnCancel);
 
             dlg.FocusFirst();
         
@@ -712,6 +742,8 @@ namespace IsIdentifiableReviewer
              buttons.Add(@"\d",new SymbolsRulesFactory {Mode= SymbolsRuleFactoryMode.DigitsOnly}.GetPattern(sender,failure));
              buttons.Add(@"\c",new SymbolsRulesFactory{Mode= SymbolsRuleFactoryMode.CharactersOnly}.GetPattern(sender,failure));
              buttons.Add(@"\d\c",new SymbolsRulesFactory().GetPattern(sender,failure));
+
+
 
              if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen,buttons))
              {
