@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Reporting;
@@ -46,6 +47,80 @@ namespace Microservices.IsIdentifiable.Tests.ReviewerTests
 
             //it should be no longer be novel
             Assert.IsFalse(ignorer.OnLoad(failure, out _));
+
+        }
+
+
+        [Test]
+        public void Test_SaveYaml()
+        {
+            var failure1 = new Failure(
+                new FailurePart[]
+                {
+                    new FailurePart("Hadock", FailureClassification.Location, 0),
+                })
+            {
+                ProblemValue = "Hadock",
+                ProblemField = "Narrative",
+                ResourcePrimaryKey = "1.2.3.4"
+            };
+            var failure2 = new Failure(
+                new FailurePart[]
+                {
+                    new FailurePart("Bass", FailureClassification.Location, 0),
+                })
+            {
+                ProblemValue = "Bass",
+                ProblemField = "Narrative",
+                ResourcePrimaryKey = "1.2.3.5"
+            };
+
+            var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "IgnoreList.yaml"));
+
+            //make sure repeat test runs work properly
+            if (File.Exists(newRules.FullName))
+                File.Delete(newRules.FullName);
+
+            IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(newRules);
+
+
+            //we tell it to ignore this value
+            ignorer.Add(failure1);
+            ignorer.Add(failure2);
+
+            TestHelpers.Contains(
+                @"
+- Action: Ignore
+  IfColumn: Narrative
+  IfPattern: ^Hadock$".Trim(), File.ReadAllText(newRules.FullName));
+
+            TestHelpers.Contains(
+                @"
+- Action: Ignore
+  IfColumn: Narrative
+  IfPattern: ^Bass$".Trim(), File.ReadAllText(newRules.FullName));
+
+            ignorer.Rules.Remove(ignorer.Rules.Last());
+            ignorer.Save();
+
+
+            TestHelpers.Contains(
+                @"
+- Action: Ignore
+  IfColumn: Narrative
+  IfPattern: ^Hadock$".Trim(), File.ReadAllText(newRules.FullName));
+
+            TestHelpers.DoesNotContain(
+                @"
+- Action: Ignore
+  IfColumn: Narrative
+  IfPattern: ^Bass$".Trim(), File.ReadAllText(newRules.FullName));
+
+
+            ignorer.Rules.Clear();
+            ignorer.Save();
+            Assert.IsTrue(string.IsNullOrWhiteSpace(File.ReadAllText(newRules.FullName)));
+
 
         }
 

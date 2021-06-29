@@ -23,5 +23,9 @@ namespace Smi.Common.Tests
         {
             StringAssert.Contains(needle.Replace("\r\n", "\n"), haystack.Replace("\r\n", "\n"));
         }
+        public static void DoesNotContain(string needle, string haystack)
+        {
+            StringAssert.DoesNotContain(needle.Replace("\r\n", "\n"), haystack.Replace("\r\n", "\n"));
+        }
     }
 }
