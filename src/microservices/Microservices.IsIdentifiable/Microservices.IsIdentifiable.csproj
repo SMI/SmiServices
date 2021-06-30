@@ -12,13 +12,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\lib\libtesseract.so.4.0.1-centos7" Link="x64\libtesseract41.so">
+    <Content Include="..\..\..\lib\libtesseract.so.4.0.1" Link="x64\libtesseract41.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\..\lib\libleptonica.so.1.78.0-minimal-centos7" Link="x64\libleptonica-1.78.0.so">
+    <Content Include="..\..\..\lib\liblept.so.5.0.4" Link="x64\liblept.so.5">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\..\lib\libleptonica.so.1.78.0-minimal-centos7" Link="x64\libleptonica.so.5.3.0">
+    <Content Include="..\..\..\lib\liblept.so.5.0.4" Link="x64\libleptonica-1.80.0.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Rules.template.yaml">
@@ -32,7 +32,7 @@
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="System.Security.AccessControl" Version="5.0.0" />
-    <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
+    <PackageReference Include="Tesseract" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
