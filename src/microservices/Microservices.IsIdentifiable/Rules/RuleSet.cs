@@ -6,9 +6,9 @@ namespace Microservices.IsIdentifiable.Rules
 {
     public class RuleSet
     {
-        public IsIdentifiableRule[] BasicRules { get; set; }
-        public SocketRule[] SocketRules { get; set; }
-        public WhiteListRule[] WhiteListRules { get; set; }
-        public ConsensusRule[] ConsensusRules {get;set;}
+        public List<IsIdentifiableRule> BasicRules { get; set; } = new List<IsIdentifiableRule>();
+        public List<SocketRule> SocketRules { get; set; } = new List<SocketRule>();
+        public List<WhiteListRule> WhiteListRules { get; set; } = new List<WhiteListRule>();
+        public List<ConsensusRule> ConsensusRules { get; set; } = new List<ConsensusRule>();
     }
 }

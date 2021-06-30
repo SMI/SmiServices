@@ -2,6 +2,7 @@
   <PropertyGroup>
     <AssemblyName>IsIdentifiableReviewer</AssemblyName>
     <OutputType>Library</OutputType>
+    <RootNamespace>IsIdentifiableReviewer</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="ExampleReport.csv" />

@@ -8,7 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using IsIdentifiableReviewer.Out;
 using IsIdentifiableReviewer.Views;
+using IsIdentifiableReviewer.Views.Manager;
 using Microservices.IsIdentifiable.Reporting;
+using Smi.Common.Options;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 using Attribute = Terminal.Gui.Attribute;
@@ -71,6 +73,7 @@ namespace IsIdentifiableReviewer
         };
         private MenuItem miCustomPatterns;
         private RulesView rulesView;
+        private AllRulesManagerView rulesManager;
 
         public MenuBar Menu { get; private set; }
 
@@ -84,7 +87,7 @@ G - creates a regex pattern that matches only the failing part(s)
 \c - replaces all characters with regex wildcards
 \d\c - replaces all digits and characters with regex wildcards";
 
-        public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        public MainWindow(GlobalOptions globalOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             Ignorer = ignorer;
             Updater = updater;
@@ -104,7 +107,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
             rulesView = new RulesView();
-
+            rulesManager = new AllRulesManagerView(globalOpts.IsIdentifiableOptions, opts);
 
             _info = new Label("Info")
             {
@@ -218,10 +221,18 @@ G - creates a regex pattern that matches only the failing part(s)
 
             tabView.AddTab(new TabView.Tab("Sequential", viewMain), true);
             tabView.AddTab(new TabView.Tab("Tree View", rulesView), false);
+            tabView.AddTab(new TabView.Tab("Rules Manager", rulesManager), false);
+
+            tabView.SelectedTabChanged += TabView_SelectedTabChanged;
 
             Body = tabView;
         }
 
+        private void TabView_SelectedTabChanged(object sender, TabView.TabChangedEventArgs e)
+        {
+            // sync the rules up incase people are adding new ones using the other UIs
+            rulesManager.RebuildTree();
+        }
 
         private void ToggleCustomPatterns()
         {
@@ -499,12 +510,12 @@ G - creates a regex pattern that matches only the failing part(s)
             Application.Run(dlg);
         }
 
-        public void ShowMessage(string title, string body)
+        public static void ShowMessage(string title, string body)
         {
             RunDialog(title,body,out _,"Ok");
         }
 
-        private void ShowException(string msg, Exception e)
+        public static void ShowException(string msg, Exception e)
         {
             var e2 = e;
             const string stackTraceOption = "Stack Trace";
@@ -521,12 +532,12 @@ G - creates a regex pattern that matches only the failing part(s)
                     ShowMessage("Stack Trace",e.ToString());
 
         }
-        public bool GetChoice<T>(string title, string body, out T chosen, params T[] options)
+        public static bool GetChoice<T>(string title, string body, out T chosen, params T[] options)
         {
             return RunDialog(title, body, out chosen, options);
         }
 
-         bool RunDialog<T>(string title, string message,out T chosen, params T[] options)
+        public static bool RunDialog<T>(string title, string message,out T chosen, params T[] options)
         {
             var result = default(T);
             bool optionChosen = false;
