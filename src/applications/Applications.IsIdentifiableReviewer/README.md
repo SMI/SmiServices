@@ -5,8 +5,10 @@ Primary Author: [Thomas](https://github.com/tznind)
 ## Contents
  1. [Overview](#1-overview)
  2. [Setup / Installation](#2-setup--installation)
- 3. [Usage](#usage)
- 4. [Unattended Mode](#unattended-mode)
+ 3. [Usage](#3-usage)
+    1. [Reviewing the output of IsIdentifiable]
+    2. [Redacting the database]
+    3. [Managing the rulebase]
 
 ## 1. Overview
 
@@ -18,10 +20,9 @@ _The review process of potentially PII_
 
 There are 3 activities that can be undertaken using the reviewer:
 
-- [Reviewing the output of IsIdentifiable](#reviewing-the-output-of-isidentifiable)
-- [Redacting the database](#redacting-the-database)
+- [Reviewing the output of IsIdentifiable]
+- [Redacting the database]
 - [Managing the rulebase]
-
 
 ## 2. Setup / Installation
 
@@ -42,7 +43,9 @@ The following parts of the global yaml config file interact with this tool:
 | ------------- | ------------- |
 |IsIdentifiableReviewerOptions | Allows overriding of which yaml file is loaded and runtime arguments e.g. which table to redact / report to load|
 
-## Reviewing the output of IsIdentifiable
+## 3. Usage
+
+### Reviewing the output of IsIdentifiable
 
 The IsIdentifiable tool applies NLP and the rules base to identify [PII] data in the database.  A sample output file is included: [ExampleReport](./ExampleReport.csv) is included.
 
@@ -64,7 +67,7 @@ The 'Tree View' sorts all of the failures by number of occurences. This tree vie
 
 Each instance of potential [PII] found by IsIdentifiable is termed a 'failure' (the existing anonymisation process has failed to strip this PII).  A 'failure' can be either a false positive or a genuine case of [PII].  Make a decision for each failure whether to ignore it or 'report' it.
 
-### Report/Ignore
+#### Report/Ignore
 
 Review the reports and mark either `Ignore` (this is a false positive) or `Update` (this is PII and needs to be redacted).  This will result in a new rule being added to either `NewRules.yaml` (Ignore) or `RedList.yaml` (Update).  Once  a rule is written it will be applied automatically to future reports loaded eliminating the lead to make duplicate decisions. After using `Ignore` or `Update` the display moves onto the next failure, skipping over those which are matched by existing rules.
 
@@ -81,7 +84,7 @@ The Custom Patterns window provides several options to edit the pattern:
 * `\c` - replaces all characters with regex wildcards
 * `\d\c` - replaces all digits and characters with regex wildcards
 
-## Redacting the database
+### Redacting the database
 
 Once all 'failures' in a report have been processed and either ignored or a 'report' rule generated you can redact the database.  This is done by running the application using the `-u` and `-t` flags.
 
@@ -108,7 +111,7 @@ smi.exe is-identifiable-reviewer -f ./ExampleReport.csv -u ./misses.csv -t z:\te
 ```
 _Example redaction command_
 
-## Managing the rulebase
+### Managing the rulebase
 
 Over time the number of rules in [IsIdentifiable] and the reviewer will increase.  It can be beneficial to move ignore rules upstream from the reviwer to the [IsIdentifiable] rulebase especially for commonly encountered reports.  This will reduce the number of false positives and the size of report files.
 
@@ -119,11 +122,13 @@ _Rules Manager View_
  
 | Key | Function |
 | ------------- | ------------- |
-| <Delete> | Removes a rule from the rulesbase |
-| <Enter> | Opens menu (if any) for interacting with rule(s) highlighted |
+| `<Delete>` | Removes a rule from the rulesbase |
+| `<Enter>` | Opens menu (if any) for interacting with rule(s) highlighted |
 
 [IsIdentifiable]: ../../microservices/Microservices.IsIdentifiable/README.md
 [PII]: https://en.wikipedia.org/wiki/Personal_data
 [SmiRunner]: ../Applications.SmiRunner/
 [Managing the rulebase]: #managing-the-rulebase
 [review process]: #reviewing-the-output-of-IsIdentifiable
+[Reviewing the output of IsIdentifiable]: #reviewing-the-output-of-isidentifiable
+[Redacting the database]: #redacting-the-database
