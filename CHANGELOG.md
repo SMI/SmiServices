@@ -11,6 +11,45 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [3.2.0] 2021-07-05
+
+## Feature
+
+-   [#795](https://github.com/SMI/SmiServices/pull/795) by tznind. Added support
+    for specifying IsIdentifiable CLI options in the yaml config files instead
+    of command line (command line will always take precedence if both are
+    specified)
+-   [#797](https://github.com/SMI/SmiServices/pull/797) by tznind. Added custom
+    themes to IsIdentifiableReviewer. Use flag `--theme mytheme.yaml`
+-   [#801](https://github.com/SMI/SmiServices/pull/801) by tznind. Added help
+    and cancel buttons to custom pattern dialog in reviewer
+-   [#802](https://github.com/SMI/SmiServices/pull/802) by tznind. Added
+    IsIdentifiableReviewer settings into main yaml config
+-   [#818](https://github.com/SMI/SmiServices/pull/818) by tznind. Added Rules
+    Manager to IsIdentifiable Reviewer
+
+## Bugfix
+
+-   [#787](https://github.com/SMI/SmiServices/pull/787) by rkm. Fix the call to
+    the release changelog script
+-   [#788](https://github.com/SMI/SmiServices/pull/788) by rkm. Require all CI
+    tests to pass before packaging runs
+-   [#789](https://github.com/SMI/SmiServices/pull/789) by rkm. Don't upload
+    coverage for tagged builds
+-   [#796](https://github.com/SMI/SmiServices/pull/796) by tznind. Fixed bug
+    opening corrupted reports in IsIdentifiableReviewer crashing the application
+-   [#806](https://github.com/SMI/SmiServices/pull/806) by tznind. Replace use
+    of GlobalColorScheme with the proper static members in Terminal.Gui that
+    will propagate correctly for all windows without having to set them
+    manually.
+-   [#811](https://github.com/SMI/SmiServices/pull/811) by rkm. Fix coverage
+    task always running even if a previous task failed
+
+## Doc
+
+-   [#823](https://github.com/SMI/SmiServices/pull/823) by tznind. Refresh
+    documentation for IsIdentifiableReviewer
+
 ## [3.1.0] 2021-06-11
 
 ## Feature
@@ -882,7 +921,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v3.1.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v3.2.0...master
+[3.2.0]: https://github.com/SMI/SmiServices/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/SMI/SmiServices/compare/v3.0.2...v3.1.0
 [3.0.2]: https://github.com/SMI/SmiServices/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/SMI/SmiServices/compare/v3.0.0...v3.0.1
