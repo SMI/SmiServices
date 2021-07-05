@@ -1,1 +1,0 @@
-Added Rules Manager to IsIdentifiable Reviewer

@@ -1,1 +1,0 @@
-Added support for specifying IsIdentifiable CLI options in the yaml config files instead of command line (command line will always take precedence if both are specified)

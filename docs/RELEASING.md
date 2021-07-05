@@ -13,7 +13,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
 -   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
     ```console
     $ git checkout master && git pull
-    $ git log --merges --oneline <previous tag>.. | grep -v dependabot
+    $ git log  --oneline <previous_tag>.. | grep -vP "dependabot|Bump" | grep -P '#\d+'
     ec182696 Merge pull request #430 from SMI/feature/extraction-fixes
     051a134e Merge pull request #444 from SMI/feature/trigger-updates
     65fcfe41 Merge pull request #440 from SMI/feature/value-updater
