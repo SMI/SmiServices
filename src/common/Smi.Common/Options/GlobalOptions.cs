@@ -45,28 +45,28 @@ namespace Smi.Common.Options
             }
         }
 
-        public LoggingOptions LoggingOptions { get; set; }
-        public RabbitOptions RabbitOptions { get; set; }
-        public FileSystemOptions FileSystemOptions { get; set; }
-        public RDMPOptions RDMPOptions { get; set; }
-        public MongoDatabases MongoDatabases { get; set; }
-        public DicomRelationalMapperOptions DicomRelationalMapperOptions { get; set; }
-        public UpdateValuesOptions UpdateValuesOptions { get; set; }
-        public CohortExtractorOptions CohortExtractorOptions { get; set; }
-        public CohortPackagerOptions CohortPackagerOptions { get; set; }
-        public DicomReprocessorOptions DicomReprocessorOptions { get; set; }
-        public DicomTagReaderOptions DicomTagReaderOptions { get; set; }
-        public FileCopierOptions FileCopierOptions { get; set; }
-        public IdentifierMapperOptions IdentifierMapperOptions { get; set; }
-        public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; }
-        public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
-        public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
+        public LoggingOptions LoggingOptions { get; set; } = new LoggingOptions();
+        public RabbitOptions RabbitOptions { get; set; } = new RabbitOptions();
+        public FileSystemOptions FileSystemOptions { get; set; } = new FileSystemOptions();
+        public RDMPOptions RDMPOptions { get; set; } = new RDMPOptions();
+        public MongoDatabases MongoDatabases { get; set; } = new MongoDatabases();
+        public DicomRelationalMapperOptions DicomRelationalMapperOptions { get; set; } = new DicomRelationalMapperOptions();
+        public UpdateValuesOptions UpdateValuesOptions { get; set; } = new UpdateValuesOptions();
+        public CohortExtractorOptions CohortExtractorOptions { get; set; } = new CohortExtractorOptions();
+        public CohortPackagerOptions CohortPackagerOptions { get; set; } = new CohortPackagerOptions();
+        public DicomReprocessorOptions DicomReprocessorOptions { get; set; } = new DicomReprocessorOptions();
+        public DicomTagReaderOptions DicomTagReaderOptions { get; set; } = new DicomTagReaderOptions();
+        public FileCopierOptions FileCopierOptions { get; set; } = new FileCopierOptions();
+        public IdentifierMapperOptions IdentifierMapperOptions { get; set; } = new IdentifierMapperOptions();
+        public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; } = new MongoDbPopulatorOptions();
+        public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; } = new ProcessDirectoryOptions();
+        public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; } = new DeadLetterReprocessorOptions();
 
-        public TriggerUpdatesOptions TriggerUpdatesOptions {get;set;}
+        public TriggerUpdatesOptions TriggerUpdatesOptions { get; set; } = new TriggerUpdatesOptions();
 
-        public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
-        public IsIdentifiableReviewerGlobalOptions IsIdentifiableReviewerOptions { get; set; }
-        public ExtractImagesOptions ExtractImagesOptions { get; set; }
+        public IsIdentifiableOptions IsIdentifiableOptions { get; set; } = new IsIdentifiableOptions();
+        public IsIdentifiableReviewerGlobalOptions IsIdentifiableReviewerOptions { get; set; } = new IsIdentifiableReviewerGlobalOptions();
+        public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
 
         #endregion
 
