@@ -11,6 +11,13 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [3.2.1] 2021-07-07
+
+## Bugfix
+
+-   [#834](https://github.com/SMI/SmiServices/pull/834) by tznind. Improved
+    logging and fixed yaml options not being respected in IsIdentifiableReviewer
+
 ## [3.2.0] 2021-07-05
 
 ## Feature
@@ -921,7 +928,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v3.2.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v3.2.1...master
+[3.2.1]: https://github.com/SMI/SmiServices/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/SMI/SmiServices/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/SMI/SmiServices/compare/v3.0.2...v3.1.0
 [3.0.2]: https://github.com/SMI/SmiServices/compare/v3.0.1...v3.0.2
