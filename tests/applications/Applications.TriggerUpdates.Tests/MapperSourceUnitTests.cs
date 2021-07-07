@@ -12,8 +12,8 @@ namespace Applications.TriggerUpdates.Tests
         [Test]
         public void TestNoIdentifierMapperOptions()
         {
-            var ex = Assert.Throws<Exception>(()=>new MapperSource(new GlobalOptions(),new TriggerUpdatesFromMapperOptions()));
-            Assert.AreEqual("Could not create IdentifierMapper Swapper with SwapperType:Null",ex.Message);
+            var ex = Assert.Throws<ArgumentException>(()=>new MapperSource(new GlobalOptions(),new TriggerUpdatesFromMapperOptions()));
+            Assert.AreEqual("No SwapperType has been specified in GlobalOptions.IdentifierMapperOptions", ex.Message);
 
         }
         [Test]
