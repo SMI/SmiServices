@@ -10,6 +10,8 @@ namespace IsIdentifiableReviewer
     /// </summary>
     public class IsIdentifiableReviewerOptions : CliOptions
     {
+        private const string DefaultTargets = "Targets.yaml";
+
         [Option('f', "file",
             Required = false,
             HelpText = "[Optional] Pre load an existing failures file"
@@ -24,24 +26,24 @@ namespace IsIdentifiableReviewer
 
         [Option('t', "targets",
             Required = false,
-            Default = "Targets.yaml",
+            Default = DefaultTargets,
             HelpText = "Location of database connection strings file (for issuing UPDATE statements)"
         )]
-        public string TargetsFile { get; set; }
+        public string TargetsFile { get; set; } = DefaultTargets;
 
         [Option('i', "ignore",
             Required = false,
             Default = IgnoreRuleGenerator.DefaultFileName,
             HelpText = "File containing rules for ignoring validation errors"
         )]
-        public string IgnoreList { get; set; }
-        
+        public string IgnoreList { get; set; } = IgnoreRuleGenerator.DefaultFileName;
+
         [Option('r', "redlist",
             Required = false,
             Default = RowUpdater.DefaultFileName,
             HelpText = "File containing rules for when to issue UPDATE statements"
         )]
-        public string RedList { get; set; }
+        public string RedList { get; set; } = RowUpdater.DefaultFileName;
 
 
         [Option('o', "only-rules",
@@ -66,12 +68,20 @@ namespace IsIdentifiableReviewer
 
         public virtual void FillMissingWithValuesUsing(IsIdentifiableReviewerGlobalOptions globalOpts)
         {
-            if (string.IsNullOrWhiteSpace(TargetsFile))
-                TargetsFile = globalOpts.TargetsFile;
-            if (string.IsNullOrWhiteSpace(IgnoreList))
-                IgnoreList = globalOpts.IgnoreList;
-            if (string.IsNullOrWhiteSpace(RedList))
-                RedList = globalOpts.RedList;
+            // if we don't have a value for it yet
+            if (string.IsNullOrWhiteSpace(TargetsFile) || TargetsFile == DefaultTargets)
+                // and global configs has got a value for it
+                if(!string.IsNullOrWhiteSpace(globalOpts.TargetsFile))
+                    TargetsFile = globalOpts.TargetsFile; // use the globals config value
+
+            if (string.IsNullOrWhiteSpace(IgnoreList) || IgnoreList == IgnoreRuleGenerator.DefaultFileName)
+                if (!string.IsNullOrWhiteSpace(globalOpts.IgnoreList))
+                    IgnoreList = globalOpts.IgnoreList;
+
+            if (string.IsNullOrWhiteSpace(RedList) || RedList == RowUpdater.DefaultFileName)
+                if (!string.IsNullOrWhiteSpace(globalOpts.RedList))
+                    RedList = globalOpts.RedList;
+
             if (Theme == null && !string.IsNullOrWhiteSpace(globalOpts.Theme))
                 Theme = new FileInfo(globalOpts.Theme);
         }
