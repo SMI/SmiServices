@@ -129,13 +129,16 @@ class RabbitConsumer:
     """
     def __init__(self, yaml_dict):
         self._yaml_dict = yaml_dict
+        self._pika_connection = None
+        self._pika_model = None
+        self._queue_name = None
 
     def __repr__(self):
         return '<RabbitConsumer>'
 
     def open(self, queue_name):
         self._pika_connection = pika.BlockingConnection(_get_pika_connection_parameters(self._yaml_dict))
-        self._pika_model = pika_connection.channel()
+        self._pika_model = self._pika_connection.channel()
         self._queue_name = queue_name
 
     def close(self):
@@ -157,13 +160,13 @@ class RabbitConsumer:
         #                        exchange, and routing_key not needed
         # properties contains headers, probably not needed
         # body is (in our case) a JSON string
-        method_frame, properties, body in pika_model.consume(self._queue_name)
+        method_frame, properties, body = self._pika_model.consume(self._queue_name)
 
         # Convert message body from JSON string into Python dict
         msg_dict = json.loads(body)
 
         # Cancel the consumer and return any pending messages (Important!)
-        requeued_messages = pika_model.cancel()
+        requeued_messages = self._pika_model.cancel()
         #print('Requeued %i messages' % requeued_messages)
 
         return (method_frame.delivery_tag, msg_dict)
@@ -185,6 +188,8 @@ class RabbitProducer:
         self._producerPID = os.getpid()
         self._exchange = exchange
         self._routingKey = routingKey
+        self._pika_connection = None
+        self._pika_model = None
 
     def __repr__(self):
         return '<RabbitProducer>'
@@ -198,7 +203,7 @@ class RabbitProducer:
         self._pika_connection.close()
 
     def sendMessage(self, msg : smiMessage):
-        pika_model.basic_publish(exchange = self._exchange,
+        self._pika_model.basic_publish(exchange = self._exchange,
                         routing_key = self._routingKey,
                         body = msg.to_json(),
                         properties = _get_pika_message_properties(self._producerName, self._producerPID),
@@ -298,6 +303,6 @@ if __name__ == "__main__":
     else:
         yaml_filename = 'src/microservices/com.smi.microservices.ctpanonymiser/target/default.yaml'
     with open(yaml_filename) as fd:
-        yaml_dict = yaml.load(fd)
-    send_CTP_Start_Message(yaml_dict, "IM-0001-0019.dcm", "extracted", "001")
-    print(get_CTP_Output_Message(yaml_dict, 1))
+        yaml_dict_main = yaml.load(fd)
+    send_CTP_Start_Message(yaml_dict_main, "IM-0001-0019.dcm", "extracted", "001")
+    print(get_CTP_Output_Message(yaml_dict_main, 1))

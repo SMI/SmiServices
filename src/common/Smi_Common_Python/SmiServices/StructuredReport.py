@@ -1,4 +1,3 @@
-import collections
 import os
 import re
 import sys
@@ -304,56 +303,56 @@ def _SR_output_string(keystr, valstr, fp):
 # Uses str_output_string to format the output.
 
 def _SR_parse_key(json_dict, json_key, fp):
-        if tag_is(json_key, 'ConceptNameCodeSequence'):
-            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
-        elif tag_is(json_key, 'SourceImageSequence'):
-            _SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
-        elif tag_is(json_key, 'ContentSequence'):
-            for cs_item in tag_val(json_dict, json_key):
-                if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
-                    value_type = tag_val(cs_item, 'ValueType')
-                    if value_type == 'PNAME' or value_type == ['PNAME']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
-                    elif value_type == 'DATETIME' or value_type == ['DATETIME']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
-                    elif value_type == 'DATE' or value_type == ['DATE']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
-                    elif value_type == 'TEXT' or value_type == ['TEXT']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
-                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
-                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
-                    elif value_type == 'CODE' or value_type == ['CODE']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
-                    elif value_type == 'UIDREF' or value_type == ['UIDREF']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
-                    elif value_type == 'IMAGE' or value_type == ['IMAGE']:
-                        _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
-                    elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
-                        # Sometimes it has no ContentSequence or is 'null'
-                        if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
-                            if has_tag(cs_item, 'ConceptNameCodeSequence'):
-                                _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
-                            _SR_parse_key(cs_item, 'ContentSequence', fp)
-                    # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
-                    # as they have no useful text to return
-                    elif value_type == 'SCOORD' or value_type == ['SCOORD']:
-                        pass
-                    elif value_type == 'TCOORD' or value_type == ['TCOORD']:
-                        pass
-                    elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
-                        pass
-                    elif value_type == 'TIME' or value_type == ['TIME']:
-                        pass
-                    elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
-                        pass
-                    else:
-                        print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
-                #print('ITEM %s' % cs_item)
-        else:
-            if not sr_key_can_be_ignored(json_key):
-                print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
+    if tag_is(json_key, 'ConceptNameCodeSequence'):
+        _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
+    elif tag_is(json_key, 'SourceImageSequence'):
+        _SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
+    elif tag_is(json_key, 'ContentSequence'):
+        for cs_item in tag_val(json_dict, json_key):
+            if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
+                value_type = tag_val(cs_item, 'ValueType')
+                if value_type == 'PNAME' or value_type == ['PNAME']:
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
+                elif value_type == 'DATETIME' or value_type == ['DATETIME']:
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
+                elif value_type == 'DATE' or value_type == ['DATE']:
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
+                elif value_type == 'TEXT' or value_type == ['TEXT']:
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
+                elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
+                elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
+                elif value_type == 'CODE' or value_type == ['CODE']:
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
+                elif value_type == 'UIDREF' or value_type == ['UIDREF']:
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
+                elif value_type == 'IMAGE' or value_type == ['IMAGE']:
+                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
+                elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
+                    # Sometimes it has no ContentSequence or is 'null'
+                    if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
+                        if has_tag(cs_item, 'ConceptNameCodeSequence'):
+                            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
+                        _SR_parse_key(cs_item, 'ContentSequence', fp)
+                # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
+                # as they have no useful text to return
+                elif value_type == 'SCOORD' or value_type == ['SCOORD']:
+                    pass
+                elif value_type == 'TCOORD' or value_type == ['TCOORD']:
+                    pass
+                elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
+                    pass
+                elif value_type == 'TIME' or value_type == ['TIME']:
+                    pass
+                elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
+                    pass
+                else:
+                    print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
+            #print('ITEM %s' % cs_item)
+    else:
+        if not sr_key_can_be_ignored(json_key):
+            print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
 
 
 # ---------------------------------------------------------------------

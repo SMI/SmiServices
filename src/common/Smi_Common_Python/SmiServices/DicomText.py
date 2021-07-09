@@ -4,6 +4,7 @@
 import os
 import pydicom
 import re
+import random
 from SmiServices.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
 
 
@@ -67,7 +68,7 @@ class DicomText:
     """
     _include_header = True           # SemEHR uses some header fields to give context to body
     _include_unexpected_tags = False # SemEHR does not use unknown tags anyway so ignore them
-    _warn_unexpected_tags = False    # print if an unexpected tag is encountered
+    _warn_unexpected_tag = False     # print if an unexpected tag is encountered
     _replace_HTML_entities = True    # replace HTML tags with same length of space chars
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
     _redact_char = 'X'
@@ -162,16 +163,16 @@ class DicomText:
                 content_sequence_item.walk(self._dataset_read_callback)
             self._p_text = self._p_text + '[[EndContentSequence]]\n'
 
-    def redact_string(self, plaintext, offset, len):
+    def redact_string(self, plaintext, offset, rlen):
         """ Simple function to replace characters from the middle of a string.
-        Starts at offset for len characters, replaced with X.
+        Starts at offset for rlen characters, replaced with X.
         Can replace all for same length or randomise the amount.
         Returns the new string.
         """
-        redact_length = len
+        redact_length = rlen
         if DicomText._redact_random_length:
-            redact_length = random.randint(-int(len/2), int(len/2))
-        rc = plaintext[0:offset] + DicomText._redact_char.rjust(redact_length, DicomText._redact_char) + plaintext[offset+len:]
+            redact_length = random.randint(-int(rlen/2), int(rlen/2))
+        rc = plaintext[0:offset] + DicomText._redact_char.rjust(redact_length, DicomText._redact_char) + plaintext[offset+rlen:]
         return rc
 
     def _dataset_redact_callback(self, dataset, data_element):
