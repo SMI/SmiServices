@@ -89,8 +89,8 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
 
         public override void Dispose()
         {
-            _csvWriter.Dispose();
-            _streamwriter.Dispose();
+            _csvWriter?.Dispose();
+            _streamwriter?.Dispose();
         }
 
         private void WriteRow(IEnumerable<object> rowItems)
