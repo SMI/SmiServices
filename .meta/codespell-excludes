@@ -1,1 +1,2 @@
+# File containing exact lines to ignore
     [JsonObject(MemberSerialization.OptIn)]
