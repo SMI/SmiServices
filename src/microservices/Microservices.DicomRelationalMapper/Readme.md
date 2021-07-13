@@ -61,7 +61,7 @@ Errors are [logged as normal for a MicroserviceHost](../../common/Smi.Common/REA
 #### Environmental Failure States
  - Operation on loss of RabbitMQ connection during a load:
 	 - In progress data loads will complete and process will crash on BasicAck (leaving messages unacknowledged).  Repeat processing of stale messages (by other instances) will not introduce duplication.
- - Operation on loss of Microsft SQL Server connection during a load:
+ - Operation on loss of Microsoft SQL Server connection during a load:
 	 - Data load batch will fail and all messages will be Nacked.  Live data integrity will be maintained since final load step is applied in a transaction (Staging=>Live merge).
  - Operation on data load error (e.g. corrupt files / file system down).
 	 - Data load batch will fail and all messages will be Nacked.  Raw/Staging will be left available for diagnostics/debugging
@@ -72,7 +72,7 @@ Relational database tables have an initial schema out of the box based on a [ima
 Once the system has gone live, data analysts will still be able to add new tags to existing database tables through the RDMP user interface using [tag promotion](https://github.com/HicServices/RdmpDicom/blob/develop/Documentation/DataLoad.md#Image-Tables).
 
 ### 7. Audit
-In addition to logging to NLog like other microservices, the data load itself will be audited in the RDMP relational logging database.  This inclues facts such as how many records were loaded (UPDATES / INSERTS) and any problems encountered.
+In addition to logging to NLog like other microservices, the data load itself will be audited in the RDMP relational logging database.  This includes facts such as how many records were loaded (UPDATES / INSERTS) and any problems encountered.
 
 ![Load Metadata Logs](Images/LoadMetadataLogst.png)
 

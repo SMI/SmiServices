@@ -47,7 +47,7 @@ Each message processed will result in one or more UPDATE SQL statements being ru
 #### Data Failure States
 
 - No tables exist that contain the updated field(s)
-- The TableInfo in RDMP maps to a non existant table (e.g. if the database server has been shutdown or the table renamed/deleted)
+- The TableInfo in RDMP maps to a non existent table (e.g. if the database server has been shutdown or the table renamed/deleted)
 
 #### Environmental Failure States
 

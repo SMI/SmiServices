@@ -60,7 +60,7 @@ namespace Smi.Common.Tests
                 //create a new one
                 model.ExchangeDeclare(rabbitOptions.RabbitMqControlExchangeName, ExchangeType.Topic, true);
 
-                //setup a sender chanel for each of the consumers you want to test sending messages to
+                //setup a sender channel for each of the consumers you want to test sending messages to
                 foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
                 {
                     if (!consumer.QueueName.Contains("TEST."))

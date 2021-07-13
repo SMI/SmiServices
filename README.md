@@ -14,7 +14,7 @@ Version: `3.2.1`
 
 ![loaddiagram](./docs/Images/SmiFlow.svg)
 
-A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scaleability) of [dicom] medical images to support medical research.
+A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scalability) of [dicom] medical images to support medical research.
 
 The platform allows [dicom tags] (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
@@ -30,7 +30,7 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Running](#running)
 1. [Testing](#testing)
 1. [Package Hierarchy](#package-hierarchy)
-1. [Scaleability](#scaleability)
+1. [Scalability](#scalability)
 
 ## Microservices
 
@@ -81,7 +81,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 
 ## Solution Overview
 
-Appart from the Microservices (documented above) the following library classes are also included in the solution:
+Apart from the Microservices (documented above) the following library classes are also included in the solution:
 
 | Project Name | Path | Description|
 | ------------- | ----- | ------------- |
@@ -192,11 +192,11 @@ For setting up the RDMP platform databases see https://github.com/HicServices/RD
 
 The C# projects share the same release version, which is controlled by the [SharedAssemblyInfo.cs](src/SharedAssemblyInfo.cs) file. The Java projects are versioned independently, set in their pom files, however in practice they follow the release version of the repo overall.
 
-## Scaleability
+## Scalability
 
-The services in this repository have been sucessfully used to load all medical imaging data captured in Scotland's National PACS archive.
+The services in this repository have been successfully used to load all medical imaging data captured in Scotland's National PACS archive.
 
-Scaleability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
+Scalability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
 
 ## Package Hierarchy
 

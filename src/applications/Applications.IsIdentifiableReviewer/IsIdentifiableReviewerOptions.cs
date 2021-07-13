@@ -60,9 +60,9 @@ namespace IsIdentifiableReviewer
         public bool UseSystemConsole { get; internal set; }
 
         /// <summary>
-        /// Sets the user interface to use a specific color pallette yaml file
+        /// Sets the user interface to use a specific color palette yaml file
         /// </summary>
-        [Option("theme", HelpText = "Sets the user interface to use a specific color pallette yaml file")]
+        [Option("theme", HelpText = "Sets the user interface to use a specific color palette yaml file")]
         public FileInfo Theme { get; set; }
 
 

@@ -230,7 +230,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         private void TabView_SelectedTabChanged(object sender, TabView.TabChangedEventArgs e)
         {
-            // sync the rules up incase people are adding new ones using the other UIs
+            // sync the rules up in case people are adding new ones using the other UIs
             rulesManager.RebuildTree();
         }
 

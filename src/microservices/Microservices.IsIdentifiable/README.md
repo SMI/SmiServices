@@ -135,7 +135,7 @@ BasicRules:
 
 ### Socket Rules
 
-You can outsource the classification to seperate application(s) (e.g. NERDaemon) by adding `Socket Rules`
+You can outsource the classification to separate application(s) (e.g. NERDaemon) by adding `Socket Rules`
 
 ```yaml
 SocketRules:   

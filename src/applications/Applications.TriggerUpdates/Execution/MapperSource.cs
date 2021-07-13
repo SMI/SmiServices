@@ -28,7 +28,7 @@ namespace Applications.TriggerUpdates.Execution
         protected readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// True if the <see cref="GetUpdates"/> database quering operation is currently executing
+        /// True if the <see cref="GetUpdates"/> database querying operation is currently executing
         /// </summary>
         public bool IsExecuting {get; private set; } = false;
 

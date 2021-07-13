@@ -196,7 +196,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
                 if (job.JobStatus != ExtractJobStatus.ReadyForChecks)
                 {
-                    Logger.Debug($"Job {jobId} is not ready - currenlty in state {job.JobStatus} (changed={changed})");
+                    Logger.Debug($"Job {jobId} is not ready - currently in state {job.JobStatus} (changed={changed})");
                     continue;
                 }
 

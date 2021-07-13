@@ -63,7 +63,7 @@ The `Next` and `Prev` buttons move sequentially through the failures, i.e. `Next
 ![ScreenshotOfTree](./images/tree.png)
 _'Tree View' showing PII detected aggregated by unique failing value and column where PII was found_
 
-The 'Tree View' sorts all of the failures by number of occurences. This tree view shows all the categories of rules and then all the categories of failures. It also shows the list of Conflicting rules which is where a failure matches both an Ignore and an Update rule.
+The 'Tree View' sorts all of the failures by number of occurrences. This tree view shows all the categories of rules and then all the categories of failures. It also shows the list of Conflicting rules which is where a failure matches both an Ignore and an Update rule.
 
 Each instance of potential [PII] found by IsIdentifiable is termed a 'failure' (the existing anonymisation process has failed to strip this PII).  A 'failure' can be either a false positive or a genuine case of [PII].  Make a decision for each failure whether to ignore it or 'report' it.
 
@@ -88,7 +88,7 @@ The Custom Patterns window provides several options to edit the pattern:
 
 Once all 'failures' in a report have been processed and either ignored or a 'report' rule generated you can redact the database.  This is done by running the application using the `-u` and `-t` flags.
 
-Since you may have several servers / databases that are processed using this tool, it is nessesary to indicate where UPDATE commands should be run.  This is done by putting the connection string in a 'targets' file:
+Since you may have several servers / databases that are processed using this tool, it is necessary to indicate where UPDATE commands should be run.  This is done by putting the connection string in a 'targets' file:
 
 ```yaml
 - Name: My Server
@@ -113,7 +113,7 @@ _Example redaction command_
 
 ### Managing the rulebase
 
-Over time the number of rules in [IsIdentifiable] and the reviewer will increase.  It can be beneficial to move ignore rules upstream from the reviwer to the [IsIdentifiable] rulebase especially for commonly encountered reports.  This will reduce the number of false positives and the size of report files.
+Over time the number of rules in [IsIdentifiable] and the reviewer will increase.  It can be beneficial to move ignore rules upstream from the reviewer to the [IsIdentifiable] rulebase especially for commonly encountered reports.  This will reduce the number of false positives and the size of report files.
 
 The 'Rules Manager' tab provides visualisation and control over the rules used by the [IsIdentifiable] tool ('Analyser Rules') and the Reviewer ('Reviewer Rules').  You should periodically review the rules base to ensure there are no mistakes and to identify candidates for pushing upstream into the analyser.
 

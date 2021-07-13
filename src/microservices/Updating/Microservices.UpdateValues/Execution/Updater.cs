@@ -133,7 +133,7 @@ namespace Microservices.UpdateValues.Execution
                     }
                     catch(Exception ex)
                     {
-                        throw new Exception($"Failed to excute query {sql} " ,ex);
+                        throw new Exception($"Failed to execute query {sql} " ,ex);
                     }
                 }
             }
