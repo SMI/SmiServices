@@ -79,6 +79,16 @@ cell1 with some new lines and tabs,cell2
 cell1 with some new lines and tabs	cell2
 ", fileCreatedContents);
         }
+
+        [Test]
+        public void TestCsvDestination_DisposeWithoutUsing()
+        {
+            var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+
+            var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
+            var dest = new CsvDestination(opts, "test", false);
+            dest.Dispose();
+        }
     }
 
     internal class TestFailureReport : IFailureReport
