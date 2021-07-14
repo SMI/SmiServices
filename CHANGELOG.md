@@ -244,7 +244,7 @@ A raw git diff can be seen [here][unreleased].
 -   [#661](https://github.com/SMI/SmiServices/pull/661) by tznind. Fixed layout
     of main window so it no longer obscures classification/type
 -   [#665](https://github.com/SMI/SmiServices/pull/665) by tznind. Fixed tree
-    view loosing selected index when updating/ignoring a failure (in tree view)
+    view losing selected index when updating/ignoring a failure (in tree view)
 -   [#666](https://github.com/SMI/SmiServices/pull/666) by howff. Silence
     deprecation warning from newer Python as noted by the azure pipeline test
 
@@ -284,7 +284,7 @@ A raw git diff can be seen [here][unreleased].
     -   Breaking: YAML config change required
     -   Removes the `SMI_LOGS_ROOT` variable - now in YAML config
     -   Removes the `--trace-logging` CLI option - now in YAML config
-    -   All invokations of IsIdentifiable now require a YAML config to ensure
+    -   All invocations of IsIdentifiable now require a YAML config to ensure
         logging is properly configured
 -   [#577](https://github.com/SMI/SmiServices/pull/577) by `rkm`. Simplify
     branch workflow by dropping develop
@@ -704,7 +704,7 @@ A raw git diff can be seen [here][unreleased].
 -   Refactor Java exception handling and use of threads
 -   `TessDirectory` option in [IsIdentifiable] now expects tesseract models file
     to exist (no longer downloads it on demand)
--   Addeed support for outsourcing classification (e.g. NLP) to other processes
+-   Added support for outsourcing classification (e.g. NLP) to other processes
     via TCP (entered in [SocketRules] in `Rules.yaml`)
 -   IsIdentifiable NLP text classification now outsourced via TCP to any
     services configured in

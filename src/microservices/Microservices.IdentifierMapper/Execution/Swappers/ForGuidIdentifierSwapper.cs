@@ -125,7 +125,7 @@ where not exists(select *
                             throw new Exception("Failed to perform lookup of toSwap with SQL:" + insertSql, e);
                         }
 
-                        //guid may not have been inserted.  Just because we don't have it in our cache doesn't mean that other poeple might
+                        //guid may not have been inserted.  Just because we don't have it in our cache doesn't mean that other people might
                         //not have allocated that one at the same time.
 
                         DbCommand cmd2 = _table.Database.Server.GetCommand($"SELECT {_options.ReplacementColumnName} FROM {_table.GetFullyQualifiedName()} WHERE {_options.SwapColumnName} = '{toSwap}'  ",con);

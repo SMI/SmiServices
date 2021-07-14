@@ -4,7 +4,7 @@ SMI Microservices use RabbitMQ, MongoDb, Sql Server and MySql.  These tests are 
 
 ## Connection Strings
 
-Once you have set up the above dependencies you will need to set the connection strings in the following files (which should not be commited to the repository):
+Once you have set up the above dependencies you will need to set the connection strings in the following files (which should not be committed to the repository):
 
 - [TestDatabases.txt](./tests/common/Smi.Common.Tests/TestDatabases.txt)
 - [RelationalDatabases.yaml](./tests/common/Smi.Common.Tests/RelationalDatabases.yaml)

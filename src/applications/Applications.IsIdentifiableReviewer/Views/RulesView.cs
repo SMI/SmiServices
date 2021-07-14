@@ -76,7 +76,7 @@ namespace IsIdentifiableReviewer.Views
             if (e.NewValue is OutstandingFailureNode ofn){
 
                 // if it is now covered by an existing rule! Like maybe they have 500 outstanding failures 
-                // and on the first one they add a rule .* (ignore EVERYTHING) then we had better disapear the rest of the tree too
+                // and on the first one they add a rule .* (ignore EVERYTHING) then we had better disappear the rest of the tree too
 
                 var ignoreRule = Ignorer.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
 

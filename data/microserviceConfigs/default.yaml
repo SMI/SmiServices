@@ -274,5 +274,5 @@ IsIdentifiableReviewerOptions:
     IgnoreList:
     #File containing rules for when to issue UPDATE statements
     RedList:
-    #Sets the user interface to use a specific color pallette yaml file
+    #Sets the user interface to use a specific color palette yaml file
     Theme:

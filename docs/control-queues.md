@@ -14,7 +14,7 @@ This describes how the services can be controlled via RabbitMQ messages.
 
 Commands are sent by publishing a message to the ControlExchange (specified in your config by `RabbitOptions.RabbitMqControlExchangeName`) with a specific routing key. This allows you to easily send them from the RabbitMQ web management page, or via a CLI.
 
-RabbitMQ message routing keys are used to control which services recieve the message. The current format for routing keys is `smi.control.<who>.<what>`. Where `<who>` is the name of the service, and `<what>` is some defined action. Note that all keys must be specified in lowercase. The currently defined actions are:
+RabbitMQ message routing keys are used to control which services receive the message. The current format for routing keys is `smi.control.<who>.<what>`. Where `<who>` is the name of the service, and `<what>` is some defined action. Note that all keys must be specified in lowercase. The currently defined actions are:
 
 ### General - any service
 
@@ -50,7 +50,7 @@ smi.control.dicomtagreader.stop # Stop all DicomTagReader services
 smi.control.identifiermapper.refresh1234 # Refresh the IdentifierMapper service with PID `1234`
 ```
 
-Note that some services may take some time to finish their current operation and exit after receiveing a `shutdown` command.
+Note that some services may take some time to finish their current operation and exit after recieveing a `shutdown` command.
 
 
 ### Via the Web UI
@@ -88,7 +88,7 @@ The actual implementation of the control queues works as follows:
 - It then binds this queue to the global `ControlExchange`. Two bindings are created:
   - `smi.control.all.*`: Matches any "send to all" routing keys
   - `smi.control.<process_name>.*`: Matches "all services of my type" routing keys
-- On shutdown (when the RMQ connection is closed), the control queue should be automatically delted by the server
+- On shutdown (when the RMQ connection is closed), the control queue should be automatically deleted by the server
 
 The creation of the control queue is performed during a single ad-hoc connection, and is not part of the standard Consumer process (for _reasons_). One consequence of this is that if a microservice crashes _after_ the control queue is created, but _before_ the actual subscription to the queue is started (i.e. at some point during startup before RabbitMQAdapter.StartConsumer is called), then the control queue may not be automatically deleted. This isn't really an issue other than causing visual clutter on the RabbitMQ management interface. These dangling queues can be manually deleted with the [TidyQueues](../utils/RabbitMqTidyQueues) utility tool.
 

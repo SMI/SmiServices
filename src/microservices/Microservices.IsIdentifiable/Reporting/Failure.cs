@@ -102,7 +102,7 @@ namespace Microservices.IsIdentifiable.Reporting
                 }
                 else
                 {
-                    // we ran off the end of a current problem word(s) or theres no current problem word(s)
+                    // we ran off the end of a current problem word(s) or there's no current problem word(s)
                     if(sb.Length > 0)
                     {
                         yield return sb.ToString();

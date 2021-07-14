@@ -308,7 +308,7 @@ namespace Microservices.DicomTagReader.Execution
         {
             if (_nAccMessagesProcessed == 0)
             {
-                Logger.Info("No messages proceesed - can't calculate averages");
+                Logger.Info("No messages processed - can't calculate averages");
                 return;
             }
 

@@ -236,7 +236,7 @@ namespace Smi.Common.Options
         public string RedList { get; set; }
 
         /// <summary>
-        /// Sets the user interface to use a specific color pallette yaml file
+        /// Sets the user interface to use a specific color palette yaml file
         /// </summary>
         public string Theme { get; set; }
 

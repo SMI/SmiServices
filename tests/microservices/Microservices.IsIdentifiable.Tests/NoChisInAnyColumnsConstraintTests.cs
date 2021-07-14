@@ -14,9 +14,9 @@ namespace Microservices.IsIdentifiable.Tests
             Assert.IsTrue(constraint.ContainsChi(testValue));
         }
 
-        [TestCase("test)4401010101.")] //not a chi because theres no 44th day of the month
-        [TestCase("test)1120010101.")] //not a chi because theres no 20th month
-        [TestCase("11101010101")] //not a chi because digit is 11 long
+        [TestCase("test)4401010101.")] //not a chi because there's no 44th day of the month
+        [TestCase("test)1120010101.")] //not a chi because there's no 20th month
+        [TestCase("11101010101")] //not a chi because 11 digits is too long
         public void Test_SingleValue_IsNotChi(string testValue)
         {
             var constraint = new NoChisInAnyColumnsConstraint();

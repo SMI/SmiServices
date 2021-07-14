@@ -204,7 +204,7 @@ If you use GetMessages in the rabbit MQ interface you can see what was the messa
 
 ---
 
-Thats right, all this work was just to get a __directory listing__ into RabbitMQ! But now that you have the basics of creating exchanges / queues down it should be much easier to get the rest of the services running (see below).
+That's right, all this work was just to get a __directory listing__ into RabbitMQ! But now that you have the basics of creating exchanges / queues down it should be much easier to get the rest of the services running (see below).
 
 To change the exchange/queue names you should edit `default.yaml` (ensuring your RabbitMQ server has the correct entries)
 
@@ -255,7 +255,7 @@ Now create a policy for all queues to send nacked messages to this exchange:
 
 ---
 
-Run DicomTagReader again to force another failure (because we still have no bound output queue for our succesfully processed messages)
+Run DicomTagReader again to force another failure (because we still have no bound output queue for our successfully processed messages)
 
 This should result in the 'lost' message being sent to the dead letter queue:
 
@@ -310,7 +310,7 @@ After execution the queues should look like:
 
 ![Output queues with 1 message per image + 1 message per series](./Images/DataLoading/AfterDicomTagReader.png)
 
-_Output queues from a succesful run of DicomTagReader_
+_Output queues from a successful run of DicomTagReader_
 
 ---
 
@@ -352,7 +352,7 @@ Your MongoDb instance should be blank (contain no imaging datasets at least):
 
 ![Mongo Db Compass showing no user databases](./Images/DataLoading/MongoDbCompassAtStart.png)
 
-Publish and run `MongoDbPopulator` (making sure to copy accross [Smi.NLog.config] if required)
+Publish and run `MongoDbPopulator` (making sure to copy across [Smi.NLog.config] if required)
 
 ```
 E:\SmiServices\src\microservices\Microservices.MongoDbPopulator\bin\AnyCPU\Debug\netcoreapp2.2\win-x64> .\MongoDbPopulator.exe
@@ -411,7 +411,7 @@ The following microservices are responsible for loading the [RelationalDb] with 
 
 This application is responsible for fetching records from [MongoDb] collections and queuing them for processing in RabbitMQ.
 
-Publish and run `DicomReprocessor` (making sure to copy accross [Smi.NLog.config] if required)
+Publish and run `DicomReprocessor` (making sure to copy across [Smi.NLog.config] if required)
 
 ```
 E:\SmiServices\src\microservices\Microservices.DicomReprocessor\bin\AnyCPU\Debug\netcoreapp2.2\win-x64> .\DicomReprocessor.exe
@@ -456,7 +456,7 @@ DicomReprocessorOptions:
         MaxConfirmAttempts: 1
 ```
 
-This should give the following succesful output (see below) and there should be image messages in the `TEST.DicomReprocessorQueue`
+This should give the following successful output (see below) and there should be image messages in the `TEST.DicomReprocessorQueue`
 
 ```
 Bootstrapper -> Main called, constructing host
@@ -483,12 +483,12 @@ Bootstrapper -> Exiting main
 
 ## IdentifierMapper
 
-The next component in the load is the `IdentifierMapper`.  It's job is to anonymise the [PatientID] tag in the JSON extraced by [DicomReprocessor].  This change only occurs in the messages in the rabbit (as they are written to the output queue).  This prepares them for loading into the [RelationalDb].  
+The next component in the load is the `IdentifierMapper`.  It's job is to anonymise the [PatientID] tag in the JSON extracted by [DicomReprocessor].  This change only occurs in the messages in the rabbit (as they are written to the output queue).  This prepares them for loading into the [RelationalDb].  
 
 At no point are the original Dicom files on disk opened or changed.
 
 
-Publish and run `IdentifierMapper` (making sure to copy accross [Smi.NLog.config] if required)
+Publish and run `IdentifierMapper` (making sure to copy across [Smi.NLog.config] if required)
 
 ```
 E:\SmiServices\src\microservices\Microservices.IdentifierMapper\bin\AnyCPU\Debug\netcoreapp2.2\win-x64> .\IdentifierMapper.exe
@@ -587,7 +587,7 @@ The critical section in this JSON is `\"00100020\":{\"vr\":\"LO\",\"val\":\"8f77
 
 `DicomRelationalMapper` is responsible for loading the [RelationalDb] with the JSON serialized dicom images in it's RabbitMQ input queue.  
 
-Loading research ready relational databases without introducing duplication is complicated and highly dependant on user requirements (e.g. desired table schema, any aggregate/computed columns etc).
+Loading research ready relational databases without introducing duplication is complicated and highly dependent on user requirements (e.g. desired table schema, any aggregate/computed columns etc).
 
 To ensure maximum flexibility `DicomRelationalMapper` wraps the [RDMP] Data Load Engine (using the [Rdmp.Dicom] plugin)
 
@@ -690,7 +690,7 @@ In Sql Server you should see tables (and archive tables) that match your templat
 
 ### DicomRelationalMapper Continued
 
-Publish (but do not run) `DicomRelationalMapper` (making sure to copy accross [Smi.NLog.config] if required)
+Publish (but do not run) `DicomRelationalMapper` (making sure to copy across [Smi.NLog.config] if required)
 
 Now that we have a valid load configured in [RDMP] we can reference it in `default.yaml`.  We need to set the connection strings to the RDMP databases
 

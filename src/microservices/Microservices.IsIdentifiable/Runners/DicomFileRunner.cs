@@ -206,7 +206,7 @@ namespace Microservices.IsIdentifiable.Runners
 
                 using (Bitmap oldBmp = dicomImage.RenderImage().AsClonedBitmap())
                 {
-                    using (Bitmap newBmp = new Bitmap(oldBmp)) // Strangle this line is neede for the subsequent Clone call to work
+                    using (Bitmap newBmp = new Bitmap(oldBmp)) // Strange this line is needed for the subsequent Clone call to work
                     {
                         using (Bitmap targetBmp = newBmp.Clone(new Rectangle(0, 0, newBmp.Width, newBmp.Height), PixelFormat.Format32bppArgb))
                         {

@@ -1,0 +1,14 @@
+---
+
+repos:
+  - repo: https://github.com/codespell-project/codespell
+    rev: "v2.0.0"
+    hooks:
+      - id: codespell
+        args:
+          [
+            --ignore-words, .meta/codespell-ignores,
+            --exclude-file, .meta/codespell-excludes,
+            # NOTE(rkm 2021-07-13) Ignore stanford english.all.3class.distsim.crf.ser.gz file
+            --ignore-regex, '\.ser\.gz$',
+          ]

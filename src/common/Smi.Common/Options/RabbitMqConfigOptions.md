@@ -190,7 +190,7 @@ exception while parsing.
 
 ## How to edit the yaml file
 
-YAML syntax refrence is abundant online. YAML is basically a sequence of key-value pairs separated by a colon `:`. Indentation is meaningful,
+YAML syntax reference is abundant online. YAML is basically a sequence of key-value pairs separated by a colon `:`. Indentation is meaningful,
 indented lines will be properties of the previous outdented line. Dashes indicate array elements, although you can use square brackets as well (see above).
 
 If you want to add one option to an existing section, you need to create the corresponding property in the `GlobalOptions` class, as

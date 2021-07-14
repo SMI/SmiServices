@@ -22,7 +22,7 @@ ExtractableFlag 		- BIT DEFAULT TRUE
 ExtractableReason 		- TEXT DEFAULT NULL
 ```
 
-In the case where an image is loaded through the extraction pipeline again after previously being marked not extractable, the flag should remain unset and not be reset to the default. This wont be needed if we also mark the image as not extractable in MongoDB in some way.
+In the case where an image is loaded through the extraction pipeline again after previously being marked not extractable, the flag should remain unset and not be reset to the default. This won't be needed if we also mark the image as not extractable in MongoDB in some way.
 
 To aid the RC team, we could also add an Extractable flag at the Series/Study level which would indicate that every image in series / series in study has been 'disabled'. This could be automatically generated as part of a stored procedure, or when image(s) are manually disabled.
 
@@ -52,7 +52,7 @@ Majority of this is software-related, however we should really create a short ex
 
 At extraction, the CohortExtractor will start and load the table of white-list rules. It will then query the catalogues as normal and return a set of file paths matching the identifier(s) given in the message. It will then apply the extractable rules to the returned data; firstly checking if the ExtractableFlag is set, then applying the rules from the loaded white-list. It will then emit messages for any extractable images as normal, but also emit audit messages for anything not extractable, which will be recorded by the CohortPackager. This will require some messages to be updated.
 
-As an aside, we would also like to refactor our output directory format to match `<ExtractRoot>/<EUPI>/<StudyInstanceUID>/<SeriesInstanceUID>/*.dcm` as standard. This means we need 2 dicom UIDs no mater which one we are using as the key for extraction.
+As an aside, we would also like to refactor our output directory format to match `<ExtractRoot>/<EUPI>/<StudyInstanceUID>/<SeriesInstanceUID>/*.dcm` as standard. This means we need 2 dicom UIDs no matter which one we are using as the key for extraction.
 
 This would mean we need to join across 3 tables to get all the information required for extracting an image (Study/Series/SOPInstanceUID, FilePath, Extractable info).
 

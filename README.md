@@ -14,7 +14,7 @@ Version: `3.2.1`
 
 ![loaddiagram](./docs/Images/SmiFlow.svg)
 
-A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scaleability) of [dicom] medical images to support medical research.
+A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scalability) of [dicom] medical images to support medical research.
 
 The platform allows [dicom tags] (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
 
@@ -30,7 +30,7 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Running](#running)
 1. [Testing](#testing)
 1. [Package Hierarchy](#package-hierarchy)
-1. [Scaleability](#scaleability)
+1. [Scalability](#scalability)
 
 ## Microservices
 
@@ -81,7 +81,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 
 ## Solution Overview
 
-Appart from the Microservices (documented above) the following library classes are also included in the solution:
+Apart from the Microservices (documented above) the following library classes are also included in the solution:
 
 | Project Name | Path | Description|
 | ------------- | ----- | ------------- |
@@ -169,6 +169,31 @@ $ ./download.sh
 
 Development requires Java JDK `>= 1.7`, and Maven.
 
+### pre-commit
+
+This repo uses [pre-commit] to manage and automatically run a series of linters
+and code formatters. After cloning the repo and changing into the directory, run
+this once to setup pre-commit.
+
+```console
+$ pip install pre-commit
+$ pre-commit install
+```
+
+This will then run the checks before every commit. It can also be run manually
+at any time:
+
+```console
+$ pre-commit run [<hook>] (--all-files | --files <file list>)
+```
+
+Running pre-commit locally is optional, since it is also run during any PR. To remove
+pre-commit from your repo clone, simply run:
+
+```console
+$ pre-commit uninstall
+```
+
 ## Testing
 
 SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql). Tests are split into those that:
@@ -192,11 +217,11 @@ For setting up the RDMP platform databases see https://github.com/HicServices/RD
 
 The C# projects share the same release version, which is controlled by the [SharedAssemblyInfo.cs](src/SharedAssemblyInfo.cs) file. The Java projects are versioned independently, set in their pom files, however in practice they follow the release version of the repo overall.
 
-## Scaleability
+## Scalability
 
-The services in this repository have been sucessfully used to load all medical imaging data captured in Scotland's National PACS archive.
+The services in this repository have been successfully used to load all medical imaging data captured in Scotland's National PACS archive.
 
-Scaleability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
+Scalability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
 
 ## Package Hierarchy
 
@@ -244,3 +269,4 @@ Scaleability is handled through parallel process execution (using [RabbitMQ]).  
 [CohortExtractor]: ./src/microservices/Microservices.CohortExtractor/README.md
 [CTPAnonymiser]: ./src/microservices/com.smi.microservices.ctpanonymiser/README.md
 [CohortPackager]: ./src/microservices/Microservices.CohortPackager/README.md
+[pre-commit]: https://pre-commit.com

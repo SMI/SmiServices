@@ -573,10 +573,10 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 foreach (DataRow row in _helper.ImageTable.GetDataTable().Rows)
                 {
-                    var ser = (string)row["SeriesInstanceUID"];
+                    var seriesId = (string)row["SeriesInstanceUID"];
 
-                    if (!extract.ExtractionIdentifiers.Contains(ser))
-                        extract.ExtractionIdentifiers.Add(ser);
+                    if (!extract.ExtractionIdentifiers.Contains(seriesId))
+                        extract.ExtractionIdentifiers.Add(seriesId);
                 }
 
                 tester.SendMessage(_globals.CohortExtractorOptions, extract);

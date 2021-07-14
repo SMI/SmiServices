@@ -7,7 +7,7 @@
 #      changed default model from sm to md, added command line options,
 #      allow multiple models to be specified, use scispacy if installed.
 #      Change all entity names to UPPERCASE to match Stanford CoreNLP.
-# 1.01 arb Tue 11 Feb 13:40:40 GMT 2020 - lock call to nlp incase not thread-safe
+# 1.01 arb Tue 11 Feb 13:40:40 GMT 2020 - lock call to nlp in case not thread-safe
 # Runs a NER daemon like NERd but using SpaCy for NER not Stanford.
 # PROTOCOL:
 #  Reads a nul-terminated string, responds with nul-separated and nul-terminated
