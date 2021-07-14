@@ -169,6 +169,31 @@ $ ./download.sh
 
 Development requires Java JDK `>= 1.7`, and Maven.
 
+### pre-commit
+
+This repo uses [pre-commit] to manage and automatically run a series of linters
+and code formatters. After cloning the repo and changing into the directory, run
+this once to setup pre-commit.
+
+```console
+$ pip install pre-commit
+$ pre-commit install
+```
+
+This will then run the checks before every commit. It can also be run manually
+at any time:
+
+```console
+$ pre-commit run [<hook>] (--all-files | --files <file list>)
+```
+
+Running pre-commit locally is optional, since it is also run during any PR. To remove
+pre-commit from your repo clone, simply run:
+
+```console
+$ pre-commit uninstall
+```
+
 ## Testing
 
 SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql). Tests are split into those that:
@@ -244,3 +269,4 @@ Scalability is handled through parallel process execution (using [RabbitMQ]).  T
 [CohortExtractor]: ./src/microservices/Microservices.CohortExtractor/README.md
 [CTPAnonymiser]: ./src/microservices/com.smi.microservices.ctpanonymiser/README.md
 [CohortPackager]: ./src/microservices/Microservices.CohortPackager/README.md
+[pre-commit]: https://pre-commit.com
