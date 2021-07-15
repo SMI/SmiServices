@@ -55,12 +55,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         super.setUp();
 
-        try {
-            SmiLogging.Setup(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+        SmiLogging.Setup(true);
 
         _options = GlobalOptions.Load(true);
 
@@ -92,16 +87,16 @@ public class CTPAnonymiserHostTest extends TestCase {
         _extractFileStatusConsumerOptions.AutoAck = false;
         _extractFileStatusConsumerOptions.QoSPrefetchCount = 1;
 
-        _anonFileStatusMessageConsumer = new AnyConsumer<>(ExtractedFileStatusMessage.class);
+        _factory = new ConnectionFactory();
+        _conn = _factory.newConnection();
+        _channel = _conn.createChannel();
+
+        _anonFileStatusMessageConsumer = new AnyConsumer<ExtractedFileStatusMessage>(_channel,ExtractedFileStatusMessage.class);
 
         _extractFileProducerOptions = new ProducerOptions();
         _extractFileProducerOptions.ExchangeName = _inputExchName;
 
         _extractFileMessageProducer = _testAdapter.SetupProducer(_extractFileProducerOptions);
-
-        _factory = new ConnectionFactory();
-        _conn = _factory.newConnection();
-        _channel = _conn.createChannel();
 
         // Setup the input exch. / queue pair
 
