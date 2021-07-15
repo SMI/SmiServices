@@ -77,7 +77,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
 
                 var message = new SeriesMessage
                 {
-                    NationalPACSAccessionNumber = "NationalPACSAccessionNumber-test",
                     DirectoryPath = "DirectoryPath-test",
                     StudyInstanceUID = "StudyInstanceUID-test",
                     SeriesInstanceUID = "SeriesInstanceUID-test",

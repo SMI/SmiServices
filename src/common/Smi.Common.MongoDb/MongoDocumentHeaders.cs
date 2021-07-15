@@ -1,4 +1,4 @@
-﻿
+
 using MongoDB.Bson;
 using Smi.Common.Messages;
 using System;
@@ -20,7 +20,6 @@ namespace Smi.Common.MongoDB
             {
                 { "DicomFilePath",               message.DicomFilePath },
                 { "DicomFileSize",               message.DicomFileSize },
-                { "NationalPACSAccessionNumber", AccessionNoOrNull(message.NationalPACSAccessionNumber) },
                 { "MessageHeader", new BsonDocument
                     {
                         { "MessageGuid", header.MessageGuid.ToString() },
@@ -42,7 +41,6 @@ namespace Smi.Common.MongoDB
             return new BsonDocument
             {
                 { "DirectoryPath",               message.DirectoryPath },
-                { "NationalPACSAccessionNumber", AccessionNoOrNull(message.NationalPACSAccessionNumber) },
                 { "ImagesInSeries",              message.ImagesInSeries }
             };
         }
@@ -58,7 +56,5 @@ namespace Smi.Common.MongoDB
                 OriginalPublishTimestamp = bsonDoc["OriginalPublishTimestamp"].AsInt64
             };
         }
-
-        private static BsonValue AccessionNoOrNull(string accessionNo) => accessionNo != null ? (BsonValue)new BsonString(accessionNo) : BsonNull.Value;
     }
 }

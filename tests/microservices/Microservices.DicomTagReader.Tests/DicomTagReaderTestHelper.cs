@@ -97,7 +97,6 @@ namespace Microservices.DicomTagReader.Tests
             TestAccessionDirectoryMessage = new AccessionDirectoryMessage
             {
                 DirectoryPath = @"C:\Temp\",
-                NationalPACSAccessionNumber = "1234"
             };
 
             TestSeriesModel = new Mock<IProducerModel>();

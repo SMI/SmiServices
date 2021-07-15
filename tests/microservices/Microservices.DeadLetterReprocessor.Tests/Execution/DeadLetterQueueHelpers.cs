@@ -64,7 +64,6 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
         {
             var testMessage = new AccessionDirectoryMessage
             {
-                NationalPACSAccessionNumber = "1234",
                 DirectoryPath = @"C:\temp"
             };
 

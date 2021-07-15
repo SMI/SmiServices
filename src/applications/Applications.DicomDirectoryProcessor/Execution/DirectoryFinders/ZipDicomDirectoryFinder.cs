@@ -27,11 +27,5 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         {
             return dirInfo.EnumerateFiles().Where(f=>f.Extension == ".dcm" || ZipHelper.IsZip(f));
         }
-
-        /// <inheritdoc/>
-        protected override string GetNationalPacsAccessionNumberFrom(string dirPath)
-        {
-            return null;
-        }
     }
 }

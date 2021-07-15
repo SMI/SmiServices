@@ -29,7 +29,6 @@ namespace Microservices.DicomTagReader.Execution
                 try
                 {
                     fileMessage = ReadTagsFromFile(dicomFilePath);
-                    fileMessage.NationalPACSAccessionNumber = accMessage.NationalPACSAccessionNumber;
                 }
                 catch (Exception e)
                 {

@@ -35,28 +35,11 @@ namespace Smi.Common.Tests
             Assert.AreEqual(msg1, msg2);
             Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
 
-            msg1.NationalPACSAccessionNumber = "500";
-            msg2.NationalPACSAccessionNumber = "500";
-
-            Assert.AreEqual(msg1, msg2);
-            Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "999";
-            Assert.AreNotEqual(msg1, msg2);
-            Assert.AreNotEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "500";
-
             msg1.DirectoryPath = @"c:\temp";
             msg2.DirectoryPath = @"c:\temp";
 
             Assert.AreEqual(msg1, msg2);
             Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg2.DirectoryPath = @"C:\Temp"; //caps is relevant
-
-            Assert.AreNotEqual(msg1, msg2);
-            Assert.AreNotEqual(msg1.GetHashCode(), msg2.GetHashCode());
         }
 
         [Test]
@@ -67,18 +50,6 @@ namespace Smi.Common.Tests
 
             Assert.AreEqual(msg1, msg2);
             Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "500";
-            msg2.NationalPACSAccessionNumber = "500";
-
-            Assert.AreEqual(msg1, msg2);
-            Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "999";
-            Assert.AreNotEqual(msg1, msg2);
-            Assert.AreNotEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "500";
 
             msg1.DicomDataset = "jsonified string";
             msg2.DicomDataset = "jsonified string";
@@ -95,18 +66,6 @@ namespace Smi.Common.Tests
 
             Assert.AreEqual(msg1, msg2);
             Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "500";
-            msg2.NationalPACSAccessionNumber = "500";
-
-            Assert.AreEqual(msg1, msg2);
-            Assert.AreEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "999";
-            Assert.AreNotEqual(msg1, msg2);
-            Assert.AreNotEqual(msg1.GetHashCode(), msg2.GetHashCode());
-
-            msg1.NationalPACSAccessionNumber = "500";
 
             msg1.DicomDataset = "jsonified string";
             msg2.DicomDataset = "jsonified string";

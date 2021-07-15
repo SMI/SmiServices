@@ -72,7 +72,6 @@ namespace Microservices.DicomReprocessor.Execution.Processors
 
             var message = new DicomFileMessage
             {
-                NationalPACSAccessionNumber = AccNoOrNull(headerDoc["NationalPACSAccessionNumber"]),
                 DicomFilePath = (string)headerDoc["DicomFilePath"],
                 DicomFileSize = headerDoc.Contains("DicomFileSize") ? (long)headerDoc["DicomFileSize"] : -1
             };
