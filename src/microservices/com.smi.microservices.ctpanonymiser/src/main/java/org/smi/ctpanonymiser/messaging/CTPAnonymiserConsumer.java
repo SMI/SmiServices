@@ -16,7 +16,6 @@ import org.smi.common.options.GlobalOptions;
 import org.smi.ctpanonymiser.util.ExtractedFileStatus;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class CTPAnonymiserConsumer extends SmiConsumer<ExtractFileMessage> {
@@ -63,7 +62,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer<ExtractFileMessage> {
 		// Got the message, now apply the anonymisation
 		File sourceFile = new File(body.getAbsolutePathToIdentifiableImage(_fileSystemRoot));
 
-		if (!sourceFile.exists()) {
+		if (!sourceFile.exists() || java.nio.file.Files.isReadable(sourceFile.toPath())) {
 			String msg = "Dicom file to anonymise does not exist: " + sourceFile.getAbsolutePath() + ". Cannot output to "
 					+ body.OutputPath;
 
@@ -71,7 +70,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer<ExtractFileMessage> {
 
 			if (!_foundAFile) {
 				_logger.error("First message has failed, possible environment error. Check the filesystem root / permissions are correct. Re-queueing the message and shutting down...");
-				throw new FileNotFoundException("Could not find file for first message");
+				throw new RuntimeException("Could not find file for first message");
 			}
 
 			statusMessage.StatusMessage = msg;
@@ -91,7 +90,13 @@ public class CTPAnonymiserConsumer extends SmiConsumer<ExtractFileMessage> {
 		if (!outDirectory.exists()) {
 			_logger.debug("Creating output directory " + outDirectory);
 			if (!outDirectory.mkdirs() && !outDirectory.exists()) {
-				throw new FileNotFoundException("Could not create the output directory " + outDirectory.getAbsolutePath());
+				String msg = "Could not create the output directory " + outDirectory.getAbsolutePath();
+				statusMessage.StatusMessage = msg;
+				statusMessage.OutputFilePath = body.OutputPath;
+				statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
+				_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
+				AckMessage(envelope.getDeliveryTag());
+				return;
 			}
 		}
 
