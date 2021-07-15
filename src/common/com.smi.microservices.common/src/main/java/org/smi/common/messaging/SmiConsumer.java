@@ -42,10 +42,8 @@ public abstract class SmiConsumer<T> extends DefaultConsumer {
 		messageClass=_messageClass;
 		gson = new GsonBuilder().registerTypeAdapter(_messageClass, new JsonDeserializerWithOptions<T>())
 				.create();
-
 	}
 
-	protected Channel _channel = null; /// < The channel associated with this consumer
 	private final Gson gson;
 	private final static Logger _logger = Logger.getRootLogger();
 
@@ -118,7 +116,7 @@ public abstract class SmiConsumer<T> extends DefaultConsumer {
 	 * @throws IOException
 	 */
 	public void AckMessage(long deliveryTag) throws IOException {
-		_channel.basicAck(deliveryTag, false);
+		getChannel().basicAck(deliveryTag, false);
 	}
 
 	/**
@@ -129,6 +127,6 @@ public abstract class SmiConsumer<T> extends DefaultConsumer {
 	 * @throws IOException
 	 */
 	public void NackMessage(long deliveryTag) throws IOException {
-		_channel.basicNack(deliveryTag, false, false);
+		getChannel().basicNack(deliveryTag, false, false);
 	}
 }

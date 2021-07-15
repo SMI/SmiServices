@@ -22,7 +22,7 @@ public class SimpleConsumer extends SmiConsumer<SimpleMessage> {
 	public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, SimpleMessage body, MessageHeader header)
 			throws IOException {
 		_message=body.Message;
-		_channel.basicAck(envelope.getDeliveryTag(), false);
+		getChannel().basicAck(envelope.getDeliveryTag(), false);
 	}
 
 	public String getMessage() {		

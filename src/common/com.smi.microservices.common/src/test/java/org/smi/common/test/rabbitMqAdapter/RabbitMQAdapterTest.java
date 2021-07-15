@@ -51,11 +51,10 @@ public class RabbitMQAdapterTest extends TestCase {
 		// Declare exchange & queue for this test
 		
 		_channel = _rmqAdapter.getChannel("test");
-		_consumer = new SimpleConsumer(_channel);
-				
 		_channel.exchangeDeclare(testExchName, "direct", false);
 		_channel.queueDeclare(testQueueName, false, false, true, null);
 		_channel.queueBind(testQueueName, testExchName, "");
+		_consumer = new SimpleConsumer(_channel);
 	}
 
 	protected void tearDown() throws Exception {		
@@ -107,19 +106,7 @@ public class RabbitMQAdapterTest extends TestCase {
 		}
 
 		// Check second message received
-		// log.info("Checking second message was received");
 		receivedMessage = ((SimpleConsumer) _consumer).getMessage();
-		// log.info("Received second message content:" + receivedMessage);
 		assert (receivedMessage.equals(testMessage));
-
-		// TODO check exception generated for empty message
 	}
-
-	/*
-	 * public void testStartConsumer() { // fail("Not yet implemented"); // TODO }
-	 * 
-	 * public void testStartProducer() { // fail("Not yet implemented"); // TODO }
-	 * 
-	 * public void testShutdown() { // fail("Not yet implemented"); // TODO }
-	 */
 }

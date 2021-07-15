@@ -127,8 +127,7 @@ public class RabbitMqAdapter {
 	 */
 	private class ConsumeRunnable extends Thread {
 
-		private Consumer _consumer; /// < The consumer of messages
-		private Channel _channel; /// < The channel sending messages
+		private SmiConsumer<?> _consumer; /// < The consumer of messages
 		private ConsumerOptions _options; /// < The options for this consumer
 
 		/**
@@ -157,9 +156,7 @@ public class RabbitMqAdapter {
 		public void run() {
 
 			try {
-
-				_channel.basicConsume(_options.QueueName, _options.AutoAck, _consumer);
-
+				_consumer.getChannel().basicConsume(_options.QueueName, _options.AutoAck, _consumer);
 			} catch (IOException e) {
 
 				e.printStackTrace();
