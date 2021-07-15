@@ -44,7 +44,7 @@ public class RabbitMqAdapter {
 		return _rabbitMqServerVersion;
 	}
 
-	private String _hostId;
+	public final String _hostId;
 
 	/**
 	 * Constructor for the RabbitMQ adapter helper class

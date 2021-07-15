@@ -5,8 +5,10 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import junit.framework.TestCase;
 
+import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 import org.smi.common.logging.SmiLogging;
+import org.smi.common.logging.SmiLoggingException;
 import org.smi.common.messaging.AnyConsumer;
 import org.smi.common.messaging.IProducerModel;
 import org.smi.common.options.ConsumerOptions;
@@ -18,11 +20,15 @@ import org.smi.ctpanonymiser.execution.CTPAnonymiserHost;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.messages.ExtractedFileStatusMessage;
 import org.smi.ctpanonymiser.util.ExtractedFileStatus;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class CTPAnonymiserHostTest extends TestCase {
 
@@ -51,10 +57,7 @@ public class CTPAnonymiserHostTest extends TestCase {
     private RabbitMqAdapter _testAdapter;
     private CTPAnonymiserHost _ctpHost;
 
-    protected void setUp() throws Exception {
-
-        super.setUp();
-
+    protected void setUp() throws SmiLoggingException, IOException, YAMLException, URISyntaxException, TimeoutException, ParseException {
         SmiLogging.Setup(true);
 
         _options = GlobalOptions.Load(true);

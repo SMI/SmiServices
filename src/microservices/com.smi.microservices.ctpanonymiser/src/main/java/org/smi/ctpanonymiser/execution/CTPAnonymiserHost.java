@@ -69,7 +69,7 @@ private final GlobalOptions _options;
 		// Build the SMI Anonymiser tool
 		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).SRAnonTool(SRAnonTool).buildDat();
 
-		Channel channel = _rabbitMqAdapter.getChannel(String.format("%s::Consumer::%s", _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName));
+		Channel channel = _rabbitMqAdapter.getChannel(String.format("%s::Consumer::%s", _rabbitMqAdapter._hostId, _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName));
 		_consumer = new CTPAnonymiserConsumer(
 				_options,
 				_producer,
