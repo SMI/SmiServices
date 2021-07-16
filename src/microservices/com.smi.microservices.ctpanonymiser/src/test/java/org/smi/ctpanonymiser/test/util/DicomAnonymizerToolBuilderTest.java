@@ -76,6 +76,7 @@ public class DicomAnonymizerToolBuilderTest extends TestCase {
 		// Got the message, now apply the anonymisation
 		File in = new File(extractFileMessage.getAbsolutePathToIdentifiableImage(_fileSystemRoot));
 		assertTrue("Input file does not exist:" + in.getAbsolutePath(), in.exists());
+		assertTrue("Input file read-only", in.setWritable(false, false));
 
 		File out = new File(extractFileMessage.getExtractionOutputPath(_fileSystemRoot));
 
