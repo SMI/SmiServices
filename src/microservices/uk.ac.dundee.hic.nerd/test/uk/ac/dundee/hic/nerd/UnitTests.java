@@ -9,8 +9,6 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.dundee.hic.nerd.Program;
-
 /**
  * Test the nerd core functionality by sending a simple query and validating against known-good response.
  * Exercises full TCP server functionality including orderly shutdown.

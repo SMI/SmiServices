@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.log4j.Logger;
 import org.smi.common.messageSerialization.JsonDeserializerWithOptions;
 import org.smi.common.messages.MessageHeader;
 import org.smi.common.rabbitMq.RabbitMqAdapter;
@@ -21,7 +22,6 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
-import com.rabbitmq.client.ShutdownSignalException;
 
 /**
  * Class providing default methods for {@link Consumer} interface
@@ -34,77 +34,18 @@ import com.rabbitmq.client.ShutdownSignalException;
  * created when the channel is set via the provided method
  *
  */
-public abstract class SmiConsumer implements Consumer {
+public abstract class SmiConsumer<T> extends DefaultConsumer {
 
-	private Consumer _consumer = null; /// < The RabbitMQ consumer
-	protected Channel _channel = null; /// < The channel associated with this consumer
-
-	/**
-	 * Sets the channel to be used by the RabbitMQ consumer
-	 * 
-	 * @param channel
-	 */
-	public void setChannel(Channel channel) {
-		// log.info("Setting the channel for the consumer");
-		_channel = channel;
-		_consumer = new DefaultConsumer(channel) {
-			@Override
-			public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties,
-					byte[] body) throws IOException {
-				SmiConsumer.this.handleDelivery(consumerTag, envelope, properties, body);
-			}
-		};
+	private final Class<T> messageClass;
+	public SmiConsumer(Channel channel,Class<T> _messageClass) {
+		super(channel);
+		messageClass=_messageClass;
+		gson = new GsonBuilder().registerTypeAdapter(_messageClass, new JsonDeserializerWithOptions<T>())
+				.create();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.rabbitmq.client.Consumer#handleConsumeOk(java.lang.String)
-	 */
-	public void handleConsumeOk(String consumerTag) {
-		_consumer.handleConsumeOk(consumerTag);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.rabbitmq.client.Consumer#handleCancelOk(java.lang.String)
-	 */
-	public void handleCancelOk(String consumerTag) {
-		_consumer.handleCancelOk(consumerTag);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.rabbitmq.client.Consumer#handleCancel(java.lang.String)
-	 */
-	public void handleCancel(String consumerTag) throws IOException {
-		_consumer.handleCancel(consumerTag);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.rabbitmq.client.Consumer#handleShutdownSignal(java.lang.String,
-	 * com.rabbitmq.client.ShutdownSignalException)
-	 */
-	public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
-		_consumer.handleShutdownSignal(consumerTag, sig);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.rabbitmq.client.Consumer#handleRecoverOk(java.lang.String)
-	 */
-	public void handleRecoverOk(String consumerTag) {
-		_consumer.handleRecoverOk(consumerTag);
-
-	}
+	private final Gson gson;
+	private final static Logger _logger = Logger.getRootLogger();
 
 	/**
 	 * Handles a message delivery. Needs to be implemented by subclasses.
@@ -127,11 +68,20 @@ public abstract class SmiConsumer implements Consumer {
 			header = new MessageHeader(properties.getHeaders(), enc);
 		}
 
-		handleDeliveryImpl(consumerTag, envelope, properties, body, header);
+		try {
+			T msg=getMessageFromBytes(body,messageClass);
+			handleDeliveryImpl(consumerTag, envelope, properties, msg, header);
+		} catch (JsonSyntaxException e) {
+			// Problem with the message, so Nack it
+			_logger.error("Problem with message, so it will be Nacked:" + e.getMessage());
+			NackMessage(envelope.getDeliveryTag());
+			return;
+		}
+
 	}
 
 	public abstract void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties,
-			byte[] body, MessageHeader header) throws IOException;
+			T t, MessageHeader header) throws IOException;
 
 	/**
 	 * Helper method for extracting a particular message type from the JSON
@@ -150,18 +100,11 @@ public abstract class SmiConsumer implements Consumer {
 	 * @throws UnsupportedEncodingException
 	 * @throws JsonSyntaxException
 	 */
-	public <T> T getMessageFromBytes(byte[] body, Class<T> expectedClass)
+	public T getMessageFromBytes(byte[] body, Class<T> expectedClass)
 			throws UnsupportedEncodingException, JsonSyntaxException {
-
 		T message = null;
-
-		final Gson gson = new GsonBuilder().registerTypeAdapter(expectedClass, new JsonDeserializerWithOptions<T>())
-				.create();
-
 		JsonObject jObj = JsonParser.parseString(new String(body, "UTF-8")).getAsJsonObject();
-
 		message = gson.fromJson(jObj, expectedClass);
-
 		return message;
 	}
 
@@ -173,8 +116,7 @@ public abstract class SmiConsumer implements Consumer {
 	 * @throws IOException
 	 */
 	public void AckMessage(long deliveryTag) throws IOException {
-
-		_channel.basicAck(deliveryTag, false);
+		getChannel().basicAck(deliveryTag, false);
 	}
 
 	/**
@@ -185,7 +127,6 @@ public abstract class SmiConsumer implements Consumer {
 	 * @throws IOException
 	 */
 	public void NackMessage(long deliveryTag) throws IOException {
-
-		_channel.basicNack(deliveryTag, false, false);
+		getChannel().basicNack(deliveryTag, false, false);
 	}
 }

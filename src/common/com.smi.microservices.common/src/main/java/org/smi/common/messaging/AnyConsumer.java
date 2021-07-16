@@ -36,33 +36,24 @@ import com.rabbitmq.client.Envelope;
  * @param <T>
  *            The type of the message we want to consume
  */
-public class AnyConsumer<T> extends SmiConsumer {
+public class AnyConsumer<T> extends SmiConsumer<T> {
 
 	final Class<T> _typeParameterClass;
 
 	private T _message;
 	private volatile boolean _messageValid;
 
-	public AnyConsumer(Class<T> typeParameterClass) {
+	public AnyConsumer(com.rabbitmq.client.Channel channel,Class<T> typeParameterClass) {
+		super(channel, typeParameterClass);		
 		this._typeParameterClass = typeParameterClass;
 		_message = null;
 		_messageValid = false;
 	}
 
 	@Override
-	public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body,
+	public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, T body,
 			MessageHeader header) throws IOException {
-
-		try {
-
-			_message = getMessageFromBytes(body, _typeParameterClass);
-
-		} catch (IOException e) {
-
-			NackMessage(envelope.getDeliveryTag());
-			throw e;
-		}
-
+		_message = body;
 		AckMessage(envelope.getDeliveryTag());
 		_messageValid = true;
 	}

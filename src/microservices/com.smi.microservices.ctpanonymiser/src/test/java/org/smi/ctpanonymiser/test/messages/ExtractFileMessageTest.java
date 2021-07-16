@@ -1,16 +1,23 @@
 package org.smi.ctpanonymiser.test.messages;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.smi.common.logging.SmiLogging;
-import org.smi.common.options.GlobalOptions;
+import org.smi.common.logging.SmiLoggingException;
+import org.smi.common.messageSerialization.JsonDeserializerWithOptions;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
-import org.smi.ctpanonymiser.messaging.CTPAnonymiserConsumer;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import junit.framework.TestCase;
@@ -19,14 +26,10 @@ public class ExtractFileMessageTest extends TestCase {
 
 	private final static Logger log = Logger.getLogger(ExtractFileMessageTest.class);
 	private ExtractFileMessage _exMessage;
-	private final String _routingKey = "dummyRoutingKey";
 	private final String _fileSystemRoot = "dummyfilesystemroot";
 	private final String _extractFileSystemRoot = "dummyextractfilesystemroot";
 
-	protected void setUp() throws Exception {
-
-		super.setUp();
-
+	protected void setUp() throws SmiLoggingException, IOException {
 		SmiLogging.Setup(true);
 		
 		_exMessage = new ExtractFileMessage();
@@ -40,37 +43,27 @@ public class ExtractFileMessageTest extends TestCase {
 
 	}
 
-	protected void tearDown() throws Exception {
-
-		super.tearDown();
-	}
-
-	public void testSerializeDeserialize() throws Exception {
-
+	public void testSerializeDeserialize() throws FileNotFoundException, YAMLException, URISyntaxException {
 		ExtractFileMessage recvdMessage;
-		GlobalOptions options = GlobalOptions.Load(true);
-		CTPAnonymiserConsumer consumer = new CTPAnonymiserConsumer(options, null, null, _fileSystemRoot, _extractFileSystemRoot);
 
 		// Get byte array version of message
 		Gson _gson = new Gson();
 		byte[] body = null;
 
 		try {
-
-			log.debug("Message as json: " + _gson.toJson(_exMessage, _exMessage.getClass()));
+			log.debug("Message as json: " + _gson.toJson(_exMessage, ExtractFileMessage.class));
 			body = _gson.toJson(_exMessage, _exMessage.getClass()).getBytes("UTF-8");
-
 		} catch (UnsupportedEncodingException e) {
-
 			log.error("Failed to convert message to bytes", e);
 			fail("Failed to convert message to bytes");
 		}
 
 		try {
-
 			// Convert bytes back into a new message
-
-			recvdMessage = consumer.getMessageFromBytes(body, _exMessage.getClass());
+			final Gson gson = new GsonBuilder().registerTypeAdapter(_exMessage.getClass(), new JsonDeserializerWithOptions<ExtractFileMessage>())
+					.create();
+			JsonObject jObj = JsonParser.parseString(new String(body, "UTF-8")).getAsJsonObject();
+			recvdMessage = gson.fromJson(jObj, _exMessage.getClass());
 
 			assertEquals("ProjectFolder", _exMessage.ExtractionDirectory, recvdMessage.ExtractionDirectory);
 			assertEquals("DicomFilePath", _exMessage.DicomFilePath, recvdMessage.DicomFilePath);
@@ -78,14 +71,12 @@ public class ExtractFileMessageTest extends TestCase {
 			assertEquals("ProjectNumber", _exMessage.ProjectNumber, recvdMessage.ProjectNumber);
 
 		} catch (JsonSyntaxException | UnsupportedEncodingException e) {
-
 			log.error("Failed to get message from bytes", e);
 			fail("Failed to get message from bytes");
 		}
 	}
 
 	public void testGetAbsolutePathToIdentifiableImage() {
-
 		assertEquals(
 				"Absolute path to original image",
 				Paths.get(_fileSystemRoot + "/" + _exMessage.DicomFilePath).normalize().toString(),
@@ -93,7 +84,6 @@ public class ExtractFileMessageTest extends TestCase {
 	}
 
 	public void testGetAbsolutePathToExtractAnonymousImageTo() {
-
 		assertEquals(
 				"Absolute path to extract anonymous image to",
 				Paths
@@ -104,7 +94,6 @@ public class ExtractFileMessageTest extends TestCase {
 	}
 
 	public void testBackslashReplacement() {
-
 		String path = _fileSystemRoot + "/" + _exMessage.DicomFilePath.replace("\\", "/");
 		assertEquals("Paths match", "dummyfilesystemroot/2018/01/01/ABCD/image-000001.dcm", path);
 	}

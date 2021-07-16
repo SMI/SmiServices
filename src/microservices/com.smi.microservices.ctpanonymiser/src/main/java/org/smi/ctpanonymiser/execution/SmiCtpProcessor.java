@@ -75,11 +75,7 @@ public class SmiCtpProcessor {
 	@SuppressWarnings("unused")
 	public CtpAnonymisationStatus anonymize(File inFile, File outFile) {
 
-		// This breaks when running under sudo. We need to run as sudo for now since the lustre permissions are
-		// borked, but this should be un-commented ASAP as it prevents source files being edited
-		//if (inFile.canWrite()) {
-		if(false) {
-
+		if (inFile.canWrite()) {
 			_lastStatus = "Input file " + inFile + " was writeable";
 			_logger.error(_lastStatus);
 			return CtpAnonymisationStatus.InputFileException;
@@ -89,13 +85,10 @@ public class SmiCtpProcessor {
 		File origFile = inFile; // inFile gets reassigned so keep a record of it.
 
 		try {
-
 			dObj = new DicomObject(inFile);
-
 		} catch (Exception e) {
 
 			_logger.error("Could not create dicom object from inFile", e);
-
 			_lastStatus = e.getMessage();
 			return CtpAnonymisationStatus.InputFileException;
 		}
