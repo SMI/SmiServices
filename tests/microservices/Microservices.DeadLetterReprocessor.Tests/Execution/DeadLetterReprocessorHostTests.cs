@@ -97,7 +97,6 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             // Setup a test message and send it, then wait for it to be rejected
             var testMessage = new AccessionDirectoryMessage
             {
-                NationalPACSAccessionNumber = "1234",
                 DirectoryPath = TestContext.CurrentContext.TestDirectory
             };
 
@@ -187,7 +186,6 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             // Setup a test message and send it, then wait for it to be rejected
             var testMessage = new AccessionDirectoryMessage
             {
-                NationalPACSAccessionNumber = "1234",
                 DirectoryPath = TestContext.CurrentContext.TestDirectory
             };
 
@@ -237,7 +235,6 @@ namespace Microservices.Tests.DeadLetterReprocessorTests.Execution
             // Setup a test message and send it, then wait for it to be rejected
             var testMessage = new AccessionDirectoryMessage
             {
-                NationalPACSAccessionNumber = "1234",
                 DirectoryPath = TestContext.CurrentContext.TestDirectory
             };
 

@@ -58,7 +58,6 @@ namespace Microservices.MongoDBPopulator.Tests
             TestImageMessage = new DicomFileMessage
             {
                 DicomFilePath = "Path/To/File",
-                NationalPACSAccessionNumber = "123",
                 SeriesInstanceUID = "TestSeriesInstanceUID",
                 StudyInstanceUID = "TestStudyInstanceUID",
                 SOPInstanceUID = "TestSOPInstanceUID",
@@ -69,7 +68,6 @@ namespace Microservices.MongoDBPopulator.Tests
             {
                 DirectoryPath = "Path/To/Series",
                 ImagesInSeries = 123,
-                NationalPACSAccessionNumber = "123",
                 SeriesInstanceUID = "TestSeriesInstanceUID",
                 StudyInstanceUID = "TestStudyInstanceUID",
                 DicomDataset = serialized

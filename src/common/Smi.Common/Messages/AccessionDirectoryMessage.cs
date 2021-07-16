@@ -11,12 +11,6 @@ namespace Smi.Common.Messages
     public sealed class AccessionDirectoryMessage : IMessage
     {
         /// <summary>
-        /// NationalPACSAccessionNumber obtained from the end of the directory path.
-        /// </summary>
-        [JsonProperty(Required = Required.AllowNull)]
-        public string NationalPACSAccessionNumber { get; set; }
-
-        /// <summary>
         /// Directory path relative to the root path.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
@@ -35,13 +29,13 @@ namespace Smi.Common.Messages
 
         public string GetAbsolutePath(string rootPath) => Path.Combine(rootPath, DirectoryPath);
 
-        public override string ToString() => $"AccessionDirectoryMessage[NationalPACSAccessionNumber={NationalPACSAccessionNumber},DirectoryPath={DirectoryPath}]";
+        public override string ToString() => $"AccessionDirectoryMessage[DirectoryPath={DirectoryPath}]";
 
         #region Equality Members
 
         private bool Equals(AccessionDirectoryMessage other)
         {
-            return string.Equals(NationalPACSAccessionNumber, other.NationalPACSAccessionNumber) && string.Equals(DirectoryPath, other.DirectoryPath);
+            return string.Equals(DirectoryPath, other.DirectoryPath);
         }
 
         public override bool Equals(object obj)
@@ -55,7 +49,7 @@ namespace Smi.Common.Messages
         {
             unchecked
             {
-                return ((NationalPACSAccessionNumber != null ? NationalPACSAccessionNumber.GetHashCode() : 0) * 397) ^ (DirectoryPath != null ? DirectoryPath.GetHashCode() : 0);
+                return (DirectoryPath != null ? DirectoryPath.GetHashCode() : 0);
             }
         }
 

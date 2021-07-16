@@ -247,7 +247,6 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var f = Path.GetRandomFileName();
             var msg = new DicomFileMessage(root, Path.Combine(root, f + ".dcm"));
-            msg.NationalPACSAccessionNumber = "ABC";
             msg.SeriesInstanceUID = dicomDataset.GetString(DicomTag.SeriesInstanceUID);
             msg.StudyInstanceUID = dicomDataset.GetString(DicomTag.StudyInstanceUID);
             msg.SOPInstanceUID = dicomDataset.GetString(DicomTag.SOPInstanceUID);

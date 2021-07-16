@@ -58,8 +58,6 @@ namespace Microservices.DicomTagReader.Execution
                     return;
                 }
 
-                fileMessage.NationalPACSAccessionNumber = accMessage.NationalPACSAccessionNumber;
-
                 lock (fileMessagesLock)
                     fileMessages.Add(fileMessage);
 

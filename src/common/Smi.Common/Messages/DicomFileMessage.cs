@@ -14,12 +14,6 @@ namespace Smi.Common.Messages
     public sealed class DicomFileMessage : IComparable, IFileReferenceMessage
     {
         /// <summary>
-        /// NationalPACSAccessionNumber obtained from the end of the directory path.
-        /// </summary>
-        [JsonProperty(Required = Required.AllowNull)]
-        public string NationalPACSAccessionNumber { get; set; }
-
-        /// <summary>
         /// File path relative to the root path.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
@@ -93,8 +87,7 @@ namespace Smi.Common.Messages
 
         public bool VerifyPopulated()
         {
-            return !string.IsNullOrWhiteSpace(NationalPACSAccessionNumber) &&
-                   !string.IsNullOrWhiteSpace(DicomFilePath) &&
+            return !string.IsNullOrWhiteSpace(DicomFilePath) &&
                    !string.IsNullOrWhiteSpace(StudyInstanceUID) &&
                    !string.IsNullOrWhiteSpace(SeriesInstanceUID) &&
                    !string.IsNullOrWhiteSpace(SOPInstanceUID) &&
@@ -105,7 +98,6 @@ namespace Smi.Common.Messages
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine("NationalPACSAccessionNumber: " + NationalPACSAccessionNumber);
             sb.AppendLine("DicomFilePath: " + DicomFilePath);
             sb.AppendLine("StudyInstanceUID: " + StudyInstanceUID);
             sb.AppendLine("SeriesInstanceUID: " + SeriesInstanceUID);
@@ -119,8 +111,7 @@ namespace Smi.Common.Messages
 
         private bool Equals(DicomFileMessage other)
         {
-            return
-                string.Equals(NationalPACSAccessionNumber, other.NationalPACSAccessionNumber)
+            return true
                 && string.Equals(DicomFilePath, other.DicomFilePath)
                 && string.Equals(StudyInstanceUID, other.StudyInstanceUID)
                 && string.Equals(SeriesInstanceUID, other.SeriesInstanceUID)
@@ -140,8 +131,7 @@ namespace Smi.Common.Messages
         {
             unchecked
             {
-                int hashCode = (NationalPACSAccessionNumber != null ? NationalPACSAccessionNumber.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (DicomFilePath != null ? DicomFilePath.GetHashCode() : 0);
+                int hashCode = (DicomFilePath != null ? DicomFilePath.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (StudyInstanceUID != null ? StudyInstanceUID.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (SeriesInstanceUID != null ? SeriesInstanceUID.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (SOPInstanceUID != null ? SOPInstanceUID.GetHashCode() : 0);

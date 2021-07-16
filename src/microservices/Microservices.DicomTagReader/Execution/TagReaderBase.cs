@@ -129,7 +129,6 @@ namespace Microservices.DicomTagReader.Execution
                 // Else create a new SeriesMessage
                 var seriesMessage = new SeriesMessage
                 {
-                    NationalPACSAccessionNumber = fileMessage.NationalPACSAccessionNumber,
                     DirectoryPath = message.DirectoryPath,
 
                     StudyInstanceUID = fileMessage.StudyInstanceUID,

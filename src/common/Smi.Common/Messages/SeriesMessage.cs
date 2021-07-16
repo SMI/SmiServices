@@ -11,12 +11,6 @@ namespace Smi.Common.Messages
     public sealed class SeriesMessage : IMessage
     {
         /// <summary>
-        /// NationalPACSAccessionNumber obtained from the end of the directory path.
-        /// </summary>
-        [JsonProperty(Required = Required.AllowNull)]
-        public string NationalPACSAccessionNumber { get; set; }
-
-        /// <summary>
         /// Directory path relative to the root path.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
@@ -51,8 +45,7 @@ namespace Smi.Common.Messages
 
         private bool Equals(SeriesMessage other)
         {
-            return
-                string.Equals(NationalPACSAccessionNumber, other.NationalPACSAccessionNumber) &&
+            return                
                 string.Equals(DirectoryPath, other.DirectoryPath) &&
                 string.Equals(StudyInstanceUID, other.StudyInstanceUID) &&
                 string.Equals(SeriesInstanceUID, other.SeriesInstanceUID) &&
@@ -71,8 +64,7 @@ namespace Smi.Common.Messages
         {
             unchecked
             {
-                int hashCode = (NationalPACSAccessionNumber != null ? NationalPACSAccessionNumber.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (DirectoryPath != null ? DirectoryPath.GetHashCode() : 0);
+                int hashCode = (DirectoryPath != null ? DirectoryPath.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (StudyInstanceUID != null ? StudyInstanceUID.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (SeriesInstanceUID != null ? SeriesInstanceUID.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ ImagesInSeries;

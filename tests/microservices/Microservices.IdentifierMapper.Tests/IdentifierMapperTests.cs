@@ -461,7 +461,6 @@ namespace Microservices.IdentifierMapper.Tests
             var msg = new DicomFileMessage()
             {
                 DicomFilePath = "Path/To/The/File.dcm",
-                NationalPACSAccessionNumber = "1234",
                 SOPInstanceUID = "1.2.3.4",
                 SeriesInstanceUID = "1.2.3.4",
                 StudyInstanceUID = "1.2.3.4",

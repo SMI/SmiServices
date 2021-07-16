@@ -64,7 +64,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         private static void ValidateHeader(DicomFileMessage message, MessageHeader header, BsonDocument docHeader)
         {
             Assert.AreEqual(message.DicomFilePath, docHeader["DicomFilePath"].AsString);
-            Assert.AreEqual(message.NationalPACSAccessionNumber, docHeader["NationalPACSAccessionNumber"].AsString);
 
             BsonElement element;
             Assert.True(docHeader.TryGetElement("MessageHeader", out element));
@@ -159,7 +158,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
                 SeriesInstanceUID = "",
                 StudyInstanceUID = "",
                 SOPInstanceUID = "",
-                NationalPACSAccessionNumber = "",
                 DicomFilePath = "",
                 DicomDataset = json
             };
@@ -200,7 +198,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
                 SeriesInstanceUID = "",
                 StudyInstanceUID = "",
                 SOPInstanceUID = "",
-                NationalPACSAccessionNumber = "",
                 DicomFilePath = "",
                 DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(dataset)
             };

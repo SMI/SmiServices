@@ -120,7 +120,6 @@ namespace Microservices.Tests.RDMPTests
         {
             var toReturn = new DicomFileMessage(fileSystemRoot, fi);
 
-            toReturn.NationalPACSAccessionNumber = "999";
             toReturn.StudyInstanceUID = "999";
             toReturn.SeriesInstanceUID = "999";
             toReturn.SOPInstanceUID = "999";
@@ -137,7 +136,6 @@ namespace Microservices.Tests.RDMPTests
         {
             var toReturn = new DicomFileMessage(fileSystemRoot, file);
 
-            toReturn.NationalPACSAccessionNumber = "999";
             toReturn.StudyInstanceUID = "999";
             toReturn.SeriesInstanceUID = "999";
             toReturn.SOPInstanceUID = "999";

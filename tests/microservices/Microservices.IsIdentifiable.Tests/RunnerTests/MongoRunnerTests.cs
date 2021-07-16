@@ -93,7 +93,6 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
             // Add our header information
             var header = new BsonDocument
             {
-                {"NationalPACSAccessionNumber", "test-NationalPACSAccessionNumber"},
                 {"DicomFilePath",               "path/to/file.dcm"},
                 {"StudyInstanceUID",            "test-StudyInstanceUID"},
                 {"SeriesInstanceUID",           "test-SeriesInstanceUID"},
