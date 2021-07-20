@@ -7,6 +7,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.smi.ctpanonymiser.execution.SmiCtpProcessor;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
+import org.smi.ctpanonymiser.util.CtpAnonymisationStatus;
 import org.smi.ctpanonymiser.util.DicomAnonymizerToolBuilder;
 
 import junit.framework.TestCase;
@@ -75,17 +76,21 @@ public class DicomAnonymizerToolBuilderTest extends TestCase {
 		// Got the message, now apply the anonymisation
 		File in = new File(extractFileMessage.getAbsolutePathToIdentifiableImage(_fileSystemRoot));
 		assertTrue("Input file does not exist:" + in.getAbsolutePath(), in.exists());
+		assertTrue("Input file read-only", in.setWritable(false, false));
 
 		File out = new File(extractFileMessage.getExtractionOutputPath(_fileSystemRoot));
 
 		Level level = Logger.getRootLogger().getLevel();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		anonTool.anonymize(in, out);
+		CtpAnonymisationStatus status = anonTool.anonymize(in, out);
+		if (status != CtpAnonymisationStatus.Anonymised) {
+			log.error("Anonymisation failed with status "+status+"; last was "+anonTool.getLastStatus());
+		}
 
 		Logger.getRootLogger().setLevel(level);
 
-		assertTrue("Anonymised file does not exist:" + out.getName(), out.exists());
+		assertTrue("Anonymised file does not exist:" + out.getAbsolutePath(), out.exists());
 		log.info("Anonymised file produced: " + out.getName());
 	}
 }

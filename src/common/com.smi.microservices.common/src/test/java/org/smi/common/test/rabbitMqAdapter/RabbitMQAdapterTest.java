@@ -13,9 +13,6 @@ import org.smi.common.options.ProducerOptions;
 import org.smi.common.rabbitMq.RabbitMqAdapter;
 
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-
 import junit.framework.TestCase;
 
 public class RabbitMQAdapterTest extends TestCase {
@@ -25,15 +22,13 @@ public class RabbitMQAdapterTest extends TestCase {
 
 	private GlobalOptions _options;
 	private RabbitMqAdapter _rmqAdapter;
-	private SmiConsumer _consumer;
+	private SmiConsumer<SimpleMessage> _consumer;
 	private ConsumerOptions _consumerOptions;
 	private IProducerModel _producer;
 
 	private static final String testExchName = "TEST.Java.RabbitMQAdapterTestExchange";
 	private static final String testQueueName = "TEST.Java.RabbitMQAdapterTestQueue";
 
-	private ConnectionFactory _factory;
-	private Connection _connection;
 	private Channel _channel;
 	
 	protected void setUp() throws Exception {
@@ -42,7 +37,6 @@ public class RabbitMQAdapterTest extends TestCase {
 		_options = GlobalOptions.Load(true);
 		
 		_rmqAdapter = new RabbitMqAdapter(_options.RabbitOptions, "RabbitMQAdapterTests");
-		_consumer = new SimpleConsumer();
 
 		_consumerOptions = new ConsumerOptions();
 		_consumerOptions.QueueName = testQueueName;
@@ -56,32 +50,16 @@ public class RabbitMQAdapterTest extends TestCase {
 		
 		// Declare exchange & queue for this test
 		
-        _factory = new ConnectionFactory();
-        _factory.setHost(_options.RabbitOptions.RabbitMqHostName);
-		_factory.setPort(_options.RabbitOptions.RabbitMqHostPort);
-		_factory.setVirtualHost(_options.RabbitOptions.RabbitMqVirtualHost);
-		_factory.setUsername(_options.RabbitOptions.RabbitMqUserName);
-		_factory.setPassword(_options.RabbitOptions.RabbitMqPassword);
-
-		_connection = _factory.newConnection();
-		_channel = _connection.createChannel();
-				
+		_channel = _rmqAdapter.getChannel("test");
 		_channel.exchangeDeclare(testExchName, "direct", false);
 		_channel.queueDeclare(testQueueName, false, false, true, null);
 		_channel.queueBind(testQueueName, testExchName, "");
+		_consumer = new SimpleConsumer(_channel);
 	}
 
-	protected void tearDown() throws Exception {
-		
-		// log.info("Tearing down tests ...");
-		
-		_rmqAdapter.Shutdown();
-
+	protected void tearDown() throws Exception {		
 		_channel.exchangeDelete(testExchName);
-		_channel.close();
-		_connection.close();		
-		
-		super.tearDown();
+		_rmqAdapter.Shutdown();
 	}
 
 	public void testSendRecv() {
@@ -128,19 +106,7 @@ public class RabbitMQAdapterTest extends TestCase {
 		}
 
 		// Check second message received
-		// log.info("Checking second message was received");
 		receivedMessage = ((SimpleConsumer) _consumer).getMessage();
-		// log.info("Received second message content:" + receivedMessage);
 		assert (receivedMessage.equals(testMessage));
-
-		// TODO check exception generated for empty message
 	}
-
-	/*
-	 * public void testStartConsumer() { // fail("Not yet implemented"); // TODO }
-	 * 
-	 * public void testStartProducer() { // fail("Not yet implemented"); // TODO }
-	 * 
-	 * public void testShutdown() { // fail("Not yet implemented"); // TODO }
-	 */
 }

@@ -20,22 +20,12 @@ import java.util.regex.Pattern;
  */
 public class RabbitMqAdapter {
 
-	private ConnectionFactory _factory;
-
-	/**
-	 * List of all the connections
-	 */
-	private List<Connection> _connections = new ArrayList<Connection>();
-
-	/**
-	 * List of all the channels
-	 */
-	private List<Channel> _channels = new ArrayList<Channel>();
+	private Connection _conn;
 
 	/**
 	 * List of all the thread/consumer pairs
 	 */
-	private Map<Thread, ConsumeRunnable> _threads = new HashMap<Thread, ConsumeRunnable>();
+	private final List<ConsumeRunnable> _threads = new ArrayList<ConsumeRunnable>();
 
 	/**
 	 * The options for the microservices
@@ -54,7 +44,7 @@ public class RabbitMqAdapter {
 		return _rabbitMqServerVersion;
 	}
 
-	private String _hostId;
+	public final String _hostId;
 
 	/**
 	 * Constructor for the RabbitMQ adapter helper class
@@ -69,14 +59,15 @@ public class RabbitMqAdapter {
 
 		_options = options;
 
-		_factory = new ConnectionFactory();
+		ConnectionFactory _factory = new ConnectionFactory();
 		_factory.setHost(_options.RabbitMqHostName);
 		_factory.setPort(_options.RabbitMqHostPort);
 		_factory.setVirtualHost(_options.RabbitMqVirtualHost);
 		_factory.setUsername(_options.RabbitMqUserName);
 		_factory.setPassword(_options.RabbitMqPassword);
+		_conn = _factory.newConnection();
 
-		CheckValidServerSettings();
+		CheckValidServerSettings(_factory);
 
 		// TODO Log this
 		int randomPid = new Random().nextInt() & Integer.MAX_VALUE;
@@ -85,13 +76,12 @@ public class RabbitMqAdapter {
 		_hostId = _headerFactory.getProcessName() + _headerFactory.getProcessId();
 	}
 
-	private void CheckValidServerSettings() throws IOException, TimeoutException {
+	private void CheckValidServerSettings(ConnectionFactory _factory) throws IOException, TimeoutException {
 		try {
-			Connection conn = _factory.newConnection("TestConnection");
-			if (!conn.getServerProperties().containsKey("version"))
+			if (!_conn.getServerProperties().containsKey("version"))
 				throw new IOException("Could not get RabbitMQ server version");
 
-			String version = ((LongString) conn.getServerProperties().get("version")).toString();
+			String version = ((LongString) _conn.getServerProperties().get("version")).toString();
 			String[] split = version.split(Pattern.quote("."));
 
 			if (Integer.parseInt(split[0]) < MinRabbitServerVersionMajor
@@ -120,33 +110,24 @@ public class RabbitMqAdapter {
 	 * @param options  The connection options
 	 * @param consumer Consumer that will be sent any received messages
 	 */
-	public void StartConsumer(ConsumerOptions options, SmiConsumer consumer) {
-
-		Channel channel = getChannel(String.format("%s::Consumer::%s", _hostId, options.QueueName));
-
+	public void StartConsumer(ConsumerOptions options, SmiConsumer<?> consumer) {
 		try {
-
-			channel.basicQos(0, options.QoSPrefetchCount, true);
+			consumer.getChannel().basicQos(0, options.QoSPrefetchCount, true);
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 
-		ConsumeRunnable runnable = new ConsumeRunnable(channel, consumer, options);
-
-		Thread thread = new Thread(runnable);
-		thread.start();
-
-		_threads.put(thread, runnable);
+		ConsumeRunnable runnable = new ConsumeRunnable(consumer, options);
+		_threads.add(runnable);
+		runnable.start();
 	}
 
 	/**
 	 * Local class to set up the consume operation as a Runnable task
 	 */
-	private class ConsumeRunnable implements Runnable {
+	private class ConsumeRunnable extends Thread {
 
-		private Consumer _consumer; /// < The consumer of messages
-		private Channel _channel; /// < The channel sending messages
+		private SmiConsumer<?> _consumer; /// < The consumer of messages
 		private ConsumerOptions _options; /// < The options for this consumer
 
 		/**
@@ -162,12 +143,8 @@ public class RabbitMqAdapter {
 		 * @param consumer The consumer
 		 * @param options  The configuration options for the consumer
 		 */
-		public ConsumeRunnable(Channel channel, SmiConsumer consumer, ConsumerOptions options) {
-
-			consumer.setChannel(channel);
-
+		public ConsumeRunnable(SmiConsumer<?> consumer, ConsumerOptions options) {
 			_consumer = consumer;
-			_channel = channel;
 			_options = options;
 		}
 
@@ -179,9 +156,7 @@ public class RabbitMqAdapter {
 		public void run() {
 
 			try {
-
-				_channel.basicConsume(_options.QueueName, _options.AutoAck, _consumer);
-
+				_consumer.getChannel().basicConsume(_options.QueueName, _options.AutoAck, _consumer);
 			} catch (IOException e) {
 
 				e.printStackTrace();
@@ -191,44 +166,13 @@ public class RabbitMqAdapter {
 	}
 
 	/**
-	 * Creates a new channel from the connection factory
+	 * Creates a new channel from the connection
 	 *
 	 * @return The created connection
+	 * @throws IOException 
 	 */
-	private Channel getChannel(String label) {
-
-		// TODO Better error needed overall here
-
-		Connection connection = null;
-
-		try {
-
-			connection = _factory.newConnection(label);
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-
-		} catch (TimeoutException e) {
-
-			e.printStackTrace();
-		}
-
-		Channel channel = null;
-
-		try {
-
-			channel = connection.createChannel();
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
-
-		_connections.add(connection);
-		_channels.add(channel);
-
-		return channel;
+	public Channel getChannel(String label) throws IOException {
+		return _conn.createChannel();
 	}
 
 	/**
@@ -237,19 +181,12 @@ public class RabbitMqAdapter {
 	 * @param producerOptions The options for the producer which must include the
 	 *                        exchange name
 	 * @return Object which can send messages to a RabbitMQ exchange
+	 * @throws IOException 
 	 */
-	public IProducerModel SetupProducer(ProducerOptions producerOptions) {
+	public IProducerModel SetupProducer(ProducerOptions producerOptions) throws IOException {
 
 		Channel channel = getChannel(String.format("%s::Producer::%s", _hostId, producerOptions.ExchangeName));
-
-		try {
-
-			channel.confirmSelect();
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
+		channel.confirmSelect();
 
 		AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
 				.contentEncoding("UTF-8")
@@ -265,34 +202,15 @@ public class RabbitMqAdapter {
 	 */
 	public void Shutdown() {
 
-		for (Map.Entry<Thread, ConsumeRunnable> entry : _threads.entrySet()) {
-
-			entry.getValue().terminate(); // Terminate the consumer
-			entry.getKey().interrupt(); // Interrupt the thread
+		for (ConsumeRunnable entry : _threads) {
+			entry.terminate(); // Terminate the consumer
+			entry.interrupt(); // Interrupt the thread
 		}
 
-		for (Channel channel : _channels) {
-
-			try {
-
-				channel.close(200, "Goodbye");
-
-			} catch (IOException | TimeoutException e) {
-
-				e.printStackTrace();
-			}
-		}
-
-		for (Connection connection : _connections) {
-
-			try {
-
-				connection.close();
-
-			} catch (IOException e) {
-
-				e.printStackTrace();
-			}
+		try {
+			_conn.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
