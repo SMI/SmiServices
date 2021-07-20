@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Equ;
 
 namespace Microservices.IsIdentifiable.Failures
 {
-    public class FailurePart : IEquatable<FailurePart>
+    public class FailurePart : MemberwiseEquatable<FailurePart>
     {
         /// <summary>
         /// The classification of the failure e.g. CHI, PERSON, TextInPixel
@@ -60,31 +58,5 @@ namespace Microservices.IsIdentifiable.Failures
 
             return false;
         }
-
-        #region Equality
-        public bool Equals(FailurePart other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Offset == other.Offset && Word == other.Word;
-        }
-
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((FailurePart) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Offset * 397) ^ (Word != null ? Word.GetHashCode() : 0);
-            }
-        }
-        #endregion
     }
 }

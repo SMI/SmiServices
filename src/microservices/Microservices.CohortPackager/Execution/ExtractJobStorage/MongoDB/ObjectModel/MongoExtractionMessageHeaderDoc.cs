@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Equ;
 using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
+using System;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -11,7 +12,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     /// <summary>
     /// Class which represents a document created from an extraction message header
     /// </summary>
-    public class MongoExtractionMessageHeaderDoc : IEquatable<MongoExtractionMessageHeaderDoc>
+    public class MongoExtractionMessageHeaderDoc : MemberwiseEquatable<MongoExtractionMessageHeaderDoc>
     {
         [BsonElement("extractionJobIdentifier")]
         [BsonRepresentation(BsonType.String)]
@@ -72,49 +73,5 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 dateTimeProvider.UtcNow()
             );
         }
-
-        #region Equality Members
-
-        public bool Equals(MongoExtractionMessageHeaderDoc other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
-                   MessageGuid.Equals(other.MessageGuid) &&
-                   ProducerExecutableName == other.ProducerExecutableName &&
-                   ProducerProcessID == other.ProducerProcessID &&
-                   OriginalPublishTimestamp.Equals(other.OriginalPublishTimestamp) &&
-                   Parents == other.Parents &&
-                   ReceivedAt.Equals(other.ReceivedAt);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MongoExtractionMessageHeaderDoc)obj);
-        }
-
-        public static bool operator ==(MongoExtractionMessageHeaderDoc left, MongoExtractionMessageHeaderDoc right) => Equals(left, right);
-
-        public static bool operator !=(MongoExtractionMessageHeaderDoc left, MongoExtractionMessageHeaderDoc right) => !Equals(left, right);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = MessageGuid.GetHashCode();
-                hashCode = (hashCode * 397) ^ ExtractionJobIdentifier.GetHashCode();
-                hashCode = (hashCode * 397) ^ ProducerExecutableName.GetHashCode();
-                hashCode = (hashCode * 397) ^ ProducerProcessID;
-                hashCode = (hashCode * 397) ^ OriginalPublishTimestamp.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Parents != null ? Parents.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ ReceivedAt.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 }

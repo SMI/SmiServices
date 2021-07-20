@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Equ;
+using System;
 
 namespace Smi.Common.Messages.Updating
 {
     /// <summary>
     /// Requests to update the values in the fields <see cref="WriteIntoFields"/> to <see cref="Values"/>  where the value in <see cref="WhereFields"/> match <see cref="HaveValues"/>
     /// </summary>
-    public class UpdateValuesMessage : IMessage
+    public class UpdateValuesMessage : MemberwiseEquatable<UpdateValuesMessage>, IMessage
     {
         /// <summary>
         /// Optional Sql operators e.g. "=", "&lt;" etc to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>.  If null or empty "=" is assumed for all WHERE comparisons
@@ -69,38 +67,6 @@ namespace Smi.Common.Messages.Updating
         {
             return 
                 $"{nameof(UpdateValuesMessage)}: {nameof(WhereFields)}={string.Join(",",WhereFields)} {nameof(WriteIntoFields)}={string.Join(",",WriteIntoFields)}";
-        }
-
-        /// <summary>
-        /// Checks whether two messages update the same fields using the same where logic
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            return obj is UpdateValuesMessage message &&
-                   Enumerable.SequenceEqual(Operators ?? new string[0], message.Operators?? new string[0]) &&
-                   Enumerable.SequenceEqual(WhereFields ?? new string[0], message.WhereFields?? new string[0]) &&
-                   Enumerable.SequenceEqual(HaveValues?? new string[0], message.HaveValues?? new string[0]) &&
-                   Enumerable.SequenceEqual(WriteIntoFields?? new string[0], message.WriteIntoFields?? new string[0]) &&
-                   Enumerable.SequenceEqual(Values?? new string[0], message.Values?? new string[0]) &&
-                   Enumerable.SequenceEqual(ExplicitTableInfo?? new int[0], message.ExplicitTableInfo?? new int[0]);
-        }
-
-        /// <summary>
-        /// Returns a hashcode based on the sizes of arrays (ok so most of our messages would end up in the same hash bucket but that's probably fine).
-        /// </summary>
-        /// <returns></returns>
-        public override int GetHashCode()
-        {
-            int hashCode = -1341392600;
-            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(Operators?.Length ?? 0);
-            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(WhereFields?.Length ?? 0);
-            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(HaveValues?.Length ?? 0);
-            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(WriteIntoFields?.Length ?? 0);
-            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(Values?.Length ?? 0);
-            hashCode = hashCode * -1521134295 + EqualityComparer<int>.Default.GetHashCode(ExplicitTableInfo?.Length ?? 0);
-            return hashCode;
         }
     }
 }

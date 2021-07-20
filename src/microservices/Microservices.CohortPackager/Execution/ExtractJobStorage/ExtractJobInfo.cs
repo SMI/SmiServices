@@ -1,3 +1,4 @@
+using Equ;
 using JetBrains.Annotations;
 using System;
 using System.Text;
@@ -7,7 +8,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
     /// <summary>
     /// Class to wrap up all information about an extract job. Built by the <see cref="IExtractJobStore"/> when loading job information.
     /// </summary>
-    public class ExtractJobInfo : IEquatable<ExtractJobInfo>
+    public class ExtractJobInfo : MemberwiseEquatable<ExtractJobInfo>
     {
         /// <summary>
         /// Unique identifier for this extract job. In the Mongo store implementation, this is also the _id of the document
@@ -117,55 +118,5 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             sb.AppendLine("IsNoFilterExtraction: " + IsNoFilterExtraction);
             return sb.ToString();
         }
-
-        #region Equality Members
-
-        public bool Equals(ExtractJobInfo other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
-                   JobSubmittedAt.Equals(other.JobSubmittedAt) &&
-                   ProjectNumber == other.ProjectNumber &&
-                   ExtractionDirectory == other.ExtractionDirectory &&
-                   KeyTag == other.KeyTag &&
-                   KeyValueCount == other.KeyValueCount &&
-                   ExtractionModality == other.ExtractionModality &&
-                   IsIdentifiableExtraction == other.IsIdentifiableExtraction &&
-                   IsNoFilterExtraction == other.IsNoFilterExtraction &&
-                   JobStatus == other.JobStatus;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((ExtractJobInfo)obj);
-        }
-
-        public static bool operator ==(ExtractJobInfo left, ExtractJobInfo right) => Equals(left, right);
-
-        public static bool operator !=(ExtractJobInfo left, ExtractJobInfo right) => !Equals(left, right);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = ExtractionJobIdentifier.GetHashCode();
-                hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();
-                hashCode = (hashCode * 397) ^ ProjectNumber.GetHashCode();
-                hashCode = (hashCode * 397) ^ ExtractionDirectory.GetHashCode();
-                hashCode = (hashCode * 397) ^ KeyTag.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) KeyValueCount;
-                hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) JobStatus;
-                hashCode = (hashCode * 397) ^ IsIdentifiableExtraction.GetHashCode();
-                hashCode = (hashCode * 397) ^ IsNoFilterExtraction.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 }

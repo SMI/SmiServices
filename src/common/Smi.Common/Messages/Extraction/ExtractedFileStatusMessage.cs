@@ -1,5 +1,3 @@
-
-using System;
 using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
@@ -7,7 +5,7 @@ namespace Smi.Common.Messages.Extraction
     /// <summary>
     /// Status message sent by services which extract files (CTP, FileCopier)
     /// </summary>
-    public class ExtractedFileStatusMessage : ExtractMessage, IFileReferenceMessage, IEquatable<ExtractedFileStatusMessage>
+    public class ExtractedFileStatusMessage : ExtractMessage, IFileReferenceMessage
     {
         /// <summary>
         /// Original file path
@@ -47,51 +45,5 @@ namespace Smi.Common.Messages.Extraction
             $"OutputFilePath={OutputFilePath}," +
             $"StatusMessage={StatusMessage}," +
             "";
-
-        #region Equality Members
-
-        public bool Equals(ExtractedFileStatusMessage other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return base.Equals(other) &&
-                   Status == other.Status &&
-                   string.Equals(OutputFilePath, other.OutputFilePath) &&
-                   string.Equals(StatusMessage, other.StatusMessage);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((ExtractedFileStatusMessage)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (DicomFilePath != null ? DicomFilePath.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int)Status;
-                hashCode = (hashCode * 397) ^ (OutputFilePath != null ? OutputFilePath.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (StatusMessage != null ? StatusMessage.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(ExtractedFileStatusMessage left, ExtractedFileStatusMessage right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(ExtractedFileStatusMessage left, ExtractedFileStatusMessage right)
-        {
-            return !Equals(left, right);
-        }
-
-        #endregion
     }
 }

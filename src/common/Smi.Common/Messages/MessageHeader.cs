@@ -1,16 +1,17 @@
 ﻿
+using Equ;
+using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Newtonsoft.Json;
-using NLog;
 
 namespace Smi.Common.Messages
 {
-    public class MessageHeader : IMessageHeader, IEquatable<MessageHeader>
+    public class MessageHeader : MemberwiseEquatable<MessageHeader>, IMessageHeader
     {
         public Guid MessageGuid { get; set; }
 
@@ -146,56 +147,5 @@ namespace Smi.Common.Messages
         {
             return GetGuidArray(enc.GetString((byte[])o));
         }
-
-        #region Equality Members
-
-        /// <inheritdoc />
-        public bool Equals(MessageHeader other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return MessageGuid.Equals(other.MessageGuid)
-                   && ProducerProcessID == other.ProducerProcessID
-                   && string.Equals(ProducerExecutableName, other.ProducerExecutableName)
-                   && OriginalPublishTimestamp == other.OriginalPublishTimestamp
-                   && Parents.SequenceEqual(other.Parents);
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((MessageHeader)obj);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = MessageGuid.GetHashCode();
-                hashCode = (hashCode * 397) ^ ProducerProcessID;
-                hashCode = (hashCode * 397) ^ (ProducerExecutableName != null ? ProducerExecutableName.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ OriginalPublishTimestamp.GetHashCode();
-                // NOTE(rkm 2020-03-04) GetHashCode for a struct[] uses reference equality, so instead we compute the hash
-                //                      code using the string representation of the Parents array
-                hashCode = (hashCode * 397) ^ (Parents != null ? string.Join(Splitter, Parents).GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(MessageHeader left, MessageHeader right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(MessageHeader left, MessageHeader right)
-        {
-            return !Equals(left, right);
-        }
-
-        #endregion
     }
 }
