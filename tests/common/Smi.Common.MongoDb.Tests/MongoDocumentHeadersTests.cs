@@ -16,7 +16,6 @@ namespace Smi.Common.MongoDB.Tests
             var msg = new DicomFileMessage
             {
                 DicomFilePath = "path/to/file.dcm",
-                NationalPACSAccessionNumber = "1234"
             };
 
             string parents = $"{Guid.NewGuid().ToString()}->{Guid.NewGuid().ToString()}";
@@ -36,7 +35,6 @@ namespace Smi.Common.MongoDB.Tests
             {
                 { "DicomFilePath",               msg.DicomFilePath },
                 { "DicomFileSize",               msg.DicomFileSize },
-                { "NationalPACSAccessionNumber", msg.NationalPACSAccessionNumber },
                 { "MessageHeader", new BsonDocument
                 {
                     { "MessageGuid", header.MessageGuid.ToString() },
@@ -56,7 +54,6 @@ namespace Smi.Common.MongoDB.Tests
             var msg = new SeriesMessage
             {
                 DirectoryPath = "path/to/files",
-                NationalPACSAccessionNumber = "AAA",
                 ImagesInSeries = 1234
             };
 
@@ -65,7 +62,6 @@ namespace Smi.Common.MongoDB.Tests
             var expected = new BsonDocument
             {
                 { "DirectoryPath",               msg.DirectoryPath },
-                { "NationalPACSAccessionNumber", msg.NationalPACSAccessionNumber },
                 { "ImagesInSeries",              msg.ImagesInSeries }
             };
 
@@ -78,7 +74,6 @@ namespace Smi.Common.MongoDB.Tests
             var msg = new DicomFileMessage
             {
                 DicomFilePath = "path/to/file.dcm",
-                NationalPACSAccessionNumber = "1234"
             };
 
             string parents = $"{Guid.NewGuid().ToString()}->{Guid.NewGuid().ToString()}";
@@ -96,67 +91,6 @@ namespace Smi.Common.MongoDB.Tests
             IMessageHeader rebuiltHeader = MongoDocumentHeaders.RebuildMessageHeader(bsonImageHeader["MessageHeader"].AsBsonDocument);
 
             Assert.AreEqual(header, rebuiltHeader);
-        }
-
-        [Test]
-        public void Test_ImageDocumentHeader_NullAccessionNo()
-        {
-            var msg = new DicomFileMessage
-            {
-                DicomFilePath = "path/to/file.dcm",
-                NationalPACSAccessionNumber = null,
-            };
-
-            string parents = $"{Guid.NewGuid().ToString()}->{Guid.NewGuid().ToString()}";
-            var header = new MessageHeader(new Dictionary<string, object>
-            {
-                { "MessageGuid", Guid.NewGuid().ToString() },
-                { "ProducerProcessID", 1234 },
-                { "ProducerExecutableName", "MongoDocumentHeadersTests" },
-                { "Parents", parents },
-                { "OriginalPublishTimestamp", MessageHeader.UnixTimeNow() }
-            });
-
-            BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
-
-            var expected = new BsonDocument
-            {
-                { "DicomFilePath",               msg.DicomFilePath },
-                { "DicomFileSize",               msg.DicomFileSize },
-                { "NationalPACSAccessionNumber", BsonNull.Value },
-                { "MessageHeader", new BsonDocument
-                {
-                    { "MessageGuid", header.MessageGuid.ToString() },
-                    { "ProducerProcessID", header.ProducerProcessID },
-                    { "ProducerExecutableName", header.ProducerExecutableName },
-                    { "Parents", string.Join(MessageHeader.Splitter, header.Parents) },
-                    { "OriginalPublishTimestamp", header.OriginalPublishTimestamp }
-                }}
-            };
-
-            Assert.AreEqual(expected, bsonImageHeader);
-        }
-
-        [Test]
-        public void Test_SeriesDocumentHeader_NullAccessionNo()
-        {
-            var msg = new SeriesMessage
-            {
-                DirectoryPath = "path/to/files",
-                NationalPACSAccessionNumber = null,
-                ImagesInSeries = 1234
-            };
-
-            BsonDocument seriesHeader = MongoDocumentHeaders.SeriesDocumentHeader(msg);
-
-            var expected = new BsonDocument
-            {
-                { "DirectoryPath",               msg.DirectoryPath },
-                { "NationalPACSAccessionNumber", BsonNull.Value },
-                { "ImagesInSeries",              msg.ImagesInSeries }
-            };
-
-            Assert.AreEqual(expected, seriesHeader);
         }
     }
 }

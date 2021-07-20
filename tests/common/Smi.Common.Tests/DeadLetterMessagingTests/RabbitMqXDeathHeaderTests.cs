@@ -47,7 +47,6 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
         {
             var testMessage = new AccessionDirectoryMessage
             {
-                NationalPACSAccessionNumber = "1234",
                 DirectoryPath = @"C:\temp"
             };
 

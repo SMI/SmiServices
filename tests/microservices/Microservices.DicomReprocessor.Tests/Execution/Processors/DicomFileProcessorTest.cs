@@ -35,20 +35,21 @@ namespace Microservices.DicomReprocessor.Tests.Execution.Processors
         #region Tests
 
         [Test]
-        public void Test_DicomFileProcessor_ProcessDocument_NullAccNo()
+        public void ProcessDocument_NationalPacsAccessionNumber_IsIgnored()
         {
             var processor = new DicomFileProcessor(new DicomReprocessorOptions(), null, null);
 
-            BsonDocument datasetDoc = DicomTypeTranslaterReader.BuildBsonDocument(new DicomDataset());
             var msg = new DicomFileMessage
             {
                 DicomFilePath = "foo",
                 DicomFileSize = 123,
-                NationalPACSAccessionNumber = null,
             };
-            datasetDoc.Add("_id", "foo");
             BsonDocument bsonHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, new MessageHeader());
+            bsonHeader.Add("NationalPACSAccessionNumber", "foo");
+            BsonDocument datasetDoc = DicomTypeTranslaterReader.BuildBsonDocument(new DicomDataset());
+
             BsonDocument document = new BsonDocument()
+                .Add("_id", "foo")
                 .Add("header", bsonHeader)
                 .AddRange(datasetDoc);
 
