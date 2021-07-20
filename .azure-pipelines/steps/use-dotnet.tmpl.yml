@@ -1,5 +1,14 @@
 ---
 steps:
+  - task: Bash@3
+    displayName: Register dotnet version
+    inputs:
+      targetType: "inline"
+      script: |
+        set -euxo pipefail
+        dotnet_version=$(jq -r .sdk.version global.json)
+        set +x
+        echo "##vso[task.setvariable variable=DOTNET_SDK_VERSION]$dotnet_version"
   - task: UseDotNet@2
     displayName: Use .NET Core SDK
     inputs:

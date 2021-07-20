@@ -305,8 +305,6 @@ test-result.xml
 # Build output
 dist/
 
-global.json
-
 .settings/
 .project
 .classpath
