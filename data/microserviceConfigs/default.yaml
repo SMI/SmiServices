@@ -217,4 +217,62 @@ IsIdentifiableOptions:
         MaxConfirmAttempts: 1
     ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
     DataDirectory: ''
+    
+    #Optional. Full connection string to the database storing the whitelist of valid entries
+    WhitelistConnectionString:
+    #Optional. The DBMS provider of the whitelist table e.g. MySql
+    WhitelistDatabaseType:
+    #Optional. The unqualified name of the whitelist table
+    WhitelistTableName:
+    #Optional. The column in WhitelistTableName which contains the whitelist elements
+    WhitelistColumn:
+    
+    #Optional. Path to a CSV file containing a single untitled column of whitelist values
+    WhitelistCsv:
 
+    #Optional. Generate a report on the proportion of values failing validation (for each column)
+    #ColumnReport: true
+    
+    #Optional. Generate a report listing every unique value failing validation (and the column the value failed in)
+    #ValuesReport: true
+
+    #Optional. Generate a full failure storage report that persists Failure objects in a manner that they can be retrieved.
+    #StoreReport: true
+    
+    #Optional - If specified reports will be generated in the given folder.  If not specified, current directory is used (unless an alternate destination option is picked)
+    DestinationCsvFolder:
+    #Optional - If specified, the given separator will be used instead of ,.  Includes support for \t for tab and \r\n
+    DestinationCsvSeparator:
+    #Optional - If specified all tabs, newlines (\r and \n) and 2+ spaces will be stripped from the values written as output (applies to all output formats)
+    DestinationNoWhitespace:
+    
+    #Optional. Full connection string to the database in which to store the report results
+    DestinationConnectionString:
+    #Optional. The DBMS provider of DestinationConnectionString e.g. MySql
+    DestinationDatabaseType:
+    
+    #Optional. If specified postcodes will not be reported as failures
+    IgnorePostcodes: false
+    #Optional. Comma separated list of columns/tags which should be ignored and not processed
+    SkipColumns:
+    #Optional. If set and using a 7 class NER model then DATE and TIME objects will not be considered failures.
+    IgnoreDatesInText:
+    #Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data
+    MaxCacheSize:
+
+    #Optional. Filename of additional rules in yaml format.
+    RulesFile:
+    #Optional. Directory of additional rules in yaml format.
+    RulesDirectory:
+    #Optional.  Maximum number of answers to cache per column.
+    MaxValidationCacheSize:
+    
+IsIdentifiableReviewerOptions:
+    #Location of database connection strings file (for issuing UPDATE statements)    
+    TargetsFile:
+    #File containing rules for ignoring validation errors
+    IgnoreList:
+    #File containing rules for when to issue UPDATE statements
+    RedList:
+    #Sets the user interface to use a specific color palette yaml file
+    Theme:

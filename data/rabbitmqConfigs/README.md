@@ -21,7 +21,7 @@ For Linux, remove the `.bat` extension from the commands above, and run as sudo.
 
 ## Uploading broker defnintions
 
-From Linux, the excahnge and queue definitions can be uploaded using curl:
+From Linux, the exchange and queue definitions can be uploaded using curl:
 
 ```bash
 $ curl \

@@ -2,5 +2,3 @@ extraction:
   csharp:
     index:
       buildless: true
-      dotnet:
-        version: 5.0.202

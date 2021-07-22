@@ -60,7 +60,7 @@ Update lookup table with fact A=B
 
 _Triggering an update at this point will merge 111 and 222 in the live database_
 
-Once an alias has been established the lookup cannot succesfully be updated to reverse the alias e.g. reverting it back to the initial state.
+Once an alias has been established the lookup cannot successfully be updated to reverse the alias e.g. reverting it back to the initial state.
 
 
 ### 6. Class Diagram

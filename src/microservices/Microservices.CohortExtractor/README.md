@@ -16,7 +16,7 @@ Primary Author: [Thomas](https://github.com/tznind)
 ### 1. Overview
 This service services `ExtractionRequestMessage` which is a request to extract a given set images identified by a key tag (e.g. `SeriesInstanceUID`) collection (e.g. 5000 SeriesInstanceUID values).  It is the job of the Cohort Extractor to identify the images which correspond to the specified key values requested (e.g. the `SeriesInstanceUID`) and generate output messages to downstream processes responsible for anonymising the images.
 
-There can be mulitple datasets in which matching images should be sourced e.g. MR / CT which could even reside on different servers.  Datasets are identified and distinguished from one another through RDMP `ICatalogue` which exists already as part of the data load process (See `DicomRelationalMapper`). 
+There can be multiple datasets in which matching images should be sourced e.g. MR / CT which could even reside on different servers.  Datasets are identified and distinguished from one another through RDMP `ICatalogue` which exists already as part of the data load process (See `DicomRelationalMapper`). 
 
 ### 2. Setup / Installation
 - Clone the project and build. Any NuGet dependencies should be automatically downloaded

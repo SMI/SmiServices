@@ -305,8 +305,6 @@ test-result.xml
 # Build output
 dist/
 
-global.json
-
 .settings/
 .project
 .classpath
@@ -316,5 +314,8 @@ venv/
 
 *.egg-info/
 
-# for prettier in scripts/update-changelog.py
+# for prettier in scripts/updateChangelog.py
 package-lock.json
+
+coverage/
+htmlcov/

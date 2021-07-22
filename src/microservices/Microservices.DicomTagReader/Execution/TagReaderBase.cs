@@ -129,7 +129,6 @@ namespace Microservices.DicomTagReader.Execution
                 // Else create a new SeriesMessage
                 var seriesMessage = new SeriesMessage
                 {
-                    NationalPACSAccessionNumber = fileMessage.NationalPACSAccessionNumber,
                     DirectoryPath = message.DirectoryPath,
 
                     StudyInstanceUID = fileMessage.StudyInstanceUID,
@@ -308,7 +307,7 @@ namespace Microservices.DicomTagReader.Execution
         {
             if (_nAccMessagesProcessed == 0)
             {
-                Logger.Info("No messages proceesed - can't calculate averages");
+                Logger.Info("No messages processed - can't calculate averages");
                 return;
             }
 

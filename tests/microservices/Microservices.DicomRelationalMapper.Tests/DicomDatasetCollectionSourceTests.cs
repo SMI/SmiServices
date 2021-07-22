@@ -27,7 +27,7 @@ namespace Microservices.Tests.RDMPTests
         }
 
         /// <summary>
-        /// Demonstrates the basic scenario in which a dicom datset is turned into a data table by the DicomDatasetCollectionSource
+        /// Demonstrates the basic scenario in which a dicom dataset is turned into a data table by the DicomDatasetCollectionSource
         /// </summary>
         [Test]
         public void SourceReadSimpleTagToTable()

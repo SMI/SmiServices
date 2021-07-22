@@ -27,7 +27,7 @@ _PYTHON_DIR = Path("src/common/Smi_Common_Python")
 
 
 def _run(cmd: Sequence[_STR_LIKE]) -> None:
-    subprocess.check_call(("echo", *cmd))
+    subprocess.check_call(("echo", "$", *cmd))
     subprocess.check_call(cmd)
 
 
@@ -40,7 +40,7 @@ def _build_java_packages(dist_tag_dir: Path, tag: str) -> None:
     # Build Java microserves
 
     cmd: Tuple[str, ...]
-    cmd = (".azure-pipelines/scripts/install-ctp.bash",)
+    cmd = ("utils/install-ctp.bash",)
     _run(cmd)
 
     cmd = (
@@ -149,7 +149,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # Build dotnet projects
 
-    cmd = (".azure-pipelines/scripts/dotnet-build.bash",)
+    cmd = ("utils/dotnet-build.bash",)
     cmd = _windows_bash_fixup(platform, cmd)
     _run(cmd)
 

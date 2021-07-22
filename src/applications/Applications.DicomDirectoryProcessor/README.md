@@ -33,7 +33,7 @@ The ProcessDirectory app is a console app that runs and terminates rather than a
 
 | Argument | Command Line Options | Purpose |
 | ------------- | ------------- | ------------- |
-|-d| Directory root | (Required) The directroy of the image archive in which to begin folder discovery |
+|-d| Directory root | (Required) The directory of the image archive in which to begin folder discovery |
 |-f| Directory search format |(Optional) The directory scan mode to use. See [] |
 
 ### 5. Expectations

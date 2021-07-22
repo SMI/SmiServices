@@ -58,7 +58,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             var msg = new DicomFileMessage
             {
                 DicomFilePath = "",
-                NationalPACSAccessionNumber = ""
             };
 
             for (var i = 0; i < testModalities.Length; ++i)

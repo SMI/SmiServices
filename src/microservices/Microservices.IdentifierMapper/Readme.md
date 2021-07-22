@@ -56,7 +56,7 @@ IdentifierMapperOptions:
     RedisHost: localhost
 ```
 
-All lookup results will be cached in the Redis server (both succesful lookups and misses).
+All lookup results will be cached in the Redis server (both successful lookups and misses).
 
 If you update your lookup table you will have to manually flush the Redis server (if desired).
 

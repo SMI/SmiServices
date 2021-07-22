@@ -154,6 +154,34 @@ namespace IsIdentifiableReviewer.Out
         }
 
         /// <summary>
+        /// Serializes the current <see cref="Rules"/> to the provided file
+        /// </summary>
+        /// <param name="toFile"></param>
+        public void Save(FileInfo toFile = null)
+        {
+            if (toFile == null)
+            {
+                toFile = RulesFile;
+            }
+
+            //populated rules file already existed
+            var builder = new SerializerBuilder()
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+                .WithIndentedSequences();
+            
+            var serializer = builder.Build();
+            using (var sw = new StreamWriter(toFile.FullName))
+            {
+                if(Rules.Count > 0)
+                {
+                    serializer.Serialize(sw, Rules);
+                }
+                // else we get a blank file which is good because the append rules wouldn't play nice
+                // with an [] deal
+            }
+        }
+
+        /// <summary>
         /// Attempts to purge the provided block of serialized rules yaml from the rules base on disk
         /// </summary>
         /// <param name="yaml"></param>

@@ -61,7 +61,7 @@ namespace IsIdentifiableReviewer.Out
         /// <param name="usingRule">Pass null to create a new rule or give value to reuse an existing rule</param>
         public void Update(DiscoveredServer server, Failure failure, IsIdentifiableRule usingRule)
         {
-            //theres no rule yet so create one (and add to RedList.yaml)
+            //there's no rule yet so create one (and add to RedList.yaml)
             if(usingRule == null)
                 usingRule = Add(failure,RuleAction.Report);
 

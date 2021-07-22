@@ -11,6 +11,87 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [3.2.1] 2021-07-07
+
+## Bugfix
+
+-   [#834](https://github.com/SMI/SmiServices/pull/834) by tznind. Improved
+    logging and fixed yaml options not being respected in IsIdentifiableReviewer
+
+## [3.2.0] 2021-07-05
+
+## Feature
+
+-   [#795](https://github.com/SMI/SmiServices/pull/795) by tznind. Added support
+    for specifying IsIdentifiable CLI options in the yaml config files instead
+    of command line (command line will always take precedence if both are
+    specified)
+-   [#797](https://github.com/SMI/SmiServices/pull/797) by tznind. Added custom
+    themes to IsIdentifiableReviewer. Use flag `--theme mytheme.yaml`
+-   [#801](https://github.com/SMI/SmiServices/pull/801) by tznind. Added help
+    and cancel buttons to custom pattern dialog in reviewer
+-   [#802](https://github.com/SMI/SmiServices/pull/802) by tznind. Added
+    IsIdentifiableReviewer settings into main yaml config
+-   [#818](https://github.com/SMI/SmiServices/pull/818) by tznind. Added Rules
+    Manager to IsIdentifiable Reviewer
+
+## Bugfix
+
+-   [#787](https://github.com/SMI/SmiServices/pull/787) by rkm. Fix the call to
+    the release changelog script
+-   [#788](https://github.com/SMI/SmiServices/pull/788) by rkm. Require all CI
+    tests to pass before packaging runs
+-   [#789](https://github.com/SMI/SmiServices/pull/789) by rkm. Don't upload
+    coverage for tagged builds
+-   [#796](https://github.com/SMI/SmiServices/pull/796) by tznind. Fixed bug
+    opening corrupted reports in IsIdentifiableReviewer crashing the application
+-   [#806](https://github.com/SMI/SmiServices/pull/806) by tznind. Replace use
+    of GlobalColorScheme with the proper static members in Terminal.Gui that
+    will propagate correctly for all windows without having to set them
+    manually.
+-   [#811](https://github.com/SMI/SmiServices/pull/811) by rkm. Fix coverage
+    task always running even if a previous task failed
+
+## Doc
+
+-   [#823](https://github.com/SMI/SmiServices/pull/823) by tznind. Refresh
+    documentation for IsIdentifiableReviewer
+
+## [3.1.0] 2021-06-11
+
+## Feature
+
+-   [#759](https://github.com/SMI/SmiServices/pull/759) by tznind. Added
+    parallelisation to load process in IsIdentifiableReviewer rules view
+
+## Bugfix
+
+-   [#756](https://github.com/SMI/SmiServices/pull/756) by howff. Open CSV file
+    read-only
+-   [#771](https://github.com/SMI/SmiServices/pull/771) by tznind.
+    IsIdentifiableReviewer:
+    -   Added --usc (UseSystemConsole) for alternative display driver based on
+        System.Console
+    -   Removed modal dialog that could cause errors opening a previously
+        completed report
+    -   Added label with currently opened file and fixed ignore/update labels
+    -   Added spinner indicator for when loading the Next report in sequential
+        mode takes a while
+    -   Fixed bug where Ctrl+Q in Ignore/Update with custom patterns in
+        RulesView results in hard crash
+-   [#785](https://github.com/SMI/SmiServices/pull/785) by tznind. Fixed bug
+    with multiple enumeration during loading very large failure reports in
+    IsIdentifiableReviewer
+
+## Meta
+
+-   [#773](https://github.com/SMI/SmiServices/pull/773) by rkm. Add code
+    coverage
+-   [#775](https://github.com/SMI/SmiServices/pull/775) by rkm. Move useful
+    scripts from .azure-pipelines/scripts to utils. Update utils/README.md.
+-   [#781](https://github.com/SMI/SmiServices/pull/781) by rkm. Fixup coverage
+    variables between pushes/PRs
+
 ## [3.0.2] 2021-05-14
 
 ## Bugfix
@@ -163,7 +244,7 @@ A raw git diff can be seen [here][unreleased].
 -   [#661](https://github.com/SMI/SmiServices/pull/661) by tznind. Fixed layout
     of main window so it no longer obscures classification/type
 -   [#665](https://github.com/SMI/SmiServices/pull/665) by tznind. Fixed tree
-    view loosing selected index when updating/ignoring a failure (in tree view)
+    view losing selected index when updating/ignoring a failure (in tree view)
 -   [#666](https://github.com/SMI/SmiServices/pull/666) by howff. Silence
     deprecation warning from newer Python as noted by the azure pipeline test
 
@@ -203,7 +284,7 @@ A raw git diff can be seen [here][unreleased].
     -   Breaking: YAML config change required
     -   Removes the `SMI_LOGS_ROOT` variable - now in YAML config
     -   Removes the `--trace-logging` CLI option - now in YAML config
-    -   All invokations of IsIdentifiable now require a YAML config to ensure
+    -   All invocations of IsIdentifiable now require a YAML config to ensure
         logging is properly configured
 -   [#577](https://github.com/SMI/SmiServices/pull/577) by `rkm`. Simplify
     branch workflow by dropping develop
@@ -623,7 +704,7 @@ A raw git diff can be seen [here][unreleased].
 -   Refactor Java exception handling and use of threads
 -   `TessDirectory` option in [IsIdentifiable] now expects tesseract models file
     to exist (no longer downloads it on demand)
--   Addeed support for outsourcing classification (e.g. NLP) to other processes
+-   Added support for outsourcing classification (e.g. NLP) to other processes
     via TCP (entered in [SocketRules] in `Rules.yaml`)
 -   IsIdentifiable NLP text classification now outsourced via TCP to any
     services configured in
@@ -847,7 +928,10 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v3.0.2...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v3.2.1...master
+[3.2.1]: https://github.com/SMI/SmiServices/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/SMI/SmiServices/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/SMI/SmiServices/compare/v3.0.2...v3.1.0
 [3.0.2]: https://github.com/SMI/SmiServices/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/SMI/SmiServices/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/SMI/SmiServices/compare/v2.1.1...v3.0.0

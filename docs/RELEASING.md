@@ -4,7 +4,7 @@ The steps to cut a new release of SmiServices are as follows.
 
 All development is done via a simple branching workflow, which are merged into `master` via a reviewed PR. `master` therefore contains all the latest reviewed changes since the previous release, and the CI checks should always be passing. It is not possible to push to `master` directly.
 
-The release worflow is to checkout a new `release/` branch from master, update the `CHANGELOG` etc. as per below, then open a release PR with just those updates. Once this is merged, a tag is pushed to `master`. This triggers a pipeline in Azure DevOps which creates a GitHub release. The other pipelines will then push artefacts to this release when they pass.
+The release workflow is to checkout a new `release/` branch from master, update the `CHANGELOG` etc. as per below, then open a release PR with just those updates. Once this is merged, a tag is pushed to `master`. This triggers a pipeline in Azure DevOps which creates a GitHub release. The other pipelines will then push artefacts to this release when they pass.
 
 ## Creating A Normal Release
 
@@ -13,7 +13,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
 -   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
     ```console
     $ git checkout master && git pull
-    $ git log --merges --oneline <previous tag>.. | grep -v dependabot
+    $ git log  --oneline <previous_tag>.. | grep -vP "dependabot|Bump" | grep -P '#\d+'
     ec182696 Merge pull request #430 from SMI/feature/extraction-fixes
     051a134e Merge pull request #444 from SMI/feature/trigger-updates
     65fcfe41 Merge pull request #440 from SMI/feature/value-updater
@@ -43,7 +43,7 @@ The release worflow is to checkout a new `release/` branch from master, update t
     Switched to a new branch 'release/v1.2.3'
     ```
 
--   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running the `utils/update-changelog.py` script. Review the diff and check for any obvious errors.
+-   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running the `utils/updateChangelog.py` script. Review the diff and check for any obvious errors.
 
 -   Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
     -   `README.md`: Bump the version in the header

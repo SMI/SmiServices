@@ -9,6 +9,8 @@ import org.smi.common.rabbitMq.RabbitMqAdapter;
 import org.smi.ctpanonymiser.messaging.CTPAnonymiserConsumer;
 import org.smi.ctpanonymiser.util.DicomAnonymizerToolBuilder;
 
+import com.rabbitmq.client.Channel;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,21 +36,21 @@ private final GlobalOptions _options;
 		File anonScriptFile = new File(Paths.get(cliOptions.getOptionValue("a")).toString());
 		_logger.debug("anonScriptFile: " + anonScriptFile.getPath());
 
-		if (!anonScriptFile.exists() || anonScriptFile.isDirectory())
+		if (!CheckValidFile(anonScriptFile.getAbsolutePath(), false))
 			throw new IllegalArgumentException("Cannot find anonymisation script file: " + anonScriptFile.getPath());
 
 		String fsRoot = options.FileSystemOptions.getFileSystemRoot();
-		if (!CheckValidDirectory(fsRoot)) {
+		if (!CheckValidFile(fsRoot,true)) {
 			throw new FileNotFoundException("Given filesystem root is not valid: " + fsRoot);
 		}
 
 		String exRoot = options.FileSystemOptions.getExtractRoot();
-		if (!CheckValidDirectory(exRoot)) {
+		if (!CheckValidFile(exRoot,true)) {
 			throw new FileNotFoundException("Given extraction root is not valid: " + exRoot);
 		}
 
 		String SRAnonTool = options.CTPAnonymiserOptions.SRAnonTool;
-		if (!CheckValidFile(SRAnonTool)) {
+		if (!CheckValidFile(SRAnonTool,false)) {
 			throw new FileNotFoundException("Given SRAnonTool is not valid: " + SRAnonTool);
 		}
 
@@ -67,12 +69,14 @@ private final GlobalOptions _options;
 		// Build the SMI Anonymiser tool
 		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).SRAnonTool(SRAnonTool).buildDat();
 
+		Channel channel = _rabbitMqAdapter.getChannel(String.format("%s::Consumer::%s", _rabbitMqAdapter._hostId, _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName));
 		_consumer = new CTPAnonymiserConsumer(
 				_options,
 				_producer,
 				anonTool,
 				fsRoot,
-				exRoot);
+				exRoot,
+				channel);
 
 		_logger.info("CTPAnonymiserHost created successfully");
 
@@ -85,23 +89,18 @@ private final GlobalOptions _options;
 	}
 
 	public void Shutdown() {
-
 		_logger.info("Host shutdown called");
-
 		_rabbitMqAdapter.Shutdown();
 	}
 
-	private boolean CheckValidFile(String path) {
-
+	/**
+	 * Check the specified file/directory exists and is readable
+	 * @param path
+	 * @param dir
+	 * @return
+	 */
+	private boolean CheckValidFile(String path, boolean dir) {
 		File f = new File(Paths.get(path).toString());
-
-		return (f.exists() && !f.isDirectory() && f.canRead());
-	}
-
-	private boolean CheckValidDirectory(String path) {
-
-		File f = new File(Paths.get(path).toString());
-
-		return (f.exists() && f.isDirectory() && f.canRead());
+		return (f.exists() && f.isDirectory()==dir && f.canRead());
 	}
 }

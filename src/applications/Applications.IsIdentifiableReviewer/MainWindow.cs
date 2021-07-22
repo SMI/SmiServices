@@ -8,8 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using IsIdentifiableReviewer.Out;
 using IsIdentifiableReviewer.Views;
+using IsIdentifiableReviewer.Views.Manager;
 using Microservices.IsIdentifiable.Reporting;
+using Smi.Common.Options;
 using Terminal.Gui;
+using YamlDotNet.Serialization;
 using Attribute = Terminal.Gui.Attribute;
 
 namespace IsIdentifiableReviewer
@@ -48,11 +51,13 @@ namespace IsIdentifiableReviewer
 
         private FailureView _valuePane;
         private Label _info;
+        private SpinnerView spinner;
         private TextField _gotoTextField;
         private IRulePatternFactory _origUpdaterRulesFactory;
         private IRulePatternFactory _origIgnorerRulesFactory;
         private Label _ignoreRuleLabel;
         private Label _updateRuleLabel;
+        private Label _currentReportLabel;
 
         /// <summary>
         /// Record of new rules added (e.g. Ignore with pattern X) along with the index of the failure.  This allows undoing user decisions
@@ -61,25 +66,33 @@ namespace IsIdentifiableReviewer
 
         ColorScheme _greyOnBlack = new ColorScheme()
         {
-            Normal = Attribute.Make(Color.Black,Color.Gray),
-            HotFocus = Attribute.Make(Color.Black,Color.Gray),
-            Disabled = Attribute.Make(Color.Black,Color.Gray),
-            Focus = Attribute.Make(Color.Black,Color.Gray),
+            Normal = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
+            HotFocus = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
+            Disabled = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
+            Focus = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
         };
         private MenuItem miCustomPatterns;
         private RulesView rulesView;
+        private AllRulesManagerView rulesManager;
 
         public MenuBar Menu { get; private set; }
 
         public View Body { get; private set; }
 
-        public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        Task taskToLoadNext;
+        private const string PatternHelp = @"x - clears currently typed pattern
+F - creates a regex pattern that matches the full input value
+G - creates a regex pattern that matches only the failing part(s)
+\d - replaces all digits with regex wildcards
+\c - replaces all characters with regex wildcards
+\d\c - replaces all digits and characters with regex wildcards";
+
+        public MainWindow(GlobalOptions globalOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             Ignorer = ignorer;
             Updater = updater;
             _origUpdaterRulesFactory = updater.RulesFactory;
             _origIgnorerRulesFactory = ignorer.RulesFactory;
-
 
             Menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File (F9)", new MenuItem [] {
@@ -94,13 +107,13 @@ namespace IsIdentifiableReviewer
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
             rulesView = new RulesView();
-
+            rulesManager = new AllRulesManagerView(globalOpts.IsIdentifiableOptions, opts);
 
             _info = new Label("Info")
             {
                 X = 0,
                 Y = 0,
-                Width = Dim.Fill(),
+                Width = Dim.Fill()-1,
                 Height = 1
             };
 
@@ -171,15 +184,24 @@ namespace IsIdentifiableReviewer
 
             frame.Add(new Label(0, 4, "Default Patterns"));
 
-            _ignoreRuleLabel = new Label(0, 5, "Ignore:");
-            _updateRuleLabel = new Label(0, 6, "Update:"); ;
+            _ignoreRuleLabel = new Label() { X = 0, Y = 5, Text = "Ignore:", Width = 30, Height = 1 }; ;
+            _updateRuleLabel = new Label() { X = 0, Y = 6, Text = "Update:", Width = 30, Height = 1 }; ;
+            _currentReportLabel = new Label() { X = 0, Y= 8, Text = "Report:", Width = 30, Height = 1};
+
             frame.Add(_ignoreRuleLabel);
             frame.Add(_updateRuleLabel);
+            frame.Add(_currentReportLabel);
 
             // always run rules only mode for the manual gui
             Updater.RulesOnly = true;
 
             viewMain.Add(_info);
+
+            spinner = new SpinnerView();
+            spinner.X = Pos.Right(_info);
+            viewMain.Add(spinner);
+            spinner.Visible = false;
+
             viewMain.Add(_valuePane);
             viewMain.Add(frame);
 
@@ -199,10 +221,18 @@ namespace IsIdentifiableReviewer
 
             tabView.AddTab(new TabView.Tab("Sequential", viewMain), true);
             tabView.AddTab(new TabView.Tab("Tree View", rulesView), false);
+            tabView.AddTab(new TabView.Tab("Rules Manager", rulesManager), false);
+
+            tabView.SelectedTabChanged += TabView_SelectedTabChanged;
 
             Body = tabView;
         }
 
+        private void TabView_SelectedTabChanged(object sender, TabView.TabChangedEventArgs e)
+        {
+            // sync the rules up in case people are adding new ones using the other UIs
+            rulesManager.RebuildTree();
+        }
 
         private void ToggleCustomPatterns()
         {
@@ -285,10 +315,18 @@ namespace IsIdentifiableReviewer
             }
         }
 
+
+        private void BeginNext()
+        {
+            taskToLoadNext = Task.Run(Next);   
+        }
+
         private void Next()
         {
             if(_valuePane.CurrentFailure == null)
                 return;
+
+            spinner.Visible = true;
 
             int skipped = 0;
             int updated = 0;
@@ -315,10 +353,11 @@ namespace IsIdentifiableReviewer
             {
                 ShowException("Error moving to next record",e);
             }
-            
-            if(CurrentReport.Exhausted)
-                ShowMessage("End", "End of Failures");
-            
+            finally
+            {
+                spinner.Visible = false;
+            }
+
             StringBuilder info = new StringBuilder();
 
             info.Append(CurrentReport.DescribeProgress());
@@ -328,6 +367,11 @@ namespace IsIdentifiableReviewer
             if (updated > 0)
                 info.Append(" Auto Updated " + updated);
 
+            if (CurrentReport.Exhausted)
+            {
+                info.Append(" (End of Failures)");
+            }
+
             _info.Text = info.ToString();
         }
         
@@ -335,6 +379,12 @@ namespace IsIdentifiableReviewer
         {
             if(_valuePane.CurrentFailure == null)
                 return;
+
+            if(taskToLoadNext!= null && !taskToLoadNext.IsCompleted)
+            {
+                MessageBox.Query("StillLoading", "Load next is still running");
+                return;
+            }
 
             try
             {
@@ -346,12 +396,18 @@ namespace IsIdentifiableReviewer
                 //if user cancels adding the ignore then stay on the same record
                 return;
             }
-            Next();
+            BeginNext();
         }
         private void Update()
         {
             if(_valuePane.CurrentFailure == null)
                 return;
+
+            if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
+            {
+                MessageBox.Query("StillLoading", "Load next is still running");
+                return;
+            }
 
             try
             {
@@ -371,7 +427,7 @@ namespace IsIdentifiableReviewer
                 return;
             }
 
-            Next();
+            BeginNext();
         }
 
         private void OpenReport()
@@ -387,7 +443,13 @@ namespace IsIdentifiableReviewer
 
             var f = ofd.FilePaths?.SingleOrDefault();
 
-            OpenReport(f,(e)=>ShowException("Failed to Load", e));
+            Exception ex = null;
+            OpenReport(f, (e) => ex = e);
+
+            if(ex != null)
+            {
+                ShowException("Failed to Load", ex);
+            }
         }
 
         private void OpenReport(string path, Action<Exception> exceptionHandler)
@@ -421,13 +483,14 @@ namespace IsIdentifiableReviewer
                         CurrentReport = new ReportReader(new FileInfo(path),(s)=>
                         rows.Text = $"Loaded: {s:N0} rows",cts.Token);
                         SetupToShow(CurrentReport.Failures.FirstOrDefault());
-                        Next();
+                        BeginNext();
 
                         rulesView.LoadReport(CurrentReport, Ignorer, Updater, _origIgnorerRulesFactory);
                     }
                     catch (Exception e)
                     {
                         exceptionHandler(e);
+                        rows.Text = "Error";
                     } 
               
                 }
@@ -440,16 +503,19 @@ namespace IsIdentifiableReviewer
 
                 cts.Dispose();
             });
-            
+
+            _currentReportLabel.Text = "Report:" + Path.GetFileName(path);
+            _currentReportLabel.SetNeedsDisplay();
+
             Application.Run(dlg);
         }
 
-        public void ShowMessage(string title, string body)
+        public static void ShowMessage(string title, string body)
         {
             RunDialog(title,body,out _,"Ok");
         }
 
-        private void ShowException(string msg, Exception e)
+        public static void ShowException(string msg, Exception e)
         {
             var e2 = e;
             const string stackTraceOption = "Stack Trace";
@@ -466,12 +532,12 @@ namespace IsIdentifiableReviewer
                     ShowMessage("Stack Trace",e.ToString());
 
         }
-        public bool GetChoice<T>(string title, string body, out T chosen, params T[] options)
+        public static bool GetChoice<T>(string title, string body, out T chosen, params T[] options)
         {
             return RunDialog(title, body, out chosen, options);
         }
 
-         bool RunDialog<T>(string title, string message,out T chosen, params T[] options)
+        public static bool RunDialog<T>(string title, string message,out T chosen, params T[] options)
         {
             var result = default(T);
             bool optionChosen = false;
@@ -589,6 +655,7 @@ namespace IsIdentifiableReviewer
             };
             dlg.Add(btn);
 
+
             int x = 10;
             if(buttons != null)
                 foreach (var kvp in buttons)
@@ -598,6 +665,33 @@ namespace IsIdentifiableReviewer
                     dlg.Add(button);
                     x += kvp.Key.Length + 5;
                 }
+
+
+            // add help button
+            var btnHelp = new Button(0, line, "?")
+            {
+                   X = x
+            };
+            x += 6;
+
+            btnHelp.Clicked += () =>
+            {
+                MessageBox.Query("Pattern Help", PatternHelp, "Ok");
+            };
+            dlg.Add(btnHelp);
+
+            // add cancel button
+            var btnCancel = new Button(0, line, "Cancel")
+            {
+                X = x
+            };
+            //x += 11;
+            btnCancel.Clicked += () =>
+            {
+                optionChosen = false;
+                Application.RequestStop();
+            };
+            dlg.Add(btnCancel);
 
             dlg.FocusFirst();
         
@@ -628,6 +722,8 @@ namespace IsIdentifiableReviewer
              buttons.Add(@"\d",new SymbolsRulesFactory {Mode= SymbolsRuleFactoryMode.DigitsOnly}.GetPattern(sender,failure));
              buttons.Add(@"\c",new SymbolsRulesFactory{Mode= SymbolsRuleFactoryMode.CharactersOnly}.GetPattern(sender,failure));
              buttons.Add(@"\d\c",new SymbolsRulesFactory().GetPattern(sender,failure));
+
+
 
              if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen,buttons))
              {

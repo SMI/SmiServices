@@ -81,7 +81,7 @@ public class MyHostOptions : ConsumerOptions
 }
 ```
 
-Next create a derrived class of `MicroserviceHost` this class should take all options needed to do it's job
+Next create a derived class of `MicroserviceHost` this class should take all options needed to do it's job
 
 ```csharp
 public class MyHost : MicroserviceHost
@@ -130,7 +130,7 @@ Proceed to the next section to see how to implement an `IConsumer`
 ## Implementing a Consumer
 
 A consumer is a class which listens to a RabbitMQ queue and does something based on the messages that appear. 
-Create a new class derrived from the `Consumer` abstract class.
+Create a new class derived from the `Consumer` abstract class.
 
 ```csharp
 public class MyConsumer : Consumer
@@ -167,7 +167,7 @@ and must also supply it when producing new messages (this ensures the message au
 ## Logging
 
 All microservices should be derived from the `MicroserviceHost` class, which ensures that a standard logging config is applied. The logging configuration is loaded from the NLog configuration file
-speficied in the `FileSystemOptions.LogConfigFile` config varibale if it exists and is not an empty string, or otherwise from the file
+specified in the `FileSystemOptions.LogConfigFile` config variable if it exists and is not an empty string, or otherwise from the file
 `Smi.NLog.config` in the current directory. This configuration details how file based / console based logging happens and what levels are
 processed / ignored etc.
 

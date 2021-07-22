@@ -15,7 +15,7 @@ namespace IsIdentifiableReviewer.Views
         /// <summary>
         /// Number of times the <see cref="FailurePart.Word"/> was seen in the report being evaluated
         /// </summary>
-        public int NumberOfTimesReported { get; set;}
+        public int NumberOfTimesReported;
 
         public OutstandingFailureNode(Failure failure, int numberOfTimesReported)
         {

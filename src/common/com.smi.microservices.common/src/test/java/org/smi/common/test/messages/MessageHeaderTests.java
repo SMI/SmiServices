@@ -162,7 +162,7 @@ public class MessageHeaderTests extends TestCase {
 		consumerOptions.QoSPrefetchCount = 1;
 		consumerOptions.AutoAck = true;
 
-		SimpleConsumer consumer = new SimpleConsumer();
+		SimpleConsumer consumer = new SimpleConsumer(adapter.getChannel(""));
 		adapter.StartConsumer(consumerOptions, consumer);
 
 		ProducerOptions producerOptions = new ProducerOptions();
@@ -192,12 +192,16 @@ public class MessageHeaderTests extends TestCase {
 		adapter.Shutdown();
 	}
 
-	private class SimpleConsumer extends SmiConsumer {
+	private class SimpleConsumer extends SmiConsumer<SimpleMessage> {
+
+		public SimpleConsumer(Channel channel) {
+			super(channel, SimpleMessage.class);
+		}
 
 		public int Received;
 
 		@Override
-		public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body,
+		public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, SimpleMessage body,
 				MessageHeader header) throws IOException {
 
 			System.out.println("Message received!");

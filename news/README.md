@@ -42,7 +42,7 @@ The file should contain a short description of the patch as one or more lines of
 Fixed a foobar
 ```
 
-or, if more detail is requried, multiple lines formatted as a sub-list
+or, if more detail is required, multiple lines formatted as a sub-list
 
 ```md
 Fixed a foobar

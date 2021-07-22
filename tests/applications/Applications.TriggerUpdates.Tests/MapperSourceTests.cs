@@ -128,7 +128,7 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.IsTrue(archive.Exists(),"Archive table should definetly be there, we created the trigger after all");
+            Assert.IsTrue(archive.Exists(),"Archive table should definitely be there, we created the trigger after all");
             Assert.AreEqual(1,archive.GetRowCount(), "Expected the old ECHI to have an entry in the archive when it was updated");
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
@@ -161,7 +161,7 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.IsTrue(archive.Exists(),"Archive table should definetly be there, we created the trigger after all");
+            Assert.IsTrue(archive.Exists(),"Archive table should definitely be there, we created the trigger after all");
             Assert.AreEqual(1,archive.GetRowCount(), "Expected the old ECHI to have an entry in the archive when it was updated");
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
@@ -201,7 +201,7 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.IsTrue(archive.Exists(),"Archive table should definetly be there, we created the trigger after all");
+            Assert.IsTrue(archive.Exists(),"Archive table should definitely be there, we created the trigger after all");
             Assert.AreEqual(1,archive.GetRowCount(), "Expected the old ECHI to have an entry in the archive when it was updated");
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
@@ -277,7 +277,7 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.IsTrue(archive.Exists(),"Archive table should definetly be there, we created the trigger after all");
+            Assert.IsTrue(archive.Exists(),"Archive table should definitely be there, we created the trigger after all");
             Assert.AreEqual(1,archive.GetRowCount(), "Expected the old ECHI to have an entry in the archive when it was updated");
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");

@@ -45,27 +45,28 @@ namespace Smi.Common.Options
             }
         }
 
-        public LoggingOptions LoggingOptions { get; set; }
-        public RabbitOptions RabbitOptions { get; set; }
-        public FileSystemOptions FileSystemOptions { get; set; }
-        public RDMPOptions RDMPOptions { get; set; }
-        public MongoDatabases MongoDatabases { get; set; }
-        public DicomRelationalMapperOptions DicomRelationalMapperOptions { get; set; }
-        public UpdateValuesOptions UpdateValuesOptions { get; set; }
-        public CohortExtractorOptions CohortExtractorOptions { get; set; }
-        public CohortPackagerOptions CohortPackagerOptions { get; set; }
-        public DicomReprocessorOptions DicomReprocessorOptions { get; set; }
-        public DicomTagReaderOptions DicomTagReaderOptions { get; set; }
-        public FileCopierOptions FileCopierOptions { get; set; }
-        public IdentifierMapperOptions IdentifierMapperOptions { get; set; }
-        public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; }
-        public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; }
-        public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; }
+        public LoggingOptions LoggingOptions { get; set; } = new LoggingOptions();
+        public RabbitOptions RabbitOptions { get; set; } = new RabbitOptions();
+        public FileSystemOptions FileSystemOptions { get; set; } = new FileSystemOptions();
+        public RDMPOptions RDMPOptions { get; set; } = new RDMPOptions();
+        public MongoDatabases MongoDatabases { get; set; } = new MongoDatabases();
+        public DicomRelationalMapperOptions DicomRelationalMapperOptions { get; set; } = new DicomRelationalMapperOptions();
+        public UpdateValuesOptions UpdateValuesOptions { get; set; } = new UpdateValuesOptions();
+        public CohortExtractorOptions CohortExtractorOptions { get; set; } = new CohortExtractorOptions();
+        public CohortPackagerOptions CohortPackagerOptions { get; set; } = new CohortPackagerOptions();
+        public DicomReprocessorOptions DicomReprocessorOptions { get; set; } = new DicomReprocessorOptions();
+        public DicomTagReaderOptions DicomTagReaderOptions { get; set; } = new DicomTagReaderOptions();
+        public FileCopierOptions FileCopierOptions { get; set; } = new FileCopierOptions();
+        public IdentifierMapperOptions IdentifierMapperOptions { get; set; } = new IdentifierMapperOptions();
+        public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; } = new MongoDbPopulatorOptions();
+        public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; } = new ProcessDirectoryOptions();
+        public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; } = new DeadLetterReprocessorOptions();
 
-        public TriggerUpdatesOptions TriggerUpdatesOptions {get;set;}
+        public TriggerUpdatesOptions TriggerUpdatesOptions { get; set; } = new TriggerUpdatesOptions();
 
-        public IsIdentifiableOptions IsIdentifiableOptions { get; set; }
-        public ExtractImagesOptions ExtractImagesOptions { get; set; }
+        public IsIdentifiableOptions IsIdentifiableOptions { get; set; } = new IsIdentifiableOptions();
+        public IsIdentifiableReviewerGlobalOptions IsIdentifiableReviewerOptions { get; set; } = new IsIdentifiableReviewerGlobalOptions();
+        public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
 
         #endregion
 
@@ -112,7 +113,133 @@ namespace Smi.Common.Options
         /// </summary>
         public string DataDirectory { get; set; }
 
+        /// <summary>
+        /// "Optional. Full connection string to the database storing the whitelist of valid entries"
+        /// </summary>
+        public string WhitelistConnectionString { get; set; }
+
+        /// <summary>
+        /// "Optional. The DBMS provider of the whitelist table e.g. MySql"
+        /// </summary>
+        public DatabaseType? WhitelistDatabaseType { get; set; }
+
+        /// <summary>
+        /// "Optional. The unqualified name of the whitelist table"
+        /// </summary>
+        public string WhitelistTableName { get; set; }
+
+        /// <summary>
+        /// "Optional. The column in WhitelistTableName which contains the whitelist elements"
+        /// </summary>
+        public string WhitelistColumn { get; set; }
+
+        /// <summary>
+        /// "Optional. Path to a CSV file containing a single untitled column of whitelist values"
+        /// </summary>
+        public string WhitelistCsv { get; set; }
+
+        /// <summary>
+        /// Optional. Generate a report on the proportion of values failing validation (for each column)")]
+        /// </summary>
+        public bool? ColumnReport { get; set; }
+
+        /// <summary>
+        /// Optional. Generate a report listing every unique value failing validation (and the column the value failed in)
+        /// </summary>
+        public bool? ValuesReport { get; set; }
+
+        /// <summary>
+        /// Optional. Generate a full failure storage report that persists Failure objects in a manner that they can be retrieved.
+        /// </summary>
+        public bool? StoreReport { get; set; }
+
+        /// <summary>
+        /// Optional - If specified reports will be generated in the given folder.  If not specified, current directory is used (unless an alternate destination option is picked)
+        /// </summary>
+        public string DestinationCsvFolder { get; set; }
+
+        /// <summary>
+        /// @"Optional - If specified, the given separator will be used instead of ,.  Includes support for \t for tab and \r\n."
+        /// </summary>
+        public string DestinationCsvSeparator { get; set; }
+
+        /// <summary>
+        /// @"Optional - If specified all tabs, newlines (\r and \n) and 2+ spaces will be stripped from the values written as output (applies to all output formats)"
+        /// </summary>
+        public bool? DestinationNoWhitespace { get; set; }
+
+        /// <summary>
+        /// "Optional. Full connection string to the database in which to store the report results"
+        /// </summary>
+        public string DestinationConnectionString { get; set; }
+
+        /// <summary>
+        /// "Optional. The DBMS provider of DestinationConnectionString e.g. MySql"
+        /// </summary>
+        public DatabaseType? DestinationDatabaseType { get; set; }
+
+        /// <summary>
+        /// "Optional. If specified postcodes will not be reported as failures"
+        /// </summary>
+        public bool? IgnorePostcodes { get; set; }
+
+        /// <summary>
+        /// "Optional. Comma separated list of columns/tags which should be ignored and not processed"
+        /// </summary>
+        public string SkipColumns { get; set; }
+
+        /// <summary>
+        /// "Optional. If set and using a 7 class NER model then DATE and TIME objects will not be considered failures."
+        /// </summary>
+        public bool? IgnoreDatesInText { get; set; }
+
+        /// <summary>
+        /// "Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data"
+        /// </summary>
+        public int? MaxCacheSize { get; set; }
+
+        /// <summary>
+        /// "Optional. Filename of additional rules in yaml format."
+        /// </summary>
+        public string RulesFile { get; set; }
+
+        /// <summary>
+        ///  "Optional. Directory of additional rules in yaml format."
+        /// </summary>
+        public string RulesDirectory { get; set; }
+
+        /// <summary>
+        /// "Optional.  Maximum number of answers to cache per column."
+        /// </summary>
+        public int? MaxValidationCacheSize { get; set; }
+
+
         public ProducerOptions IsIdentifiableProducerOptions {get; set;}
+    }
+
+    [UsedImplicitly]
+    public class IsIdentifiableReviewerGlobalOptions
+    {
+        /// <summary>
+        /// Location of database connection strings file (for issuing UPDATE statements)
+        /// </summary>
+        public string TargetsFile { get; set; }
+
+        /// <summary>
+        /// File containing rules for ignoring validation errors
+        /// </summary>
+        public string IgnoreList { get; set; }
+
+        /// <summary>
+        /// File containing rules for when to issue UPDATE statements
+        /// </summary>
+        public string RedList { get; set; }
+
+        /// <summary>
+        /// Sets the user interface to use a specific color palette yaml file
+        /// </summary>
+        public string Theme { get; set; }
+
     }
 
     [UsedImplicitly]

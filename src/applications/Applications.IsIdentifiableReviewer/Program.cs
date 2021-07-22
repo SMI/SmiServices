@@ -1,5 +1,6 @@
 ﻿using IsIdentifiableReviewer;
 using IsIdentifiableReviewer.Out;
+using NLog;
 using Smi.Common;
 using Smi.Common.Options;
 using System;
@@ -28,6 +29,9 @@ namespace Applications.IsIdentifiableReviewer
         private static int OnParse(GlobalOptions globals, IsIdentifiableReviewerOptions opts)
         {
             FansiImplementations.Load();
+            var logger = LogManager.GetCurrentClassLogger();
+
+            opts.FillMissingWithValuesUsing(globals.IsIdentifiableReviewerOptions);
 
             Deserializer d = new Deserializer();
             List<Target> targets;
@@ -38,7 +42,7 @@ namespace Applications.IsIdentifiableReviewer
 
                 if (!file.Exists)
                 {
-                    Console.Write($"Could not find '{file.FullName}'");
+                    logger.Error($"Could not find '{file.FullName}'");
                     return 1;
                 }
 
@@ -46,7 +50,7 @@ namespace Applications.IsIdentifiableReviewer
 
                 if (string.IsNullOrWhiteSpace(contents))
                 {
-                    Console.Write($"Targets file is empty '{file.FullName}'");
+                    logger.Error($"Targets file is empty '{file.FullName}'");
                     return 2;
                 }
 
@@ -54,22 +58,21 @@ namespace Applications.IsIdentifiableReviewer
 
                 if (!targets.Any())
                 {
-                    Console.Write($"Targets file did not contain any valid targets '{file.FullName}'");
+                    logger.Error($"Targets file did not contain any valid targets '{file.FullName}'");
                     return 3;
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error deserializing '{opts.TargetsFile}'");
-                Console.WriteLine(e.Message);
+                logger.Error(e,$"Error deserializing '{opts.TargetsFile}'");
                 return 4;
             }
 
             if (opts.OnlyRules)
-                Console.WriteLine("Skipping Connection Tests");
+                logger.Info("Skipping Connection Tests");
             else
             {
-                Console.WriteLine("Running Connection Tests");
+                logger.Info("Running Connection Tests");
 
                 try
                 {
@@ -80,8 +83,7 @@ namespace Applications.IsIdentifiableReviewer
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error Validating Targets");
-                    Console.WriteLine(e.ToString());
+                    logger.Error(e,"Error Validating Targets");
                     return 10;
                 }
             }
@@ -112,12 +114,38 @@ namespace Applications.IsIdentifiableReviewer
                     Console.WriteLine("Press any key to launch GUI");
                     Console.ReadKey();
 
+
+                    if (opts.UseSystemConsole)
+                    {
+                        Application.UseSystemConsole = true;
+                    }
+                        
+
                     //run interactive
                     Application.Init();
 
+                    if (opts.Theme != null && opts.Theme.Exists)
+                    {
+                        try
+                        {
+                            var des = new Deserializer();
+                            var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(opts.Theme.FullName));
+
+                            Colors.Base = theme.Base.GetScheme();
+                            Colors.Dialog = theme.Dialog.GetScheme();
+                            Colors.Error = theme.Error.GetScheme();
+                            Colors.Menu = theme.Menu.GetScheme();
+                            Colors.TopLevel = theme.TopLevel.GetScheme();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.ErrorQuery("Could not deserialize theme",ex.Message);
+                        }
+                    }
+
                     var top = Application.Top;
 
-                    var mainWindow = new MainWindow(opts, ignorer, updater);
+                    var mainWindow = new MainWindow(globals, opts, ignorer, updater);
                     
 
                     // Creates the top-level window to show
@@ -144,7 +172,7 @@ namespace Applications.IsIdentifiableReviewer
             }
             catch (Exception e)
             {
-                Console.Write(e.Message);
+                logger.Error(e, $"Application crashed");
 
                 int tries = 5;
                 while (Application.Top != null && tries-- > 0)

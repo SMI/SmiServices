@@ -50,7 +50,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             var docHeader = (BsonDocument)element.Value;
             Assert.AreEqual(_seriesMessageProps.Count - 3, docHeader.ElementCount);
             Assert.AreEqual(message.DirectoryPath, docHeader["DirectoryPath"].AsString);
-            Assert.AreEqual(message.NationalPACSAccessionNumber, docHeader["NationalPACSAccessionNumber"].AsString);
             Assert.AreEqual(message.ImagesInSeries, docHeader["ImagesInSeries"].AsInt32);
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);

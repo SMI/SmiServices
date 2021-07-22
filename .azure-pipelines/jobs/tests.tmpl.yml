@@ -59,8 +59,26 @@ jobs:
           - task: Bash@3
             displayName: Run Dotnet tests
             inputs:
-                filePath: .azure-pipelines/scripts/run-dotnet-tests.bash
+                targetType: inline
+                script: |
+                  set -euxo pipefail
+                  python \
+                    utils/runDotnetTests.py \
+                    "${{ parameters.os }}"
+          - ${{ if eq( parameters.os, 'linux' ) }}:
+            - task: PythonScript@0
+              displayName: Upload coverage
+              condition: |
+                and(
+                    succeeded(),
+                    not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+                )
+              inputs:
+                scriptSource: 'filePath'
+                scriptPath: .azure-pipelines/scripts/upload-coverage.py
                 failOnStderr: true
+              env:
+                COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
     - job: java_tests
       displayName: Java Tests
@@ -97,7 +115,7 @@ jobs:
           - task: Bash@3
             displayName: Run Java tests
             inputs:
-                filePath: .azure-pipelines/scripts/run-java-tests.bash
+                filePath: utils/run-java-tests.bash
                 # TODO(rkm 2020-12-11) See if we can silence the current bogus stderr output (log4j warning & SMI_LOGS_ROOT)
                 failOnStderr: false
                 arguments: $(MVN_PROFILE)

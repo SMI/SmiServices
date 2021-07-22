@@ -16,7 +16,7 @@ Can append `-DskipTests` to that if you want to build without running tests, or 
 
 `mvn clean package -pl Microservices.ExtractorCL -am`
 
-To build only the ExtractorCL program as well as the requred `Microservices.Common` project, for example. Maven flags used are:
+To build only the ExtractorCL program as well as the required `Microservices.Common` project, for example. Maven flags used are:
 
 `-pl,--projects <arg> // Comma-delimited list of specified reactor projects to build instead of all projects. A project can be specified by [groupId]:artifactId or by its relative path`
 

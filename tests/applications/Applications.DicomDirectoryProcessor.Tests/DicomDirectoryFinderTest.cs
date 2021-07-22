@@ -35,14 +35,12 @@ namespace Applications.DicomDirectoryProcessor.Tests
 
             var m1 = new AccessionDirectoryMessage
             {
-                NationalPACSAccessionNumber = "01",
                 //NOTE: These can't be rooted, so can't easily use Path.GetFullPath
                 DirectoryPath = "2019/01/01/foo/01".Replace('/', Path.DirectorySeparatorChar)
             };
 
             var m2 = new AccessionDirectoryMessage
             {
-                NationalPACSAccessionNumber = "02",
                 DirectoryPath = "2019/01/02/foo/02".Replace('/', Path.DirectorySeparatorChar)
             };
 

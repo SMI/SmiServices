@@ -3,6 +3,7 @@ using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Rules;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -75,7 +76,7 @@ namespace IsIdentifiableReviewer.Views
             if (e.NewValue is OutstandingFailureNode ofn){
 
                 // if it is now covered by an existing rule! Like maybe they have 500 outstanding failures 
-                // and on the first one they add a rule .* (ignore EVERYTHING) then we had better disapear the rest of the tree too
+                // and on the first one they add a rule .* (ignore EVERYTHING) then we had better disappear the rest of the tree too
 
                 var ignoreRule = Ignorer.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
 
@@ -212,10 +213,32 @@ namespace IsIdentifiableReviewer.Views
         private void Activate(OutstandingFailureNode ofn)
         {
             var ignore = new Button("Ignore");
-            ignore.Clicked += ()=>{Ignore(ofn,false); Application.RequestStop();};
+            ignore.Clicked += ()=> {
+                try
+                {
+                    Ignore(ofn, false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // user cancelled the interactive ignore e.g. with Ctrl+Q
+                }
+
+                Application.RequestStop();
+            };
 
             var update = new Button("Update");
-            update.Clicked += ()=>{Update(ofn); Application.RequestStop();};
+            update.Clicked += ()=>{
+                try
+                {
+                    Update(ofn);
+                }
+                catch (OperationCanceledException)
+                {
+                    // user cancelled the interactive update e.g. with Ctrl+Q
+                }
+
+                Application.RequestStop();
+            };
             
             var cancel = new Button("Cancel");
             cancel.Clicked += ()=>{Application.RequestStop();};
@@ -248,7 +271,15 @@ namespace IsIdentifiableReviewer.Views
             }
             else
             {
-                Ignorer.Add(ofn.Failure);
+                try
+                {
+                    Ignorer.Add(ofn.Failure);
+                }
+                catch (OperationCanceledException)
+                {
+                    // user cancelled the interactive dialog
+                    return;
+                }
             }
                 
             Remove(ofn);
@@ -307,7 +338,6 @@ namespace IsIdentifiableReviewer.Views
 
             AddDuplicatesToTree(allRules);
 
-            _treeView.AddObjects(new []{ colliding,ignore,update,outstanding});
 
             var cts = new CancellationTokenSource();
 
@@ -331,73 +361,89 @@ namespace IsIdentifiableReviewer.Views
 
             Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
             {
-                _treeView.RebuildTree();
                 dlg.SetNeedsDisplay();
                 return !done;
             });
 
             Task.Run(()=>{
                 EvaluateRuleCoverageAsync(stage,progress,textProgress,cts.Token,colliding,ignore,update,outstanding);
-                },cts.Token).ContinueWith((t)=>{
+                },cts.Token).ContinueWith((t,s)=>{
                 
                     btn.Clicked -= cancelFunc;
                     btn.Text = "Done";
                     btn.Clicked += closeFunc;
                     done = true;
                     cts.Dispose();
-            });
+
+                    _treeView.RebuildTree();
+                    _treeView.AddObjects(new[] { colliding, ignore, update, outstanding });
+                },SynchronizationContext.Current);
             
             Application.Run(dlg);
         }
         
         private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress, CancellationToken token,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding)
         {
-            Dictionary<IsIdentifiableRule,int> rulesUsed = new Dictionary<IsIdentifiableRule, int>();
-            Dictionary<string,OutstandingFailureNode> outstandingFailures = new Dictionary<string, OutstandingFailureNode>();
+            ConcurrentDictionary<IsIdentifiableRule,int> rulesUsed = new ConcurrentDictionary<IsIdentifiableRule, int>();
+            ConcurrentDictionary<string,OutstandingFailureNode> outstandingFailures = new ConcurrentDictionary<string, OutstandingFailureNode>();
             
             int done = 0;
             var max = CurrentReport.Failures.Count();
+            object lockObj = new object();
 
-            foreach(Failure f in CurrentReport.Failures)
-            {
-                done++;
-                token.ThrowIfCancellationRequested();
-                if(done % 1000 == 0)
-                    SetProgress(progress,textProgress,done,max);
 
-                var ignoreRule = Ignorer.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
-                var updateRule = Updater.Rules.FirstOrDefault(r=>r.Apply(f.ProblemField,f.ProblemValue, out _) != RuleAction.None);
-
-                // record how often each reviewer rule was used with a failure
-                foreach(var r in new []{ ignoreRule,updateRule})
-                    if(r != null)
-                        if(!rulesUsed.ContainsKey(r))
-                            rulesUsed.Add(r,1);
-                        else
-                            rulesUsed[r]++;
-
-                // There are 2 conflicting rules for this input value (it should be updated and ignored!)
-                if(ignoreRule != null && updateRule != null)
+            var result = Parallel.ForEach(CurrentReport.Failures,
+                (f) =>
                 {
-                    // find an existing collision audit node for this input value
-                    var existing = colliding.Children.OfType<CollidingRulesNode>().FirstOrDefault(c=>c.CollideOn[0].ProblemValue.Equals(f.ProblemValue));
+                    token.ThrowIfCancellationRequested();
 
-                    if(existing != null)
-                        existing.Add(f);
-                    else
-                        colliding.Children.Add(new CollidingRulesNode(ignoreRule,updateRule,f));
-                }
+                    if (Interlocked.Increment(ref done) % 10000 == 0)
+                        SetProgress(progress, textProgress, done, max);
 
-                // input value that doesn't match any system rules yet
-                if(ignoreRule == null && updateRule == null)
-                {
-                    if(!outstandingFailures.ContainsKey(f.ProblemValue))
-                        outstandingFailures.Add(f.ProblemValue,new OutstandingFailureNode(f,1));
-                    else
-                        outstandingFailures[f.ProblemValue].NumberOfTimesReported++;
-                }
-            }
-            
+                    var ignoreRule = Ignorer.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
+                    var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
+
+                    // record how often each reviewer rule was used with a failure
+                    foreach (var r in new[] { ignoreRule, updateRule })
+                        if (r != null)
+                        {
+                            lock(lockObj)
+                            {
+                                rulesUsed.AddOrUpdate(r, 1, (k, v) => Interlocked.Increment(ref v));
+                            }
+                        }
+
+                    // There are 2 conflicting rules for this input value (it should be updated and ignored!)
+                    if (ignoreRule != null && updateRule != null)
+                    {
+                        lock (lockObj)
+                        {
+                            // find an existing collision audit node for this input value
+                            var existing = colliding.Children.OfType<CollidingRulesNode>().FirstOrDefault(c => c.CollideOn[0].ProblemValue.Equals(f.ProblemValue));
+
+                            if (existing != null)
+                                existing.Add(f);
+                            else
+                                colliding.Children.Add(new CollidingRulesNode(ignoreRule, updateRule, f));
+                        }
+                    }
+
+                    // input value that doesn't match any system rules yet
+                    if (ignoreRule == null && updateRule == null)
+                    {
+                        lock (lockObj)
+                        {
+                            outstandingFailures.AddOrUpdate(f.ProblemValue, new OutstandingFailureNode(f, 1), (k, v) => {
+                                Interlocked.Increment(ref v.NumberOfTimesReported);
+                                return v;
+                            });
+                        }
+                    }
+                });
+
+            if (!result.IsCompleted)
+                throw new OperationCanceledException();
+
             SetProgress(progress,textProgress,done,max);
             
             var ignoreRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).ToList();

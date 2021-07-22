@@ -60,7 +60,7 @@ namespace Smi.Common.Messaging
         }
 
         /// <summary>
-        /// Recreate ProcessMessage to specifically handle control messages which wont have headers,
+        /// Recreate ProcessMessage to specifically handle control messages which won't have headers,
         /// and shouldn't be included in any Ack/Nack counts
         /// </summary>
         /// <param name="e"></param>

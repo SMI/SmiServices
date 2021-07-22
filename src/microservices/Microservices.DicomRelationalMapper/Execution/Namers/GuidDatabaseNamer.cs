@@ -9,7 +9,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
     /// Handles naming RAW/STAGING databases in a data load with unique names (by prefixing a GUID to the name).
     /// 
     /// Since the RDMP currently expects STAGING to always be there and won't automatically create it we have to also support creating
-    /// it externally and destroying it after succesful loads.
+    /// it externally and destroying it after successful loads.
     /// </summary>
     public class GuidDatabaseNamer : FixedStagingDatabaseNamer, ICreateAndDestroyStagingDuringLoads
     {
