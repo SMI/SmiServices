@@ -32,9 +32,9 @@ pytest SmiServices/*.py
 
 Test each module individually, for example:
 ```
-python3 -m pytest Smi_Common_Python/Dicom.py
-python3 -m pytest Smi_Common_Python/DicomText.py
-python3 -m pytest Smi_Common_Python/StructuredReport.py
+python3 -m pytest SmiService/Dicom.py
+python3 -m pytest SmiService/DicomText.py
+python3 -m pytest SmiService/StructuredReport.py
 ```
 
 ## Usage
@@ -94,7 +94,7 @@ named `.knowtator.xml` and have the format:
 
 The function `annotation_xml_to_dict` parses the XML and returns a suitable Python dict.
 
-Also contains a function to write such XML files, useful when testing.
+Also contains a function to write such XML files, useful when testing, or when converting from a Phi file.
 
 ## Mongo.py
 
