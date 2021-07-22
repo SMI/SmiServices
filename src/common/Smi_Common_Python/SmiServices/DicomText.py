@@ -10,6 +10,19 @@ from SmiServices.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
 
 # ---------------------------------------------------------------------
 
+def string_match(str1, str2):
+    """ String comparison which ignores carriage returns \r by treating as spaces
+    because that's how SemEHR new anonymiser delivers the string (in phi json anyway) """
+    if re.sub('[\r\n]', ' ', str1) == re.sub('[\r\n]', ' ', str2):
+        return True
+    return False
+
+def test_string_match():
+    assert(string_match('hello', 'hello'))
+    assert(string_match('hello\r\nworld', 'hello \nworld'))
+
+# ---------------------------------------------------------------------
+
 def redact_html_tags_in_string(html_str):
     """ Replace the HTML tags in a string with equal length of a
     repeating character (space or dot for example).
@@ -36,11 +49,11 @@ def redact_html_tags_in_string(html_str):
     return(html_str)
 
 def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\n<BR>text2 <script> script2 </script> text3'
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\r\n<BR>text2 <script> script2 </script> text3'
     dest = redact_html_tags_in_string(src)
-    expected = '.................... ..................................... text1\n....text2 .......................... text3'
-    assert(dest == expected)
-
+    # changing the \r to a space in the expected string also tests the string_match function
+    expected = '.................... ..................................... text1 \n....text2 .......................... text3'
+    assert(string_match(dest, expected))
 
 # ---------------------------------------------------------------------
 
@@ -209,15 +222,15 @@ class DicomText:
                 for offset in [self._redact_offset] + list(range(-32, 32)):
                     # Do the comparison using text without html but replace inside text with html
                     rc_without_html = redact_html_tags_in_string(rc) if self._replace_HTML_entities else rc
-                    if rc_without_html[annot_at+offset : annot_end+offset] == annot['text']:
+                    if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at)
                         replaced = replacedAny = True
-                        #print('REPLACE: %s in %s at %d (offset %d)' % (annot['text'], replacement, annot_at, offset))
+                        #print('REPLACE: "%s" in "%s" at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
                         self._redact_offset = offset
                         break
                 if not replaced:
                     print('WARNING: offsets slipped:')
-                    print('  expected to find %s but found %s' % (annot['text'], rc[annot_at:annot_end]))
+                    print('  expected to find "%s" but found "%s"' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
         if data_element.VR == 'PN' or data_element.VR == 'DA':
             # Always fully redact the content of a PersonName tag
             replacement = self.redact_string(rc, 0, len(rc))
