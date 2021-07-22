@@ -46,9 +46,9 @@ tidy_exit()
 	  if [ -f "${anon_doc}" ]; then rm -f "${anon_doc}"; fi
 	  if [ -f "${anon_xml}" ]; then rm -f "${anon_xml}"; fi
 	  # Prefer not to use rm -fr for safety
-	  if [ -d "${semehr_input_dir}" ]; then rm -f "${semehr_input_dir}/*"; fi
+	  if [ -d "${semehr_input_dir}" ]; then rm -f "${semehr_input_dir}/"*; fi
 	  if [ -d "${semehr_input_dir}" ]; then rmdir "${semehr_input_dir}"; fi
-	  if [ -d "${semehr_output_dir}" ]; then rm -f "${semehr_output_dir}/*"; fi
+	  if [ -d "${semehr_output_dir}" ]; then rm -f "${semehr_output_dir}/"*; fi
 	  if [ -d "${semehr_output_dir}" ]; then rmdir "${semehr_output_dir}"; fi
 	fi
 	# Tell user where log file is when failure occurs
@@ -131,16 +131,42 @@ CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 # Run the SemEHR anonymiser using a set of private directories
 #  Reads  $input_doc
 #  Writes $anon_doc and $anon_xml
-# NOTE: This requires that SemEHR be modified to accept the -i and -o options.
-if [ $verbose -gt 0 ]; then
-	echo "RUN: ${semehr_dir}/CogStack-SemEHR/analysis/clinical_doc_wrapper.py -i ${semehr_input_dir} -o ${semehr_output_dir}"
+if [ -f $semehr_dir/anonymisation/anonymiser.py ]; then
+	# Create a custom config file in the output directory
+	jq < $semehr_dir/anonymisation/conf/anonymisation_task.json > $semehr_output_dir/anonymisation_task.json \
+		'.text_data_path="'${semehr_input_dir}'"|'\
+'.anonymisation_output="'${semehr_output_dir}'"|'\
+'.extracted_phi="'${semehr_output_dir}'/phi"|'\
+'.grouped_phi_output="'${semehr_output_dir}'/phi_grouped"|'\
+'.logging_file="'${semehr_output_dir}'/log"|'\
+'.annotation_mode=false'
+	# Run the new anonymiser
+	if [ $verbose -gt 0 ]; then
+		echo "RUN: ${semehr_dir}/CogStack-SemEHR/anonymisation/anonymiser.py $semehr_output_dir/anonymisation_task.json"
+	fi
+	(cd $semehr_dir/anonymisation; python3 ./anonymiser.py $semehr_output_dir/anonymisation_task.json) >> $log 2>&1
+	rc=$?
+else
+	if [ $verbose -gt 0 ]; then
+		echo "RUN: ${semehr_dir}/CogStack-SemEHR/analysis/clinical_doc_wrapper.py -i ${semehr_input_dir} -o ${semehr_output_dir}"
+	fi
+	# NOTE: This requires that SemEHR be modified to accept the -i and -o options.
+	(cd ${semehr_dir}/CogStack-SemEHR/analysis; ./clinical_doc_wrapper.py -i ${semehr_input_dir} -o ${semehr_output_dir}) >> $log 2>&1
+	rc=$?
 fi
-(cd ${semehr_dir}/CogStack-SemEHR/analysis; ./clinical_doc_wrapper.py -i ${semehr_input_dir} -o ${semehr_output_dir}) >> $log 2>&1
-rc=$?
 if [ $rc -ne 0 ]; then
 	tidy_exit $rc "Possible failure (exit code $rc) of SemEHR-anon given ${input_doc} from ${input_dcm}"
 fi
-
+# The new SemEHR anonymiser is not configured to create knowtator.xml files
+# (because it's buggy right now) so convert the phi output file to xml instead.
+# NB. The phi is missing some of the anonymisation results (the 'Q' redactions).
+if [ ! -f "$anon_xml" ]; then
+	if [ $verbose -gt 0 ]; then
+		echo "Knowtator.XML not found, try to convert Phi to XML"
+	fi
+	CTP_PhiToXML.py -p ${semehr_output_dir}/phi
+fi
+# If there's still no XML file then exit
 if [ ! -f "$anon_xml" ]; then
 	tidy_exit 6 "ERROR: SemEHR-anon failed to convert $input_doc to $anon_xml"
 fi
