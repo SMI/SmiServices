@@ -31,7 +31,7 @@ class SmiPyMongoCollection:
         self.mongoCollection = self.mongoConnection['dicom']['image_'+modality]
 
     def DicomFilePathToJSON(self, DicomFilePath):
-        """ After setting a collection(modality) you can extract a document given a DICOM path (can be absolute, as everything upto PACS stripped off, or relative to root of collection)"""
+        """ After setting a collection(modality) you can extract a document given a DICOM path (can be absolute, as everything up to PACS stripped off, or relative to root of collection)"""
 
         # strip off any full path prefix so it starts with the year
         DicomFilePath = re.sub('^.*PACS/', '', DicomFilePath)
@@ -49,7 +49,7 @@ class SmiPyMongoCollection:
         return self.mongoCollection.find( { "StudyDate" : StudyDate } )
 
     def findSOPInstanceUID(self, sopinstanceuid):
-        """ This is intended to check for the existance of a document having the
+        """ This is intended to check for the existence of a document having the
         given SOPInstanceUID but since it also returns that document is can be
         used as a query """
         
