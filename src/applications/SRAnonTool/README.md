@@ -41,7 +41,7 @@ Install the SemEHR/CogStack anonymiser, which currently uses the following direc
 * `/opt/gcp/bio-yodie-1-2-1` - the UMLS dictionary
 * `/opt/gcp/gcp-2.5-18658` - java libraries
 
-The SemEHR anonymiser requires Python2; all the other scripts require Python3.
+The old SemEHR anonymiser requires Python2; all the other scripts require Python3, including the new SemEHR anonymiser.
 If using the test stub then only the data directories are required and Python2 is not required.
 
 ## Usage as part of CTP
@@ -93,15 +93,37 @@ Examples:
 
 ### `clinical_doc_wrapper.py`
 
+This script performs the anonymisation.
+
 Usage: `[-s semehr_dir] [-i input_docs] [-o anonymised]` in the stub version
 
 It must be called with the current directory being the location of the script.
 
 It reads all the files in the `/data/input_docs` directory. For each input file it write a slightly modified file with the same name into the `/data/anonymised` directory, basically the text with some header metadata removed, plus it writes a file of the same name plus `.knowtator.xml` appended containing annotations in XML format.
 
-The SemEHR version requires Python2; the test stub requires Python3.
+The SemEHR version requires Python2; the test stub requires Python3. Note that this script is no longer used in the new SemEHR anonymiser.
 
 The test stub of this program has no requirement on current directory. It is best suited when tested with the given test DICOM file as it only fakes the anonymisation of the word `Baker`. The `-s` option can be used to specify the SemEHR directory instead of `/opt/semehr` which is useful when testing; this option is not present in the original.
+
+## `anonymiser.py`
+
+This script performs the anonymisation.
+
+Usage: `./anonymiser.py /path/to/anonymisation_task.json`
+
+It must be called with the current directory being the location of the script.
+
+The template configuration file is typically in the `anonymisation/conf` directory
+but should have the following elements modified for each run of the anonymiser:
+
+```
+.text_data_path=${semehr_input_dir}
+.anonymisation_output=${semehr_output_dir}
+.extracted_phi=${semehr_output_dir}/phi
+.grouped_phi_output=${semehr_output_dir}/phi_grouped
+.logging_file=${semehr_output_dir}/log
+.annotation_mode=false # temporary false until the knowtator XML output is fixed
+```
 
 ### `CTP_XMLToDicom.py`
 
