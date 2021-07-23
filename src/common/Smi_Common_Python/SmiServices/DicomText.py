@@ -213,8 +213,8 @@ class DicomText:
             if not annot['text']:
                 continue
             # Use the previously found offset to check if this annotation is within the current string
-            if ((annot['start_char'] + self._redact_offset >= current_start) and
-                    (annot['start_char'] + self._redact_offset < current_end)):
+            if ((annot['start_char'] + self._redact_offset >= current_start-32) and
+                    (annot['start_char'] + self._redact_offset < current_end+32)):
                 annot_at = annot['start_char'] - current_start
                 annot_end = annot['end_char'] - current_start
                 replaced = replacedAny = False
@@ -225,6 +225,7 @@ class DicomText:
                     if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at)
                         replaced = replacedAny = True
+                        annot['replaced'] = True
                         #print('REPLACE: %s in %s at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
                         self._redact_offset = offset
                         break
@@ -248,6 +249,7 @@ class DicomText:
         Uses the annotation list and _p_text to find and redact text
         so parse must already have been called.
         Modifies the actual state of the DICOM dataset _dicom_raw.
+        Returns False if not all redactions could be done.
         """
         assert(self._p_text) # you must have called parse first
         self._r_text = ''    # XXX could start with '\n' to match semehr behaviour
@@ -258,6 +260,12 @@ class DicomText:
         if 'ContentSequence' in self._dicom_raw:
             for content_sequence_item in self._dicom_raw.ContentSequence:
                 content_sequence_item.walk(self._dataset_redact_callback)
+        rc = True
+        for annot in self._annotations:
+            if not annot.get('replaced'):
+                print('ERROR: could not find annotation (%s) in document' % repr(annot['text']))
+                rc = False
+        return rc
 
     def text(self):
         """ Returns the text after parse() has been called.
