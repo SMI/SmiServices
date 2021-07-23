@@ -131,6 +131,8 @@ CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 # Run the SemEHR anonymiser using a set of private directories
 #  Reads  $input_doc
 #  Writes $anon_doc and $anon_xml
+#
+# If the new anonymiser exists then use it
 if [ -f $semehr_dir/anonymisation/anonymiser.py ]; then
 	# Create a custom config file in the output directory
 	jq < $semehr_dir/anonymisation/conf/anonymisation_task.json > $semehr_output_dir/anonymisation_task.json \
@@ -139,7 +141,7 @@ if [ -f $semehr_dir/anonymisation/anonymiser.py ]; then
 '.extracted_phi="'${semehr_output_dir}'/phi"|'\
 '.grouped_phi_output="'${semehr_output_dir}'/phi_grouped"|'\
 '.logging_file="'${semehr_output_dir}'/log"|'\
-'.annotation_mode=false'
+'.annotation_mode=true'
 	# Run the new anonymiser
 	if [ $verbose -gt 0 ]; then
 		echo "RUN: ${semehr_dir}/CogStack-SemEHR/anonymisation/anonymiser.py $semehr_output_dir/anonymisation_task.json"
@@ -157,9 +159,8 @@ fi
 if [ $rc -ne 0 ]; then
 	tidy_exit $rc "Possible failure (exit code $rc) of SemEHR-anon given ${input_doc} from ${input_dcm}"
 fi
-# The new SemEHR anonymiser is not configured to create knowtator.xml files
-# (because it's buggy right now) so convert the phi output file to xml instead.
-# NB. The phi is missing some of the anonymisation results (the 'Q' redactions).
+# The new SemEHR anonymiser can be configured to create knowtator.xml files
+# and it also writes a PHI file which is in JSON format. If no XML then create it.
 if [ ! -f "$anon_xml" ]; then
 	if [ $verbose -gt 0 ]; then
 		echo "Knowtator.XML not found, try to convert Phi to XML"
