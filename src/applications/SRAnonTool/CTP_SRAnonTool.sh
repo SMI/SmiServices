@@ -133,9 +133,9 @@ CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 #  Writes $anon_doc and $anon_xml
 #
 # If the new anonymiser exists then use it
-if [ -f $semehr_dir/anonymisation/anonymiser.py ]; then
+if [ -f $semehr_dir/CogStack-SemEHR/anonymisation/anonymiser.py ]; then
 	# Create a custom config file in the output directory
-	jq < $semehr_dir/anonymisation/conf/anonymisation_task.json > $semehr_output_dir/anonymisation_task.json \
+	jq < $semehr_dir/CogStack-SemEHR/anonymisation/conf/anonymisation_task.json > $semehr_output_dir/anonymisation_task.json \
 		'.text_data_path="'${semehr_input_dir}'"|'\
 '.anonymisation_output="'${semehr_output_dir}'"|'\
 '.extracted_phi="'${semehr_output_dir}'/phi"|'\
@@ -146,7 +146,7 @@ if [ -f $semehr_dir/anonymisation/anonymiser.py ]; then
 	if [ $verbose -gt 0 ]; then
 		echo "RUN: ${semehr_dir}/CogStack-SemEHR/anonymisation/anonymiser.py $semehr_output_dir/anonymisation_task.json"
 	fi
-	(cd $semehr_dir/anonymisation; python3 ./anonymiser.py $semehr_output_dir/anonymisation_task.json) >> $log 2>&1
+	(cd $semehr_dir/CogStack-SemEHR/anonymisation; python3 ./anonymiser.py $semehr_output_dir/anonymisation_task.json) >> $log 2>&1
 	rc=$?
 else
 	if [ $verbose -gt 0 ]; then
