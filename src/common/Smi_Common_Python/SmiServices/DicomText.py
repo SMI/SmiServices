@@ -225,12 +225,12 @@ class DicomText:
                     if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at)
                         replaced = replacedAny = True
-                        #print('REPLACE: "%s" in "%s" at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
+                        #print('REPLACE: %s in %s at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
                         self._redact_offset = offset
                         break
                 if not replaced:
                     print('WARNING: offsets slipped:')
-                    print('  expected to find "%s" but found "%s"' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
+                    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
         if data_element.VR == 'PN' or data_element.VR == 'DA':
             # Always fully redact the content of a PersonName tag
             replacement = self.redact_string(rc, 0, len(rc))
