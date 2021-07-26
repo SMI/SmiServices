@@ -238,7 +238,7 @@ class DicomText:
                 #    print('WARNING: offsets slipped:')
                 #    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
         if data_element.VR == 'PN' or data_element.VR == 'DA':
-            # Always fully redact the content of a PersonName tag
+            # Always fully redact the content of PersonName and Date tags
             replacement = self.redact_string(rc, 0, len(rc))
             replacedAny = True
         if replacedAny:
