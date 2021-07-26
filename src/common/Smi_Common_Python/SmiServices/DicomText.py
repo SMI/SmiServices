@@ -214,7 +214,7 @@ class DicomText:
             if not annot['text']:
                 continue
             # If already replaced then ignore
-            if not 'replaced' in annot:
+            if 'replaced' in annot:
                 continue
             # Use the previously found offset to check if this annotation is within the current string
             if ((annot['start_char'] + self._redact_offset >= current_start-32) and
