@@ -208,9 +208,13 @@ class DicomText:
         current_end   = current_start + len(rc)
         replacement = rc
         replacedAny = False
+        #print('At %d = %s' % (current_start, str(data_element.value)))
         for annot in self._annotations:
             # Sometimes it reports text:None so ignore
             if not annot['text']:
+                continue
+            # If already replaced then ignore
+            if not 'replaced' in annot:
                 continue
             # Use the previously found offset to check if this annotation is within the current string
             if ((annot['start_char'] + self._redact_offset >= current_start-32) and
@@ -229,9 +233,10 @@ class DicomText:
                         #print('REPLACE: %s in %s at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
                         self._redact_offset = offset
                         break
-                if not replaced:
-                    print('WARNING: offsets slipped:')
-                    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
+                # Only need to report error at the end, no need for Warning here:
+                #if not replaced:
+                #    print('WARNING: offsets slipped:')
+                #    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
         if data_element.VR == 'PN' or data_element.VR == 'DA':
             # Always fully redact the content of a PersonName tag
             replacement = self.redact_string(rc, 0, len(rc))
