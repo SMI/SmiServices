@@ -5,7 +5,10 @@ steps:
       displayName: Add replication to MongoDB config
       inputs:
           targetType: "inline"
-          script: 'Add-Content "C:\Program Files\MongoDB\Server\4.4\bin\mongod.cfg" "`r`nreplication:`r`n  replSetName: rs0`r`n"'
+          script: |
+            Get-ChildItem -Path 'C:\Program Files\MongoDB\Server' -Filter mongod.conf -Recurse | ForEach-Object {
+                Add-Content $_.FulLName "`r`nreplication:`r`n  replSetName: rs0`r`n"
+            }
     - task: PowerShell@2
       displayName: Restart MongoDB
       inputs:
