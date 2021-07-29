@@ -6,7 +6,7 @@ using FAnsi.Discovery.TypeTranslation;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Text;
 using Smi.Common;
 using TypeGuesser;
