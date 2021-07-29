@@ -11,6 +11,7 @@
 | ------- | ------------| ------- | ------- | 
 | CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [MIT](https://opensource.org/licenses/MIT)| Command line argument parsing |
 | CsvHelper | [GitHub](https://github.com/JoshClose/CsvHelper) | [MS-PL and Apache 2.0](https://github.com/JoshClose/CsvHelper/blob/master/LICENSE.txt)| Writing reports out to CSV reports |
+| Equ | [GitHub](https://github.com/thedmi/Equ) | [2.3.0](https://www.nuget.org/packages/Equ/2.3.0) | [MIT](https://opensource.org/licenses/MIT) | Automatic equality functions |
 | fo-dicom.NetCore | [GitHub](https://github.com/fo-dicom/fo-dicom) | [MS-PL](https://opensource.org/licenses/MS-PL) | |
 | HIC.DicomTypeTranslation | [GitHub](https://github.com/HicServices/DicomTypeTranslation) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Translate dicom types into C# / database types |
 | HIC.FAnsiSql | [GitHub](https://github.com/HicServices/FansiSql) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Database abstraction layer |
