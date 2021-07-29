@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import sys
 from typing import Sequence
 
 
@@ -12,6 +13,10 @@ def _run(cmd: Sequence[str]) -> str:
 
 
 def main() -> int:
+
+    if not os.environ.get("COVERALLS_REPO_TOKEN", None):
+        print("Error: COVERALLS_REPO_TOKEN not set", file=sys.stderr)
+        return 1
 
     cmd: Sequence[str]
     cmd = (
