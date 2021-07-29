@@ -6,7 +6,7 @@ steps:
       inputs:
           targetType: "inline"
           script: |
-            Get-ChildItem -Path 'C:\Program Files\MongoDB\Server' -Filter mongod.conf -Recurse | ForEach-Object {
+            Get-ChildItem -Path "C:\Program Files\MongoDB\Server" -Filter "mongod.cfg" -Recurse | ForEach-Object {
                 echo $_.FullName
                 Add-Content $_.FulLName "`r`nreplication:`r`n  replSetName: rs0`r`n"
             }
