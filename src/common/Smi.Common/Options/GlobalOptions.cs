@@ -9,7 +9,7 @@ using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Text;
