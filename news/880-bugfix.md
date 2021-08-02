@@ -1,0 +1,1 @@
+Fixed edge case in IdentifierMapper when a dicom tag has illegal multiplicity in PatientID field

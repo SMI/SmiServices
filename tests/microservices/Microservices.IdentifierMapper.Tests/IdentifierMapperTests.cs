@@ -391,7 +391,10 @@ namespace Microservices.IdentifierMapper.Tests
             Normal,
             NoPatientTag,
             EmptyInPatientTag,
-            ProperlyFormatedChi
+            ProperlyFormatedChi,
+            DuplicatePatientIDButNull,
+            DuplicatePatientID,
+            DuplicatePatientIDAndDifferent,
         }
 
 
@@ -427,6 +430,35 @@ namespace Microservices.IdentifierMapper.Tests
             }
         }
 
+        [Test]
+        [TestCase(Test.DuplicatePatientID,true)]
+        [TestCase(Test.DuplicatePatientIDButNull,true)]
+        [TestCase(Test.DuplicatePatientIDAndDifferent,false)]
+        public void Test_DuplicatePatientID(Test testCase,bool expectAllowed)
+        {
+            var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
+
+            //the declaration of what the guid namer table should be
+            var options = new IdentifierMapperOptions();
+            options.MappingConnectionString = db.Server.Builder.ConnectionString;
+
+            var swapper = new SwapForFixedValueTester("meeee");
+            swapper.Setup(options);
+
+            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
+
+            var msg = GetTestDicomFileMessage(testCase: testCase);
+
+            if (expectAllowed)
+            {
+                Assert.IsTrue(consumer.SwapIdentifier(msg, out _));
+                AssertDicomFileMessageHasPatientID(msg, "meeee");
+            }
+            else
+            {
+                Assert.Throws<BadPatientIDException>(() => consumer.SwapIdentifier(msg, out _));
+            }
+        }
 
         [Test]
         public void Test_NoMatchingIdentifierFound()
@@ -492,6 +524,18 @@ namespace Microservices.IdentifierMapper.Tests
                     break;
                 case Test.ProperlyFormatedChi:
                     ds.AddOrUpdate(DicomTag.PatientID, "0101010101");
+                    break;
+                case Test.DuplicatePatientIDButNull:
+                    ds.AutoValidate = false;
+                    ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", null });
+                    break;
+                case Test.DuplicatePatientID:
+                    ds.AutoValidate = false;
+                    ds.AddOrUpdate(DicomTag.PatientID, new []{ "0101010101" , "0101010101" });
+                    break;
+                case Test.DuplicatePatientIDAndDifferent:
+                    ds.AutoValidate = false;
+                    ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", "0202020202" });
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("testCase");
