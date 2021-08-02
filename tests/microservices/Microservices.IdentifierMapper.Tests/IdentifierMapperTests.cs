@@ -449,18 +449,14 @@ namespace Microservices.IdentifierMapper.Tests
 
             var msg = GetTestDicomFileMessage(testCase: testCase);
 
-            string reason;
-            Assert.AreEqual(expectAllowed,consumer.SwapIdentifier(msg, out reason));
-
-            if(expectAllowed)
+            if (expectAllowed)
             {
-                Assert.AreEqual(1, consumer.AckCount);
-                Assert.AreEqual(0, consumer.NackCount);
+                Assert.IsTrue(consumer.SwapIdentifier(msg, out _));
+                AssertDicomFileMessageHasPatientID(msg, "0202020202");
             }
             else
             {
-                Assert.AreEqual(0, consumer.AckCount);
-                Assert.AreEqual(1, consumer.NackCount);
+                Assert.Throws<BadPatientIDException>(() => consumer.SwapIdentifier(msg, out _));
             }
         }
 

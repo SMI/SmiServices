@@ -138,6 +138,15 @@ namespace Microservices.IdentifierMapper.Messaging
             return true;
         }
 
+        /// <summary>
+        /// Swaps the patient ID in the <paramref name="msg"/> for its anonymous mapping.  Returns true if a mapping
+        /// was found or false if it was not possible to get a mapping for some reason (e.g. tag is missing or no mapping
+        /// was found).
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
+        /// <exception cref="BadPatientIDException">Thrown if PatientID tag is corrupt</exception>
         public bool SwapIdentifier(DicomFileMessage msg, out string reason)
         {
             DicomDataset ds;
