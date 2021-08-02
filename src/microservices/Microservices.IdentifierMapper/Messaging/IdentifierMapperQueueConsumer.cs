@@ -98,7 +98,7 @@ namespace Microservices.IdentifierMapper.Messaging
                 if (!success)
                     success = SwapIdentifier(msg, out errorReason);
             }
-            catch(ArgumentException e)
+            catch(BadPatientIDException e)
             {
                 ErrorAndNack(header, tag, "Error while processing DicomFileMessage", e);
                 return;
