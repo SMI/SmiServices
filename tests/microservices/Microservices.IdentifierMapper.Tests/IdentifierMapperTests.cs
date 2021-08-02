@@ -452,7 +452,7 @@ namespace Microservices.IdentifierMapper.Tests
             if (expectAllowed)
             {
                 Assert.IsTrue(consumer.SwapIdentifier(msg, out _));
-                AssertDicomFileMessageHasPatientID(msg, "0202020202");
+                AssertDicomFileMessageHasPatientID(msg, "meeee");
             }
             else
             {
