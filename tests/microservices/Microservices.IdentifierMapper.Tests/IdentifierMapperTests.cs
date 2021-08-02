@@ -450,17 +450,17 @@ namespace Microservices.IdentifierMapper.Tests
             var msg = GetTestDicomFileMessage(testCase: testCase);
 
             string reason;
-            Assert.Equals(expectAllowed,consumer.SwapIdentifier(msg, out reason));
+            Assert.AreEqual(expectAllowed,consumer.SwapIdentifier(msg, out reason));
 
             if(expectAllowed)
             {
-                Assert.Equals(1, consumer.AckCount);
-                Assert.Equals(0, consumer.NackCount);
+                Assert.AreEqual(1, consumer.AckCount);
+                Assert.AreEqual(0, consumer.NackCount);
             }
             else
             {
-                Assert.Equals(0, consumer.AckCount);
-                Assert.Equals(1, consumer.NackCount);
+                Assert.AreEqual(0, consumer.AckCount);
+                Assert.AreEqual(1, consumer.NackCount);
             }
         }
 
