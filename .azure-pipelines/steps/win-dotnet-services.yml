@@ -1,4 +1,4 @@
----
+--
 
 steps:
     - task: PowerShell@2
