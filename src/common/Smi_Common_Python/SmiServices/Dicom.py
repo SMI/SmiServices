@@ -87,12 +87,12 @@ def has_tag(dicomdict, tagname):
 # the DICOM file and used within this function.
 # XXX Not yet implemented.
 
-def sr_decode_plaintext(str):
+def sr_decode_plaintext(pstr):
     """ Decode a plain string of text.
     Could do any specific character encoding conversion, eg. to UTF-8
     but that's better done using pydicom's decode function.
     """
-    return str
+    return pstr
 
 def test_sr_decode_plaintext():
     assert sr_decode_plaintext('hello world') == 'hello world'
@@ -122,10 +122,10 @@ def sr_decode_PNAME(pname):
         return ''
     # Can be inside a list, but only use the first element XXX
     if isinstance(pname, list):
-    	pname = pname[0]
+        pname = pname[0]
     # Can be inside a dict { "Alphabetic" : "the name" }
     if isinstance(pname, dict) and 'Alphabetic' in pname:
-    	pname = pname['Alphabetic']
+        pname = pname['Alphabetic']
     if '^' in pname:
         pname_list = pname.split('^')
         pname = ''

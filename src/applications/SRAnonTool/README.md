@@ -41,7 +41,7 @@ Install the SemEHR/CogStack anonymiser, which currently uses the following direc
 * `/opt/gcp/bio-yodie-1-2-1` - the UMLS dictionary
 * `/opt/gcp/gcp-2.5-18658` - java libraries
 
-The SemEHR anonymiser requires Python2; all the other scripts require Python3.
+The old SemEHR anonymiser requires Python2; all the other scripts require Python3, including the new SemEHR anonymiser.
 If using the test stub then only the data directories are required and Python2 is not required.
 
 ## Usage as part of CTP
@@ -69,25 +69,61 @@ The SemEHR directory (`/opt/semehr`) can be changed with the `-s` option for tes
 
 ### `CTP_DicomToText.py`
 
-Usage: `-y default.yaml -i input.dcm -o outfile`
+This program can be used as part of the SRAnonTool pipeline or it can be used standalone to extract documents in bulk for later SemEHR processing.
 
-`-y default.yaml` - may be specified more than once if the configuration parameters are spread across multiple yaml files
+Usage: `-y default.yaml -i input.dcm -o outfile [--semehr-unique]`
 
-`-i input.dcm` - full path to the input DICOM file
+`-y default.yaml` - may be specified more than once if the configuration parameters are spread across multiple yaml files.
 
-`-o output` - full path to the output text file, or directory
+`-i input.dcm` - full path to the input DICOM file, or a partial path to be extracted from MongoDB, or a StudyDate to extract all records that day from MongoDB.
+
+`-o output` - full path to the output text file, or directory for multiple files.
+
+`--semehr-unique` - if extracting a StudyDate from MongoDB then ignore any documents which have a SOPInstanceUID that is already in the SemEHR MongoDB database. This is intended to allow reprocessing of any documents that previously failed without having to reprocess the whole day.
+
+The MongoDB configuration read from the yaml files needs to be in `MongoDatabases | DicomStoreOptions` and `SemEHRStoreOptions`. The former is to read DICOM documents from the `dicom.image_SR` database.collection; the latter is to check if the SOPInstanceUID is already in the `semehr.semehr_results` database.collection.
+
+Examples:
+
+```
+* CTP_DicomToText.py -i /path/to/file.dcm -o output.txt
+* CTP_DicomToText.py -i 2015/01/01/AccNum/file.dcm -o output.txt -y smi_dataLoad.yaml
+* CTP_DicomToText.py -i 20150101 -o output_dir -y smi_dataLoad.yaml
+```
 
 ### `clinical_doc_wrapper.py`
 
-Usage: `[-s semehr_dir]` in the stub version
+This script performs the anonymisation.
+
+Usage: `[-s semehr_dir] [-i input_docs] [-o anonymised]` in the stub version
 
 It must be called with the current directory being the location of the script.
 
 It reads all the files in the `/data/input_docs` directory. For each input file it write a slightly modified file with the same name into the `/data/anonymised` directory, basically the text with some header metadata removed, plus it writes a file of the same name plus `.knowtator.xml` appended containing annotations in XML format.
 
-The SemEHR version requires Python2; the test stub requires Python3.
+The SemEHR version requires Python2; the test stub requires Python3. Note that this script is no longer used in the new SemEHR anonymiser.
 
 The test stub of this program has no requirement on current directory. It is best suited when tested with the given test DICOM file as it only fakes the anonymisation of the word `Baker`. The `-s` option can be used to specify the SemEHR directory instead of `/opt/semehr` which is useful when testing; this option is not present in the original.
+
+## `anonymiser.py`
+
+This script performs the anonymisation.
+
+Usage: `./anonymiser.py /path/to/anonymisation_task.json`
+
+It must be called with the current directory being the location of the script.
+
+The template configuration file is typically in the `anonymisation/conf` directory
+but should have the following elements modified for each run of the anonymiser:
+
+```
+.text_data_path=${semehr_input_dir}
+.anonymisation_output=${semehr_output_dir}
+.extracted_phi=${semehr_output_dir}/phi
+.grouped_phi_output=${semehr_output_dir}/phi_grouped
+.logging_file=${semehr_output_dir}/log
+.annotation_mode=false # temporary false until the knowtator XML output is fixed
+```
 
 ### `CTP_XMLToDicom.py`
 

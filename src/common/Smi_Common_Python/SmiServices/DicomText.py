@@ -4,8 +4,22 @@
 import os
 import pydicom
 import re
+import random
 from SmiServices.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
 
+
+# ---------------------------------------------------------------------
+
+def string_match(str1, str2):
+    """ String comparison which ignores carriage returns \r by treating as spaces
+    because that's how SemEHR new anonymiser delivers the string (in phi json anyway) """
+    if re.sub('[\r\n]', ' ', str1) == re.sub('[\r\n]', ' ', str2):
+        return True
+    return False
+
+def test_string_match():
+    assert(string_match('hello', 'hello'))
+    assert(string_match('hello\r\nworld', 'hello \nworld'))
 
 # ---------------------------------------------------------------------
 
@@ -35,11 +49,11 @@ def redact_html_tags_in_string(html_str):
     return(html_str)
 
 def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\n<BR>text2 <script> script2 </script> text3'
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\r\n<BR>text2 <script> script2 </script> text3'
     dest = redact_html_tags_in_string(src)
-    expected = '.................... ..................................... text1\n....text2 .......................... text3'
-    assert(dest == expected)
-
+    # changing the \r to a space in the expected string also tests the string_match function
+    expected = '.................... ..................................... text1 \n....text2 .......................... text3'
+    assert(string_match(dest, expected))
 
 # ---------------------------------------------------------------------
 
@@ -67,7 +81,7 @@ class DicomText:
     """
     _include_header = True           # SemEHR uses some header fields to give context to body
     _include_unexpected_tags = False # SemEHR does not use unknown tags anyway so ignore them
-    _warn_unexpected_tags = False    # print if an unexpected tag is encountered
+    _warn_unexpected_tag = False     # print if an unexpected tag is encountered
     _replace_HTML_entities = True    # replace HTML tags with same length of space chars
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
     _redact_char = 'X'
@@ -162,16 +176,16 @@ class DicomText:
                 content_sequence_item.walk(self._dataset_read_callback)
             self._p_text = self._p_text + '[[EndContentSequence]]\n'
 
-    def redact_string(self, plaintext, offset, len):
+    def redact_string(self, plaintext, offset, rlen):
         """ Simple function to replace characters from the middle of a string.
-        Starts at offset for len characters, replaced with X.
+        Starts at offset for rlen characters, replaced with X.
         Can replace all for same length or randomise the amount.
         Returns the new string.
         """
-        redact_length = len
+        redact_length = rlen
         if DicomText._redact_random_length:
-            redact_length = random.randint(-int(len/2), int(len/2))
-        rc = plaintext[0:offset] + DicomText._redact_char.rjust(redact_length, DicomText._redact_char) + plaintext[offset+len:]
+            redact_length = random.randint(-int(rlen/2), int(rlen/2))
+        rc = plaintext[0:offset] + DicomText._redact_char.rjust(redact_length, DicomText._redact_char) + plaintext[offset+rlen:]
         return rc
 
     def _dataset_redact_callback(self, dataset, data_element):
@@ -194,13 +208,17 @@ class DicomText:
         current_end   = current_start + len(rc)
         replacement = rc
         replacedAny = False
+        #print('At %d = %s' % (current_start, str(data_element.value)))
         for annot in self._annotations:
             # Sometimes it reports text:None so ignore
             if not annot['text']:
                 continue
+            # If already replaced then ignore
+            if 'replaced' in annot:
+                continue
             # Use the previously found offset to check if this annotation is within the current string
-            if ((annot['start_char'] + self._redact_offset >= current_start) and
-                    (annot['start_char'] + self._redact_offset < current_end)):
+            if ((annot['start_char'] + self._redact_offset >= current_start-32) and
+                    (annot['start_char'] + self._redact_offset < current_end+32)):
                 annot_at = annot['start_char'] - current_start
                 annot_end = annot['end_char'] - current_start
                 replaced = replacedAny = False
@@ -208,17 +226,19 @@ class DicomText:
                 for offset in [self._redact_offset] + list(range(-32, 32)):
                     # Do the comparison using text without html but replace inside text with html
                     rc_without_html = redact_html_tags_in_string(rc) if self._replace_HTML_entities else rc
-                    if rc_without_html[annot_at+offset : annot_end+offset] == annot['text']:
+                    if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at)
                         replaced = replacedAny = True
-                        #print('REPLACE: %s in %s at %d (offset %d)' % (annot['text'], replacement, annot_at, offset))
+                        annot['replaced'] = True
+                        #print('REPLACE: %s in %s at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
                         self._redact_offset = offset
                         break
-                if not replaced:
-                    print('WARNING: offsets slipped:')
-                    print('  expected to find %s but found %s' % (annot['text'], rc[annot_at:annot_end]))
+                # Only need to report error at the end, no need for Warning here:
+                #if not replaced:
+                #    print('WARNING: offsets slipped:')
+                #    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
         if data_element.VR == 'PN' or data_element.VR == 'DA':
-            # Always fully redact the content of a PersonName tag
+            # Always fully redact the content of PersonName and Date tags
             replacement = self.redact_string(rc, 0, len(rc))
             replacedAny = True
         if replacedAny:
@@ -234,6 +254,7 @@ class DicomText:
         Uses the annotation list and _p_text to find and redact text
         so parse must already have been called.
         Modifies the actual state of the DICOM dataset _dicom_raw.
+        Returns False if not all redactions could be done.
         """
         assert(self._p_text) # you must have called parse first
         self._r_text = ''    # XXX could start with '\n' to match semehr behaviour
@@ -244,6 +265,12 @@ class DicomText:
         if 'ContentSequence' in self._dicom_raw:
             for content_sequence_item in self._dicom_raw.ContentSequence:
                 content_sequence_item.walk(self._dataset_redact_callback)
+        rc = True
+        for annot in self._annotations:
+            if not annot.get('replaced'):
+                print('ERROR: could not find annotation (%s) in document' % repr(annot['text']))
+                rc = False
+        return rc
 
     def text(self):
         """ Returns the text after parse() has been called.
