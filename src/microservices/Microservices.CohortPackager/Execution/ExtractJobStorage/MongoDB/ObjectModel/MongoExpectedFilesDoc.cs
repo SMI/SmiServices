@@ -1,3 +1,4 @@
+using Equ;
 using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -15,7 +16,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     /// MongoDB document model representing a set of files which are expected to be extracted
     /// </summary>
     [BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
-    public class MongoExpectedFilesDoc : IEquatable<MongoExpectedFilesDoc>
+    public class MongoExpectedFilesDoc : MemberwiseEquatable<MongoExpectedFilesDoc>
     {
         [BsonElement("header")]
         [NotNull]
@@ -57,47 +58,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 new HashSet<MongoExpectedFileInfoDoc>(message.ExtractFileMessagesDispatched.Select(x => new MongoExpectedFileInfoDoc(x.Key.MessageGuid, x.Value))),
                 MongoRejectedKeyInfoDoc.FromMessage(message, header, dateTimeProvider));
         }
-
-        #region Equality Members
-
-        public bool Equals(MongoExpectedFilesDoc other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(Header, other.Header) &&
-                   Key == other.Key &&
-                   ExpectedFiles.SequenceEqual(other.ExpectedFiles) &&
-                   Equals(RejectedKeys, other.RejectedKeys);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MongoExpectedFilesDoc)obj);
-        }
-
-        public static bool operator ==(MongoExpectedFilesDoc a, MongoExpectedFilesDoc b) => Equals(a, b);
-
-        public static bool operator !=(MongoExpectedFilesDoc a, MongoExpectedFilesDoc b) => !Equals(a, b);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = Header.GetHashCode();
-                hashCode = (hashCode * 397) ^ Key.GetHashCode();
-                hashCode = (hashCode * 397) ^ ExpectedFiles.GetHashCode();
-                hashCode = (hashCode * 397) ^ (RejectedKeys != null ? RejectedKeys.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 
-    public class MongoExpectedFileInfoDoc : IEquatable<MongoExpectedFileInfoDoc>
+    public class MongoExpectedFileInfoDoc : MemberwiseEquatable<MongoExpectedFileInfoDoc>
     {
         [BsonElement("extractFileMessageGuid")]
         [BsonRepresentation(BsonType.String)]
@@ -114,44 +77,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             ExtractFileMessageGuid = (extractFileMessageGuid != default(Guid)) ? extractFileMessageGuid : throw new ArgumentException(nameof(extractFileMessageGuid));
             AnonymisedFilePath = (!string.IsNullOrWhiteSpace(anonymisedFilePath)) ? anonymisedFilePath : throw new ArgumentException(nameof(anonymisedFilePath));
         }
-
-        #region Equality Members
-
-        public bool Equals(MongoExpectedFileInfoDoc other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return ExtractFileMessageGuid.Equals(other.ExtractFileMessageGuid) &&
-                   AnonymisedFilePath == other.AnonymisedFilePath;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MongoExpectedFileInfoDoc)obj);
-        }
-
-        public static bool operator ==(MongoExpectedFileInfoDoc a, MongoExpectedFileInfoDoc b) => Equals(a, b);
-
-        public static bool operator !=(MongoExpectedFileInfoDoc a, MongoExpectedFileInfoDoc b) => !Equals(a, b);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (ExtractFileMessageGuid.GetHashCode() * 397) ^ AnonymisedFilePath.GetHashCode();
-            }
-        }
-
-        #endregion
     }
 
     /// <summary>
     /// MongoDB document model representing the rejection reasons for a specific key
     /// </summary>
-    public class MongoRejectedKeyInfoDoc
+    public class MongoRejectedKeyInfoDoc : MemberwiseEquatable<MongoRejectedKeyInfoDoc>
     {
         [BsonElement("header")]
         [NotNull]
@@ -179,33 +110,5 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                  message.RejectionReasons
             );
         }
-
-        #region Equality Members
-
-        protected bool Equals(MongoRejectedKeyInfoDoc other)
-        {
-            return Equals(Header, other.Header) &&
-                   RejectionInfo.OrderBy(x => x.Key).SequenceEqual(other.RejectionInfo.OrderBy(x => x.Key));
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MongoRejectedKeyInfoDoc)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = Header.GetHashCode();
-                hashCode = (hashCode * 397) ^ RejectionInfo.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 }

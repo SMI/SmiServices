@@ -1,4 +1,5 @@
 ﻿
+using Equ;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace Smi.Common.Messages
 {
-    public class RabbitMqXDeathHeaders : IEquatable<RabbitMqXDeathHeaders>
+    public class RabbitMqXDeathHeaders : MemberwiseEquatable<RabbitMqXDeathHeaders>
     {
         public List<RabbitMqXDeath> XDeaths { get; set; }
 
@@ -108,24 +109,9 @@ namespace Smi.Common.Messages
             sb.Append(", XDeaths: {" + string.Join(", ", XDeaths) + "}");
             return sb.ToString();
         }
-
-        #region Equality Members
-
-        public bool Equals(RabbitMqXDeathHeaders other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return
-                XDeaths.SequenceEqual(other.XDeaths) &&
-                string.Equals(XFirstDeathExchange, other.XFirstDeathExchange) &&
-                string.Equals(XFirstDeathQueue, other.XFirstDeathQueue) &&
-                string.Equals(XFirstDeathReason, other.XFirstDeathReason);
-        }
-
-        #endregion
     }
 
-    public class RabbitMqXDeath : IEquatable<RabbitMqXDeath>
+    public class RabbitMqXDeath : MemberwiseEquatable<RabbitMqXDeath>
     {
         public const string CountKey = "count";
         public const string ExchangeKey = "exchange";
@@ -188,22 +174,5 @@ namespace Smi.Common.Messages
             sb.Append(", RoutingKeys: {" + string.Join(", ", RoutingKeys) + "}");
             return sb.ToString();
         }
-
-        #region Equality Members
-
-        public bool Equals(RabbitMqXDeath other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return
-                Count == other.Count &&
-                string.Equals(Exchange, other.Exchange) &&
-                string.Equals(Queue, other.Queue) &&
-                string.Equals(Reason, other.Reason) &&
-                RoutingKeys.All(other.RoutingKeys.Contains) &&
-                Time == other.Time;
-        }
-
-        #endregion
     }
 }

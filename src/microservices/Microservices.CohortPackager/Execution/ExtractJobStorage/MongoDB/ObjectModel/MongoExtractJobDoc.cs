@@ -1,3 +1,4 @@
+using Equ;
 using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -9,7 +10,7 @@ using System;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
-    public class MongoExtractJobDoc
+    public class MongoExtractJobDoc : MemberwiseEquatable<MongoExtractJobDoc>
     {
         [BsonId]
         [BsonRepresentation(BsonType.String)]
@@ -124,61 +125,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 null
             );
         }
-
-        #region Equality Members
-
-        protected bool Equals(MongoExtractJobDoc other)
-        {
-            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
-                   Equals(Header, other.Header) &&
-                   ProjectNumber == other.ProjectNumber &&
-                   JobStatus == other.JobStatus &&
-                   ExtractionDirectory == other.ExtractionDirectory &&
-                   JobSubmittedAt.Equals(other.JobSubmittedAt) &&
-                   KeyTag == other.KeyTag &&
-                   KeyCount == other.KeyCount &&
-                   ExtractionModality == other.ExtractionModality &&
-                   IsIdentifiableExtraction == other.IsIdentifiableExtraction &&
-                   IsNoFilterExtraction == other.IsNoFilterExtraction &&
-                   Equals(FailedJobInfoDoc, other.FailedJobInfoDoc);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MongoExtractJobDoc)obj);
-        }
-
-        public static bool operator ==(MongoExtractJobDoc left, MongoExtractJobDoc right) => Equals(left, right);
-
-        public static bool operator !=(MongoExtractJobDoc left, MongoExtractJobDoc right) => !Equals(left, right);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = ExtractionJobIdentifier.GetHashCode();
-                hashCode = (hashCode * 397) ^ Header.GetHashCode();
-                hashCode = (hashCode * 397) ^ ProjectNumber.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)JobStatus;
-                hashCode = (hashCode * 397) ^ ExtractionDirectory.GetHashCode();
-                hashCode = (hashCode * 397) ^ JobSubmittedAt.GetHashCode();
-                hashCode = (hashCode * 397) ^ KeyTag.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)KeyCount;
-                hashCode = (hashCode * 397) ^ (ExtractionModality != null ? ExtractionModality.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ IsIdentifiableExtraction.GetHashCode();
-                hashCode = (hashCode * 397) ^ IsNoFilterExtraction.GetHashCode();
-                hashCode = (hashCode * 397) ^ (FailedJobInfoDoc != null ? FailedJobInfoDoc.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 
-    public class MongoFailedJobInfoDoc : IEquatable<MongoFailedJobInfoDoc>
+    public class MongoFailedJobInfoDoc : MemberwiseEquatable<MongoFailedJobInfoDoc>, IEquatable<MongoFailedJobInfoDoc>
     {
         [BsonElement("failedAt")]
         public DateTime FailedAt { get; set; }
@@ -207,42 +156,5 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             StackTrace = exception.StackTrace;
             InnerException = exception.InnerException?.ToString();
         }
-
-        #region Equality Members
-
-        public bool Equals(MongoFailedJobInfoDoc other)
-        {
-            return
-                FailedAt.Equals(other.FailedAt) &&
-                ExceptionMessage == other.ExceptionMessage &&
-                StackTrace == other.StackTrace &&
-                InnerException == other.InnerException;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MongoFailedJobInfoDoc)obj);
-        }
-
-        public static bool operator ==(MongoFailedJobInfoDoc left, MongoFailedJobInfoDoc right) => Equals(left, right);
-
-        public static bool operator !=(MongoFailedJobInfoDoc left, MongoFailedJobInfoDoc right) => !Equals(left, right);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = FailedAt.GetHashCode();
-                hashCode = (hashCode * 397) ^ ExceptionMessage.GetHashCode();
-                hashCode = (hashCode * 397) ^ StackTrace.GetHashCode();
-                hashCode = (hashCode * 397) ^ (InnerException != null ? InnerException.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 }

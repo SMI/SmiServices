@@ -10,7 +10,7 @@ namespace Smi.Common.Messages.Extraction
     /// Describes all the <see cref="ExtractFileMessage"/> sent for a single key Tag (e.g. SeriesInstanceUID) value provided by <see cref="ExtractionRequestMessage"/> 
     /// (i.e. a single entry in <see cref="ExtractionRequestMessage.ExtractionIdentifiers"/>).
     /// </summary>
-    public class ExtractFileCollectionInfoMessage : ExtractMessage, IEquatable<ExtractFileCollectionInfoMessage>
+    public class ExtractFileCollectionInfoMessage : ExtractMessage
     {
         /// <summary>
         /// Contains the value of the tag which is being extracted
@@ -47,36 +47,5 @@ namespace Smi.Common.Messages.Extraction
         {
             return base.ToString() + $",KeyValue={KeyValue},ExtractFileMessagesDispatched={ExtractFileMessagesDispatched.Count},RejectionReasons={RejectionReasons.Count},";
         }
-
-        #region Equality Members
-
-        public bool Equals(ExtractFileCollectionInfoMessage other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return base.Equals(other) && Equals(ExtractFileMessagesDispatched, other.ExtractFileMessagesDispatched);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((ExtractFileCollectionInfoMessage)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (KeyValue != null ? KeyValue.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (ExtractFileMessagesDispatched != null ? ExtractFileMessagesDispatched.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 }

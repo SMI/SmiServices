@@ -1,10 +1,11 @@
 ﻿
+using Equ;
 using Newtonsoft.Json;
 using System;
 
 namespace Smi.Common.Messages
 {
-    public class FatalErrorMessage : IMessage
+    public class FatalErrorMessage : MemberwiseEquatable<FatalErrorMessage>, IMessage
     {
         [JsonProperty(Required = Required.Always)]
         public string Message { get; set; }
@@ -18,30 +19,5 @@ namespace Smi.Common.Messages
             Message = message;
             Exception = exception;
         }
-
-        #region Equality Members
-
-        private bool Equals(FatalErrorMessage other)
-        {
-            return string.Equals(Message, other.Message) && Equals(Exception, other.Exception);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((FatalErrorMessage)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Message != null ? Message.GetHashCode() : 0) * 397) ^ (Exception != null ? Exception.GetHashCode() : 0);
-            }
-        }
-
-        #endregion
     }
 }

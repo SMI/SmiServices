@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Smi.Common.Messages;
+using System;
+using System.Collections.Generic;
 
 namespace Smi.Common.Tests.Messages
 {

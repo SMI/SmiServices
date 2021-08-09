@@ -11,22 +11,6 @@ namespace Smi.Common.Tests
     public class MessageEqualityTests
     {
         [Test]
-        public void TestEqualityMembersExistForAllIMessages()
-        {
-            var allClassesImplementingIMessage = typeof(IMessage).Assembly.GetTypes().Where(t => typeof(IMessage).IsAssignableFrom(t));
-
-            foreach (Type type in allClassesImplementingIMessage)
-            {
-                if (type.IsInterface || type.IsAbstract)
-                    continue;
-
-                var equalsMethods = type.GetMethods().Where(m => m.Name.Equals("Equals") && m.DeclaringType == type).ToArray();
-
-                Assert.IsTrue(equalsMethods.Any(), "Type '" + type + "' does not have Equality members");
-            }
-        }
-
-        [Test]
         public void TestEquals_AccessionDirectoryMessage()
         {
             var msg1 = new AccessionDirectoryMessage();

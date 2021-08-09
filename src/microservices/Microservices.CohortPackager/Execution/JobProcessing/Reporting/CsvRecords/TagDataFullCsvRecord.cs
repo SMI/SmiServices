@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Equ;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords
 {
-    public class TagDataFullCsvRecord : IExtractionReportCsvRecord, IEquatable<TagDataFullCsvRecord>
+    public class TagDataFullCsvRecord : MemberwiseEquatable<TagDataFullCsvRecord>, IExtractionReportCsvRecord
     {
         /// <summary>
         /// The tag name which contained the failure value 
@@ -53,40 +54,5 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         }
 
         public override string ToString() => $"TagDataFullCsvRecord({TagName}, {FailureValue}, {FilePath})";
-
-        #region Equality members
-
-        public bool Equals(TagDataFullCsvRecord other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return
-                TagName == other.TagName
-                && FailureValue == other.FailureValue
-                && FilePath == other.FilePath;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((TagDataFullCsvRecord)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(
-                TagName,
-                FailureValue,
-                FilePath
-            );
-        }
-
-        public static bool operator ==(TagDataFullCsvRecord left, TagDataFullCsvRecord right) => Equals(left, right);
-
-        public static bool operator !=(TagDataFullCsvRecord left, TagDataFullCsvRecord right) => !Equals(left, right);
-
-        #endregion
     }
 }

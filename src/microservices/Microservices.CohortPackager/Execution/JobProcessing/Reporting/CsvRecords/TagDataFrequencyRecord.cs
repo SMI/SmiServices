@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using Equ;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords
 {
-    public class TagDataFrequencyRecord : IExtractionReportCsvRecord, IEquatable<TagDataFrequencyRecord>
+    public class TagDataFrequencyRecord : MemberwiseEquatable<TagDataFrequencyRecord>, IExtractionReportCsvRecord
     {
         [UsedImplicitly]
         public uint WordLength { get; }
@@ -46,40 +47,5 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         }
 
         public override string ToString() => $"TagDataFrequencyRecord({WordLength}, {Count}, {RelativeFrequencyInReport})";
-
-        #region Equality Members
-
-        public bool Equals(TagDataFrequencyRecord other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return 
-                WordLength == other.WordLength
-                && Count == other.Count
-                && RelativeFrequencyInReport.Equals(other.RelativeFrequencyInReport);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((TagDataFrequencyRecord)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(
-                WordLength,
-                Count,
-                RelativeFrequencyInReport
-            );
-        }
-
-        public static bool operator ==(TagDataFrequencyRecord left, TagDataFrequencyRecord right) => Equals(left, right);
-
-        public static bool operator !=(TagDataFrequencyRecord left, TagDataFrequencyRecord right) => !Equals(left, right);
-
-        #endregion
     }
 }

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Equ;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 {
-    public class CompletedExtractJobInfo : ExtractJobInfo, IEquatable<CompletedExtractJobInfo>
+    public class CompletedExtractJobInfo : ExtractJobInfo
     {
         /// <summary>
         /// DateTime the job was completed at (the time when CohortPackager ran its final checks)
@@ -39,33 +40,5 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         {
             JobCompletedAt = (completedAt != default) ? completedAt : throw new ArgumentException(nameof(completedAt));
         }
-
-        #region  Equality Members
-
-        public bool Equals(CompletedExtractJobInfo other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && JobCompletedAt.Equals(other.JobCompletedAt);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((CompletedExtractJobInfo)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(base.GetHashCode(), JobCompletedAt);
-        }
-
-        public static bool operator ==(CompletedExtractJobInfo left, CompletedExtractJobInfo right) => Equals(left, right);
-
-        public static bool operator !=(CompletedExtractJobInfo left, CompletedExtractJobInfo right) => !Equals(left, right);
-
-        #endregion
     }
 }
