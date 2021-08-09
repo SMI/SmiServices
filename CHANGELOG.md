@@ -11,6 +11,55 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [4.0.0] 2021-08-09
+
+## Feature
+
+-   [#849](https://github.com/SMI/SmiServices/pull/849) by jas88. CTPAnonymiser
+    refactoring
+    -   Reduce memory footprint (issue #837)
+    -   Simplify RabbitMQ message handling
+    -   Stop creating temporary copy of input file - no longer needed in EPCC
+        environment without Lustre FS (per issue #836)
+    -   Add checks input file is readable not just extant, hopefully fixing
+        issue #533
+-   [#861](https://github.com/SMI/SmiServices/pull/861) by rkm. Add Equ to
+    automatically implement equality members for classes.
+-   [#878](https://github.com/SMI/SmiServices/pull/878) by rkm. Update RDMP
+    packages with replacement of System.Data.SqlClient with
+    Microsoft.Data.SqlClient. Replace usages of same in codebase
+
+## Bugfix
+
+-   [#764](https://github.com/SMI/SmiServices/pull/764) by howff. Clean up the
+    Python code lint after running pylint3
+-   [#841](https://github.com/SMI/SmiServices/pull/841) by tznind. Fixed bug
+    when disposing `CsvDestination` instances that have not begun writing any
+    output
+-   [#880](https://github.com/SMI/SmiServices/pull/880) by tznind. Fixed edge
+    case in IdentifierMapper when a dicom tag has illegal multiplicity in
+    PatientID field
+
+## Meta
+
+-   [#843](https://github.com/SMI/SmiServices/pull/843) by rkm. Add pre-commit
+    and codespell. Fix all current spelling mistakes
+-   [#844](https://github.com/SMI/SmiServices/pull/844) by rkm. Fixup regex in
+    codespell config
+-   [#855](https://github.com/SMI/SmiServices/pull/855) by rkm. Specify dotnet
+    SDK version in global.json
+-   [#859](https://github.com/SMI/SmiServices/pull/859) by rkm. Bump LangVersion
+    to 9.0
+-   [#876](https://github.com/SMI/SmiServices/pull/876) by rkm. Add check and
+    error message for missing coveralls token
+-   [#877](https://github.com/SMI/SmiServices/pull/877) by rkm. Fix setting
+    replication for MongoDB in Windows CI pipelines
+
+## Removal
+
+-   [#848](https://github.com/SMI/SmiServices/pull/848) by rkm. Removed
+    NationalPACSAccessionNumber from all metadata
+
 ## [3.2.1] 2021-07-07
 
 ## Bugfix
@@ -928,7 +977,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v3.2.1...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v4.0.0...master
+[4.0.0]: https://github.com/SMI/SmiServices/compare/v3.2.1...v4.0.0
 [3.2.1]: https://github.com/SMI/SmiServices/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/SMI/SmiServices/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/SMI/SmiServices/compare/v3.0.2...v3.1.0
