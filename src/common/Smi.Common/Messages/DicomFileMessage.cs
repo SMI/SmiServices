@@ -1,4 +1,5 @@
 ﻿
+using Equ;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -11,7 +12,7 @@ namespace Smi.Common.Messages
     /// Object representing a dicom file message.
     /// https://github.com/HicServices/SMIPlugin/wiki/SMI-RabbitMQ-messages-and-queues#dicomfilemessage
     /// </summary>
-    public sealed class DicomFileMessage : IComparable, IFileReferenceMessage
+    public sealed class DicomFileMessage : MemberwiseEquatable<DicomFileMessage>, IFileReferenceMessage
     {
         /// <summary>
         /// File path relative to the root path.
@@ -106,56 +107,6 @@ namespace Smi.Common.Messages
 
             return sb.ToString();
         }
-
-        #region Equality Members
-
-        private bool Equals(DicomFileMessage other)
-        {
-            return true
-                && string.Equals(DicomFilePath, other.DicomFilePath)
-                && string.Equals(StudyInstanceUID, other.StudyInstanceUID)
-                && string.Equals(SeriesInstanceUID, other.SeriesInstanceUID)
-                && string.Equals(SOPInstanceUID, other.SOPInstanceUID)
-                && string.Equals(DicomDataset, other.DicomDataset);
-        }
-
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is DicomFileMessage && Equals((DicomFileMessage)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = (DicomFilePath != null ? DicomFilePath.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (StudyInstanceUID != null ? StudyInstanceUID.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (SeriesInstanceUID != null ? SeriesInstanceUID.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (SOPInstanceUID != null ? SOPInstanceUID.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (DicomDataset != null ? DicomDataset.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public int CompareTo(object obj)
-        {
-            return string.Compare(DicomFilePath, ((DicomFileMessage)obj).DicomFilePath, StringComparison.Ordinal);
-        }
-
-        public static bool operator ==(DicomFileMessage left, DicomFileMessage right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(DicomFileMessage left, DicomFileMessage right)
-        {
-            return !Equals(left, right);
-        }
-
-        #endregion
     }
 }
 

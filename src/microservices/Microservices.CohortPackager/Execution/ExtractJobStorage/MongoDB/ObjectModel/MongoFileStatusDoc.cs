@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Equ;
+using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Messages.Extraction;
@@ -10,7 +11,7 @@ using System.ComponentModel;
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
 {
     [BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
-    public class MongoFileStatusDoc : ISupportInitialize
+    public class MongoFileStatusDoc : MemberwiseEquatable<MongoFileStatusDoc>, ISupportInitialize
     {
         [BsonElement("header")]
         [NotNull]
@@ -82,47 +83,5 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             DicomFilePath = "<unknown>";
             ExtractedFileStatus = OutputFileName == null ? ExtractedFileStatus.ErrorWontRetry : ExtractedFileStatus.Anonymised;
         }
-
-        #region Equality Methods
-
-        protected bool Equals(MongoFileStatusDoc other)
-        {
-            return Equals(Header, other.Header) &&
-                   DicomFilePath == other.DicomFilePath &&
-                   OutputFileName == other.OutputFileName &&
-                   WasAnonymised == other.WasAnonymised &&
-                   IsIdentifiable == other.IsIdentifiable &&
-                   ExtractedFileStatus == other.ExtractedFileStatus &&
-                   StatusMessage == other.StatusMessage;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MongoFileStatusDoc)obj);
-        }
-
-        public static bool operator ==(MongoFileStatusDoc left, MongoFileStatusDoc right) => Equals(left, right);
-
-        public static bool operator !=(MongoFileStatusDoc left, MongoFileStatusDoc right) => !Equals(left, right);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = (Header.GetHashCode());
-                hashCode = (hashCode * 397) ^ (DicomFilePath != null ? DicomFilePath.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (OutputFileName != null ? OutputFileName.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (WasAnonymised.GetHashCode());
-                hashCode = (hashCode * 397) ^ (IsIdentifiable.GetHashCode());
-                hashCode = (hashCode * 397) ^ (ExtractedFileStatus.GetHashCode());
-                hashCode = (hashCode * 397) ^ (StatusMessage.GetHashCode());
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
 }

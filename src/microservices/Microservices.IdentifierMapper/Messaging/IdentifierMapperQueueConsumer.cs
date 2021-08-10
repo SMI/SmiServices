@@ -7,6 +7,7 @@ using Smi.Common.Messaging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -97,6 +98,11 @@ namespace Microservices.IdentifierMapper.Messaging
                 if (!success)
                     success = SwapIdentifier(msg, out errorReason);
             }
+            catch(BadPatientIDException e)
+            {
+                ErrorAndNack(header, tag, "Error while processing DicomFileMessage", e);
+                return;
+            }
             catch (ApplicationException e)
             {
                 // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper in ProcessMessage
@@ -132,6 +138,15 @@ namespace Microservices.IdentifierMapper.Messaging
             return true;
         }
 
+        /// <summary>
+        /// Swaps the patient ID in the <paramref name="msg"/> for its anonymous mapping.  Returns true if a mapping
+        /// was found or false if it was not possible to get a mapping for some reason (e.g. tag is missing or no mapping
+        /// was found).
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
+        /// <exception cref="BadPatientIDException">Thrown if PatientID tag is corrupt</exception>
         public bool SwapIdentifier(DicomFileMessage msg, out string reason)
         {
             DicomDataset ds;
@@ -150,7 +165,7 @@ namespace Microservices.IdentifierMapper.Messaging
                 return false;
             }
 
-            var from = (string)DicomTypeTranslaterReader.GetCSharpValue(ds, DicomTag.PatientID);
+            var from = GetPatientID(ds);
 
             if (string.IsNullOrWhiteSpace(from))
             {
@@ -192,6 +207,39 @@ namespace Microservices.IdentifierMapper.Messaging
             msg.DicomDataset = updatedJson;
 
             return true;
+        }
+
+        private string GetPatientID(DicomDataset ds)
+        {
+            var val = DicomTypeTranslaterReader.GetCSharpValue(ds, DicomTag.PatientID);
+
+            if(val == null)
+            {
+                return null;
+            }
+            if(val is string s)
+            {
+                return s;
+            }
+            
+            if(val is string[] arr)
+            {
+                var unique = arr.Where(a => !string.IsNullOrWhiteSpace(a)).Distinct().ToArray();
+
+                if(unique.Length == 0)
+                {
+                    return null;
+                }
+
+                if(unique.Length == 1)
+                {
+                    return unique[0];
+                }
+
+                throw new BadPatientIDException("DicomDataset had multiple values for PatientID:" + string.Join("\\", arr));
+            }
+
+            throw new BadPatientIDException("DicomDataset had bad Type for PatientID:" + val.GetType());
         }
     }
 }

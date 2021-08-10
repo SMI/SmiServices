@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Equ;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords
 {
-    public class TagDataSummaryCsvRecord : IExtractionReportCsvRecord, IEquatable<TagDataSummaryCsvRecord>
+    public class TagDataSummaryCsvRecord : MemberwiseEquatable<TagDataSummaryCsvRecord>, IExtractionReportCsvRecord
     {
         /// <summary>
         /// The tag name which contained the failure value 
@@ -72,44 +73,5 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         }
 
         public override string ToString() => $"TagDataSummaryCsvRecord({TagName}, {FailureValue}, {Occurrences}, {RelativeFrequencyInTag}, {RelativeFrequencyInReport})";
-
-        #region Equality members
-
-        public bool Equals(TagDataSummaryCsvRecord other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return 
-                TagName == other.TagName
-                && FailureValue == other.FailureValue
-                && Occurrences == other.Occurrences
-                && RelativeFrequencyInTag.Equals(other.RelativeFrequencyInTag)
-                && RelativeFrequencyInReport.Equals(other.RelativeFrequencyInReport);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((TagDataSummaryCsvRecord)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(
-                TagName,
-                FailureValue,
-                Occurrences,
-                RelativeFrequencyInTag,
-                RelativeFrequencyInReport
-            );
-        }
-
-        public static bool operator ==(TagDataSummaryCsvRecord left, TagDataSummaryCsvRecord right) => Equals(left, right);
-
-        public static bool operator !=(TagDataSummaryCsvRecord left, TagDataSummaryCsvRecord right) => !Equals(left, right);
-
-        #endregion
     }
 }

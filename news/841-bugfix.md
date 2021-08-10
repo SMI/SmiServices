@@ -1,1 +1,0 @@
-Fixed bug when disposing `CsvDestination` instances that have not begun writing any output
