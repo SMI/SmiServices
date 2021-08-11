@@ -160,13 +160,11 @@ if [ $rc -ne 0 ]; then
 	tidy_exit $rc "Possible failure (exit code $rc) of SemEHR-anon given ${input_doc} from ${input_dcm}"
 fi
 # The new SemEHR anonymiser can be configured to create knowtator.xml files
-# and it also writes a PHI file which is in JSON format. If no XML then create it.
-if [ ! -f "$anon_xml" ]; then
-	if [ $verbose -gt 0 ]; then
-		echo "Knowtator.XML not found, try to convert Phi to XML"
-	fi
-	CTP_PhiToXML.py -p ${semehr_output_dir}/phi
+# but they aren't as complete as the PHI file. Convert the PHI to XML.
+if [ $verbose -gt 0 ]; then
+	echo "Convert PHI to Knowtator.XML"
 fi
+CTP_PhiToXML.py -p ${semehr_output_dir}/phi
 # If there's still no XML file then exit
 if [ ! -f "$anon_xml" ]; then
 	tidy_exit 6 "ERROR: SemEHR-anon failed to convert $input_doc to $anon_xml"
