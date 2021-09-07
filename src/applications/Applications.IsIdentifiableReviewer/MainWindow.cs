@@ -97,7 +97,7 @@ G - creates a regex pattern that matches only the failing part(s)
             Menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File (F9)", new MenuItem [] {
                     new MenuItem("_Open Report",null, OpenReport),
-                    new MenuItem ("_Quit", null, Application.RequestStop)
+                    new MenuItem ("_Quit", null, static () => Application.RequestStop())
                 }),
                 new MenuBarItem ("_Options", new MenuItem [] {
                     miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}
