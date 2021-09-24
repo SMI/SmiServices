@@ -21,6 +21,8 @@ namespace Applications.ExtractImages
 
         private readonly IExtractionMessageSender _extractionMessageSender;
 
+        private readonly string _absoluteExtractionDir;
+
 
         public ExtractImagesHost(
             [NotNull] GlobalOptions globals,
@@ -56,12 +58,10 @@ namespace Applications.ExtractImages
             //                      to a helper class to support having multiple configurations (and probably prevent some bugs)
             string extractionName = _fileSystem.Path.GetFileNameWithoutExtension(_csvFilePath);
             string extractionDir = _fileSystem.Path.Join(cliOptions.ProjectId, "extractions", extractionName);
-            string absoluteExtractionDir = _fileSystem.Path.Join(extractRoot, extractionDir);
+            _absoluteExtractionDir = _fileSystem.Path.Join(extractRoot, extractionDir);
 
-            if (_fileSystem.Directory.Exists(absoluteExtractionDir))
-                throw new DirectoryNotFoundException($"Extraction directory already exists '{absoluteExtractionDir}'");
-
-            _fileSystem.Directory.CreateDirectory(absoluteExtractionDir);
+            if (_fileSystem.Directory.Exists(_absoluteExtractionDir))
+                throw new DirectoryNotFoundException($"Extraction directory already exists '{_absoluteExtractionDir}'");
 
             if (extractionMessageSender == null)
             {
@@ -73,6 +73,7 @@ namespace Applications.ExtractImages
                     cliOptions,
                     extractionRequestProducer,
                     extractionRequestInfoProducer,
+                    _fileSystem,
                     extractionDir,
                     new DateTimeProvider(),
                     new RealConsoleInput()
@@ -90,7 +91,7 @@ namespace Applications.ExtractImages
             var parser = new CohortCsvParser(_fileSystem);
             (ExtractionKey extractionKey, List<string> idList) = parser.Parse(_csvFilePath);
 
-            _extractionMessageSender.SendMessages(extractionKey, idList);
+            _extractionMessageSender.SendMessages(_absoluteExtractionDir, extractionKey, idList);
 
             Stop("Completed");
         }

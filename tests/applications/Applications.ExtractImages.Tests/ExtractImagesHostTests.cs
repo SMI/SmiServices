@@ -60,7 +60,7 @@ namespace Applications.ExtractImages.Tests
             fs.Directory.CreateDirectory(extractRoot);
             globals.FileSystemOptions.ExtractRoot = extractRoot;
 
-            Expression<Action<IExtractionMessageSender>> expr = x => x.SendMessages(ExtractionKey.SeriesInstanceUID, new List<string> { "1.2.3.4" });
+            Expression<Action<IExtractionMessageSender>> expr = x => x.SendMessages("dir", ExtractionKey.SeriesInstanceUID, new List<string> { "1.2.3.4" });
             var mockExtractionMessageSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
             mockExtractionMessageSender.Setup(expr);
 
