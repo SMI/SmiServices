@@ -44,9 +44,9 @@ namespace Applications.ExtractImages
 
             _fileSystem = fileSystem ?? new FileSystem();
 
-            string extractRoot = Globals.FileSystemOptions.ExtractRoot;
-            if (!_fileSystem.Directory.Exists(extractRoot))
-                throw new DirectoryNotFoundException($"Could not find the extraction root '{extractRoot}'");
+            string extractionRoot = Globals.FileSystemOptions.ExtractRoot;
+            if (!_fileSystem.Directory.Exists(extractionRoot))
+                throw new DirectoryNotFoundException($"Could not find the extraction root '{extractionRoot}'");
 
             _csvFilePath = cliOptions.CohortCsvFile;
             if (string.IsNullOrWhiteSpace(_csvFilePath))
@@ -58,7 +58,7 @@ namespace Applications.ExtractImages
             //                      to a helper class to support having multiple configurations (and probably prevent some bugs)
             string extractionName = _fileSystem.Path.GetFileNameWithoutExtension(_csvFilePath);
             string extractionDir = _fileSystem.Path.Join(cliOptions.ProjectId, "extractions", extractionName);
-            _absoluteExtractionDir = _fileSystem.Path.Join(extractRoot, extractionDir);
+            _absoluteExtractionDir = _fileSystem.Path.Join(extractionRoot, extractionDir);
 
             if (_fileSystem.Directory.Exists(_absoluteExtractionDir))
                 throw new DirectoryNotFoundException($"Extraction directory already exists '{_absoluteExtractionDir}'");
@@ -74,6 +74,7 @@ namespace Applications.ExtractImages
                     extractionRequestProducer,
                     extractionRequestInfoProducer,
                     _fileSystem,
+                    extractionRoot,
                     extractionDir,
                     new DateTimeProvider(),
                     new RealConsoleInput()
@@ -91,7 +92,7 @@ namespace Applications.ExtractImages
             var parser = new CohortCsvParser(_fileSystem);
             (ExtractionKey extractionKey, List<string> idList) = parser.Parse(_csvFilePath);
 
-            _extractionMessageSender.SendMessages(_absoluteExtractionDir, extractionKey, idList);
+            _extractionMessageSender.SendMessages(extractionKey, idList);
 
             Stop("Completed");
         }
