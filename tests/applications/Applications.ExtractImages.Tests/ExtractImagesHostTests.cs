@@ -48,8 +48,7 @@ namespace Applications.ExtractImages.Tests
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(HappyPath));
             globals.ExtractImagesOptions.MaxIdentifiersPerMessage = 1;
 
-            var extractName = "foo";
-            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = $"{extractName}.csv", ProjectId = "1234-5678", NonInteractive = true };
+            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "foo.csv", ProjectId = "1234-5678", NonInteractive = true };
 
             var fs = new MockFileSystem(
                 new Dictionary<string, MockFileData>
@@ -61,8 +60,7 @@ namespace Applications.ExtractImages.Tests
             fs.Directory.CreateDirectory(extractRoot);
             globals.FileSystemOptions.ExtractRoot = extractRoot;
 
-            var expectedRoot = fs.Path.Join(extractRoot, cliOptions.ProjectId, fs.Path.Join("extractions", extractName));
-            Expression<Action<IExtractionMessageSender>> expr = x => x.SendMessages(expectedRoot, ExtractionKey.SeriesInstanceUID, new List<string> { "1.2.3.4" });
+            Expression<Action<IExtractionMessageSender>> expr = x => x.SendMessages(ExtractionKey.SeriesInstanceUID, new List<string> { "1.2.3.4" });
             var mockExtractionMessageSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
             mockExtractionMessageSender.Setup(expr);
 
