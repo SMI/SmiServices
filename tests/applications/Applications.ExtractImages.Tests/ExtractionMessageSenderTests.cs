@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Linq.Expressions;
 using Moq;
@@ -75,13 +76,14 @@ namespace Applications.ExtractImages.Tests
                 new ExtractImagesCliOptions { ProjectId = "1234-5678" },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
+                new FileSystem(),
                 "extractDir",
                 new TestDateTimeProvider(),
                 new TestConsoleInput(confirm ? "y" : "n")
             );
 
             var idList = new List<string> { "foo" };
-            processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
+            processor.SendMessages("dir", ExtractionKey.StudyInstanceUID, idList);
 
             if (confirm)
             {
@@ -111,13 +113,14 @@ namespace Applications.ExtractImages.Tests
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
+                new FileSystem(),
                 "extractDir",
                 new TestDateTimeProvider(),
                 new RealConsoleInput()
             );
 
             var idList = new List<string> { "foo" };
-            processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
+            processor.SendMessages("dir", ExtractionKey.StudyInstanceUID, idList);
 
             mockExtractionRequestProducer.Verify(expr, Times.Once);
             mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
@@ -134,6 +137,7 @@ namespace Applications.ExtractImages.Tests
                     new ExtractImagesCliOptions(),
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                    new FileSystem(),
                     extractionDir,
                     new TestDateTimeProvider(),
                     new RealConsoleInput()
@@ -153,6 +157,7 @@ namespace Applications.ExtractImages.Tests
                     new ExtractImagesCliOptions { ProjectId = projectId },
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                    new FileSystem(),
                     "extractDir",
                     new TestDateTimeProvider(),
                     new RealConsoleInput()
@@ -171,6 +176,7 @@ namespace Applications.ExtractImages.Tests
                     new ExtractImagesCliOptions(),
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                    new FileSystem(),
                     "extractDir",
                     new TestDateTimeProvider(),
                     new RealConsoleInput()
@@ -188,6 +194,7 @@ namespace Applications.ExtractImages.Tests
                 new ExtractImagesCliOptions { ProjectId = "1234-5678" },
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                new FileSystem(),
                 "extractDir",
                 new TestDateTimeProvider(),
                 new RealConsoleInput()
@@ -195,7 +202,7 @@ namespace Applications.ExtractImages.Tests
 
             var exc = Assert.Throws<ArgumentException>(() =>
             {
-                sender.SendMessages(ExtractionKey.StudyInstanceUID, new List<string>());
+                sender.SendMessages("dir", ExtractionKey.StudyInstanceUID, new List<string>());
             });
             Assert.AreEqual("ID list is empty", exc.Message);
         }
@@ -224,13 +231,14 @@ namespace Applications.ExtractImages.Tests
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
+                new FileSystem(),
                 "extractDir",
                 new TestDateTimeProvider(),
                 new RealConsoleInput()
             );
 
             List<string> idList = Enumerable.Range(0, 5).Select(x => x.ToString()).ToList();
-            processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
+            processor.SendMessages("dir", ExtractionKey.StudyInstanceUID, idList);
 
             mockExtractionRequestProducer.Verify(expr, Times.Exactly(5));
             mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
@@ -256,13 +264,14 @@ namespace Applications.ExtractImages.Tests
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
+                new FileSystem(),
                 "extractDir",
                 new TestDateTimeProvider(),
                 new RealConsoleInput()
             );
 
             List<string> idList = Enumerable.Range(0, nIds).Select(x => x.ToString()).ToList();
-            processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
+            processor.SendMessages("dir", ExtractionKey.StudyInstanceUID, idList);
 
             mockExtractionRequestProducer.Verify(expr, Times.Exactly(expectedMessages));
             mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
