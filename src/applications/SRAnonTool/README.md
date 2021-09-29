@@ -158,3 +158,10 @@ The defaults are:
 `-p pattern_to_redact` - `Baker` (to suit the example DICOM file)
 
 `-y default.yaml` - `../../../../data/microserviceConfigs/default.yaml`
+
+To run in the test directory
+```
+mkdir -p ./data/input_docs
+mkdir -p ./data/anonymised
+./CTP_SRAnonTool_test.py -s .
+```
