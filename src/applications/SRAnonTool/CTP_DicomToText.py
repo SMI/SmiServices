@@ -8,6 +8,7 @@
 #  -i = input DICOM file, full path or relative to FileSystemRoot,
 #       or if not found then looked up in the MongoDB.
 #  -o = output filename or directory for the plain text file
+#  -m = output filename or directory for metadata json file
 #  --semehr-unique = only extract records from Mongo dicom database
 #    if they are not already in the SemEHR database.
 # Needs both dataLoad and dataExtract yaml files because Mongo is
@@ -26,14 +27,37 @@ import json
 import yaml
 import pydicom
 import re
-from deepmerge import Merger    # for deep merging dictionaries
+from deepmerge import Merger    # for deep merging yaml dictionaries
 from SmiServices import Mongo
 from SmiServices import DicomText
 from SmiServices import StructuredReport as SR
+from SmiServices import IdentifierMapper
+
+# List of DICOM SR tags which we want exported in metadata json files
+metadata_fields = [
+  "SOPClassUID",
+  "SOPInstanceUID",
+  "StudyInstanceUID",
+  "SeriesInstanceUID",
+  "ContentDate",
+  "ModalitiesInStudy",
+  "PatientID", # this one will be mapped from CHI to EUPI
+]
+
+
+# ---------------------------------------------------------------------
+# PatientID mapping from CHI to EUPI
+
+def patientid_map(PatientID):
+    eupi = IdentifierMapper.CHItoEUPI().lookup(PatientID)
+    if not eupi:
+        return 'UNKNOWN'
+    return eupi
+
 
 # ---------------------------------------------------------------------
 
-def extract_mongojson(mongojson, output):
+def extract_mongojson(mongojson, output, metadata_output=None):
     """ Called by extract_mongojson_file
     to parse the JSON from Mongo and write to output.
     mongojson - the DICOM in JSON format.
@@ -42,24 +66,33 @@ def extract_mongojson(mongojson, output):
     if os.path.isdir(output):
         filename = mongojson['SOPInstanceUID'] + '.txt'
         output = os.path.join(output, filename)
+    if metadata_output and os.path.isdir(metadata_output):
+        filename = mongojson['SOPInstanceUID'] + '.json'
+        metadata_output = os.path.join(metadata_output, filename)
     logging.info('Parse %s' % mongojson.get('header',{}).get('DicomFilePath','<NoFilePath?>'))
+    if 'PatientID' in mongojson:
+        mongojson['PatientID'] = patientid_map(mongojson['PatientID'])
     with open(output, 'w') as fd:
-        SR.SR_parse(mongojson, filename, fd)    
+        SR.SR_parse(mongojson, filename, fd)
+    if metadata_output:
+        with open(metadata_output, 'w') as fd:
+            print(json.dumps({k:mongojson[k] for k in metadata_fields}), file=fd)
+        logging.info(f'Wrote {metadata_output}')
     logging.info(f'Wrote {output}')
 
 
-def extract_mongojson_file(input, output):
+def extract_mongojson_file(input, output, metadata_output=None):
     """ Read MongoDB data in JSON format from input file
     convert to output, which can be a filename or directory.
     """
     with open(input, 'r') as fd:
         mongojson = json.load(fd)
-    extract_mongojson(mongojson, output)
+    extract_mongojson(mongojson, output, metadata_output=metadata_output)
 
 
 # ---------------------------------------------------------------------
 
-def extract_dicom_file(input, output):
+def extract_dicom_file(input, output, metadata_output=None):
     """ Extract text from a DICOM file input
     into the output, which can be a filename,
     or a directory in which case the file is named by SOPInstanceUID.
@@ -72,14 +105,23 @@ def extract_dicom_file(input, output):
     if os.path.isdir(output):
         filename = dicomtext.SOPInstanceUID() + '.txt'
         output = os.path.join(output, filename)
+    if metadata_output and os.path.isdir(metadata_output):
+        filename = dicomtext.SOPInstanceUID() + '.json'
+        metadata_output = os.path.join(metadata_output, filename)
     with open(output, 'w') as fd:
         fd.write(dicomtext.text())
+    if metadata_output:
+        with open(metadata_output, 'w') as fd:
+            metadata_json = {k:dicomtext.tag(k) for k in metadata_fields}
+            metadata_json['PatientID'] = patientid_map(metadata_json.get('PatientID',''))
+            print(json.dumps(metadata_json), file=fd)
+        logging.info(f'Wrote {metadata_output}')
     logging.info(f'Wrote {output}')
 
 
 # ---------------------------------------------------------------------
 
-def extract_file(input, output):
+def extract_file(input, output, metadata_output=None):
     """ If it's a readable DICOM file then extract it
     otherwise try to find it in MongoDB.
     """
@@ -90,9 +132,9 @@ def extract_file(input, output):
         is_dcm = False
 
     if is_dcm:
-        extract_dicom_file(input, output)
+        extract_dicom_file(input, output, metadata_output)
     else:
-        extract_mongojson_file(input, output)
+        extract_mongojson_file(input, output, metadata_output)
 
 
 
@@ -104,6 +146,7 @@ if __name__ == '__main__':
     parser.add_argument('-y', dest='yamlfile', action="append", help='path to yaml config file (can be used more than once)')
     parser.add_argument('-i', dest='input', action="store", help='SOPInstanceUID or path to raw DICOM file from which text will be redacted')
     parser.add_argument('-o', dest='output_dir', action="store", help='path to directory where extracted text will be written')
+    parser.add_argument('-m', dest='metadata_dir', action="store", help='path to directory where extracted metadata will be written')
     parser.add_argument('--semehr-unique', dest='semehr_unique', action="store_true", help='only extract from MongoDB/dicom if not already in MongoDB/semehr')
     args = parser.parse_args()
     if not args.input:
@@ -120,11 +163,17 @@ if __name__ == '__main__':
             # Merge all the yaml dicts into one
             cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
+    # Initialise the PatientID mapping by opening a DB connection
+    if cfg_dict:
+        IdentifierMapper.CHItoEUPI(cfg_dict)
+
+    # For reading SRs
     mongo_dicom_host = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('HostName',{})
     mongo_dicom_user = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('UserName',{})
     mongo_dicom_pass = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('Password',{})
     mongo_dicom_db   = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('DatabaseName',{})
 
+    # For writing annotations
     mongo_semehr_host = cfg_dict.get('MongoDatabases', {}).get('SemEHRStoreOptions',{}).get('HostName',{})
     mongo_semehr_user = cfg_dict.get('MongoDatabases', {}).get('SemEHRStoreOptions',{}).get('UserName',{})
     mongo_semehr_pass = cfg_dict.get('MongoDatabases', {}).get('SemEHRStoreOptions',{}).get('Password',{})
@@ -143,15 +192,15 @@ if __name__ == '__main__':
     # ---------------------------------------------------------------------
     if os.path.isfile(args.input):
         # actual path to DICOM
-        extract_file(args.input, args.output_dir)
+        extract_file(args.input, args.output_dir, args.metadata_dir)
     elif os.path.isfile(os.path.join(root_dir, args.input)):
         # relative to FileSystemRoot
-        extract_file(os.path.join(root_dir, args.input), args.output_dir)
+        extract_file(os.path.join(root_dir, args.input), args.output_dir, args.metadata_dir)
     elif os.path.isdir(args.input):
         # Recurse directory
         for root, dirs, files in os.walk(args.input, topdown=False):
             for name in files:
-                extract_file(os.path.join(root, name), args.output_dir)
+                extract_file(os.path.join(root, name), args.output_dir, args.metadata_dir)
     elif mongo_dicom_db != {}:
         # Only DicomFilePath and StudyDate are indexed in MongoDB.
         # Passing a SOPInstanceUID would be handy but no point if not indexed.
@@ -164,11 +213,11 @@ if __name__ == '__main__':
             for mongojson in mongodb_in.StudyDateToJSONList(args.input):
                 # If it's already in the annotation database then don't bother extracting.
                 if not args.semehr_unique or not mongodb_out.findSOPInstanceUID(mongojson['SOPInstanceUID']):
-                    extract_mongojson(mongojson, args.output_dir)
+                    extract_mongojson(mongojson, args.output_dir, args.metadata_dir)
         # Otherwise assume a DICOM file path which can be retrieved from MongoDB
         else:
             mongojson = mongodb_in.DicomFilePathToJSON(args.input)
-            extract_mongojson(mongojson, args.output_dir)
+            extract_mongojson(mongojson, args.output_dir, args.metadata_dir)
     else:
         logging.error(f'Cannot find {args.input} as file and MongoDB not configured')
         exit(1)

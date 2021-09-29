@@ -114,6 +114,17 @@ class DicomText:
         """
         return self._dicom_raw['SOPInstanceUID'].value
 
+    def tag(self, tagname):
+        """ Simply returns the value of the tag from the DICOM file.
+        The tag is specified by name not by number:number.
+        Returns the empty string if tag is not present.
+        """
+        tagcode = pydicom.datadict.tag_for_keyword(tagname)
+        if tagcode in self._dicom_raw:
+            return self._dicom_raw[tagcode].value
+        else:
+            return ''
+
     def _dataset_read_callback(self, dataset, data_element):
         """ Internal function called during a walk of the dataset.
         Builds a class-member string _p_text as it goes.
