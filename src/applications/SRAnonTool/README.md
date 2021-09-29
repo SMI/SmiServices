@@ -29,7 +29,7 @@ Install the python library `SmiServices` to `$SMI_ROOT/lib/python3/` or a virtua
 
 Ensure the python package dependencies are installed system-wide or in a virtualenv on the host machine.
 
-Modify the `default.yaml` file: in the section `CTPAnonymiserOptions` add `SRAnonTool: /path/to/SRAnonTool.sh`
+Modify the `default.yaml` file: in the section `CTPAnonymiserOptions` add `SRAnonTool: /path/to/CTP_SRAnonTool.sh`
 
 Ensure the `default.yaml` file contains the necessary `FileSystemOptions`, `LoggingOptions>LogsRoot`, `MongoDatabases`, `RabbitOptions`, etc.
 
@@ -46,7 +46,7 @@ If using the test stub then only the data directories are required and Python2 i
 
 ## Usage as part of CTP
 
-Configure CTP to call the script SRAnonTool.sh when it detects a DICOM file with `SR` in the `Modality` tag, by editing `default.yaml` as above. CTP will call the script with two options:
+Configure CTP to call the script CTP_SRAnonTool.sh when it detects a DICOM file with `SR` in the `Modality` tag, by editing `default.yaml` as above. CTP will call the script with two options:
 * `-i input.dcm` - the raw DICOM file before anonymisation
 * `-o output.dcm` - the DICOM file which CTP has already anonymised
 
@@ -54,10 +54,10 @@ The script will extract the text from the `input.dcm` file, anonymise it, and wr
 
 ## Standalone usage
 
-The script `SRAnonTool.sh` calls three components:
+The script `CTP_SRAnonTool.sh` calls three components:
 
 * `CTP_DicomToText.py` - extracts the text from the raw DICOM file into a format suitable for SemEHR-CogStack.
-* `clinical_doc_wrapper.py` - this is the component within SemEHR-CogStack which anonymises the text.
+* `CogStack-SemEHR/anonymisation/anonymiser.py` - this is the script in SemEHR-CogStack which anonymises the text.
 * `CTP_XMLToDicom.py` - redacts the text from the raw DICOM file and write the redacted text into the output DICOM file.
 
 Usage: `[-e virtualenv] [-s semehr_dir]  -i read_from.dcm  -o write_into.dcm`
@@ -71,7 +71,7 @@ The SemEHR directory (`/opt/semehr`) can be changed with the `-s` option for tes
 
 This program can be used as part of the SRAnonTool pipeline or it can be used standalone to extract documents in bulk for later SemEHR processing.
 
-Usage: `-y default.yaml -i input.dcm -o outfile [--semehr-unique]`
+Usage: `-y default.yaml -i input.dcm -o output [-m metadata_output] [--semehr-unique]`
 
 `-y default.yaml` - may be specified more than once if the configuration parameters are spread across multiple yaml files.
 
@@ -79,21 +79,34 @@ Usage: `-y default.yaml -i input.dcm -o outfile [--semehr-unique]`
 
 `-o output` - full path to the output text file, or directory for multiple files.
 
+`-m metadata_output` - full path to the output metadata json file, or directory for multiple files.
+
 `--semehr-unique` - if extracting a StudyDate from MongoDB then ignore any documents which have a SOPInstanceUID that is already in the SemEHR MongoDB database. This is intended to allow reprocessing of any documents that previously failed without having to reprocess the whole day.
 
-The MongoDB configuration read from the yaml files needs to be in `MongoDatabases | DicomStoreOptions` and `SemEHRStoreOptions`. The former is to read DICOM documents from the `dicom.image_SR` database.collection; the latter is to check if the SOPInstanceUID is already in the `semehr.semehr_results` database.collection.
+If metadata output is requested then JSON output files are created containing the values of these tags:
+`SOPClassUID, SOPInstanceUID, StudyInstanceUID, SeriesInstanceUID, ContentDate, ModalitiesInStudy, PatientID`.
+The latter is mapped from CHI to EUPI.
+
+The MongoDB configuration read from the yaml files needs to be in `MongoDatabases | DicomStoreOptions` and `SemEHRStoreOptions`.
+The former is to read DICOM documents from the `dicom.image_SR` database.collection;
+the latter is to check if the SOPInstanceUID is already in the `semehr.semehr_results` database.collection.
+
+The MySQL configuration read from the yaml files needs to be in `IdentifierMapperOptions`
+with keys `MappingConnectionString, MappingTableName, SwapColumnName, ReplacementColumnName`.
+This is used to map PatientID.
 
 Examples:
 
 ```
 * CTP_DicomToText.py -i /path/to/file.dcm -o output.txt
 * CTP_DicomToText.py -i 2015/01/01/AccNum/file.dcm -o output.txt -y smi_dataLoad.yaml
-* CTP_DicomToText.py -i 20150101 -o output_dir -y smi_dataLoad.yaml
+* CTP_DicomToText.py -i 20150101 -o output_dir -m metadata_dir -y smi_dataLoad.yaml
 ```
 
 ### `clinical_doc_wrapper.py`
 
 This script performs the anonymisation.
+It is the old Python-2 version and is no longer used.
 
 Usage: `[-s semehr_dir] [-i input_docs] [-o anonymised]` in the stub version
 
