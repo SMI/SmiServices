@@ -11,6 +11,7 @@ pydicom
 pymongo
 PyYAML
 xml.etree (comes with python)
+mysql-connector-python (which requires six, protobuf, dnspython)
 ```
 
 ## Installation
@@ -49,6 +50,7 @@ from SmiServices import Rabbit
 from SmiServices import Dicom
 from SmiServices import DicomText
 from SmiServices import StructuredReport as SR
+from SmiServices import IdentifierMapper
 ```
 
 ## Dicom.py
@@ -71,6 +73,20 @@ dicomtext.redact(xmldictlist)        # Redacts the parsed text using the annotat
 dicomtext.write(redacted_dcmname)    # Writes out the redacted DICOM file
 OR
 write_redacted_text_into_dicom_file  # to rewrite a second file with redacted text
+```
+
+It also contains a `tag` method to return the value of the given named tag.
+
+## IdentifierMapper.py
+
+Provide a class CHItoEUPI for mapping from CHI to EUPI.
+Create one instance with the SMI yaml dictionary to open a connection
+to MySQL. Future instances can be created without the yaml and will
+reuse the mysql connection.
+
+```
+IdentifierMapper.CHItoEUPI(yaml_dict)
+eupi = IdentifierMapper.CHItoEUPI().lookup(chi)
 ```
 
 ## Knowtator.py
