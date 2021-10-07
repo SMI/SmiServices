@@ -309,7 +309,7 @@ class DicomText:
             dicom_dest.TextValue = self._dicom_raw.TextValue
         if 'ContentSequence' in self._dicom_raw:
             dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
-            dicom_dest.save_as(destfile)
+        dicom_dest.save_as(destfile)
 
 def test_DicomText():
     """ The test function requires a specially-crafted DICOM file
