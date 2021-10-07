@@ -11,6 +11,7 @@ pydicom
 pymongo
 PyYAML
 xml.etree (comes with python)
+mysql connector (which requires dnspython, protobuf, six) for IdentifierMapper
 ```
 
 ## Installation
