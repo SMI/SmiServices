@@ -1,12 +1,4 @@
-[![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Linux?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=3&branchName=master) (Linux build)
-
-[![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Windows?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=4&branchName=master) (Windows build)
-
-[![Coverage Status](https://coveralls.io/repos/github/SMI/SmiServices/badge.svg)](https://coveralls.io/github/SMI/SmiServices)
-
-![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
-
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
+[![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Linux?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=3&branchName=master) (Linux) [![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Windows?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=4&branchName=master) (Windows build) [![Coverage Status](https://coveralls.io/repos/github/SMI/SmiServices/badge.svg)](https://coveralls.io/github/SMI/SmiServices) ![GitHub](https://img.shields.io/github/license/SMI/SmiServices) [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
 Version: `4.0.0`
 
@@ -21,7 +13,7 @@ The platform allows [dicom tags] (extracted from clinical images) to be loaded i
 The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest). See the instructions below on how to run the services.
 
 ## Contents
-
+1. [Setup](#setup)
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
@@ -31,6 +23,15 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Testing](#testing)
 1. [Package Hierarchy](#package-hierarchy)
 1. [Scalability](#scalability)
+
+## Setup
+The easiest way to use SmiServices is through the [Docker Image](https://github.com/jas88/smideploy).
+
+You can set it up yourself manually with the following steps:
+
+Install RabbitMq and MongoDb.
+
+Run the [queue setup scripts](./data/rabbitmqConfigs)
 
 ## Microservices
 
