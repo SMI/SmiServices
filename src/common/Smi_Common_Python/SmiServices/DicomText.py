@@ -232,7 +232,7 @@ class DicomText:
                     (annot['start_char'] + self._redact_offset < current_end+32)):
                 annot_at = annot['start_char'] - current_start
                 annot_end = annot['end_char'] - current_start
-                replaced = replacedAny = False
+                replaced = False
                 # SemEHR may have an extra line at the start so start_char offset need adjusting
                 for offset in [self._redact_offset] + list(range(-32, 32)):
                     # Do the comparison using text without html but replace inside text with html
