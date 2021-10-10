@@ -68,7 +68,6 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
             TestModel.QueueDeclare(RejectQueueName, true, false, false, queueProps);
             TestModel.QueueBind(RejectQueueName, RejectExchangeName, TestRoutingKey);
 
-            TestModel.ExchangeDeclare(GlobalOptions.RabbitOptions.RabbitMqControlExchangeName, "topic", true);
             TestModel.ExchangeDeclare(GlobalOptions.RabbitOptions.FatalLoggingExchange, "direct", true);
 
             TestProducer = new ProducerModel(RejectExchangeName, TestModel, props);
