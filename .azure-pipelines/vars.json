@@ -7,5 +7,6 @@
     "DOCKER_CACHE_DIR": "$(Pipeline.Workspace)/docker-cache",
     "TESS_CACHE_DIR": "$(Pipeline.Workspace)/tessdata",
     "DB_PASSWORD": "YourStrongPassw0rd",
-    "RDMP_CONN_STR": "set-me"
+    "RDMP_CONN_STR": "set-me",
+    "PYTHON_VERSION": "3.6"
 }
