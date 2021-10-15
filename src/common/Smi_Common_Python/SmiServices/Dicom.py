@@ -1,7 +1,7 @@
 """ Functions to assist with decoding DICOM files representing from JSON as Python dicts
 """
 
-from collections import Mapping
+from collections.abc import Mapping
 import re
 import pydicom
 

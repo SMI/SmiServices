@@ -33,9 +33,9 @@ pytest SmiServices/*.py
 
 Test each module individually, for example:
 ```
-python3 -m pytest SmiService/Dicom.py
-python3 -m pytest SmiService/DicomText.py
-python3 -m pytest SmiService/StructuredReport.py
+python3 -m pytest SmiServices/Dicom.py
+python3 -m pytest SmiServices/DicomText.py
+python3 -m pytest SmiServices/StructuredReport.py
 ```
 
 ## Usage
