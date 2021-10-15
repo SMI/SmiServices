@@ -8,5 +8,5 @@
     "TESS_CACHE_DIR": "$(Pipeline.Workspace)/tessdata",
     "DB_PASSWORD": "YourStrongPassw0rd",
     "RDMP_CONN_STR": "set-me",
-    "PYTHON_VERSION": "3.8"
+    "PYTHON_VERSION": "3.6"
 }
