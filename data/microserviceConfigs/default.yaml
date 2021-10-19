@@ -16,6 +16,7 @@ LoggingOptions:
 FileSystemOptions:
     FileSystemRoot: 'C:\temp'
     ExtractRoot: 'C:\temp'
+    # Set this to "*" if your dicom files do not have file extensions
     DicomSearchPattern: "*.dcm"
 
 RDMPOptions:

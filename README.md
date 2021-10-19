@@ -13,7 +13,7 @@ The platform allows [dicom tags] (extracted from clinical images) to be loaded i
 The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest). See the instructions below on how to run the services.
 
 ## Contents
-1. [Setup](#setup)
+1. [Deployment](#deployment)
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
@@ -24,14 +24,25 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Package Hierarchy](#package-hierarchy)
 1. [Scalability](#scalability)
 
-## Setup
+## Deployment
 The easiest way to use SmiServices is through the [Docker Image](https://github.com/jas88/smideploy).
 
-You can set it up yourself manually with the following steps:
+For a more adaptable/scalable setup or to use existing infrastructure (databases etc), you will need to:
 
-Install RabbitMq and MongoDb.
+ - Install RabbitMq
+ - Install MongoDb
+ - Install a relational database (MySql, SqlServer, Postgres or Oracle)
+ - [Install RDMP](https://github.com/HicServices/RDMP) and setup platform databases on a Sql Server.
 
-Run the [queue setup scripts](./data/rabbitmqConfigs)
+After all services are in place:
+ - Import the [queue definitions](./data/rabbitmqConfigs) into RabbitMQ via the admin web interface (or from command line).  Make any changes for vhost etc if desired
+ - Download the software assets for the latest [SmiServices Release](https://github.com/SMI/SmiServices/releases) and unzip the appropriate service e.g. `smi-services-v4.0.0-linux-x64.tgz`
+
+Configure 'default.yaml'
+ - Update the credentials to match your RabbitMQ and MongoDb instance (you can ignore RDMP, Redis etc for now).
+ - Remove the `TEST.` prefix on queue names
+
+TODO: what else? test the software works, queue up a directory etc.
 
 ## Microservices
 
@@ -97,6 +108,8 @@ Apart from the Microservices (documented above) the following library classes ar
 ### Building the C# Projects
 
 Building requires the [.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+
+Make sure to install the latest version of the SDK.  At a minimum it must be equal to or later than the version specified in [global.json](./global.json)
 
 ```bash
 $ dotnet build [-r RID]
