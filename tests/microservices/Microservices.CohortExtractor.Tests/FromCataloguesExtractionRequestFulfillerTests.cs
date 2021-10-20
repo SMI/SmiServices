@@ -7,6 +7,7 @@ using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
+using Smi.Common;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ namespace Microservices.CohortExtractor.Tests
             var dt = new DataTable();
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("Extractable", typeof(bool));
-            dt.Columns.Add(QueryToExecuteColumnSet.DefaultImagePathColumnName);
+            dt.Columns.Add(SmiConstants.DefaultImagePathColumnName);
 
             dt.Rows.Add("123", true, "/images/1.dcm");
             dt.Rows.Add("123", false, "/images/2.dcm");
@@ -75,7 +76,7 @@ namespace Microservices.CohortExtractor.Tests
             var dt = new DataTable();
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("Extractable", typeof(bool));
-            dt.Columns.Add(QueryToExecuteColumnSet.DefaultImagePathColumnName);
+            dt.Columns.Add(SmiConstants.DefaultImagePathColumnName);
 
             dt.Rows.Add("123", true, "/images/1.dcm");
             dt.Rows.Add("123", false, "/images/2.dcm");
@@ -117,7 +118,7 @@ namespace Microservices.CohortExtractor.Tests
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("SOPInstanceUID");
             dt.Columns.Add("Extractable");
-            dt.Columns.Add(QueryToExecuteColumnSet.DefaultImagePathColumnName);
+            dt.Columns.Add(SmiConstants.DefaultImagePathColumnName);
 
             dt.Rows.Add("1.1", "123.1", "1.1", true, "/images/1.dcm");
             dt.Rows.Add("1.1", "123.1", "2.1", false, "/images/2.dcm");
@@ -154,7 +155,7 @@ namespace Microservices.CohortExtractor.Tests
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("SOPInstanceUID");
             dt.Columns.Add("Extractable", typeof(bool));
-            dt.Columns.Add(QueryToExecuteColumnSet.DefaultImagePathColumnName);
+            dt.Columns.Add(SmiConstants.DefaultImagePathColumnName);
 
             dt.Rows.Add("1.1", "123.1", "1.1", true, "/images/1.dcm");
             dt.Rows.Add("1.1", "123.1", "2.1", false, "/images/2.dcm");
@@ -195,7 +196,7 @@ namespace Microservices.CohortExtractor.Tests
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("SOPInstanceUID");
             dt.Columns.Add("Extractable", typeof(bool));
-            dt.Columns.Add(QueryToExecuteColumnSet.DefaultImagePathColumnName);
+            dt.Columns.Add(SmiConstants.DefaultImagePathColumnName);
             dt.Rows.Add("1.1", "123.1", "1.1", true, "/images/1.dcm");
             dt.SetDoNotReType(true);
 

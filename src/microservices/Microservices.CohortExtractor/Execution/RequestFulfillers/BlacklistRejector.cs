@@ -10,6 +10,7 @@ using Rdmp.Core.Curation.Data.Spontaneous;
 using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.Repositories;
 using ReusableLibraryCode.DataAccess;
+using Smi.Common;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
@@ -56,7 +57,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 _queryBuilder.AddColumn(_columnSet.StudyTagColumn);
 
                 string whereSql =
-                    $"{_columnSet.StudyTagColumn.SelectSQL} = {syntax.ParameterSymbol}{QueryToExecuteColumnSet.DefaultStudyIdColumnName}";
+                    $"{_columnSet.StudyTagColumn.SelectSQL} = {syntax.ParameterSymbol}{SmiConstants.DefaultStudyIdColumnName}";
                     
                 _studyFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Study UID Filter","",null);
                 container.AddChild(_studyFilter);
@@ -68,7 +69,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 _queryBuilder.AddColumn(_columnSet.SeriesTagColumn);
 
                 string whereSql =
-                    $"{_columnSet.SeriesTagColumn.SelectSQL} = {syntax.ParameterSymbol}{QueryToExecuteColumnSet.DefaultSeriesIdColumnName}";
+                    $"{_columnSet.SeriesTagColumn.SelectSQL} = {syntax.ParameterSymbol}{SmiConstants.DefaultSeriesIdColumnName}";
                     
                 _seriesFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Series UID Filter","",null);
                 container.AddChild(_seriesFilter);
@@ -79,7 +80,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 _queryBuilder.AddColumn(_columnSet.InstanceTagColumn);
                 
                 string whereSql =
-                    $"{_columnSet.InstanceTagColumn.SelectSQL} = {syntax.ParameterSymbol}{QueryToExecuteColumnSet.DefaultInstanceIdColumnName}";
+                    $"{_columnSet.InstanceTagColumn.SelectSQL} = {syntax.ParameterSymbol}{SmiConstants.DefaultInstanceIdColumnName}";
                     
                 _instanceFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Instance UID Filter","",null);
                 container.AddChild(_instanceFilter);
@@ -122,13 +123,13 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 {
                     //Add the current row UIDs to the parameters of the command
                     if(_studyFilter != null)
-                        _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultStudyIdColumnName, cmd, studyuid);
+                        _server.AddParameterWithValueToCommand(SmiConstants.DefaultStudyIdColumnName, cmd, studyuid);
 
                     if(_seriesFilter != null)
-                        _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultSeriesIdColumnName, cmd, seriesuid);
+                        _server.AddParameterWithValueToCommand(SmiConstants.DefaultSeriesIdColumnName, cmd, seriesuid);
 
                     if(_instanceFilter != null)
-                        _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultInstanceIdColumnName, cmd, imageuid);
+                        _server.AddParameterWithValueToCommand(SmiConstants.DefaultInstanceIdColumnName, cmd, imageuid);
 
                     using (var r = cmd.ExecuteReader())
                     {
@@ -149,9 +150,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             //row is bad if the query matches any records (in the blacklist)
             var bad = DoLookup(
-                row[QueryToExecuteColumnSet.DefaultStudyIdColumnName].ToString(),
-                row[QueryToExecuteColumnSet.DefaultSeriesIdColumnName].ToString(),
-                row[QueryToExecuteColumnSet.DefaultInstanceIdColumnName].ToString()
+                row[SmiConstants.DefaultStudyIdColumnName].ToString(),
+                row[SmiConstants.DefaultSeriesIdColumnName].ToString(),
+                row[SmiConstants.DefaultInstanceIdColumnName].ToString()
             );
 
             reason = bad ? $"Blacklisted in {_catalogue.Name}" : null;

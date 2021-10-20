@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
+using Smi.Common;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
 using System;
@@ -230,16 +231,16 @@ namespace Microservices.CohortExtractor.Tests
             var mem = new MemoryCatalogueRepository();
 
             ct = new Catalogue(mem, "CT_Image");
-            Add(ct, QueryToExecuteColumnSet.DefaultImagePathColumnName);
-            Add(ct, QueryToExecuteColumnSet.DefaultStudyIdColumnName);
-            Add(ct, QueryToExecuteColumnSet.DefaultSeriesIdColumnName);
-            Add(ct, QueryToExecuteColumnSet.DefaultInstanceIdColumnName);
+            Add(ct, SmiConstants.DefaultImagePathColumnName);
+            Add(ct, SmiConstants.DefaultStudyIdColumnName);
+            Add(ct, SmiConstants.DefaultSeriesIdColumnName);
+            Add(ct, SmiConstants.DefaultInstanceIdColumnName);
 
             mr = new Catalogue(mem, "MR_Image");
-            Add(mr, QueryToExecuteColumnSet.DefaultImagePathColumnName);
-            Add(mr, QueryToExecuteColumnSet.DefaultStudyIdColumnName);
-            Add(mr, QueryToExecuteColumnSet.DefaultSeriesIdColumnName);
-            Add(mr, QueryToExecuteColumnSet.DefaultInstanceIdColumnName);
+            Add(mr, SmiConstants.DefaultImagePathColumnName);
+            Add(mr, SmiConstants.DefaultStudyIdColumnName);
+            Add(mr, SmiConstants.DefaultSeriesIdColumnName);
+            Add(mr, SmiConstants.DefaultInstanceIdColumnName);
 
         }
 

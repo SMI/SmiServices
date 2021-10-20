@@ -3,6 +3,7 @@ using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
+using Smi.Common;
 using Smi.Common.Helpers;
 using Smi.Common.Options;
 using System;
@@ -105,10 +106,10 @@ namespace Microservices.CohortExtractor.Tests
 
             foreach (string requiredColumn in new string[]
             {
-                QueryToExecuteColumnSet.DefaultImagePathColumnName,
-                QueryToExecuteColumnSet.DefaultStudyIdColumnName,
-                QueryToExecuteColumnSet.DefaultSeriesIdColumnName,
-                QueryToExecuteColumnSet.DefaultInstanceIdColumnName,
+                SmiConstants.DefaultImagePathColumnName,
+                SmiConstants.DefaultStudyIdColumnName,
+                SmiConstants.DefaultSeriesIdColumnName,
+                SmiConstants.DefaultInstanceIdColumnName,
             })
             {
                 var ei = new ExtractionInformation(repo, new CatalogueItem(repo, c,"a"), new ColumnInfo(repo,requiredColumn,"varchar(10)",(TableInfo)t), requiredColumn);

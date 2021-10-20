@@ -2,16 +2,12 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Rdmp.Core.Curation.Data;
+using Smi.Common;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
     public class QueryToExecuteColumnSet
     {
-        public const string DefaultImagePathColumnName = "RelativeFileArchiveURI";
-        public const string DefaultStudyIdColumnName = "StudyInstanceUID";
-        public const string DefaultSeriesIdColumnName = "SeriesInstanceUID";
-        public const string DefaultInstanceIdColumnName = "SOPInstanceUID";
-
         /// <summary>
         /// The dataset to query
         /// </summary>
@@ -89,10 +85,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
             var eis = catalogue.GetAllExtractionInformation(ExtractionCategory.Any);
             
-            var filePathColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultImagePathColumnName, StringComparison.CurrentCultureIgnoreCase));
-            var studyTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultStudyIdColumnName, StringComparison.CurrentCultureIgnoreCase));
-            var seriesTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultSeriesIdColumnName, StringComparison.CurrentCultureIgnoreCase));
-            var instanceTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(DefaultInstanceIdColumnName, StringComparison.CurrentCultureIgnoreCase));
+            var filePathColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SmiConstants.DefaultImagePathColumnName, StringComparison.CurrentCultureIgnoreCase));
+            var studyTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SmiConstants.DefaultStudyIdColumnName, StringComparison.CurrentCultureIgnoreCase));
+            var seriesTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SmiConstants.DefaultSeriesIdColumnName, StringComparison.CurrentCultureIgnoreCase));
+            var instanceTagColumn = eis.SingleOrDefault(ei => ei.GetRuntimeName().Equals(SmiConstants.DefaultInstanceIdColumnName, StringComparison.CurrentCultureIgnoreCase));
 
             if (filePathColumn == null && requireFilePath)
                 return null;
