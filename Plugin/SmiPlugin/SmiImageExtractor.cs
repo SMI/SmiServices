@@ -3,6 +3,7 @@ using Rdmp.Core.Curation.Data;
 using Rdmp.Core.DataExport.DataExtraction.Commands;
 using Rdmp.Core.DataFlowPipeline;
 using Rdmp.Core.DataFlowPipeline.Requirements;
+using Rdmp.Dicom.Extraction;
 using ReusableLibraryCode.Progress;
 using Smi.Common;
 using Smi.Common.Messages.Extraction;
@@ -48,6 +49,8 @@ namespace SmiPlugin
         [DemandsInitialization("The exchange to send ExtractFileMessages to", Mandatory = true, DefaultValue = "FileCollectionInfoExchange")]
         public string ExtractFilesInfoExchange { get; set; } = "FileCollectionInfoExchange";
 
+        [DemandsInitialization("Optional UID mapping server.  If set then data in pipeline will have Study/Series/Instance UIDs replaced with anonymous mappings")]
+        public ExternalDatabaseServer UIDMappingServer { get; set; }
         #endregion
 
         #region Private fields
@@ -55,14 +58,15 @@ namespace SmiPlugin
         /// Datasets being extracted that pass through this component must have these
         /// UID fields in order to be extracted
         /// </summary>
-        private List<string> _expectedUidFields = new List<string>{
-            SmiConstants.DefaultStudyIdColumnName,
-            SmiConstants.DefaultSeriesIdColumnName,
-            SmiConstants.DefaultInstanceIdColumnName
+        private Dictionary<string,UIDType> _expectedUidFields = new Dictionary<string,UIDType>{
+            { SmiConstants.DefaultStudyIdColumnName, UIDType.StudyInstanceUID},
+            {SmiConstants.DefaultSeriesIdColumnName, UIDType.SeriesInstanceUID },
+            {SmiConstants.DefaultInstanceIdColumnName, UIDType.SOPInstanceUID }
         };
         private RabbitMqAdapter _adapter;
         private IProducerModel _fileMessageSender;
         private IProducerModel _infoMessageSender;
+        private int _projectNumber;
         private IExtractCommand _extractCommand;
 
         /// <summary>
@@ -81,7 +85,7 @@ namespace SmiPlugin
             }
 
             // it is an imaging one, make sure it has all the required UIDs
-            var missingFields = _expectedUidFields.Where(c => !toProcess.Columns.Contains(c)).ToArray();
+            var missingFields = _expectedUidFields.Where(c => !toProcess.Columns.Contains(c.Key)).ToArray();
 
             if(missingFields.Any())
             {
@@ -90,14 +94,45 @@ namespace SmiPlugin
             
             SetupConnection();
 
-            foreach (var dr in toProcess.Rows)
+            var mappingServer = UIDMappingServer == null ? null : new MappingRepository(UIDMappingServer);
+
+            foreach (DataRow dr in toProcess.Rows)
             {
                 // TODO: send messages
                 //new ExtractFileMessage()
+
+                if(mappingServer != null)
+                {
+                    SwapUIDsInRow(dr, mappingServer);
+                }
             }
 
             return toProcess;
         }
+
+        private void SwapUIDsInRow(DataRow dr, MappingRepository mappingServer)
+        {
+
+            //rewrite the UIDs in the pipeline data so the output CSV/Table has anonymised UIDs
+            foreach (var uidField in _expectedUidFields)
+            {
+                var value = dr[uidField.Key] as string;
+
+                //if there is no value for this UID (somehow)
+                if (value == null)
+                {
+                    // skip it
+                    continue;
+                }
+
+                // get anonymous UID mapping for this UID Type
+                var releaseValue = mappingServer.GetOrAllocateMapping(value, _projectNumber, uidField.Value);
+
+                //change value in data table row
+                dr[uidField.Key] = releaseValue;
+            }
+        }
+
 
         /// <summary>
         /// Sets up RabbitMq connection if it has not already happened
@@ -132,10 +167,12 @@ namespace SmiPlugin
                 MaxConfirmAttempts = MaxConfirms
             });
 
+            _projectNumber = _extractCommand.Configuration.Project.ProjectNumber ?? throw new Exception("Project must have a number");
+
             _request = new ExtractionRequestMessage()
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
-                ProjectNumber = _extractCommand.Configuration.Project.ProjectNumber?.ToString() ?? throw new Exception("Project must have a number"),
+                ProjectNumber = _projectNumber.ToString() ,
 
                 // TODO : populate the rest of these
             };
