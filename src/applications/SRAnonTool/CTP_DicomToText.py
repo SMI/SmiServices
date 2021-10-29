@@ -76,7 +76,7 @@ def extract_mongojson(mongojson, output, metadata_output=None):
         SR.SR_parse(mongojson, filename, fd)
     if metadata_output:
         with open(metadata_output, 'w') as fd:
-            print(json.dumps({k:mongojson[k] for k in metadata_fields}), file=fd)
+            print(json.dumps({k:mongojson[k] for k in metadata_fields if k in mongojson}), file=fd)
         logging.info(f'Wrote {metadata_output}')
     logging.info(f'Wrote {output}')
 
@@ -112,7 +112,7 @@ def extract_dicom_file(input, output, metadata_output=None):
         fd.write(dicomtext.text())
     if metadata_output:
         with open(metadata_output, 'w') as fd:
-            metadata_json = {k:dicomtext.tag(k) for k in metadata_fields}
+            metadata_json = {k:dicomtext.tag(k) for k in metadata_fields if dicomtext.tag(k)}
             metadata_json['PatientID'] = patientid_map(metadata_json.get('PatientID',''))
             print(json.dumps(metadata_json), file=fd)
         logging.info(f'Wrote {metadata_output}')
