@@ -1,6 +1,8 @@
 ---
 
 steps:
+  # NOTE(rkm 2021-10-15) We don't really care about this version, since the
+  # exact version we want to use will be loaded later
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.x'

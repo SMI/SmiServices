@@ -53,12 +53,10 @@ namespace Microservices.DicomTagReader.Tests
             SetUpDefaults();
 
             // Create the test Series/Image exchanges
-            Options.RabbitOptions.RabbitMqControlExchangeName = "TEST.ControlExchange";
             var tester = new MicroserviceTester(Options.RabbitOptions);
             tester.CreateExchange(Options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName,  TestImageQueueName);
             tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, TestSeriesQueueName);
             tester.CreateExchange(Options.RabbitOptions.FatalLoggingExchange, null);
-            tester.CreateExchange(Options.RabbitOptions.RabbitMqControlExchangeName, null);
             tester.Shutdown();
 
             _testConnection = new ConnectionFactory

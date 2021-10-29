@@ -55,11 +55,6 @@ namespace Smi.Common.Tests
             using (var con = Factory.CreateConnection())
             using (var model = con.CreateModel())
             {
-                //get rid of old exchanges
-                model.ExchangeDelete(rabbitOptions.RabbitMqControlExchangeName);
-                //create a new one
-                model.ExchangeDeclare(rabbitOptions.RabbitMqControlExchangeName, ExchangeType.Topic, true);
-
                 //setup a sender channel for each of the consumers you want to test sending messages to
                 foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
                 {

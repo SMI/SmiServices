@@ -115,7 +115,9 @@ Apart from the Microservices (documented above) the following library classes ar
 
 ### Building the C# Projects
 
-Building requires the [.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+Building requires a [.NET Core SDK](https://dotnet.microsoft.com/download/dotnet-core), at a compatible version as specified in the [`global.json`](/global.json) file.
+
+To build the entire solution from the project root, run:
 
 Make sure to install the latest version of the SDK.  At a minimum it must be equal to or later than the version specified in [global.json](./global.json)
 
