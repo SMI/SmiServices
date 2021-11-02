@@ -3,4 +3,4 @@ pika
 pydicom
 pymongo
 PyYAML
-mysql-connector-python
+mysql_connector_python
