@@ -2,10 +2,13 @@
 # for recording document annotations.
 # This has been deduced from the SemEHR-anonymiser output
 # and is intended only for working with that software.
+# It has been extended to work like the ann_converter
+# so the output can be used as input to eHOST.
 
 from operator import itemgetter # for sorted()
 import xml.etree.ElementTree    # untangle and xmltodict not available in NSH
 import xml.dom.minidom as minidom
+import re
 
 
 # ---------------------------------------------------------------------
@@ -43,7 +46,7 @@ import xml.dom.minidom as minidom
 #   <creationDate>Wed November 11 13:04:51 2020</creationDate>
 #  </annotation>
 #  <classMention id="anon.txt-1">
-#   <mentionClass id="semehr_sensitive_info">Baker's Cyst</mentionClass>
+#   <mentionClass id="Disease(C12345)">Baker's Cyst</mentionClass>
 #  </classMention>
 # </annotations>
 
@@ -52,7 +55,7 @@ def annotation_xml_to_dict(xmlroot):
     """ Convert from XML structure into python list of dicts sorted by start_char.
     Parameter: xmlroot should be the result of calling getroot() on an ElementTree.
     Structure should be annotations with span elements. classMentions are ignored.
-    Returns: list of dicts { start_char, end_char, text }
+    Returns: list of dicts { start_char, end_char, text, pref, cui }
     eg.
     xmlroot = xml.etree.ElementTree.parse(xmlfilename).getroot()
     xmldictlist = knowtator_xml_to_dict(xmlroot)
@@ -68,13 +71,19 @@ def annotation_xml_to_dict(xmlroot):
                     txt = prop.text
             item_list.append({ 'start_char':start, 'end_char':end, 'text':txt })
         elif item.tag == 'classMention':
-            # XXX should check mentionClass id matches and is sensitive text
-            pass
+            # assuming order is always annotation followed by classMention
+            # update the last annotation with this class, being "pref(cui)"
+            for prop in item:
+                if prop.tag == 'mentionClass' and '(' in prop.attrib['id']:
+                    (pref, cui) = re.search(r'(.*)\((.*)\)', prop.attrib['id']).groups()
+                    item_list.append( { 'pref': pref, 'cui': cui, **item_list.pop() } )
     return(sorted(item_list, key=itemgetter('start_char')))
 
 
 def dict_to_annotation_xml_string(dictlist):
-    """ Convert a list of dict { start_char, end_char, text } into an XML string.
+    """ Convert a list of dict { start_char, end_char, text [pref, cui] } into an XML string
+    where pref and cui are optional and make up the class using "pref(cui"
+    if given otherwise the class "semehr_sensitive_info" is used.
     To get the list of dict from a regex pattern in a string you could use:
     [{ 'start_char': m.start(), 'end_char': m.end(), 'text': pattern } for m in re.finditer(pattern, txt)]
     """
@@ -98,7 +107,10 @@ def dict_to_annotation_xml_string(dictlist):
         xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'classMention')
         xmlitem.set('id', f'filename-{match_num}')
         xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mentionClass')
-        xmlsubitem.set('id', 'semehr_sensitive_info')
+        if 'pref' in match and 'cui' in match:
+            xmlsubitem.set('id', '%s(%s)' % (match['pref'], match['cui']))
+        else:
+            xmlsubitem.set('id', 'semehr_sensitive_info')
         xmlsubitem.text = match['text']
 
     xmlstr = minidom.parseString(xml.etree.ElementTree.tostring(xmlroot)).toprettyxml(indent=" ")
@@ -125,15 +137,17 @@ def test_Knowtator():
   <creationDate>Wed November 11 13:04:51 2020</creationDate>
  </annotation>
  <classMention id="filename-1">
-  <mentionClass id="semehr_sensitive_info">nonsense</mentionClass>
+  <mentionClass id="nothing(C000)">nonsense</mentionClass>
  </classMention>
 </annotations>
 """
     #xmlroot = xml.etree.ElementTree.parse(xmlfilename).getroot()
     #xmldictlist = knowtator_xml_to_dict(xmlroot)
     # Test round-trip starting from a dict:
-    adict = [{ 'start_char': 5, 'end_char': 7, 'text': 'stuff' },
-        { 'start_char': 15, 'end_char': 17, 'text': 'nonsense' }]
+    adict = [
+        { 'start_char': 5, 'end_char': 7, 'text': 'stuff' },
+        { 'start_char': 15, 'end_char': 17, 'text': 'nonsense', 'pref': 'nothing', 'cui': 'C000' }
+    ]
     axmlstr = dict_to_annotation_xml_string(adict)
     axmlroot = xml.etree.ElementTree.fromstring(axmlstr)
     adict2 = annotation_xml_to_dict(axmlroot)
