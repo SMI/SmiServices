@@ -80,10 +80,14 @@ def annotation_xml_to_dict(xmlroot):
     return(sorted(item_list, key=itemgetter('start_char')))
 
 
-def dict_to_annotation_xml_string(dictlist):
-    """ Convert a list of dict { start_char, end_char, text [pref, cui] } into an XML string
-    where pref and cui are optional and make up the class using "pref(cui"
+def dict_to_annotation_xml_string(dictlist, anonymise=False, annotate=False):
+    """ Convert a list of dict { start_char, end_char, text [,pref, cui] } into an XML string
+    where pref and cui are optional and make up the class using "pref(cui)"
     if given otherwise the class "semehr_sensitive_info" is used.
+    If using the output for correcting anonymisation set anonymise=True 
+    so it uses class "semehr_sensitive_info".
+    If using the output for correction annotation set annotate=True
+    so it uses class "annotation_correct".
     To get the list of dict from a regex pattern in a string you could use:
     [{ 'start_char': m.start(), 'end_char': m.end(), 'text': pattern } for m in re.finditer(pattern, txt)]
     """
@@ -107,7 +111,11 @@ def dict_to_annotation_xml_string(dictlist):
         xmlitem = xml.etree.ElementTree.SubElement(xmlroot, 'classMention')
         xmlitem.set('id', f'filename-{match_num}')
         xmlsubitem = xml.etree.ElementTree.SubElement(xmlitem, 'mentionClass')
-        if 'pref' in match and 'cui' in match:
+        if anonymise:
+            xmlsubitem.set('id', 'semehr_sensitive_info')
+        elif annotate:
+            xmlsubitem.set('id', 'annotation_correct')            
+        elif 'pref' in match and 'cui' in match:
             xmlsubitem.set('id', '%s(%s)' % (match['pref'], match['cui']))
         else:
             xmlsubitem.set('id', 'semehr_sensitive_info')
