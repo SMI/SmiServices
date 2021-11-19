@@ -29,7 +29,6 @@
     <PackageReference Include="fo-dicom.Drawing" Version="[4.0.7]" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.4.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="System.Security.AccessControl" Version="6.0.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
