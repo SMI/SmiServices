@@ -200,7 +200,7 @@ namespace Microservices.DicomAnonymiser.Tests
             // Assert
 
             new TestTimelineAwaiter().Await(() => fatalArgs != null, "Expected Fatal to be called");
-            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs.Message);
+            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
             Assert.AreEqual("DicomAnonymiserConsumer should not handle identifiable extraction messages", fatalArgs.Exception.Message);
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
@@ -294,7 +294,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             new TestTimelineAwaiter().Await(() => fatalArgs != null, "Expected Fatal to be called");
 
-            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs.Message);
+            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
             Assert.AreEqual($"Expected extraction directory to exist: '{_extractDir}'", fatalArgs.Exception.Message);
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
