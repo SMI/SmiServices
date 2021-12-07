@@ -97,7 +97,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.ExtractImages"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.ExtractImages.Tests", "tests\applications\Applications.ExtractImages.Tests\Applications.ExtractImages.Tests.csproj", "{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomAnonymiser", "src\Microservices\Microservices.DicomAnonymiser\Microservices.DicomAnonymiser.csproj", "{789280D8-0998-42E6-8E81-3019C681C9FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomAnonymiser", "src\microservices\Microservices.DicomAnonymiser\Microservices.DicomAnonymiser.csproj", "{789280D8-0998-42E6-8E81-3019C681C9FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.DicomAnonymiser.Tests", "tests\microservices\Microservices.DicomAnonymiser.Tests\Microservices.DicomAnonymiser.Tests.csproj", "{48000929-AB84-4764-9A9B-A827CAC7BD79}"
 EndProject
