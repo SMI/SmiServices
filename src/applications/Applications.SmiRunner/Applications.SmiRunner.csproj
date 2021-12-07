@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\microservices\Microservices.CohortExtractor\Microservices.CohortExtractor.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.CohortPackager\Microservices.CohortPackager.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.DeadLetterReprocessor\Microservices.DeadLetterReprocessor.csproj" />
+    <ProjectReference Include="..\..\Microservices\Microservices.DicomAnonymiser\Microservices.DicomAnonymiser.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.DicomRelationalMapper\Microservices.DicomRelationalMapper.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.DicomReprocessor\Microservices.DicomReprocessor.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.DicomTagReader\Microservices.DicomTagReader.csproj" />

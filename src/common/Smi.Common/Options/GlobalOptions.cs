@@ -67,6 +67,7 @@ namespace Smi.Common.Options
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; } = new IsIdentifiableOptions();
         public IsIdentifiableReviewerGlobalOptions IsIdentifiableReviewerOptions { get; set; } = new IsIdentifiableReviewerGlobalOptions();
         public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
+        public DicomAnonymiserOptions DicomAnonymiserOptions { get; set; } = new DicomAnonymiserOptions();
 
         #endregion
 
@@ -622,6 +623,20 @@ namespace Smi.Common.Options
         /// Options for publishing <see cref="ExtractionRequestInfoMessage"/>s
         /// </summary>
         public ProducerOptions ExtractionRequestInfoProducerOptions { get; set; }
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
+    }
+
+    [UsedImplicitly]
+    public class DicomAnonymiserOptions : IOptions
+    {
+        public string AnonymiserType { get; set; }
+        public ConsumerOptions AnonFileConsumerOptions { get; set; }
+        public ProducerOptions ExtractFileStatusProducerOptions { get; set; }
+        public string RoutingKeySuccess { get; set; }
+        public string RoutingKeyFailure { get; set; }
+        public bool FailIfSourceWriteable { get; set; } = true;
+        
 
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }

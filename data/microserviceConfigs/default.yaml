@@ -191,6 +191,19 @@ CTPAnonymiserOptions:
         ExchangeName: 'TEST.ExtractedFileStatusExchange'
         MaxConfirmAttempts: 1
 
+DicomAnonymiserOptions:
+    AnonymiserType:
+    AnonFileConsumerOptions:
+        QueueName: 'TEST.ExtractFileAnonQueue'
+        QoSPrefetchCount: 1
+        AutoAck: false
+    ExtractFileStatusProducerOptions:
+        ExchangeName: 'TEST.ExtractedFileStatusExchange'
+        MaxConfirmAttempts: 1
+    RoutingKeySuccess: verify
+    RoutingKeyFailure: noverify
+    FailIfSourceWriteable: true
+
 FileCopierOptions:
     NoVerifyRoutingKey: noverify
     QueueName: 'TEST.ExtractFileIdentQueue'
