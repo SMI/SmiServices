@@ -77,7 +77,7 @@ namespace Microservices.DicomAnonymiser
 
             var extractionDirAbs = _fileSystem.Path.Combine(_extractRoot, message.ExtractionDirectory);
 
-            // NOTE(rkm 2021-12-07) Since this direcotry shold have already been created, we treat this more like an assertion and throw if not found.
+            // NOTE(rkm 2021-12-07) Since this directory should have already been created, we treat this more like an assertion and throw if not found.
             // This helps prevent a flood of messages if e.g. the filesystem is temporarily unavialable
             if (!_fileSystem.Directory.Exists(extractionDirAbs))
                 throw new DirectoryNotFoundException($"Expected extraction directory to exist: '{extractionDirAbs}'");
