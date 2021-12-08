@@ -1,17 +1,14 @@
-﻿using Microservices.FileCopier.Execution;
+using Microservices.FileCopier.Execution;
 using Microservices.FileCopier.Messaging;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Framing;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
+using Smi.Common.Tests.Messaging;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 
 namespace Microservices.FileCopier.Tests.Messaging
@@ -62,21 +59,6 @@ namespace Microservices.FileCopier.Tests.Messaging
         [TearDown]
         public void TearDown() { }
 
-        private static BasicDeliverEventArgs GetMockDeliverArgs(ExtractFileMessage message)
-        {
-            var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>(MockBehavior.Strict);
-            mockDeliverArgs.DeliveryTag = 1;
-            mockDeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
-            mockDeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
-            var header = new MessageHeader();
-            header.Populate(mockDeliverArgs.BasicProperties.Headers);
-            // Have to convert these to bytes since RabbitMQ normally does that when sending
-            mockDeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
-            mockDeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
-            mockDeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
-            return mockDeliverArgs;
-        }
-
         #endregion
 
         #region Tests
@@ -84,7 +66,7 @@ namespace Microservices.FileCopier.Tests.Messaging
         [Test]
         public void Test_FileCopyQueueConsumer_ValidMessage_IsAcked()
         {
-            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
 
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
             consumer.SetModel(_mockModel.Object);
@@ -97,7 +79,7 @@ namespace Microservices.FileCopier.Tests.Messaging
         [Test]
         public void Test_FileCopyQueueConsumer_ApplicationException_IsNacked()
         {
-            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
 
             _mockFileCopier.Reset();
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<ApplicationException>();
@@ -113,7 +95,7 @@ namespace Microservices.FileCopier.Tests.Messaging
         [Test]
         public void Test_FileCopyQueueConsumer_UnknownException_CallsFatalCallback()
         {
-            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
 
             _mockFileCopier.Reset();
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();
@@ -135,7 +117,7 @@ namespace Microservices.FileCopier.Tests.Messaging
         public void Test_FileCopyQueueConsumer_AnonExtraction_ThrowsException()
         {
             _message.IsIdentifiableExtraction = false;
-            BasicDeliverEventArgs mockDeliverArgs = GetMockDeliverArgs(_message);
+            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
 
             _mockFileCopier.Reset();
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();

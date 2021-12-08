@@ -97,6 +97,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.ExtractImages"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.ExtractImages.Tests", "tests\applications\Applications.ExtractImages.Tests\Applications.ExtractImages.Tests.csproj", "{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomAnonymiser", "src\microservices\Microservices.DicomAnonymiser\Microservices.DicomAnonymiser.csproj", "{789280D8-0998-42E6-8E81-3019C681C9FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.DicomAnonymiser.Tests", "tests\microservices\Microservices.DicomAnonymiser.Tests\Microservices.DicomAnonymiser.Tests.csproj", "{48000929-AB84-4764-9A9B-A827CAC7BD79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -243,6 +247,14 @@ Global
 		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}.Debug|x64.Build.0 = Debug|x64
 		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}.Release|x64.ActiveCfg = Release|x64
 		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D}.Release|x64.Build.0 = Release|x64
+		{789280D8-0998-42E6-8E81-3019C681C9FE}.Debug|x64.ActiveCfg = Debug|x64
+		{789280D8-0998-42E6-8E81-3019C681C9FE}.Debug|x64.Build.0 = Debug|x64
+		{789280D8-0998-42E6-8E81-3019C681C9FE}.Release|x64.ActiveCfg = Release|x64
+		{789280D8-0998-42E6-8E81-3019C681C9FE}.Release|x64.Build.0 = Release|x64
+		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Debug|x64.ActiveCfg = Debug|x64
+		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Debug|x64.Build.0 = Debug|x64
+		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Release|x64.ActiveCfg = Release|x64
+		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -284,6 +296,8 @@ Global
 		{1CC94BFB-4BA5-4236-BD63-E23A86FDDCD2} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{810CAAE4-BA20-4D4B-BE8C-F7CAB64C3BCA} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{789280D8-0998-42E6-8E81-3019C681C9FE} = {421CCD37-3817-4748-B184-A134E19DD75C}
+		{48000929-AB84-4764-9A9B-A827CAC7BD79} = {421CCD37-3817-4748-B184-A134E19DD75C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

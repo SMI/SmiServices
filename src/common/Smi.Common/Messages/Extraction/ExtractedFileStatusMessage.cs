@@ -35,8 +35,12 @@ namespace Smi.Common.Messages.Extraction
         [JsonConstructor]
         public ExtractedFileStatusMessage() { }
 
-        public ExtractedFileStatusMessage(IExtractMessage request)
-            : base(request) { }
+        public ExtractedFileStatusMessage(ExtractFileMessage request)
+            : base(request)
+        {
+            DicomFilePath = request.DicomFilePath;
+            OutputFilePath = request.OutputPath;
+        }
 
         public override string ToString() =>
             $"{base.ToString()}," +
