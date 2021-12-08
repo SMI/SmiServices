@@ -50,7 +50,7 @@ namespace Microservices.DicomAnonymiser.Tests
         [TearDown]
         public void TearDown()
         {
-            File.SetAttributes(_fakeDicom, ~FileAttributes.ReadOnly);
+            File.SetAttributes(_fakeDicom, FileAttributes.Normal);
             _tempTestDir.Delete(recursive: true);
         }
 
