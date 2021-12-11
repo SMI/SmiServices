@@ -1,4 +1,5 @@
 using Smi.Common.Options;
+using NUnit.Framework;
 
 namespace Smi.Common.Tests.Options
 {
