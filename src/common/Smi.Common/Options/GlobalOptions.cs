@@ -707,15 +707,15 @@ namespace Smi.Common.Options
 
         public string FileSystemRoot
         {
-            get { return _fileSystemRoot; }
-            set { _fileSystemRoot = value.TrimEnd('/', '\\'); }
+            get => _fileSystemRoot;
+            set => _fileSystemRoot = value.Length>1?value.TrimEnd('/', '\\'):value;
         }
 
         public string ExtractRoot
         {
-            get { return _extractRoot; }
+            get => _extractRoot;
             [UsedImplicitly]
-            set { _extractRoot = value.TrimEnd('/', '\\'); }
+            set => _extractRoot = value.Length>1?value.TrimEnd('/', '\\'):value;
         }
 
         public override string ToString()
