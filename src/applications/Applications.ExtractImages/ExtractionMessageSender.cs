@@ -121,7 +121,7 @@ namespace Applications.ExtractImages
 
             if (_nonInteractive)
             {
-                BeginExtraction(jobId, ermList, erim);
+                LaunchExtraction(jobId, ermList, erim);
             }
             else
             {
@@ -149,7 +149,7 @@ namespace Applications.ExtractImages
 
                 if (key == "y")
                 {
-                    BeginExtraction(jobId, ermList, erim);
+                    LaunchExtraction(jobId, ermList, erim);
                 }
                 else
                 {
@@ -158,7 +158,7 @@ namespace Applications.ExtractImages
             }
         }
 
-        private void BeginExtraction(Guid jobId, IEnumerable<ExtractionRequestMessage> ermList, ExtractionRequestInfoMessage erim)
+        private void LaunchExtraction(Guid jobId, IEnumerable<ExtractionRequestMessage> ermList, ExtractionRequestInfoMessage erim)
         {
             InitialiseExtractionDir(jobId);
             SendMessagesImpl(ermList, erim);
