@@ -6,6 +6,6 @@ namespace Applications.ExtractImages
 {
     public interface IExtractionMessageSender
     {
-        void SendMessages(string absoluteExtractionDir, ExtractionKey extractionKey, List<string> idList);
+        void SendMessages(ExtractionKey extractionKey, List<string> idList);
     }
 }
