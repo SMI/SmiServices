@@ -23,6 +23,8 @@ namespace Smi.Common.Tests
         private const string RelativePackagesRoot = "../../../../../../../PACKAGES.md";
         private static readonly string[] _analyzers = { "SecurityCodeScan" };
 
+        // TODO(rkm 2021-12-17) There are projects missing here. We should update the test so it gathers packages from all csprojs (and Directory.Build.props) automatically
+
         // Applications
         [TestCase("../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj", null, null)]
         [TestCase("../../../../../../../src/applications/Applications.IsIdentifiableReviewer/Applications.IsIdentifiableReviewer.csproj", null, null)]
