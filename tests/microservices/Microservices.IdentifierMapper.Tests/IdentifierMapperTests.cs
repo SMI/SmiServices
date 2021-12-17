@@ -526,15 +526,12 @@ namespace Microservices.IdentifierMapper.Tests
                     ds.AddOrUpdate(DicomTag.PatientID, "0101010101");
                     break;
                 case Test.DuplicatePatientIDButNull:
-                    ds.AutoValidate = false;
                     ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", null });
                     break;
                 case Test.DuplicatePatientID:
-                    ds.AutoValidate = false;
                     ds.AddOrUpdate(DicomTag.PatientID, new []{ "0101010101" , "0101010101" });
                     break;
                 case Test.DuplicatePatientIDAndDifferent:
-                    ds.AutoValidate = false;
                     ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", "0202020202" });
                     break;
                 default:
