@@ -145,7 +145,7 @@ namespace Applications.ExtractImages.Tests
 
         [TestCase(null)]
         [TestCase("  ")]
-        public void ExtractionDirs_AreValidated(string? dir)
+        public void ExtractionDirs_AreValidated(string dir)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -182,7 +182,7 @@ namespace Applications.ExtractImages.Tests
 
         [TestCase(null)]
         [TestCase("  ")]
-        public void ProjectId_IsValidated(string? projectId)
+        public void ProjectId_IsValidated(string projectId)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
