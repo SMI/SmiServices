@@ -6,12 +6,15 @@ using Rdmp.Core.DataFlowPipeline.Requirements;
 using Rdmp.Dicom.Extraction;
 using ReusableLibraryCode.Progress;
 using Smi.Common;
+using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using Smi.Common.MessageSerialization;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 
 namespace SmiPlugin
@@ -51,6 +54,21 @@ namespace SmiPlugin
 
         [DemandsInitialization("Optional UID mapping server.  If set then data in pipeline will have Study/Series/Instance UIDs replaced with anonymous mappings")]
         public ExternalDatabaseServer UIDMappingServer { get; set; }
+
+        [DemandsInitialization("Directory relative to the ExtractRoot to place anonymised files into.  This must be accessible to the anonymisation microservice")]
+        public string ImageExtractionSubDirectory { get; set; }
+
+        [DemandsInitialization("True to set this flag on messages sent to smi microservices.  Should result in images not being anonymised")]
+        public bool IsIdentifiableExtraction { get; set; }
+
+        [DemandsInitialization("File suffix that should be used for anonymous images when written out",DefaultValue = "-an.dcm")]
+        public string AnonExt { get; protected set; } = "-an.dcm";
+
+        [DemandsInitialization("File suffix that should be used for identifiable images (if IsIdentifiableExtraction is true)", DefaultValue = ".dcm")]
+        public string IdentExt { get; protected set; } = ".dcm";
+
+        private static readonly string[] _replaceableExtensions = { ".dcm", ".dicom" };
+
         #endregion
 
         #region Private fields
@@ -96,15 +114,72 @@ namespace SmiPlugin
 
             var mappingServer = UIDMappingServer == null ? null : new MappingRepository(UIDMappingServer);
 
+            /*
+             * These are the messages we have to send:
+             * - To Anonymiser ExtractFileMessage (Hey you CTP!, copy out the file at DicomFilePath path)
+             * - To CohortPackager
+             *      - ExtractionRequestInfoMessage (what I want extracted is X Tag with Y Value)
+                    - ExtractFileCollectionInfoMessage (Hey Packager, this is what I told CTP to do)
+*/
+            var jobGuid = Guid.NewGuid();
+            var jobDate = DateTime.Now;
+
+            var extractionRequestInfoMessage = new ExtractionRequestInfoMessage()
+            {
+                ExtractionDirectory = ImageExtractionSubDirectory,
+                ExtractionJobIdentifier = jobGuid,
+                //ExtractionModality = "Any",
+                IsIdentifiableExtraction = IsIdentifiableExtraction,
+                IsNoFilterExtraction= false,
+                JobSubmittedAt = jobDate,
+                KeyTag = SmiConstants.DefaultInstanceIdColumnName,
+                ProjectNumber = _projectNumber.ToString(),
+                KeyValueCount = toProcess.Rows.Count
+            };
+
+            _infoMessageSender.SendMessage(extractionRequestInfoMessage,null);
+
             foreach (DataRow dr in toProcess.Rows)
             {
-                // TODO: send messages
-                //new ExtractFileMessage()
+                var extractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
+                {
+                    ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(),
+                    ExtractionDirectory = ImageExtractionSubDirectory,
+                    ExtractionJobIdentifier = jobGuid,
+                    IsIdentifiableExtraction = IsIdentifiableExtraction,
+                    IsNoFilterExtraction = false,
+                    JobSubmittedAt = jobDate,
+                    KeyValue = (string)dr[SmiConstants.DefaultInstanceIdColumnName],
+                    ProjectNumber = _projectNumber.ToString(),
+                    RejectionReasons = new Dictionary<string, int>()
+                };
 
-                if(mappingServer != null)
+                var extractFileMessage = new ExtractFileMessage()
+                {
+                    DicomFilePath = (string)dr[RelativeArchiveUriFieldName],
+                    ExtractionDirectory = ImageExtractionSubDirectory,
+                    ExtractionJobIdentifier = jobGuid,
+                    IsIdentifiableExtraction = IsIdentifiableExtraction,
+                    JobSubmittedAt = jobDate,
+                    IsNoFilterExtraction = false,
+                    OutputPath = GetOutputPath(
+                        (string)dr[RelativeArchiveUriFieldName],
+                        (string)dr[SmiConstants.DefaultStudyIdColumnName],
+                        (string)dr[SmiConstants.DefaultSeriesIdColumnName]),
+                    ProjectNumber = _projectNumber.ToString()
+
+                };
+
+                if (mappingServer != null)
                 {
                     SwapUIDsInRow(dr, mappingServer);
                 }
+
+                var header = _fileMessageSender.SendMessage(extractFileMessage, null);
+                extractFileCollectionInfoMessage.ExtractFileMessagesDispatched.Add((MessageHeader)header, extractFileMessage.OutputPath);
+
+
+                _infoMessageSender.SendMessage(extractFileCollectionInfoMessage, null);
             }
 
             return toProcess;
@@ -191,6 +266,38 @@ namespace SmiPlugin
         public void PreInitialize(IExtractCommand value, IDataLoadEventListener listener)
         {
             _extractCommand = value;
+        }
+
+
+        /// <summary>
+        /// Returns the output path for the anonymised file, relative to the ExtractionDirectory
+        /// </summary>
+        /// <returns></returns>
+        public string GetOutputPath(string dicomPath, string studyInstanceUID, string seriesInstanceUID)
+        {
+            string extToUse = IsIdentifiableExtraction ? IdentExt : AnonExt;
+
+            // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output file name to have the required extension
+            string fileName = Path.GetFileName(dicomPath);
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentNullException(nameof(fileName));
+
+            var replaced = false;
+            foreach (string ext in _replaceableExtensions)
+                if (fileName.EndsWith(ext))
+                {
+                    fileName = fileName.Replace(ext, extToUse);
+                    replaced = true;
+                    break;
+                }
+
+            if (!replaced)
+                fileName += extToUse;
+
+            return Path.Combine(
+                studyInstanceUID ?? "unknown",
+                seriesInstanceUID ?? "unknown",
+                fileName);
         }
     }
 }
