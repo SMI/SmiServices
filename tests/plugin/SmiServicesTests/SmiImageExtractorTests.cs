@@ -6,23 +6,27 @@ using System.Linq.Expressions;
 using System.Threading;
 using Moq;
 using NUnit.Framework;
+using Rdmp.Core.Curation.Data;
 using ReusableLibraryCode.Checks;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using SmiPlugin;
+using Tests.Common;
 
 namespace Applications.ExtractImages.Tests
 {
     [RequiresRabbit]
-    public class SmiImageExtractorTests
+    public class SmiImageExtractorTests : UnitTests
     {
         #region Fixture Methods
 
         [OneTimeSetUp]
-        public void OneTimeSetUp()
+        protected override void OneTimeSetUp()
         {
+            base.OneTimeSetUp();
+
             TestLogger.Setup();
         }
 
@@ -33,9 +37,6 @@ namespace Applications.ExtractImages.Tests
 
         #region Test Methods
 
-        [SetUp]
-        public void SetUp() { }
-
         [TearDown]
         public void TearDown() { }
 
@@ -44,20 +45,27 @@ namespace Applications.ExtractImages.Tests
         #region Tests
 
         [Test]
-        public void SmiImageExtractor_CheckNoConnectionSettings()
+        public void SmiImageExtractor_CheckConnectionSettings()
         {
-            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(SmiImageExtractor_CheckNoConnectionSettings));
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(SmiImageExtractor_CheckConnectionSettings));
             globals.ExtractImagesOptions.MaxIdentifiersPerMessage = 1;
 
-            var extractor = new SmiImageExtractor();
-            extractor.Check(new ThrowImmediatelyCheckNotifier());
-        }
+            var creds = WhenIHaveA<DataAccessCredentials>();
+            creds.Username = globals.RabbitOptions.RabbitMqUserName;
+            creds.Password = globals.RabbitOptions.RabbitMqPassword;
 
-        // TODO: remove this
-        [Test]
-        public void Fail()
-        {
-            Assert.Fail("fail");
+            var extractor = new SmiImageExtractor
+            {
+                RabbitMqCredentials = creds,
+                RabbitMqHostName = globals.RabbitOptions.RabbitMqHostName,
+                RabbitMqHostPort = globals.RabbitOptions.RabbitMqHostPort,
+                RabbitMqVirtualHost = globals.RabbitOptions.RabbitMqVirtualHost,
+                ExtractFilesExchange = globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName,
+                ExtractFilesInfoExchange = globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions.ExchangeName,
+                ImageExtractionSubDirectory = "someproj/",
+            };
+
+            extractor.Check(new ThrowImmediatelyCheckNotifier());
         }
         #endregion
     }

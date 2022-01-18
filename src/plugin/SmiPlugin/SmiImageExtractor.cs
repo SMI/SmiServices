@@ -215,6 +215,11 @@ namespace SmiPlugin
                 return;
             }
 
+            if(RabbitMqCredentials == null)
+            {
+                throw new Exception($"{nameof(RabbitMqCredentials)} must be set");
+            }
+
             var factory = new ConnectionFactory()
             {
                 HostName = RabbitMqHostName,
