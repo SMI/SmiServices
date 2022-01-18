@@ -99,11 +99,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.ExtractImages.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomAnonymiser", "src\microservices\Microservices.DicomAnonymiser\Microservices.DicomAnonymiser.csproj", "{789280D8-0998-42E6-8E81-3019C681C9FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.DicomAnonymiser.Tests", "tests\microservices\Microservices.DicomAnonymiser.Tests\Microservices.DicomAnonymiser.Tests.csproj", "{48000929-AB84-4764-9A9B-A827CAC7BD79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomAnonymiser.Tests", "tests\microservices\Microservices.DicomAnonymiser.Tests\Microservices.DicomAnonymiser.Tests.csproj", "{48000929-AB84-4764-9A9B-A827CAC7BD79}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{F6ACA181-1861-4560-A219-AF121EC052AA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiPlugin", "Plugin\SmiPlugin\SmiPlugin.csproj", "{B8019BBC-E0A8-47C4-BA00-273F33ADAD9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices.Tests", "tests\plugin\SmiServicesTests\SmiServices.Tests.csproj", "{287E66BF-86C8-4D26-83C6-E7375497F6BD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiPlugin", "src\plugin\SmiPlugin\SmiPlugin.csproj", "{2B639280-237A-4067-98B8-5E490ACE0FF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -259,10 +261,14 @@ Global
 		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Debug|x64.Build.0 = Debug|x64
 		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Release|x64.ActiveCfg = Release|x64
 		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Release|x64.Build.0 = Release|x64
-		{B8019BBC-E0A8-47C4-BA00-273F33ADAD9B}.Debug|x64.ActiveCfg = Debug|x64
-		{B8019BBC-E0A8-47C4-BA00-273F33ADAD9B}.Debug|x64.Build.0 = Debug|x64
-		{B8019BBC-E0A8-47C4-BA00-273F33ADAD9B}.Release|x64.ActiveCfg = Release|x64
-		{B8019BBC-E0A8-47C4-BA00-273F33ADAD9B}.Release|x64.Build.0 = Release|x64
+		{287E66BF-86C8-4D26-83C6-E7375497F6BD}.Debug|x64.ActiveCfg = Debug|x64
+		{287E66BF-86C8-4D26-83C6-E7375497F6BD}.Debug|x64.Build.0 = Debug|x64
+		{287E66BF-86C8-4D26-83C6-E7375497F6BD}.Release|x64.ActiveCfg = Release|x64
+		{287E66BF-86C8-4D26-83C6-E7375497F6BD}.Release|x64.Build.0 = Release|x64
+		{2B639280-237A-4067-98B8-5E490ACE0FF7}.Debug|x64.ActiveCfg = Debug|x64
+		{2B639280-237A-4067-98B8-5E490ACE0FF7}.Debug|x64.Build.0 = Debug|x64
+		{2B639280-237A-4067-98B8-5E490ACE0FF7}.Release|x64.ActiveCfg = Release|x64
+		{2B639280-237A-4067-98B8-5E490ACE0FF7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -306,7 +312,8 @@ Global
 		{75E52FD9-46B2-4FC0-AE4D-72547B5DE90D} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{789280D8-0998-42E6-8E81-3019C681C9FE} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{48000929-AB84-4764-9A9B-A827CAC7BD79} = {421CCD37-3817-4748-B184-A134E19DD75C}
-		{B8019BBC-E0A8-47C4-BA00-273F33ADAD9B} = {F6ACA181-1861-4560-A219-AF121EC052AA}
+		{287E66BF-86C8-4D26-83C6-E7375497F6BD} = {F6ACA181-1861-4560-A219-AF121EC052AA}
+		{2B639280-237A-4067-98B8-5E490ACE0FF7} = {F6ACA181-1861-4560-A219-AF121EC052AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

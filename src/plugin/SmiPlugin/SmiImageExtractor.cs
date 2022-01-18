@@ -4,6 +4,7 @@ using Rdmp.Core.DataExport.DataExtraction.Commands;
 using Rdmp.Core.DataFlowPipeline;
 using Rdmp.Core.DataFlowPipeline.Requirements;
 using Rdmp.Dicom.Extraction;
+using ReusableLibraryCode.Checks;
 using ReusableLibraryCode.Progress;
 using Smi.Common;
 using Smi.Common.Messages;
@@ -24,7 +25,7 @@ namespace SmiPlugin
     /// messages to RabbitMQ so that microservices can anonymise and extract images on disk.  It does not itself
     /// anonymise images during execution.
     /// </summary>
-    public class SmiImageExtractor : IDataFlowComponent<DataTable>, IPipelineRequirement<IExtractCommand>
+    public class SmiImageExtractor : IPluginDataFlowComponent<DataTable>, IPipelineRequirement<IExtractCommand>
     {
         #region Public user configurable properties
 
@@ -86,11 +87,6 @@ namespace SmiPlugin
         private IProducerModel _infoMessageSender;
         private int _projectNumber;
         private IExtractCommand _extractCommand;
-
-        /// <summary>
-        /// Records everything we were asked to extract as list of UIDs.  Required to send messages
-        /// </summary>
-        private ExtractionRequestMessage _request;
         #endregion
 
         public DataTable ProcessPipelineData(DataTable toProcess, IDataLoadEventListener listener, GracefulCancellationToken cancellationToken)
@@ -243,14 +239,6 @@ namespace SmiPlugin
             });
 
             _projectNumber = _extractCommand.Configuration.Project.ProjectNumber ?? throw new Exception("Project must have a number");
-
-            _request = new ExtractionRequestMessage()
-            {
-                ExtractionJobIdentifier = Guid.NewGuid(),
-                ProjectNumber = _projectNumber.ToString() ,
-
-                // TODO : populate the rest of these
-            };
         }
 
         public void Dispose(IDataLoadEventListener listener, Exception pipelineFailureExceptionIfAny)
@@ -298,6 +286,31 @@ namespace SmiPlugin
                 studyInstanceUID ?? "unknown",
                 seriesInstanceUID ?? "unknown",
                 fileName);
+        }
+
+        public void Check(ICheckNotifier notifier)
+        {
+            SetupConnection();
+
+            try
+            {
+                _fileMessageSender.WaitForConfirms();
+                notifier.OnCheckPerformed(new CheckEventArgs($"Connected to RabbitMQ correctly for {nameof(ExtractFilesExchange)}",CheckResult.Success));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not reach {nameof(ExtractFilesExchange)}.  Server was {RabbitMqHostName} (virtual host {RabbitMqVirtualHost} ) and exchange name was {ExtractFilesExchange}", ex);
+            }
+
+            try
+            {
+                _infoMessageSender.WaitForConfirms();
+                notifier.OnCheckPerformed(new CheckEventArgs($"Connected to RabbitMQ correctly for {nameof(ExtractFilesInfoExchange)}", CheckResult.Success));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not reach {nameof(ExtractFilesInfoExchange)}.  Server was {RabbitMqHostName} (virtual host {RabbitMqVirtualHost} ) and exchange name was {ExtractFilesInfoExchange}", ex);
+            }
         }
     }
 }
