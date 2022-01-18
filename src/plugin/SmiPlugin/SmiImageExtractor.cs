@@ -243,6 +243,12 @@ namespace SmiPlugin
                 MaxConfirmAttempts = MaxConfirms
             });
 
+            // if we are at the checks stage of things
+            if(_extractCommand  == null || _extractCommand ==  ExtractDatasetCommand.EmptyCommand)
+            {
+                return;
+            }
+
             _projectNumber = _extractCommand.Configuration.Project.ProjectNumber ?? throw new Exception("Project must have a number");
         }
 
@@ -296,26 +302,7 @@ namespace SmiPlugin
         public void Check(ICheckNotifier notifier)
         {
             SetupConnection();
-
-            try
-            {
-                _fileMessageSender.WaitForConfirms();
-                notifier.OnCheckPerformed(new CheckEventArgs($"Connected to RabbitMQ correctly for {nameof(ExtractFilesExchange)}",CheckResult.Success));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Could not reach {nameof(ExtractFilesExchange)}.  Server was {RabbitMqHostName} (virtual host {RabbitMqVirtualHost} ) and exchange name was {ExtractFilesExchange}", ex);
-            }
-
-            try
-            {
-                _infoMessageSender.WaitForConfirms();
-                notifier.OnCheckPerformed(new CheckEventArgs($"Connected to RabbitMQ correctly for {nameof(ExtractFilesInfoExchange)}", CheckResult.Success));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Could not reach {nameof(ExtractFilesInfoExchange)}.  Server was {RabbitMqHostName} (virtual host {RabbitMqVirtualHost} ) and exchange name was {ExtractFilesInfoExchange}", ex);
-            }
+            notifier.OnCheckPerformed(new CheckEventArgs("Connection to RabbitMQ successful", CheckResult.Success));
         }
     }
 }

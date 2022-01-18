@@ -65,6 +65,10 @@ namespace Applications.ExtractImages.Tests
                 ImageExtractionSubDirectory = "someproj/",
             };
 
+            using var tester = new MicroserviceTester(globals.RabbitOptions);
+            tester.CreateExchange(globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName);
+            tester.CreateExchange(globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions.ExchangeName);
+
             extractor.Check(new ThrowImmediatelyCheckNotifier());
         }
         #endregion
