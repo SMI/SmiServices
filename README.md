@@ -12,6 +12,60 @@ Version: `4.0.0`
 
 # SMI Services
 
+## 1.0 Introduction
+
+### 1.1 Overview
+
+SMI Services is a suite of tools designed to deliver scaleable dicom image indexing for cohort building and extraction in anonymised sub sets (e.g. for research).  It is an Extract, Transform and Load tool (ETL) for imaging data.
+
+The problem addressed is how to enable linking of dicom metadata with other clinical data (e.g. electronic health records - EHR).  The context in which it was developed is the loading and anonymisation of metadata for 10 years of Scottish national clinical imaging data (2 petabytes).
+
+The following processes are solved by the suite:
+
+- Robust parallel loading of dicom metadata into a relational database where it can be linked to EHR data
+- Anonymisation of the dicom metadata within the relational database
+- Cohort building by linking the relational database tables with other EHR data (e.g. biochemistry results, prescriptions etc)
+- Producing anonymous dicom image files for a subset of the repository
+
+Stakeholders likely to interact with this suite include Research Coordinators (building research extracts) and Data Analysts (loading data, verifying anonymisation etc)
+
+The solution is built on top of the [Research Data Management Platform](https://github.com/HicServices/RDMP) which drives many of its underlying processes.
+
+### 1.2 Glossary or Terminology
+
+For RDMP terms see the [RDMP Glossary](https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md)
+
+For DICOM specific terms see the [DICOM tag browser](https://dicom.innolitics.com/ciods) or [DICOM specification](https://www.dicomstandard.org/)
+
+### 1.3 Background and Context
+
+Historically dicom images are held in a clinical PACS or in an imaging informatics platform such as [XNAT](https://www.xnat.org/).  SmiServices can function standalone or side by side with such tools.  The unique features of SmiServices are it's ability to present large imaging datasets as indexed flat tables in a relational database (MySql, Sql Server, Postgres or Oracle) where they can be linked with cohorts/EHR datasets. This is a worthy addition since it allows for cohort building and extraction using existing tools that data analysts are familiar with (R, Sql scripts, [RDMP Cohort Builder](https://github.com/HicServices/RDMP) etc).
+
+### 1.4 Goals and Technical Requirements
+
+The goals are to load dicom metadata, build cohorts and extract anonymous image subsets.
+
+This requires dotnet, RabbitMQ, RDMP, MongoDb and a Relational Database.  For more info on setting up SmiServices see [Deployment](#deployment).
+
+SmiServices benefits from:
+
+- Running on a cluster (many VMs running many copies of each service)
+- A Parallel File System (e.g. [BeeGFS](https://en.wikipedia.org/wiki/BeeGFS) or [Lustre](https://www.lustre.org/))
+
+### 1.5 Out of Scope
+
+SmiServices does not support imaging workflows (e.g. running image algorithms).
+
+It also does not have an API for external communication (e.g. Dicom Query Retrieve or FHIR/HL7 etc).  The imaging metadata produced by SmiServices can be queried using MongoDb queries or SQL.
+
+### 1.6 Assumptions
+
+SmiServices assumes that database servers are optimised and properly resourced to store the volume of image metadata anticipated.  ETL is robust and can deal with outages and database stability issues (e.g. lock collisions) but these can errode system performance.
+
+The solution is designed for large image collections (i.e. billions of images).  It supports flexible schema definitions such that only the tags required for cohort building (and the image file paths) are loaded.  Therefore successful usage of the tool requires a basic understanding of dicom tag significance and an appropriately large body of images to justify its use.
+
+
+
 ![loaddiagram](./docs/Images/SmiFlow.svg)
 
 A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scalability) of [dicom] medical images to support medical research.
