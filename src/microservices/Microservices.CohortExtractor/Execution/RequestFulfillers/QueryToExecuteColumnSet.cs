@@ -62,7 +62,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         
         /// <summary>
         /// Generates a column set based on columns found in <paramref name="catalogue"/> (using the default expected column names
-        /// e.g. <see cref="DefaultSeriesIdColumnName"/>).  Returns null if the <paramref name="catalogue"/> does not have all the required
+        /// e.g. <see cref="SmiConstants.DefaultSeriesIdColumnName"/>).  Returns null if the <paramref name="catalogue"/> does not have all the required
         /// columns
         /// </summary>
         /// <param name="catalogue"></param>
@@ -73,7 +73,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         /// <summary>
         /// Generates a column set based on columns found in <paramref name="catalogue"/> (using the default expected column names
-        /// e.g. <see cref="DefaultSeriesIdColumnName"/>).  Returns null if the <paramref name="catalogue"/> does not have all the required
+        /// e.g. <see cref="SmiConstants.DefaultSeriesIdColumnName"/>).  Returns null if the <paramref name="catalogue"/> does not have all the required
         /// columns
         /// </summary>
         /// <param name="catalogue"></param>
