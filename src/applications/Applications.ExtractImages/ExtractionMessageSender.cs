@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -19,6 +19,7 @@ namespace Applications.ExtractImages
         private readonly IProducerModel _extractionRequestProducer;
         private readonly IProducerModel _extractionRequestInfoProducer;
         private readonly IFileSystem _fileSystem;
+        private readonly string _extractionRoot;
         private readonly string _extractionDir;
 
         private readonly DateTimeProvider _dateTimeProvider;
@@ -39,6 +40,7 @@ namespace Applications.ExtractImages
             IProducerModel extractionRequestProducer,
             IProducerModel extractionRequestInfoProducer,
             IFileSystem fileSystem,
+            string extractionRoot,
             string extractionDir,
             DateTimeProvider dateTimeProvider,
             IConsoleInput consoleInput
@@ -48,6 +50,7 @@ namespace Applications.ExtractImages
             _extractionRequestInfoProducer = extractionRequestInfoProducer;
 
             _fileSystem = fileSystem;
+            _extractionRoot = (!string.IsNullOrWhiteSpace(extractionRoot)) ? extractionRoot : throw new ArgumentException(nameof(extractionRoot));
             _extractionDir = (!string.IsNullOrWhiteSpace(extractionDir)) ? extractionDir : throw new ArgumentException(nameof(extractionDir));
             _dateTimeProvider = dateTimeProvider;
             _consoleInput = consoleInput;
@@ -63,7 +66,7 @@ namespace Applications.ExtractImages
             _nonInteractive = cliOptions.NonInteractive;
         }
 
-        public void SendMessages(string absoluteExtractionDir, ExtractionKey extractionKey, List<string> idList)
+        public void SendMessages(ExtractionKey extractionKey, List<string> idList)
         {
             if (idList.Count == 0)
                 throw new ArgumentException("ID list is empty");
@@ -118,7 +121,7 @@ namespace Applications.ExtractImages
 
             if (_nonInteractive)
             {
-                SendMessagesImpl(absoluteExtractionDir, ermList, erim);
+                LaunchExtraction(jobId, ermList, erim);
             }
             else
             {
@@ -146,7 +149,7 @@ namespace Applications.ExtractImages
 
                 if (key == "y")
                 {
-                    SendMessagesImpl(absoluteExtractionDir, ermList, erim);
+                    LaunchExtraction(jobId, ermList, erim);
                 }
                 else
                 {
@@ -155,11 +158,26 @@ namespace Applications.ExtractImages
             }
         }
 
-        private void SendMessagesImpl(string absoluteExtractionDir, IEnumerable<ExtractionRequestMessage> ermList, ExtractionRequestInfoMessage erim)
+        private void LaunchExtraction(Guid jobId, IEnumerable<ExtractionRequestMessage> ermList, ExtractionRequestInfoMessage erim)
         {
-            _logger.Info("Created extraction directory");
+            InitialiseExtractionDir(jobId);
+            SendMessagesImpl(ermList, erim);
+        }
+
+        private void InitialiseExtractionDir(Guid jobId)
+        {
+            var absoluteExtractionDir = _fileSystem.Path.Combine(_extractionRoot, _extractionDir);
             _fileSystem.Directory.CreateDirectory(absoluteExtractionDir);
 
+            // Write the jobId to a file in the extraction dir to help identify the set of files if they are moved
+            string jobIdFile = _fileSystem.Path.Combine(_extractionRoot, _extractionDir, "jobId.txt");
+            _fileSystem.File.WriteAllText(jobIdFile, $"{jobId}\n");
+
+            _logger.Info("Created extraction directory and jobId file");
+        }
+
+        private void SendMessagesImpl(IEnumerable<ExtractionRequestMessage> ermList, ExtractionRequestInfoMessage erim)
+        {
             _logger.Info("Sending messages");
 
             foreach (var msg in ermList)

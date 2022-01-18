@@ -30,7 +30,6 @@
 | System.Drawing.Common | [GitHub](https://github.com/dotnet/corefx) | [MIT](https://opensource.org/licenses/MIT)  | Supports reading pixel data |
 | System.IO.Abstractions | [GitHub](https://github.com/System-IO-Abstractions/System.IO.Abstractions) | [MIT](https://opensource.org/licenses/MIT) | Makes file system injectable in tests |
 | System.IO.FileSystem | [GitHub](https://github.com/dotnet/corefx) |[MIT](https://opensource.org/licenses/MIT)  | File I/O |
-| System.Security.AccessControl | [GitHub](https://github.com/dotnet/corefx) |[MIT](https://opensource.org/licenses/MIT)  | File access perimssions|
 | Terminal.Gui | [GitHub](https://github.com/migueldeicaza/gui.cs/) |[MIT](https://opensource.org/licenses/MIT) | Console GUI library |
 | Tesseract | [GitHub](https://github.com/charlesw/tesseract/) |[Apache License v2](https://github.com/charlesw/tesseract/blob/master/LICENSE.txt)  | Optical Character Recognition in Dicom Pixel data|
 | YamlDotNet | [GitHub](https://github.com/aaubry/YamlDotNet)  | [MIT](https://opensource.org/licenses/MIT) |Loading configuration files

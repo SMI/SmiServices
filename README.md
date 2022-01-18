@@ -1,12 +1,12 @@
-[![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Linux?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=3&branchName=master) (Linux build)
+## CI Status
 
-[![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Windows?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=4&branchName=master) (Windows build)
+[![Coverage Status](https://coveralls.io/repos/github/SMI/SmiServices/badge.svg)](https://coveralls.io/github/SMI/SmiServices) ![GitHub](https://img.shields.io/github/license/SMI/SmiServices) [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-[![Coverage Status](https://coveralls.io/repos/github/SMI/SmiServices/badge.svg)](https://coveralls.io/github/SMI/SmiServices)
+| OS      | CI Pipeline |
+| :---        |    :----:   |
+| Windows      | [![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Windows?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=4&branchName=master)       |
+| Linux   | [![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Linux?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=3&branchName=master) |
 
-![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
-
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
 Version: `4.0.0`
 
@@ -21,7 +21,7 @@ The platform allows [dicom tags] (extracted from clinical images) to be loaded i
 The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest). See the instructions below on how to run the services.
 
 ## Contents
-
+1. [Deployment](#deployment)
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
@@ -29,8 +29,28 @@ The latest binaries can be downloaded from the [releases section](https://github
 1. [Building](#building)
 1. [Running](#running)
 1. [Testing](#testing)
-1. [Package Hierarchy](#package-hierarchy)
+1. [Dependencies](#dependencies)
 1. [Scalability](#scalability)
+
+## Deployment
+The easiest way to use SmiServices is through the [Docker Image](https://github.com/jas88/smideploy).
+
+For a more adaptable/scalable setup or to use existing infrastructure (databases etc), you will need to:
+
+ - Install RabbitMq
+ - Install MongoDb
+ - Install a relational database (MySql, SqlServer, Postgres or Oracle)
+ - [Install RDMP](https://github.com/HicServices/RDMP) and setup platform databases on a Sql Server.
+
+After all services are in place:
+ - Import the [queue definitions](./data/rabbitmqConfigs) into RabbitMQ via the admin web interface (or from command line).  Make any changes for vhost etc if desired
+ - Download the software assets for the latest [SmiServices Release](https://github.com/SMI/SmiServices/releases) and unzip the appropriate service e.g. `smi-services-v4.0.0-linux-x64.tgz`
+
+Configure 'default.yaml'
+ - Update the credentials to match your RabbitMQ and MongoDb instance (you can ignore RDMP, Redis etc for now).
+ - Remove the `TEST.` prefix on queue names
+
+TODO: what else? test the software works, queue up a directory etc.
 
 ## Microservices
 
@@ -225,27 +245,15 @@ The services in this repository have been successfully used to load all medical 
 
 Scalability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
 
-## Package Hierarchy
+## Dependencies
 
-[HicServices/TypeGuesser](https://github.com/HicServices/TypeGuesser)
-
-[![Build Status](https://travis-ci.org/HicServices/TypeGuesser.svg?branch=master)](https://travis-ci.org/HicServices/TypeGuesser) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/TypeGuesser.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/TypeGuesser/alerts/)  [![NuGet Badge](https://buildstats.info/nuget/HIC.TypeGuesser)](https://buildstats.info/nuget/HIC.TypeGuesser)
-
-[HicServices/FAnsiSql](https://github.com/HicServices/FAnsiSql)
-
-[![Build Status](https://travis-ci.org/HicServices/FAnsiSql.svg?branch=master)](https://travis-ci.org/HicServices/FAnsiSql) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/FAnsiSql.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/FAnsiSql/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.FAnsiSql)](https://www.nuget.org/packages/HIC.FansiSql/)
-
-[HicServices/DicomTypeTranslation](https://github.com/HicServices/DicomTypeTranslation)
-
-[![Build Status](https://travis-ci.com/HicServices/DicomTypeTranslation.svg?branch=master)](https://travis-ci.com/HicServices/DicomTypeTranslation) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/DicomTypeTranslation.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/DicomTypeTranslation/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.DicomTypeTranslation)](https://buildstats.info/nuget/HIC.DicomTypeTranslation)
-
-[HicServices/Rdmp](https://github.com/HicServices/RDMP)
-
-[![Build Status](https://travis-ci.org/HicServices/RDMP.svg?branch=master)](https://travis-ci.org/HicServices/RDMP) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RDMP.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RDMP/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Plugin)](https://buildstats.info/nuget/HIC.RDMP.Plugin)
-
-[HicServices/Rdmp.Dicom](https://github.com/HicServices/RdmpDicom)
-
-[![Build Status](https://travis-ci.org/HicServices/RdmpDicom.svg?branch=master)](https://travis-ci.org/HicServices/RdmpDicom) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom)
+| Package | Status |
+| :---        |    :----:   |
+| [HIC.TypeGuesser](https://github.com/HicServices/TypeGuesser) |   [![Build, test and package](https://github.com/HicServices/TypeGuesser/actions/workflows/dotnet.yml/badge.svg)](https://github.com/HicServices/TypeGuesser/actions/workflows/dotnet.yml)  [![Coverage Status](https://coveralls.io/repos/github/HicServices/TypeGuesser/badge.svg?branch=master)](https://coveralls.io/github/HicServices/TypeGuesser?branch=master)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/TypeGuesser.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/TypeGuesser/alerts/)  [![NuGet Badge](https://buildstats.info/nuget/HIC.TypeGuesser)](https://buildstats.info/nuget/HIC.TypeGuesser)
+| [FAnsiSql](https://github.com/HicServices/FAnsiSql) | [![.NET Core](https://github.com/HicServices/FAnsiSql/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/FAnsiSql/actions/workflows/dotnet-core.yml)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/FAnsiSql.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/FAnsiSql/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.FAnsiSql)](https://www.nuget.org/packages/HIC.FansiSql/) |
+| [DicomTypeTranslation](https://github.com/HicServices/DicomTypeTranslation) |  [![.NET Core](https://github.com/HicServices/DicomTypeTranslation/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/DicomTypeTranslation/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/DicomTypeTranslation.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/DicomTypeTranslation/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.DicomTypeTranslation)](https://buildstats.info/nuget/HIC.DicomTypeTranslation) |
+| [RDMP](https://github.com/HicServices/RDMP) |   [![Build status](https://github.com/HicServices/RDMP/workflows/Build/badge.svg)](https://github.com/HicServices/RDMP/actions?query=workflow%3ABuild) [![Coverage Status](https://coveralls.io/repos/github/HicServices/RDMP/badge.svg?branch=develop)](https://coveralls.io/github/HicServices/RDMP?branch=develop) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RDMP.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RDMP/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Plugin)](https://buildstats.info/nuget/HIC.RDMP.Plugin) |
+| [RDMP.Dicom](https://github.com/HicServices/RdmpDicom) | [![Build status](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom) |
 
 [RabbitMQ]: https://www.rabbitmq.com/
 [DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
