@@ -22,9 +22,12 @@ Version: `4.0.0`
    5. [Out of Scope](#15-out-of-scope)
    6. [Assumptions](#16-assumptions)
 2. [Solutions](#20-solutions)
-   1. [Deliverable Solution / Design](#2.1-deliverable-solution-design)
+   1. [Deliverable Solution / Design](#21-deliverable-solution--design)
    1. [Test Plan](#22-test-plan)
-1. [Deployment](#deployment)
+   1. [Monitoring and Alerting Plan](#23-monitoring-and-alert-plan)
+   1. [Release / Roll-out and Deployment Plan](#24-release--roll-out-and-deployment-plan)
+   1. [Rollback Plan](#25-rollback-plan)
+   1. [Associated Documentation](#26-associated-documentation)
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
@@ -143,8 +146,6 @@ Configuration of the services comes from three places:
 - A [YAML configuration file](./data/microserviceConfigs/default.yaml)
 - [RDMP]
 
-The latest binaries can be downloaded from the [GitHub releases page](https://github.com/SMI/SmiServices/releases/latest).
-
 ### 2.2 Test Plan
 
 SmiServices and [RDMP] contain both automated unit and integration tests.  These tests are automatically run on each code commit to the repository.  New features are written in a 'pull request' which is independently tested and approved.  Pull requests can be from developers working on the project (branches) or from external collaborators (forks).
@@ -154,6 +155,10 @@ User testing of the services can be done using the [Docker Image](https://github
 A tool ([BadMedicine.Dicom]) has been created that generates synthetic test DICOM images.  [BadMedicine.Dicom] can be used to generate images for testing the service.  It includes support for generating placeholder pixel data so that file size can be modelled.  This helps with non functional testing of hardware when architecting an SmiServices deployment.  
 
 Cohort building can be tested by generating synthetic EHR data with the sibling tool [BadMedicine].  When used with the same seed as [BadMedicine.Dicom] relational database tables or CSV files of synthetic medical can be generated (e.g. biochemistry, prescribing, demography).
+
+Code coverage metrics are collected and hosted on [Coveralls](https://coveralls.io/github/SMI/SmiServices).  This shows what proportion of lines of code in the codebase are covered by automated testing.  It also allows visualisation of which parts of the codebase have less coverage.  This ensures that no complex areas of suite are untested.  Automated alerts are generated on pull requests that substantially lower the code coverage (add a lot of code without tests).
+
+Static analysis of the codebase is performed with [LGTM](https://lgtm.com/projects/g/SMI/SmiServices/alerts/).  This identifies common coding errors such as missing null checks.  Automated alerts are generated on pull requests in which such errors are detected.
 
 Manually testing and debugging integration/unit tests requires having the relevant tool dependencies installed.  Tests are decorated with an attribute that indicates which dependencies(if any) are required.  These include:
 
@@ -171,8 +176,24 @@ Tests with the respective attributes will only run when these services exist in 
 
 For setting up the RDMP platform databases see https://github.com/HicServices/RDMP/blob/master/Documentation/CodeTutorials/Tests.md
 
-## Deployment
-The easiest way to use SmiServices is through the [Docker Image](https://github.com/jas88/smideploy).
+### 2.3 Monitoring and Alerting Plan
+
+Both SmiServices and [RDMP] use [NLog] for logging.  A number of additional systems are incorporated into SmiServices for logging/audit:
+
+- The health of running services can be monitored using the RabbitMQ admin console
+- Each message sent by a service has a GUID associated with it.  Records loaded into the relational database include the GUIDs of all services that acted on the tag data during ETL (see [Logging through the IMessageHeader](./src/common/Smi.Common/README.md#logging-through-the-imessageheader)).
+- Anonymisation effectiveness is verified using [IsIdentifiable] and can be visualised using the [IsIdentifiableReviewer]
+- All ETL activities are audited in the hierarchical RDMP logging database.  This includes run duration, record counts, error messages during load etc.
+
+### 2.4 Release / Roll-out and Deployment Plan
+
+The latest binaries can be downloaded from the [GitHub releases page](https://github.com/SMI/SmiServices/releases/latest).  
+
+Each release has a [Changelog] describing all changes made to the codebase (additions, bugfixes etc).  Changelog entries include a link to the 'git diff' which shows code changes and more technical descriptions of changes.
+
+The data load microservices wrap the [RDMP] DLE.  It is therefore important to ensure that the RDMP gui/CLI client and platform databases are maintained at a compatible version with the binary shipping with SmiServices.  RDMP updates are backwards compatible and natively support running old clients against new versions of the platform database.  Dependencies are managed with [dependabot](https://github.blog/2020-06-01-keep-all-your-packages-up-to-date-with-dependabot/) which automatically generates a 'pull request' when updates are available to [RDMP Dicom].  If there are any compatibility issues this will surface in the automated integration testing of the pull request.
+
+The easiest way to consume SmiServices is through the [Docker Image](https://github.com/jas88/smideploy).
 
 For a more adaptable/scalable setup or to use existing infrastructure (databases etc), you will need to:
 
@@ -189,7 +210,26 @@ Configure 'default.yaml'
  - Update the credentials to match your RabbitMQ and MongoDb instance (you can ignore RDMP, Redis etc for now).
  - Remove the `TEST.` prefix on queue names
 
-TODO: what else? test the software works, queue up a directory etc.
+### 2.5 Rollback Plan
+
+SmiServices releases are backwards compatible and released as a self contained executable package.  Rolling back to an earlier version of the software involves only deleting the new binary and restoring the old one.  
+
+Breaking changes to SmiServices can be expected only when the major version number is incremented.  This is consistent with [semantic versioning](https://semver.org/).  In such cases the changelog should describe the changes and how to rollback.
+
+### 2.6 Associated Documentation
+
+Each SmiServices dependency contains its own documentation.  Follow the link from the package name for help.
+
+| Package | Status |
+| :---        |    :----:   |
+| [HIC.TypeGuesser](https://github.com/HicServices/TypeGuesser) |   [![Build, test and package](https://github.com/HicServices/TypeGuesser/actions/workflows/dotnet.yml/badge.svg)](https://github.com/HicServices/TypeGuesser/actions/workflows/dotnet.yml)  [![Coverage Status](https://coveralls.io/repos/github/HicServices/TypeGuesser/badge.svg?branch=master)](https://coveralls.io/github/HicServices/TypeGuesser?branch=master)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/TypeGuesser.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/TypeGuesser/alerts/)  [![NuGet Badge](https://buildstats.info/nuget/HIC.TypeGuesser)](https://buildstats.info/nuget/HIC.TypeGuesser)
+| [FAnsiSql](https://github.com/HicServices/FAnsiSql) | [![.NET Core](https://github.com/HicServices/FAnsiSql/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/FAnsiSql/actions/workflows/dotnet-core.yml)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/FAnsiSql.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/FAnsiSql/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.FAnsiSql)](https://www.nuget.org/packages/HIC.FansiSql/) |
+| [DicomTypeTranslation](https://github.com/HicServices/DicomTypeTranslation) |  [![.NET Core](https://github.com/HicServices/DicomTypeTranslation/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/DicomTypeTranslation/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/DicomTypeTranslation.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/DicomTypeTranslation/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.DicomTypeTranslation)](https://buildstats.info/nuget/HIC.DicomTypeTranslation) |
+| [RDMP](https://github.com/HicServices/RDMP) |   [![Build status](https://github.com/HicServices/RDMP/workflows/Build/badge.svg)](https://github.com/HicServices/RDMP/actions?query=workflow%3ABuild) [![Coverage Status](https://coveralls.io/repos/github/HicServices/RDMP/badge.svg?branch=develop)](https://coveralls.io/github/HicServices/RDMP?branch=develop) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RDMP.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RDMP/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Plugin)](https://buildstats.info/nuget/HIC.RDMP.Plugin) |
+| [RDMP.Dicom](https://github.com/HicServices/RdmpDicom) | [![Build status](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom) |
+| [Dicom Template Builder] | [![Build Status](https://travis-ci.org/HicServices/DicomTemplateBuilder.svg?branch=master)](https://travis-ci.org/HicServices/DicomTemplateBuilder)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/DicomTemplateBuilder.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/DicomTemplateBuilder/alerts/)  |
+
+
 
 ## Microservices
 
@@ -365,16 +405,6 @@ The services in this repository have been successfully used to load all medical 
 
 Scalability is handled through parallel process execution (using [RabbitMQ]).  This allows slow processes (e.g. reading dicom tags from files on disk) to have more running instances while faster processes have less.  Scalability of large operations (e.g. linkage / cohort identification) is done within the [DBMS] layer.
 
-## Dependencies
-
-| Package | Status |
-| :---        |    :----:   |
-| [HIC.TypeGuesser](https://github.com/HicServices/TypeGuesser) |   [![Build, test and package](https://github.com/HicServices/TypeGuesser/actions/workflows/dotnet.yml/badge.svg)](https://github.com/HicServices/TypeGuesser/actions/workflows/dotnet.yml)  [![Coverage Status](https://coveralls.io/repos/github/HicServices/TypeGuesser/badge.svg?branch=master)](https://coveralls.io/github/HicServices/TypeGuesser?branch=master)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/TypeGuesser.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/TypeGuesser/alerts/)  [![NuGet Badge](https://buildstats.info/nuget/HIC.TypeGuesser)](https://buildstats.info/nuget/HIC.TypeGuesser)
-| [FAnsiSql](https://github.com/HicServices/FAnsiSql) | [![.NET Core](https://github.com/HicServices/FAnsiSql/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/FAnsiSql/actions/workflows/dotnet-core.yml)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/FAnsiSql.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/FAnsiSql/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.FAnsiSql)](https://www.nuget.org/packages/HIC.FansiSql/) |
-| [DicomTypeTranslation](https://github.com/HicServices/DicomTypeTranslation) |  [![.NET Core](https://github.com/HicServices/DicomTypeTranslation/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/DicomTypeTranslation/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/DicomTypeTranslation.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/DicomTypeTranslation/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.DicomTypeTranslation)](https://buildstats.info/nuget/HIC.DicomTypeTranslation) |
-| [RDMP](https://github.com/HicServices/RDMP) |   [![Build status](https://github.com/HicServices/RDMP/workflows/Build/badge.svg)](https://github.com/HicServices/RDMP/actions?query=workflow%3ABuild) [![Coverage Status](https://coveralls.io/repos/github/HicServices/RDMP/badge.svg?branch=develop)](https://coveralls.io/github/HicServices/RDMP?branch=develop) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RDMP.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RDMP/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Plugin)](https://buildstats.info/nuget/HIC.RDMP.Plugin) |
-| [RDMP.Dicom](https://github.com/HicServices/RdmpDicom) | [![Build status](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom) |
-
 [RabbitMQ]: https://www.rabbitmq.com/
 [DBMS]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#DBMS
 [Dicom]: ./Glossary.md#dicom
@@ -406,3 +436,5 @@ Scalability is handled through parallel process execution (using [RabbitMQ]).  T
 [Dicom Template Builder]: https://github.com/HicServices/DicomTemplateBuilder
 [BadMedicine.Dicom]: https://github.com/HicServices/BadMedicine.Dicom
 [BadMedicine]: https://github.com/HicServices/BadMedicine
+[NLog]: https://nlog-project.org/
+[Changelog]: ./CHANGELOG.md
