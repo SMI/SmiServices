@@ -28,6 +28,9 @@ Version: `4.0.0`
    1. [Release / Roll-out and Deployment Plan](#24-release--roll-out-and-deployment-plan)
    1. [Rollback Plan](#25-rollback-plan)
    1. [Associated Documentation](#26-associated-documentation)
+1. [Further Considerations](#30-further-considerations)
+   1. [Human Resource Requirements](#31-human-resource-requirements)
+   2. [Security Considerations](#32-security-considerations)
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
@@ -229,6 +232,29 @@ Each SmiServices dependency contains its own documentation.  Follow the link fro
 | [RDMP.Dicom](https://github.com/HicServices/RdmpDicom) | [![Build status](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom) |
 | [Dicom Template Builder] | [![Build Status](https://travis-ci.org/HicServices/DicomTemplateBuilder.svg?branch=master)](https://travis-ci.org/HicServices/DicomTemplateBuilder)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/DicomTemplateBuilder.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/DicomTemplateBuilder/alerts/)  |
 
+## 3.0 Further Considerations
+
+### 3.1 Human Resource Requirements
+
+Setting up an SmiServices deployment on a large volume of imaging data requires a number of staff with skills in the following areas:
+
+- Parallel file system setup and optimisation
+- Database administration (MongoDb and chosen Relational Database)
+- Deployment and configuration skills ([YAML](https://yaml.org/), )
+- Infrastructure management (setting up VMs, server instances etc)
+
+Once running SmiServices is designed to be used by staff with a background in cohort building and data analysis.  Familiarity with SQL is beneficial but not required by all analysts if the SQL is abstracted into library methods or gui applications (e.g. [RDMP] Cohort Builder)
+
+The task of loading identifiable data from disk and understanding it in the MongoDb requires:
+
+- Knowledge of the MongoDb query language
+- Appropriate governance training for working with identifiable data (e.g. NHS contract)
+
+### 3.2 Security considerations
+
+SmiServices is designed to run in a secure offline environment in which network firewalls prevent interaction between any VMs and Servers with the outside world.  There are no web frontends or management consoles designed for external access.  All user interaction with tools in the suite should be done over secure VPN via SSH or secure Remote Desktop (for graphical applications).
+
+SmiServices relies on the security of the environment into which it is deployed. Database access permissions and file permissions should be configured appropriately to the users operating the system.  Where possible connection strings and credentials should use 'integrated security' (i.e. the user account credentials not username/password).  SmiServices also supports supplying passwords in environment variables for when that is an acceptable solution.  If supplying passwords in the configuration file directly then this file should be protected from all non root users (i.e. with appropriate file access permissions).
 
 
 ## Microservices
