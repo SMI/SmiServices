@@ -12,6 +12,29 @@ Version: `4.0.0`
 
 # SMI Services
 
+## Contents
+
+1. [Introduction](#10-introduction)
+   1. [Overview](#11-overview)
+   2. [Glossary or Terminology](#12-glossary-or-terminology)
+   3. [Background and Context](#13-background-and-context)
+   4. [Goals and Technical Requirements](#14-goals-and-technical-requirements)
+   5. [Out of Scope](#15-out-of-scope)
+   6. [Assumptions](#16-assumptions)
+2. [Solutions](#20-solutions)
+   1. [Deliverable Solution / Design](#2.1-deliverable-solution-design)
+   1. [Test Plan](#22-test-plan)
+1. [Deployment](#deployment)
+1. [Microservices](#microservices)
+   1. [Data Load Microservices](#data-load-microservices)
+   1. [Image Extraction Microservices](#image-extraction-microservices)
+1. [Solution Overivew](#solution-overview)
+1. [Building](#building)
+1. [Running](#running)
+1. [Dependencies](#dependencies)
+1. [Scalability](#scalability)
+
+
 ## 1.0 Introduction
 
 ### 1.1 Overview
@@ -114,33 +137,39 @@ The most error prone section of ETL is entry to the relational database which is
 
 The use of microservices not only ensures scaleability and error recovery but also provides a degree of future proofing.  If a requirement emerges for a new step in ETL that cannot be handled by RDMP then a new microservice can be slotted into the load chain.  Additionally if a step is not needed for a given deployment it can be cut out (e.g. removing the [IdentifierMapper] step of ETL) by editing the SmiServices configuration files.
 
-Configuration of the services comes from three places.  
+Configuration of the services comes from three places:  
 
 - The command arguments given to the service on startup
 - A [YAML configuration file](./data/microserviceConfigs/default.yaml)
 - [RDMP]
 
+The latest binaries can be downloaded from the [GitHub releases page](https://github.com/SMI/SmiServices/releases/latest).
 
+### 2.2 Test Plan
 
+SmiServices and [RDMP] contain both automated unit and integration tests.  These tests are automatically run on each code commit to the repository.  New features are written in a 'pull request' which is independently tested and approved.  Pull requests can be from developers working on the project (branches) or from external collaborators (forks).
 
+User testing of the services can be done using the [Docker Image](https://github.com/jas88/smideploy).
 
-A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scalability) of [dicom] medical images to support medical research.
+A tool ([BadMedicine.Dicom]) has been created that generates synthetic test DICOM images.  [BadMedicine.Dicom] can be used to generate images for testing the service.  It includes support for generating placeholder pixel data so that file size can be modelled.  This helps with non functional testing of hardware when architecting an SmiServices deployment.  
 
-The platform allows [dicom tags] (extracted from clinical images) to be loaded into MongoDB and relational database tables for the purposes of generating anonymous linked research extracts (including image anonymisation).
+Cohort building can be tested by generating synthetic EHR data with the sibling tool [BadMedicine].  When used with the same seed as [BadMedicine.Dicom] relational database tables or CSV files of synthetic medical can be generated (e.g. biochemistry, prescribing, demography).
 
-The latest binaries can be downloaded from the [releases section](https://github.com/SMI/SmiServices/releases/latest). See the instructions below on how to run the services.
+Manually testing and debugging integration/unit tests requires having the relevant tool dependencies installed.  Tests are decorated with an attribute that indicates which dependencies(if any) are required.  These include:
 
-## Contents
-1. [Deployment](#deployment)
-1. [Microservices](#microservices)
-   1. [Data Load Microservices](#data-load-microservices)
-   1. [Image Extraction Microservices](#image-extraction-microservices)
-1. [Solution Overivew](#solution-overview)
-1. [Building](#building)
-1. [Running](#running)
-1. [Testing](#testing)
-1. [Dependencies](#dependencies)
-1. [Scalability](#scalability)
+- RequiresRelationalDb (Microsoft Sql Server / MySql)
+- RequiresMongoDb (MongoDb)
+- RequiresRabbit (RabbitMQ Server)
+
+Tests with the respective attributes will only run when these services exist in the test/development environment.  Connection strings/ports for these services can be found in:
+
+- TestDatabases.txt (Relational Databases)
+- default.yaml (RabbitMQ / MongoDb)
+- Mongo.yaml
+- Rabbit.yaml
+- RelationalDatabases.yaml
+
+For setting up the RDMP platform databases see https://github.com/HicServices/RDMP/blob/master/Documentation/CodeTutorials/Tests.md
 
 ## Deployment
 The easiest way to use SmiServices is through the [Docker Image](https://github.com/jas88/smideploy).
@@ -326,25 +355,6 @@ pre-commit from your repo clone, simply run:
 $ pre-commit uninstall
 ```
 
-## Testing
-
-SMI is built using a microservices architecture and is primarily concerned with translating Dicom tag data into database records (in both MongoDb, Sql Server and MySql). Tests are split into those that:
-
-- RequiresRelationalDb (Microsoft Sql Server / MySql)
-- RequiresMongoDb (MongoDb)
-- RequiresRabbit (RabbitMQ Server)
-- Unit tests
-
-Tests with the respective attributes will only run when these services exist in the test/development environment.  Connection strings/ports for these services can be found in:
-
-- TestDatabases.txt (Relational Databases)
-- default.yaml (RabbitMQ / MongoDb)
-- Mongo.yaml
-- Rabbit.yaml
-- RelationalDatabases.yaml
-
-For setting up the RDMP platform databases see https://github.com/HicServices/RDMP/blob/master/Documentation/CodeTutorials/Tests.md
-
 ## Note On Versioning
 
 The C# projects share the same release version, which is controlled by the [SharedAssemblyInfo.cs](src/SharedAssemblyInfo.cs) file. The Java projects are versioned independently, set in their pom files, however in practice they follow the release version of the repo overall.
@@ -394,3 +404,5 @@ Scalability is handled through parallel process execution (using [RabbitMQ]).  T
 [DICOM specification]: https://www.dicomstandard.org/
 [RDMP Dicom]: https://github.com/HicServices/RdmpDicom
 [Dicom Template Builder]: https://github.com/HicServices/DicomTemplateBuilder
+[BadMedicine.Dicom]: https://github.com/HicServices/BadMedicine.Dicom
+[BadMedicine]: https://github.com/HicServices/BadMedicine
