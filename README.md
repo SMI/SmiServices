@@ -24,14 +24,14 @@ Version: `4.0.0`
 2. [Solutions](#20-solutions)
    1. [Deliverable Solution / Design](#21-deliverable-solution--design)
    1. [Test Plan](#22-test-plan)
-   1. [Monitoring and Alerting Plan](#23-monitoring-and-alert-plan)
+   1. [Monitoring and Alerting Plan](#23-monitoring-and-alerting-plan)
    1. [Release / Roll-out and Deployment Plan](#24-release--roll-out-and-deployment-plan)
    1. [Rollback Plan](#25-rollback-plan)
    1. [Associated Documentation](#26-associated-documentation)
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
-1. [Solution Overivew](#solution-overview)
+1. [.sln Overivew](#-sln-overview)
 1. [Building](#building)
 1. [Running](#running)
 1. [Dependencies](#dependencies)
@@ -278,7 +278,7 @@ A control queue is provided for controlling Microservices during runtime.  It su
 | Fatal Error Logging | All Microservices that crash or log a fatal error are shut down and log a message to the Fatal Error Logging Exchange.  TODO: Nobody listens to this currently.|
 | Quarantine | TODO: Doesn't exist yet.|
 
-## Solution Overview
+## .sln Overview
 
 Apart from the Microservices (documented above) the following library classes are also included in the solution:
 
