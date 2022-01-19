@@ -31,7 +31,7 @@ Version: `4.0.0`
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
-1. [.sln Overivew](#-sln-overview)
+1. [.sln Overivew](#sln-overview)
 1. [Building](#building)
 1. [Running](#running)
 1. [Dependencies](#dependencies)
