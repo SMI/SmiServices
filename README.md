@@ -18,6 +18,7 @@ Version: `4.0.0`
 
 SMI Services is a suite of tools designed to deliver scaleable dicom image indexing for cohort building and extraction in anonymised sub sets (e.g. for research).  It is an Extract, Transform and Load tool (ETL) for imaging data.
 
+![loaddiagram](./docs/Images/SmiFlow.svg)
 The problem addressed is how to enable linking of dicom metadata with other clinical data (e.g. electronic health records - EHR).  The context in which it was developed is the loading and anonymisation of metadata for 10 years of Scottish national clinical imaging data (2 petabytes).
 
 The following processes are solved by the suite:
@@ -35,7 +36,7 @@ The solution is built on top of the [Research Data Management Platform](https://
 
 For RDMP terms see the [RDMP Glossary](https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md)
 
-For DICOM specific terms see the [DICOM tag browser](https://dicom.innolitics.com/ciods) or [DICOM specification](https://www.dicomstandard.org/)
+For DICOM specific terms see the [DICOM tag browser](https://dicom.innolitics.com/ciods) or [DICOM specification]
 
 ### 1.3 Background and Context
 
@@ -58,15 +59,70 @@ SmiServices does not support imaging workflows (e.g. running image algorithms).
 
 It also does not have an API for external communication (e.g. Dicom Query Retrieve or FHIR/HL7 etc).  The imaging metadata produced by SmiServices can be queried using MongoDb queries or SQL.
 
+Once the image metadata is in the relational database then cohorts can be created using standard cohort building tools (e.g. RDMP Cohort Builder, R, SQL).  The specifics of cohort building are not covered in this document as that is covered elsewhere (in the documentation of each tool).
+
 ### 1.6 Assumptions
 
 SmiServices assumes that database servers are optimised and properly resourced to store the volume of image metadata anticipated.  ETL is robust and can deal with outages and database stability issues (e.g. lock collisions) but these can errode system performance.
 
 The solution is designed for large image collections (i.e. billions of images).  It supports flexible schema definitions such that only the tags required for cohort building (and the image file paths) are loaded.  Therefore successful usage of the tool requires a basic understanding of dicom tag significance and an appropriately large body of images to justify its use.
 
+## 2.0 Solutions
+
+### 2.1 Deliverable Solution / Design
+
+Microservices is a design in which each component is self contained and has a single responsibility.  Decoupling processes allows for easier maintenence and testability.  Any number of copies of each service can be run at the same time allowing scaleability through parallel processing.
+
+Communication between services is through RabbitMQ.   RabbitMQ is one of the most popular open source message brokers, supporting both high-scale and high-availability requirements. 
+
+Data is promoted sequentially between places (file system, databases etc).  Each promotion is carried out by one or more service types in a chain.  For example promoting the dicom tag data to the MongoDb document store involves the [ProcessDirectory], [DicomTagReader] and [MongoDBPopulator] services.  Since only tag data is promoted, there are no excessive storage overheads associated with data existing in multiple places at once within the system (duplication).  Each place supports specific user processes (see below) and the technology chosen is based on it's suitability for those processes:
+
+![loaddiagram](./docs/Images/processes.svg)
 
 
-![loaddiagram](./docs/Images/SmiFlow.svg)
+| User Process      | Description | Application(s) |
+| ----------- | ----------- |----------- |
+| ETL Scheduling | Users uses command line tool to pick specific directories of images for loading to MongoDb |  [ProcessDirectory] |
+| Data Exploration   | Users explore full dicom metadata to identify anonymisation requirements, useful tags for cohort building and trigger promotion of subsets of images to the relational database (e.g. Modality CT for 20010) | mongo command line, MongoDB Compass etc and [DicomReprocessor] |
+| Anonymisation Verification | Users review reports on the effectiveness of the MongoDb->Relational Database anonymisation pipeline and create new anonymisation/redaction rules where the system has failed to correctly redact the tag data | [IsIdentifiableReviewer] |
+| Cohort Building | Users view link EHR data with the relational database data to produce extractable image subsets of the archive that fit specific research projects (e.g. CT head scans between 2015-2018 where the patient had 3+ prescriptions for drug X) | R, SQL, [RDMP], [ExtractImages] |
+
+MongoDb was chosen for the 'Data Exploration' process because it is a 'document store' - which means it is able to store the full tree structure of dicom metadata.  MongoDb improves access speed to the metadata tags and allows for aggregation and search activities. MongoDb is designed to scale well and supports sharding and replication for when the number of dicom files held grows beyond single db instance capabilities.
+
+The slowest part of ETL is reading dicom files from disk (even with a parallel file system).  The use of MongoDb allows this to be done only once per image regardless of how it is subsequently processed downstream.  Pixel data tags are not loaded to MongoDb since these would inflate storage and processing requirements and are less useful to for the task of Data Exploration.
+
+Relational Databases were chosen for the Anonymous Tag Store since this is the format most commonly used with EHR datasets and cohort building tools.  The ability to directly link anonymous dicom metadata to research study lists and other EHR datasets held in relational databases is a core design requirement of SmiServices.  
+
+The data load service wraps the [RDMP] data load engine and so supports MySql, Sql Server, Oracle and Postgres.  In addition it allows tailoring how corrupt/duplicate data is loaded.  Using an [RDMP] load also allows for tailoring the load process after deployment and for expanding upon the cohort building table schema(s) over time as new tags are identified as useful for cohort building.
+
+Implicit in the [DICOM Specification] is the hierarchical layout of tags (Patient, Study, Series, Image).  Each dicom image file contains the complete tag list for its study/series.  This means that tag data is replicated in each file and only the Image level tags are uniqiue.  The use of [RDMP] and it's imaging plugin [RDMP Dicom] allows for automatic aggregation of these Patient/Study/Series level tags.  This results in a far smaller table for cohort building which improves query performance where there is not a need to query image level tags.
+
+The exact tags required for the Cohort Building process will vary over time and may not be known at the outset.  For this reason the ETL microservices support any schema so long as the table column names match a known DICOM tag.  To assist in schema building, a standalone application [Dicom Template Builder] was created.
+
+In order to protect patient privacy, all tag data in the relational database should be anonymous.  This is supported by several services and design choices:
+
+- The Cohort building schema you create should contain only tags that have low volumes of identifiable data (e.g. StudyDescription but not PatientName )
+- Identifiable data can be detected using the [IsIdentifiable] tool
+- Identifiable data can be summarised and redacted using the [IsIdentifiableReviewer] tool
+- PatientID can be substituted for an anonymous identifier with the ETL service [IdentifierMapper].
+
+The user process of ensuring these steps have been undertaken correctly is called 'Anonymisation Verification'.
+
+Error recovery is handled through RabbitMQ.  When a service fails to acknowledge the succesful processing of a message it is automatically requeued and sent to a different service.  If a message cannot be processed after several attempts it is sent to a 'dead letter queue' where it can be evaluated later.  Services subscribe to a 'Control queue' which allows for safe shutdown of the service e.g. for system maintenence.
+
+The most error prone section of ETL is entry to the relational database which is where primary key collisions and corrupt data must be reconciled (e.g. 2 images in the same study containing conflicting definitions of StudyDescription).  [RDMP Dicom] contains several modules designed to mitigate these issues, more information about these can be found in the [RDMP Dicom data load documentation](https://github.com/HicServices/RdmpDicom/blob/develop/Documentation/DataLoad.md).
+
+The use of microservices not only ensures scaleability and error recovery but also provides a degree of future proofing.  If a requirement emerges for a new step in ETL that cannot be handled by RDMP then a new microservice can be slotted into the load chain.  Additionally if a step is not needed for a given deployment it can be cut out (e.g. removing the [IdentifierMapper] step of ETL) by editing the SmiServices configuration files.
+
+Configuration of the services comes from three places.  
+
+- The command arguments given to the service on startup
+- A [YAML configuration file](./data/microserviceConfigs/default.yaml)
+- [RDMP]
+
+
+
+
 
 A suite of microservices for [loading*](./Glossary.md#loading), anonymising, linking and extracting [large volumnes](#scalability) of [dicom] medical images to support medical research.
 
@@ -161,7 +217,7 @@ Apart from the Microservices (documented above) the following library classes ar
 | ------------- | ----- | ------------- |
 | Dicom File Tester |/Applications| Application for testing DICOM files compatibility with Dicom<->JSON and Dicom to various database type conversions and back. It basically takes a file and pushes it through the various converters to see what breaks |
 | Dicom Repopulator |/Applications| [See Microservices](#image-extraction-microservices) |
-| Template Builder | /Applications| GUI tool for building modality database schema templates.  Supports viewing and exploring dicom tags in files|
+| [Dicom Template Builder] | /Applications| GUI tool for building modality database schema templates.  Supports viewing and exploring dicom tags in files|
 | Smi.MongoDB.Common | /Reusable | Library containing methods for interacting with MongoDb |
 
 
@@ -334,3 +390,7 @@ Scalability is handled through parallel process execution (using [RabbitMQ]).  T
 [CTPAnonymiser]: ./src/microservices/com.smi.microservices.ctpanonymiser/README.md
 [CohortPackager]: ./src/microservices/Microservices.CohortPackager/README.md
 [pre-commit]: https://pre-commit.com
+[ExtractImages]: ./src/applications/Applications.ExtractImages/README.md
+[DICOM specification]: https://www.dicomstandard.org/
+[RDMP Dicom]: https://github.com/HicServices/RdmpDicom
+[Dicom Template Builder]: https://github.com/HicServices/DicomTemplateBuilder
