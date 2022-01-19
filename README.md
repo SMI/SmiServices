@@ -31,6 +31,15 @@ Version: `4.0.0`
 1. [Further Considerations](#30-further-considerations)
    1. [Human Resource Requirements](#31-human-resource-requirements)
    2. [Security Considerations](#32-security-considerations)
+   1. [Legal and Ethical considerations](#33-legal-and-ethical-considerations)
+   1. [Accessibility considerations](#34-accessibility-considerations)
+   1. [Support considerations](#35-support-considerations)
+1. [Future Work](#40-future-work)
+   1. [Residual work estimates and timelines](#41-residual-work-estimates-and-timelines)
+   1. [Open Questions](#42-open-questions)
+1. [End Matter](#50-end-matter)
+   1. [Related Work](#51-related-work)
+   1. [Acknowledgments](#52-acknowledgments)
 1. [Microservices](#microservices)
    1. [Data Load Microservices](#data-load-microservices)
    1. [Image Extraction Microservices](#image-extraction-microservices)
@@ -48,6 +57,7 @@ Version: `4.0.0`
 SMI Services is a suite of tools designed to deliver scaleable dicom image indexing for cohort building and extraction in anonymised sub sets (e.g. for research).  It is an Extract, Transform and Load tool (ETL) for imaging data.
 
 ![loaddiagram](./docs/Images/SmiFlow.svg)
+
 The problem addressed is how to enable linking of dicom metadata with other clinical data (e.g. electronic health records - EHR).  The context in which it was developed is the loading and anonymisation of metadata for 10 years of Scottish national clinical imaging data (2 petabytes).
 
 The following processes are solved by the suite:
@@ -256,6 +266,39 @@ SmiServices is designed to run in a secure offline environment in which network 
 
 SmiServices relies on the security of the environment into which it is deployed. Database access permissions and file permissions should be configured appropriately to the users operating the system.  Where possible connection strings and credentials should use 'integrated security' (i.e. the user account credentials not username/password).  SmiServices also supports supplying passwords in environment variables for when that is an acceptable solution.  If supplying passwords in the configuration file directly then this file should be protected from all non root users (i.e. with appropriate file access permissions).
 
+### 3.3 Legal and Ethical considerations
+
+SmiServices users must have appropriate governance permissions for accessing data.
+
+Users handling the ETL and anonymisation processes must have approval to view identifiable information.
+
+Cohort Building takes place in the anonymised relational database and therefore may require a lower level of governance approval.
+
+### 3.4 Accessibility considerations
+
+SmiServices command line tools are written in dotnet and work with any windows or linux terminals (bash, powershell etc).  Accessibility of terminals is typically good with inbuilt or compatible addons for controlling text size, converting text to speech etc.
+
+All commands run in the RDMP windows gui client can [also be run directly on the command line](https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/RdmpCommandLine.md) which allows for scripting and alternate access routes.  RDMP also features a Terminal User Interface (TUI) which mirrors the design of the gui client. 
+
+![rdmp terminal user interface](./docs/Images/rdmp-tui.png)
+
+Both [IsIdentifiableReviewer] and the RDMP TUI support specifying alternative colour schemes for text where contrast or colors used are an accessibility issue for users.
+
+### 3.5 Support considerations
+
+Support for users of SmiServices is via [GitHub Issues](https://github.com/SMI/SmiServices/issues).  Tickets can also be raised in [RDMP] if the issue does not seem to be related specifically to the microservices component of the suite.
+
+## 4.0 Future Work
+
+### 4.1 Residual work estimates and timelines
+
+### 4.2 Open Questions
+
+## 5.0 End Matter
+
+### 5.1 Related Work 
+
+### 5.2 Acknowledgments
 
 ## Microservices
 
