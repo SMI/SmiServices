@@ -54,7 +54,7 @@ Version: `4.0.0`
 
 ### 1.1 Overview
 
-SMI Services is a suite of tools designed to deliver scaleable dicom image indexing for cohort building and extraction in anonymised sub sets (e.g. for research).  It is an Extract, Transform and Load tool (ETL) for imaging data.
+SMI Services is a suite of tools designed to deliver scalable dicom image indexing for cohort building and extraction in anonymised sub sets (e.g. for research).  It is an Extract, Transform and Load tool (ETL) for imaging data.
 
 ![loaddiagram](./docs/Images/SmiFlow.svg)
 
@@ -110,7 +110,7 @@ The solution is designed for large image collections (i.e. billions of images). 
 
 ### 2.1 Deliverable Solution / Design
 
-Microservices is a design in which each component is self contained and has a single responsibility.  Decoupling processes allows for easier maintenence and testability.  Any number of copies of each service can be run at the same time allowing scaleability through parallel processing.
+Microservices is a design in which each component is self contained and has a single responsibility.  Decoupling processes allows for easier maintenance and testability.  Any number of copies of each service can be run at the same time allowing scalability through parallel processing.
 
 Communication between services is through RabbitMQ.   RabbitMQ is one of the most popular open source message brokers, supporting both high-scale and high-availability requirements. 
 
@@ -147,11 +147,11 @@ In order to protect patient privacy, all tag data in the relational database sho
 
 The user process of ensuring these steps have been undertaken correctly is called 'Anonymisation Verification'.
 
-Error recovery is handled through RabbitMQ.  When a service fails to acknowledge the succesful processing of a message it is automatically requeued and sent to a different service.  If a message cannot be processed after several attempts it is sent to a 'dead letter queue' where it can be evaluated later.  Services subscribe to a 'Control queue' which allows for safe shutdown of the service e.g. for system maintenence.
+Error recovery is handled through RabbitMQ.  When a service fails to acknowledge the successful processing of a message it is automatically requeued and sent to a different service.  If a message cannot be processed after several attempts it is sent to a 'dead letter queue' where it can be evaluated later.  Services subscribe to a 'Control queue' which allows for safe shutdown of the service e.g. for system maintenance.
 
 The most error prone section of ETL is entry to the relational database which is where primary key collisions and corrupt data must be reconciled (e.g. 2 images in the same study containing conflicting definitions of StudyDescription).  [RDMP Dicom] contains several modules designed to mitigate these issues, more information about these can be found in the [RDMP Dicom data load documentation](https://github.com/HicServices/RdmpDicom/blob/develop/Documentation/DataLoad.md).
 
-The use of microservices not only ensures scaleability and error recovery but also provides a degree of future proofing.  If a requirement emerges for a new step in ETL that cannot be handled by RDMP then a new microservice can be slotted into the load chain.  Additionally if a step is not needed for a given deployment it can be cut out (e.g. removing the [IdentifierMapper] step of ETL) by editing the SmiServices configuration files.
+The use of microservices not only ensures scalability and error recovery but also provides a degree of future proofing.  If a requirement emerges for a new step in ETL that cannot be handled by RDMP then a new microservice can be slotted into the load chain.  Additionally if a step is not needed for a given deployment it can be cut out (e.g. removing the [IdentifierMapper] step of ETL) by editing the SmiServices configuration files.
 
 Configuration of the services comes from three places:  
 
