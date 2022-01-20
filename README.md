@@ -79,7 +79,7 @@ For DICOM specific terms see the [DICOM tag browser](https://dicom.innolitics.co
 
 ### 1.3 Background and Context
 
-Historically dicom images are held in a clinical PACS or in an imaging informatics platform such as [XNAT](https://www.xnat.org/).  SmiServices can function standalone or side by side with such tools.  The unique features of SmiServices are it's ability to present large imaging datasets as indexed flat tables in a relational database (MySql, Sql Server, Postgres or Oracle) where they can be linked with cohorts/EHR datasets. This is a worthy addition since it allows for cohort building and extraction using existing tools that data analysts are familiar with (R, Sql scripts, [RDMP Cohort Builder](https://github.com/HicServices/RDMP) etc).
+Historically dicom images are held in a clinical PACS or in an imaging informatics platform such as [XNAT].  SmiServices can function standalone or side by side with such tools.  The unique features of SmiServices are it's ability to present large imaging datasets as indexed flat tables in a relational database (MySql, Sql Server, Postgres or Oracle) where they can be linked with cohorts/EHR datasets. This is a worthy addition since it allows for cohort building and extraction using existing tools that data analysts are familiar with (R, Sql scripts, [RDMP Cohort Builder](https://github.com/HicServices/RDMP) etc).
 
 ### 1.4 Goals and Technical Requirements
 
@@ -292,13 +292,38 @@ Support for users of SmiServices is via [GitHub Issues](https://github.com/SMI/S
 
 ### 4.1 Residual work estimates and timelines
 
+SmiServices is feature complete for the loading, linking, cohort building and extraction of anonymous images.  Future work will focus on improvements such as:
+
+- Better pixel anonymisation 
+- Support for natural language processing (NLP) of structured reports in cohort building
+- Project specific UID anonymisation
+
+Not all of the above features will be directly implemented in the SmiServices repository and may be consumed as external pluggable resources (e.g. through RDMP cohort builder plugins).
+
 ### 4.2 Open Questions
+
+Outstanding questions and feature debates can be seen in the [GitHub Issues](https://github.com/SMI/SmiServices/issues) and [GitHub Discussions](https://github.com/SMI/SmiServices/discussions) pages of SmiServices repository.
 
 ## 5.0 End Matter
 
 ### 5.1 Related Work 
 
+Many image processing tools have relational database backends and most support export in interchange formats such as CSV / XLS or querying APIs.  This means that tools such as XNAT, [ORTHANC](https://www.orthanc-server.com/) and PACS servers can already be part of a cohort building process.  However this can be slow and cumbersome especially for large linkage operations involving multiple other datasets.  For example answering questions such as:
+
+> How many patients had a head CT within 6 months of being prescribed Drug X and then were subsequently hospitalised again within 3 months of the CT StudyDate
+
+Answering such a question using DICOM QR or querying a backend schema would be complex and slow for large cohorts.  It would also likely involve multiple steps e.g. running C-FIND queries to retrieve study dates and loading to the EHR relational database.
+
+SmiServices improves upon this approach by loading an imaging archive to a single anonymous indexed table per modality with aggregate
+tables containing Study and Series level information.  This format is the fastest queryable representation for large scale linkage and extraction.
+
 ### 5.2 Acknowledgments
+
+Contributors to the SmiServices repository can be seen in the [GitHub Contributors page](https://github.com/SMI/SmiServices/graphs/contributors).
+
+Contributors to the [upstream dependencies](./PACKAGES.md) can be seen in the corresponding section of those repositorys.
+
+This work has been funded under the PICTURES program.  A 5-year, £3.8M programme of work funded by the Medical Research Council (MRC) with additional support from the Engineering and Physical Sciences Research Council (EPSRC) as part of Health Data Research UK (HDR UK).
 
 ## Microservices
 
@@ -507,3 +532,4 @@ Scalability is handled through parallel process execution (using [RabbitMQ]).  T
 [BadMedicine]: https://github.com/HicServices/BadMedicine
 [NLog]: https://nlog-project.org/
 [Changelog]: ./CHANGELOG.md
+[XNAT]: https://www.xnat.org/
