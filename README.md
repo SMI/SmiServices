@@ -77,6 +77,8 @@ For RDMP terms see the [RDMP Glossary](https://github.com/HicServices/RDMP/blob/
 
 For DICOM specific terms see the [DICOM tag browser](https://dicom.innolitics.com/ciods) or [DICOM specification]
 
+Dicom tags are key/value pairs that assist in understanding the provenance of a dicom image.  They contain information such as PatientID, PatientAge, StudyDescription etc.  The [DICOM specification] describes what tags are required and which are optional.  Each tag has a specific datatype (date, text, float etc).  The specification supports tree structure tags called Sequences.  A Sequence can contain subtags which are also Sequences resulting in a tree data structure.  Tags can also support multiple elements (i.e. array datatype), this is called multiplicity.
+
 ### 1.3 Background and Context
 
 Historically dicom images are held in a clinical PACS or in an imaging informatics platform such as [XNAT].  SmiServices can function standalone or side by side with such tools.  The unique features of SmiServices are it's ability to present large imaging datasets as indexed flat tables in a relational database (MySql, Sql Server, Postgres or Oracle) where they can be linked with cohorts/EHR datasets. This is a worthy addition since it allows for cohort building and extraction using existing tools that data analysts are familiar with (R, Sql scripts, [RDMP Cohort Builder](https://github.com/HicServices/RDMP) etc).
