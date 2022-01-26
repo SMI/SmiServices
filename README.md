@@ -69,8 +69,6 @@ The following processes are solved by the suite:
 
 Stakeholders likely to interact with this suite include Research Coordinators (building research extracts) and Data Analysts (loading data, verifying anonymisation etc)
 
-The solution is built on top of the [Research Data Management Platform](https://github.com/HicServices/RDMP) which drives many of its underlying processes.
-
 ### 1.2 Glossary or Terminology
 
 For RDMP terms see the [RDMP Glossary](https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md)
@@ -325,7 +323,7 @@ Contributors to the SmiServices repository can be seen in the [GitHub Contributo
 
 Contributors to the [upstream dependencies](./PACKAGES.md) can be seen in the corresponding section of those repositorys.
 
-This work has been funded under the PICTURES program.  A 5-year, £3.8M programme of work funded by the Medical Research Council (MRC) with additional support from the Engineering and Physical Sciences Research Council (EPSRC) as part of Health Data Research UK (HDR UK).
+This work has been funded under the PICTURES programme.  A 5-year, £3.8M programme of work funded by the Medical Research Council (MRC) with additional support from the Engineering and Physical Sciences Research Council (EPSRC) as part of Health Data Research UK (HDR UK).
 
 ## Microservices
 
