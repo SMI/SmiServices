@@ -325,6 +325,10 @@ Contributors to the [upstream dependencies](./PACKAGES.md) can be seen in the co
 
 This work has been funded under the PICTURES programme.  A 5-year, £3.8M programme of work funded by the Medical Research Council (MRC) with additional support from the Engineering and Physical Sciences Research Council (EPSRC) as part of Health Data Research UK (HDR UK).
 
+The authors acknowledge the support from the Farr Institute of Health Informatics Research and Dundee University Medical School. This work was supported by the Medical Research Council (MRC) grant No. MR/M501633/1 (PI: Andrew Morris) and the Wellcome Trust grant No. WT086113 through the Scottish Health Informatics Programme (SHIP) (PI: Andrew Morris). SHIP is a collaboration between the Universities of Aberdeen, Dundee, Edinburgh, Glasgow, and St Andrews, and the Information Services Division of NHS Scotland. This project has also been supported by MRC and EPSRC (grant No. MR/S010351/1) and by the Chief Scientist Office of the Scottish Government Health and Social Care Directorates via a leverage grant made to Farr Scotland. The project was also supported by the Scottish Government through the “Imaging AI” grant award.
+
+This work was supported by Health Data Research UK, which receives its funding from HDR UK Ltd (HDR-5012) funded by the UK MRC, Engineering and Physical Sciences Research Council, Economic and Social Research Council, Department of Health and Social Care (England), Chief Scientist Office of the Scottish Government Health and Social Care Directorates, Health and Social Care Research and Development Division (Welsh Government), Public Health Agency (Northern Ireland), British Heart Foundation (BHF), and the Wellcome Trust
+
 ## Microservices
 
 All microservices [follow the same design pattern](./src/common/Smi.Common/README.md).
