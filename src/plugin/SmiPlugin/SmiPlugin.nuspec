@@ -10,7 +10,7 @@
 		</dependencies>
     </metadata>
   <files>
-    <file src="bin\net5.0\win-x64\publish\*" 
+    <file src="bin\net5.0\publish\*" 
         exclude="**\Plugin.dll;**\BadMedicine.Core.dll;**\FAnsi.*;**\MapsDirectlyToDatabaseTable.dll;**\MySql.Data.dll;**\Oracle.ManagedDataAccess.dll;**\Rdmp.Core.dll;**\NPOI.*;**\Renci.*;**\MathNet.Numerics.dll*"  
         target="lib\main\" />
   </files>
