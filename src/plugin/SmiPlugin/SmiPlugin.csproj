@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+	<IsPublishable>true</IsPublishable>
   </PropertyGroup>
-
+	
   <ItemGroup>
     <PackageReference Include="HIC.RDMP.Dicom" Version="4.0.2" />
   </ItemGroup>
@@ -13,3 +14,7 @@
   </ItemGroup>
 
 </Project>
+
+
+
+

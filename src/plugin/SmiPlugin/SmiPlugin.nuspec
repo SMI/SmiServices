@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+    <metadata>
+        <id>SmiPlugin</id>
+        <version>$version$</version>
+		<authors>Universities of Dundee and Edinburgh</authors>
+		<description>Microservices bridging plugin for Research Data Management Platform </description>
+		<dependencies>
+            <dependency id="HIC.RDMP.Plugin" version="7.0" />
+		</dependencies>
+    </metadata>
+  <files>
+    <file src="bin\net5.0\win-x64\publish\*" 
+        exclude="**\Plugin.dll;**\BadMedicine.Core.dll;**\FAnsi.*;**\MapsDirectlyToDatabaseTable.dll;**\MySql.Data.dll;**\Oracle.ManagedDataAccess.dll;**\Rdmp.Core.dll;**\NPOI.*;**\Renci.*;**\MathNet.Numerics.dll*"  
+        target="lib\main\" />
+  </files>
+</package>

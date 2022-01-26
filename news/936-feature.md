@@ -1,0 +1,1 @@
+Added SmiPlugin for ordering image extractions direct from the RDMP client
