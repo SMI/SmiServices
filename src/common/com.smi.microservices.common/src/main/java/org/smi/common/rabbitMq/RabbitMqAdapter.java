@@ -1,6 +1,9 @@
 package org.smi.common.rabbitMq;
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.smi.common.messages.MessageHeaderFactory;
 import org.smi.common.messaging.IProducerModel;
 import org.smi.common.messaging.ProducerModel;
@@ -10,8 +13,9 @@ import org.smi.common.options.GlobalOptions.RabbitOptions;
 import org.smi.common.options.ProducerOptions;
 
 import java.io.IOException;
-import java.net.ConnectException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
@@ -20,23 +24,18 @@ import java.util.regex.Pattern;
  */
 public class RabbitMqAdapter {
 
-	private Connection _conn;
+	private final Connection _conn;
 
 	/**
 	 * List of all the thread/consumer pairs
 	 */
 	private final List<ConsumeRunnable> _threads = new ArrayList<ConsumeRunnable>();
 
-	/**
-	 * The options for the microservices
-	 */
-	private final RabbitOptions _options;
-
 	private final MessageHeaderFactory _headerFactory;
 
-	private final int MinRabbitServerVersionMajor = 3;
-	private final int MinRabbitServerVersionMinor = 7;
-	private final int MinRabbitServerVersionPatch = 0;
+	private static final int MinRabbitServerVersionMajor = 3;
+	private static final int MinRabbitServerVersionMinor = 7;
+	private static final int MinRabbitServerVersionPatch = 0;
 
 	private String _rabbitMqServerVersion;
 
@@ -57,17 +56,19 @@ public class RabbitMqAdapter {
 
 		// TODO Make sure fatal logging setup properly
 
-		_options = options;
+		/*
+		 * The options for the microservices
+		 */
 
 		ConnectionFactory _factory = new ConnectionFactory();
-		_factory.setHost(_options.RabbitMqHostName);
-		_factory.setPort(_options.RabbitMqHostPort);
-		_factory.setVirtualHost(_options.RabbitMqVirtualHost);
-		_factory.setUsername(_options.RabbitMqUserName);
-		_factory.setPassword(_options.RabbitMqPassword);
+		_factory.setHost(options.RabbitMqHostName);
+		_factory.setPort(options.RabbitMqHostPort);
+		_factory.setVirtualHost(options.RabbitMqVirtualHost);
+		_factory.setUsername(options.RabbitMqUserName);
+		_factory.setPassword(options.RabbitMqPassword);
 		_conn = _factory.newConnection();
 
-		CheckValidServerSettings(_factory);
+		CheckValidServerSettings();
 
 		// TODO Log this
 		int randomPid = new Random().nextInt() & Integer.MAX_VALUE;
@@ -76,32 +77,19 @@ public class RabbitMqAdapter {
 		_hostId = _headerFactory.getProcessName() + _headerFactory.getProcessId();
 	}
 
-	private void CheckValidServerSettings(ConnectionFactory _factory) throws IOException, TimeoutException {
-		try {
-			if (!_conn.getServerProperties().containsKey("version"))
-				throw new IOException("Could not get RabbitMQ server version");
+	private void CheckValidServerSettings() throws IOException {
+		if (!_conn.getServerProperties().containsKey("version"))
+			throw new IOException("Could not get RabbitMQ server version");
 
-			String version = ((LongString) _conn.getServerProperties().get("version")).toString();
-			String[] split = version.split(Pattern.quote("."));
+		_rabbitMqServerVersion = _conn.getServerProperties().get("version").toString();
+		String[] split = _rabbitMqServerVersion.split(Pattern.quote("."));
 
-			if (Integer.parseInt(split[0]) < MinRabbitServerVersionMajor
-					|| Integer.parseInt(split[1]) < MinRabbitServerVersionMinor
-					|| Integer.parseInt(split[2]) < MinRabbitServerVersionPatch)
-				throw new IOException("Connected to RabbitMQ server version " + version + " but minimum required is "
-						+ MinRabbitServerVersionMajor + "." + MinRabbitServerVersionMinor + "."
-						+ MinRabbitServerVersionPatch);
-
-			_rabbitMqServerVersion = version;
-		} catch (ConnectException e) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("    HostName:                       " + _factory.getHost() + System.lineSeparator());
-			sb.append("    Port:                           " + _factory.getPort() + System.lineSeparator());
-			sb.append("    UserName:                       " + _factory.getUsername() + System.lineSeparator());
-			sb.append("    VirtualHost:                    " + _factory.getVirtualHost() + System.lineSeparator());
-			sb.append("    HandshakeContinuationTimeout:   " + _factory.getHandshakeTimeout() + System.lineSeparator());
-			String excString = String.format("Could not create a connection to RabbitMQ on startup:%n" + sb);
-			throw new RuntimeException(excString, e);
-		}
+		if (Integer.parseInt(split[0]) < MinRabbitServerVersionMajor
+				|| (Integer.parseInt(split[0]) == MinRabbitServerVersionMajor && Integer.parseInt(split[1]) < MinRabbitServerVersionMinor)
+				|| (Integer.parseInt(split[0]) == MinRabbitServerVersionMajor && Integer.parseInt(split[1]) == MinRabbitServerVersionMinor && Integer.parseInt(split[2]) < MinRabbitServerVersionPatch))
+		throw new IOException("Connected to RabbitMQ server version " + _rabbitMqServerVersion + " but minimum required is "
+				+ MinRabbitServerVersionMajor + "." + MinRabbitServerVersionMinor + "."
+				+ MinRabbitServerVersionPatch);
 	}
 
 	/**
@@ -139,7 +127,6 @@ public class RabbitMqAdapter {
 		/**
 		 * Constructor
 		 *
-		 * @param channel  The channel that will be consumed
 		 * @param consumer The consumer
 		 * @param options  The configuration options for the consumer
 		 */
@@ -176,7 +163,7 @@ public class RabbitMqAdapter {
 	}
 
 	/**
-	 * Setup a {@link IProducerModel} to send messages with
+	 * Set up a {@link IProducerModel} to send messages with
 	 *
 	 * @param producerOptions The options for the producer which must include the
 	 *                        exchange name
