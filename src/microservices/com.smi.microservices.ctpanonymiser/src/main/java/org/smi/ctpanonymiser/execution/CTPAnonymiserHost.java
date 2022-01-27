@@ -81,7 +81,7 @@ private final GlobalOptions _options;
 		return _producer;
 	}
 
-	public void Shutdown() {
+	public void Shutdown() throws IOException {
 		_logger.info("Host shutdown called");
 		_rabbitMqAdapter.Shutdown();
 	}

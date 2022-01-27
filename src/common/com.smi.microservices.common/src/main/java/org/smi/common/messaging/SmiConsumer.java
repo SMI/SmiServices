@@ -81,7 +81,7 @@ public abstract class SmiConsumer<T> extends DefaultConsumer {
 	}
 
 	public abstract void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties,
-			T t, MessageHeader header) throws IOException;
+			T t, MessageHeader header) throws IOException, InterruptedException;
 
 	/**
 	 * Helper method for extracting a particular message type from the JSON
