@@ -69,8 +69,11 @@ public abstract class SmiConsumer<T> extends DefaultConsumer {
 		}
 
 		try {
-			T msg=getMessageFromBytes(body,messageClass);
+			T msg = getMessageFromBytes(body, messageClass);
 			handleDeliveryImpl(consumerTag, envelope, properties, msg, header);
+		} catch (InterruptedException e) {
+			_logger.error("InterruptedException handling message, ignoring so we retry");
+			return;
 		} catch (JsonSyntaxException e) {
 			// Problem with the message, so Nack it
 			_logger.error("Problem with message, so it will be Nacked:" + e.getMessage());
