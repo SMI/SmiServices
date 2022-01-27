@@ -2,5 +2,5 @@ package org.smi.common.execution;
 
 public interface IMicroserviceHost {
 
-	void Shutdown();
+	void Shutdown() throws IOException;
 }
