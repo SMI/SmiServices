@@ -13,8 +13,6 @@ import org.smi.common.options.GlobalOptions.RabbitOptions;
 import org.smi.common.options.ProducerOptions;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
@@ -26,16 +24,7 @@ public class RabbitMqAdapter {
 
 	private final Connection _conn;
 
-	/**
-	 * List of all the thread/consumer pairs
-	 */
-	private final List<ConsumeRunnable> _threads = new ArrayList<ConsumeRunnable>();
-
 	private final MessageHeaderFactory _headerFactory;
-
-	private static final int MinRabbitServerVersionMajor = 3;
-	private static final int MinRabbitServerVersionMinor = 7;
-	private static final int MinRabbitServerVersionPatch = 0;
 
 	private String _rabbitMqServerVersion;
 
@@ -78,6 +67,10 @@ public class RabbitMqAdapter {
 	}
 
 	private void CheckValidServerSettings() throws IOException {
+		final int MinRabbitServerVersionMajor = 3;
+		final int MinRabbitServerVersionMinor = 7;
+		final int MinRabbitServerVersionPatch = 0;
+
 		if (!_conn.getServerProperties().containsKey("version"))
 			throw new IOException("Could not get RabbitMQ server version");
 
@@ -98,58 +91,9 @@ public class RabbitMqAdapter {
 	 * @param options  The connection options
 	 * @param consumer Consumer that will be sent any received messages
 	 */
-	public void StartConsumer(ConsumerOptions options, SmiConsumer<?> consumer) {
-		try {
-			consumer.getChannel().basicQos(0, options.QoSPrefetchCount, true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		ConsumeRunnable runnable = new ConsumeRunnable(consumer, options);
-		_threads.add(runnable);
-		runnable.start();
-	}
-
-	/**
-	 * Local class to set up the consume operation as a Runnable task
-	 */
-	private class ConsumeRunnable extends Thread {
-
-		private SmiConsumer<?> _consumer; /// < The consumer of messages
-		private ConsumerOptions _options; /// < The options for this consumer
-
-		/**
-		 * Finishes the consume operation
-		 */
-		public void terminate() {
-		}
-
-		/**
-		 * Constructor
-		 *
-		 * @param consumer The consumer
-		 * @param options  The configuration options for the consumer
-		 */
-		public ConsumeRunnable(SmiConsumer<?> consumer, ConsumerOptions options) {
-			_consumer = consumer;
-			_options = options;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-
-			try {
-				_consumer.getChannel().basicConsume(_options.QueueName, _options.AutoAck, _consumer);
-			} catch (IOException e) {
-
-				e.printStackTrace();
-				System.exit(0);
-			}
-		}
+	public void StartConsumer(ConsumerOptions options, SmiConsumer<?> consumer) throws IOException {
+		consumer.getChannel().basicQos(0, options.QoSPrefetchCount, true);
+		consumer.getChannel().basicConsume(options.QueueName, options.AutoAck, consumer);
 	}
 
 	/**
@@ -158,7 +102,7 @@ public class RabbitMqAdapter {
 	 * @return The created connection
 	 * @throws IOException 
 	 */
-	public Channel getChannel(String label) throws IOException {
+	public Channel getChannel() throws IOException {
 		return _conn.createChannel();
 	}
 
@@ -172,7 +116,7 @@ public class RabbitMqAdapter {
 	 */
 	public IProducerModel SetupProducer(ProducerOptions producerOptions) throws IOException {
 
-		Channel channel = getChannel(String.format("%s::Producer::%s", _hostId, producerOptions.ExchangeName));
+		Channel channel = getChannel();
 		channel.confirmSelect();
 
 		AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
@@ -187,17 +131,7 @@ public class RabbitMqAdapter {
 	/**
 	 * Close all open connections and stop any consumers
 	 */
-	public void Shutdown() {
-
-		for (ConsumeRunnable entry : _threads) {
-			entry.terminate(); // Terminate the consumer
-			entry.interrupt(); // Interrupt the thread
-		}
-
-		try {
-			_conn.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void Shutdown() throws IOException {
+		_conn.close();
 	}
 }
