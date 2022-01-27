@@ -1,6 +1,8 @@
 
 package org.smi.common.execution;
 
+import java.io.IOException;
+
 public final class SmiShutdownHook extends Thread {
 
 	private IMicroserviceHost _host;
@@ -16,8 +18,11 @@ public final class SmiShutdownHook extends Thread {
 	 */
 	@Override
 	public void run() {
-
 		if (_host != null)
-			_host.Shutdown();
+			try {
+				_host.Shutdown();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 }
