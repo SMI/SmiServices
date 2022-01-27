@@ -149,7 +149,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         _conn.close();
     }
 
-    public void testBasicAnonymise_Success() throws InterruptedException {
+    public void testBasicAnonymise_Success() throws IOException, InterruptedException {
 
         _logger.info("Starting basic anonymise test - should succeed");
 
@@ -200,7 +200,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         }
     }
 
-    public void testBasicAnonymise_Failure() throws InterruptedException {
+    public void testBasicAnonymise_Failure() throws IOException, InterruptedException {
         // TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
         testBasicAnonymise_Success();
 
