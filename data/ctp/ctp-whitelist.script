@@ -401,6 +401,7 @@
  <e en="T" t="00181800" n="AcquisitionTimeSynchronized">@keep()</e>
  <e en="T" t="00181801" n="TimeSource">@remove()</e>
  <e en="T" t="00181802" n="TimeDistributionProtocol">@remove()</e>
+ <e en="T" t="00182042" n="TargetUID">@remove()</e>
  <e en="T" t="00184000" n="AcquisitionComments">@remove()</e>
  <e en="T" t="00185000" n="OutputPower">@remove()</e>
  <e en="T" t="00185010" n="TransducerData">@remove()</e>
