@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Smi.Common.Messages.Extraction
 {
     /// <summary>
-    /// Describes all the <see cref="ExtractFileMessage"/> sent for a single key Tag (e.g. SeriesInstanceUID) value provided by <see cref="ExtractionRequestMessage"/> 
+    /// Describes all the <see cref="ExtractFileMessageBase"/> sent for a single key Tag (e.g. SeriesInstanceUID) value provided by <see cref="ExtractionRequestMessage"/> 
     /// (i.e. a single entry in <see cref="ExtractionRequestMessage.ExtractionIdentifiers"/>).
     /// </summary>
     public class ExtractFileCollectionInfoMessage : ExtractMessage
