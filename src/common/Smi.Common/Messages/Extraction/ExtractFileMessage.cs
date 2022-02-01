@@ -1,4 +1,4 @@
-﻿
+
 using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
@@ -20,6 +20,12 @@ namespace Smi.Common.Messages.Extraction
         /// </summary>
         [JsonProperty(Required = Required.Always)]
         public string OutputPath { get; set; }
+
+        /// <summary>
+        /// The modality of the specified file
+        /// </summary>
+        [JsonProperty(Required = Required.AllowNull)]
+        public string Modality { get; set; }
 
 
         [JsonConstructor]

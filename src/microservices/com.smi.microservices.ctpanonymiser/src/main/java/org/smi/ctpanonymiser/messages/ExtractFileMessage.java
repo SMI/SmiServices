@@ -28,6 +28,9 @@ public class ExtractFileMessage extends ExtractMessage implements IMessage {
 	@FieldRequired
 	public String DicomFilePath;
 
+    @FieldRequired
+    public String Modality;
+
 	/**
 	 * @param fileSystemRoot
 	 * @return The full path to the identifiable image being anonymised and
@@ -105,12 +108,21 @@ public class ExtractFileMessage extends ExtractMessage implements IMessage {
 		DicomFilePath = dicomFilePath;
 	}
 
+	public String getModality() {
+		return Modality;
+	}
+
+	public void setModality(String modality) {
+        Modality = modality;
+	}
+
 	public String toReadableText() {
 		String text = new String();
 		text =  "ProjectNumber:\t\t"		+ ProjectNumber + "\n";
 		text += "ExtractionDirectory:\t"	+ ExtractionDirectory + "\n";
 		text += "OutputPath:\t\t"			+ OutputPath + "\n";
 		text += "DicomFilePath:\t\t"		+ DicomFilePath + "\n";
+		text += "Modality:\t\t"	        	+ Modality + "\n";
 		return text;
 	}	
 }
