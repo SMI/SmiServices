@@ -13,6 +13,27 @@ namespace Smi.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public string OutputPath { get; set; }
 
+
+        [JsonProperty(Required = Required.Always)]
+        public string StudyInstanceUID { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string SeriesInstanceUID { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string SOPInstanceUID { get; set; }
+
+
+        [JsonProperty(Required = Required.AllowNull)]
+        public string ReplacementStudyInstanceUID { get; set; }
+
+        [JsonProperty(Required = Required.AllowNull)]
+        public string ReplacementSeriesInstanceUID { get; set; }
+
+        [JsonProperty(Required = Required.AllowNull)]
+        public string ReplacementSOPInstanceUID { get; set; }
+
+
         [JsonConstructor]
         public ExtractFileMessageBase() { }
 
