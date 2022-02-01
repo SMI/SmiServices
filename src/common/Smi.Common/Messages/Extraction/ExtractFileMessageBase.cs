@@ -35,9 +35,31 @@ namespace Smi.Common.Messages.Extraction
 
 
         [JsonConstructor]
-        public ExtractFileMessageBase() { }
+        protected ExtractFileMessageBase() { }
 
-        protected ExtractFileMessageBase(ExtractFileMessageBase request)
-            : base(request) { }
+        protected ExtractFileMessageBase(IExtractFileMessage request)
+            : base(request)
+        {
+            DicomFilePath = request.DicomFilePath;
+            OutputPath = request.OutputPath;
+            StudyInstanceUID = request.StudyInstanceUID;
+            SeriesInstanceUID = request.SeriesInstanceUID;
+            SOPInstanceUID = request.SOPInstanceUID;
+            ReplacementStudyInstanceUID = request.ReplacementStudyInstanceUID;
+            ReplacementSeriesInstanceUID = request.ReplacementSeriesInstanceUID;
+            ReplacementSOPInstanceUID = request.ReplacementSOPInstanceUID;
+        }
+
+        public override string ToString() =>
+            base.ToString() +
+            $"DicomFilePath={DicomFilePath}, " +
+            $"OutputPath={OutputPath}, " +
+            $"StudyInstanceUID={StudyInstanceUID}, " +
+            $"SeriesInstanceUID={SeriesInstanceUID}, " +
+            $"SOPInstanceUID={SOPInstanceUID}, " +
+            $"ReplacementStudyInstanceUID={ReplacementStudyInstanceUID}, " +
+            $"ReplacementSeriesInstanceUID={ReplacementSeriesInstanceUID}, " +
+            $"ReplacementSOPInstanceUID={ReplacementSOPInstanceUID}, " +
+            "";
     }
 }
