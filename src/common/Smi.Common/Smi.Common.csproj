@@ -22,11 +22,12 @@
     <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Equ" Version="2.3.0" />
-    <PackageReference Include="fo-dicom.NetCore" Version="[4.0.7]" />
+    <PackageReference Include="fo-dicom.NetCore" Version="[4.0.8]" />
     <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="3.0.0" />
     <PackageReference Include="HIC.FAnsiSql" Version="2.0.2" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.3" />
+    <PackageReference Include="IsIdentifiable" Version="0.0.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="4.7.13" />
@@ -35,7 +36,6 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.IO.Abstractions" Version="16.1.9" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 </Project>

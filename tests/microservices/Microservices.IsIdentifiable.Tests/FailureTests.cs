@@ -1,6 +1,6 @@
-﻿using Microservices.IsIdentifiable.Failures;
+﻿using IsIdentifiable.Failures;
 using NUnit.Framework;
-using Microservices.IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting;
 
 namespace Microservices.IsIdentifiable.Tests
 {

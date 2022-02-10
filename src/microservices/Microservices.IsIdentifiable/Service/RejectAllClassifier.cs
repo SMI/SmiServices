@@ -1,9 +1,9 @@
-using Microservices.IsIdentifiable.Options;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using Microservices.IsIdentifiable.Failures;
-using Microservices.IsIdentifiable.Reporting;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Reporting;
+using Smi.Common.Options;
 
 namespace Microservices.IsIdentifiable.Service
 {

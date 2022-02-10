@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Microservices.IsIdentifiable.Reporting.Reports;
+using Failure = IsIdentifiable.Reporting.Failure;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -20,7 +20,7 @@ namespace Microservices.IsIdentifiable.Service
                 throw new DirectoryNotFoundException($"Could not find directory {DataDirectory.FullName}");
         }
 
-        public abstract IEnumerable<Reporting.Failure> Classify(IFileInfo dcm);
+        public abstract IEnumerable<Failure> Classify(IFileInfo dcm);
 
         /// <summary>
         /// Finds a single directory of a given name in the <see cref="DataDirectory"/> and asserts that it exists

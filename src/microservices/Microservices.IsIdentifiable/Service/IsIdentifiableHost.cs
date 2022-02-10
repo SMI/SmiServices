@@ -1,9 +1,6 @@
 using System;
 using JetBrains.Annotations;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using Microservices.IsIdentifiable.Options;
 using Smi.Common.Execution;
 using Smi.Common.Helpers;
 using Smi.Common.Messaging;
@@ -24,10 +21,10 @@ namespace Microservices.IsIdentifiable.Service
         )
             : base(globals)
         {
-            _consumerOptions = globals.IsIdentifiableOptions;
+            _consumerOptions = globals.IsIdentifiableServiceOptions;
 
-            string classifierTypename =  globals.IsIdentifiableOptions.ClassifierType;
-            string dataDirectory = globals.IsIdentifiableOptions.DataDirectory;
+            string classifierTypename =  globals.IsIdentifiableServiceOptions.ClassifierType;
+            string dataDirectory = globals.IsIdentifiableServiceOptions.DataDirectory;
 
             if(string.IsNullOrWhiteSpace(classifierTypename))
                 throw new ArgumentException("No IClassifier has been set in options.  Enter a value for ClassifierType",nameof(globals));
@@ -40,7 +37,7 @@ namespace Microservices.IsIdentifiable.Service
             if(classifier == null)
                 throw new TypeLoadException($"Could not find IClassifier Type { classifierTypename }");
 
-            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableOptions.IsIdentifiableProducerOptions, isBatch: false);
+            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions, isBatch: false);
 
             Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions.FileSystemRoot, globals.FileSystemOptions.ExtractRoot, classifier);
         }
