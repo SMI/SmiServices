@@ -28,7 +28,6 @@
     <ProjectReference Include="..\Applications.DicomDirectoryProcessor\Applications.DicomDirectoryProcessor.csproj" />
     <ProjectReference Include="..\Applications.ExtractImages\Applications.ExtractImages.csproj" />
     <ProjectReference Include="..\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj" />
-    <ProjectReference Include="..\Applications.IsIdentifiableReviewer\Applications.IsIdentifiableReviewer.csproj" />
   </ItemGroup>
 
 </Project>

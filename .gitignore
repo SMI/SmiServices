@@ -319,3 +319,4 @@ package-lock.json
 
 coverage/
 htmlcov/
+/src/plugin/SmiPlugin/nuget.exe
