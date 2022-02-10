@@ -1,0 +1,1 @@
+Updated to latest dotnet sdk (net6)
