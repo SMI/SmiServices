@@ -241,6 +241,7 @@ Each SmiServices dependency contains its own documentation.  Follow the link fro
 | [RDMP](https://github.com/HicServices/RDMP) |   [![Build status](https://github.com/HicServices/RDMP/workflows/Build/badge.svg)](https://github.com/HicServices/RDMP/actions?query=workflow%3ABuild) [![Coverage Status](https://coveralls.io/repos/github/HicServices/RDMP/badge.svg?branch=develop)](https://coveralls.io/github/HicServices/RDMP?branch=develop) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RDMP.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RDMP/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Plugin)](https://buildstats.info/nuget/HIC.RDMP.Plugin) |
 | [RDMP.Dicom](https://github.com/HicServices/RdmpDicom) | [![Build status](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/HicServices/RdmpDicom/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/RdmpDicom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/RdmpDicom/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.RDMP.Dicom)](https://buildstats.info/nuget/HIC.RDMP.Dicom) |
 | [Dicom Template Builder] | [![Build Status](https://travis-ci.org/HicServices/DicomTemplateBuilder.svg?branch=master)](https://travis-ci.org/HicServices/DicomTemplateBuilder)  [![Total alerts](https://img.shields.io/lgtm/alerts/g/HicServices/DicomTemplateBuilder.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HicServices/DicomTemplateBuilder/alerts/)  |
+| [IsIdentifiable](https://github.com/SMI/IsIdentifiable) | [![.NET Core](https://github.com/SMI/IsIdentifiable/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/SMI/IsIdentifiable/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/IsIdentifiable.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/IsIdentifiable/alerts/) [![NuGet Badge](https://buildstats.info/nuget/IsIdentifiable)](https://www.nuget.org/packages/IsIdentifiable/)|
 
 ## 3.0 Further Considerations
 
@@ -508,7 +509,7 @@ Scalability is handled through parallel process execution (using [RabbitMQ]).  T
 [Dicom]: ./Glossary.md#dicom
 [Dicom tags]: ./Glossary.md#dicom-tags
 [IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
-[IsIdentifiableReviewer]: ./src/applications/Applications.IsIdentifiableReviewer/README.md
+[IsIdentifiableReviewer]: https://github.com/SMI/IsIdentifiable/tree/main/Reviewer
 [DicomFileMessage]: ./src/common/Smi.Common/Messages/DicomFileMessage.cs
 [SeriesMessage]: ./src/common/Smi.Common/Messages/SeriesMessage.cs
 [ExtractionRequestMessage]: ./src/common/Smi.Common/Messages/Extraction/ExtractionRequestMessage.cs
