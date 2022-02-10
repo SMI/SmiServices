@@ -222,7 +222,7 @@ ExtractImagesOptions:
         ExchangeName: 'TEST.RequestInfoExchange'
         MaxConfirmAttempts: 1
 
-IsIdentifiableOptions:
+IsIdentifiableServiceOptions:
     QueueName: 'TEST.ExtractedFileToVerifyQueue'
     QoSPrefetchCount: 1
     AutoAck: false
@@ -232,17 +232,18 @@ IsIdentifiableOptions:
     ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
     DataDirectory: ''
     
-    #Optional. Full connection string to the database storing the whitelist of valid entries
-    WhitelistConnectionString:
-    #Optional. The DBMS provider of the whitelist table e.g. MySql
-    WhitelistDatabaseType:
-    #Optional. The unqualified name of the whitelist table
-    WhitelistTableName:
-    #Optional. The column in WhitelistTableName which contains the whitelist elements
-    WhitelistColumn:
+IsIdentifiableBaseOptions: 
+    #Optional. Full connection string to the database storing the Allowlist of valid entries
+    AllowlistConnectionString:
+    #Optional. The DBMS provider of the Allowlist table e.g. MySql
+    AllowlistDatabaseType:
+    #Optional. The unqualified name of the Allowlist table
+    AllowlistTableName:
+    #Optional. The column in AllowlistTableName which contains the Allowlist elements
+    AllowlistColumn:
     
-    #Optional. Path to a CSV file containing a single untitled column of whitelist values
-    WhitelistCsv:
+    #Optional. Path to a CSV file containing a single untitled column of Allowlist values
+    AllowlistCsv:
 
     #Optional. Generate a report on the proportion of values failing validation (for each column)
     #ColumnReport: true
@@ -258,7 +259,7 @@ IsIdentifiableOptions:
     #Optional - If specified, the given separator will be used instead of ,.  Includes support for \t for tab and \r\n
     DestinationCsvSeparator:
     #Optional - If specified all tabs, newlines (\r and \n) and 2+ spaces will be stripped from the values written as output (applies to all output formats)
-    DestinationNoWhitespace:
+    DestinationNoAllowspace:
     
     #Optional. Full connection string to the database in which to store the report results
     DestinationConnectionString:
