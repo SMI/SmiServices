@@ -259,7 +259,7 @@ IsIdentifiableBaseOptions:
     #Optional - If specified, the given separator will be used instead of ,.  Includes support for \t for tab and \r\n
     DestinationCsvSeparator:
     #Optional - If specified all tabs, newlines (\r and \n) and 2+ spaces will be stripped from the values written as output (applies to all output formats)
-    DestinationNoAllowspace:
+    DestinationNoWhitespace:
     
     #Optional. Full connection string to the database in which to store the report results
     DestinationConnectionString:
