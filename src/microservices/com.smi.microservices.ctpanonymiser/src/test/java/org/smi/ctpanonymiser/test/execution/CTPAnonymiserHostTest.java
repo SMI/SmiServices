@@ -25,6 +25,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ public class CTPAnonymiserHostTest extends TestCase {
     private static final String _extractRoot = System.getProperty("user.dir") + "/src/test/resources";
 
     private static final String _testFile = "image-000001.dcm";
+    private static final String _testSRFile = "test_SR.dcm";
 
     private static final String _inputExchName = "TEST.ExtractFileExchange";
     private static final String _outputQueueName = "TEST.FileStatusQueue";
@@ -56,6 +58,8 @@ public class CTPAnonymiserHostTest extends TestCase {
     private GlobalOptions _options;
     private RabbitMqAdapter _testAdapter;
     private CTPAnonymiserHost _ctpHost;
+
+    String[] _args;
 
     protected void setUp() throws SmiLoggingException, IOException, YAMLException, URISyntaxException, TimeoutException, ParseException {
         SmiLogging.Setup(true);
@@ -123,15 +127,17 @@ public class CTPAnonymiserHostTest extends TestCase {
         // Start our test consumer for receiving the anonymised message
         _testAdapter.StartConsumer(_extractFileStatusConsumerOptions, _anonFileStatusMessageConsumer);
 
-        // Create the host for testing
-        String[] args = new String[]{"-a", _fsRoot + "/dicom-anonymizer.script"};
-        _ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(args));
-
         File inFile = new File(Paths.get(_fsRoot, _testFile).toString());
         assertTrue(inFile.exists());
-
         boolean ok = inFile.setWritable(false);
         assertTrue(ok);
+        
+        inFile = new File(Paths.get(_fsRoot, _testSRFile).toString());
+        assertTrue(inFile.exists());
+        ok = inFile.setWritable(false);
+        assertTrue(ok);
+        
+        _args = new String[]{"-a", _fsRoot + "/dicom-anonymizer.script"};
     }
 
     protected void tearDown() throws Exception {
@@ -149,7 +155,9 @@ public class CTPAnonymiserHostTest extends TestCase {
         _conn.close();
     }
 
-    public void testBasicAnonymise_Success() throws InterruptedException {
+    public void testBasicAnonymise_Success() throws InterruptedException, IOException, TimeoutException, ParseException {
+
+        _ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(_args));
 
         _logger.info("Starting basic anonymise test - should succeed");
 
@@ -200,7 +208,10 @@ public class CTPAnonymiserHostTest extends TestCase {
         }
     }
 
-    public void testBasicAnonymise_Failure() throws InterruptedException {
+    public void testBasicAnonymise_Failure() throws InterruptedException, IOException, TimeoutException, ParseException {
+        
+        _ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(_args));
+        
         // TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
         testBasicAnonymise_Success();
 
@@ -244,6 +255,121 @@ public class CTPAnonymiserHostTest extends TestCase {
 
             assertEquals("FilePaths do not match", "", recvd.OutputFilePath);
             assertEquals(ExtractedFileStatus.FileMissing, recvd.Status);
+        } else {
+            fail("Did not receive message");
+        }
+    }
+
+    public void testSRAnonTool_execError() throws IOException, InterruptedException, TimeoutException, ParseException {
+        
+        String dummySrAnonToolPath = System.getProperty("user.dir") + "/src/test/resources/crash.sh";
+        _options.CTPAnonymiserOptions.SRAnonTool = dummySrAnonToolPath;
+        File f = new File(dummySrAnonToolPath);
+        f.createNewFile();
+        f.setExecutable(false);
+
+        _ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(_args));
+
+        // TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
+        testBasicAnonymise_Success();
+
+        // Send a test message
+        ExtractFileMessage exMessage = new ExtractFileMessage();
+
+        exMessage.ExtractionJobIdentifier = UUID.randomUUID();
+        exMessage.JobSubmittedAt = "";
+        exMessage.ExtractionDirectory = "";
+        exMessage.DicomFilePath = _testSRFile;
+        exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
+        exMessage.ProjectNumber = "123-456";
+
+        _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
+        _extractFileMessageProducer.SendMessage(exMessage, "anon", null);
+
+        _logger.info("Waiting...");
+
+        int timeout = 10000;
+        final int deltaMs = 1000;
+
+        while (!_anonFileStatusMessageConsumer.isMessageValid() && timeout > 0) {
+
+            TimeUnit.MILLISECONDS.sleep(deltaMs);
+            timeout -= deltaMs;
+        }
+
+        if (timeout > 0) {
+            _logger.info("... message received, took " + timeout + " milliseconds");
+        } else {
+            fail("Message not received in " + timeout + " milliseconds");
+        }
+
+        if (_anonFileStatusMessageConsumer.isMessageValid()) {
+
+            ExtractedFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
+
+            _logger.info("Message received");
+            _logger.info("\n" + recvd.toString());
+
+            assertEquals("FilePaths do not match", "", recvd.OutputFilePath);
+            assertEquals(ExtractedFileStatus.ErrorWontRetry, recvd.Status);
+            assertTrue(recvd.StatusMessage.startsWith("SRAnonTool exec failed with 'Cannot run program"));
+        } else {
+            fail("Did not receive message");
+        }
+    }
+
+    public void testSRAnonTool_nonZeroReturn() throws IOException, InterruptedException, TimeoutException, ParseException {
+        
+        String dummySrAnonToolPath = System.getProperty("user.dir") + "/src/test/resources/crash.sh";
+        _options.CTPAnonymiserOptions.SRAnonTool = dummySrAnonToolPath;
+        Files.writeString(Paths.get(dummySrAnonToolPath), "echo aaah >&2 && exit 1");
+        new File(dummySrAnonToolPath).setExecutable(true);
+
+        _ctpHost = new CTPAnonymiserHost(_options, Program.ParseOptions(_args));
+
+        // TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
+        testBasicAnonymise_Success();
+
+        // Send a test message
+        ExtractFileMessage exMessage = new ExtractFileMessage();
+
+        exMessage.ExtractionJobIdentifier = UUID.randomUUID();
+        exMessage.JobSubmittedAt = "";
+        exMessage.ExtractionDirectory = "";
+        exMessage.DicomFilePath = _testSRFile;
+        exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
+        exMessage.ProjectNumber = "123-456";
+
+        _logger.info("Sending extract file message to " + _extractFileProducerOptions.ExchangeName);
+        _extractFileMessageProducer.SendMessage(exMessage, "anon", null);
+
+        _logger.info("Waiting...");
+
+        int timeout = 10000;
+        final int deltaMs = 1000;
+
+        while (!_anonFileStatusMessageConsumer.isMessageValid() && timeout > 0) {
+
+            TimeUnit.MILLISECONDS.sleep(deltaMs);
+            timeout -= deltaMs;
+        }
+
+        if (timeout > 0) {
+            _logger.info("... message received, took " + timeout + " milliseconds");
+        } else {
+            fail("Message not received in " + timeout + " milliseconds");
+        }
+
+        if (_anonFileStatusMessageConsumer.isMessageValid()) {
+
+            ExtractedFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
+
+            _logger.info("Message received");
+            _logger.info("\n" + recvd.toString());
+
+            assertEquals("FilePaths do not match", "", recvd.OutputFilePath);
+            assertEquals(ExtractedFileStatus.ErrorWontRetry, recvd.Status);
+            assertEquals("SRAnonTool exited with 1 and stderr 'aaah'", recvd.StatusMessage);
         } else {
             fail("Did not receive message");
         }
