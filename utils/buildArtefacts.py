@@ -27,6 +27,7 @@ _PYTHON_DIR = Path("src/common/Smi_Common_Python")
 
 
 def _run(cmd: Sequence[_STR_LIKE]) -> None:
+    cmd = [str(x) for x in cmd]
     subprocess.check_call(("echo", "$", *cmd))
     subprocess.check_call(cmd)
 
@@ -162,7 +163,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--configuration", "Release",
         "-p:PublishTrimmed=false",
         "--runtime", f"{platform}-x64",
-        "--output", str(dist_tag_dir / smi_services_output_dir),
+        "--output", dist_tag_dir / smi_services_output_dir,
         "--nologo",
     )
     _run(cmd)
