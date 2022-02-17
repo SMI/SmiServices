@@ -162,7 +162,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--configuration", "Release",
         "-p:PublishTrimmed=false",
         "--runtime", f"{platform}-x64",
-        "--output", dist_tag_dir / smi_services_output_dir,
+        "--output", str(dist_tag_dir / smi_services_output_dir),
         "--nologo",
     )
     _run(cmd)
