@@ -13,8 +13,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IFileSystem fileSystem,
             [NotNull] string extractRoot,
             [NotNull] string reportFormatStr,
-            [CanBeNull] string reportNewLine,
-            bool createJobIdFile = true
+            [CanBeNull] string reportNewLine
         )
         {
             if (!Enum.TryParse(reportFormatStr, ignoreCase: true, out ReportFormat reportFormat))
@@ -27,8 +26,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     fileSystem,
                     extractRoot,
                     reportFormat,
-                    reportNewLine,
-                    createJobIdFile
+                    reportNewLine
                 ),
                 nameof(LoggingReporter) => new LoggingReporter(
                     jobStore,

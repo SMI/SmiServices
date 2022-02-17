@@ -61,6 +61,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
             //TODO(RKM 04/07) Why is this here?
             return;
 
+            #pragma warning disable CS0162 // Unreachable code
             Logger.Info("Stop called");
 
             if (_stopCalled)
@@ -73,6 +74,7 @@ namespace Microservices.DeadLetterReprocessor.Messaging
 
             _cancellationTokenSource.Cancel();
             _storageQueueTask.Wait();
+            #pragma warning restore CS0162
         }
 
         public override void ProcessMessage(BasicDeliverEventArgs deliverArgs)

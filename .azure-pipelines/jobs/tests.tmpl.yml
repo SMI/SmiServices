@@ -34,7 +34,7 @@ jobs:
                     set -euxo pipefail
                     mkdir -p "$(TESS_CACHE_DIR)"
                     curl -L \
-                        https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata \
+                        https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata \
                         > "$(TESS_CACHE_DIR)/eng.traineddata"
                     ls -l "$(TESS_CACHE_DIR)"
           - task: Bash@3
@@ -65,20 +65,21 @@ jobs:
                   python \
                     utils/runDotnetTests.py \
                     "${{ parameters.os }}"
-          - ${{ if eq( parameters.os, 'linux' ) }}:
-            - task: PythonScript@0
-              displayName: Upload coverage
-              condition: |
-                and(
-                    succeeded(),
-                    not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-                )
-              inputs:
-                scriptSource: 'filePath'
-                scriptPath: .azure-pipelines/scripts/upload-coverage.py
-                failOnStderr: true
-              env:
-                COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
+          # NOTE(rkm 2022-02-17) See https://github.com/SMI/SmiServices/issues/1049
+          # - ${{ if eq( parameters.os, 'linux' ) }}:
+          #   - task: PythonScript@0
+          #     displayName: Upload coverage
+          #     condition: |
+          #       and(
+          #           succeeded(),
+          #           not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+          #       )
+          #     inputs:
+          #       scriptSource: 'filePath'
+          #       scriptPath: .azure-pipelines/scripts/upload-coverage.py
+          #       failOnStderr: true
+          #     env:
+          #       COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
 
     - job: java_tests
       displayName: Java Tests

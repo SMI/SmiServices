@@ -53,8 +53,7 @@ namespace Microservices.CohortPackager
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
                 cliOptions.ReportFormat.ToString(),
-                newLine,
-                createJobIdFile: false
+                newLine
             );
 
             try

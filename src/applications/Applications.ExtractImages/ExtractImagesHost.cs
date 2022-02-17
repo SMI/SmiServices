@@ -74,6 +74,7 @@ namespace Applications.ExtractImages
                     extractionRequestProducer,
                     extractionRequestInfoProducer,
                     _fileSystem,
+                    extractRoot,
                     extractionDir,
                     new DateTimeProvider(),
                     new RealConsoleInput()
@@ -91,7 +92,7 @@ namespace Applications.ExtractImages
             var parser = new CohortCsvParser(_fileSystem);
             (ExtractionKey extractionKey, List<string> idList) = parser.Parse(_csvFilePath);
 
-            _extractionMessageSender.SendMessages(_absoluteExtractionDir, extractionKey, idList);
+            _extractionMessageSender.SendMessages(extractionKey, idList);
 
             Stop("Completed");
         }

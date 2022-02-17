@@ -3,6 +3,7 @@ package org.smi.ctpanonymiser.execution;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -162,28 +163,33 @@ public class SmiCtpProcessor {
 			String commandArray[] = { _SRAnonTool,
 				"-i", origFile.getAbsolutePath(),
 				"-o", outFile.getAbsolutePath() };
-			boolean ok = true;
-			String line;
+
+			String stderr;
+            int rc = -1;
+
 			try
 			{
 				Process process = Runtime.getRuntime().exec(commandArray);
 				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 				process.waitFor();
-				while ((line = errorReader.readLine()) != null) { _logger.error(line); }
+                stderr = errorReader.lines().collect(Collectors.joining(System.lineSeparator()));
 				errorReader.close();
+                rc =  process.exitValue();
 				process.destroy();
-				if (process.exitValue() != 0)
-					ok = false;
 			}
 			catch (Exception e) {
-				 _logger.error("Could not run SRAnonTool");
-				 _lastStatus = "exec"; // XXX
-				 return CtpAnonymisationStatus.InputFileException;
+                String msg = "SRAnonTool exec failed with '" + e.getMessage() + "'";
+				_logger.error(msg);
+				_lastStatus = msg;
+                // TODO(rkm 2022-02-17) Add a more specific CtpAnonymisationStatus for "SRAnonTool failed"
+				return CtpAnonymisationStatus.InputFileException;
 			}
-			if (!ok)
+
+			if (rc != 0)
 			{
-				_logger.error("DICOMAnonymizer returned status " + status.getStatus() + ", with message " + status.getMessage());
-				_lastStatus = line;
+                String msg = "SRAnonTool exited with " + rc + " and stderr '" + stderr + "'";
+				_logger.error(msg);
+				_lastStatus = msg;
 				return CtpAnonymisationStatus.TagAnonFailed;
 			}
 		}
