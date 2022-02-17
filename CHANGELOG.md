@@ -11,6 +11,57 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.0.0] 2022-02-17
+
+## Feature
+
+-   [#1040](https://github.com/SMI/SmiServices/pull/1040) by tznind. Updated to
+    latest dotnet sdk (net6)
+-   [#973](https://github.com/SMI/SmiServices/pull/973) by rkm. Adds the basis
+    for a new "DicomAnonymiser" microservice, which can be used in place of the
+    existing Java CTP service. It supports pluggable anonymisers through the
+    `IDicomAnonymiser` interface. No implementations are provided in this PR.
+
+## Bugfix
+
+-   [#1010](https://github.com/SMI/SmiServices/pull/1010) by rkm. Update CI
+    script to pull tessdata file from the new branch name (main not master)
+-   [#1050](https://github.com/SMI/SmiServices/pull/1050) by rkm. Disable
+    coverage upload which is currently broken for .NET 6
+-   [#1052](https://github.com/SMI/SmiServices/pull/1052) by rkm. Ensure any
+    errors encountered when running SRAnonTool are handled properly and produce
+    an appropriate status message.
+-   [#885](https://github.com/SMI/SmiServices/pull/885) by howff. Always convert
+    PHI to XML regardless of annotation_mode setting.
+-   [#914](https://github.com/SMI/SmiServices/pull/914) by rkm. Fix #913; error
+    if file extraction command is re-run after being cancelled
+-   [#915](https://github.com/SMI/SmiServices/pull/915) by rkm. Fix #891; jobId
+    not created until extraction is completed.
+-   [#917](https://github.com/SMI/SmiServices/pull/917) by rkm. Ensure control
+    exchange exists for ExtractImagesHostTests
+-   [#926](https://github.com/SMI/SmiServices/pull/926) by rkm. Fixes the
+    current CI issues by restricting the creation of the ControlExchange to the
+    RequiresRabbit test decorator.
+-   [#931](https://github.com/SMI/SmiServices/pull/931) by rkm. Ensure the
+    python version used in CI runs is exactly what we specify
+-   [#968](https://github.com/SMI/SmiServices/pull/968) by rkm. Remove reference
+    to System.Drawing.Common
+-   [#976](https://github.com/SMI/SmiServices/pull/976) by jas88. Fix issue
+    #921 - erroneous stripping of root path to empty string in GlobalOptions
+-   [#981](https://github.com/SMI/SmiServices/pull/981) by rkm. Fix deprecated
+    python collections import for py310+
+-   [#987](https://github.com/SMI/SmiServices/pull/987) by rkm. Treat all build
+    warnings as errors, and fix or disable existing ones. Also remove unused
+    System.Security.AccessControl package.
+
+## Meta
+
+-   [#923](https://github.com/SMI/SmiServices/pull/923) by rkm. Allow newer
+    minor SDK versions to build the sln. global.json specifies the minimum
+    version which will be used in the CI.
+-   [#986](https://github.com/SMI/SmiServices/pull/986) by rkm. Add missing
+    reference to NLog.
+
 ## [4.0.0] 2021-08-09
 
 ## Feature
@@ -977,7 +1028,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v4.0.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.0.0...master
+[5.0.0]: https://github.com/SMI/SmiServices/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/SMI/SmiServices/compare/v3.2.1...v4.0.0
 [3.2.1]: https://github.com/SMI/SmiServices/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/SMI/SmiServices/compare/v3.1.0...v3.2.0
