@@ -11,6 +11,13 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.0.1] 2022-02-18
+
+## Bugfix
+
+-   [#1054](https://github.com/SMI/SmiServices/pull/1054) by rkm. Swap stderr
+    reading and process.waitFor in SmiCtpProcessor to avoid a deadlock
+
 ## [5.0.0] 2022-02-17
 
 ## Feature
@@ -1028,7 +1035,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.0.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.0.1...master
+[5.0.1]: https://github.com/SMI/SmiServices/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/SMI/SmiServices/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/SMI/SmiServices/compare/v3.2.1...v4.0.0
 [3.2.1]: https://github.com/SMI/SmiServices/compare/v3.2.0...v3.2.1

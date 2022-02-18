@@ -8,7 +8,7 @@
 | Linux   | [![Build Status](https://dev.azure.com/SmiOps/Public/_apis/build/status/SmiServices%20Linux?branchName=master)](https://dev.azure.com/SmiOps/Public/_build/latest?definitionId=3&branchName=master) |
 
 
-Version: `5.0.0`
+Version: `5.0.1`
 
 # SMI Services
 
