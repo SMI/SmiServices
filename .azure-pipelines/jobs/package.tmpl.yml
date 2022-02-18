@@ -24,6 +24,12 @@ jobs:
           - template: ../steps/create-venv.tmpl.yml
             parameters:
               os: ${{ parameters.os }}
+          - task: JavaToolInstaller@0
+            displayName: Use Java 11
+            inputs:
+                versionSpec: "11"
+                jdkArchitectureOption: "x64"
+                jdkSourceOption: "PreInstalled"
           - task: Bash@3
             displayName: Build artefacts
             inputs:
