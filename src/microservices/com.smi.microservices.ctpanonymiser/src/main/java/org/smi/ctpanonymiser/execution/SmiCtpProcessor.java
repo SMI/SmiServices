@@ -171,10 +171,10 @@ public class SmiCtpProcessor {
 			{
 				Process process = Runtime.getRuntime().exec(commandArray);
 				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-				process.waitFor();
-                stderr = errorReader.lines().collect(Collectors.joining(System.lineSeparator()));
+				stderr = errorReader.lines().collect(Collectors.joining(System.lineSeparator()));
 				errorReader.close();
-                rc =  process.exitValue();
+				process.waitFor();
+				rc =  process.exitValue();
 				process.destroy();
 			}
 			catch (Exception e) {
