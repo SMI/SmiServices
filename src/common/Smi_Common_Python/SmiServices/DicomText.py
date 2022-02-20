@@ -84,7 +84,8 @@ class DicomText:
     _warn_unexpected_tag = False     # print if an unexpected tag is encountered
     _replace_HTML_entities = True    # replace HTML tags with same length of space chars
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
-    _redact_char = 'X'
+    _redact_char = 'X'               # character used to redact text
+    _redact_char_digit = '9'         # character used to redact digits in text
 
     def __init__(self, filename, \
         include_header = _include_header, \
@@ -187,16 +188,22 @@ class DicomText:
                 content_sequence_item.walk(self._dataset_read_callback)
             self._p_text = self._p_text + '[[EndContentSequence]]\n'
 
-    def redact_string(self, plaintext, offset, rlen):
+    def redact_string(self, plaintext, offset, rlen, VR):
         """ Simple function to replace characters from the middle of a string.
         Starts at offset for rlen characters, replaced with X.
+        If the VR (Dicom Value Representation) suggests a restricted
+        character set then use a different redact_char (eg. numbers use '9')
+        See https://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html
         Can replace all for same length or randomise the amount.
         Returns the new string.
         """
         redact_length = rlen
+        redact_char = DicomText._redact_char
+        if VR in ['AS', 'CS', 'DA', 'DS', 'DT', 'IS', 'TM', 'UI']:
+            redact_char = DicomText._redact_char_digit
         if DicomText._redact_random_length:
             redact_length = random.randint(-int(rlen/2), int(rlen/2))
-        rc = plaintext[0:offset] + DicomText._redact_char.rjust(redact_length, DicomText._redact_char) + plaintext[offset+rlen:]
+        rc = plaintext[0:offset] + redact_char.rjust(redact_length, redact_char) + plaintext[offset+rlen:]
         return rc
 
     def _dataset_redact_callback(self, dataset, data_element):
@@ -238,7 +245,7 @@ class DicomText:
                     # Do the comparison using text without html but replace inside text with html
                     rc_without_html = redact_html_tags_in_string(rc) if self._replace_HTML_entities else rc
                     if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
-                        replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at)
+                        replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at, data_element.VR)
                         replaced = replacedAny = True
                         annot['replaced'] = True
                         #print('REPLACE: %s in %s at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
@@ -250,7 +257,7 @@ class DicomText:
                 #    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
         if data_element.VR == 'PN' or data_element.VR == 'DA':
             # Always fully redact the content of PersonName and Date tags
-            replacement = self.redact_string(rc, 0, len(rc))
+            replacement = self.redact_string(rc, 0, len(rc), data_element.VR)
             replacedAny = True
         if replacedAny:
             data_element.value = replacement
