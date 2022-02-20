@@ -16,6 +16,10 @@ using Smi.Common.Options;
 
 namespace Smi.Common
 {
+
+// TODO(rkm 2021-12-17) Until we update our RabbitMQ interface
+#pragma warning disable CS0618 // Obsolete
+
     /// <summary>
     /// Adapter for the RabbitMQ API.
     /// </summary>
@@ -552,4 +556,7 @@ namespace Smi.Common
 
         #endregion
     }
+
+#pragma warning restore CS0618 // Obsolete
+
 }

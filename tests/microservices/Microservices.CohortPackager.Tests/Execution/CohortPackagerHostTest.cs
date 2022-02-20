@@ -39,8 +39,8 @@ namespace Microservices.CohortPackager.Tests.Execution
             public PathFixtures(string extractName)
             {
                 ExtractName = extractName;
-                string testName = TestContext.CurrentContext.Test.FullName.Replace('(', '_').Replace(")", "");
-                TestDirAbsolute = Path.Combine(Path.GetTempPath(), "nunit-smiservices", $"{testName}-{Guid.NewGuid().ToString().Split('-')[0]}");
+                
+                TestDirAbsolute = TestFileSystemHelpers.GetTemporaryTestDirectory();
 
                 ExtractRootAbsolute = Path.Combine(TestDirAbsolute, "extractRoot");
 

@@ -73,8 +73,8 @@ def main() -> int:
     cmd = _windows_bash_fixup(args.platform, cmd)
     _run(cmd)
 
-    net5_glob = {Path(x) for x in glob.glob("**/net5", recursive=True)}
-    for build_dir in net5_glob:
+    net6_glob = {Path(x) for x in glob.glob("**/net6", recursive=True)}
+    for build_dir in net6_glob:
         try:
             os.symlink(
                 Path("data/microserviceConfigs/default.yaml").resolve(),

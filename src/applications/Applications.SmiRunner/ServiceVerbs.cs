@@ -45,6 +45,9 @@ namespace Applications.SmiRunner
     [Verb("dead-letter-reprocessor", HelpText = "Microservice for periodically requeing failed messages (to try again)")]
     public sealed class DeadLetterReprocessorVerb : MicroservicesVerbBase { }
 
+    [Verb("dicom-anonymiser", HelpText = "Microservice for anonymising DICOM files")]
+    public sealed class DicomAnonymiserVerb : MicroservicesVerbBase { }
+
     [Verb("dicom-relational-mapper", HelpText = "Microservice for loading relational database with images queued by dicom-reprocessor")]
     public sealed class DicomRelationalMapperVerb : MicroservicesVerbBase { }
 

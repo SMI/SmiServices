@@ -67,6 +67,7 @@ namespace Smi.Common.Options
         public IsIdentifiableOptions IsIdentifiableOptions { get; set; } = new IsIdentifiableOptions();
         public IsIdentifiableReviewerGlobalOptions IsIdentifiableReviewerOptions { get; set; } = new IsIdentifiableReviewerGlobalOptions();
         public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
+        public DicomAnonymiserOptions DicomAnonymiserOptions { get; set; } = new DicomAnonymiserOptions();
 
         #endregion
 
@@ -627,6 +628,20 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
+    public class DicomAnonymiserOptions : IOptions
+    {
+        public string AnonymiserType { get; set; }
+        public ConsumerOptions AnonFileConsumerOptions { get; set; }
+        public ProducerOptions ExtractFileStatusProducerOptions { get; set; }
+        public string RoutingKeySuccess { get; set; }
+        public string RoutingKeyFailure { get; set; }
+        public bool FailIfSourceWriteable { get; set; } = true;
+        
+
+        public override string ToString() => GlobalOptions.GenerateToString(this);
+    }
+
+    [UsedImplicitly]
     public class MongoDatabases : IOptions
     {
         public MongoDbOptions DicomStoreOptions { get; set; }
@@ -707,15 +722,15 @@ namespace Smi.Common.Options
 
         public string FileSystemRoot
         {
-            get { return _fileSystemRoot; }
-            set { _fileSystemRoot = value.TrimEnd('/', '\\'); }
+            get => _fileSystemRoot;
+            set => _fileSystemRoot = value.Length>1?value.TrimEnd('/', '\\'):value;
         }
 
         public string ExtractRoot
         {
-            get { return _extractRoot; }
+            get => _extractRoot;
             [UsedImplicitly]
-            set { _extractRoot = value.TrimEnd('/', '\\'); }
+            set => _extractRoot = value.Length>1?value.TrimEnd('/', '\\'):value;
         }
 
         public override string ToString()

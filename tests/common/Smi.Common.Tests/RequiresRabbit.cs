@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.IO;
 using System.Text;
@@ -6,6 +6,7 @@ using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 using YamlDotNet.Serialization;
 
 namespace Smi.Common.Tests
@@ -27,11 +28,11 @@ namespace Smi.Common.Tests
                 factory.SocketReadTimeout = 5000;
                 factory.SocketWriteTimeout = 5000;
 
-                IConnection conn = factory.CreateConnection();
-                conn.Close();
-
+                using var conn = factory.CreateConnection();
+                using var model = conn.CreateModel();
+                model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
             }
-            catch (Exception e)
+            catch (BrokerUnreachableException e)
             {
                 StringBuilder sb = new StringBuilder();
 
