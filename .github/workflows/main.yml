@@ -1,0 +1,250 @@
+---
+
+name: main
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  # Temp for initial testing
+  schedule:
+    - cron: "*/15 * * * *"
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # dotnet
+  rdmp-cli-dir: "./rdmp-cli"
+  db-password: "YourStrongPassw0rd"
+  # java
+  java-version: 11
+  java-distribution: temurin
+  # python
+  python-version: 3.6
+
+jobs:
+  init:
+    runs-on: ubuntu-20.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      build_ref: ${{ steps.build_ref.outputs.build_ref }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2.4.0
+    - name: set matrix
+      id: matrix
+      run: |
+        set -euxo pipefail
+        matrix="$(jq --compact-output . .github/workflows/envs.json)"
+        echo $matrix
+        echo "::set-output name=matrix::$matrix"
+    - name: set build ref
+      id: build_ref
+      run: |
+        set -euxo pipefail
+        build_ref="$GITHUB_REF_NAME"
+        [ "$GITHUB_REF_TYPE" != "tag" ] && build_ref="${GITHUB_SHA:0:6}"
+        echo "::set-output name=build_ref::$build_ref"
+  smi:
+    needs: [init]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
+    runs-on: ${{ matrix.image }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2.4.0
+    - name: setup .NET
+      # NOTE(rkm 2022-02-20) Uses global.json
+      uses: actions/setup-dotnet@v1
+    - name: set tessdata vars
+      run: |
+        set -euxo pipefail
+        path=$(grep "_PATH =" ./bin/smi/downloadTessdata.py | cut -d'"' -f2)
+        echo "tessdata_path=$path" >> $GITHUB_ENV
+        ver=$(grep "_VERSION =" ./bin/smi/downloadTessdata.py | cut -d'"' -f2)
+        echo "tessdata_version=$ver" >> $GITHUB_ENV
+    - name: cache tessdata
+      id: cache-tessdata
+      uses: actions/cache@v2.1.7
+      with:
+        path: ${{ env.tessdata_path }}
+        key: 'tessdata|${{ env.tessdata_version }}|v5'
+    - name: download tessdata
+      if: steps.cache-tessdata.outputs.cache-hit != 'true'
+      run: ./bin/smi/downloadTessdata.py
+    - name: "[linux] start services"
+      if: ${{ matrix.os == 'linux' }}
+      run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
+    - name: "[linux] re-write database strings"
+      if: ${{ matrix.os == 'linux' }}
+      run: |
+        set -euxo pipefail
+        echo "rdmp_conn_str=localhost -u sa -p ${{ env.db-password }}" >> $GITHUB_ENV
+        ./bin/smi/writeDatabaseStrings.py localhost "${{ env.db-password }}"
+    - name: set RDMP version
+      run: |
+        set -euxo pipefail
+        rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+        # NOTE(rkm 2022-03-01) Temp override to test --createdatabasetimeout
+        rdmp_cli_ver="7.0.7"
+        echo "rdmp_cli_ver=v$rdmp_cli_ver" >> $GITHUB_ENV
+    # Ref: https://github.com/actions/virtual-environments/issues/1282#issuecomment-668686268
+    - name: "[windows] install SQL 2019 localdb"
+      if: ${{ matrix.os == 'windows' }}
+      shell: pwsh
+      run: |
+        Write-Host "Downloading"
+        Import-Module BitsTransfer
+        Start-BitsTransfer -Source https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi -Destination SqlLocalDB.msi
+        Write-Host "Installing"
+        Start-Process -FilePath "SqlLocalDB.msi" -Wait -ArgumentList "/qn", "/norestart", "/l*v SqlLocalDBInstall.log", "IACCEPTSQLLOCALDBLICENSETERMS=YES";
+        Write-Host "Checking"
+        $db = "(localdb)\MSSQLLocalDB"
+        sqlcmd -l 120 -S "$db" -Q "SELECT @@VERSION;"
+        echo "rdmp_conn_str='$db'" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+    - name: "[windows] re-write database strings"
+      if: ${{ matrix.os == 'windows' }}
+      run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
+    - name: cache rdmp-cli
+      id: cache-rdmp-cli
+      uses: actions/cache@v2.1.7
+      with:
+        path: ${{ env.rdmp-cli-dir }}
+        key: 'rdmp-cli|${{ env.rdmp_cli_ver }}|v1'
+    - name: download rdmp-cli
+      if: steps.cache-rdmp-cli.outputs.cache-hit != 'true'
+      run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
+    - name: install RDMP databases
+      run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 60 ${{ env.rdmp_conn_str }} TEST_
+    - name: build, test, and package dotnet
+      run: |
+        set -euxo pipefail
+        cov=""
+        [ "${{ matrix.os }}" == "windows" ] && cov="--no-coverage"
+        ./bin/smi/buildTestPackage.py \
+            ${{ needs.init.outputs.build_ref }} \
+            "$cov"
+    - name: upload dist
+      uses: actions/upload-artifact@v2
+      with:
+        name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+        path: dist/${{ needs.init.outputs.build_ref }}/*
+        if-no-files-found: error
+  ctp:
+    needs: [init]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
+    runs-on: ${{ matrix.image }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2.4.0
+    - name: Setup Java JDK
+      uses: actions/setup-java@v3.0.0
+      with:
+        java-version: ${{ env.java-version }}
+        distribution: ${{ env.java-distribution }}
+        cache: maven
+    - name: "[linux] start services"
+      if: ${{ matrix.os == 'linux' }}
+      run: ./bin/ctp/startDockerLinux.py
+    - name: "[windows] skip integration tests"
+      if: ${{ matrix.os == 'windows' }}
+      run: echo "MVN_PROFILE=-PunitTests" >> $GITHUB_ENV
+    - name: build, test, and package ctp
+      run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.MVN_PROFILE }}
+    - name: "[linux] upload packages"
+      if: ${{ matrix.os == 'linux' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+        path: dist/${{ needs.init.outputs.build_ref }}/*
+        if-no-files-found: error
+  nerd:
+    needs: [init]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
+    runs-on: ${{ matrix.image }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2.4.0
+    - name: Setup Java JDK
+      uses: actions/setup-java@v3.0.0
+      with:
+        java-version: ${{ env.java-version }}
+        distribution: ${{ env.java-distribution }}
+        cache: maven
+    - name: build, test, and package nerd
+      run: ./bin/nerd/buildTestPackage.py ${{ needs.init.outputs.build_ref }}
+    - name: "[linux] upload packages"
+      if: ${{ matrix.os == 'linux' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+        path: dist/${{ needs.init.outputs.build_ref }}/*
+        if-no-files-found: error
+  smi-py:
+    needs: [init]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
+    runs-on: ${{ matrix.image }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2.4.0
+    - name: setup Python
+      uses: actions/setup-python@v2.3.2
+      with:
+        python-version: ${{ env.python-version }}
+    - name: create venv
+      run: |
+        set -exuo pipefail
+        python -m pip install --upgrade virtualenv
+        python -m virtualenv venv
+        echo "venv_bin=./venv/bin" >> $GITHUB_ENV
+    - name: "[windows] update venv var"
+      if: ${{ matrix.os == 'windows' }}
+      run: echo "venv_bin=./venv/Scripts" >> $GITHUB_ENV
+    - name: test and package python
+      run: ./bin/smi-py/testPackage.py ${{ needs.init.outputs.build_ref }} ${{ env.venv_bin }}/python
+    - name: "[linux] upload packages"
+      if: ${{ matrix.os == 'linux' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+        path: dist/${{ needs.init.outputs.build_ref }}/*
+        if-no-files-found: error
+  upload-to-release:
+    if: contains(github.ref, 'refs/tags/v')
+    needs: [init, smi, ctp, nerd, smi-py]
+    runs-on: ubuntu-20.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2.4.0
+    - name: download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        path: ./dist
+    - name: prepare artifacts for release
+      run: |
+        set -euxo pipefail
+        dist_dir=./dist/SmiServices-${{ needs.init.outputs.build_ref }}.zip
+        [ ! -d "$dist_dir" ] && { echo "No dist found"; exit 1; }
+        ls -l $dist_dir
+        mkdir ./release
+        cat $dist_dir/MD5SUM* >> ./release/MD5SUMS.txt
+        rm $dist_dir/MD5SUM*
+        cp $dist_dir/* ./release/
+        ls -l ./release
+        ./bin/release/createReleaseChangelog.py ${{ needs.init.outputs.build_ref }}
+    - name: upload release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./release/*
+        body_path: release_changelog.md
+        fail_on_unmatched_files: true
+        generate_release_notes: true

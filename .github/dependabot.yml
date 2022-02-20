@@ -9,6 +9,7 @@ updates:
   reviewers:
   - rkm
   - tznind
+  - jas88
   ignore:
   - dependency-name: "fo-dicom*"
 - package-ecosystem: maven
@@ -20,3 +21,12 @@ updates:
   reviewers:
   - rkm
   - tznind
+  - jas88
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: daily
+  reviewers:
+  - rkm
+  - tznind
+  - jas88
