@@ -229,7 +229,8 @@ class DicomText:
         #print('At %d = %s' % (current_start, str(data_element.value)))
         for annot in self._annotations:
             # Sometimes it reports text:None so ignore
-            if not annot['text']:
+            if not annot['text'] or (annot['start_char'] == annot['end_char']):
+                annot['replaced'] = True
                 continue
             # If already replaced then ignore
             if 'replaced' in annot:
