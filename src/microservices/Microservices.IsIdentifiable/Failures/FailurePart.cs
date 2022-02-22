@@ -1,4 +1,6 @@
 using Equ;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Microservices.IsIdentifiable.Failures
 {
@@ -7,6 +9,7 @@ namespace Microservices.IsIdentifiable.Failures
         /// <summary>
         /// The classification of the failure e.g. CHI, PERSON, TextInPixel
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public FailureClassification Classification { get; set; }
 
         /// <summary>
