@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using Equ;
 using Microservices.IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Reporting
 {
-    public class Failure
+    public class Failure : MemberwiseEquatable<Failure>
     {
         /// <summary>
         /// Each sub part of <see cref="ProblemValue"/> that the system had a problem with
