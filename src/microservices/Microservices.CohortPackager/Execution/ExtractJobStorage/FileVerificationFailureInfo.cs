@@ -10,9 +10,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
     public class FileVerificationFailureInfo
     {
         /// <summary>
-        /// The anonymised file path which has failed, relative to the extraction directory
+        /// The file path containing the failure, relative to the extraction directory
         /// </summary>
-        [NotNull] public readonly string AnonFilePath;
+        [NotNull] public readonly string RelativeOutputFilePath;
 
         // NOTE(rkm 2020-10-28) This is a JSON string for now, but might be worth deserializing it into a Failure object here (instead of in JobReporterBase)
         /// <summary>
@@ -22,11 +22,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
 
         public FileVerificationFailureInfo(
-            [NotNull] string anonFilePath,
+            [NotNull] string relativeOutputFilePath,
             [NotNull] string failureData
         )
         {
-            AnonFilePath = string.IsNullOrWhiteSpace(anonFilePath) ? throw new ArgumentException(nameof(anonFilePath)) : anonFilePath;
+            RelativeOutputFilePath = string.IsNullOrWhiteSpace(relativeOutputFilePath) ? throw new ArgumentException(nameof(relativeOutputFilePath)) : relativeOutputFilePath;
             Data = string.IsNullOrWhiteSpace(failureData) ? throw new ArgumentException(nameof(failureData)) : failureData;
         }
     }

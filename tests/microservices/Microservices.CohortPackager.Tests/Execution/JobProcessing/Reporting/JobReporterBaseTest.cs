@@ -203,7 +203,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -271,7 +271,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", failureData: "totally not a report"),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo1.dcm", failureData: "totally not a report"),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -297,7 +297,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new FileVerificationFailureInfo(anonFilePath: "ccc/ddd/foo1.dcm", failureData: @"
+                new FileVerificationFailureInfo(relativeOutputFilePath: "ccc/ddd/foo1.dcm", failureData: @"
                     [
                         {
                              'Parts': [],
@@ -308,7 +308,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                         }
                     ]"
                 ),
-                new FileVerificationFailureInfo(anonFilePath:"ccc/ddd/foo2.dcm",failureData: @"
+                new FileVerificationFailureInfo(relativeOutputFilePath:"ccc/ddd/foo2.dcm",failureData: @"
                     [
                         {
                              'Parts': [],
@@ -319,7 +319,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                         }
                     ]"
                 ),
-                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo1.dcm", failureData:@"
+                new FileVerificationFailureInfo(relativeOutputFilePath:"aaa/bbb/foo1.dcm", failureData:@"
                     [
                         {
                             'Parts': [],
@@ -330,7 +330,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                         }
                     ]"
                 ),
-                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm",failureData: @"
+                new FileVerificationFailureInfo(relativeOutputFilePath:"aaa/bbb/foo2.dcm",failureData: @"
                     [
                         {
                             'Parts': [],
@@ -341,7 +341,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                         }
                     ]"
                 ),
-                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm", failureData: @"
+                new FileVerificationFailureInfo(relativeOutputFilePath:"aaa/bbb/foo2.dcm", failureData: @"
                     [
                          {
                             'Parts': [],
@@ -459,7 +459,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo1.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -633,8 +633,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
-                new FileVerificationFailureInfo(anonFilePath: "foo2.dcm", report),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo2.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
