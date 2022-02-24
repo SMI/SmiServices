@@ -1,5 +1,6 @@
 ﻿using Equ;
 using JetBrains.Annotations;
+using Microservices.IsIdentifiable.Failures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,19 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         public string FailureValue { get; }
 
         /// <summary>
+        /// The offset of the value in the tag value, or -1 if not applicable (e.g. in pixel data)
+        /// </summary>
+        [UsedImplicitly]
+        public int Offset { get; }
+
+        /// <summary>
+        /// The value classification
+        /// </summary>
+        [NotNull]
+        [UsedImplicitly]
+        public FailureClassification Classification { get; }
+
+        /// <summary>
         /// The path to the file which contained the failure, relative to the extraction directory
         /// </summary>
         [NotNull]
@@ -34,25 +48,52 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         public TagDataFullCsvRecord(
             [NotNull] string tagName,
             [NotNull] string failureValue,
+            int offset,
+            FailureClassification failureClassification,
             [NotNull] string filePath
         )
         {
             TagName = string.IsNullOrWhiteSpace(tagName) ? throw new ArgumentException(nameof(tagName)) : tagName;
             FailureValue = string.IsNullOrWhiteSpace(failureValue) ? throw new ArgumentException(nameof(failureValue)) : failureValue;
+            Offset = (offset < -1) ? throw new ArgumentException(nameof(offset)) : offset;
+            Classification = (failureClassification == FailureClassification.None) ? throw new ArgumentException(nameof(failureClassification)) : failureClassification;
             FilePath = string.IsNullOrWhiteSpace(filePath) ? throw new ArgumentException(nameof(filePath)) : filePath;
         }
-
+        /// <summary>
+        /// Convert the input list of (filepath, FailureData) tuples for the given tag into an enumerable of TagDataFullCsvRecord
+        /// </summary>
+        /// <param name="tagName"></param>
+        /// <param name="tagFailures"></param>
+        /// <returns></returns>
         public static IEnumerable<TagDataFullCsvRecord> BuildRecordList(
             [NotNull] string tagName,
-            [NotNull] Dictionary<string, List<string>> tagFailures
+            [NotNull] IEnumerable<Tuple<string, FailureData>> tagFailures
         )
         {
-            // Order by most frequent first, then alphabetically by filename
-            foreach ((string failureValue, List<string> files) in tagFailures.OrderByDescending(x => x.Value.Count))
-                foreach (string file in files.OrderBy(x => x))
-                    yield return new TagDataFullCsvRecord(tagName, failureValue, file);
+            foreach (
+                (string filePath, FailureData failureData) in
+                // Order by highest failure parts first
+                tagFailures.OrderByDescending(x => x.Item2.Parts.Count)
+            )
+            {
+                foreach (
+                    var thing in
+                    failureData.Parts
+                        // Order by increasing offset
+                        .OrderBy(x => x.Offset)
+                )
+                {
+                    yield return new TagDataFullCsvRecord(
+                        tagName,
+                        thing.Word,
+                        thing.Offset,
+                        thing.Classification,
+                        filePath
+                    );
+                }
+            }
         }
 
-        public override string ToString() => $"TagDataFullCsvRecord({TagName}, {FailureValue}, {FilePath})";
+        public override string ToString() => $"TagDataFullCsvRecord({TagName}, {FailureValue}, {Offset}, {Classification}, {FilePath})";
     }
 }

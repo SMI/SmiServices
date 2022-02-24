@@ -41,14 +41,16 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             // Arrange
 
             IEnumerable<FailurePart> parts = null;
+            Exception exc;
 
             // Act
             // Assert
 
-            Assert.Throws<ArgumentNullException>(() =>
+            exc = Assert.Throws<ArgumentNullException>(() =>
             {
                 new FailureData(parts, "foo", "bar");
             });
+            Assert.True(exc.Message.Contains("parts"));
 
             // Arrange
 
@@ -57,10 +59,11 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             // Act
             // Assert
 
-            Assert.Throws<ArgumentException>(() =>
+            exc = Assert.Throws<ArgumentException>(() =>
             {
                 new FailureData(parts, "foo", "bar");
             });
+            Assert.True(exc.Message.Contains("parts"));
         }
 
         [Test]
@@ -73,10 +76,11 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             // Act
             // Assert
 
-            Assert.Throws<ArgumentException>(() =>
+            var exc = Assert.Throws<ArgumentException>(() =>
             {
-                new FailureData(new List<FailurePart>(), problemField, "bar");
+                new FailureData(new List<FailurePart>() { new FailurePart("foo", FailureClassification.None, 0) }, problemField, "bar");
             });
+            Assert.True(exc.Message.Contains("problemField"));
 
             // Arrange
 
@@ -85,10 +89,11 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             // Act
             // Assert
 
-            Assert.Throws<ArgumentException>(() =>
+            exc = Assert.Throws<ArgumentException>(() =>
             {
-                new FailureData(new List<FailurePart>(), problemField, "bar");
+                new FailureData(new List<FailurePart>() { new FailurePart("foo", FailureClassification.None, 0) }, problemField, "bar");
             });
+            Assert.True(exc.Message.Contains("problemField"));
         }
 
         [Test]
@@ -101,10 +106,11 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             // Act
             // Assert
 
-            Assert.Throws<ArgumentException>(() =>
+            var exc = Assert.Throws<ArgumentException>(() =>
             {
-                new FailureData(new List<FailurePart>(), "foo", problemValue);
+                new FailureData(new List<FailurePart>() { new FailurePart("foo", FailureClassification.None, 0) }, "foo", problemValue);
             });
+            Assert.True(exc.Message.Contains("problemValue"));
 
             // Arrange
 
@@ -113,10 +119,11 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             // Act
             // Assert
 
-            Assert.Throws<ArgumentException>(() =>
+            exc = Assert.Throws<ArgumentException>(() =>
             {
-                new FailureData(new List<FailurePart>(), "foo", problemValue);
+                new FailureData(new List<FailurePart>() { new FailurePart("foo", FailureClassification.None, 0) }, "foo", problemValue);
             });
+            Assert.True(exc.Message.Contains("problemValue"));
         }
 
         [Test]

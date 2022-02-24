@@ -155,17 +155,38 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             Assert.True(reporter.Disposed);
 
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected: null,
-                blockedFilesExpected: null,
-                anonFailuresExpected: null,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                newLine,
-                reporter.Report
-            );
+            var expectedLines = new List<string>
+            {
+                "# SMI extraction validation report for 1234/test",
+                $"",
+                $"Job info:",
+                $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
+                $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
+                $"-   Extraction tag:               keyTag",
+                $"-   Extraction modality:          Unspecified",
+                $"-   Requested identifier count:   123",
+                $"-   Identifiable extraction:      No",
+                $"-   Filtered extraction:          Yes",
+                $"",
+                $"Report contents:",
+                $"",
+                $"-   Verification failures",
+                $"-   Blocked files",
+                $"-   Anonymisation failures",
+                $"",
+                $"## Verification failures",
+                $"",
+                $"## Blocked files",
+                $"",
+                $"## Anonymisation failures",
+                $"",
+                $"--- end of report ---",
+                $"",
+            };
+
+            Assert.AreEqual(string.Join(newLine, expectedLines), reporter.Report);
         }
 
         [TestCase(LinuxNewLine)]
@@ -193,9 +214,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             const string report = @"
 [
     {
-        'Parts': [],
-        'Resource': '/foo1.dcm',
-        'ResourcePrimaryKey': '1.2.3.4',
+        'Parts': [{'Classification':'Person','Offset':0,'Word':'FOO'}],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
         'ProblemField': 'ScanOptions',
         'ProblemValue': 'FOO'
     }
@@ -218,50 +239,52 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
-            {
-                {
-                    "ScanOptions", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "FOO",
-                            new List<string>
-                            {
-                                "foo1.dcm"
-                            }
-                        }
-                    }
-                },
-            };
-            var blockedFilesExpected = new Dictionary<string, List<Tuple<int, string>>>
-            {
-                {
-                    "1.2.3.4",
-                    new List<Tuple<int, string>>
-                    {
-                        new Tuple<int, string>(123, "image is in the deny list for extraction"),
-                        new Tuple<int, string>(456, "foo bar"),
-                    }
-                },
-            };
-            var anonFailuresExpected = new List<Tuple<string, string>>
-            {
-                new Tuple<string, string>("foo1.dcm", "image was corrupt"),
-            };
-
             Assert.True(reporter.Disposed);
 
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected,
-                blockedFilesExpected,
-                anonFailuresExpected,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                newLine,
-                reporter.Report
-            );
+            var expectedLines = new List<string>
+            {
+                "# SMI extraction validation report for 1234/test",
+                $"",
+                $"Job info:",
+                $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
+                $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
+                $"-   Extraction tag:               keyTag",
+                $"-   Extraction modality:          Unspecified",
+                $"-   Requested identifier count:   123",
+                $"-   Identifiable extraction:      No",
+                $"-   Filtered extraction:          Yes",
+                $"",
+                $"Report contents:",
+                $"",
+                $"-   Verification failures",
+                $"-   Blocked files",
+                $"-   Anonymisation failures",
+                $"",
+                $"## Verification failures",
+                $"",
+                $"-   Tag: ScanOptions (1 total issues(s))",
+                $"    -   Value: 'FOO' (1 occurrence(s))",
+                $"        With failures:",
+                $"        -   'FOO' at offset 0 classified as Person",
+                $"        In files:",
+                $"        -   foo1.dcm",
+                $"",
+                $"## Blocked files",
+                $"",
+                $"-   ID: 1.2.3.4",
+                $"    -   456x 'foo bar'",
+                $"    -   123x 'image is in the deny list for extraction'",
+                $"",
+                $"## Anonymisation failures",
+                $"",
+                $"-   file 'foo1.dcm': 'image was corrupt'",
+                $"--- end of report ---",
+                $"",
+            };
+
+            Assert.AreEqual(string.Join(newLine, expectedLines), reporter.Report);
         }
 
         [Test]
@@ -300,7 +323,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 new FileVerificationFailureInfo(relativeOutputFilePath: "ccc/ddd/foo1.dcm", failureData: @"
                     [
                         {
-                             'Parts': [],
+                             'Parts': [{'Classification':'Person','Offset':0,'Word':'BAZ'}],
                             'Resource': 'unused',
                             'ResourcePrimaryKey': 'unused',
                             'ProblemField': 'SomeOtherTag',
@@ -311,7 +334,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 new FileVerificationFailureInfo(relativeOutputFilePath:"ccc/ddd/foo2.dcm",failureData: @"
                     [
                         {
-                             'Parts': [],
+                             'Parts': [{'Classification':'Person','Offset':0,'Word':'BAZ'}],
                             'Resource': 'unused',
                             'ResourcePrimaryKey': 'unused',
                             'ProblemField': 'SomeOtherTag',
@@ -322,7 +345,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 new FileVerificationFailureInfo(relativeOutputFilePath:"aaa/bbb/foo1.dcm", failureData:@"
                     [
                         {
-                            'Parts': [],
+                            'Parts': [{'Classification':'Person','Offset':0,'Word':'FOO'}],
                             'Resource': 'unused',
                             'ResourcePrimaryKey': 'unused',
                             'ProblemField': 'ScanOptions',
@@ -333,7 +356,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 new FileVerificationFailureInfo(relativeOutputFilePath:"aaa/bbb/foo2.dcm",failureData: @"
                     [
                         {
-                            'Parts': [],
+                            'Parts': [{'Classification':'Person','Offset':0,'Word':'FOO'}],
                             'Resource': 'unused',
                             'ResourcePrimaryKey': 'unused',
                             'ProblemField': 'ScanOptions',
@@ -344,7 +367,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 new FileVerificationFailureInfo(relativeOutputFilePath:"aaa/bbb/foo2.dcm", failureData: @"
                     [
                          {
-                            'Parts': [],
+                            'Parts': [{'Classification':'Person','Offset':0,'Word':'BAR'}],
                             'Resource': 'unused',
                             'ResourcePrimaryKey': 'unused',
                             'ProblemField': 'ScanOptions',
@@ -369,58 +392,64 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             Assert.True(reporter.Disposed);
 
-            var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
+            var expectedLines = new List<string>
             {
-                {
-                    "ScanOptions", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "FOO",
-                            new List<string>
-                            {
-                                "aaa/bbb/foo1.dcm",
-                                "aaa/bbb/foo2.dcm",
-                            }
-                        },
-                        {
-                            "BAR",
-                            new List<string>
-                            {
-                                "aaa/bbb/foo2.dcm",
-                            }
-                        },
-                    }
-                },
-                {
-                    "SomeOtherTag", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "BAZ",
-                            new List<string>
-                            {
-                                "ccc/ddd/foo1.dcm",
-                                "ccc/ddd/foo2.dcm",
-                            }
-                        },
-                    }
-                },
+                "# SMI extraction validation report for 1234/test",
+                $"",
+                $"Job info:",
+                $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
+                $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
+                $"-   Extraction tag:               keyTag",
+                $"-   Extraction modality:          Unspecified",
+                $"-   Requested identifier count:   123",
+                $"-   Identifiable extraction:      No",
+                $"-   Filtered extraction:          Yes",
+                $"",
+                $"Report contents:",
+                $"",
+                $"-   Verification failures",
+                $"-   Blocked files",
+                $"-   Anonymisation failures",
+                $"",
+                $"## Verification failures",
+                $"",
+                $"-   Tag: ScanOptions (3 total issues(s))",
+                $"    -   Value: 'FOO' (2 occurrence(s))",
+                $"        With failures:",
+                $"        -   'FOO' at offset 0 classified as Person",
+                $"        In files:",
+                $"        -   aaa/bbb/foo1.dcm",
+                $"        -   aaa/bbb/foo2.dcm",
+                $"    -   Value: 'BAR' (1 occurrence(s))",
+                $"        With failures:",
+                $"        -   'BAR' at offset 0 classified as Person",
+                $"        In files:",
+                $"        -   aaa/bbb/foo2.dcm",
+                $"",
+                $"-   Tag: SomeOtherTag (2 total issues(s))",
+                $"    -   Value: 'BAZ' (2 occurrence(s))",
+                $"        With failures:",
+                $"        -   'BAZ' at offset 0 classified as Person",
+                $"        In files:",
+                $"        -   ccc/ddd/foo1.dcm",
+                $"        -   ccc/ddd/foo2.dcm",
+                $"",
+                $"## Blocked files",
+                $"",
+                $"## Anonymisation failures",
+                $"",
+                $"--- end of report ---",
+                $"",
             };
 
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected,
-                blockedFilesExpected: null,
-                anonFailuresExpected: null,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                newLine,
-                reporter.Report
-            );
+            Assert.AreEqual(string.Join(newLine, expectedLines), reporter.Report);
         }
 
-        [Test]
-        public void CreateReport_WithPixelData()
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_WithPixelData(string newLine)
         {
             CompletedExtractJobInfo jobInfo = TestJobInfo();
 
@@ -428,202 +457,24 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             const string report = @"
 [
      {
-        'Parts': [],
+        'Parts': [{'Classification':'Person','Offset':-1,'Word':'aaaaaaaaaaa'}],
         'Resource': 'unused',
         'ResourcePrimaryKey': 'unused',
         'ProblemField': 'PixelData',
         'ProblemValue': 'aaaaaaaaaaa'
     },
     {
-        'Parts': [],
+        'Parts': [
+            {'Classification':'Person','Offset':-1,'Word':'Foo'},
+            {'Classification':'Person','Offset':-1,'Word':'Bar'}
+        ],
         'Resource': 'unused',
         'ResourcePrimaryKey': 'unused',
         'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
+        'ProblemValue': 'Dr Foo Bar'
+    },    
     {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'Z',
-        'ProblemValue': 'bar'
-    },
-]";
-
-            var verificationFailures = new List<FileVerificationFailureInfo>
-            {
-                new FileVerificationFailureInfo(relativeOutputFilePath: "foo1.dcm", report),
-            };
-
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
-
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
-
-            Assert.True(reporter.Disposed);
-
-            var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
-            {
-                {
-                    "Z", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "bar",
-                            new List<string>
-                            {
-                                "foo1.dcm"
-                            }
-                        }
-                    }
-                },
-                {
-                    "PixelData", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "aaaaaaaaaaa",
-                            new List<string>
-                            {
-                                "foo1.dcm"
-                            }
-                        },
-                        {
-                            "a",
-                            new List<string>
-                            {
-                                "foo1.dcm",
-                                "foo1.dcm"
-                            }
-                        },
-                    }
-                },
-            };
-
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected,
-                blockedFilesExpected: null,
-                anonFailuresExpected: null,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                LinuxNewLine,
-                reporter.Report
-            );
-        }
-
-        [Test]
-        public void CreateReport_IdentifiableExtraction()
-        {
-            CompletedExtractJobInfo jobInfo = TestJobInfo(isIdentifiableExtraction: true);
-
-            var missingFiles = new List<string>
-            {
-               "missing.dcm",
-            };
-
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
-
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
-
-            Assert.True(reporter.Disposed);
-
-            var missingFilesExpected = new List<Tuple<string, string>>
-            {
-                new Tuple<string, string>("missing.dcm", null),
-            };
-
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected: null,
-                blockedFilesExpected: null,
-                missingFilesExpected,
-                isIdentifiableExtraction: true,
-                isJoinedReport: false,
-                LinuxNewLine,
-                reporter.Report
-            );
-        }
-
-        [TestCase(LinuxNewLine)]
-        [TestCase(WindowsNewLine)]
-        public void CreateReport_SplitReport(string newLine)
-        {
-            CompletedExtractJobInfo jobInfo = TestJobInfo();
-
-            const string report = @"
-[
-     {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'aaaaaaaaaaa'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'another'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'X',
-        'ProblemValue': 'foo'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'X',
-        'ProblemValue': 'foo'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'X',
-        'ProblemValue': 'bar'
-    },
-    {
-        'Parts': [],
+        'Parts': [{'Classification':'Person','Offset':0,'Word':'bar'}],
         'Resource': 'unused',
         'ResourcePrimaryKey': 'unused',
         'ProblemField': 'Z',
@@ -644,6 +495,201 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
             TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            Assert.True(reporter.Disposed);
+
+            var expectedLines = new List<string>
+            {
+                "# SMI extraction validation report for 1234/test",
+                $"",
+                $"Job info:",
+                $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
+                $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
+                $"-   Extraction tag:               keyTag",
+                $"-   Extraction modality:          Unspecified",
+                $"-   Requested identifier count:   123",
+                $"-   Identifiable extraction:      No",
+                $"-   Filtered extraction:          Yes",
+                $"",
+                $"Report contents:",
+                $"",
+                $"-   Verification failures",
+                $"-   Blocked files",
+                $"-   Anonymisation failures",
+                $"",
+                $"## Verification failures",
+                $"",
+                $"-   Tag: Z (2 total issues(s))",
+                $"    -   Value: 'bar' (2 occurrence(s))",
+                $"        With failures:",
+                $"        -   'bar' at offset 0 classified as Person",
+                $"        In files:",
+                $"        -   foo1.dcm",
+                $"        -   foo2.dcm",
+                $"",
+                $"-   Tag: PixelData (4 total issues(s))",
+                $"    -   Value: 'Dr Foo Bar' (2 occurrence(s))",
+                $"        With failures:",
+                $"        -   'Foo' at offset -1 classified as Person",
+                $"        -   'Bar' at offset -1 classified as Person",
+                $"        In files:",
+                $"        -   foo1.dcm",
+                $"        -   foo2.dcm",
+                $"    -   Value: 'aaaaaaaaaaa' (2 occurrence(s))",
+                $"        With failures:",
+                $"        -   'aaaaaaaaaaa' at offset -1 classified as Person",
+                $"        In files:",
+                $"        -   foo1.dcm",
+                $"        -   foo2.dcm",
+                $"",
+                $"## Blocked files",
+                $"",
+                $"## Anonymisation failures",
+                $"",
+                $"--- end of report ---",
+                $"",
+            };
+
+            Assert.AreEqual(string.Join(newLine, expectedLines), reporter.Report);
+        }
+
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_IdentifiableExtraction(string newLine)
+        {
+            CompletedExtractJobInfo jobInfo = TestJobInfo(isIdentifiableExtraction: true);
+
+            var missingFiles = new List<string>
+            {
+               "missing.dcm",
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
+
+            TestJobReporter reporter;
+            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
+            {
+                reporter.CreateReport(Guid.Empty);
+            }
+
+            Assert.True(reporter.Disposed);
+
+            var missingFilesExpected = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("missing.dcm", null),
+            };
+
+            var expectedLines = new List<string>
+            {
+                $"# SMI extraction validation report for 1234/test",
+                $"",
+                $"Job info:",
+                $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
+                $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
+                $"-   Extraction tag:               keyTag",
+                $"-   Extraction modality:          Unspecified",
+                $"-   Requested identifier count:   123",
+                $"-   Identifiable extraction:      Yes",
+                $"-   Filtered extraction:          Yes",
+                $"",
+                $"Report contents:",
+                $"",
+                $"-   Missing file list (files which were selected from an input ID but could not be found)",
+                $"",
+                $"## Missing file list",
+                $"",
+                $"-   missing.dcm",
+                $"",
+                $"--- end of report ---",
+                $"",
+            };
+
+            Assert.AreEqual(string.Join(newLine, expectedLines), reporter.Report);
+        }
+
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_SplitReport(string newLine)
+        {
+            CompletedExtractJobInfo jobInfo = TestJobInfo();
+
+            const string pixelFailureData = @"
+[
+     {
+        'Parts': [
+            {'Classification':'Person','Offset':-1,'Word':'aaaaaaaaaaa'}
+        ],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'PixelData',
+        'ProblemValue': 'aaaaaaaaaaa'
+    },
+]";
+
+            const string tagFailureData1 = @"
+[
+     {
+        'Parts': [
+            {'Classification':'Person','Offset':3,'Word':'Foo\'s'}
+        ],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'ScanOptions',
+        'ProblemValue': 'Dr Foo\'s protocol'
+    },
+    {
+        'Parts': [
+            {'Classification':'Person','Offset':0,'Word':'Foo'},
+            {'Classification':'Person','Offset':4,'Word':'Bar'}
+        ],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'SeriesDescription',
+        'ProblemValue': 'Foo Bar'
+    },
+]";
+
+            const string tagFailureData2 = @"
+[
+     {
+        'Parts': [
+            {'Classification':'Organization','Offset':2,'Word':'Hospital'}
+        ],
+        'Resource': 'unused',
+        'ResourcePrimaryKey': 'unused',
+        'ProblemField': 'SeriesDescription',
+        'ProblemValue': 'A Hospital'
+    },
+]";
+
+
+            var verificationFailures = new List<FileVerificationFailureInfo>
+            {
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo1.dcm", tagFailureData1),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo1.dcm", pixelFailureData),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo2.dcm", tagFailureData1),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo2.dcm", pixelFailureData),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo2.dcm", tagFailureData2),
+                new FileVerificationFailureInfo(relativeOutputFilePath: "foo3.dcm", tagFailureData1),
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+            TestJobReporter reporter;
             using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, newLine))
             {
                 reporter.CreateReport(Guid.Empty);
@@ -651,11 +697,11 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             Assert.True(reporter.Disposed);
 
-            var expected = new List<string>
+            var expectedLines = new List<string>
             {
                 $"",
-                "=== summary file ===",
-                "# SMI extraction validation report for 1234/test",
+                $"=== summary file ===",
+                $"# SMI extraction validation report for 1234/test",
                 $"",
                 $"Job info:",
                 $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
@@ -689,56 +735,51 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"--- end of report ---",
                 $"",
                 $"=== pixel summary file ===",
-                $"TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport",
-                $"PixelData,aaaaaaaaaaa,2,0.25,0.25",
-                $"PixelData,another,2,0.25,0.25",
-                $"PixelData,a,4,0.5,0.5",
+                $"TagName,FailureValue,Offset,Classification,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport",
+                $"PixelData,aaaaaaaaaaa,-1,Person,2,1,1",
                 $"",
                 $"=== pixel full file ===",
-                $"TagName,FailureValue,FilePath",
-                $"PixelData,aaaaaaaaaaa,foo1.dcm",
-                $"PixelData,aaaaaaaaaaa,foo2.dcm",
-                $"PixelData,another,foo1.dcm",
-                $"PixelData,another,foo2.dcm",
-                $"PixelData,a,foo1.dcm",
-                $"PixelData,a,foo1.dcm",
-                $"PixelData,a,foo2.dcm",
-                $"PixelData,a,foo2.dcm",
+                $"TagName,FailureValue,Offset,Classification,FilePath",
+                $"PixelData,aaaaaaaaaaa,-1,Person,foo1.dcm",
+                $"PixelData,aaaaaaaaaaa,-1,Person,foo2.dcm",
                 $"",
                 $"=== pixel word length frequencies file ===",
                 $"WordLength,Count,RelativeFrequencyInReport",
-                $"1,4,0.5",
+                $"1,0,0",
                 $"2,0,0",
                 $"3,0,0",
                 $"4,0,0",
                 $"5,0,0",
                 $"6,0,0",
-                $"7,2,0.25",
+                $"7,0,0",
                 $"8,0,0",
                 $"9,0,0",
                 $"10,0,0",
-                $"11,2,0.25",
+                $"11,2,1",
                 $"",
                 $"=== tag summary file ===",
-                $"TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport",
-                $"X,foo,4,0.6666666666666666,0.5",
-                $"X,bar,2,0.3333333333333333,0.5",
-                $"Z,bar,2,1,0.5",
+                $"TagName,FailureValue,Offset,Classification,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport",
+                $"SeriesDescription,Foo,0,Person,3,0.42857142857142855,0.3",
+                $"SeriesDescription,Bar,4,Person,3,0.42857142857142855,0.3",
+                $"SeriesDescription,Hospital,2,Organization,1,0.14285714285714285,0.1",
+                $"ScanOptions,Foo's,3,Person,3,1,0.3",
                 $"",
                 $"=== tag full file ===",
-                $"TagName,FailureValue,FilePath",
-                $"X,foo,foo1.dcm",
-                $"X,foo,foo1.dcm",
-                $"X,foo,foo2.dcm",
-                $"X,foo,foo2.dcm",
-                $"X,bar,foo1.dcm",
-                $"X,bar,foo2.dcm",
-                $"Z,bar,foo1.dcm",
-                $"Z,bar,foo2.dcm",
+                $"TagName,FailureValue,Offset,Classification,FilePath",
+                $"ScanOptions,Foo's,3,Person,foo1.dcm",
+                $"ScanOptions,Foo's,3,Person,foo2.dcm",
+                $"ScanOptions,Foo's,3,Person,foo3.dcm",
+                $"SeriesDescription,Hospital,2,Organization,foo2.dcm",
+                $"SeriesDescription,Foo,0,Person,foo1.dcm",
+                $"SeriesDescription,Foo,0,Person,foo2.dcm",
+                $"SeriesDescription,Foo,0,Person,foo3.dcm",
+                $"SeriesDescription,Bar,4,Person,foo1.dcm",
+                $"SeriesDescription,Bar,4,Person,foo2.dcm",
+                $"SeriesDescription,Bar,4,Person,foo3.dcm",
                 $"",
             };
 
-            Assert.AreEqual(string.Join(newLine, expected), reporter.Report);
+            Assert.AreEqual(string.Join(newLine, expectedLines), reporter.Report);
         }
 
         [Test]

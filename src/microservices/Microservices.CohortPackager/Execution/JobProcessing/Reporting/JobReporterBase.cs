@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Reporting;
 using Newtonsoft.Json;
 using NLog;
@@ -11,7 +12,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 
@@ -107,16 +107,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             streamWriter.WriteLine();
             streamWriter.WriteLine("-   Verification failures");
-            streamWriter.WriteLine("    -   Summary");
-            streamWriter.WriteLine("    -   Full Details");
             streamWriter.WriteLine("-   Blocked files");
             streamWriter.WriteLine("-   Anonymisation failures");
             streamWriter.WriteLine();
 
             streamWriter.WriteLine("## Verification failures");
             streamWriter.WriteLine();
-            WriteJobVerificationFailures(streamWriter, jobInfo.ExtractionJobIdentifier);
-            streamWriter.WriteLine();
+            WriteJobVerificationFailuresCombined(streamWriter, jobInfo.ExtractionJobIdentifier);
 
             streamWriter.WriteLine("## Blocked files");
             streamWriter.WriteLine();
@@ -124,7 +121,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier)
             )
                 WriteJobRejections(streamWriter, extractionIdentifierRejectionInfo);
-            streamWriter.WriteLine();
 
             streamWriter.WriteLine("## Anonymisation failures");
             streamWriter.WriteLine();
@@ -132,7 +128,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier)
             )
                 WriteAnonFailure(streamWriter, fileAnonFailureInfo);
-            streamWriter.WriteLine();
 
             streamWriter.WriteLine("--- end of report ---");
 
@@ -206,25 +201,31 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             }
 
             // All validation failures for this job
-            Dictionary<string, Dictionary<string, List<string>>> groupedFailures = GetJobVerificationFailures(jobInfo.ExtractionJobIdentifier);
+            Dictionary<string, List<Tuple<string, FailureData>>> tagFailures = GetJobVerificationFailuresGroupedByTag(jobInfo.ExtractionJobIdentifier);
 
             // First deal with the pixel data
-            Dictionary<string, List<string>> pixelFailures = groupedFailures.GetValueOrDefault(PixelDataStr);
+            List<Tuple<string, FailureData>> pixelFailures = tagFailures.GetValueOrDefault(PixelDataStr);
             if (pixelFailures == null)
             {
                 Logger.Info($"No {PixelDataStr} failures found for the extraction job");
-                pixelFailures = new Dictionary<string, List<string>>();
+                pixelFailures = new List<Tuple<string, FailureData>>();
             }
 
             // Create records for the pixel reports
-            List<TagDataSummaryCsvRecord> pixelSummaryRecords = TagDataSummaryCsvRecord.BuildRecordList(PixelDataStr, pixelFailures).ToList();
+            List<TagDataSummaryCsvRecord> pixelSummaryRecords =
+                TagDataSummaryCsvRecord.BuildRecordList(
+                    PixelDataStr,
+                    pixelFailures.Select(x => x.Item2)
+                )
+                .ToList();
+
             var wordLengthCounts = new Dictionary<uint, uint>();
             foreach (TagDataSummaryCsvRecord tagDataSummaryCsvRecord in pixelSummaryRecords)
             {
                 var wordLen = (uint)tagDataSummaryCsvRecord.FailureValue.Length;
                 if (!wordLengthCounts.ContainsKey(wordLen))
                     wordLengthCounts.Add(wordLen, 0);
-                wordLengthCounts[wordLen] += (uint)tagDataSummaryCsvRecord.Occurrences;
+                wordLengthCounts[wordLen] += tagDataSummaryCsvRecord.Occurrences;
                 tagDataSummaryCsvRecord.RelativeFrequencyInReport = tagDataSummaryCsvRecord.RelativeFrequencyInTag;
             }
 
@@ -253,18 +254,15 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                     TagDataFrequencyRecord.BuildRecordList(wordLengthCounts)
                 );
 
-            // Now select all other tags
-            Dictionary<string, Dictionary<string, List<string>>> otherTagFailures =
-                groupedFailures
-                    .Where(x => x.Key != PixelDataStr)
-                    .ToDictionary(x => x.Key, x => x.Value);
-
+            // Now drop the pixel data and deal with the rest of the tags
+            tagFailures.Remove(PixelDataStr);
+            
             // Write the summary CSV for all other tags. Before doing so, we need to convert into records and calculate the relative frequencies
             var summaryRecordsByTag = new List<List<TagDataSummaryCsvRecord>>();
             var totalOccurrencesByValue = new Dictionary<string, uint>();
-            foreach ((string tagName, Dictionary<string, List<string>> failures) in otherTagFailures)
+            foreach ((string tagName, IEnumerable<Tuple<string, FailureData>> failures) in tagFailures)
             {
-                List<TagDataSummaryCsvRecord> record = TagDataSummaryCsvRecord.BuildRecordList(tagName, failures).ToList();
+                List<TagDataSummaryCsvRecord> record = TagDataSummaryCsvRecord.BuildRecordList(tagName, failures.Select(x => x.Item2)).ToList();
                 summaryRecordsByTag.Add(record);
                 foreach (TagDataSummaryCsvRecord r in record)
                 {
@@ -291,7 +289,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             // Write the full csv for all other tags.
             var fullRecordsByTag = new List<List<TagDataFullCsvRecord>>();
-            foreach ((string tagName, Dictionary<string, List<string>> failures) in otherTagFailures)
+            foreach ((string tagName, IEnumerable<Tuple<string, FailureData>> failures) in tagFailures)
                 fullRecordsByTag.Add(TagDataFullCsvRecord.BuildRecordList(tagName, failures).ToList());
             var orderedFullTagRecords = new List<TagDataFullCsvRecord>();
             foreach (IEnumerable<TagDataFullCsvRecord> tagRecordSet in fullRecordsByTag.OrderBy(x => x[0].TagName))
@@ -352,6 +350,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             streamWriter.WriteLine($"-   ID: {extractionIdentifierRejectionInfo.ExtractionIdentifier}");
             foreach ((string reason, int count) in extractionIdentifierRejectionInfo.RejectionItems.OrderByDescending(x => x.Value))
                 streamWriter.WriteLine($"    -   {count}x '{reason}'");
+            streamWriter.WriteLine();
         }
 
         private static void WriteAnonFailure(TextWriter streamWriter, FileAnonFailureInfo fileAnonFailureInfo)
@@ -359,16 +358,20 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             streamWriter.WriteLine($"-   file '{fileAnonFailureInfo.ExpectedAnonFile}': '{fileAnonFailureInfo.Reason}'");
         }
 
-        private Dictionary<string, Dictionary<string, List<string>>> GetJobVerificationFailures(Guid extractionJobIdentifier)
+        /// <summary>
+        /// All verification failures for the specififed extraction ID, keyed by ProblemField (i.e. the tag). Each dict value is a list of tuples of (RelativeOutputFilePath, Failure)
+        /// </summary>
+        /// <param name="extractionJobIdentifier"></param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+        private Dictionary<string, List<Tuple<string, FailureData>>> GetJobVerificationFailuresGroupedByTag(Guid extractionJobIdentifier)
         {
-            // For each problem field, we build a dict of problem values with a list of each file containing that value. This allows
-            // grouping & ordering by occurrence
+            var output = new Dictionary<string, List<Tuple<string, FailureData>>>();
 
-            // TODO Create a wrapper type for this(?)
-            // Dict<TagName, Dict<FailureValue, List<Files>>>
-            var groupedFailures = new Dictionary<string, Dictionary<string, List<string>>>();
             foreach (FileVerificationFailureInfo fileVerificationFailureInfo in _jobStore.GetCompletedJobVerificationFailures(extractionJobIdentifier))
             {
+                var failurePath = fileVerificationFailureInfo.RelativeOutputFilePath;
+
                 IEnumerable<Failure> fileFailures;
                 try
                 {
@@ -382,56 +385,43 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 foreach (Failure failure in fileFailures)
                 {
                     string tag = failure.ProblemField;
-                    string value = failure.ProblemValue;
 
-                    if (!groupedFailures.ContainsKey(tag))
-                        groupedFailures.Add(tag, new Dictionary<string, List<string>>
-                        {
-                            { value, new List<string> { fileVerificationFailureInfo.AnonFilePath } },
-                        });
-                    else if (!groupedFailures[tag].ContainsKey(value))
-                        groupedFailures[tag].Add(value, new List<string> { fileVerificationFailureInfo.AnonFilePath });
-                    else
-                        groupedFailures[tag][value].Add(fileVerificationFailureInfo.AnonFilePath);
+                    if (!output.ContainsKey(tag))
+                        output.Add(tag, new List<Tuple<string, FailureData>>());
+
+                    var failureData = FailureData.FromFailure(failure);
+                    output[tag].Add(new Tuple<string, FailureData>(failurePath, failureData));
                 }
             }
-            return groupedFailures;
+
+            return output;
         }
 
-        private void WriteJobVerificationFailures(TextWriter streamWriter, Guid extractionJobIdentifier)
+        private void WriteJobVerificationFailuresCombined(TextWriter streamWriter, Guid extractionJobIdentifier)
         {
-            Dictionary<string, Dictionary<string, List<string>>> groupedFailures = GetJobVerificationFailures(extractionJobIdentifier);
-
-            streamWriter.WriteLine("### Summary");
-            streamWriter.WriteLine();
-
-            var sb = new StringBuilder();
+            Dictionary<string, List<Tuple<string, FailureData>>> tagFailures = GetJobVerificationFailuresGroupedByTag(extractionJobIdentifier);
 
             // Write-out the groupings, ordered by descending count, as a summary without the list of associated files
             // Ignore the pixel data here since we deal with it separately below
-            List<KeyValuePair<string, Dictionary<string, List<string>>>> grouped = groupedFailures
+            List<KeyValuePair<string, List<Tuple<string, FailureData>>>> tagsOrdered = tagFailures
                 .Where(x => x.Key != PixelDataStr)
-                .OrderByDescending(x => x.Value.Sum(y => y.Value.Count))
+                .OrderByDescending(x => x.Value.Count())
                 .ToList();
 
-            foreach ((string tag, Dictionary<string, List<string>> failures) in grouped)
+            foreach ((string tag, List<Tuple<string, FailureData>> failures) in tagsOrdered)
             {
-                WriteVerificationValuesTag(tag, failures, streamWriter, sb);
-                WriteVerificationValues(failures.OrderByDescending(x => x.Value.Count), streamWriter, sb);
+                WriteVerificationValuesTag(tag, failures, streamWriter);
+                WriteVerificationValues(failures, streamWriter);
+                streamWriter.WriteLine();
             }
 
-            // Now list the pixel data, which we instead order by decreasing length
-            if (groupedFailures.TryGetValue(PixelDataStr, out Dictionary<string, List<string>> pixelFailures))
+            // Now list the pixel data            
+            if (tagFailures.TryGetValue(PixelDataStr, out List<Tuple<string, FailureData>> pixelFailures))
             {
-                WriteVerificationValuesTag(PixelDataStr, pixelFailures, streamWriter, sb);
-                WriteVerificationValues(pixelFailures.OrderByDescending(x => x.Key.Length), streamWriter, sb);
+                WriteVerificationValuesTag(PixelDataStr, pixelFailures, streamWriter);
+                WriteVerificationValues(pixelFailures.OrderByDescending(x => x.Item2.Parts.Count), streamWriter);
+                streamWriter.WriteLine();
             }
-
-            // Now write-out the same, but with the file listing
-            streamWriter.WriteLine();
-            streamWriter.WriteLine("### Full details");
-            streamWriter.WriteLine();
-            streamWriter.Write(sb);
         }
 
         private static void WriteJobMissingFileList(TextWriter streamWriter, IEnumerable<string> missingFiles)
@@ -440,28 +430,28 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine($"-   {file}");
         }
 
-        private void WriteVerificationValuesTag(string tag, Dictionary<string, List<string>> failures, TextWriter streamWriter, StringBuilder sb)
+        private void WriteVerificationValuesTag(string tag, IEnumerable<Tuple<string, FailureData>> failures, TextWriter streamWriter)
         {
-            int totalOccurrences = failures.Sum(x => x.Value.Count);
-            string line = $"-   Tag: {tag} ({totalOccurrences} total occurrence(s)){ReportNewLine}";
+            string line = $"-   Tag: {tag} ({failures.Count()} total issues(s)){ReportNewLine}";
             streamWriter.Write(line);
-            sb.Append(line);
         }
 
-        private void WriteVerificationValues(IEnumerable<KeyValuePair<string, List<string>>> values, TextWriter streamWriter, StringBuilder sb)
+        private void WriteVerificationValues(IEnumerable<Tuple<string, FailureData>> values, TextWriter streamWriter)
         {
-
-            foreach ((string problemVal, List<string> relatedFiles) in values)
+            // Grouped by unique instances of FailureData
+            foreach (IGrouping<FailureData, Tuple<string, FailureData>> group in values.GroupBy(x => x.Item2))
             {
-                string line = $"    -   Value: '{problemVal}' ({relatedFiles.Count} occurrence(s)){ReportNewLine}";
-                streamWriter.Write(line);
-                sb.Append(line);
-                foreach (string file in relatedFiles)
-                    sb.Append($"        -   {file}{ReportNewLine}");
-            }
+                var failureData = group.Key;
+                streamWriter.WriteLine($"    -   Value: '{failureData.ProblemValue}' ({group.Count()} occurrence(s))");
 
-            streamWriter.WriteLine();
-            sb.Append(ReportNewLine);
+                streamWriter.WriteLine($"        With failures:");
+                foreach (FailurePart part in failureData.Parts)
+                    streamWriter.WriteLine($"        -   '{part.Word}' at offset {part.Offset} classified as {part.Classification}");
+
+                streamWriter.WriteLine($"        In files:");
+                foreach ((string filePath, FailureData _) in group)
+                    streamWriter.WriteLine($"        -   {filePath}");
+            }
         }
 
         protected abstract void ReleaseUnmanagedResources();

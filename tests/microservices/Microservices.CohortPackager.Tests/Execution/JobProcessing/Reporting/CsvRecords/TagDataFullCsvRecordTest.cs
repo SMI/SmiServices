@@ -1,4 +1,6 @@
-﻿using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+﻿using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+using Microservices.IsIdentifiable.Failures;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -35,61 +37,94 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
         #region Tests
 
-        // tagName
-        [TestCase(null, "foo", "foo")]
-        [TestCase("", "foo", "foo")]
-        // failureValue
-        [TestCase("foo", null, "foo")]
-        [TestCase("foo", "", "foo")]
-        // filePath
-        [TestCase("foo", "foo", null)]
-        [TestCase("foo", "foo", "")]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string tagName, string failureValue, string filePath)
+        [TestCase("tagName", null, "foo", 0, FailureClassification.Person, "foo")]
+        [TestCase("tagName", "", "foo", 0, FailureClassification.Person, "foo")]
+        [TestCase("failureValue", "foo", null, 0, FailureClassification.Person, "foo")]
+        [TestCase("failureValue", "foo", "", 0, FailureClassification.Person, "foo")]
+        [TestCase("offset", "foo", "foo", -123, FailureClassification.Person, "foo")]
+        [TestCase("failureClassification", "foo", "foo", 0, FailureClassification.None, "foo")]
+        [TestCase("filePath", "foo", "foo", 0, FailureClassification.Person, null)]
+        [TestCase("filePath", "foo", "foo", 0, FailureClassification.Person, "")]
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(
+            string expected,
+            string tagName,
+            string failureValue,
+            int offset,
+            FailureClassification classification,
+            string filePath
+        )
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord(tagName, failureValue, filePath); });
+            var exc = Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord(tagName, failureValue, offset, classification, filePath); });
+            Assert.AreEqual(expected, exc.Message);
         }
 
         [Test]
         public void BuildRecordList_Empty()
         {
-            IEnumerable<TagDataFullCsvRecord> records = TagDataFullCsvRecord.BuildRecordList("foo", new Dictionary<string, List<string>>());
+            IEnumerable<TagDataFullCsvRecord> records = TagDataFullCsvRecord.BuildRecordList("foo", new List<Tuple<string, FailureData>>());
             Assert.AreEqual(Enumerable.Empty<TagDataFullCsvRecord>(), records);
         }
 
         [Test]
         public void BuildRecordList_WithData()
         {
-            var testData = new Dictionary<string, List<string>>
+            // Arrange
+
+            var testData = new List<Tuple<string, FailureData>>()
             {
-                {
-                    "foo",
-                    new List<string>
-                    {
-                        "2.dcm",
-                        "1.dcm",
-                    }
-                },
-                {
-                    "bar",
-                    new List<string>
-                    {
-                        "3.dcm",
-                        "2.dcm",
-                        "1.dcm",
-                    }
-                },
+                new Tuple<string, FailureData>(
+                    "foo.dcm",
+                    new FailureData(
+                        parts: new List<FailurePart>()
+                        {
+                            new FailurePart("Bar", FailureClassification.Person, 7),
+                            new FailurePart("Foo", FailureClassification.Person, 3),
+                        },
+                        problemField: "unused",
+                        problemValue: "unused"
+                    )
+                ),
+                   new Tuple<string, FailureData>(
+                    "bar.dcm",
+                    new FailureData(
+                        parts: new List<FailurePart>()
+                        {
+                            new FailurePart("Foo", FailureClassification.Person, 0),
+                        },
+                        problemField: "unused",
+                        problemValue: "unused"
+                    )
+                ),
+                new Tuple<string, FailureData>(
+                    "baz.dcm",
+                    new FailureData(
+                        parts: new List<FailurePart>()
+                        {
+                            new FailurePart("Foo", FailureClassification.Person, 3),
+                            new FailurePart("Bar", FailureClassification.Person, 7),
+                            new FailurePart("1970-01-01", FailureClassification.Date, 0),
+                        },
+                        problemField: "unused",
+                        problemValue: "unused"
+                    )
+                )
             };
 
             var expected = new List<TagDataFullCsvRecord>
             {
-                new TagDataFullCsvRecord("ScanOptions", "bar", "1.dcm"),
-                new TagDataFullCsvRecord("ScanOptions", "bar", "2.dcm"),
-                new TagDataFullCsvRecord("ScanOptions", "bar", "3.dcm"),
-                new TagDataFullCsvRecord("ScanOptions", "foo", "1.dcm"),
-                new TagDataFullCsvRecord("ScanOptions", "foo", "2.dcm"),
+                new TagDataFullCsvRecord("Tag", "1970-01-01", 0, FailureClassification.Date,  "baz.dcm"),
+                new TagDataFullCsvRecord("Tag", "Foo", 3, FailureClassification.Person,  "baz.dcm"),
+                new TagDataFullCsvRecord("Tag", "Bar", 7, FailureClassification.Person,  "baz.dcm"),
+                new TagDataFullCsvRecord("Tag", "Foo", 3, FailureClassification.Person,  "foo.dcm"),
+                new TagDataFullCsvRecord("Tag", "Bar", 7, FailureClassification.Person,  "foo.dcm"),
+                new TagDataFullCsvRecord("Tag", "Foo", 0, FailureClassification.Person,  "bar.dcm"),
             };
 
-            List<TagDataFullCsvRecord> actual = TagDataFullCsvRecord.BuildRecordList("ScanOptions", testData).ToList();
+            // Act
+
+            List<TagDataFullCsvRecord> actual = TagDataFullCsvRecord.BuildRecordList("Tag", testData).ToList();
+
+            // Assert
 
             Assert.AreEqual(expected, actual);
         }

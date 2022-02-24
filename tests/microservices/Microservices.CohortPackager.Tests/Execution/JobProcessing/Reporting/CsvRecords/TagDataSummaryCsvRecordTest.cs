@@ -1,4 +1,6 @@
-﻿using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+﻿using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+using Microservices.IsIdentifiable.Failures;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -35,26 +37,33 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
         #region Tests
 
-        // tagName
-        [TestCase(null, "foo", 1U, 1.0)]
-        [TestCase("  ", "foo", 1U, 1.0)]
-        // failureValue
-        [TestCase("foo", null, 1U, 1.0)]
-        [TestCase("foo", "  ", 1U, 1.0)]
-        // occurrences
-        [TestCase("foo", "foo", 0U, 1.0)]
-        // frequency
-        [TestCase("foo", "foo", 1U, 0.0)]
-        [TestCase("foo", "foo", 1U, -1.0)]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string tagName, string failureValue, uint occurrences, double frequency)
+        [TestCase("tagName", null, "foo", 123, FailureClassification.Person, 1U, 1.0)]
+        [TestCase("tagName", "  ", "foo", 123, FailureClassification.Person, 1U, 1.0)]
+        [TestCase("failureValue", "foo", null, 123, FailureClassification.Person, 1U, 1.0)]
+        [TestCase("failureValue", "foo", "  ", 123, FailureClassification.Person, 1U, 1.0)]
+        [TestCase("offset", "foo", "foo", -2, FailureClassification.Person, 1U, 1.0)]
+        [TestCase("failureClassification", "foo", "foo", 123, FailureClassification.None, 1U, 1.0)]
+        [TestCase("occurrences", "foo", "foo", 123, FailureClassification.Person, 0U, 1.0)]
+        [TestCase("frequency", "foo", "foo", 123, FailureClassification.Person, 1U, 0.0)]
+        [TestCase("frequency", "foo", "foo", 123, FailureClassification.Person, 1U, -1.0)]
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(
+            string expected,
+            string tagName,
+            string failureValue,
+            int offset,
+            FailureClassification classification,
+            uint occurrences,
+            double frequency
+        )
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord(tagName, failureValue, occurrences, frequency); });
+            var exc = Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord(tagName, failureValue, offset, classification, occurrences, frequency); });
+            Assert.AreEqual(expected, exc.Message);
         }
 
         [Test]
         public void RelativeFrequencyInReport_OnlySetOnce()
         {
-            var record = new TagDataSummaryCsvRecord("ScanOptions", "foo", 1, 1);
+            var record = new TagDataSummaryCsvRecord("ScanOptions", "foo", 0, FailureClassification.Location, 1, 1);
             record.RelativeFrequencyInReport = 1;
             Assert.Throws<ArgumentException>(() => record.RelativeFrequencyInReport = 1);
         }
@@ -62,42 +71,88 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
         [Test]
         public void BuildRecordList_Empty()
         {
-            IEnumerable<TagDataSummaryCsvRecord> records = TagDataSummaryCsvRecord.BuildRecordList("foo", new Dictionary<string, List<string>>());
+            IEnumerable<TagDataSummaryCsvRecord> records = TagDataSummaryCsvRecord.BuildRecordList("foo", new List<FailureData>());
             Assert.AreEqual(Enumerable.Empty<TagDataSummaryCsvRecord>(), records);
         }
 
         [Test]
-        public void BuildRecordList_WithData()
+        public void BuildRecordList_HappyPath()
         {
-            var testData = new Dictionary<string, List<string>>
+            // Arrange
+
+            var testData = new List<FailureData>()
             {
-                {
-                    "foo",
-                    new List<string>
+                new FailureData(
+                    parts: new List<FailurePart>()
                     {
-                        "2.dcm",
-                        "1.dcm",
-                    }
-                },
-                {
-                    "bar",
-                    new List<string>
-                    {
-                        "3.dcm",
-                        "2.dcm",
-                        "1.dcm",
-                        "4.dcm",
-                    }
-                },
+                        new FailurePart("foo", FailureClassification.Person, 0),
+                    },
+                    problemField: "unused",
+                    problemValue: "foo"
+                ),
             };
 
             var expected = new List<TagDataSummaryCsvRecord>
             {
-                new TagDataSummaryCsvRecord("ScanOptions", "bar", 4, 1.0 * 4 / 6),
-                new TagDataSummaryCsvRecord("ScanOptions", "foo", 2, 1.0 * 2 / 6),
+                new TagDataSummaryCsvRecord("ScanOptions", "foo", 0, FailureClassification.Person, 1, 1.0),
             };
 
+            // Act
+
             List<TagDataSummaryCsvRecord> actual = TagDataSummaryCsvRecord.BuildRecordList("ScanOptions", testData).ToList();
+
+            // Assert
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void BuildRecordList_Complex()
+        {
+            // Arrange
+
+            var testData = new List<FailureData>()
+            {
+                new FailureData(
+                    parts: new List<FailurePart>()
+                    {
+                        new FailurePart("Foo", FailureClassification.Person, 3),
+                        new FailurePart("Bar", FailureClassification.Person, 7),
+                    },
+                    problemField: "unused",
+                    problemValue: "Dr Foo Bar"
+                ),
+                new FailureData(
+                    parts: new List<FailurePart>()
+                    {
+                        new FailurePart("Foo", FailureClassification.Person, 3),
+                        new FailurePart("Bar", FailureClassification.Person, 7),
+                    },
+                    problemField: "unused",
+                    problemValue: "Dr Foo Bar"
+                ),
+                new FailureData(
+                    parts: new List<FailurePart>()
+                    {
+                        new FailurePart("Org", FailureClassification.Organization, 0),
+                    },
+                    problemField: "unused",
+                    problemValue: "Org"
+                )
+            };
+
+            var expected = new List<TagDataSummaryCsvRecord>
+            {
+                new TagDataSummaryCsvRecord("Tag", "Foo", 3, FailureClassification.Person, 2, 0.4),
+                new TagDataSummaryCsvRecord("Tag", "Bar", 7, FailureClassification.Person, 2, 0.4),
+                new TagDataSummaryCsvRecord("Tag",  "Org", 0, FailureClassification.Organization, 1, 0.2),
+            };
+
+            // Act
+
+            List<TagDataSummaryCsvRecord> actual = TagDataSummaryCsvRecord.BuildRecordList("Tag", testData).ToList();
+
+            // Assert
 
             Assert.AreEqual(expected, actual);
         }
