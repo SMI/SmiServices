@@ -29,7 +29,7 @@
     <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="4.7.13" />
+    <PackageReference Include="NLog" Version="4.7.14" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.0">
         <PrivateAssets>all</PrivateAssets>
