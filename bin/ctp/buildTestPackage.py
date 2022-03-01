@@ -44,7 +44,11 @@ def main() -> int:
     C.run(cmd)
 
     zips = {
-        Path(x) for x in glob.glob(f"{C.PROJ_ROOT}/src/**/*deploy-distribution.zip", recursive=True)
+        Path(x) for x in
+        glob.glob(
+            f"{C.PROJ_ROOT}/src/**/*deploy-distribution.zip",
+            recursive=True,
+        )
     }
     assert 1 == len(zips), "Expected 1 zip file (CTP)"
     for zip_path in zips:

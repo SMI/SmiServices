@@ -32,12 +32,13 @@ def main() -> int:
     )
     C.run(cmd)
 
-    (nerd_jar,) = {
+    jars = [
         Path(x)
         for x in glob.glob(f"{_NERD_TARGET_DIR}/nerd-*.jar", recursive=True)
-    }
+    ]
+    assert 1 == len(jars), "Expected 1 zip file (CTP)"
     shutil.copyfile(
-        nerd_jar,
+        jars[0],
         dist_tag_dir / f"smi-nerd-{args.tag}.jar",
     )
 

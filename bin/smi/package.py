@@ -62,7 +62,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             smi_services_output_dir,
         )
     elif platform == _WINDOWS:
-        # NOTE(rkm 2020-12-23) If building Windows _from_ Linux, this needs to be 7za
+        # TODO(rkm 2020-12-23) If building Windows _from_ Linux, this needs to be 7za
         cmd = (
             "7z",
             "a",

@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 from typing import Sequence
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import common as C
 

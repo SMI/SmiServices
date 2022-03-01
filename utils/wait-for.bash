@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Runs the specified command until it succeeds or the timeout is reached
+
 set -uo pipefail
 
 if [ $# -lt 1 ]; then

@@ -44,7 +44,6 @@ def run(
 
 
 def create_checksums(dist_tag_dir: Path, product: str) -> None:
-    # Create checksum files
     file_checksums = {x.name: _md5sum(x) for x in dist_tag_dir.iterdir()}
     print("\n=== Checksums ===")
     with open(dist_tag_dir / f"MD5SUM-{product}.txt", "w") as md5_file:
@@ -127,6 +126,7 @@ def start_containers(
         try:
             run(cmd)
         except subprocess.CalledProcessError:
+            # NOTE(rkm 2022-03-01) Print container logs when a check fails
             cmd = (
                 f"{docker}-compose",
                 "-f", compose_file,
