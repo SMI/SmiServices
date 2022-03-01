@@ -2,6 +2,7 @@
 
 import argparse
 import glob
+import json
 import os
 import shutil
 import sys
@@ -78,12 +79,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if not args.no_build:
         DB.main(("--configuration", args.configuration))
 
-    # TODO(rkm 2022-02-25) Is there another way around this?
-    net6_glob = {
+    with open(C.PROJ_ROOT / "global.json") as f:
+        global_json = json.load(f)
+    sdk_version_major = global_json["sdk"]["version"].split(".")[0]
+
+    netX_glob = {
         Path(x) for x in
-        glob.glob(f"{C.PROJ_ROOT}/**/net6", recursive=True)
+        glob.glob(f"{C.PROJ_ROOT}/**/net{sdk_version_major}", recursive=True)
     }
-    for build_dir in net6_glob:
+    for build_dir in netX_glob:
         try:
             os.symlink(
                 Path(f"{C.PROJ_ROOT}/data/microserviceConfigs/default.yaml").resolve(),
