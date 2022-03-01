@@ -6,7 +6,7 @@ import shutil
 import sys
 from pathlib import Path
 
-sys.path.append(str((Path(__file__).parent) / ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import common as C
 
 _NERD_TARGET_DIR = C.PROJ_ROOT / "src/microservices/uk.ac.dundee.hic.nerd/target"
