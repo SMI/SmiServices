@@ -102,7 +102,7 @@ jobs:
         Start-Process -FilePath "SqlLocalDB.msi" -Wait -ArgumentList "/qn", "/norestart", "/l*v SqlLocalDBInstall.log", "IACCEPTSQLLOCALDBLICENSETERMS=YES";
         Write-Host "Checking"
         $db = "(localdb)\MSSQLLocalDB"
-        sqlcmd -l 120 -S "$db" -Q "SELECT @@VERSION;"
+        sqlcmd -l 180 -S "$db" -Q "SELECT @@VERSION;"
         echo "rdmp_conn_str='$db'" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
     - name: "[windows] re-write database strings"
       if: ${{ matrix.os == 'windows' }}
