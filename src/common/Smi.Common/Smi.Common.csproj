@@ -25,12 +25,12 @@
     <PackageReference Include="fo-dicom.NetCore" Version="[4.0.8]" />
     <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="3.0.0" />
-    <PackageReference Include="HIC.FAnsiSql" Version="2.0.2" />
+    <PackageReference Include="HIC.FAnsiSql" Version="2.0.3" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.3" />
-    <PackageReference Include="IsIdentifiable" Version="0.0.1" />
+    <PackageReference Include="IsIdentifiable" Version="0.0.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="4.7.13" />
+    <PackageReference Include="NLog" Version="4.7.14" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.0">
         <PrivateAssets>all</PrivateAssets>

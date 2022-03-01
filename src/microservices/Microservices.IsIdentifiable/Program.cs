@@ -16,7 +16,7 @@ namespace Microservices.IsIdentifiable
         private static int OnParse(GlobalOptions globals, CliOptions opts)
         {
             var bootstrapper = new MicroserviceHostBootstrapper(
-                () => new IsIdentifiableHost(globals, globals.IsIdentifiableServiceOptions));
+                () => new IsIdentifiableHost(globals));
             return bootstrapper.Main();
         }
 

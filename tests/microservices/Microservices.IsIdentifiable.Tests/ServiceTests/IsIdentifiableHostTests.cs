@@ -28,7 +28,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_NoClassifier));
 
             options.IsIdentifiableServiceOptions.ClassifierType = "";
-            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions()));
+            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options));
             StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableServiceOptions.ClassifierType), ex.Message);
         }
 
@@ -39,7 +39,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableServiceOptions.ClassifierType = "HappyFunTimes";
-            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options, new IsIdentifiableServiceOptions()));
+            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options));
             StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex.Message);
         }
 
@@ -58,7 +58,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                 options.IsIdentifiableServiceOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
                 options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
-                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions());
+                var host = new IsIdentifiableHost(options);
                 Assert.IsNotNull(host);
                 host.Start();
 
@@ -102,7 +102,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             {
                 options.IsIdentifiableServiceOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
 
-                var host = new IsIdentifiableHost(options, new IsIdentifiableServiceOptions());
+                var host = new IsIdentifiableHost(options);
                 host.Start();
 
                 tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage

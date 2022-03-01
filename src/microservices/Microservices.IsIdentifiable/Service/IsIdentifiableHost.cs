@@ -16,9 +16,7 @@ namespace Microservices.IsIdentifiable.Service
         private IProducerModel _producerModel;
 
         public IsIdentifiableHost(
-            [NotNull] GlobalOptions globals,
-            [NotNull] IsIdentifiableServiceOptions serviceOpts
-        )
+            [NotNull] GlobalOptions globals)
             : base(globals)
         {
             _consumerOptions = globals.IsIdentifiableServiceOptions;
