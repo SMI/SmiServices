@@ -53,6 +53,7 @@ def main() -> int:
         f.write("Prefix: TEST_\n")
         f.write("Username: sa\n")
         f.write(f"Password: {args.db_password}\n")
+        f.write("ValidateCertificate: false\n")
         if not (os.name == "nt" and _is_ci()):
             f.write(f"MySql: server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None\n")
 
