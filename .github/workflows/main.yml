@@ -6,9 +6,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-  # Temp for initial testing
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "0 6 * * *"
 
 defaults:
   run:
