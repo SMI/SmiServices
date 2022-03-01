@@ -117,7 +117,7 @@ jobs:
       if: steps.cache-rdmp-cli.outputs.cache-hit != 'true'
       run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
     - name: install RDMP databases
-      run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 60 ${{ env.rdmp_conn_str }} TEST_
+      run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
     - name: build, test, and package dotnet
       run: |
         set -euxo pipefail
