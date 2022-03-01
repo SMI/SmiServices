@@ -87,8 +87,6 @@ jobs:
       run: |
         set -euxo pipefail
         rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-        # NOTE(rkm 2022-03-01) Temp override to test --createdatabasetimeout
-        rdmp_cli_ver="7.0.7"
         echo "rdmp_cli_ver=v$rdmp_cli_ver" >> $GITHUB_ENV
     # Ref: https://github.com/actions/virtual-environments/issues/1282#issuecomment-668686268
     - name: "[windows] install SQL 2019 localdb"
