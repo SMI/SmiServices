@@ -58,7 +58,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             using (var stream = File.OpenRead(fi.FullName))
             {    
                 dcm = DicomFile.Open(stream);
-                dcm.Dataset.AddOrUpdate(DicomTag.PrintRETIRED, "FISH");
+                dcm.Dataset.AddOrUpdate(DicomTag.Print, "FISH");
                 dcm.Dataset.AddOrUpdate(DicomTag.Date, new DateTime(2001,01,01));
                 dcm.Save(fi2.FullName);
             }
@@ -66,7 +66,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.Date,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
             adder.Execute();
 
-            adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.PrintRETIRED,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
+            adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.Print,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
             adder.Execute();
             
             fi.Delete();
