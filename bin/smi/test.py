@@ -5,6 +5,7 @@ import glob
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
@@ -108,14 +109,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     test_cmd = ("--filter", args.test[0]) if args.test else ()
 
+    have_failures = False
     for csproj in test_csprojs[:-1]:
-        _run_csproj_tests(
-            csproj,
-            args.configuration,
-            args.no_build,
-            not args.no_coverage,
-            *test_cmd
-        )
+        try:
+            _run_csproj_tests(
+                csproj,
+                args.configuration,
+                args.no_build,
+                not args.no_coverage,
+                *test_cmd
+            )
+        except subprocess.CalledProcessError:
+            have_failures = True
 
     # NOTE(rkm 2021-06-01) Run last test with additional option to generate merged opencover file
     _run_csproj_tests(
@@ -126,6 +131,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         '/p:CoverletOutputFormat="opencover"' if not args.no_coverage else "",
         *test_cmd,
     )
+
+    if have_failures:
+        print("Error: At least one test suite failed", file=sys.stderr)
+        return 1
 
     return 0
 
