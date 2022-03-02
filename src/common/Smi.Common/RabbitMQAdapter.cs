@@ -81,9 +81,9 @@ namespace Smi.Common
                 ThreadPool.GetMinThreads(out minWorker, out minIOC);
                 var workers = Math.Max(50, minWorker);
                 if (ThreadPool.SetMaxThreads(workers, 50))
-                    _logger.Info($"Set Rabbit event concurrency to ({workers},50)");
+                    _logger.Info($"Set Rabbit event concurrency to ({workers:n},50)");
                 else
-                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
+                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers:n},50)");
             }
 
             if (string.IsNullOrWhiteSpace(hostId))
@@ -91,7 +91,7 @@ namespace Smi.Common
             _hostId = hostId;
 
             _connection = connectionFactory.CreateConnection(hostId);
-            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
+            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason.ToString()})");
             _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");
 
             if (hostFatalHandler == null)
