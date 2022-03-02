@@ -45,7 +45,7 @@ def redact_html_tags_in_string(html_str):
     html_str = re.sub('<script[^>]*>.*?</script>', replfunc, html_str, flags=re.I|re.M|re.S)
     html_str = re.sub('<style[^>]*>.*?</style>', replfunc, html_str, flags=re.I|re.M|re.S)
     # Finally remove single-instance tags like <p> and <br>
-    html_str = re.sub('<[^>]*>', replfunc, html_str)
+    html_str = re.sub('<[^<>]*>', replfunc, html_str)
     return(html_str)
 
 def test_redact_html_tags_in_string():
