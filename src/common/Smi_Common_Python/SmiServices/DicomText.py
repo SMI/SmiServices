@@ -49,10 +49,10 @@ def redact_html_tags_in_string(html_str):
     return(html_str)
 
 def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\r\n<BR>text2 <script> script2 </script> text3'
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3'
     dest = redact_html_tags_in_string(src)
     # changing the \r to a space in the expected string also tests the string_match function
-    expected = '.................... ..................................... text1 \n....text2 .......................... text3'
+    expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3'
     assert(string_match(dest, expected))
 
 # ---------------------------------------------------------------------
