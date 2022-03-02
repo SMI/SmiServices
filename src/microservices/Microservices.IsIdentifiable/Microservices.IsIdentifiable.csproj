@@ -27,10 +27,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="fo-dicom.Drawing" Version="[4.0.8]" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="9.1.2" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
+    <PackageReference Include="Tesseract" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />

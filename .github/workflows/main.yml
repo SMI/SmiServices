@@ -31,7 +31,7 @@ jobs:
       build_ref: ${{ steps.build_ref.outputs.build_ref }}
     steps:
     - name: checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
     - name: set matrix
       id: matrix
       run: |
@@ -54,7 +54,7 @@ jobs:
     runs-on: ${{ matrix.image }}
     steps:
     - name: checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
     - name: setup .NET
       # NOTE(rkm 2022-02-20) Uses global.json
       uses: actions/setup-dotnet@v2
@@ -138,7 +138,7 @@ jobs:
     runs-on: ${{ matrix.image }}
     steps:
     - name: checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
     - name: Setup Java JDK
       uses: actions/setup-java@v3.0.0
       with:
@@ -168,7 +168,7 @@ jobs:
     runs-on: ${{ matrix.image }}
     steps:
     - name: checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
     - name: Setup Java JDK
       uses: actions/setup-java@v3.0.0
       with:
@@ -192,7 +192,7 @@ jobs:
     runs-on: ${{ matrix.image }}
     steps:
     - name: checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
     - name: setup Python
       uses: actions/setup-python@v3
       with:
@@ -221,7 +221,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
     - name: download artifacts
       uses: actions/download-artifact@v2
       with:
