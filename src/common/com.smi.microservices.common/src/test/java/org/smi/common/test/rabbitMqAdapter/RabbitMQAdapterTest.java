@@ -1,8 +1,8 @@
 
 package org.smi.common.test.rabbitMqAdapter;
 
-import java.util.concurrent.TimeUnit;
-
+import com.rabbitmq.client.Channel;
+import junit.framework.TestCase;
 import org.smi.common.messages.SimpleMessage;
 import org.smi.common.messaging.IProducerModel;
 import org.smi.common.messaging.SimpleConsumer;
@@ -12,29 +12,28 @@ import org.smi.common.options.GlobalOptions;
 import org.smi.common.options.ProducerOptions;
 import org.smi.common.rabbitMq.RabbitMqAdapter;
 
-import com.rabbitmq.client.Channel;
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class RabbitMQAdapterTest extends TestCase {
 
 	// private final static Logger log =
 	// Logger.getLogger(RabbitMQAdapterTest.class);
 
-	private GlobalOptions _options;
 	private RabbitMqAdapter _rmqAdapter;
 	private SmiConsumer<SimpleMessage> _consumer;
 	private ConsumerOptions _consumerOptions;
 	private IProducerModel _producer;
 
-	private static final String testExchName = "TEST.Java.RabbitMQAdapterTestExchange";
+	private static final String testExchangeName = "TEST.Java.RabbitMQAdapterTestExchange";
 	private static final String testQueueName = "TEST.Java.RabbitMQAdapterTestQueue";
 
 	private Channel _channel;
 	
 	protected void setUp() throws Exception {
 
-		super.setUp();		
-		_options = GlobalOptions.Load(true);
+		super.setUp();
+		GlobalOptions _options = GlobalOptions.Load(true);
 		
 		_rmqAdapter = new RabbitMqAdapter(_options.RabbitOptions, "RabbitMQAdapterTests");
 
@@ -44,25 +43,25 @@ public class RabbitMQAdapterTest extends TestCase {
 		_consumerOptions.AutoAck = false;
 		
 		ProducerOptions producerOptions = new ProducerOptions();
-		producerOptions.ExchangeName = testExchName;
+		producerOptions.ExchangeName = testExchangeName;
 
 		_producer = _rmqAdapter.SetupProducer(producerOptions);
 		
 		// Declare exchange & queue for this test
 		
-		_channel = _rmqAdapter.getChannel("test");
-		_channel.exchangeDeclare(testExchName, "direct", false);
+		_channel = _rmqAdapter.getChannel();
+		_channel.exchangeDeclare(testExchangeName, "direct", false);
 		_channel.queueDeclare(testQueueName, false, false, true, null);
-		_channel.queueBind(testQueueName, testExchName, "");
+		_channel.queueBind(testQueueName, testExchangeName, "");
 		_consumer = new SimpleConsumer(_channel);
 	}
 
 	protected void tearDown() throws Exception {		
-		_channel.exchangeDelete(testExchName);
+		_channel.exchangeDelete(testExchangeName);
 		_rmqAdapter.Shutdown();
 	}
 
-	public void testSendRecv() {
+	public void testSendReceive() throws IOException, InterruptedException {
 		// log.info("testing send / receive");
 		// Set up subscription to receive messages
 		// log.info("Starting our test consumer via the adapter");
