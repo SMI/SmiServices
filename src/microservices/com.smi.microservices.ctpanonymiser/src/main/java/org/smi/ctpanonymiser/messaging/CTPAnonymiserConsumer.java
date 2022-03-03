@@ -49,7 +49,7 @@ public class CTPAnonymiserConsumer extends SmiConsumer<ExtractFileMessage> {
 
 	@Override
 	public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, ExtractFileMessage body, MessageHeader header)
-			throws IOException {
+			throws IOException, InterruptedException {
 		if (body.IsIdentifiableExtraction) {
 			// We should only receive these messages if the queue configuration is wrong, so ok just to crash-out
 			String msg = "Received a message with IsIdentifiableExtraction set";
