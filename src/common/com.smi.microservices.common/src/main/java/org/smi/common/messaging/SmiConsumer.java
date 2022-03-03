@@ -69,8 +69,11 @@ public abstract class SmiConsumer<T> extends DefaultConsumer {
 		}
 
 		try {
-			T msg=getMessageFromBytes(body,messageClass);
+			T msg = getMessageFromBytes(body, messageClass);
 			handleDeliveryImpl(consumerTag, envelope, properties, msg, header);
+		} catch (InterruptedException e) {
+			_logger.error("InterruptedException handling message, ignoring so we retry");
+			return;
 		} catch (JsonSyntaxException e) {
 			// Problem with the message, so Nack it
 			_logger.error("Problem with message, so it will be Nacked:" + e.getMessage());
@@ -81,7 +84,7 @@ public abstract class SmiConsumer<T> extends DefaultConsumer {
 	}
 
 	public abstract void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties,
-			T t, MessageHeader header) throws IOException;
+			T t, MessageHeader header) throws IOException, InterruptedException;
 
 	/**
 	 * Helper method for extracting a particular message type from the JSON

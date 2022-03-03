@@ -1,14 +1,15 @@
 
 package org.smi.common.test.messages;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
+import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Envelope;
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.junit.Ignore;
 import org.smi.common.messages.MessageHeader;
 import org.smi.common.messages.MessageHeaderFactory;
@@ -20,16 +21,13 @@ import org.smi.common.options.GlobalOptions;
 import org.smi.common.options.ProducerOptions;
 import org.smi.common.rabbitMq.RabbitMqAdapter;
 
-import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Envelope;
-
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class MessageHeaderTests extends TestCase {
 
@@ -162,7 +160,7 @@ public class MessageHeaderTests extends TestCase {
 		consumerOptions.QoSPrefetchCount = 1;
 		consumerOptions.AutoAck = true;
 
-		SimpleConsumer consumer = new SimpleConsumer(adapter.getChannel(""));
+		SimpleConsumer consumer = new SimpleConsumer(adapter.getChannel());
 		adapter.StartConsumer(consumerOptions, consumer);
 
 		ProducerOptions producerOptions = new ProducerOptions();
