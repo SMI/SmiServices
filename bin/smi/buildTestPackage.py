@@ -29,14 +29,17 @@ def main() -> int:
     # TODO(rkm 2022-02-26) Add --no-build here
     cfg_args = ("-c", args.configuration)
     test_cmd = ("--test", args.test[0]) if args.test else ()
-    DT.main((
+    rc = DT.main((
         *cfg_args,
         "--no-coverage" if args.no_coverage else "",
         *test_cmd
     ))
-    DP.main((*cfg_args, args.tag))
+    if rc:
+        return rc
 
-    return 0
+    rc = DP.main((*cfg_args, args.tag))
+
+    return rc
 
 
 if __name__ == "__main__":

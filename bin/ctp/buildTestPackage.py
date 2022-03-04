@@ -29,7 +29,9 @@ def main() -> int:
     dist_tag_dir.mkdir(parents=True, exist_ok=True)
 
     if args.install_libs:
-        L.main()
+        rc = L.main()
+        if rc:
+            return rc
 
     mvn = "mvn" if os.name == "posix" else "mvn.cmd"
     cmd = (
