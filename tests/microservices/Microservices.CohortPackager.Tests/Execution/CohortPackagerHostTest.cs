@@ -274,7 +274,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             const string failureReport = @"
 [
     {
-        'Parts': [],
+        'Parts': [{'Classification':'Person','Offset':3,'Word':'Foo\'s'}],
         'Resource': 'series-2-anon-2.dcm',
         'ResourcePrimaryKey': '1.2.3.4',
         'ProblemField': 'ScanOptions',
