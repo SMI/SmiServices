@@ -45,14 +45,14 @@ def redact_html_tags_in_string(html_str):
     html_str = re.sub('<script[^>]*>.*?</script>', replfunc, html_str, flags=re.I|re.M|re.S)
     html_str = re.sub('<style[^>]*>.*?</style>', replfunc, html_str, flags=re.I|re.M|re.S)
     # Finally remove single-instance tags like <p> and <br>
-    html_str = re.sub('<[^>]*>', replfunc, html_str)
+    html_str = re.sub('<(.DOCTYPE|a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|big|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|meta|meter|nav|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|source|span|strike|strong|style|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr)( [^<>]*){0,1}>', replfunc, html_str, flags=re.IGNORECASE)
     return(html_str)
 
 def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1\r\n<BR>text2 <script> script2 </script> text3'
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3'
     dest = redact_html_tags_in_string(src)
     # changing the \r to a space in the expected string also tests the string_match function
-    expected = '.................... ..................................... text1 \n....text2 .......................... text3'
+    expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3'
     assert(string_match(dest, expected))
 
 # ---------------------------------------------------------------------
@@ -84,7 +84,8 @@ class DicomText:
     _warn_unexpected_tag = False     # print if an unexpected tag is encountered
     _replace_HTML_entities = True    # replace HTML tags with same length of space chars
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
-    _redact_char = 'X'
+    _redact_char = 'X'               # character used to redact text
+    _redact_char_digit = '9'         # character used to redact digits in text
 
     def __init__(self, filename, \
         include_header = _include_header, \
@@ -113,6 +114,17 @@ class DicomText:
         in case you need to uniquely identify this input file.
         """
         return self._dicom_raw['SOPInstanceUID'].value
+
+    def tag(self, tagname):
+        """ Simply returns the value of the tag from the DICOM file.
+        The tag is specified by name not by number:number.
+        Returns the empty string if tag is not present.
+        """
+        tagcode = pydicom.datadict.tag_for_keyword(tagname)
+        if tagcode in self._dicom_raw:
+            return self._dicom_raw[tagcode].value
+        else:
+            return ''
 
     def _dataset_read_callback(self, dataset, data_element):
         """ Internal function called during a walk of the dataset.
@@ -176,16 +188,22 @@ class DicomText:
                 content_sequence_item.walk(self._dataset_read_callback)
             self._p_text = self._p_text + '[[EndContentSequence]]\n'
 
-    def redact_string(self, plaintext, offset, rlen):
+    def redact_string(self, plaintext, offset, rlen, VR):
         """ Simple function to replace characters from the middle of a string.
         Starts at offset for rlen characters, replaced with X.
+        If the VR (Dicom Value Representation) suggests a restricted
+        character set then use a different redact_char (eg. numbers use '9')
+        See https://dicom.nema.org/dicom/2013/output/chtml/part05/sect_6.2.html
         Can replace all for same length or randomise the amount.
         Returns the new string.
         """
         redact_length = rlen
+        redact_char = DicomText._redact_char
+        if VR in ['AS', 'CS', 'DA', 'DS', 'DT', 'IS', 'TM', 'UI']:
+            redact_char = DicomText._redact_char_digit
         if DicomText._redact_random_length:
             redact_length = random.randint(-int(rlen/2), int(rlen/2))
-        rc = plaintext[0:offset] + DicomText._redact_char.rjust(redact_length, DicomText._redact_char) + plaintext[offset+rlen:]
+        rc = plaintext[0:offset] + redact_char.rjust(redact_length, redact_char) + plaintext[offset+rlen:]
         return rc
 
     def _dataset_redact_callback(self, dataset, data_element):
@@ -211,7 +229,8 @@ class DicomText:
         #print('At %d = %s' % (current_start, str(data_element.value)))
         for annot in self._annotations:
             # Sometimes it reports text:None so ignore
-            if not annot['text']:
+            if not annot['text'] or (annot['start_char'] == annot['end_char']):
+                annot['replaced'] = True
                 continue
             # If already replaced then ignore
             if 'replaced' in annot:
@@ -221,13 +240,13 @@ class DicomText:
                     (annot['start_char'] + self._redact_offset < current_end+32)):
                 annot_at = annot['start_char'] - current_start
                 annot_end = annot['end_char'] - current_start
-                replaced = replacedAny = False
+                replaced = False
                 # SemEHR may have an extra line at the start so start_char offset need adjusting
                 for offset in [self._redact_offset] + list(range(-32, 32)):
                     # Do the comparison using text without html but replace inside text with html
                     rc_without_html = redact_html_tags_in_string(rc) if self._replace_HTML_entities else rc
                     if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
-                        replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at)
+                        replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at, data_element.VR)
                         replaced = replacedAny = True
                         annot['replaced'] = True
                         #print('REPLACE: %s in %s at %d (offset %d)' % (repr(annot['text']), repr(replacement), annot_at, offset))
@@ -239,7 +258,7 @@ class DicomText:
                 #    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
         if data_element.VR == 'PN' or data_element.VR == 'DA':
             # Always fully redact the content of PersonName and Date tags
-            replacement = self.redact_string(rc, 0, len(rc))
+            replacement = self.redact_string(rc, 0, len(rc), data_element.VR)
             replacedAny = True
         if replacedAny:
             data_element.value = replacement
@@ -298,7 +317,7 @@ class DicomText:
             dicom_dest.TextValue = self._dicom_raw.TextValue
         if 'ContentSequence' in self._dicom_raw:
             dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
-            dicom_dest.save_as(destfile)
+        dicom_dest.save_as(destfile)
 
 def test_DicomText():
     """ The test function requires a specially-crafted DICOM file
