@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Microservices.IsIdentifiable.Reporting;
+using Newtonsoft.Json;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using System;
+using System.Collections.Generic;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -56,11 +58,24 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] IMessageHeader header)
         {
             if (string.IsNullOrWhiteSpace(message.OutputFilePath))
-                throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
+                throw new ApplicationException("Received a verification message without the OutputFilePath set");
+
             if (string.IsNullOrWhiteSpace(message.Report))
                 throw new ApplicationException("Null or empty report data");
-            if (message.IsIdentifiable && message.Report == "[]")
-                throw new ApplicationException("No report data for message marked as identifiable");
+
+            if (message.IsIdentifiable)
+            {
+                var failures = JsonConvert.DeserializeObject<IList<Failure>>(message.Report);
+                if (failures.Count == 0)
+                    throw new ApplicationException("No report data for message marked as identifiable");
+                foreach (var failure in failures)
+                    if (failure.Parts.Count == 0)
+                        throw new ApplicationException("Zero parts provided for this failure");
+            }
+            else if (message.Report != "[]")
+            {
+                throw new ApplicationException("Non-empty report for a message marked as not identifiable");
+            }
 
             PersistMessageToStoreImpl(message, header);
         }

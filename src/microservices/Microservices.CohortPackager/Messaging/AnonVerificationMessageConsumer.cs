@@ -1,12 +1,8 @@
-﻿
-using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.IsIdentifiable.Reporting;
-using Newtonsoft.Json;
+﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using System;
-using System.Collections.Generic;
 
 
 namespace Microservices.CohortPackager.Messaging
@@ -27,17 +23,6 @@ namespace Microservices.CohortPackager.Messaging
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileVerificationMessage message, ulong tag)
         {
-            try
-            {
-                // Check the report contents are valid, but don't do anything else with it for now
-                JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report);
-            }
-            catch (JsonException e)
-            {
-                ErrorAndNack(header, tag, "Could not deserialize message report to Failure object", e);
-                return;
-            }
-
             try
             {
                 _store.PersistMessageToStore(message, header);

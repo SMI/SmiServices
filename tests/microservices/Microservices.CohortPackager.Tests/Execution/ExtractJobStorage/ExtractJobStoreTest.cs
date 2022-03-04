@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -111,7 +111,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             message.IsIdentifiable = true;
             message.Report = "[]";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
-            // NOTE(rkm 2020-07-23) The actual report content is verified to be valid the message consumer, so don't need to re-check here
             message.Report = "['foo': 'bar']";
             testExtractJobStore.PersistMessageToStore(message, header);
 
