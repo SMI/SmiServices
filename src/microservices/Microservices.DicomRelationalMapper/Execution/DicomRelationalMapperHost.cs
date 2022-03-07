@@ -53,6 +53,11 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             Type databaseNamerType = repositoryLocator.CatalogueRepository.MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType);
 
+            if(databaseNamerType == null)
+            {
+                throw new Exception($"Could not find Type '{Globals.DicomRelationalMapperOptions.DatabaseNamerType}'");
+            }
+
             string liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
 
             var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid);
