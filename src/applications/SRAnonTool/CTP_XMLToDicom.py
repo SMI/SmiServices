@@ -79,8 +79,8 @@ if __name__ == "__main__":
     # Read the annotated XML file
     xmlroot = xml.etree.ElementTree.parse(args.input_xml).getroot()
     xmldictlist = Knowtator.annotation_xml_to_dict(xmlroot)
-    if xmldictlist == []:
-        print('WARNING: empty document in {}'.format(args.input_xml))
+    #if xmldictlist == []:
+    #    print('WARNING: empty document in {}'.format(args.input_xml))
     #for annot in xmldictlist:
     #    print('REMOVE {} from DICOM at {}'.format(annot['text'], annot['start_char']))
 
