@@ -17,13 +17,11 @@ namespace Smi.Common.Helpers
         // https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
         private const string _uidCharset = "0123456789";
 
-        private const string _derivedPrefix = "2.25.";
+        // The "derived UID" prefix, plus "SMI" in ASCII
+        private const string _prefix = "2.25.837773.";
 
-        // "SMI" in ASCII
-        private const string _smiPrefix = "837773.";
-
-        private static readonly int _length = 64;
-        private static readonly int _postfixLength = _length - _derivedPrefix.Length - _smiPrefix.Length;
+        private static readonly int _uidMaxLength = 64;
+        private static readonly int _postfixLength = _uidMaxLength - _prefix.Length;
 
 
         public static string Generate()
@@ -32,14 +30,12 @@ namespace Smi.Common.Helpers
             // https://stackoverflow.com/a/1344255/9351183
 
             byte[] data = new byte[4 * _postfixLength];
-            using (var crypto = RandomNumberGenerator.Create())
-            {
-                crypto.GetBytes(data);
-            }
 
-            StringBuilder result = new(_length);
-            result.Append(_derivedPrefix);
-            result.Append(_smiPrefix);
+            using (var crypto = RandomNumberGenerator.Create())
+                crypto.GetBytes(data);
+
+            StringBuilder result = new(_uidMaxLength);
+            result.Append(_prefix);
 
             for (int i = 0; i < _postfixLength; i++)
             {
