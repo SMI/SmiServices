@@ -102,7 +102,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             Setup(_options);
         }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

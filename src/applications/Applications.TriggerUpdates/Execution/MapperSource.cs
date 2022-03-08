@@ -71,7 +71,7 @@ namespace Applications.TriggerUpdates.Execution
                 var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
             
                 //may be null!
-                var guidTable = _swapper.GetGuidTableIfAny(_globalOptions.IdentifierMapperOptions);
+                var guidTable = _swapper.GetMappingTableIfAny(_globalOptions.IdentifierMapperOptions);
 
                 if(!archiveTable.Exists())
                     throw new Exception($"No Archive table exists for mapping table {mappingTable.GetFullyQualifiedName()}");

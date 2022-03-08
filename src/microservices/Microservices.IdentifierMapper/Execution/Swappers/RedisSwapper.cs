@@ -132,9 +132,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _hostedSwapper.LogProgress(logger,level);
         }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
         {
-            return _hostedSwapper.GetGuidTableIfAny(options);
+            return _hostedSwapper.GetMappingTableIfAny(options);
         }
     }
 }

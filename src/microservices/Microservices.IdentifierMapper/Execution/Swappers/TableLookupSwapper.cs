@@ -90,7 +90,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _logger.Debug("ClearCache called, single value cache cleared");
         }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

@@ -50,7 +50,7 @@ namespace Microservices.IdentifierMapper.Tests
             Assert.AreEqual("0A0A0A0A0A",answer);
             Assert.IsNull(reason);
 
-            var guidTable = swapper.GetGuidTableIfAny(options);
+            var guidTable = swapper.GetMappingTableIfAny(options);
             
             Assert.AreEqual("Map_guid",guidTable.GetRuntimeName());
 
