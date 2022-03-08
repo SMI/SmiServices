@@ -58,7 +58,7 @@ namespace Microservices.CohortExtractor.Messaging
 
                 foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
-                    var extractFileMessage = new ExtractFileMessage(request)
+                    var extractFileMessage = new ExtractFileMessage()
                     {
                         // Path to the original file
                         DicomFilePath = accepted.FilePathValue.TrimStart('/', '\\'),
