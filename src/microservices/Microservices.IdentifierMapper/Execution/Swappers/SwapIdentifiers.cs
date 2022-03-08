@@ -27,6 +27,6 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             logger.Log(level,$"{GetType().Name}: CacheRatio={CacheHit}:{CacheMiss} SuccessRatio={Success}:{Fail}:{Invalid} DatabaseTime:{DatabaseStopwatch.Elapsed}");
         }
 
-        public abstract DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options);
+        public abstract DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options);
     }
 }

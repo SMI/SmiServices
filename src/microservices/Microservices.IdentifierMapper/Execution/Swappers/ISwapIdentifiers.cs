@@ -37,6 +37,6 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// If there is a map table based on <see cref="ForGuidIdentifierSwapper"/> schema then this should return the <see cref="DiscoveredTable"/> pointer to that table.  Otherwise should return null
         /// </summary>
         /// <returns></returns>
-        DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options);
+        DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options);
     }
 }
