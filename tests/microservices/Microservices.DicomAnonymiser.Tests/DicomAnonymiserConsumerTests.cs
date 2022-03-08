@@ -69,6 +69,9 @@ namespace Microservices.DicomAnonymiser.Tests
                 ExtractionDirectory = extractDirName,
                 DicomFilePath = "foo.dcm",
                 OutputPath = "foo-an.dcm",
+                StudyInstanceUID = "study",
+                SeriesInstanceUID = "series",
+                SOPInstanceUID = "sop",
             };
 
             _testDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_extractFileMessage);

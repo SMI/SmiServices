@@ -46,6 +46,9 @@ namespace Microservices.FileCopier.Tests.Messaging
                 DicomFilePath = "foo.dcm",
                 IsIdentifiableExtraction = true,
                 OutputPath = "bar",
+                StudyInstanceUID = "study",
+                SeriesInstanceUID = "series",
+                SOPInstanceUID = "sop",
             };
             _mockModel = new Mock<IModel>(MockBehavior.Strict);
             _mockModel.Setup(x => x.IsClosed).Returns(false);
