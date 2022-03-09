@@ -2,6 +2,10 @@
   <PropertyGroup>
     <AssemblyName>Microservices.DicomTagReader.Tests</AssemblyName>
   </PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\..\SharedTestAssemblyInfo.cs" Link="Properties\SharedTestAssemblyInfo.cs" />
+	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />
     <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
