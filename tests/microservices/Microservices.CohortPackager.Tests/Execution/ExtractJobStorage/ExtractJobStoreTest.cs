@@ -50,6 +50,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         #region Test Methods
 
+        [Ignore("Unclear what this is actually testing")]
         [Test]
         public void TestPersistMessageToStore_ExtractionRequestInfoMessage()
         {
