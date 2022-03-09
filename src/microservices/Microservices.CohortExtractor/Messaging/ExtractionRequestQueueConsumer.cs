@@ -2,10 +2,12 @@ using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using System;
 using System.ComponentModel;
 
 namespace Microservices.CohortExtractor.Messaging
@@ -18,14 +20,16 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IAuditExtractions _auditor;
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
-
+        private readonly ISwapIdentifiers _uidSwapper;
         private readonly IProjectPathResolver _resolver;
 
         public ExtractionRequestQueueConsumer(
             CohortExtractorOptions options,
             IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
             IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
-            IProducerModel fileMessageInfoProducer)
+            IProducerModel fileMessageInfoProducer,
+            ISwapIdentifiers uidSwapper
+        )
         {
             _options = options;
             _fulfiller = fulfiller;
@@ -33,6 +37,7 @@ namespace Microservices.CohortExtractor.Messaging
             _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
+            _uidSwapper = uidSwapper;
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
@@ -58,6 +63,15 @@ namespace Microservices.CohortExtractor.Messaging
 
                 foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
+                    var replacementStudy = _uidSwapper.GetSubstitutionFor(accepted.StudyTagValue, out string reason);
+                    if (reason != null) throw new Exception($"Couldn't get a replacement StudyInstanceUID for {accepted.StudyTagValue}");
+
+                    var replacementSeries = _uidSwapper.GetSubstitutionFor(accepted.SeriesTagValue, out reason);
+                    if (reason != null) throw new Exception($"Couldn't get a replacement SeriesInstanceUID for {accepted.SeriesTagValue}");
+
+                    var replacementInstance = _uidSwapper.GetSubstitutionFor(accepted.InstanceTagValue, out reason);
+                    if (reason != null) throw new Exception($"Couldn't get a replacement SOPInstanceUID for {accepted.InstanceTagValue}");
+
                     var extractFileMessage = new ExtractFileMessage()
                     {
                         // Path to the original file

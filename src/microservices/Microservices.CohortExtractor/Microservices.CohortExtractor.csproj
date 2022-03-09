@@ -19,5 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
+    <ProjectReference Include="..\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />
   </ItemGroup>  
 </Project>

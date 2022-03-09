@@ -41,7 +41,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 {
                     _options = options;
 
-                    DiscoveredTable tbl = options.Discover();
+                    DiscoveredTable tbl = MappingTableHelpers.DiscoverTable(options);
 
                     using (DbConnection con = tbl.Database.Server.GetConnection())
                     {

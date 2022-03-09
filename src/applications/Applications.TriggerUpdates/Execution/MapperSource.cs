@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
@@ -63,8 +63,8 @@ namespace Applications.TriggerUpdates.Execution
 
             try
             {
-                var mappingTable = _globalOptions.IdentifierMapperOptions.Discover();
-                                
+                var mappingTable = MappingTableHelpers.DiscoverTable(_globalOptions.IdentifierMapperOptions);
+
                 if(!mappingTable.Exists())
                     throw new Exception($"Mapping table {mappingTable.GetFullyQualifiedName()} did not exist");
 

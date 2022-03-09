@@ -28,7 +28,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         public override void Setup(IMappingTableOptions options)
         {
             _options = options;
-            _swapTable =  options.Discover();
+            _swapTable = MappingTableHelpers.DiscoverTable(options);
             _server = _swapTable.Database.Server;
 
             if(!_swapTable.Exists())

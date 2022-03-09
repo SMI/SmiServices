@@ -54,7 +54,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <returns></returns>
         public DiscoveredTable GetMappingTable(IMappingTableOptions options)
         {
-            return options.Discover();
+            return MappingTableHelpers.DiscoverTable(options);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <returns></returns>
         public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
         {
-            var mappingTable = options.Discover();
+            var mappingTable = MappingTableHelpers.DiscoverTable(options);
             var guidTableName = mappingTable.GetRuntimeName() + GuidTableSuffix;
 
             return mappingTable.Database.ExpectTable(guidTableName,mappingTable.Schema,TableType.Table);

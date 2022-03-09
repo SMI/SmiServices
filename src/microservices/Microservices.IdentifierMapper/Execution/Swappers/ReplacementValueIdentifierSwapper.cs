@@ -41,7 +41,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         {
             // TODO(rkm 2021-04-09) Check if this can be in a constructor instead?
             _options = mappingTableOptions;
-            _table = _options.Discover();
+            _table = MappingTableHelpers.DiscoverTable(_options);
 
             using (new TimeTracker(DatabaseStopwatch))
                 CreateTableIfNotExists();
@@ -206,7 +206,7 @@ where not exists(select *
 
         public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
         {
-            return options.Discover();
+            return MappingTableHelpers.DiscoverTable(options);
         }
     }
 }

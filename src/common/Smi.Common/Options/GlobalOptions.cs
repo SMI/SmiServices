@@ -300,32 +300,11 @@ namespace Smi.Common.Options
         /// </summary>
         public string RedisConnectionString { get; set; }
 
+        public IMappingTableOptions Clone() => (IMappingTableOptions)MemberwiseClone();
+
         public override string ToString()
         {
             return GlobalOptions.GenerateToString(this);
-        }
-
-        public DiscoveredTable Discover()
-        {
-            var server = new DiscoveredServer(MappingConnectionString, MappingDatabaseType);
-
-            var idx = MappingTableName.LastIndexOf('.');
-            var tableNameUnqualified = MappingTableName.Substring(idx + 1);
-
-            idx = MappingTableName.IndexOf('.');
-            if (idx == -1)
-                throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
-
-            var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName.Substring(0, idx));
-            if (string.IsNullOrWhiteSpace(databaseName))
-                throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
-
-            return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
-        }
-
-        public IMappingTableOptions Clone()
-        {
-            return (IMappingTableOptions)this.MemberwiseClone();
         }
     }
 
@@ -338,7 +317,6 @@ namespace Smi.Common.Options
         DatabaseType MappingDatabaseType { get; }
         int TimeoutInSeconds { get; }
 
-        DiscoveredTable Discover();
         IMappingTableOptions Clone();
     }
 
@@ -456,7 +434,7 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class CohortExtractorOptions : ConsumerOptions
+    public class CohortExtractorOptions : ConsumerOptions, IMappingTableOptions
     {
         private string _auditorType;
 
@@ -470,6 +448,8 @@ namespace Smi.Common.Options
                 : _auditorType;
             set => _auditorType = value;
         }
+
+        public string SwapperType { get; set; }
 
         /// <summary>
         /// The Type of a class implementing IExtractionRequestFulfiller which is responsible for mapping requested image identifiers to image file paths.  Mandatory
@@ -516,6 +496,17 @@ namespace Smi.Common.Options
         /// ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
         /// </summary>
         public List<int> RejectColumnInfos { get; set; }
+
+        public string MappingConnectionString => throw new NotImplementedException();
+
+        public string MappingTableName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string SwapColumnName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string ReplacementColumnName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public DatabaseType MappingDatabaseType => throw new NotImplementedException();
+
+        public int TimeoutInSeconds => throw new NotImplementedException();
+        public IMappingTableOptions Clone() => (IMappingTableOptions)MemberwiseClone();
 
         public override string ToString()
         {

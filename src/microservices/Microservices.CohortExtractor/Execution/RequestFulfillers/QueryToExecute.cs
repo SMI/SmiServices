@@ -118,7 +118,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     }        
                 }
             
-            var path = Columns.FilePathColumn.GetRuntimeName();
+            // TODO(rkm 2022-03-08) Do we need to fetch these for every call?
             var study = Columns.StudyTagColumn?.GetRuntimeName();
             var series = Columns.SeriesTagColumn?.GetRuntimeName();
             var instance = Columns.InstanceTagColumn?.GetRuntimeName();
@@ -144,6 +144,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 {
                     object imagePath = reader[path];
 
+                    // TODO(rkm 2022-03-08) Should this ever be true?
                     if (imagePath == DBNull.Value)
                         continue;
 
