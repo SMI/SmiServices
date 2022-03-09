@@ -63,14 +63,23 @@ namespace Microservices.CohortExtractor.Messaging
 
                 foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
-                    var replacementStudy = _uidSwapper.GetSubstitutionFor(accepted.StudyTagValue, out string reason);
-                    if (reason != null) throw new Exception($"Couldn't get a replacement StudyInstanceUID for {accepted.StudyTagValue}");
+                    string replacementStudy = null;
+                    string replacementSeries = null;
+                    string replacementSop = null;
 
-                    var replacementSeries = _uidSwapper.GetSubstitutionFor(accepted.SeriesTagValue, out reason);
-                    if (reason != null) throw new Exception($"Couldn't get a replacement SeriesInstanceUID for {accepted.SeriesTagValue}");
+                    if (!request.IsIdentifiableExtraction)
+                    {
+                        const string errMsg = "Couldn't get a replacement {} for {}. Reason: '{}'";
 
-                    var replacementInstance = _uidSwapper.GetSubstitutionFor(accepted.InstanceTagValue, out reason);
-                    if (reason != null) throw new Exception($"Couldn't get a replacement SOPInstanceUID for {accepted.InstanceTagValue}");
+                        replacementStudy = _uidSwapper.GetSubstitutionFor(accepted.StudyTagValue, out string reason);
+                        if (string.IsNullOrWhiteSpace(replacementStudy) || reason != null) throw new Exception(string.Format(errMsg, "StudyInstanceUID", accepted.StudyTagValue, reason));
+
+                        replacementSeries = _uidSwapper.GetSubstitutionFor(accepted.SeriesTagValue, out reason);
+                        if (string.IsNullOrWhiteSpace(replacementSeries) || reason != null) throw new Exception(string.Format(errMsg, "SeriesInstanceUID", accepted.SeriesTagValue, reason));
+
+                        replacementSop = _uidSwapper.GetSubstitutionFor(accepted.InstanceTagValue, out reason);
+                        if (string.IsNullOrWhiteSpace(replacementSop) || reason != null) throw new Exception(string.Format(errMsg, "SOPInstanceUID", accepted.InstanceTagValue, reason));
+                    }
 
                     var extractFileMessage = new ExtractFileMessage()
                     {
@@ -79,7 +88,11 @@ namespace Microservices.CohortExtractor.Messaging
                         // Extraction directory relative to the extract root
                         ExtractionDirectory = extractionDirectory,
                         // Output path for the anonymised file, relative to the extraction directory
-                        OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/')
+                        OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/'),
+
+                        ReplacementStudyInstanceUID = replacementStudy,
+                        ReplacementSeriesInstanceUID = replacementSeries,
+                        ReplacementSOPInstanceUID = replacementSop,
                     };
 
                     Logger.Debug($"DicomFilePath={extractFileMessage.DicomFilePath}, OutputPath={extractFileMessage.OutputPath}");

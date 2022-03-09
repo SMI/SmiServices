@@ -35,9 +35,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             {
                 var results = new ExtractImageCollection(valueToLookup);
                 string filePathValue = valueToLookup; // "img001.dcm";
-                string studyTagValue = "2";
-                string seriesTagValue = "3";
-                string instanceTagValue = "4";
+                string studyTagValue = "study-1";
+                string seriesTagValue = "series-1";
+                string instanceTagValue = "instance-1";
                 bool rejection = false;
                 string rejectionReason = "";
                 var result = new QueryToExecuteResult(filePathValue, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);

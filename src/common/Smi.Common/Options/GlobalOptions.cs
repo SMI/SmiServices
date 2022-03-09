@@ -497,15 +497,15 @@ namespace Smi.Common.Options
         /// </summary>
         public List<int> RejectColumnInfos { get; set; }
 
-        public string MappingConnectionString => throw new NotImplementedException();
+        public string MappingConnectionString { get; set; }
 
-        public string MappingTableName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string SwapColumnName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string ReplacementColumnName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string MappingTableName { get; set; }
+        public string SwapColumnName { get; set; }
+        public string ReplacementColumnName { get; set; }
 
-        public DatabaseType MappingDatabaseType => throw new NotImplementedException();
+        public DatabaseType MappingDatabaseType { get; set; }
 
-        public int TimeoutInSeconds => throw new NotImplementedException();
+        public int TimeoutInSeconds { get; set; }
         public IMappingTableOptions Clone() => (IMappingTableOptions)MemberwiseClone();
 
         public override string ToString()
