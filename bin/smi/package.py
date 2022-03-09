@@ -27,6 +27,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = C.get_parser()
     DC.add_args(parser)
+    parser.add_argument(
+        "--no-build",
+        action="store_true",
+    )
     args = parser.parse_args(argv)
 
     dist_tag_dir = C.DIST_DIR / args.tag
@@ -44,6 +48,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "publish",
         "--use-current-runtime",
         "--configuration", args.configuration,
+        "--no-build" if args.no_build else "",
         "-p:PublishTrimmed=false",
         "--self-contained",
         "--output", dist_tag_dir / smi_services_output_dir,

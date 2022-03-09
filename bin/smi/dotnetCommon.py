@@ -10,7 +10,7 @@ def add_args(
     parser.add_argument(
         "-c",
         "--configuration",
-        type=str.lower,
-        choices=("debug", "release"),
+        type=str.title,
+        choices=("Debug", "Release"),
         default=configuration,
     )
