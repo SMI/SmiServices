@@ -118,7 +118,9 @@ namespace Microservices.CohortExtractor.Tests.Messaging
                 fakeFulfiller,
                 new NullAuditExtractions(), new DefaultProjectPathResolver(),
                 mockFileMessageProducerModel.Object,
-                mockFileInfoMessageProducerModel.Object);
+                mockFileInfoMessageProducerModel.Object,
+                null // TODO
+            );
 
             var fatalCalled = false;
             FatalErrorEventArgs fatalErrorEventArgs = null;

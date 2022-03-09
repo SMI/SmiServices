@@ -117,8 +117,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                         _sql = qb.SQL;
                     }        
                 }
-            
+
             // TODO(rkm 2022-03-08) Do we need to fetch these for every call?
+            var path = Columns.FilePathColumn.GetRuntimeName();
             var study = Columns.StudyTagColumn?.GetRuntimeName();
             var series = Columns.SeriesTagColumn?.GetRuntimeName();
             var instance = Columns.InstanceTagColumn?.GetRuntimeName();
