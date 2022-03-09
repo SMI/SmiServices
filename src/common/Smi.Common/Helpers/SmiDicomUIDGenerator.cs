@@ -6,9 +6,9 @@ using System.Text;
 namespace Smi.Common.Helpers
 {
     /// <summary>
-    /// Generates 64-byte DICOM UID values based on
-    /// https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_B.2.html.
-    /// This includes a "SMI" identifier.
+    /// Generates 64-byte DICOM UID values based on a cryptographic random number generator.
+    /// The generated UIDs will always start with the same prefix, consisting of the "2.25." root as specified by
+    /// https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_B.2.html, and an "SMI" identifier.
     /// <para/>
     /// Note this class has the "Smi" prefix to not cause confusion with the fo-dicom <see cref="DicomUIDGenerator"/> class
     /// </summary>
@@ -27,7 +27,7 @@ namespace Smi.Common.Helpers
         public static string Generate()
         {
             // Possibly a bit overkill
-            // https://stackoverflow.com/a/1344255/9351183
+            // Ref: https://stackoverflow.com/a/1344255/9351183
 
             byte[] data = new byte[4 * _postfixLength];
 
