@@ -42,10 +42,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     cmd = (
         "dotnet",
         "publish",
+        "--use-current-runtime",
         "--configuration", args.configuration,
-        "-p:Platform=x64",
         "-p:PublishTrimmed=false",
-        "--runtime", rid,
         "--self-contained",
         "--output", dist_tag_dir / smi_services_output_dir,
         "--verbosity", "quiet",

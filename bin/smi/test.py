@@ -44,7 +44,7 @@ def _run_csproj_tests(
     cmd = (
         "dotnet",
         "test",
-        "-p:Platform=x64",
+        "--use-current-runtime",
         "--configuration", configuration,
         "--verbosity", "quiet",
         "--settings", (C.PROJ_ROOT / "data/nunit.runsettings").resolve(),
