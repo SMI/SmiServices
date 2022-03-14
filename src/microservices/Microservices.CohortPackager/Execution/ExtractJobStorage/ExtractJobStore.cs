@@ -27,11 +27,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] IMessageHeader header)
         {
             Logger.Info($"Received new job info {message}");
-
-            // If KeyTag is StudyInstanceUID then ExtractionModality must be specified
-            if (message.KeyTag == "StudyInstanceUID" && string.IsNullOrWhiteSpace(message.ExtractionModality))
-                throw new ApplicationException($"ExtractionModality must be specified when the extraction key is StudyInstanceUID");
-
             PersistMessageToStoreImpl(message, header);
         }
 
