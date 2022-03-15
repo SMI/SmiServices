@@ -2,10 +2,6 @@
   <PropertyGroup>
     <AssemblyName>Microservices.FileCopier.Tests</AssemblyName>
   </PropertyGroup>
-
-	<ItemGroup>
-		<Compile Include="..\..\SharedTestAssemblyInfo.cs" Link="Properties\SharedTestAssemblyInfo.cs" />
-	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.FileCopier\Microservices.FileCopier.csproj" />

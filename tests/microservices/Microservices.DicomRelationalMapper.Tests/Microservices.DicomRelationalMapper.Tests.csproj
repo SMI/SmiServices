@@ -2,10 +2,6 @@
   <PropertyGroup>
     <AssemblyName>Microservices.DicomRelationalMapper.Tests</AssemblyName>
   </PropertyGroup>
-
-	<ItemGroup>
-		<Compile Include="..\..\SharedTestAssemblyInfo.cs" Link="Properties\SharedTestAssemblyInfo.cs" />
-	</ItemGroup>
   <ItemGroup>
     <None Remove="DLEBenchmarkingTests\CT.it" />
     <None Remove="TestDatabases.txt" />

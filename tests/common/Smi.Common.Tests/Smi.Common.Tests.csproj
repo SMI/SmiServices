@@ -6,9 +6,6 @@
     <None Remove="TestDatabases.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\SharedTestAssemblyInfo.cs" Link="Properties\SharedTestAssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="TestDatabases.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
