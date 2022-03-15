@@ -50,27 +50,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         #region Test Methods
 
-        [Ignore("Unclear what this is actually testing")]
-        [Test]
-        public void TestPersistMessageToStore_ExtractionRequestInfoMessage()
-        {
-            var testExtractJobStore = new TestExtractJobStore();
-            var message = new ExtractionRequestInfoMessage();
-            var mockHeader = new MessageHeader();
-
-            message.KeyTag = "SeriesInstanceUID";
-            message.ExtractionModality = null;
-            testExtractJobStore.PersistMessageToStore(message, mockHeader);
-
-            message.KeyTag = "StudyInstanceUID";
-            message.ExtractionModality = "MR";
-            testExtractJobStore.PersistMessageToStore(message, mockHeader);
-
-            message.KeyTag = "StudyInstanceUID";
-            message.ExtractionModality = null;
-            Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, mockHeader));
-        }
-
         [Test]
         public void TestPersistMessageToStore_ExtractFileStatusMessage()
         {

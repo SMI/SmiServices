@@ -44,9 +44,9 @@ def _run_csproj_tests(
     cmd = (
         "dotnet",
         "test",
-        "-p:Platform=x64",
         "--configuration", configuration,
         "--verbosity", "quiet",
+        "-p:Platform=x64",
         "--settings", (C.PROJ_ROOT / "data/nunit.runsettings").resolve(),
         "--no-build" if no_build else "",
         csproj,
