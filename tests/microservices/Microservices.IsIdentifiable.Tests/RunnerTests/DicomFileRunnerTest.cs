@@ -55,6 +55,7 @@ namespace Microservices.IsIdentifiable.Tests.RunnerTests
 
         #region Tests
 
+        [Ignore("Requires leptonica fix")]
         [TestCase(true)]
         [TestCase(false)]
         public void IgnorePixelDataLessThan(bool ignoreShortText)

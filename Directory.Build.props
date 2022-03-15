@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
  <PropertyGroup>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -9,6 +10,7 @@
     <LangVersion>9.0</LangVersion>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <TargetFramework>net6</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
