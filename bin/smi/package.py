@@ -27,6 +27,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = C.get_parser()
     DC.add_args(parser)
+    parser.add_argument(
+        "--no-build",
+        action="store_true",
+    )
     args = parser.parse_args(argv)
 
     dist_tag_dir = C.DIST_DIR / args.tag
@@ -42,10 +46,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     cmd = (
         "dotnet",
         "publish",
+        "--use-current-runtime",
         "--configuration", args.configuration,
-        "-p:Platform=x64",
+        "--no-build" if args.no_build else "",
         "-p:PublishTrimmed=false",
-        "--runtime", rid,
         "--self-contained",
         "--output", dist_tag_dir / smi_services_output_dir,
         "--verbosity", "quiet",

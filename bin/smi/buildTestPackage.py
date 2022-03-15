@@ -7,6 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import common as C
 
 import dotnetCommon as DC
+import build as DB
 import package as DP
 import test as DT
 
@@ -26,17 +27,28 @@ def main() -> int:
     )
     args, _ = parser.parse_known_args()
 
-    # TODO(rkm 2022-02-26) Add --no-build here
     cfg_args = ("-c", args.configuration)
+
+    # Clean and Build
+    rc = DB.main((*cfg_args, "--clean"))
+    if rc:
+        return rc
+
+    # Test
     test_cmd = ("--test", args.test[0]) if args.test else ()
-    DT.main((
+    rc = DT.main((
         *cfg_args,
         "--no-coverage" if args.no_coverage else "",
+        "--no-build",
         *test_cmd
     ))
-    DP.main((*cfg_args, args.tag))
+    if rc:
+        return rc
 
-    return 0
+    # Package
+    rc = DP.main((*cfg_args, args.tag))
+
+    return rc
 
 
 if __name__ == "__main__":

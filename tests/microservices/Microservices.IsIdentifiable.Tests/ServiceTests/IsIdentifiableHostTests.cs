@@ -78,6 +78,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             }
         }
 
+        [Ignore("Requires leptonica fix")]
         [Test]
         public void TestIsIdentifiable_TesseractStanfordDicomFileClassifier()
         {

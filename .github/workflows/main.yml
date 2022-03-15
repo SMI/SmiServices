@@ -116,6 +116,8 @@ jobs:
       run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
     - name: install RDMP databases
       run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
+    - name: show dotnet info
+      run: dotnet --info
     - name: build, test, and package dotnet
       run: |
         set -euxo pipefail

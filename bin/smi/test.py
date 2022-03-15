@@ -44,9 +44,9 @@ def _run_csproj_tests(
     cmd = (
         "dotnet",
         "test",
-        "-p:Platform=x64",
         "--configuration", configuration,
         "--verbosity", "quiet",
+        "-p:Platform=x64",
         "--settings", (C.PROJ_ROOT / "data/nunit.runsettings").resolve(),
         "--no-build" if no_build else "",
         csproj,
@@ -75,10 +75,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args, _ = parser.parse_known_args(argv)
 
-    downloadTessdata.main([])
+    rc = downloadTessdata.main([])
+    if rc:
+        return rc
 
     if not args.no_build:
-        DB.main(("--configuration", args.configuration))
+        rc = DB.main(("--configuration", args.configuration))
+        if rc:
+            return rc
 
     with open(C.PROJ_ROOT / "global.json") as f:
         global_json = json.load(f)

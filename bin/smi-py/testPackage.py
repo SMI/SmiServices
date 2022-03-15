@@ -44,7 +44,9 @@ def main() -> int:
     )
     C.run(cmd)
 
-    T.main(("-p", str(python_exe)))
+    rc = T.main(("-p", str(python_exe)))
+    if rc:
+        return rc
 
     cmd = (
         python_exe,
