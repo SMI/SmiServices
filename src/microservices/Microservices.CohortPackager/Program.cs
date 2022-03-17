@@ -56,7 +56,7 @@ namespace Microservices.CohortPackager
 
             try
             {
-                reporter.CreateReport(cliOptions.ExtractionId);
+                reporter.CreateReports(cliOptions.ExtractionId);
             }
             catch (Exception e)
             {

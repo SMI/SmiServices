@@ -338,7 +338,15 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.WasAnonymised, false);
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.IsIdentifiable, true);
-            return CompletedStatusDocsForFilter(filter).Select(x => new FileAnonFailureInfo(x.Item1, x.Item2));
+
+            using var cursor = _completedStatusCollection.FindSync(filter);
+            while (cursor.MoveNext())
+                foreach (MongoFileStatusDoc doc in cursor.Current)
+                    yield return new FileAnonFailureInfo(
+                        doc.DicomFilePath,
+                        doc.ExtractedFileStatus,
+                        doc.StatusMessage
+                    );
         }
 
         protected override IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId)
@@ -347,7 +355,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.WasAnonymised, true);
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.IsIdentifiable, true);
-            return CompletedStatusDocsForFilter(filter).Select(x => new FileVerificationFailureInfo(x.Item1, x.Item2));
+
+            using var cursor = _completedStatusCollection.FindSync(filter);
+            while (cursor.MoveNext())
+                foreach (MongoFileStatusDoc doc in cursor.Current)
+                    yield return new FileVerificationFailureInfo(doc.OutputFileName, doc.StatusMessage);
         }
 
         protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId)
@@ -384,14 +396,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             return _completedJobCollection
                 .Find(GetFilterForSpecificJob<MongoCompletedExtractJobDoc>(extractionJobIdentifier))
                 .SingleOrDefault() != null;
-        }
-
-        private IEnumerable<Tuple<string, string>> CompletedStatusDocsForFilter(FilterDefinition<MongoFileStatusDoc> filter)
-        {
-            IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
-            while (cursor.MoveNext())
-                foreach (MongoFileStatusDoc doc in cursor.Current)
-                    yield return new Tuple<string, string>(doc.OutputFileName, doc.StatusMessage);
         }
 
         #endregion
