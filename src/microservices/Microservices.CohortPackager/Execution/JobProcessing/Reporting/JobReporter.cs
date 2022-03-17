@@ -19,7 +19,7 @@ using System.Text.RegularExpressions;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
-    public class JobReporter
+    public class JobReporter : IJobReporter
     {
         [NotNull] private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -42,7 +42,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         )
         {
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
-            _fileSystem = fileSystem;
+            _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             _extractRoot = extractRoot ?? throw new ArgumentNullException(nameof(extractRoot));
 
             // NOTE(rkm 2020-11-20) IsNullOrWhiteSpace returns true for newline characters!
@@ -70,6 +70,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         public void CreateReports(Guid jobId)
         {
+            if (jobId == default)
+                throw new ArgumentOutOfRangeException(nameof(jobId), "Must provide a valid jobId");
+
             CompletedExtractJobInfo completedJobInfo = _jobStore.GetCompletedJobInfo(jobId);
             _logger.Info($"Creating reports for {jobId}");
 

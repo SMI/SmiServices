@@ -19,7 +19,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
         private readonly IExtractJobStore _jobStore;
 
-        private readonly JobReporter _reporter;
+        private readonly IJobReporter _reporter;
         private readonly IJobCompleteNotifier _notifier;
 
         private readonly SysTimers.Timer _processTimer;
@@ -34,7 +34,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             IExtractJobStore jobStore,
             Action<Exception> exceptionCallback,
             [NotNull] IJobCompleteNotifier jobCompleteNotifier,
-            [NotNull] JobReporter reporter)
+            [NotNull] IJobReporter reporter)
         {
             _jobStore = jobStore;
             _exceptionCallback = exceptionCallback;
@@ -96,6 +96,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
                     }
                     catch (Exception e)
                     {
+                        _logger.Error(e, "Unhandled exception");
                         StopProcessing("ProcessJob threw an unhandled exception");
                         _exceptionCallback(e);
                         return;

@@ -31,9 +31,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] string statusMessage
         )
         {
-            DicomFilePath = string.IsNullOrWhiteSpace(dicomFilePath) ? throw new ArgumentException(nameof(dicomFilePath)) : dicomFilePath;
-            Status = status == default ? throw new ArgumentException(nameof(status)) : status;
-            StatusMessage = string.IsNullOrWhiteSpace(statusMessage) ? throw new ArgumentException(nameof(statusMessage)) : statusMessage;
+            DicomFilePath = string.IsNullOrWhiteSpace(dicomFilePath) ? throw new ArgumentException("Null or whitespace dicomFilePath", nameof(dicomFilePath)) : dicomFilePath;
+            Status = status == default || status.IsSuccess() ? throw new ArgumentException("Default or success status", nameof(status)) : status;
+            StatusMessage = string.IsNullOrWhiteSpace(statusMessage) ? throw new ArgumentException("Null or whitespace statusMessage", nameof(statusMessage)) : statusMessage;
         }
     }
 }

@@ -67,14 +67,12 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         #region Test Methods
 
-        private bool HaveFiles(PathFixtures pf) => Directory.Exists(pf.ProjReportsDirAbsolute) && Directory.EnumerateFiles(pf.ProjExtractDirAbsolute).Any();
+        private static bool HaveFiles(PathFixtures pf) => Directory.Exists(pf.ProjReportsDirAbsolute) && Directory.EnumerateFiles(pf.ProjExtractDirAbsolute).Any();
 
-        private void VerifyReports(GlobalOptions globals, PathFixtures pf, ReportFormat reportFormat, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
+        private void VerifyReports(GlobalOptions globals, PathFixtures pf, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
         {
             globals.FileSystemOptions.ExtractRoot = pf.ExtractRootAbsolute;
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
-            globals.CohortPackagerOptions.ReporterType = "FileReporter";
-            globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
             
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
             globals.MongoDatabases.ExtractionStoreOptions.DatabaseName += "-" + Guid.NewGuid().ToString().Split('-')[0];
@@ -106,41 +104,43 @@ namespace Microservices.CohortPackager.Tests.Execution
             }
 
             var firstLine = $"# SMI extraction validation report for testProj1/{pf.ExtractName}{globals.CohortPackagerOptions.ReportNewLine}";
-            switch (reportFormat)
-            {
-                case ReportFormat.Combined:
-                    {
-                        string[] reportContent = File.ReadAllLines(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
-                        Assert.AreEqual(firstLine, reportContent[0]);
-                        break;
-                    }
-                case ReportFormat.Split:
-                    {
-                        string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
-                        Assert.AreEqual(6, Directory.GetFiles(extractReportsDirAbsolute).Length);
-                        string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
-                        Assert.AreEqual(firstLine, reportContent[0]);
-                        break;
-                    }
-                default:
-                    Assert.Fail($"No case for ReportFormat {reportFormat}");
-                    break;
-            }
+
+            // todo
+            Assert.Fail();
+
+            //switch (reportFormat)
+            //{
+            //    case ReportFormat.Combined:
+            //        {
+            //            string[] reportContent = File.ReadAllLines(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
+            //            Assert.AreEqual(firstLine, reportContent[0]);
+            //            break;
+            //        }
+            //    case ReportFormat.Split:
+            //        {
+            //            string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
+            //            Assert.AreEqual(6, Directory.GetFiles(extractReportsDirAbsolute).Length);
+            //            string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
+            //            Assert.AreEqual(firstLine, reportContent[0]);
+            //            break;
+            //        }
+            //    default:
+            //        Assert.Fail($"No case for ReportFormat {reportFormat}");
+            //        break;
+            //}
         }
 
         #endregion
 
         #region Tests
 
-        [TestCase(ReportFormat.Combined)]
-        [TestCase(ReportFormat.Split)]
-        public void Integration_HappyPath(ReportFormat reportFormat)
+        public void Integration_HappyPath()
         {
             // Test messages:
             //  - series-1
             //      - series-1-anon-1.dcm -> valid
 
-            using var pf = new PathFixtures($"Integration_HappyPath_{reportFormat}");
+            using var pf = new PathFixtures($"Integration_HappyPath");
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -185,7 +185,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             VerifyReports(
                 globals,
                 pf,
-                reportFormat,
                 new[]
                 {
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions, testExtractionRequestInfoMessage),
@@ -195,9 +194,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             );
         }
 
-        [TestCase(ReportFormat.Combined)]
-        [TestCase(ReportFormat.Split)]
-        public void Integration_BumpyRoad(ReportFormat reportFormat)
+        public void Integration_BumpyRoad()
         {
             // Test messages:
             //  - series-1
@@ -207,7 +204,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             //      - series-2-anon-1.dcm -> fails anonymisation
             //      - series-2-anon-2.dcm -> fails validation
 
-            using var pf = new PathFixtures($"Integration_BumpyRoad_{reportFormat}");
+            using var pf = new PathFixtures($"Integration_BumpyRoad");
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -298,7 +295,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             VerifyReports(
                 globals,
                 pf,
-                reportFormat,
                 new[]
                 {
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions, testExtractionRequestInfoMessage),
@@ -376,7 +372,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             VerifyReports(
                 globals,
                 pf,
-                ReportFormat.Combined,
                 new[]
                 {
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions,  testExtractionRequestInfoMessage),

@@ -2,20 +2,23 @@ using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Moq;
 using NUnit.Framework;
+using Smi.Common.Messages.Extraction;
+using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
-using Smi.Common.Options;
 
+// TODO(rkm 2022-03-17) Add test that unspecified newline matches environment
 
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 {
     // TODO(rkm 2020-11-19) Replace hard-coded JSON reports with Failure objects
     [TestFixture]
-    public class JobReporterBaseTest
+    public class JobReporterTests
     {
         private const string WindowsNewLine = "\r\n";
         private const string LinuxNewLine = "\n";
@@ -47,77 +50,6 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
         #region Tests
 
-        private class TestJobReporter : JobReporterBase
-        {
-            public string Report { get; set; } = "";
-
-            public bool Disposed { get; set; }
-
-            private string _currentReportName;
-            private bool _isCombinedReport;
-
-            public TestJobReporter(
-                IExtractJobStore jobStore,
-                ReportFormat reportFormat,
-                string reportNewLine
-            )
-                : base(
-                    jobStore,
-                    reportFormat,
-                    reportNewLine
-                )
-            {
-            }
-
-            protected override Stream GetStreamForSummary(ExtractJobInfo jobInfo)
-            {
-                _currentReportName = "summary";
-                _isCombinedReport = ShouldWriteCombinedReport(jobInfo);
-                return new MemoryStream();
-            }
-
-            protected override Stream GetStreamForPixelDataSummary(ExtractJobInfo jobInfo)
-            {
-                _currentReportName = "pixel summary";
-                return new MemoryStream();
-            }
-
-            protected override Stream GetStreamForPixelDataFull(ExtractJobInfo jobInfo)
-            {
-                _currentReportName = "pixel full";
-                return new MemoryStream();
-            }
-
-            protected override Stream GetStreamForPixelDataWordLengthFrequencies(ExtractJobInfo jobInfo)
-            {
-                _currentReportName = "pixel word length frequencies";
-                return new MemoryStream();
-            }
-
-            protected override Stream GetStreamForTagDataSummary(ExtractJobInfo jobInfo)
-            {
-                _currentReportName = "tag summary";
-                return new MemoryStream();
-            }
-
-            protected override Stream GetStreamForTagDataFull(ExtractJobInfo jobInfo)
-            {
-                _currentReportName = "tag full";
-                return new MemoryStream();
-            }
-
-            protected override void FinishReportPart(Stream stream)
-            {
-                stream.Position = 0;
-                using var streamReader = new StreamReader(stream, leaveOpen: true);
-                string header = _isCombinedReport ? "" : $"{ReportNewLine}=== {_currentReportName} file ==={ReportNewLine}";
-                Report += header + streamReader.ReadToEnd();
-            }
-
-            protected override void ReleaseUnmanagedResources() => Disposed = true;
-            public override void Dispose() => ReleaseUnmanagedResources();
-        }
-
         private static CompletedExtractJobInfo TestJobInfo(
             bool isIdentifiableExtraction = false,
             bool isNoFilterExtraction = false
@@ -147,25 +79,13 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
 
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
 
-            Assert.True(reporter.Disposed);
+            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", newLine);
 
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected: null,
-                blockedFilesExpected: null,
-                anonFailuresExpected: null,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                newLine,
-                reporter.Report
-            );
+            reporter.CreateReports(Guid.Empty);
+
+            // TODO
+            Assert.Fail();
         }
 
         [TestCase(LinuxNewLine)]
@@ -187,7 +107,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var anonFailures = new List<FileAnonFailureInfo>
             {
-                new FileAnonFailureInfo(expectedAnonFile: "foo1.dcm", reason: "image was corrupt"),
+                new FileAnonFailureInfo("foo1.dcm", ExtractedFileStatus.ErrorWontRetry, "image was corrupt"),
             };
 
             const string report = @"
@@ -212,11 +132,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(anonFailures);
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
+            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", newLine);
+
+            reporter.CreateReports(Guid.Empty);
+
 
             var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
             {
@@ -249,19 +168,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 new Tuple<string, string>("foo1.dcm", "image was corrupt"),
             };
 
-            Assert.True(reporter.Disposed);
-
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected,
-                blockedFilesExpected,
-                anonFailuresExpected,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                newLine,
-                reporter.Report
-            );
+            // TODO Assert
+            Assert.Fail();
         }
 
         [Test]
@@ -280,13 +188,12 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
-            {
-                Assert.Throws<ApplicationException>(() => reporter.CreateReport(Guid.Empty), "aa");
-            }
+            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
 
-            Assert.True(reporter.Disposed);
+            var e = Assert.Throws<ApplicationException>(() => reporter.CreateReports(Guid.Empty));
+
+            // todo
+            Assert.AreEqual(e.Message, "eeee");
         }
 
         [TestCase(LinuxNewLine)]
@@ -361,13 +268,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>()))
                 .Returns(verificationFailures);
 
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, newLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
+            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", newLine);
 
-            Assert.True(reporter.Disposed);
+            reporter.CreateReports(Guid.Empty);
 
             var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
             {
@@ -406,17 +309,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 },
             };
 
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected,
-                blockedFilesExpected: null,
-                anonFailuresExpected: null,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                newLine,
-                reporter.Report
-            );
+            // todo
+            Assert.Fail();
         }
 
         [Test]
@@ -468,13 +362,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
+            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
 
-            Assert.True(reporter.Disposed);
+            reporter.CreateReports(Guid.Empty);
 
             var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
             {
@@ -512,17 +402,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 },
             };
 
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected,
-                blockedFilesExpected: null,
-                anonFailuresExpected: null,
-                isIdentifiableExtraction: false,
-                isJoinedReport: false,
-                LinuxNewLine,
-                reporter.Report
-            );
+            // todo
+            Assert.Fail();
         }
 
         [Test]
@@ -539,30 +420,15 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
             mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
 
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Combined, LinuxNewLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
-
-            Assert.True(reporter.Disposed);
+            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
 
             var missingFilesExpected = new List<Tuple<string, string>>
             {
                 new Tuple<string, string>("missing.dcm", null),
             };
 
-            ReportEqualityHelpers.AssertReportsAreEqual(
-                jobInfo,
-                _dateTimeProvider,
-                verificationFailuresExpected: null,
-                blockedFilesExpected: null,
-                missingFilesExpected,
-                isIdentifiableExtraction: true,
-                isJoinedReport: false,
-                LinuxNewLine,
-                reporter.Report
-            );
+            // todo
+            Assert.Fail();
         }
 
         [TestCase(LinuxNewLine)]
@@ -643,13 +509,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
-            TestJobReporter reporter;
-            using (reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, newLine))
-            {
-                reporter.CreateReport(Guid.Empty);
-            }
-
-            Assert.True(reporter.Disposed);
+            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
 
             var expected = new List<string>
             {
@@ -738,27 +598,11 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"",
             };
 
-            Assert.AreEqual(string.Join(newLine, expected), reporter.Report);
+            // TODO
+            //Assert.AreEqual(string.Join(newLine, expected), reporter.Report);
+            Assert.Fail();
         }
 
-        [Test]
-        public void Constructor_UnknownReportFormat_ThrowsArgumentException()
-        {
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            Assert.Throws<ArgumentException>(() =>
-            {
-                var _ = new TestJobReporter(mockJobStore.Object, ReportFormat.Unknown, "foo");
-            });
-        }
-
-        [Test]
-        public void Constructor_NoNewLine_SetToEnvironment()
-        {
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            var reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, null);
-            Assert.AreEqual(Environment.NewLine, reporter.ReportNewLine);
-        }
-        
         [Test]
         public void ReportNewLine_LoadFromYaml_EscapesNewlines()
         {
@@ -780,7 +624,7 @@ CohortPackagerOptions:
         public void ReportNewline_EscapedString_IsDetected()
         {
             const string newLine = @"\n";
-            var exc = Assert.Throws<ArgumentException>(() => new TestJobReporter(new Mock<IExtractJobStore>().Object, ReportFormat.Combined, newLine));
+            var exc = Assert.Throws<ArgumentException>(() => new JobReporter(new Mock<IExtractJobStore>().Object, new FileSystem(), "unused", newLine));
             Assert.AreEqual("ReportNewLine contained an escaped backslash", exc.Message);
         }
     }
