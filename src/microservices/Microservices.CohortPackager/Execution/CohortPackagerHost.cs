@@ -47,7 +47,7 @@ namespace Microservices.CohortPackager.Execution
             [NotNull] GlobalOptions globals,
             [CanBeNull] ExtractJobStore jobStore = null,
             [CanBeNull] IFileSystem fileSystem = null,
-            [CanBeNull] IJobReporter reporter = null,
+            [CanBeNull] JobReporter reporter = null,
             [CanBeNull] IJobCompleteNotifier notifier = null,
             [CanBeNull] IRabbitMqAdapter rabbitMqAdapter = null,
             [CanBeNull] DateTimeProvider dateTimeProvider = null
@@ -66,23 +66,12 @@ namespace Microservices.CohortPackager.Execution
             else if (dateTimeProvider != null)
                 throw new ArgumentException("jobStore and dateTimeProvider are mutually exclusive arguments");
 
-            // If not passed a reporter or notifier, try and construct one from the given options
-
-            if (reporter == null)
-            {
-                reporter = JobReporterFactory.GetReporter(
-                    Globals.CohortPackagerOptions.ReporterType,
-                    jobStore,
-                    fileSystem ?? new FileSystem(),
-                    Globals.FileSystemOptions.ExtractRoot,
-                    Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine)
-                );
-            }
-            else
-            {
-                if (fileSystem != null)
-                    throw new ArgumentException("Passed a fileSystem, but this will be unused as also passed an existing IJobReporter");
-            }
+            reporter ??= new JobReporter(
+                jobStore,
+                fileSystem,
+                globals.FileSystemOptions.ExtractRoot,
+                Regex.Unescape(globals.CohortPackagerOptions.ReportNewLine)
+            );
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
                 Globals.CohortPackagerOptions.NotifierType

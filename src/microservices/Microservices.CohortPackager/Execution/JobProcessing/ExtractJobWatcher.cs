@@ -19,7 +19,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
         private readonly IExtractJobStore _jobStore;
 
-        private readonly IJobReporter _reporter;
+        private readonly JobReporter _reporter;
         private readonly IJobCompleteNotifier _notifier;
 
         private readonly SysTimers.Timer _processTimer;
@@ -34,7 +34,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             IExtractJobStore jobStore,
             Action<Exception> exceptionCallback,
             [NotNull] IJobCompleteNotifier jobCompleteNotifier,
-            [NotNull] IJobReporter reporter)
+            [NotNull] JobReporter reporter)
         {
             _jobStore = jobStore;
             _exceptionCallback = exceptionCallback;

@@ -439,7 +439,6 @@ namespace Smi.Common.Options
         public ConsumerOptions NoVerifyStatusOptions { get; set; }
         public ConsumerOptions VerificationStatusOptions { get; set; }
         public uint JobWatcherTimeoutInSeconds { get; set; }
-        public string ReporterType { get; set; }
         public string NotifierType { get; set; }
 
         /// <summary>
