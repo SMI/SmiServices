@@ -16,12 +16,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         public LoggingReporter(
             [NotNull] IExtractJobStore jobStore,
-            ReportFormat reportFormat,
             [CanBeNull] string reportNewLine
         )
             : base(
                 jobStore,
-                reportFormat,
                 reportNewLine
             )
         {

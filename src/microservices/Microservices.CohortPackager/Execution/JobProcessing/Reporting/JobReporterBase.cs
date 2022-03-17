@@ -19,8 +19,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
     public abstract class JobReporterBase : IJobReporter, IDisposable
     {
-        public readonly ReportFormat ReportFormat;
-
         [NotNull] public readonly string ReportNewLine;
 
         [NotNull] protected readonly ILogger Logger;
@@ -34,13 +32,11 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         protected JobReporterBase(
             [NotNull] IExtractJobStore jobStore,
-            ReportFormat reportFormat,
             [CanBeNull] string reportNewLine
         )
         {
             Logger = LogManager.GetLogger(GetType().Name);
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
-            ReportFormat = (reportFormat == default) ? throw new ArgumentException(nameof(reportFormat)) : reportFormat;
 
             // NOTE(rkm 2020-11-20) IsNullOrWhiteSpace returns true for newline characters!
             if (!string.IsNullOrEmpty(reportNewLine))

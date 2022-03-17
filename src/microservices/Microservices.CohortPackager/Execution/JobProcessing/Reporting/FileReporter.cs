@@ -24,12 +24,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             [NotNull] IExtractJobStore jobStore,
             [NotNull] IFileSystem fileSystem,
             [NotNull] string extractRoot,
-            ReportFormat reportFormat,
             [CanBeNull] string reportNewLine
         )
             : base(
                 jobStore,
-                reportFormat,
                 reportNewLine
             )
         {

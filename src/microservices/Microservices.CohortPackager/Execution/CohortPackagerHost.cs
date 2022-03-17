@@ -68,7 +68,6 @@ namespace Microservices.CohortPackager.Execution
 
             // If not passed a reporter or notifier, try and construct one from the given options
 
-            string reportFormatStr = Globals.CohortPackagerOptions.ReportFormat;
             if (reporter == null)
             {
                 reporter = JobReporterFactory.GetReporter(
@@ -76,14 +75,11 @@ namespace Microservices.CohortPackager.Execution
                     jobStore,
                     fileSystem ?? new FileSystem(),
                     Globals.FileSystemOptions.ExtractRoot,
-                    reportFormatStr,
                     Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine)
                 );
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(reportFormatStr))
-                    throw new ArgumentException($"Passed an IJobReporter, but this conflicts with the ReportFormat of '{reportFormatStr}' in the given options");
                 if (fileSystem != null)
                     throw new ArgumentException("Passed a fileSystem, but this will be unused as also passed an existing IJobReporter");
             }

@@ -52,7 +52,6 @@ namespace Microservices.CohortPackager
                 jobStore,
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
-                cliOptions.ReportFormat.ToString(),
                 newLine
             );
 

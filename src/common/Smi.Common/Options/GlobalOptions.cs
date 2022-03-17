@@ -441,7 +441,6 @@ namespace Smi.Common.Options
         public uint JobWatcherTimeoutInSeconds { get; set; }
         public string ReporterType { get; set; }
         public string NotifierType { get; set; }
-        public string ReportFormat { get; set; }
 
         /// <summary>
         /// The newline to use when writing extraction report files. Note that a "\r\n" string
