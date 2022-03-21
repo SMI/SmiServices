@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using Microservices.IsIdentifiable.Options;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Microservices.IsIdentifiable.Reporting.Destinations
 {
@@ -27,20 +28,21 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
         /// <param name="options"></param>
         /// <param name="reportName"></param>
         /// <param name="addTimestampToFilename">True to add the time to the CSV filename generated</param>
-        public CsvDestination(IsIdentifiableAbstractOptions options, string reportName,bool addTimestampToFilename = true)
-            : base(options)
+        /// <param name="fileSystem"></param>
+        public CsvDestination(IsIdentifiableAbstractOptions options, string reportName, bool addTimestampToFilename = true, IFileSystem fileSystem = null)
+            : base(options, fileSystem)
         {
-            var destDir = new DirectoryInfo(Options.DestinationCsvFolder);
+            var destDir = FileSystem.DirectoryInfo.FromDirectoryName(Options.DestinationCsvFolder);
 
             if (!destDir.Exists)
                 destDir.Create();
 
             _reportPath = addTimestampToFilename ?
-                Path.Combine(destDir.FullName, DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm") + "-" + reportName + ".csv") : 
-                Path.Combine(destDir.FullName, reportName + ".csv");
+                FileSystem.Path.Combine(destDir.FullName, DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm") + "-" + reportName + ".csv") :
+                FileSystem.Path.Combine(destDir.FullName, reportName + ".csv");
         }
 
-        public CsvDestination(IsIdentifiableAbstractOptions options, FileInfo file):base(options)
+        public CsvDestination(IsIdentifiableAbstractOptions options, IFileInfo file) : base(options)
         {
             _reportPath = file.FullName;
         }
@@ -54,7 +56,7 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
 
                 _headerWritten = true;
 
-                var csvFile = new FileInfo(_reportPath);
+                var csvFile = FileSystem.FileInfo.FromFileName(_reportPath);
                 CsvConfiguration csvconf;
                 string sep = Options.DestinationCsvSeparator;
                 // If there is an overriding separator and it's not a comma, then use the users desired delimiter string
@@ -72,8 +74,9 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
                     csvconf = new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture);
                 }
 
-                _streamwriter = new StreamWriter(csvFile.FullName);
-                _csvWriter = new CsvWriter(_streamwriter,csvconf);
+                var stream = csvFile.OpenWrite();
+                _streamwriter = new StreamWriter(stream);
+                _csvWriter = new CsvWriter(_streamwriter, csvconf);
                 WriteRow(headers);
             }
         }

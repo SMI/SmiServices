@@ -36,6 +36,20 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
         [TearDown]
         public void TearDown() { }
 
+        private static ExtractJobInfo GetRandomExtractJobInfo()
+           => new(
+               Guid.NewGuid(),
+               DateTime.UtcNow,
+               "123",
+               "test/dir",
+               "KeyTag",
+               123,
+               null,
+               ExtractJobStatus.ReadyForChecks,
+               isIdentifiableExtraction: true,
+               isNoFilterExtraction: true
+           );
+
         #endregion
 
         #region Tests
@@ -45,7 +59,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
         {
             // Arrange
 
-            var jobInfo = CohortPackagerTestHelpers.GetRandomExtractJobInfo();
+            var jobInfo = GetRandomExtractJobInfo();
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             Expression<Func<IExtractJobStore, List<ExtractJobInfo>>> getReadyJobsCall = x => x.GetReadyJobs(jobInfo.ExtractionJobIdentifier);
@@ -88,8 +102,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             var jobs = new List<ExtractJobInfo>()
             {
-                CohortPackagerTestHelpers.GetRandomExtractJobInfo(),
-                CohortPackagerTestHelpers.GetRandomExtractJobInfo(),
+                GetRandomExtractJobInfo(),
+                GetRandomExtractJobInfo(),
             };
             mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(jobs);
             mockJobStore.Setup(x => x.GetReadyJobs(default)).Returns(new List<ExtractJobInfo>());
@@ -118,7 +132,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
         {
             // Arrange
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            var jobInfo = CohortPackagerTestHelpers.GetRandomExtractJobInfo();
+            var jobInfo = GetRandomExtractJobInfo();
             mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { jobInfo });
             mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new ApplicationException("aah"));
             var mockNotifier = new Mock<IJobCompleteNotifier>(MockBehavior.Strict);
@@ -146,7 +160,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
         {
             // Arrange
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            var jobInfo = CohortPackagerTestHelpers.GetRandomExtractJobInfo();
+            var jobInfo = GetRandomExtractJobInfo();
             mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { jobInfo });
             mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { jobInfo });
             mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new Exception("aah"));

@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+using Microservices.IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Reporting.Destinations;
 using Microservices.IsIdentifiable.Reporting.Reports;
@@ -114,7 +115,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             string filteredExtraction = !jobInfo.IsNoFilterExtraction ? "Yes" : "No";
             var readmeLines = new List<string>
             {
-                $"# SMI extraction reports for {jobInfo.ProjectNumber}/{jobInfo.ExtractionName()}",
+                $"# SMI extraction reports for {jobInfo.ProjectNumber} - {jobInfo.ExtractionName()}",
                 "",
                 "Job info:",
                 $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
@@ -126,6 +127,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"-   Requested identifier count:   {jobInfo.KeyValueCount}",
                 $"-   Identifiable extraction:      {identExtraction}",
                 $"-   Filtered extraction:          {filteredExtraction}",
+                $"",
+                $"--- END ---"
             };
 
             string jobReadmePath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "README.md");
@@ -138,7 +141,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         private void WriteRejectionsCsv(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolute)
         {
-            string blockedFilesPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "blocked_files.md");
+            string blockedFilesPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "blocked_files.csv");
             using var fileStream = _fileSystem.File.OpenWrite(blockedFilesPath);
 
             IEnumerable<ExtractionIdentifierRejectionInfo> rejects = _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier);
@@ -153,18 +156,21 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             var errors = _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier).ToList();
 
-            if (!errors.Any())
-                return false;
-
-            streamWriter.WriteLine($"# SMI extraction processing errors for {jobInfo.ProjectNumber}/{jobInfo.ExtractionName()}");
+            streamWriter.WriteLine($"# SMI extraction processing errors for {jobInfo.ProjectNumber} - {jobInfo.ExtractionName()}");
             streamWriter.WriteLine();
+            const string end = "--- END ---";
+
+            if (!errors.Any())
+            {
+                streamWriter.WriteLine(end);
+                return false;
+            }
 
             foreach (FileAnonFailureInfo error in errors)
             {
-                streamWriter.WriteLine($"-   {error.DicomFilePath}");
-                streamWriter.WriteLine($"    {error.Status}");
+                streamWriter.WriteLine($"-   {error.DicomFilePath} - {error.Status}");
                 streamWriter.WriteLine($"    ```console");
-                foreach (var line in error.StatusMessage.Split())
+                foreach (var line in error.StatusMessage.Split(new[] { "\n", "\r\n" }, StringSplitOptions.None))
                 {
                     streamWriter.WriteLine($"    {line}");
                 }
@@ -172,14 +178,22 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine();
             }
 
+            streamWriter.WriteLine(end);
             return true;
         }
 
         private void WriteVerificationFailuresCsv(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolute)
         {
-            string verificationFailuresPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "verification_failures.csv");
+            string verificationFailuresReportName = "verification_failures";
             var report = new FailureStoreReport(targetName: null, maxSize: 1_000);
-            using var csvDest = new CsvDestination(null, verificationFailuresPath, addTimestampToFilename: false);
+
+            // Temp
+            var isIdentOptions = new IsIdentifiableFileOptions
+            {
+                DestinationCsvFolder = jobReportsDirAbsolute
+            };
+
+            using var csvDest = new CsvDestination(isIdentOptions, verificationFailuresReportName, addTimestampToFilename: false, _fileSystem);
             report.AddDestination(csvDest);
 
             foreach (var fileVerificationFailureInfo in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
@@ -191,7 +205,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 }
                 catch (JsonException e)
                 {
-                    throw new ApplicationException("Could not deserialize report to IEnumerable<Failure>", e);
+                    throw new ApplicationException("Could not deserialize report content to IEnumerable<Failure>", e);
                 }
 
                 foreach (Failure failure in fileFailures)

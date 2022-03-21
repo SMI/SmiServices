@@ -1,6 +1,7 @@
-﻿using System.Data;
+﻿using Microservices.IsIdentifiable.Options;
+using System.Data;
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
-using Microservices.IsIdentifiable.Options;
 
 namespace Microservices.IsIdentifiable.Reporting.Destinations
 {
@@ -8,12 +9,15 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
     {
         protected IsIdentifiableAbstractOptions Options { get; }
 
+        protected IFileSystem FileSystem { get; }
+
         private readonly Regex _multiSpaceRegex = new Regex(" {2,}");
 
 
-        protected ReportDestination(IsIdentifiableAbstractOptions options)
+        protected ReportDestination(IsIdentifiableAbstractOptions options, IFileSystem fileSystem = null)
         {
             Options = options;
+            FileSystem = fileSystem ?? new FileSystem();
         }
 
         public virtual void WriteHeader(params string[] headers) { }

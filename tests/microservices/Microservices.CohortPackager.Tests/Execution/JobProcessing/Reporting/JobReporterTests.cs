@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 // TODO(rkm 2022-03-17) Add test that unspecified newline matches environment
@@ -22,6 +24,9 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
     {
         private const string WindowsNewLine = "\r\n";
         private const string LinuxNewLine = "\n";
+        private const string ExtractRoot = "exRoot";
+
+        private MockFileSystem _fileSystem;
 
         private static readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
@@ -41,25 +46,25 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
         #region Test Methods
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _fileSystem = new MockFileSystem();
+        }
 
         [TearDown]
         public void TearDown() { }
 
-        #endregion
-
-        #region Tests
-
         private static CompletedExtractJobInfo TestJobInfo(
+            IFileSystem fs,
             bool isIdentifiableExtraction = false,
             bool isNoFilterExtraction = false
         ) =>
-            new CompletedExtractJobInfo(
+            new(
                 Guid.NewGuid(),
                 _dateTimeProvider.UtcNow(),
                 _dateTimeProvider.UtcNow() + TimeSpan.FromHours(1),
-                "1234",
-                "extractions/test",
+                "proj1",
+                fs.Path.Combine("proj1", "extractions", "test"),
                 "keyTag",
                 123,
                 null,
@@ -67,32 +72,126 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 isNoFilterExtraction
             );
 
+        private void VerifyReports(
+            CompletedExtractJobInfo completedJobInfo,
+            string newLine,
+            List<string> rejectionsCsvRows,
+            List<string> processingErrorsLines,
+            List<string> verificationFailureCsvLines
+        )
+        {
+            Assert.AreEqual(4, _fileSystem.AllFiles.ToList().Count);
+
+            string identExtraction = completedJobInfo.IsIdentifiableExtraction ? "Yes" : "No";
+            string filteredExtraction = !completedJobInfo.IsNoFilterExtraction ? "Yes" : "No";
+            var expectedLines = new List<string>
+            {
+                $"# SMI extraction reports for {completedJobInfo.ProjectNumber} - {completedJobInfo.ExtractionName()}",
+                $"",
+                $"Job info:",
+                $"-   Job extraction id:            {completedJobInfo.ExtractionJobIdentifier}",
+                $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
+                $"-   Extraction tag:               {completedJobInfo.KeyTag}",
+                $"-   Extraction modality:          {completedJobInfo.ExtractionModality ?? "Unspecified"}",
+                $"-   Requested identifier count:   {completedJobInfo.KeyValueCount}",
+                $"-   Identifiable extraction:      {identExtraction}",
+                $"-   Filtered extraction:          {filteredExtraction}",
+                $"",
+                $"--- END ---",
+                $"",
+            };
+            using var readmeStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "README.md"));
+            using (var streamReader = new StreamReader(readmeStream))
+            {
+                var content = streamReader.ReadToEnd();
+                Assert.AreEqual(string.Join(newLine, expectedLines), content);
+            }
+
+            expectedLines = new List<string>
+            {
+                $"RequestedUID,Reason,Count",
+                $"",
+            };
+            expectedLines.InsertRange(1, rejectionsCsvRows);
+            using var rejectionsCsvStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "blocked_files.csv"));
+            using (var streamReader = new StreamReader(rejectionsCsvStream))
+            {
+                var content = streamReader.ReadToEnd();
+                Assert.AreEqual(string.Join(newLine, expectedLines), content);
+            }
+
+            expectedLines = new List<string>
+            {
+                $"# SMI extraction processing errors for {completedJobInfo.ProjectNumber} - {completedJobInfo.ExtractionName()}",
+                $"",
+                $"--- END ---",
+                $"",
+            };
+            expectedLines.InsertRange(2, processingErrorsLines);
+            using var processingErrorsMdStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "processing_errors.md"));
+            using (var streamReader = new StreamReader(processingErrorsMdStream))
+            {
+                var content = streamReader.ReadToEnd();
+                Assert.AreEqual(string.Join(newLine, expectedLines), content);
+            }
+
+            expectedLines = new List<string>
+            {
+                $"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
+                $""
+            };
+            expectedLines.InsertRange(1, verificationFailureCsvLines);
+            using var verificationErrorsCsvStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "verification_failures.csv"));
+            using (var streamReader = new StreamReader(verificationErrorsCsvStream))
+            {
+                var content = streamReader.ReadToEnd();
+                // TODO(rkm 2022-03-21) Pass the correct newLine after https://github.com/SMI/IsIdentifiable/issues/44
+                Assert.AreEqual(string.Join(Environment.NewLine, expectedLines), content);
+            }
+        }
+
+        #endregion
+
+        #region Tests
+
         [TestCase(LinuxNewLine)]
         [TestCase(WindowsNewLine)]
         public void CreateReport_Empty(string newLine)
         {
-            CompletedExtractJobInfo jobInfo = TestJobInfo();
+            // Arrange
+            CompletedExtractJobInfo completedJobInfo = TestJobInfo(_fileSystem);
+            _fileSystem.AddDirectory(_fileSystem.Path.Join(ExtractRoot, completedJobInfo.ExtractionDirectory));
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
             mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
 
+            var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, newLine);
 
-            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", newLine);
+            // Act
+            reporter.CreateReports(completedJobInfo.ExtractionJobIdentifier);
 
-            reporter.CreateReports(Guid.Empty);
-
-            // TODO
-            Assert.Fail();
+            // Assert
+            VerifyReports(
+                completedJobInfo,
+                newLine,
+                rejectionsCsvRows: new List<string>(),
+                processingErrorsLines: new List<string>(),
+                verificationFailureCsvLines: new List<string>()
+            );
         }
 
         [TestCase(LinuxNewLine)]
         [TestCase(WindowsNewLine)]
         public void CreateReport_BasicData(string newLine)
         {
-            CompletedExtractJobInfo jobInfo = TestJobInfo();
+            // Arrange
+            CompletedExtractJobInfo completedJobInfo = TestJobInfo(_fileSystem);
+            _fileSystem.AddDirectory(_fileSystem.Path.Join(ExtractRoot, completedJobInfo.ExtractionDirectory));
 
             var rejections = new List<ExtractionIdentifierRejectionInfo>
             {
@@ -100,21 +199,28 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     keyValue: "1.2.3.4",
                     new Dictionary<string, int>
                     {
-                        {"image is in the deny list for extraction", 123},
-                        {"foo bar", 456},
+                        {"denied", 1},
+                        {"foo bar", 2},
+                    }),
+                new ExtractionIdentifierRejectionInfo(
+                    keyValue: "5.6.7.8",
+                    new Dictionary<string, int>
+                    {
+                        {"denied", 1},
                     }),
             };
 
             var anonFailures = new List<FileAnonFailureInfo>
             {
-                new FileAnonFailureInfo("foo1.dcm", ExtractedFileStatus.ErrorWontRetry, "image was corrupt"),
+                new FileAnonFailureInfo("foo1.dcm", ExtractedFileStatus.FileMissing, "could not find the image"),
+                new FileAnonFailureInfo("foo2.dcm", ExtractedFileStatus.ErrorWontRetry, "StackTrace:\nAaah..."),
             };
 
             const string report = @"
 [
     {
         'Parts': [],
-        'Resource': '/foo1.dcm',
+        'Resource': '/root/2022/01/01/A/foo1.dcm',
         'ResourcePrimaryKey': '1.2.3.4',
         'ProblemField': 'ScanOptions',
         'ProblemValue': 'FOO'
@@ -123,59 +229,107 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
-                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
+                new FileVerificationFailureInfo("study/series/foo1-an.dcm", report),
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
             mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(rejections);
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(anonFailures);
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
-            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", newLine);
+            var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, newLine);
 
-            reporter.CreateReports(Guid.Empty);
+            // Act
+            reporter.CreateReports(completedJobInfo.ExtractionJobIdentifier);
 
-
-            var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
-            {
+            // Assert
+            VerifyReports(
+                completedJobInfo,
+                newLine,
+                rejectionsCsvRows: new List<string>
                 {
-                    "ScanOptions", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "FOO",
-                            new List<string>
-                            {
-                                "foo1.dcm"
-                            }
-                        }
-                    }
+                    $"1.2.3.4,denied,1",
+                    $"1.2.3.4,foo bar,2",
+                    $"5.6.7.8,denied,1",
                 },
-            };
-            var blockedFilesExpected = new Dictionary<string, List<Tuple<int, string>>>
-            {
+                processingErrorsLines: new List<string>
                 {
-                    "1.2.3.4",
-                    new List<Tuple<int, string>>
-                    {
-                        new Tuple<int, string>(123, "image is in the deny list for extraction"),
-                        new Tuple<int, string>(456, "foo bar"),
-                    }
+                    $"-   foo1.dcm - FileMissing",
+                    $"    ```console",
+                    $"    could not find the image",
+                    $"    ```",
+                    $"",
+                    $"-   foo2.dcm - ErrorWontRetry",
+                    $"    ```console",
+                    $"    StackTrace:",
+                    $"    Aaah...",
+                    $"    ```",
+                    $"",
                 },
-            };
-            var anonFailuresExpected = new List<Tuple<string, string>>
-            {
-                new Tuple<string, string>("foo1.dcm", "image was corrupt"),
-            };
-
-            // TODO Assert
-            Assert.Fail();
+                verificationFailureCsvLines: new List<string>
+                {
+                    $"study/series/foo1-an.dcm,1.2.3.4,ScanOptions,FOO,,,",
+                }
+            );
         }
+
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_MultilineFailureData(string newLine)
+        {
+            // Arrange
+            CompletedExtractJobInfo completedJobInfo = TestJobInfo(_fileSystem);
+            _fileSystem.AddDirectory(_fileSystem.Path.Join(ExtractRoot, completedJobInfo.ExtractionDirectory));
+
+            const string reportFormat = @"
+[
+    {{
+        'Parts': [],
+        'Resource': '/root/2022/01/01/A/foo1.dcm',
+        'ResourcePrimaryKey': '1.2.3.4',
+        'ProblemField': 'TextValue',
+        'ProblemValue': 'This is a SR for Mr Foo bar{0}Clinical history: ...{0}Normal appearance of ...{0}Verified by: Dr Baz'
+    }}
+]";
+            string report = string.Format(reportFormat, "\n");
+
+            var verificationFailures = new List<FileVerificationFailureInfo>
+            {
+                new FileVerificationFailureInfo("study/series/foo1-an.dcm", report),
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+            var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, newLine);
+
+            // Act
+            reporter.CreateReports(completedJobInfo.ExtractionJobIdentifier);
+
+            // Assert
+            VerifyReports(
+                completedJobInfo,
+                newLine,
+                rejectionsCsvRows: new List<string>(),
+                processingErrorsLines: new List<string>(),
+                verificationFailureCsvLines: new List<string>
+                {
+                    $"study/series/foo1-an.dcm,1.2.3.4,TextValue,\"This is a SR for Mr Foo bar\nClinical history: ...\nNormal appearance of ...\nVerified by: Dr Baz\",,,",
+                }
+            );
+        }
+
 
         [Test]
         public void InvalidReport_ThrowsApplicationException()
         {
-            CompletedExtractJobInfo jobInfo = TestJobInfo();
+            // Arrange
+            CompletedExtractJobInfo completedJobInfo = TestJobInfo(_fileSystem);
+            _fileSystem.AddDirectory(_fileSystem.Path.Join(ExtractRoot, completedJobInfo.ExtractionDirectory));
 
             var verificationFailures = new List<FileVerificationFailureInfo>
             {
@@ -183,424 +337,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
             mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
             mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
-            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
+            var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, LinuxNewLine);
 
-            var e = Assert.Throws<ApplicationException>(() => reporter.CreateReports(Guid.Empty));
+            // Act
+            var e = Assert.Throws<ApplicationException>(() => reporter.CreateReports(completedJobInfo.ExtractionJobIdentifier));
 
-            // todo
-            Assert.AreEqual(e.Message, "eeee");
-        }
-
-        [TestCase(LinuxNewLine)]
-        [TestCase(WindowsNewLine)]
-        public void CreateReport_AggregateData(string newLine)
-        {
-            CompletedExtractJobInfo jobInfo = TestJobInfo();
-
-            var verificationFailures = new List<FileVerificationFailureInfo>
-            {
-                new FileVerificationFailureInfo(anonFilePath: "ccc/ddd/foo1.dcm", failureData: @"
-                    [
-                        {
-                             'Parts': [],
-                            'Resource': 'unused',
-                            'ResourcePrimaryKey': 'unused',
-                            'ProblemField': 'SomeOtherTag',
-                            'ProblemValue': 'BAZ'
-                        }
-                    ]"
-                ),
-                new FileVerificationFailureInfo(anonFilePath:"ccc/ddd/foo2.dcm",failureData: @"
-                    [
-                        {
-                             'Parts': [],
-                            'Resource': 'unused',
-                            'ResourcePrimaryKey': 'unused',
-                            'ProblemField': 'SomeOtherTag',
-                            'ProblemValue': 'BAZ'
-                        }
-                    ]"
-                ),
-                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo1.dcm", failureData:@"
-                    [
-                        {
-                            'Parts': [],
-                            'Resource': 'unused',
-                            'ResourcePrimaryKey': 'unused',
-                            'ProblemField': 'ScanOptions',
-                            'ProblemValue': 'FOO'
-                        }
-                    ]"
-                ),
-                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm",failureData: @"
-                    [
-                        {
-                            'Parts': [],
-                            'Resource': 'unused',
-                            'ResourcePrimaryKey': 'unused',
-                            'ProblemField': 'ScanOptions',
-                            'ProblemValue': 'FOO'
-                        }
-                    ]"
-                ),
-                new FileVerificationFailureInfo(anonFilePath:"aaa/bbb/foo2.dcm", failureData: @"
-                    [
-                         {
-                            'Parts': [],
-                            'Resource': 'unused',
-                            'ResourcePrimaryKey': 'unused',
-                            'ProblemField': 'ScanOptions',
-                            'ProblemValue': 'BAR'
-                        }
-                    ]"
-                ),
-            };
-
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>()))
-                .Returns(verificationFailures);
-
-            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", newLine);
-
-            reporter.CreateReports(Guid.Empty);
-
-            var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
-            {
-                {
-                    "ScanOptions", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "FOO",
-                            new List<string>
-                            {
-                                "aaa/bbb/foo1.dcm",
-                                "aaa/bbb/foo2.dcm",
-                            }
-                        },
-                        {
-                            "BAR",
-                            new List<string>
-                            {
-                                "aaa/bbb/foo2.dcm",
-                            }
-                        },
-                    }
-                },
-                {
-                    "SomeOtherTag", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "BAZ",
-                            new List<string>
-                            {
-                                "ccc/ddd/foo1.dcm",
-                                "ccc/ddd/foo2.dcm",
-                            }
-                        },
-                    }
-                },
-            };
-
-            // todo
-            Assert.Fail();
-        }
-
-        [Test]
-        public void CreateReport_WithPixelData()
-        {
-            CompletedExtractJobInfo jobInfo = TestJobInfo();
-
-            // NOTE(rkm 2020-08-25) Tests that the "Z" tag is ordered before PixelData, and that PixelData items are ordered by decreasing length not by occurrence
-            const string report = @"
-[
-     {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'aaaaaaaaaaa'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'Z',
-        'ProblemValue': 'bar'
-    },
-]";
-
-            var verificationFailures = new List<FileVerificationFailureInfo>
-            {
-                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
-            };
-
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
-
-            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
-
-            reporter.CreateReports(Guid.Empty);
-
-            var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
-            {
-                {
-                    "Z", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "bar",
-                            new List<string>
-                            {
-                                "foo1.dcm"
-                            }
-                        }
-                    }
-                },
-                {
-                    "PixelData", new Dictionary<string, List<string>>
-                    {
-                        {
-                            "aaaaaaaaaaa",
-                            new List<string>
-                            {
-                                "foo1.dcm"
-                            }
-                        },
-                        {
-                            "a",
-                            new List<string>
-                            {
-                                "foo1.dcm",
-                                "foo1.dcm"
-                            }
-                        },
-                    }
-                },
-            };
-
-            // todo
-            Assert.Fail();
-        }
-
-        [Test]
-        public void CreateReport_IdentifiableExtraction()
-        {
-            CompletedExtractJobInfo jobInfo = TestJobInfo(isIdentifiableExtraction: true);
-
-            var missingFiles = new List<string>
-            {
-               "missing.dcm",
-            };
-
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
-
-            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
-
-            var missingFilesExpected = new List<Tuple<string, string>>
-            {
-                new Tuple<string, string>("missing.dcm", null),
-            };
-
-            // todo
-            Assert.Fail();
-        }
-
-        [TestCase(LinuxNewLine)]
-        [TestCase(WindowsNewLine)]
-        public void CreateReport_SplitReport(string newLine)
-        {
-            CompletedExtractJobInfo jobInfo = TestJobInfo();
-
-            const string report = @"
-[
-     {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'aaaaaaaaaaa'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'a'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'PixelData',
-        'ProblemValue': 'another'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'X',
-        'ProblemValue': 'foo'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'X',
-        'ProblemValue': 'foo'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'X',
-        'ProblemValue': 'bar'
-    },
-    {
-        'Parts': [],
-        'Resource': 'unused',
-        'ResourcePrimaryKey': 'unused',
-        'ProblemField': 'Z',
-        'ProblemValue': 'bar'
-    },
-]";
-
-            var verificationFailures = new List<FileVerificationFailureInfo>
-            {
-                new FileVerificationFailureInfo(anonFilePath: "foo1.dcm", report),
-                new FileVerificationFailureInfo(anonFilePath: "foo2.dcm", report),
-            };
-
-            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
-
-            var reporter = new JobReporter(mockJobStore.Object, new FileSystem(), "foobar", LinuxNewLine);
-
-            var expected = new List<string>
-            {
-                $"",
-                "=== summary file ===",
-                "# SMI extraction validation report for 1234/test",
-                $"",
-                $"Job info:",
-                $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
-                $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
-                $"-   Job duration:                 {TimeSpan.FromHours(1)}",
-                $"-   Job extraction id:            {jobInfo.ExtractionJobIdentifier}",
-                $"-   Extraction tag:               keyTag",
-                $"-   Extraction modality:          Unspecified",
-                $"-   Requested identifier count:   123",
-                $"-   Identifiable extraction:      No",
-                $"-   Filtered extraction:          Yes",
-                $"",
-                $"Files included:",
-                $"-   README.md (this file)",
-                $"-   pixel_data_summary.csv",
-                $"-   pixel_data_full.csv",
-                $"-   pixel_data_word_length_frequencies.csv",
-                $"-   tag_data_summary.csv",
-                $"-   tag_data_full.csv",
-                $"",
-                $"This file contents:",
-                $"-   Blocked files",
-                $"-   Anonymisation failures",
-                $"",
-                $"## Blocked files",
-                $"",
-                $"",
-                $"## Anonymisation failures",
-                $"",
-                $"",
-                $"--- end of report ---",
-                $"",
-                $"=== pixel summary file ===",
-                $"TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport",
-                $"PixelData,aaaaaaaaaaa,2,0.25,0.25",
-                $"PixelData,another,2,0.25,0.25",
-                $"PixelData,a,4,0.5,0.5",
-                $"",
-                $"=== pixel full file ===",
-                $"TagName,FailureValue,FilePath",
-                $"PixelData,aaaaaaaaaaa,foo1.dcm",
-                $"PixelData,aaaaaaaaaaa,foo2.dcm",
-                $"PixelData,another,foo1.dcm",
-                $"PixelData,another,foo2.dcm",
-                $"PixelData,a,foo1.dcm",
-                $"PixelData,a,foo1.dcm",
-                $"PixelData,a,foo2.dcm",
-                $"PixelData,a,foo2.dcm",
-                $"",
-                $"=== pixel word length frequencies file ===",
-                $"WordLength,Count,RelativeFrequencyInReport",
-                $"1,4,0.5",
-                $"2,0,0",
-                $"3,0,0",
-                $"4,0,0",
-                $"5,0,0",
-                $"6,0,0",
-                $"7,2,0.25",
-                $"8,0,0",
-                $"9,0,0",
-                $"10,0,0",
-                $"11,2,0.25",
-                $"",
-                $"=== tag summary file ===",
-                $"TagName,FailureValue,Occurrences,RelativeFrequencyInTag,RelativeFrequencyInReport",
-                $"X,foo,4,0.6666666666666666,0.5",
-                $"X,bar,2,0.3333333333333333,0.5",
-                $"Z,bar,2,1,0.5",
-                $"",
-                $"=== tag full file ===",
-                $"TagName,FailureValue,FilePath",
-                $"X,foo,foo1.dcm",
-                $"X,foo,foo1.dcm",
-                $"X,foo,foo2.dcm",
-                $"X,foo,foo2.dcm",
-                $"X,bar,foo1.dcm",
-                $"X,bar,foo2.dcm",
-                $"Z,bar,foo1.dcm",
-                $"Z,bar,foo2.dcm",
-                $"",
-            };
-
-            // TODO
-            //Assert.AreEqual(string.Join(newLine, expected), reporter.Report);
-            Assert.Fail();
+            // Assert
+            Assert.AreEqual(e.Message, "Could not deserialize report content to IEnumerable<Failure>");
         }
 
         [Test]
