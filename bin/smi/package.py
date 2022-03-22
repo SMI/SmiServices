@@ -35,7 +35,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     dist_tag_dir = C.DIST_DIR / args.tag
 
-    if args.clean:
+    if args.clean and dist_tag_dir.is_dir():
         shutil.rmtree(dist_tag_dir)
     dist_tag_dir.mkdir(parents=True, exist_ok=True)
 
