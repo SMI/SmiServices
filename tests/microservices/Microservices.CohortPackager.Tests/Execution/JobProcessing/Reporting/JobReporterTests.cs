@@ -18,7 +18,6 @@ using System.Text.RegularExpressions;
 
 namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 {
-    // TODO(rkm 2020-11-19) Replace hard-coded JSON reports with Failure objects
     [TestFixture]
     public class JobReporterTests
     {

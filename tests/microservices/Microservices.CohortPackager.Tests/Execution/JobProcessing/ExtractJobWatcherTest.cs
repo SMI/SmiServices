@@ -105,10 +105,12 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
                 GetRandomExtractJobInfo(),
                 GetRandomExtractJobInfo(),
             };
-            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(jobs);
-            mockJobStore.Setup(x => x.GetReadyJobs(default)).Returns(new List<ExtractJobInfo>());
-            var mockNotifier = new Mock<IJobCompleteNotifier>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetReadyJobs(default)).Returns(jobs);
+            mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>()));
             var mockReporter = new Mock<IJobReporter>(MockBehavior.Strict);
+            mockReporter.Setup(x => x.CreateReports(It.IsAny<Guid>()));
+            var mockNotifier = new Mock<IJobCompleteNotifier>(MockBehavior.Strict);
+            mockNotifier.Setup(x => x.NotifyJobCompleted(It.IsAny<ExtractJobInfo>()));
             var opts = new CohortPackagerOptions { JobWatcherTimeoutInSeconds = 123 };
             var callbackUsed = false;
             var watcher = new ExtractJobWatcher(
@@ -134,7 +136,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             var jobInfo = GetRandomExtractJobInfo();
             mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { jobInfo });
-            mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new ApplicationException("aah"));
+            mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new ApplicationException());
+            mockJobStore.Setup(x => x.MarkJobFailed(jobInfo.ExtractionJobIdentifier, It.IsAny<ApplicationException>()));
             var mockNotifier = new Mock<IJobCompleteNotifier>(MockBehavior.Strict);
             var mockReporter = new Mock<IJobReporter>(MockBehavior.Strict);
             var opts = new CohortPackagerOptions { JobWatcherTimeoutInSeconds = 123 };
@@ -152,7 +155,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
 
             // Assert
             Assert.False(callbackUsed);
-            mockJobStore.Verify(x => x.MarkJobFailed(jobInfo.ExtractionJobIdentifier, It.IsAny<ApplicationException>()), Times.Once);
+            mockJobStore.VerifyAll();
         }
 
         [Test]

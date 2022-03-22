@@ -60,7 +60,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             PersistMessageToStoreImpl(message, header);
         }
 
-        public List<ExtractJobInfo> GetReadyJobs(Guid jobId = new Guid())
+        public List<ExtractJobInfo> GetReadyJobs(Guid jobId = default)
         {
             Logger.Debug("Getting job info for " + (jobId != Guid.Empty ? jobId.ToString() : "all active jobs"));
             return GetReadyJobsImpl(jobId);
