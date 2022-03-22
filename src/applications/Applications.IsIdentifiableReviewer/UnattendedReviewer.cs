@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using IsIdentifiableReviewer.Out;
 using Microservices.IsIdentifiable.Options;
@@ -25,7 +26,7 @@ namespace IsIdentifiableReviewer
         private readonly ReportReader _reportReader;
         private readonly RowUpdater _updater;
         private readonly IgnoreRuleGenerator _ignorer;
-        private readonly FileInfo _outputFile;
+        private readonly IFileInfo _outputFile;
          
         /// <summary>
         /// The number of <see cref="Failure"/> that were redacted in the database.  Where there are multiple UPDATE statements run per failure, Updates will only be incremented once.
@@ -78,7 +79,8 @@ namespace IsIdentifiableReviewer
             if(string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
                 throw new Exception("An output path must be specified for Failures that could not be resolved");
 
-            _outputFile = new FileInfo(opts.UnattendedOutputPath);
+            // Temp
+            _outputFile = new FileSystem().FileInfo.FromFileName(opts.UnattendedOutputPath);
 
             _ignorer = ignorer;
             _updater = updater;
