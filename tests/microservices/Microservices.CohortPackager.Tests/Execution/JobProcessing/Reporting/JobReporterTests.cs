@@ -76,11 +76,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             string newLine,
             List<string> rejectionsCsvRows,
             List<string> processingErrorsLines,
-            List<string> verificationFailureCsvLines
+            List<string> verificationFailureCsvLines,
+            List<string> missingFilesLines
         )
         {
-            Assert.AreEqual(4, _fileSystem.AllFiles.ToList().Count);
-
             string identExtraction = completedJobInfo.IsIdentifiableExtraction ? "Yes" : "No";
             string filteredExtraction = !completedJobInfo.IsNoFilterExtraction ? "Yes" : "No";
             var expectedLines = new List<string>
@@ -108,13 +107,29 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 Assert.AreEqual(string.Join(newLine, expectedLines), content);
             }
 
-            expectedLines = new List<string>
+            if (completedJobInfo.IsIdentifiableExtraction)
+                VerifyReports_IdentifiableExtraction(completedJobInfo, newLine, missingFilesLines);
+            else
+                VerifyReports_NormalExtraction(completedJobInfo, newLine, rejectionsCsvRows, processingErrorsLines, verificationFailureCsvLines);
+        }
+
+        private void VerifyReports_NormalExtraction(
+            CompletedExtractJobInfo completedJobInfo,
+            string newLine,
+            List<string> rejectionsCsvRows,
+            List<string> processingErrorsLines,
+            List<string> verificationFailureCsvLines
+        )
+        {
+            Assert.AreEqual(4, _fileSystem.AllFiles.ToList().Count);
+
+            var expectedLines = new List<string>
             {
                 $"RequestedUID,Reason,Count",
                 $"",
             };
-            expectedLines.InsertRange(1, rejectionsCsvRows);
-            using var rejectionsCsvStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "blocked_files.csv"));
+            expectedLines.InsertRange(1, rejectionsCsvRows ?? new List<string>());
+            using var rejectionsCsvStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "rejections.csv"));
             using (var streamReader = new StreamReader(rejectionsCsvStream))
             {
                 var content = streamReader.ReadToEnd();
@@ -128,7 +143,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"--- END ---",
                 $"",
             };
-            expectedLines.InsertRange(2, processingErrorsLines);
+            expectedLines.InsertRange(2, processingErrorsLines ?? new List<string>());
             using var processingErrorsMdStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "processing_errors.md"));
             using (var streamReader = new StreamReader(processingErrorsMdStream))
             {
@@ -141,13 +156,35 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
                 $""
             };
-            expectedLines.InsertRange(1, verificationFailureCsvLines);
+            expectedLines.InsertRange(1, verificationFailureCsvLines ?? new List<string>());
             using var verificationErrorsCsvStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "verification_failures.csv"));
             using (var streamReader = new StreamReader(verificationErrorsCsvStream))
             {
                 var content = streamReader.ReadToEnd();
                 // TODO(rkm 2022-03-21) Pass the correct newLine after https://github.com/SMI/IsIdentifiable/issues/44
                 Assert.AreEqual(string.Join(Environment.NewLine, expectedLines), content);
+            }
+        }
+
+        private void VerifyReports_IdentifiableExtraction(
+            CompletedExtractJobInfo completedJobInfo,
+            string newLine,
+            List<string> missingFilesLines
+        )
+        {
+            Assert.AreEqual(2, _fileSystem.AllFiles.ToList().Count);
+
+            var expectedLines = new List<string>
+            {
+                $"MissingFilePath",
+                $"",
+            };
+            expectedLines.InsertRange(1, missingFilesLines ?? new List<string>());
+            using var verificationErrorsCsvStream = _fileSystem.File.OpenRead(_fileSystem.Path.Combine(ExtractRoot, completedJobInfo.ExtractionReportsDir(_fileSystem), "rejections.csv"));
+            using (var streamReader = new StreamReader(verificationErrorsCsvStream))
+            {
+                var content = streamReader.ReadToEnd();
+                Assert.AreEqual(string.Join(newLine, expectedLines), content);
             }
         }
 
@@ -164,10 +201,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             _fileSystem.AddDirectory(_fileSystem.Path.Join(ExtractRoot, completedJobInfo.ExtractionDirectory));
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(completedJobInfo.ExtractionJobIdentifier)).Returns(completedJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(completedJobInfo.ExtractionJobIdentifier)).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(new List<FileVerificationFailureInfo>());
 
             var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, newLine);
 
@@ -178,9 +215,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             VerifyReports(
                 completedJobInfo,
                 newLine,
-                rejectionsCsvRows: new List<string>(),
-                processingErrorsLines: new List<string>(),
-                verificationFailureCsvLines: new List<string>()
+                rejectionsCsvRows: null,
+                processingErrorsLines: null,
+                verificationFailureCsvLines: null,
+                missingFilesLines: null
             );
         }
 
@@ -232,10 +270,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(rejections);
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(anonFailures);
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(completedJobInfo.ExtractionJobIdentifier)).Returns(completedJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(completedJobInfo.ExtractionJobIdentifier)).Returns(rejections);
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(anonFailures);
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(verificationFailures);
 
             var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, newLine);
 
@@ -269,7 +307,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 verificationFailureCsvLines: new List<string>
                 {
                     $"study/series/foo1-an.dcm,1.2.3.4,ScanOptions,FOO,,,",
-                }
+                },
+                missingFilesLines: null
             );
         }
 
@@ -299,10 +338,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(completedJobInfo.ExtractionJobIdentifier)).Returns(completedJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(completedJobInfo.ExtractionJobIdentifier)).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(verificationFailures);
 
             var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, newLine);
 
@@ -313,15 +352,53 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             VerifyReports(
                 completedJobInfo,
                 newLine,
-                rejectionsCsvRows: new List<string>(),
-                processingErrorsLines: new List<string>(),
+                rejectionsCsvRows: null,
+                processingErrorsLines: null,
                 verificationFailureCsvLines: new List<string>
                 {
                     $"study/series/foo1-an.dcm,1.2.3.4,TextValue,\"This is a SR for Mr Foo bar\nClinical history: ...\nNormal appearance of ...\nVerified by: Dr Baz\",,,",
-                }
+                },
+                missingFilesLines: null
             );
         }
 
+        [TestCase(LinuxNewLine)]
+        [TestCase(WindowsNewLine)]
+        public void CreateReport_IdentifiableExtraction(string newLine)
+        {
+            // Arrange
+            CompletedExtractJobInfo completedJobInfo = TestJobInfo(_fileSystem, isIdentifiableExtraction: true);
+            _fileSystem.AddDirectory(_fileSystem.Path.Join(ExtractRoot, completedJobInfo.ExtractionDirectory));
+
+            var missingFiles = new List<string>
+            {
+                "path/to/file1.dcm",
+                "path/to/file2.dcm",
+            };
+
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(completedJobInfo.ExtractionJobIdentifier)).Returns(completedJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(completedJobInfo.ExtractionJobIdentifier)).Returns(missingFiles);
+
+            var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, newLine);
+
+            // Act
+            reporter.CreateReports(completedJobInfo.ExtractionJobIdentifier);
+
+            // Assert
+            VerifyReports(
+                completedJobInfo,
+                newLine,
+                rejectionsCsvRows: null,
+                processingErrorsLines: null,
+                verificationFailureCsvLines: null,
+                missingFilesLines: new List<string>
+                {
+                    "path/to/file1.dcm",
+                    "path/to/file2.dcm",
+                }
+            );
+        }
 
         [Test]
         public void InvalidReport_ThrowsApplicationException()
@@ -336,10 +413,10 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             };
 
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-            mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(completedJobInfo);
-            mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+            mockJobStore.Setup(x => x.GetCompletedJobInfo(completedJobInfo.ExtractionJobIdentifier)).Returns(completedJobInfo);
+            mockJobStore.Setup(x => x.GetCompletedJobRejections(completedJobInfo.ExtractionJobIdentifier)).Returns(new List<ExtractionIdentifierRejectionInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(new List<FileAnonFailureInfo>());
+            mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(completedJobInfo.ExtractionJobIdentifier)).Returns(verificationFailures);
 
             var reporter = new JobReporter(mockJobStore.Object, _fileSystem, ExtractRoot, LinuxNewLine);
 
@@ -368,7 +445,7 @@ CohortPackagerOptions:
         }
 
         [Test]
-        public void ReportNewline_EscapedString_IsDetected()
+        public void ReportNewline_EscapedString_IsRejected()
         {
             const string newLine = @"\n";
             var exc = Assert.Throws<ArgumentException>(() => new JobReporter(new Mock<IExtractJobStore>().Object, new FileSystem(), "unused", newLine));

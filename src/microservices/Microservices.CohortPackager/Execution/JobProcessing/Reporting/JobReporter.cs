@@ -34,6 +34,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         [NotNull] private readonly CsvConfiguration _csvConfiguration;
 
         private const string ERRORS_FILE_NAME = "processing_errors.md";
+        private const string REJECTIONS_FILE_NAME = "rejections.csv";
 
         public JobReporter(
             [NotNull] IExtractJobStore jobStore,
@@ -141,8 +142,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         private void WriteRejectionsCsv(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolute)
         {
-            string blockedFilesPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "blocked_files.csv");
-            using var fileStream = _fileSystem.File.OpenWrite(blockedFilesPath);
+            string rejectionsReportPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, REJECTIONS_FILE_NAME);
+            using var fileStream = _fileSystem.File.OpenWrite(rejectionsReportPath);
 
             IEnumerable<ExtractionIdentifierRejectionInfo> rejects = _jobStore.GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier);
             WriteCsv(fileStream, JobRejectionCsvRecord.FromExtractionIdentifierRejectionInfos(rejects));
@@ -220,19 +221,19 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         private void WriteMissingFileList(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolut)
         {
-            string proecssingErrorsPath = _fileSystem.Path.Combine(jobReportsDirAbsolut, "missing_files.csv");
-            using var fileStream = _fileSystem.File.OpenWrite(proecssingErrorsPath);
+            string rejectionsPath = _fileSystem.Path.Combine(jobReportsDirAbsolut, REJECTIONS_FILE_NAME);
+            using var fileStream = _fileSystem.File.OpenWrite(rejectionsPath);
             using var streamWriter = GetStreamWriter(fileStream);
 
-            var missingFiles = _jobStore.GetCompletedJobMissingFileList(jobInfo.ExtractionJobIdentifier).ToList();
+            var rejections = _jobStore.GetCompletedJobMissingFileList(jobInfo.ExtractionJobIdentifier).ToList();
 
-            if (!missingFiles.Any())
+            if (!rejections.Any())
                 return;
 
             streamWriter.WriteLine("MissingFilePath");
 
             // NOTE(rkm 2022-03-17) We're just writing a single field so no need to create a separate CSV record class
-            foreach (var filePath in missingFiles)
+            foreach (var filePath in rejections)
                 streamWriter.WriteLine(filePath);
         }
 
