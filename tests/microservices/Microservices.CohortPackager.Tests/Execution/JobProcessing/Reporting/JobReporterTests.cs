@@ -162,7 +162,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             {
                 var content = streamReader.ReadToEnd();
                 // TODO(rkm 2022-03-21) Pass the correct newLine after https://github.com/SMI/IsIdentifiable/issues/44
-                Assert.AreEqual(string.Join(Environment.NewLine, expectedLines), content);
+                Assert.AreEqual(string.Join("\r\n", expectedLines), content);
             }
         }
 
