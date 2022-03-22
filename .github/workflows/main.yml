@@ -67,7 +67,7 @@ jobs:
         echo "tessdata_version=$ver" >> $GITHUB_ENV
     - name: cache tessdata
       id: cache-tessdata
-      uses: actions/cache@v2.1.7
+      uses: actions/cache@v3
       with:
         path: ${{ env.tessdata_path }}
         key: 'tessdata|${{ env.tessdata_version }}|v5'
@@ -107,7 +107,7 @@ jobs:
       run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
     - name: cache rdmp-cli
       id: cache-rdmp-cli
-      uses: actions/cache@v2.1.7
+      uses: actions/cache@v3
       with:
         path: ${{ env.rdmp-cli-dir }}
         key: 'rdmp-cli|${{ env.rdmp_cli_ver }}|v1'
