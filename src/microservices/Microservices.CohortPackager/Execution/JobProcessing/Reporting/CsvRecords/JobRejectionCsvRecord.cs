@@ -18,7 +18,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         {
             RequestedUID = string.IsNullOrWhiteSpace(requestedUid) ? throw new ArgumentException($"'{nameof(requestedUid)}' cannot be null or whitespace", nameof(requestedUid)) : requestedUid;
             Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException($"'{nameof(reason)}' cannot be null or whitespace", nameof(reason)) : reason;
-            Count = count;
+            Count = count == 0 ? throw new ArgumentException($"'{nameof(count)}' must be greater than 0", nameof(count)) : count;
         }
 
         public override string ToString() => $"JobRejectionCsvRecord({RequestedUID},{Reason},{Count})";
