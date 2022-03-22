@@ -1,5 +1,4 @@
 using Microservices.CohortPackager.Execution;
-using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using MongoDB.Driver;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
@@ -69,7 +68,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         private static bool HaveFiles(PathFixtures pf) => Directory.Exists(pf.ProjReportsDirAbsolute) && Directory.EnumerateFiles(pf.ProjExtractDirAbsolute).Any();
 
-        private void VerifyReports(GlobalOptions globals, PathFixtures pf, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
+        private void VerifyReports(GlobalOptions globals, PathFixtures pf, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend, bool identifiableExtraction)
         {
             globals.FileSystemOptions.ExtractRoot = pf.ExtractRootAbsolute;
             globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
@@ -103,37 +102,18 @@ namespace Microservices.CohortPackager.Tests.Execution
                 host.Stop("Test end");
             }
 
-            var firstLine = $"# SMI extraction validation report for testProj1/{pf.ExtractName}{globals.CohortPackagerOptions.ReportNewLine}";
+            string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
+            var reportsCount = Directory.GetFiles(extractReportsDirAbsolute).Length;
 
-            // todo
-            Assert.Fail();
-
-            //switch (reportFormat)
-            //{
-            //    case ReportFormat.Combined:
-            //        {
-            //            string[] reportContent = File.ReadAllLines(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
-            //            Assert.AreEqual(firstLine, reportContent[0]);
-            //            break;
-            //        }
-            //    case ReportFormat.Split:
-            //        {
-            //            string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
-            //            Assert.AreEqual(6, Directory.GetFiles(extractReportsDirAbsolute).Length);
-            //            string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
-            //            Assert.AreEqual(firstLine, reportContent[0]);
-            //            break;
-            //        }
-            //    default:
-            //        Assert.Fail($"No case for ReportFormat {reportFormat}");
-            //        break;
-            //}
+            var expected = identifiableExtraction ? 2 : 4;
+            Assert.AreEqual(expected, reportsCount);
         }
 
         #endregion
 
         #region Tests
 
+        [Test]
         public void Integration_HappyPath()
         {
             // Test messages:
@@ -190,10 +170,12 @@ namespace Microservices.CohortPackager.Tests.Execution
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions, testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions, testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage),
-                }
+                },
+                identifiableExtraction: false
             );
         }
 
+        [Test]
         public void Integration_BumpyRoad()
         {
             // Test messages:
@@ -303,7 +285,8 @@ namespace Microservices.CohortPackager.Tests.Execution
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,  testExtractFileStatusMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage2),
-                }
+                },
+                identifiableExtraction: false
             );
         }
 
@@ -378,7 +361,8 @@ namespace Microservices.CohortPackager.Tests.Execution
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions,testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,testExtractFileStatusMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,  testExtractFileStatusMessage2),
-                }
+                },
+                identifiableExtraction: true
             );
         }
 

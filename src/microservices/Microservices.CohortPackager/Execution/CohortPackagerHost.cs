@@ -68,7 +68,7 @@ namespace Microservices.CohortPackager.Execution
 
             reporter ??= new JobReporter(
                 jobStore,
-                fileSystem,
+                fileSystem ?? new FileSystem(),
                 globals.FileSystemOptions.ExtractRoot,
                 Regex.Unescape(globals.CohortPackagerOptions.ReportNewLine)
             );
