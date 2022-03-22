@@ -171,9 +171,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 streamWriter.WriteLine($"-   {error.DicomFilePath} - {error.Status}");
                 streamWriter.WriteLine($"    ```console");
                 foreach (var line in error.StatusMessage.Split(new[] { "\n", "\r\n" }, StringSplitOptions.None))
-                {
                     streamWriter.WriteLine($"    {line}");
-                }
                 streamWriter.WriteLine($"    ```");
                 streamWriter.WriteLine();
             }
@@ -187,7 +185,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             string verificationFailuresReportName = "verification_failures";
             var report = new FailureStoreReport(targetName: null, maxSize: 1_000);
 
-            // Temp
+            // TODO(rkm 2022-03-22) Can we pass this directly?
             var isIdentOptions = new IsIdentifiableFileOptions
             {
                 DestinationCsvFolder = jobReportsDirAbsolute
@@ -210,7 +208,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
                 foreach (Failure failure in fileFailures)
                 {
-                    // NOTE(rkm 2022-03-17) Update the Resource to be the relative path in the output directory
+                    // NOTE(rkm 2022-03-17) Updates the Resource to be the relative path in the output directory
                     failure.Resource = fileVerificationFailureInfo.AnonFilePath;
 
                     report.Add(failure);

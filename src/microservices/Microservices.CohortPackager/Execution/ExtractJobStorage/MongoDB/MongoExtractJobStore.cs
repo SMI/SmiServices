@@ -108,14 +108,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 .InsertOne(newStatus);
         }
 
-        protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = default)
+        protected override List<ExtractJobInfo> GetReadyJobsImpl(Guid specificJobId = default(Guid))
         {
             //TODO Docs
 
             FilterDefinition<MongoExtractJobDoc> filter = FilterDefinition<MongoExtractJobDoc>.Empty;
 
             // If we have been passed a specific GUID, search for that job only
-            if (specificJobId != default)
+            if (specificJobId != default(Guid))
                 filter &= Builders<MongoExtractJobDoc>.Filter.Eq(x => x.ExtractionJobIdentifier, specificJobId);
 
             // NOTE(rkm 2020-03-03) Get all extract jobs that are not in the Failed state

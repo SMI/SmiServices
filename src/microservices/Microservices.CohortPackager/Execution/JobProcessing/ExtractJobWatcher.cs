@@ -70,7 +70,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             }
         }
 
-        public void ProcessJobs(Guid specificJob = default)
+        public void ProcessJobs(Guid specificJob = default(Guid))
         {
             _processTimer.Stop();
 

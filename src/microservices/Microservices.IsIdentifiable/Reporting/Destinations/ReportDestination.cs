@@ -3,6 +3,8 @@ using System.Data;
 using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 
+// TODO(rkm 2022-03-22) Propagate the IFileSystem and other changes to IsIdentifiable
+
 namespace Microservices.IsIdentifiable.Reporting.Destinations
 {
     public abstract class ReportDestination : IReportDestination

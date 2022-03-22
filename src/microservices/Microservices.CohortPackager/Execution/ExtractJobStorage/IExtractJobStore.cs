@@ -44,7 +44,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         /// <param name="extractionJobIdentifier">A specific job to get <see cref="ExtractJobInfo"/> for. Empty returns all jobs in progress</param>
         /// <returns></returns>
-        List<ExtractJobInfo> GetReadyJobs(Guid extractionJobIdentifier = default);
+        List<ExtractJobInfo> GetReadyJobs(Guid extractionJobIdentifier = new Guid());
 
         /// <summary>
         /// Cleanup/archive any data in the database related to an extract job
