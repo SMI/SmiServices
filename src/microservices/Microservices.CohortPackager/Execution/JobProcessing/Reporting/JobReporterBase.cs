@@ -1,9 +1,9 @@
 using CsvHelper;
 using CsvHelper.Configuration;
+using IsIdentifiable.Reporting;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
-using Microservices.IsIdentifiable.Reporting;
 using Newtonsoft.Json;
 using NLog;
 using System;

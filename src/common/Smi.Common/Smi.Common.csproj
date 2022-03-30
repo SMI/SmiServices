@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPublishable>false</IsPublishable>
   </PropertyGroup>
@@ -26,6 +26,7 @@
     <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="3.0.0" />
     <PackageReference Include="HIC.FAnsiSql" Version="2.0.3" />
+  	<PackageReference Include="IsIdentifiable" Version="0.0.3" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.9" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

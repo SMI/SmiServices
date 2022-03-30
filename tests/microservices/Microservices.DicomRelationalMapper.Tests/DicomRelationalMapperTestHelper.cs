@@ -65,6 +65,15 @@ namespace Microservices.Tests.RDMPTests
                 if (t.Exists())
                     t.Drop();
 
+            // delete any remnants
+            foreach(var p in catalogueRepository.GetAllObjects<Pipeline>())
+            {
+                if(p.Name.Contains("(Image Loading Pipe)"))
+                {
+                    p.DeleteInDatabase();
+                }
+            }
+
             var suite = new ExecuteCommandCreateNewImagingDatasetSuite(repositoryLocator, databaseToCreateInto, new DirectoryInfo(TestContext.CurrentContext.TestDirectory));
 
             suite.Template = template ?? GetDefaultTemplate(databaseToCreateInto.Server.DatabaseType);

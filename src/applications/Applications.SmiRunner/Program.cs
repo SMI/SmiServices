@@ -55,7 +55,6 @@ namespace Applications.SmiRunner
                             // Applications
                             TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
-                            IsIdentifiableReviewerVerb _ => Applications.IsIdentifiableReviewer.Program.Main(rest),
                             ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
                             // Microservices
                             CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),

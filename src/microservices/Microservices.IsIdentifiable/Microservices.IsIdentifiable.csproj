@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>IsIdentifiable</AssemblyName>
+    <AssemblyName>Microservices.IsIdentifiable</AssemblyName>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
@@ -30,12 +30,16 @@
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Include="Tesseract" Version="4.1.1" />
+    <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Options\" />
     <Folder Include="x64\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="IsIdentifiable" Version="0.0.3" />
   </ItemGroup>
 </Project>
