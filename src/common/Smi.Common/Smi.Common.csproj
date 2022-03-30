@@ -26,17 +26,17 @@
     <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="3.0.0" />
     <PackageReference Include="HIC.FAnsiSql" Version="2.0.3" />
-	<PackageReference Include="IsIdentifiable" Version="0.0.3" />
-    <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.8" />
+  	<PackageReference Include="IsIdentifiable" Version="0.0.3" />
+    <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.9" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="4.7.14" />
+    <PackageReference Include="NLog" Version="4.7.15" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.2">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.IO.Abstractions" Version="16.1.23" />
+    <PackageReference Include="System.IO.Abstractions" Version="16.1.25" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 </Project>
