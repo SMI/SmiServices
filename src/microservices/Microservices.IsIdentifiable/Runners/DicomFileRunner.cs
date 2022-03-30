@@ -7,7 +7,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
-using Dicom;
+using FellowOakDicom;
 using Dicom.Imaging;
 using DicomTypeTranslation;
 using Microservices.IsIdentifiable.Failures;

@@ -1,5 +1,5 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using FAnsi.Discovery;

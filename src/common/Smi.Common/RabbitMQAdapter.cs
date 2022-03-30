@@ -77,8 +77,7 @@ namespace Smi.Common
 
             if (_threaded)
             {
-                int minWorker, minIOC;
-                ThreadPool.GetMinThreads(out minWorker, out minIOC);
+                ThreadPool.GetMinThreads(out var minWorker, out var minIOC);
                 var workers = Math.Max(50, minWorker);
                 if (ThreadPool.SetMaxThreads(workers, 50))
                     _logger.Info($"Set Rabbit event concurrency to ({workers:n},50)");

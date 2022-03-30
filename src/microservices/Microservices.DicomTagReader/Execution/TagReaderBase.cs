@@ -6,7 +6,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;

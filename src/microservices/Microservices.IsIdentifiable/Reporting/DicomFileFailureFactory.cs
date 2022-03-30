@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using Dicom;
+using FellowOakDicom;
 using Microservices.IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Reporting

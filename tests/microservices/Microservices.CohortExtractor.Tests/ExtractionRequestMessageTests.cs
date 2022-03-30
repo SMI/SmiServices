@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Dicom;
+using FellowOakDicom;
 using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
 

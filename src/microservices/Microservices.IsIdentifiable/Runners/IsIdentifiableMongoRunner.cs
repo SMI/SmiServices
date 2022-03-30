@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.IsIdentifiable.Failures;
 using Microservices.IsIdentifiable.Options;

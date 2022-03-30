@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BadMedicine;
 using BadMedicine.Dicom;
-using Dicom;
+using FellowOakDicom;
 using FAnsi.Discovery;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
@@ -20,6 +20,7 @@ using Smi.Common.Tests;
 using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
+using DicomTag = FellowOakDicom.DicomTag;
 
 namespace Microservices.CohortExtractor.Tests
 {
