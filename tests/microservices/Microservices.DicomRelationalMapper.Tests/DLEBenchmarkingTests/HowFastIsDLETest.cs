@@ -1,5 +1,5 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using Microservices.DicomRelationalMapper.Execution;
@@ -98,22 +98,18 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             
             Assert.AreEqual(numberOfImages, allImages.Count);
 
-            using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
-            {
-                using (var host = new DicomRelationalMapperHost(_globals))
-                {
-                    tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
+            using var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
+            using var host = new DicomRelationalMapperHost(_globals);
+            tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
 
-                    Console.WriteLine("Starting Host");
-                    host.Start();
+            Console.WriteLine("Starting Host");
+            host.Start();
 
-                    Stopwatch sw = Stopwatch.StartNew();
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
+            Stopwatch sw = Stopwatch.StartNew();
+            new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
 
-                    Console.Write("Time For DLE:" + sw.Elapsed.TotalSeconds + "s");
-                    host.Stop("Test finished");
-                }
-            }
+            Console.Write("Time For DLE:" + sw.Elapsed.TotalSeconds + "s");
+            host.Stop("Test finished");
 
             foreach (Pipeline allObject in CatalogueRepository.GetAllObjects<Pipeline>())
                 allObject.DeleteInDatabase();

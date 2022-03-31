@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Dicom;
+using FellowOakDicom;
 using NLog;
 using NUnit.Framework;
 

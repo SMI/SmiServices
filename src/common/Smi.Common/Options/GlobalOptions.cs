@@ -1,5 +1,5 @@
 
-using Dicom;
+using FellowOakDicom;
 using FAnsi.Discovery;
 using JetBrains.Annotations;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
@@ -237,7 +237,7 @@ namespace Smi.Common.Options
             {
                 var opt = (FileReadOption)Enum.Parse(typeof(FileReadOption), FileReadOption);
 
-                if (opt == Dicom.FileReadOption.SkipLargeTags)
+                if (opt == FellowOakDicom.FileReadOption.SkipLargeTags)
                     throw new ApplicationException("SkipLargeTags is disallowed here to ensure data consistency");
 
                 return opt;
@@ -417,7 +417,7 @@ namespace Smi.Common.Options
         /// <summary>
         /// IDs of TableInfos that should be updated
         /// </summary>
-        public int[] TableInfosToUpdate {get;set;} = new int[0];
+        public int[] TableInfosToUpdate {get;set;} = Array.Empty<int>();
 
     }
     

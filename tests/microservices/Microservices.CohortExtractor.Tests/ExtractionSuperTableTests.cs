@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BadMedicine;
 using BadMedicine.Dicom;
-using Dicom;
+using FellowOakDicom;
 using FAnsi.Discovery;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
@@ -136,10 +136,8 @@ namespace Microservices.CohortExtractor.Tests
                 string sql = GetUpdateTopXSql(tbl,10, "Set IsExtractableToDisk=0, IsExtractableToDisk_Reason = 'We decided NO!'");
 
                 //make the top 10 not extractable
-                using (var cmd = tbl.Database.Server.GetCommand(sql,con))
-                {
-                    cmd.ExecuteNonQuery();
-                }
+                using var cmd = tbl.Database.Server.GetCommand(sql,con);
+                cmd.ExecuteNonQuery();
             }
 
             matches = 0;
@@ -244,18 +242,12 @@ namespace Microservices.CohortExtractor.Tests
         /// <returns></returns>
         private string GetUpdateTopXSql(DiscoveredTable tbl, int topXRows, string setSql)
         {
-            switch (tbl.Database.Server.DatabaseType)
+            return tbl.Database.Server.DatabaseType switch
             {
-                case DatabaseType.MicrosoftSQLServer:
-                    return
-                        $"UPDATE TOP ({topXRows}) {tbl.GetFullyQualifiedName()} {setSql}";
-                case DatabaseType.MySql:
-                    return
-                        $"UPDATE {tbl.GetFullyQualifiedName()} {setSql} LIMIT {topXRows}";
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            
+                DatabaseType.MicrosoftSQLServer => $"UPDATE TOP ({topXRows}) {tbl.GetFullyQualifiedName()} {setSql}",
+                DatabaseType.MySql => $"UPDATE {tbl.GetFullyQualifiedName()} {setSql} LIMIT {topXRows}",
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 

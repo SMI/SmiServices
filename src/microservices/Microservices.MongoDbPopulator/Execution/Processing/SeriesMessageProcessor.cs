@@ -1,5 +1,5 @@
 
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using MongoDB.Bson;
 using Smi.Common.Messages;

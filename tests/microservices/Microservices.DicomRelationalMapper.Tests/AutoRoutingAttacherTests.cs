@@ -1,5 +1,5 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.DicomRelationalMapper.Execution;
 using NUnit.Framework;

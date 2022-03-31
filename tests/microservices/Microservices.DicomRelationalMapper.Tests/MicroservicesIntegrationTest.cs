@@ -8,7 +8,7 @@ using Applications.DicomDirectoryProcessor.Execution;
 using Applications.DicomDirectoryProcessor.Options;
 using BadMedicine;
 using BadMedicine.Dicom;
-using Dicom;
+using FellowOakDicom;
 using FAnsi.Discovery;
 using MapsDirectlyToDatabaseTable;
 using Microservices.CohortExtractor.Execution;
@@ -414,11 +414,9 @@ namespace Microservices.DicomRelationalMapper.Tests
             var r = new Random(500);
 
             //create a generator 
-            using (var generator = new DicomDataGenerator(r, dir, "CT"))
-            {
-                generator.GenerateImageFiles(40,r);
-                RunTest(dir, 40);
-            }
+            using var generator = new DicomDataGenerator(r, dir, "CT");
+            generator.GenerateImageFiles(40,r);
+            RunTest(dir, 40);
         }
         private void RunTest(DirectoryInfo dir, int numberOfExpectedRows)
         {
@@ -460,135 +458,132 @@ namespace Microservices.DicomRelationalMapper.Tests
             if (_globals.DicomRelationalMapperOptions.MinimumBatchSize < 1)
                 _globals.DicomRelationalMapperOptions.MinimumBatchSize = 1;
 
-            using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.CohortExtractorOptions))
+            using var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.CohortExtractorOptions);
+            tester.CreateExchange(_globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions.ExchangeName, _globals.DicomTagReaderOptions.QueueName);
+            tester.CreateExchange(_globals.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions.QueueName);
+            tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.IdentifierMapperOptions.QueueName);
+            tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions.QueueName, true);
+            tester.CreateExchange(_globals.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, _globals.DicomRelationalMapperOptions.QueueName);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, readFromFatalErrors.QueueName);
+
+            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, false, _globals.CohortExtractorOptions.ExtractIdentRoutingKey);
+            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, true, _globals.CohortExtractorOptions.ExtractAnonRoutingKey);
+            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions.ExchangeName, null);
+
+            #region Running Microservices
+
+            var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions);
+            processDirectory.Start();
+            tester.StopOnDispose.Add(processDirectory);
+
+            var dicomTagReaderHost = new DicomTagReaderHost(_globals);
+            dicomTagReaderHost.Start();
+            tester.StopOnDispose.Add(dicomTagReaderHost);
+
+            var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals);
+            mongoDbPopulatorHost.Start();
+            tester.StopOnDispose.Add(mongoDbPopulatorHost);
+
+            var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"));
+            identifierMapperHost.Start();
+            tester.StopOnDispose.Add(identifierMapperHost);
+
+            new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
+            logger.Info("\n### DicomTagReader has processed its messages ###\n");
+
+            // FIXME: This isn't exactly how the pipeline runs
+            new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
+            logger.Info("\n### IdentifierMapper has processed its messages ###\n");
+
+            using (var relationalMapperHost = new DicomRelationalMapperHost(_globals))
             {
-                tester.CreateExchange(_globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions.ExchangeName, _globals.DicomTagReaderOptions.QueueName);
-                tester.CreateExchange(_globals.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions.QueueName);
-                tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.IdentifierMapperOptions.QueueName);
-                tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions.QueueName, true);
-                tester.CreateExchange(_globals.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, _globals.DicomRelationalMapperOptions.QueueName);
-                tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, readFromFatalErrors.QueueName);
+                var start = DateTime.Now;
 
-                tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, false, _globals.CohortExtractorOptions.ExtractIdentRoutingKey);
-                tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, true, _globals.CohortExtractorOptions.ExtractAnonRoutingKey);
-                tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions.ExchangeName, null);
+                relationalMapperHost.Start();
+                tester.StopOnDispose.Add(relationalMapperHost);
 
-                #region Running Microservices
+                Assert.True(mongoDbPopulatorHost.Consumers.Count == 2);
+                new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[0].Processor.AckCount >= 1);
+                new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
+                logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
 
-                var processDirectory = new DicomDirectoryProcessorHost(_globals, processDirectoryOptions);
-                processDirectory.Start();
-                tester.StopOnDispose.Add(processDirectory);
-
-                var dicomTagReaderHost = new DicomTagReaderHost(_globals);
-                dicomTagReaderHost.Start();
-                tester.StopOnDispose.Add(dicomTagReaderHost);
-
-                var mongoDbPopulatorHost = new MongoDbPopulatorHost(_globals);
-                mongoDbPopulatorHost.Start();
-                tester.StopOnDispose.Add(mongoDbPopulatorHost);
-
-                var identifierMapperHost = new IdentifierMapperHost(_globals, new SwapForFixedValueTester("FISHFISH"));
-                identifierMapperHost.Start();
-                tester.StopOnDispose.Add(identifierMapperHost);
-
-                new TestTimelineAwaiter().Await(() => dicomTagReaderHost.AccessionDirectoryMessageConsumer.AckCount >= 1);
-                logger.Info("\n### DicomTagReader has processed its messages ###\n");
-
-                // FIXME: This isn't exactly how the pipeline runs
-                new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);
+                new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
                 logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
-                using (var relationalMapperHost = new DicomRelationalMapperHost(_globals))
-                {
-                    var start = DateTime.Now;
-
-                    relationalMapperHost.Start();
-                    tester.StopOnDispose.Add(relationalMapperHost);
-
-                    Assert.True(mongoDbPopulatorHost.Consumers.Count == 2);
-                    new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[0].Processor.AckCount >= 1);
-                    new TestTimelineAwaiter().Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
-                    logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
-
-                    new TestTimelineAwaiter().Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
-                    logger.Info("\n### IdentifierMapper has processed its messages ###\n");
-
-                    Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
-                    Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
-                    Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount);
-                    Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount);
+                Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
+                Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
+                Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount);
+                Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount);
 
                     
-                    try
-                    {
-                        Thread.Sleep(TimeSpan.FromSeconds(10));
-                        new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
-                        logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
-                    }
-                    finally
-                    {
-                        //find out what happens from the logging database
-                        var rdmpLogging = new Rdmp.Core.Logging.LogManager(_helper.LoadMetadata.GetDistinctLoggingDatabase());
+                try
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    new TestTimelineAwaiter().Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
+                    logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
+                }
+                finally
+                {
+                    //find out what happens from the logging database
+                    var rdmpLogging = new Rdmp.Core.Logging.LogManager(_helper.LoadMetadata.GetDistinctLoggingDatabase());
                         
-                        //if error was reported during the dicom relational mapper run
-                        foreach (var dli in rdmpLogging.GetArchivalDataLoadInfos(_helper.LoadMetadata.GetDistinctLoggingTask(), null, null))
-                            if(dli.StartTime > start)
-                                foreach (ArchivalFatalError e in dli.Errors)
-                                    logger.Error(e.Date.TimeOfDay + ":" + e.Source + ":" + e.Description);
-                    }
+                    //if error was reported during the dicom relational mapper run
+                    foreach (var dli in rdmpLogging.GetArchivalDataLoadInfos(_helper.LoadMetadata.GetDistinctLoggingTask(), null, null))
+                        if(dli.StartTime > start)
+                            foreach (ArchivalFatalError e in dli.Errors)
+                                logger.Error(e.Date.TimeOfDay + ":" + e.Source + ":" + e.Description);
+                }
                     
-                    Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
-                    Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
-                    Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
-                    Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), _helper.SeriesTable.GetRowCount(), "There should be less studies than series (or equal)");
+                Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
+                Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
+                Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
+                Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), _helper.SeriesTable.GetRowCount(), "There should be less studies than series (or equal)");
 
-                    //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
-                    Assert.AreEqual("FISHFISH", _helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"]);
+                //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
+                Assert.AreEqual("FISHFISH", _helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"]);
 
-                    //The file size in the final table should be more than 0
-                    Assert.Greater((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"],0);
+                //The file size in the final table should be more than 0
+                Assert.Greater((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"],0);
 
-                    dicomTagReaderHost.Stop("TestIsFinished");
+                dicomTagReaderHost.Stop("TestIsFinished");
 
-                    mongoDbPopulatorHost.Stop("TestIsFinished");
-                    DropMongoTestDb(_globals.MongoDatabases.DicomStoreOptions.HostName, _globals.MongoDatabases.DicomStoreOptions.Port);
+                mongoDbPopulatorHost.Stop("TestIsFinished");
+                DropMongoTestDb(_globals.MongoDatabases.DicomStoreOptions.HostName, _globals.MongoDatabases.DicomStoreOptions.Port);
 
-                    identifierMapperHost.Stop("TestIsFinished");
+                identifierMapperHost.Stop("TestIsFinished");
 
-                    relationalMapperHost.Stop("Test end");
-                }
-
-                //Now do extraction
-                var extractorHost = new CohortExtractorHost(_globals, null, null);
-
-                extractorHost.Start();
-
-                var extract = new ExtractionRequestMessage
-                {
-                    ExtractionJobIdentifier = Guid.NewGuid(),
-                    ProjectNumber = "1234-5678",
-                    ExtractionDirectory = "1234-5678_P1",
-                    KeyTag = "SeriesInstanceUID",
-                };
-
-                foreach (DataRow row in _helper.ImageTable.GetDataTable().Rows)
-                {
-                    var seriesId = (string)row["SeriesInstanceUID"];
-
-                    if (!extract.ExtractionIdentifiers.Contains(seriesId))
-                        extract.ExtractionIdentifiers.Add(seriesId);
-                }
-
-                tester.SendMessage(_globals.CohortExtractorOptions, extract);
-
-                //wait till extractor picked up the messages and dispatched the responses
-                new TestTimelineAwaiter().Await(() => extractorHost.Consumer.AckCount == 1);
-
-                extractorHost.Stop("TestIsFinished");
-
-                tester.Shutdown();
+                relationalMapperHost.Stop("Test end");
             }
 
+            //Now do extraction
+            var extractorHost = new CohortExtractorHost(_globals, null, null);
+
+            extractorHost.Start();
+
+            var extract = new ExtractionRequestMessage
+            {
+                ExtractionJobIdentifier = Guid.NewGuid(),
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = "1234-5678_P1",
+                KeyTag = "SeriesInstanceUID",
+            };
+
+            foreach (DataRow row in _helper.ImageTable.GetDataTable().Rows)
+            {
+                var seriesId = (string)row["SeriesInstanceUID"];
+
+                if (!extract.ExtractionIdentifiers.Contains(seriesId))
+                    extract.ExtractionIdentifiers.Add(seriesId);
+            }
+
+            tester.SendMessage(_globals.CohortExtractorOptions, extract);
+
+            //wait till extractor picked up the messages and dispatched the responses
+            new TestTimelineAwaiter().Await(() => extractorHost.Consumer.AckCount == 1);
+
+            extractorHost.Stop("TestIsFinished");
+
+            tester.Shutdown();
 
             #endregion
         }

@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Dicom;
+using FellowOakDicom;
 using Microservices.DicomRelationalMapper.Messaging;
 using System.Collections.Generic;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;

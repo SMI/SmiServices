@@ -1,4 +1,4 @@
-﻿using Dicom;
+﻿using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -121,9 +121,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             _stopTokenSource.Cancel();
             _dleTask.Wait();
 
-            var createAndDestroyStaging = DatabaseNamer as ICreateAndDestroyStagingDuringLoads;
-
-            if (createAndDestroyStaging != null)
+            if (DatabaseNamer is ICreateAndDestroyStagingDuringLoads createAndDestroyStaging)
                 createAndDestroyStaging.DestroyStagingIfExists();
         }
 
@@ -247,7 +245,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         }
                     }
 
-                    firstException = firstException ?? e;
+                    firstException ??= e;
                 }
             }
             while (remainingRetries-- > 0 && (exitCode == ExitCodeType.Error || exitCode == ExitCodeType.Abort));
