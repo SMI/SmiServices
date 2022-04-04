@@ -91,10 +91,10 @@ namespace Smi.Common.Messaging
 
             try
             {
-                if (deliverArgs.BasicProperties.ContentEncoding != null)
+                if (deliverArgs.BasicProperties?.ContentEncoding != null)
                     enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
-                header = new MessageHeader(deliverArgs.BasicProperties.Headers, enc);
+                header = new MessageHeader(deliverArgs.BasicProperties?.Headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
             }
             catch (Exception e)
@@ -113,6 +113,18 @@ namespace Smi.Common.Messaging
                 if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage message))
                     return;
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
+            }
+            catch (Exception e)
+            {
+                Fatal("ProcessMessageImpl threw unhandled exception", e);
+            }
+        }
+
+        public void TestMessage(TMessage msg)
+        {
+            try
+            {
+                ProcessMessageImpl(null, msg, 1);
             }
             catch (Exception e)
             {

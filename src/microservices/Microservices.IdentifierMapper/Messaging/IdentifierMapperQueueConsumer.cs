@@ -1,7 +1,6 @@
 using Dicom;
 using DicomTypeTranslation;
 using Microservices.IdentifierMapper.Execution.Swappers;
-using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using System;

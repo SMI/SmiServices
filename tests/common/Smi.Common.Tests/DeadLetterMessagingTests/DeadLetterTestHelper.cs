@@ -1,6 +1,4 @@
-﻿
-using NUnit.Framework;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;

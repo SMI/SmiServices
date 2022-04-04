@@ -4,7 +4,6 @@ using System.IO.Abstractions;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
-using Smi.Common.Options;
 
 namespace Microservices.IsIdentifiable.Service
 {

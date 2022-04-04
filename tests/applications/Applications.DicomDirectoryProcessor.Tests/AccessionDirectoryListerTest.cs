@@ -5,7 +5,6 @@ using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Tests;
-using System.Collections.Generic;
 using System;
 using System.Text;
 using System.IO;

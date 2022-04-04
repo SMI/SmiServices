@@ -11,11 +11,6 @@ using Rdmp.Core.Startup.Events;
 using ReusableLibraryCode;
 using ReusableLibraryCode.Checks;
 using System;
-using FAnsi.Implementation;
-using FAnsi.Implementations.MicrosoftSQL;
-using FAnsi.Implementations.MySql;
-using FAnsi.Implementations.Oracle;
-using FAnsi.Implementations.PostgreSql;
 using Smi.Common;
 
 

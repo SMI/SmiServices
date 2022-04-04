@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-using FAnsi.Discovery;
+﻿using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;
 

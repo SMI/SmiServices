@@ -6,7 +6,6 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using JetBrains.Annotations;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using NLog;

@@ -28,10 +28,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.CohortPackage
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.CohortPackager.Tests", "tests\microservices\Microservices.CohortPackager.Tests\Microservices.CohortPackager.Tests.csproj", "{91A72275-D866-4CA2-885C-07BE94751001}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DeadLetterReprocessor", "src\microservices\Microservices.DeadLetterReprocessor\Microservices.DeadLetterReprocessor.csproj", "{A4CAAE37-A5A3-4FB1-A935-1046772BB1C4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DeadLetterReprocessor.Tests", "tests\microservices\Microservices.DeadLetterReprocessor.Tests\Microservices.DeadLetterReprocessor.Tests.csproj", "{78BFB9FE-58B0-42D5-8849-B2B54F838FCE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomRelationalMapper", "src\microservices\Microservices.DicomRelationalMapper\Microservices.DicomRelationalMapper.csproj", "{56291CC5-6032-48BE-9AB6-1D42504DB55D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservices.DicomRelationalMapper.Tests", "tests\microservices\Microservices.DicomRelationalMapper.Tests\Microservices.DicomRelationalMapper.Tests.csproj", "{137CE1D0-29DF-4155-887F-CD1B313AC984}"
@@ -151,14 +147,6 @@ Global
 		{91A72275-D866-4CA2-885C-07BE94751001}.Debug|x64.Build.0 = Debug|x64
 		{91A72275-D866-4CA2-885C-07BE94751001}.Release|x64.ActiveCfg = Release|x64
 		{91A72275-D866-4CA2-885C-07BE94751001}.Release|x64.Build.0 = Release|x64
-		{A4CAAE37-A5A3-4FB1-A935-1046772BB1C4}.Debug|x64.ActiveCfg = Debug|x64
-		{A4CAAE37-A5A3-4FB1-A935-1046772BB1C4}.Debug|x64.Build.0 = Debug|x64
-		{A4CAAE37-A5A3-4FB1-A935-1046772BB1C4}.Release|x64.ActiveCfg = Release|x64
-		{A4CAAE37-A5A3-4FB1-A935-1046772BB1C4}.Release|x64.Build.0 = Release|x64
-		{78BFB9FE-58B0-42D5-8849-B2B54F838FCE}.Debug|x64.ActiveCfg = Debug|x64
-		{78BFB9FE-58B0-42D5-8849-B2B54F838FCE}.Debug|x64.Build.0 = Debug|x64
-		{78BFB9FE-58B0-42D5-8849-B2B54F838FCE}.Release|x64.ActiveCfg = Release|x64
-		{78BFB9FE-58B0-42D5-8849-B2B54F838FCE}.Release|x64.Build.0 = Release|x64
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D}.Debug|x64.ActiveCfg = Debug|x64
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D}.Debug|x64.Build.0 = Debug|x64
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D}.Release|x64.ActiveCfg = Release|x64
@@ -270,8 +258,6 @@ Global
 		{760B7451-6102-4742-9D01-CFBD82D13ACD} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{FFD64402-3045-4114-A5CB-A6D3C8B19EEB} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{91A72275-D866-4CA2-885C-07BE94751001} = {421CCD37-3817-4748-B184-A134E19DD75C}
-		{A4CAAE37-A5A3-4FB1-A935-1046772BB1C4} = {421CCD37-3817-4748-B184-A134E19DD75C}
-		{78BFB9FE-58B0-42D5-8849-B2B54F838FCE} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{56291CC5-6032-48BE-9AB6-1D42504DB55D} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{137CE1D0-29DF-4155-887F-CD1B313AC984} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{D125A79D-FCD6-4ED1-9B02-3BD675A9B4C4} = {421CCD37-3817-4748-B184-A134E19DD75C}

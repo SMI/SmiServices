@@ -16,11 +16,8 @@ using Smi.Common.Options;
 using System;
 using System.IO;
 using System.Linq;
-using Rdmp.Core.Curation;
 using Rdmp.Dicom.TagPromotionSchema;
 using ReusableLibraryCode.Checks;
-using ReusableLibraryCode.DataAccess;
-using TypeGuesser;
 
 namespace Microservices.Tests.RDMPTests
 {

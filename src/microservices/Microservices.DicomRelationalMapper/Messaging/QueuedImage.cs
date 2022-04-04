@@ -1,7 +1,6 @@
 ﻿
 using Dicom;
 using Smi.Common.Messages;
-using RabbitMQ.Client.Events;
 
 namespace Microservices.DicomRelationalMapper.Messaging
 {
