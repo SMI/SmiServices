@@ -115,14 +115,10 @@ namespace Smi.Common
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
-            // Client label is the same for the IConnection and Subscription since we have a separate connection per consumer
-            var label = $"{_hostId}::Consumer::{consumerOptions.QueueName}";
-            
             var model = _connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
             // Check queue exists
-
             try
             {
                 // Passively declare the queue (equivalent to checking the queue exists)
@@ -140,13 +136,14 @@ namespace Smi.Common
                 throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
+            consumer.SetModel(model);
             EventingBasicConsumer ebc = new(model);
             ebc.Received += (o, a) =>
             {
                 consumer.ProcessMessage(a);
             };
 
-            var resources = new ConsumerResources(ebc, consumerOptions.QueueName);
+            var resources = new ConsumerResources(ebc, consumerOptions.QueueName, model);
             Guid taskId = Guid.NewGuid();
 
             lock (_oResourceLock)
@@ -377,15 +374,19 @@ namespace Smi.Common
 
             public void Shutdown()
             {
-                ebc.Model.BasicCancel(ebc.ConsumerTags[0]);
+                foreach (var tag in ebc.ConsumerTags)
+                {
+                    ebc.Model.BasicCancel(tag);
+                }
                 Dispose();
                 Logger.Debug($"Consumer task shutdown [QueueName={this.QueueName}]");
             }
 
-            internal ConsumerResources(EventingBasicConsumer ebc,string q)
+            internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model)
             {
                 this.ebc = ebc;
                 this.QueueName = q;
+                this.Model = model;
             }
         }
 

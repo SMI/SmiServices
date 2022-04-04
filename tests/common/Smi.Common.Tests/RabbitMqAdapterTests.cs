@@ -151,13 +151,11 @@ namespace Smi.Common.Tests
                 Password = _testOptions.RabbitOptions.RabbitMqPassword
             };
 
-            using (IConnection connection = testFactory.CreateConnection())
-            {
-                // These are all the server properties we can check using the connection
-                PrintObjectDictionary(connection.ServerProperties);
+            using IConnection connection = testFactory.CreateConnection();
+            // These are all the server properties we can check using the connection
+            PrintObjectDictionary(connection.ServerProperties);
 
-                Assert.True(connection.ServerProperties.ContainsKey("version"));
-            }
+            Assert.True(connection.ServerProperties.ContainsKey("version"));
         }
 
         [Test]
@@ -227,28 +225,26 @@ namespace Smi.Common.Tests
             var consumer = (IConsumer)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
-            using (var tester = new MicroserviceTester(o.RabbitOptions, new []{_testConsumerOptions}))
-            {
-                _testAdapter.StartConsumer(_testConsumerOptions, consumer, true);
-                
-                //send a message to trigger consumer behaviour
-                tester.SendMessage(_testConsumerOptions,new TestMessage());
+            using var tester = new MicroserviceTester(o.RabbitOptions, new[] { _testConsumerOptions });
+            _testAdapter.StartConsumer(_testConsumerOptions, consumer, true);
 
-                //give the message time to get picked up
-                Thread.Sleep(3000);
-                
-                //now attempt to shut down adapter
-                _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            //send a message to trigger consumer behaviour
+            tester.SendMessage(_testConsumerOptions, new TestMessage());
 
-                string expectedErrorMessage = "nothing to see here";
+            //give the message time to get picked up
+            Thread.Sleep(3000);
 
-                if (consumer is SelfClosingConsumer)
-                    expectedErrorMessage = "exiting (channel is closed)";
-                if (consumer is DoNothingConsumer)
-                    expectedErrorMessage = "exiting (cancellation was requested)";
+            //now attempt to shut down adapter
+            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
-                Assert.IsTrue(target.Logs.Any(s=>s.Contains(expectedErrorMessage)),"Expected message was not found, messages were:" + string.Join(Environment.NewLine,target.Logs));
-            }
+            string expectedErrorMessage = "nothing to see here";
+
+            if (consumer is SelfClosingConsumer)
+                expectedErrorMessage = "exiting (channel is closed)";
+            if (consumer is DoNothingConsumer)
+                expectedErrorMessage = "exiting (cancellation was requested)";
+
+            Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), "Expected message was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
         [Test]
