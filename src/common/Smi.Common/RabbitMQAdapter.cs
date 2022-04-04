@@ -142,6 +142,17 @@ namespace Smi.Common
             {
                 consumer.ProcessMessage(a);
             };
+            EventHandler<ShutdownEventArgs> shutdown = (o, a) =>
+            {
+                var reason = "cancellation was requested";
+                if (ShutdownCalled)
+                    reason = "shutdown was called";
+                if (ebc.Model.IsClosed)
+                    reason = "channel is closed";
+                _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
+            };
+            model.ModelShutdown += shutdown;
+            ebc.Shutdown += shutdown;
 
             var resources = new ConsumerResources(ebc, consumerOptions.QueueName, model);
             Guid taskId = Guid.NewGuid();
@@ -153,11 +164,11 @@ namespace Smi.Common
 
             consumer.OnFatal += (s, e) =>
             {
-                resources.Shutdown();
+                resources.Dispose();
                 _hostFatalHandler(s, e);
             };
 
-            var tag=model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
+            model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
             _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
             return taskId;
         }
@@ -176,9 +187,7 @@ namespace Smi.Common
             {
                 if (!_rabbitResources.ContainsKey(taskId))
                     throw new ApplicationException("Guid was not found in the task register");
-
-                var res = (ConsumerResources)_rabbitResources[taskId];
-                res.Shutdown();
+                _rabbitResources[taskId].Dispose();
                 _rabbitResources.Remove(taskId);
             }
         }
@@ -231,12 +240,7 @@ namespace Smi.Common
                 throw;
             }
 
-            var resources = new ProducerResources
-            {
-                Model = model,
-                ProducerModel = producerModel,
-            };
-
+            var resources = new ProducerResources(model, producerModel);
             lock (_oResourceLock)
             {
                 _rabbitResources.Add(Guid.NewGuid(), resources);
@@ -267,10 +271,7 @@ namespace Smi.Common
 
             lock (_oResourceLock)
             {
-                _rabbitResources.Add(Guid.NewGuid(), new RabbitResources
-                {
-                    Model = model
-                });
+                _rabbitResources.Add(Guid.NewGuid(), new RabbitResources(model));
             }
 
             return model;
@@ -284,29 +285,17 @@ namespace Smi.Common
         {
             if (ShutdownCalled)
                 return;
+            if (timeout.Equals(TimeSpan.Zero))
+                throw new ApplicationException($"Invalid {nameof(timeout)} value");
 
             ShutdownCalled = true;
-
-            var exitOk = true;
-            var failedToExit = new List<string>();
 
             lock (_oResourceLock)
             {
                 foreach (var res in _rabbitResources.Values)
                 {
-                    if (res is ConsumerResources asConsumerRes)
-                    {
-                        asConsumerRes.Shutdown();
-                    }
-                    else
-                    {
-                        res.Dispose();
-                    }
+                    res.Dispose();
                 }
-
-                if (!exitOk)
-                    throw new ApplicationException($"Some consumer tasks did not exit in time: {string.Join(", ", failedToExit)}");
-
                 _rabbitResources.Clear();
             }
         }
@@ -340,31 +329,33 @@ namespace Smi.Common
 
         private class RabbitResources : IDisposable
         {
-            public IModel Model { get; set; }
+            public IModel Model { get; }
 
             protected readonly object OResourceLock = new object();
 
             protected readonly ILogger Logger;
 
-            public RabbitResources()
+            public RabbitResources(IModel model)
             {
                 Logger = LogManager.GetLogger(GetType().Name);
+                Model = model;
             }
 
-
-            public void Dispose()
+            public virtual void Dispose()
             {
-                lock (OResourceLock)
-                {
-                    if (Model.IsOpen)
-                        Model.Close(200, "Disposed");
-                }
+                if (Model.IsOpen)
+                    Model.Close();
             }
         }
 
         private class ProducerResources : RabbitResources
         {
             public IProducerModel ProducerModel { get; set; }
+
+            public ProducerResources(IModel model, IProducerModel ipm) : base(model)
+            {
+                ProducerModel = ipm;
+            }
         }
 
         private class ConsumerResources : RabbitResources
@@ -372,27 +363,26 @@ namespace Smi.Common
             internal readonly EventingBasicConsumer ebc;
             internal readonly string QueueName;
 
-            public void Shutdown()
+            public override void Dispose()
             {
                 foreach (var tag in ebc.ConsumerTags)
                 {
-                    ebc.Model.BasicCancel(tag);
+                    Model.BasicCancel(tag);
                 }
-                Dispose();
-                Logger.Debug($"Consumer task shutdown [QueueName={this.QueueName}]");
+                if (!Model.IsOpen)
+                    return;
+                Model.Close();
+                Model.Dispose();
             }
 
-            internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model)
+            internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model) : base(model)
             {
                 this.ebc = ebc;
                 this.QueueName = q;
-                this.Model = model;
             }
         }
 
         #endregion
     }
-
-#pragma warning restore CS0618 // Obsolete
 
 }
