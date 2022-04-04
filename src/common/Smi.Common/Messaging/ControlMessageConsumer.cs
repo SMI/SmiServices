@@ -202,7 +202,7 @@ namespace Smi.Common.Messaging
 
         private static string GetBodyFromArgs(BasicDeliverEventArgs e)
         {
-            if (e.Body == null || e.Body.Length == 0)
+            if (e.Body.Length == 0)
                 return null;
 
             Encoding enc = null;
@@ -222,7 +222,7 @@ namespace Smi.Common.Messaging
             if (enc == null)
                 enc = Encoding.UTF8;
 
-            return enc.GetString(e.Body);
+            return enc.GetString(e.Body.Span);
         }
     }
 }

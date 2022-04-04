@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
-using RabbitMQ.Client.MessagePatterns;
 using Smi.Common.Events;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -379,7 +377,7 @@ namespace Smi.Common
 
             public void Shutdown()
             {
-                ebc.Model.BasicCancel(ebc.ConsumerTag);
+                ebc.Model.BasicCancel(ebc.ConsumerTags[0]);
                 Dispose();
                 Logger.Debug($"Consumer task shutdown [QueueName={this.QueueName}]");
             }
