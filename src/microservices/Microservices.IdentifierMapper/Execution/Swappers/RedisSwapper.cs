@@ -76,7 +76,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                             }
 
                             //and cache the result (even if it is null - no lookup match found)
-                            db.StringSet(toSwap, result ?? NullString, null, When.NotExists);
+                            db.StringSet(toSwap, result ?? NullString);
                         }
 
                         _cache.Set(toSwap, result ?? NullString, new MemoryCacheEntryOptions() {
