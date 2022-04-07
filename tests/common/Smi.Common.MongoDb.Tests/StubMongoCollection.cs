@@ -78,9 +78,13 @@ namespace Smi.Common.MongoDB.Tests
         public virtual void InsertMany(IClientSessionHandle session, IEnumerable<TVal> documents, InsertManyOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task InsertManyAsync(IEnumerable<TVal> documents, InsertManyOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task InsertManyAsync(IClientSessionHandle session, IEnumerable<TVal> documents, InsertManyOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        [Obsolete]
         public virtual IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TVal, TResult> options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        [Obsolete]
         public virtual IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TVal, TResult> options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        [Obsolete]
         public virtual Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TVal, TResult> options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        [Obsolete]
         public virtual Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TVal, TResult> options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>() where TDerivedDocument : TVal => throw new NotImplementedException();
         public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TVal> filter, TVal replacement, ReplaceOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

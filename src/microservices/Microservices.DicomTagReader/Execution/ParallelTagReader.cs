@@ -36,7 +36,7 @@ namespace Microservices.DicomTagReader.Execution
 
             Parallel.ForEach(dicomFilePaths, _parallelOptions, dicomFilePath =>
             {
-                Logger.Trace("TagReader: Processing " + dicomFilePath);
+                Logger.Trace($"TagReader: Processing {dicomFilePath}");
 
                 DicomFileMessage fileMessage;
 
@@ -48,12 +48,11 @@ namespace Microservices.DicomTagReader.Execution
                 {
                     if (NackIfAnyFileErrors)
                         throw new ApplicationException(
-                            "Exception processing file and NackIfAnyFileErrors option set. File was: " + dicomFilePath,
+                            $"Exception processing file and NackIfAnyFileErrors option set. File was: {dicomFilePath}",
                             e);
 
                     Logger.Error(e,
-                        "Error processing file " + dicomFilePath +
-                        ". Ignoring and moving on since NackIfAnyFileErrors is false");
+                        $"Error processing file {dicomFilePath}. Ignoring and moving on since NackIfAnyFileErrors is false");
 
                     return;
                 }

@@ -8,7 +8,7 @@ using Applications.DicomDirectoryProcessor.Execution;
 using Applications.DicomDirectoryProcessor.Options;
 using BadMedicine;
 using BadMedicine.Dicom;
-using Dicom;
+using FellowOakDicom;
 using FAnsi.Discovery;
 using MapsDirectlyToDatabaseTable;
 using Microservices.CohortExtractor.Execution;

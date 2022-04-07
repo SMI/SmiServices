@@ -1,4 +1,4 @@
-﻿using Dicom;
+﻿using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;

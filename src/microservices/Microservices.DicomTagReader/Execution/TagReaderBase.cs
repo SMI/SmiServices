@@ -6,7 +6,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -249,7 +249,14 @@ namespace Microservices.DicomTagReader.Execution
 
             try
             {
-                serializedDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
+#pragma warning disable CS0618 // Type or member is obsolete
+                DicomDataset filteredds = new()
+                {
+                    AutoValidate = false
+                };
+#pragma warning restore CS0618 // Type or member is obsolete
+                filteredds.Add(ds.Where(t => t is DicomElement));
+                serializedDataset = DicomTypeTranslater.SerializeDatasetToJson(filteredds);
             }
             catch (Exception e)
             {
@@ -272,15 +279,13 @@ namespace Microservices.DicomTagReader.Execution
         private byte[] ReadFully(Stream stream)
         {
             var buffer = new byte[32768];
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            while (true)
             {
-                while (true)
-                {
-                    var read = stream.Read(buffer, 0, buffer.Length);
-                    if (read <= 0)
-                        return ms.ToArray();
-                    ms.Write(buffer, 0, read);
-                }
+                var read = stream.Read(buffer, 0, buffer.Length);
+                if (read <= 0)
+                    return ms.ToArray();
+                ms.Write(buffer, 0, read);
             }
         }
         protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
@@ -299,7 +304,7 @@ namespace Microservices.DicomTagReader.Execution
             }
             catch (DicomFileException dfe)
             {
-                throw new ApplicationException("Could not open dicom file: " + dicomFilePath, dfe);
+                throw new ApplicationException($"Could not open dicom file: {dicomFilePath}", dfe);
             }
         }
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using BadMedicine;
 using BadMedicine.Dicom;
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using FAnsi.Implementations.MicrosoftSQL;
 using Microservices.DicomRelationalMapper.Execution;
