@@ -145,10 +145,10 @@ namespace Smi.Common
             EventHandler<ShutdownEventArgs> shutdown = (o, a) =>
             {
                 var reason = "cancellation was requested";
-                if (ShutdownCalled)
-                    reason = "shutdown was called";
                 if (ebc.Model.IsClosed)
                     reason = "channel is closed";
+                if (ShutdownCalled)
+                    reason = "shutdown was called";
                 _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
             };
             model.ModelShutdown += shutdown;

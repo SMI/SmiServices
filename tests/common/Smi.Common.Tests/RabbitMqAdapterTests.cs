@@ -245,7 +245,7 @@ namespace Smi.Common.Tests
             if (consumer is SelfClosingConsumer)
                 expectedErrorMessage = "exiting (channel is closed)";
             if (consumer is DoNothingConsumer)
-                expectedErrorMessage = "exiting (cancellation was requested)";
+                expectedErrorMessage = "exiting (shutdown was called)";
 
             Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
