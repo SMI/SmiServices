@@ -127,7 +127,7 @@ jobs:
             ${{ needs.init.outputs.build_ref }} \
             "$cov"
     - name: upload dist
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -157,7 +157,7 @@ jobs:
       run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.MVN_PROFILE }}
     - name: "[linux] upload packages"
       if: ${{ matrix.os == 'linux' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -181,7 +181,7 @@ jobs:
       run: ./bin/nerd/buildTestPackage.py ${{ needs.init.outputs.build_ref }}
     - name: "[linux] upload packages"
       if: ${{ matrix.os == 'linux' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -212,7 +212,7 @@ jobs:
       run: ./bin/smi-py/testPackage.py ${{ needs.init.outputs.build_ref }} ${{ env.venv_bin }}/python
     - name: "[linux] upload packages"
       if: ${{ matrix.os == 'linux' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
