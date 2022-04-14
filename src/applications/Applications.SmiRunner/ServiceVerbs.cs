@@ -42,9 +42,6 @@ namespace Applications.SmiRunner
     [Verb("cohort-packager", HelpText = "Microservice for detecting when all images in an extraction have been produced/validated")]
     public sealed class CohortPackagerVerb : MicroservicesVerbBase { }
 
-    [Verb("dead-letter-reprocessor", HelpText = "Microservice for periodically requeing failed messages (to try again)")]
-    public sealed class DeadLetterReprocessorVerb : MicroservicesVerbBase { }
-
     [Verb("dicom-anonymiser", HelpText = "Microservice for anonymising DICOM files")]
     public sealed class DicomAnonymiserVerb : MicroservicesVerbBase { }
 

@@ -60,7 +60,6 @@ namespace Smi.Common.Options
         public IdentifierMapperOptions IdentifierMapperOptions { get; set; } = new IdentifierMapperOptions();
         public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; } = new MongoDbPopulatorOptions();
         public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; } = new ProcessDirectoryOptions();
-        public DeadLetterReprocessorOptions DeadLetterReprocessorOptions { get; set; } = new DeadLetterReprocessorOptions();
 
         public TriggerUpdatesOptions TriggerUpdatesOptions { get; set; } = new TriggerUpdatesOptions();
 
@@ -461,21 +460,6 @@ namespace Smi.Common.Options
     }
 
     [UsedImplicitly]
-    public class DeadLetterReprocessorOptions : IOptions
-    {
-        public ConsumerOptions DeadLetterConsumerOptions { get; set; }
-
-        public int MaxRetryLimit { get; set; }
-
-        public int DefaultRetryAfter { get; set; }
-
-        public override string ToString()
-        {
-            return GlobalOptions.GenerateToString(this);
-        }
-    }
-
-    [UsedImplicitly]
     public class ExtractImagesOptions : IOptions
     {
         public const int MaxIdentifiersPerMessageDefault = 1000;
@@ -518,8 +502,6 @@ namespace Smi.Common.Options
         public MongoDbOptions DicomStoreOptions { get; set; }
 
         public MongoDbOptions ExtractionStoreOptions { get; set; }
-
-        public MongoDbOptions DeadLetterStoreOptions { get; set; }
 
         public override string ToString()
         {

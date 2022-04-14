@@ -36,7 +36,6 @@ namespace Smi.Common.Tests
         // Microservices
         [TestCase("../../../../../../../src/microservices/Microservices.CohortExtractor/Microservices.CohortExtractor.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DeadLetterReprocessor/Microservices.DeadLetterReprocessor.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj", null, null)]
