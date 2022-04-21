@@ -93,7 +93,7 @@ jobs:
         if: ${{ matrix.os == 'windows' }}
         uses: crazy-max/ghaction-chocolatey@v1
         with:
-          args: sqllocaldb
+          args: install sqllocaldb
     - name: "[windows] install SQL 2019 localdb"
       if: ${{ matrix.os == 'windows' }}
       shell: pwsh
