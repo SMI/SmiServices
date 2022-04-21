@@ -21,7 +21,6 @@ namespace Applications.SmiRunner
             typeof(CohortExtractorVerb),
             typeof(DicomAnonymiserVerb),
             typeof(CohortPackagerVerb),
-            typeof(DeadLetterReprocessorVerb),
             typeof(DicomRelationalMapperVerb),
             typeof(DicomReprocessorVerb),
             typeof(DicomTagReaderVerb),

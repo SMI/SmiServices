@@ -127,7 +127,7 @@ jobs:
             ${{ needs.init.outputs.build_ref }} \
             "$cov"
     - name: upload dist
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -142,7 +142,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
     - name: Setup Java JDK
-      uses: actions/setup-java@v3.1.0
+      uses: actions/setup-java@v3.1.1
       with:
         java-version: ${{ env.java-version }}
         distribution: ${{ env.java-distribution }}
@@ -157,7 +157,7 @@ jobs:
       run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.MVN_PROFILE }}
     - name: "[linux] upload packages"
       if: ${{ matrix.os == 'linux' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -172,7 +172,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
     - name: Setup Java JDK
-      uses: actions/setup-java@v3.1.0
+      uses: actions/setup-java@v3.1.1
       with:
         java-version: ${{ env.java-version }}
         distribution: ${{ env.java-distribution }}
@@ -181,7 +181,7 @@ jobs:
       run: ./bin/nerd/buildTestPackage.py ${{ needs.init.outputs.build_ref }}
     - name: "[linux] upload packages"
       if: ${{ matrix.os == 'linux' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -212,7 +212,7 @@ jobs:
       run: ./bin/smi-py/testPackage.py ${{ needs.init.outputs.build_ref }} ${{ env.venv_bin }}/python
     - name: "[linux] upload packages"
       if: ${{ matrix.os == 'linux' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -225,7 +225,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
     - name: download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         path: ./dist
     - name: prepare artifacts for release
