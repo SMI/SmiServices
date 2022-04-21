@@ -36,20 +36,6 @@ MongoDatabases:
         UserName: ''
         Password: ''
         DatabaseName: 'extraction'
-    DeadLetterStoreOptions:
-        HostName: 'localhost'
-        Port: 27017
-        UserName: ''
-        Password: ''
-        DatabaseName: 'deadLetterStorage'
-
-DeadLetterReprocessorOptions:
-    DeadLetterConsumerOptions:
-        QueueName: 'TEST.DLQueue'
-        QoSPrefetchCount: 1
-        AutoAck: false
-    MaxRetryLimit: 5
-    DefaultRetryAfter: 60 # Minutes
 
 DicomRelationalMapperOptions:
     Guid: '6ff062af-5538-473f-801c-ed2b751c7897'

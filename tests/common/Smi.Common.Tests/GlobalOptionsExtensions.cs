@@ -37,15 +37,12 @@ namespace Smi.Common.Tests
             //Mongo Db
             g.MongoDatabases.DicomStoreOptions.HostName = mongo?.Server?.Host;
             g.MongoDatabases.ExtractionStoreOptions.HostName = mongo?.Server?.Host;
-            g.MongoDatabases.DeadLetterStoreOptions.HostName = mongo?.Server?.Host;
 
             g.MongoDatabases.DicomStoreOptions.Port = mongo?.Server?.Port ?? -1;
             g.MongoDatabases.ExtractionStoreOptions.Port = mongo?.Server?.Port ?? -1;
-            g.MongoDatabases.DeadLetterStoreOptions.Port = mongo?.Server?.Port ?? -1;
 
             g.MongoDatabases.DicomStoreOptions.UserName = mongo?.Credential?.Username;
             g.MongoDatabases.ExtractionStoreOptions.UserName = mongo?.Credential?.Username;
-            g.MongoDatabases.DeadLetterStoreOptions.UserName = mongo?.Credential?.Username;
 
             //Relational Databases
             var mappingDb = relational?.GetServer(DatabaseType.MicrosoftSQLServer)?.ExpectDatabase("TEST_MappingDatabase");
@@ -55,7 +52,6 @@ namespace Smi.Common.Tests
             g.IdentifierMapperOptions.MappingTableName = mappingDb?.ExpectTable("MappingTable").GetFullyQualifiedName();
 
 
-            g.DeadLetterReprocessorOptions.DeadLetterConsumerOptions.QoSPrefetchCount = 1;
             g.DicomRelationalMapperOptions.QoSPrefetchCount = 1;
             g.CohortExtractorOptions.QoSPrefetchCount = 1;
             g.CohortPackagerOptions.ExtractRequestInfoOptions.QoSPrefetchCount = 1;
