@@ -27,22 +27,22 @@ namespace Applications.DicomDirectoryProcessor.Tests
             var mockFs = new MockFileSystem();
             
 	    string testFile = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/testDicom.dcm"));
-            mockFs.AddFile(testFile, MockFileData.NullObject);
+            mockFs.AddFile(testFile, null);
 
 	    string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2016/01/01/E-12345/testDicom.dcm"));
-            mockFs.AddFile(specialCase1, MockFileData.NullObject);
+            mockFs.AddFile(specialCase1, null);
 	    
 	    string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2017/01/01/01.01.2017/testDicom.dcm"));
-            mockFs.AddFile(specialCase2, MockFileData.NullObject);
+            mockFs.AddFile(specialCase2, null);
 	    
 	    string multiLayer1 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/E-12345/testDicom.dcm"));
-            mockFs.AddFile(multiLayer1, MockFileData.NullObject);
+            mockFs.AddFile(multiLayer1, null);
 	    
 	    string multiLayer2 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/AAA/testDicom.dcm"));
-            mockFs.AddFile(multiLayer2, MockFileData.NullObject);
+            mockFs.AddFile(multiLayer2, null);
 	    
 	    string multiLayer3 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/BBB/testDicom.dcm"));
-            mockFs.AddFile(multiLayer3, MockFileData.NullObject);
+            mockFs.AddFile(multiLayer3, null);
             
 	    // Test case, expected messages
             var testCases = new Dictionary<string, int>
