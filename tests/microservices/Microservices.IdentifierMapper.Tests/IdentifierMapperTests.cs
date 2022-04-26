@@ -416,8 +416,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             var msg = GetTestDicomFileMessage(testCase: testCase);
 
-            string reason;
-            Assert.False(consumer.SwapIdentifier(msg, out reason));
+            Assert.False(consumer.SwapIdentifier(msg, out var reason));
 
             switch (testCase)
             {
@@ -436,6 +435,8 @@ namespace Microservices.IdentifierMapper.Tests
         [TestCase(Test.DuplicatePatientIDAndDifferent,false)]
         public void Test_DuplicatePatientID(Test testCase,bool expectAllowed)
         {
+            new DicomSetupBuilder().SkipValidation().Build();
+
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
             //the declaration of what the guid namer table should be
