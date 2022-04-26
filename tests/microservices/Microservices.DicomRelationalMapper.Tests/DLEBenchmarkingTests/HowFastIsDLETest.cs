@@ -71,8 +71,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var db = GetCleanedServer(databaseType);
 
-            var d = CatalogueRepository.GetServerDefaults();
-            d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
@@ -87,7 +86,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), root: null, template: template, persistentRaw: true);
 
             //do not use an explicit RAW data load server
-            d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
             Random r = new Random(123);
 
@@ -169,7 +168,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), root: null, template: template, persistentRaw: true);
 
             //do not use an explicit RAW data load server
-            CatalogueRepository.GetServerDefaults().ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
             Random r = new Random(123);
             

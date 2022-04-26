@@ -78,7 +78,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             IDataLoadExecution execution = dataLoadFactory.Create(listener);
 
-            IExternalDatabaseServer raw = catalogueRepository.GetServerDefaults().GetDefaultFor(PermissableDefaults.RAWDataLoadServer);
+            IExternalDatabaseServer raw = catalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer);
 
             DiscoveredServer liveDb = lmd.GetDistinctLiveDatabaseServer();
 
