@@ -1,5 +1,5 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using Smi.Common.Messages;
 using RabbitMQ.Client.Events;
 

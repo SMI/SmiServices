@@ -1,4 +1,4 @@
-﻿using Dicom;
+﻿using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.DicomReprocessor.Execution.Processors;
 using MongoDB.Bson;

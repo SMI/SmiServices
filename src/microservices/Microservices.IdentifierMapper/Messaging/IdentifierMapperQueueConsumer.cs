@@ -1,4 +1,4 @@
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using RabbitMQ.Client.Events;

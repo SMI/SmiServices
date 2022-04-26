@@ -4,7 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Dicom;
+using FellowOakDicom;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
 using NUnit.Framework;
