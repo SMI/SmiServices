@@ -56,6 +56,8 @@ namespace Microservices.DicomTagReader.Execution
         /// <param name="fs">File system to use</param>
         public TagReaderBase(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions, IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
         {
+            new DicomSetupBuilder().SkipValidation().Build();
+
             Logger = LogManager.GetLogger(GetType().Name);
 
             _filesystemRoot = fileSystemOptions.FileSystemRoot;
@@ -249,7 +251,9 @@ namespace Microservices.DicomTagReader.Execution
 
             try
             {
-                serializedDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
+                DicomDataset filteredds = new();
+                filteredds.Add(ds.Where(t => t is DicomElement).ToArray());
+                serializedDataset = DicomTypeTranslater.SerializeDatasetToJson(filteredds);
             }
             catch (Exception e)
             {
@@ -299,7 +303,7 @@ namespace Microservices.DicomTagReader.Execution
             }
             catch (DicomFileException dfe)
             {
-                throw new ApplicationException("Could not open dicom file: " + dicomFilePath, dfe);
+                throw new ApplicationException($"Could not open dicom file: {dicomFilePath}", dfe);
             }
         }
 

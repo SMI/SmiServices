@@ -51,8 +51,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
 
         private TagReaderBase GetMockTagReader(IFileSystem fileSystem = null)
         {
-            if (fileSystem == null)
-                fileSystem = _helper.MockFileSystem;
+            fileSystem ??= _helper.MockFileSystem;
 
             return new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, fileSystem);
         }
