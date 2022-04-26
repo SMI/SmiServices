@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
+using FellowOakDicom;
 
 
 namespace Microservices.DicomTagReader.Tests.Messaging
@@ -28,6 +29,8 @@ namespace Microservices.DicomTagReader.Tests.Messaging
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            new DicomSetupBuilder().SkipValidation().Build();
+
             _helper.SetUpSuite();
 
             _mockModel = Mock.Of<IModel>();
