@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
 using System.IO;
+using MapsDirectlyToDatabaseTable;
 using Tests.Common;
 
 namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
@@ -25,9 +26,9 @@ namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
             Console.Write(File.ReadAllText(f));
 
             Exception ex;
-            if (!CatalogueRepository.DiscoveredServer.RespondsWithinTime(5, out ex))
+            if (CatalogueRepository is not ITableRepository crtr || !crtr.DiscoveredServer.RespondsWithinTime(5, out ex))
                 Assert.Fail("Catalogue database was unreachable");
-            if (!DataExportRepository.DiscoveredServer.RespondsWithinTime(5, out ex))
+            if (DataExportRepository is not ITableRepository dertr || !dertr.DiscoveredServer.RespondsWithinTime(5, out ex))
                 Assert.Fail("DataExport database was unreachable");
 
         }
