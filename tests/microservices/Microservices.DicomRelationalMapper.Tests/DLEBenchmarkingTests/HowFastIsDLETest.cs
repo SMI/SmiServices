@@ -49,7 +49,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         [OneTimeSetUp]
         public void SetupLogging()
         {
-
+            new DicomSetupBuilder().SkipValidation().Build();
             var lm = CatalogueRepository.GetDefaultLogManager();
             lm.CreateNewLoggingTaskIfNotExists("aaa");
             _dli = lm.CreateDataLoadInfo("aaa", "HowFastIsDLETest", "Test", "", true);
