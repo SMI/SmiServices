@@ -59,7 +59,8 @@ namespace Microservices.DicomRelationalMapper.Tests
             using (var stream = File.OpenRead(fi.FullName))
             {    
                 dcm = DicomFile.Open(stream);
-                dcm.Dataset.AddOrUpdate(DicomTag.Print, "FISH");
+                // JS 2022-04-27 fo-dicom 4 version of this test used .Print, which is a group 0 tag disallowed in metadata in fo-dicom 5
+                dcm.Dataset.AddOrUpdate(DicomTag.PrintPriority, "FISH");
                 dcm.Dataset.AddOrUpdate(DicomTag.Date, new DateTime(2001,01,01));
                 dcm.Save(fi2.FullName);
             }
@@ -67,7 +68,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.Date,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
             adder.Execute();
 
-            adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.Print,false), "datetime2", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
+            adder = new TagColumnAdder(DicomTypeTranslaterReader.GetColumnNameForTag(DicomTag.PrintPriority,false), "varchar(max)", _helper.ImageTableInfo, new AcceptAllCheckNotifier());
             adder.Execute();
             
             fi.Delete();
@@ -81,23 +82,21 @@ namespace Microservices.DicomRelationalMapper.Tests
             {
                 host.Start();
 
-                using (var timeline = new TestTimeline(tester))
-                {
-                    timeline.SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi));
+                using var timeline = new TestTimeline(tester);
+                timeline.SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi));
 
-                    //start the timeline
-                    timeline.StartTimeline();
+                //start the timeline
+                timeline.StartTimeline();
 
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= 1, null, 30000, () => host.Consumer.DleErrors);
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= 1, null, 30000, () => host.Consumer.DleErrors);
 
-                    Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
 
-                    host.Stop("Test end");
-                }
-                
+                host.Stop("Test end");
+
             }
 
             tester.Shutdown();
