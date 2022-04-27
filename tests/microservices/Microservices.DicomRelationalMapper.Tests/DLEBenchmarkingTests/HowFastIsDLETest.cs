@@ -86,7 +86,8 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), root: null, template: template, persistentRaw: true);
 
             //do not use an explicit RAW data load server
-            CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            if (CatalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer) is not null)
+                CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
             Random r = new Random(123);
 

@@ -74,7 +74,8 @@ namespace Microservices.DicomRelationalMapper.Tests
             _globals.DicomRelationalMapperOptions.RetryDelayInSeconds = 0;
 
             //do not use an explicit RAW data load server
-            CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            if (CatalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer) is not null)
+                CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
         }
 
         [TearDown]
