@@ -48,11 +48,13 @@ namespace Microservices.Tests.RDMPTests
 
             try
             {
-                File.Copy(typeof(InvalidDataHandling).Assembly.Location, Path.Combine(TestContext.CurrentContext.TestDirectory, "Rdmp.Dicom.dll"), true);
+                var dest = Path.Combine(TestContext.CurrentContext.TestDirectory, "Rdmp.Dicom.dll");
+                if (!File.Exists(dest))
+                    File.Copy(typeof(InvalidDataHandling).Assembly.Location, dest, false);
             }
             catch (System.IO.IOException)
             {
-                //nevermind, it's probably locked
+                //never mind, it's probably locked
             }
 
 

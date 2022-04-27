@@ -92,13 +92,12 @@ namespace Smi.Common.Messaging
 
             while (keepTrying)
             {
-                bool timedOut;
-                bool ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out timedOut);
+                bool ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out var timedOut);
 
                 if (timedOut)
                 {
                     keepTrying = (++numAttempts < _maxRetryAttempts);
-                    _logger.Warn("RabbitMQ WaitForConfirms timed out. numAttempts: " + numAttempts);
+                    _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}");
 
                     continue;
                 }
