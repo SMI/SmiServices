@@ -332,6 +332,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         [TestCase(DatabaseType.MySql, false)]
         public void IntegrationTest_HappyPath_WithElevation(DatabaseType databaseType, bool persistentRaw)
         {
+            DicomDictionary.EnsureDefaultDictionariesLoaded();
             var server = GetCleanedServer(databaseType, ScratchDatabaseName);
             SetupSuite(server, persistentRaw: persistentRaw);
 
