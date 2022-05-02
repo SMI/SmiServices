@@ -1,4 +1,3 @@
-﻿
 using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
 using NUnit.Framework;
@@ -52,16 +51,16 @@ namespace Applications.DicomDirectoryProcessor.Tests
 			string rootDir = Path.Combine(Path.GetPathRoot(Environment.CurrentDirectory),"PACS");
 
 	    string testDicom = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/test.dcm"));
-	    mockFilesystem.AddFile(testDicom, MockFileData.NullObject);
+	    mockFilesystem.AddFile(testDicom, null);
 	    
 	    string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/E-123/test.dcm"));
-	    mockFilesystem.AddFile(specialCase1, MockFileData.NullObject);
+	    mockFilesystem.AddFile(specialCase1, null);
 
 	    string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/01.01.2018/test.dcm"));
-	    mockFilesystem.AddFile(specialCase2, MockFileData.NullObject);
+	    mockFilesystem.AddFile(specialCase2, null);
 	    
 	    string testBad = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/BBB/test.txt"));
-	    mockFilesystem.AddFile(testBad, MockFileData.NullObject);
+	    mockFilesystem.AddFile(testBad, null);
 	    
 	    // Mock input file 
 	    string accessionList = Path.GetFullPath(Path.Combine(rootDir, "accessions.csv"));

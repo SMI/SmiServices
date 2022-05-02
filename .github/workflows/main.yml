@@ -88,16 +88,15 @@ jobs:
         set -euxo pipefail
         rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
         echo "rdmp_cli_ver=v$rdmp_cli_ver" >> $GITHUB_ENV
-    # Ref: https://github.com/actions/virtual-environments/issues/1282#issuecomment-668686268
-    - name: "[windows] install SQL 2019 localdb"
+    - name: "[windows] Install SQL LocalDB"
+      if: ${{ matrix.os == 'windows' }}
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install sqllocaldb
+    - name: "[windows] Check SQL LocalDB and set rdmp_conn_str"
       if: ${{ matrix.os == 'windows' }}
       shell: pwsh
       run: |
-        Write-Host "Downloading"
-        Import-Module BitsTransfer
-        Start-BitsTransfer -Source https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi -Destination SqlLocalDB.msi
-        Write-Host "Installing"
-        Start-Process -FilePath "SqlLocalDB.msi" -Wait -ArgumentList "/qn", "/norestart", "/l*v SqlLocalDBInstall.log", "IACCEPTSQLLOCALDBLICENSETERMS=YES";
         Write-Host "Checking"
         $db = "(localdb)\MSSQLLocalDB"
         sqlcmd -l 180 -S "$db" -Q "SELECT @@VERSION;"
@@ -142,7 +141,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
     - name: Setup Java JDK
-      uses: actions/setup-java@v3.1.1
+      uses: actions/setup-java@v3.2.0
       with:
         java-version: ${{ env.java-version }}
         distribution: ${{ env.java-distribution }}
@@ -172,7 +171,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
     - name: Setup Java JDK
-      uses: actions/setup-java@v3.1.1
+      uses: actions/setup-java@v3.2.0
       with:
         java-version: ${{ env.java-version }}
         distribution: ${{ env.java-distribution }}
