@@ -99,6 +99,7 @@ jobs:
       run: |
         Write-Host "Checking"
         $db = "(localdb)\MSSQLLocalDB"
+        SqlLocalDB.exe create MSSQLLocalDB -s
         sqlcmd -l 180 -S "$db" -Q "SELECT @@VERSION;"
         echo "rdmp_conn_str='$db'" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
     - name: "[windows] re-write database strings"
