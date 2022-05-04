@@ -110,7 +110,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
                 host.Start();
 
                 Stopwatch sw = Stopwatch.StartNew();
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
+                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
 
                 Console.Write($"Time For DLE:{sw.Elapsed.TotalSeconds}s");
                 host.Stop("Test finished");

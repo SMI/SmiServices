@@ -72,8 +72,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                     Status = ExtractedFileStatus.Anonymised
                 });
 
-                var awaiter = new TestTimelineAwaiter();
-                awaiter.Await(() => host.Consumer.AckCount == 1);
+                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == 1);
             }
         }
 
@@ -116,8 +115,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
                     Status = ExtractedFileStatus.Anonymised
                 });
 
-                var awaiter = new TestTimelineAwaiter();
-                awaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
+                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
                 Assert.AreEqual(1, host.Consumer.AckCount, "Tesseract not acking");
             }
         }

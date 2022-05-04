@@ -89,7 +89,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 timeline.StartTimeline();
 
                 Thread.Sleep(TimeSpan.FromSeconds(10));
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= 1, null, 30000, () => host.Consumer.DleErrors);
+                TestTimelineAwaiter.Await(() => host.Consumer.AckCount >= 1, null, 30000, () => host.Consumer.DleErrors);
 
                 Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                 Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
@@ -143,7 +143,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     timeline.StartTimeline();
 
                     Thread.Sleep(TimeSpan.FromSeconds(10));
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
+                    TestTimelineAwaiter.Await(() => host.Consumer.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer.DleErrors);
 
                     Assert.AreEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.AreEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
@@ -217,7 +217,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     //start the timeline
                     timeline.StartTimeline();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 1, null, 30000, () => host.Consumer.DleErrors);
+                    TestTimelineAwaiter.Await(() => host.Consumer.MessagesProcessed == 1, null, 30000, () => host.Consumer.DleErrors);
 
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
@@ -319,7 +319,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 {
                     host.Start();
 
-                    new TestTimelineAwaiter().Await(() => host.Consumer.MessagesProcessed == 2, null, 30000, () => host.Consumer.DleErrors);
+                    TestTimelineAwaiter.Await(() => host.Consumer.MessagesProcessed == 2, null, 30000, () => host.Consumer.DleErrors);
 
                     Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
                     Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");

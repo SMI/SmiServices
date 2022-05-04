@@ -35,8 +35,7 @@ namespace Smi.Common.Tests
                 var a = new RabbitMqAdapter(o.RabbitOptions.CreateConnectionFactory(), "TestHost");
                 a.StartConsumer(consumerOptions, consumer);
 
-                TestTimelineAwaiter awaiter = new TestTimelineAwaiter();
-                awaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
+                TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
                 a.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
             }
 

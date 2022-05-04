@@ -182,7 +182,7 @@ namespace Microservices.IdentifierMapper.Tests
                 Stopwatch sw = Stopwatch.StartNew();
                 host.Start();
 
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == batchSize);
+                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == batchSize);
 
                 Console.WriteLine("Good message processing (" + batchSize + ") took:" + sw.ElapsedMilliseconds + "ms");
                 host.Stop("Test finished");
@@ -205,7 +205,7 @@ namespace Microservices.IdentifierMapper.Tests
                 Stopwatch sw = Stopwatch.StartNew();
                 host.Start();
 
-                new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == batchSize);
+                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == batchSize);
 
                 Console.WriteLine("Bad message processing (" + batchSize + ") took:" + sw.ElapsedMilliseconds + "ms");
 

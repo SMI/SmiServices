@@ -141,7 +141,7 @@ namespace Applications.TriggerUpdates.Execution
 
                 
                 //wait till updater is done updating the live table
-                new TestTimelineAwaiter().Await(() => destHost.Consumer.AckCount == 1);
+                TestTimelineAwaiter.Await(() => destHost.Consumer.AckCount == 1);
             }
 
             var liveDtAfter = liveTable.GetDataTable();
