@@ -19,24 +19,27 @@ namespace Microservices.DicomTagReader.Execution
         public DicomTagReaderHost(GlobalOptions options)
             : base(options)
         {
-            // We don't generally want tag validation in the SMI pipeline: can't fix upsteram data at this stage!
+            // We don't generally want tag validation in the SMI pipeline: can't fix upstream data at this stage!
             new DicomSetupBuilder().SkipValidation().Build();
 
             if (!Directory.Exists(options.FileSystemOptions.FileSystemRoot))
-                throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + options.FileSystemOptions.FileSystemRoot + ")");
+                throw new ArgumentException(
+                    $"Cannot find the FileSystemRoot specified in the given MicroservicesOptions ({options.FileSystemOptions.FileSystemRoot})");
 
-            Logger.Debug("Creating DicomTagReaderHost with FileSystemRoot: " + options.FileSystemOptions.FileSystemRoot);
-            Logger.Debug("NackIfAnyFileErrors option set to " + options.DicomTagReaderOptions.NackIfAnyFileErrors);
+            Logger.Debug($"Creating DicomTagReaderHost with FileSystemRoot: {options.FileSystemOptions.FileSystemRoot}");
+            Logger.Debug($"NackIfAnyFileErrors option set to {options.DicomTagReaderOptions.NackIfAnyFileErrors}");
 
             IProducerModel seriesProducerModel;
             IProducerModel imageProducerModel;
 
             try
             {
-                Logger.Debug("Creating seriesProducerModel with ExchangeName: " + options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName);
+                Logger.Debug(
+                    $"Creating seriesProducerModel with ExchangeName: {options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName}");
                 seriesProducerModel = RabbitMqAdapter.SetupProducer(options.DicomTagReaderOptions.SeriesProducerOptions, true);
 
-                Logger.Debug("Creating imageProducerModel with ExchangeName: " + options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName);
+                Logger.Debug(
+                    $"Creating imageProducerModel with ExchangeName: {options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName}");
                 imageProducerModel = RabbitMqAdapter.SetupProducer(options.DicomTagReaderOptions.ImageProducerOptions, true);
             }
             catch (Exception e)
@@ -46,19 +49,12 @@ namespace Microservices.DicomTagReader.Execution
 
             Logger.Debug("Creating AccessionDirectoryMessageConsumer");
 
-            switch (options.DicomTagReaderOptions.TagProcessorMode)
+            _tagReader = options.DicomTagReaderOptions.TagProcessorMode switch
             {
-                case TagProcessorMode.Serial:
-                    _tagReader = new SerialTagReader(options.DicomTagReaderOptions, options.FileSystemOptions, seriesProducerModel, imageProducerModel, new FileSystem());
-                    break;
-
-                case TagProcessorMode.Parallel:
-                    _tagReader = new ParallelTagReader(options.DicomTagReaderOptions, options.FileSystemOptions, seriesProducerModel, imageProducerModel, new FileSystem());
-                    break;
-
-                default:
-                    throw new ArgumentException($"No case for mode {options.DicomTagReaderOptions.TagProcessorMode}");
-            }
+                TagProcessorMode.Serial => new SerialTagReader(options.DicomTagReaderOptions, options.FileSystemOptions, seriesProducerModel, imageProducerModel, new FileSystem()),
+                TagProcessorMode.Parallel => new ParallelTagReader(options.DicomTagReaderOptions, options.FileSystemOptions, seriesProducerModel, imageProducerModel, new FileSystem()),
+                _ => throw new ArgumentException($"No case for mode {options.DicomTagReaderOptions.TagProcessorMode}"),
+            };
 
             // Setup our consumer
             AccessionDirectoryMessageConsumer = new DicomTagReaderConsumer(_tagReader,options);
