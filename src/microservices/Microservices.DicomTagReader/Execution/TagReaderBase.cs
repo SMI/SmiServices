@@ -251,9 +251,8 @@ namespace Microservices.DicomTagReader.Execution
 
             try
             {
-                DicomDataset filteredds = new();
-                filteredds.Add(ds.Where(t => t is DicomElement).ToArray());
-                serializedDataset = DicomTypeTranslater.SerializeDatasetToJson(filteredds);
+                DicomDataset filtered = new(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
+                serializedDataset = DicomTypeTranslater.SerializeDatasetToJson(filtered);
             }
             catch (Exception e)
             {
