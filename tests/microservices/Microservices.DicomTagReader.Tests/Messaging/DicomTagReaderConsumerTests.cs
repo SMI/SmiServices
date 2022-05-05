@@ -61,24 +61,11 @@ namespace Microservices.DicomTagReader.Tests.Messaging
 
         private void CheckAckNackCounts(DicomTagReaderConsumer consumer, int desiredAckCount, int desiredNackCount)
         {
-            var mockdeliverArgs = Mock.Of<BasicDeliverEventArgs>();
-            mockdeliverArgs.DeliveryTag = 1;
-            mockdeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_helper.TestAccessionDirectoryMessage));
-            mockdeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
-
-            var header = new MessageHeader();
-            header.Populate(mockdeliverArgs.BasicProperties.Headers);
-
-            // Have to convert these to bytes since RabbitMQ normally does that when sending
-            mockdeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
-            mockdeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
-            mockdeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
-
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
 
             consumer.SetModel(_mockModel);
-            consumer.ProcessMessage(mockdeliverArgs);
+            consumer.TestMessage(_helper.TestAccessionDirectoryMessage);
 
             Assert.AreEqual(desiredAckCount, consumer.AckCount);
             Assert.AreEqual(desiredNackCount, consumer.NackCount);

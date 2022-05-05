@@ -2,11 +2,9 @@
 using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;
-using FAnsi.Discovery.TypeTranslation;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
 using System.Text;
 using Smi.Common;
 using TypeGuesser;

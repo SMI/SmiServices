@@ -1,6 +1,4 @@
-﻿using MapsDirectlyToDatabaseTable;
-using Microservices.CohortExtractor.Execution.RequestFulfillers;
-using Moq;
+﻿using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;

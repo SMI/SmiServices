@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 
 namespace Smi.Common.Tests
 {
@@ -63,9 +64,7 @@ namespace Smi.Common.Tests
         [TearDown]
         public void TearDown()
         {
-            if (_testAdapter != null)
-                _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
-
+            _testAdapter?.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
             _tester.Shutdown();
         }
 
@@ -75,9 +74,11 @@ namespace Smi.Common.Tests
         [Test]
         public void TestSetupProducerThrowsOnNonExistentExchange()
         {
-            var producerOptions = new ProducerOptions();
+            var producerOptions = new ProducerOptions
+            {
+                ExchangeName = null
+            };
 
-            producerOptions.ExchangeName = null;
             Assert.Throws<ArgumentException>(() => _testAdapter.SetupProducer(producerOptions));
 
             producerOptions.ExchangeName = "TEST.DoesNotExistExchange";
@@ -151,13 +152,11 @@ namespace Smi.Common.Tests
                 Password = _testOptions.RabbitOptions.RabbitMqPassword
             };
 
-            using (IConnection connection = testFactory.CreateConnection())
-            {
-                // These are all the server properties we can check using the connection
-                PrintObjectDictionary(connection.ServerProperties);
+            using IConnection connection = testFactory.CreateConnection();
+            // These are all the server properties we can check using the connection
+            PrintObjectDictionary(connection.ServerProperties);
 
-                Assert.True(connection.ServerProperties.ContainsKey("version"));
-            }
+            Assert.True(connection.ServerProperties.ContainsKey("version"));
         }
 
         [Test]
@@ -190,9 +189,9 @@ namespace Smi.Common.Tests
             model.Close(200, "bye");
             model.Close(200, "bye");
 
-            // Closing connection twice is ok
+            // Closing connection twice is NOT ok
             conn.Close(200, "bye");
-            conn.Close(200, "bye");
+            Assert.Throws<ChannelClosedException>(() => conn.Close(200, "bye"));
 
             // Closing model after connection is ok
             model.Close(200, "bye bye");
@@ -217,9 +216,11 @@ namespace Smi.Common.Tests
         [TestCase(typeof(DoNothingConsumer))]
         public void Test_Shutdown(Type consumerType)
         {
-            MemoryTarget target = new MemoryTarget();                                                  
-            target.Layout = "${message}";                                                              
-                                                                                           
+            MemoryTarget target = new MemoryTarget
+            {
+                Layout = "${message}"
+            };
+
             NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);          
 
             var o = new GlobalOptionsFactory().Load(nameof(Test_Shutdown));
@@ -227,28 +228,26 @@ namespace Smi.Common.Tests
             var consumer = (IConsumer)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
-            using (var tester = new MicroserviceTester(o.RabbitOptions, new []{_testConsumerOptions}))
-            {
-                _testAdapter.StartConsumer(_testConsumerOptions, consumer, true);
-                
-                //send a message to trigger consumer behaviour
-                tester.SendMessage(_testConsumerOptions,new TestMessage());
+            using var tester = new MicroserviceTester(o.RabbitOptions, new[] { _testConsumerOptions });
+            _testAdapter.StartConsumer(_testConsumerOptions, consumer, true);
 
-                //give the message time to get picked up
-                Thread.Sleep(3000);
-                
-                //now attempt to shut down adapter
-                _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            //send a message to trigger consumer behaviour
+            tester.SendMessage(_testConsumerOptions, new TestMessage());
 
-                string expectedErrorMessage = "nothing to see here";
+            //give the message time to get picked up
+            Thread.Sleep(3000);
 
-                if (consumer is SelfClosingConsumer)
-                    expectedErrorMessage = "exiting (channel is closed)";
-                if (consumer is DoNothingConsumer)
-                    expectedErrorMessage = "exiting (cancellation was requested)";
+            //now attempt to shut down adapter
+            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
-                Assert.IsTrue(target.Logs.Any(s=>s.Contains(expectedErrorMessage)),"Expected message was not found, messages were:" + string.Join(Environment.NewLine,target.Logs));
-            }
+            string expectedErrorMessage = "nothing to see here";
+
+            if (consumer is SelfClosingConsumer)
+                expectedErrorMessage = "exiting (channel is closed)";
+            if (consumer is DoNothingConsumer)
+                expectedErrorMessage = "exiting (shutdown was called)";
+
+            Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
         [Test]

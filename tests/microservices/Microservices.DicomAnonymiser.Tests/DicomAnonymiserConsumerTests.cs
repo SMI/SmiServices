@@ -2,14 +2,12 @@
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using Smi.Common.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
-using Smi.Common.Tests.Messaging;
 using System;
 using System.IO;
 using System.IO.Abstractions;
@@ -28,7 +26,6 @@ namespace Microservices.DicomAnonymiser.Tests
         private string _extractDir;
         private string _sourceDcmPathAbs;
         private ExtractFileMessage _extractFileMessage;
-        private BasicDeliverEventArgs _testDeliverArgs;
         private DicomAnonymiserOptions _options;
         private Mock<IModel> _mockModel;
 
@@ -71,12 +68,12 @@ namespace Microservices.DicomAnonymiser.Tests
                 OutputPath = "foo-an.dcm",
             };
 
-            _testDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_extractFileMessage);
-
-            _options = new DicomAnonymiserOptions();
-            _options.RoutingKeySuccess = "yay";
-            _options.RoutingKeyFailure = "nay";
-            _options.FailIfSourceWriteable = true;
+            _options = new DicomAnonymiserOptions
+            {
+                RoutingKeySuccess = "yay",
+                FailIfSourceWriteable = true,
+                RoutingKeyFailure = "nay"
+            };
 
             _mockModel = new Mock<IModel>(MockBehavior.Strict);
             _mockModel.Setup(x => x.IsClosed).Returns(false);
@@ -169,8 +166,7 @@ namespace Microservices.DicomAnonymiser.Tests
             var consumer = GetNewDicomAnonymiserConsumer(mockAnonymiser.Object, mockProducerModel.Object);
 
             // Act
-
-            consumer.ProcessMessage(_testDeliverArgs);
+            consumer.TestMessage(_extractFileMessage);
 
             // Assert
 
@@ -186,7 +182,6 @@ namespace Microservices.DicomAnonymiser.Tests
             // Arrange
 
             _extractFileMessage.IsIdentifiableExtraction = true;
-            _testDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_extractFileMessage);
 
             var consumer = GetNewDicomAnonymiserConsumer();
 
@@ -195,7 +190,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Act
 
-            consumer.ProcessMessage(_testDeliverArgs);
+            consumer.TestMessage(_extractFileMessage);
 
             // Assert
 
@@ -232,7 +227,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Act
 
-            consumer.ProcessMessage(_testDeliverArgs);
+            consumer.TestMessage(_extractFileMessage);
 
             // Assert
 
@@ -265,7 +260,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Act
 
-            consumer.ProcessMessage(_testDeliverArgs);
+            consumer.TestMessage(_extractFileMessage);
 
             // Assert
 
@@ -288,7 +283,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Act
 
-            consumer.ProcessMessage(_testDeliverArgs);
+            consumer.TestMessage(_extractFileMessage);
 
             // Assert
 
@@ -327,8 +322,7 @@ namespace Microservices.DicomAnonymiser.Tests
             var consumer = GetNewDicomAnonymiserConsumer(null, mockProducerModel.Object);
 
             // Act
-
-            consumer.ProcessMessage(_testDeliverArgs);
+            consumer.TestMessage(_extractFileMessage);
 
             // Assert
 

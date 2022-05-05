@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Service;
 using NUnit.Framework;

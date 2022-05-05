@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using BadMedicine;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using DicomTypeTranslation;
@@ -18,7 +16,6 @@ using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using Tests.Common;
-using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
 
 namespace Microservices.DicomRelationalMapper.Tests

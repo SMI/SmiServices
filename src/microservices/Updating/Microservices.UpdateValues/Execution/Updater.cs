@@ -1,13 +1,11 @@
 ﻿using FAnsi.Discovery;
 using NLog;
 using Rdmp.Core.Curation.Data;
-using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.Repositories;
 using Smi.Common.Messages.Updating;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Text;
 

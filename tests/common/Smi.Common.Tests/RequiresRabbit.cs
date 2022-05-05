@@ -19,15 +19,14 @@ namespace Smi.Common.Tests
         {
 
             var factory = GetConnectionFactory();
+            factory.ContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.HandshakeContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.RequestedConnectionTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketReadTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketWriteTimeout = TimeSpan.FromSeconds(5);
 
             try
             {
-                factory.ContinuationTimeout = new TimeSpan(0, 0, 5);
-                factory.HandshakeContinuationTimeout = new TimeSpan(0, 0, 5);
-                factory.RequestedConnectionTimeout = 5000;
-                factory.SocketReadTimeout = 5000;
-                factory.SocketWriteTimeout = 5000;
-
                 using var conn = factory.CreateConnection();
                 using var model = conn.CreateModel();
                 model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
@@ -36,11 +35,11 @@ namespace Smi.Common.Tests
             {
                 StringBuilder sb = new StringBuilder();
 
-                sb.AppendLine("Uri:         " + factory.Uri);
-                sb.AppendLine("Host:        " + factory.HostName);
-                sb.AppendLine("VirtualHost: " + factory.VirtualHost);
-                sb.AppendLine("UserName:    " + factory.UserName);
-                sb.AppendLine("Port:        " + factory.Port);
+                sb.AppendLine($"Uri:         {factory.Uri}");
+                sb.AppendLine($"Host:        {factory.HostName}");
+                sb.AppendLine($"VirtualHost: {factory.VirtualHost}");
+                sb.AppendLine($"UserName:    {factory.UserName}");
+                sb.AppendLine($"Port:        {factory.Port}");
 
                 string msg = $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
 

@@ -180,7 +180,7 @@ namespace Smi.Common.Tests
                 if (message == null)
                     break;
                 var header = new MessageHeader(message.BasicProperties.Headers, Encoding.UTF8);
-                var iMessage = JsonConvert.DeserializeObject<T>(message.Body);
+                var iMessage = JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(message.Body.Span));
                 yield return new Tuple<IMessageHeader, T>(header, iMessage);
             }
         }

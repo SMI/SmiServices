@@ -6,7 +6,6 @@ using Smi.Common.Options;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
 using NLog;
-using RabbitMQ.Client.Events;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.EntityNaming;
 using Rdmp.Core.DataLoad;
