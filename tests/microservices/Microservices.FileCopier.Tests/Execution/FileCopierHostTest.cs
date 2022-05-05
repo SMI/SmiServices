@@ -44,13 +44,13 @@ namespace Microservices.FileCopier.Tests.Execution
         [Test]
         public void Test_FileCopierHost_HappyPath()
         {
-            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Test_FileCopierHost_HappyPath));
+            var globals = new GlobalOptionsFactory().Load(nameof(Test_FileCopierHost_HappyPath));
             globals.FileSystemOptions.FileSystemRoot = "root";
             globals.FileSystemOptions.ExtractRoot = "exroot";
 
             using var tester = new MicroserviceTester(globals.RabbitOptions, globals.FileCopierOptions);
 
-            string outputQueueName = globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName.Replace("Exchange", "Queue");
+            var outputQueueName = globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName.Replace("Exchange", "Queue");
             tester.CreateExchange(
                 globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName,
                 outputQueueName,
@@ -78,8 +78,7 @@ namespace Microservices.FileCopier.Tests.Execution
             };
             tester.SendMessage(globals.FileCopierOptions, message);
 
-            using IConnection conn = tester.Factory.CreateConnection();
-            using IModel model = conn.CreateModel();
+            using var model = tester.Adapter.GetModel(nameof(FileCopierHostTest));
             var consumer = new EventingBasicConsumer(model);
             ExtractedFileStatusMessage statusMessage = null;
             consumer.Received += (_, ea) => statusMessage = JsonConvert.DeserializeObject<ExtractedFileStatusMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));

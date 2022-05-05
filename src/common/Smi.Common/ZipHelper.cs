@@ -6,7 +6,7 @@ namespace Smi.Common
 {
     public class ZipHelper
     {
-        readonly static List<string> SupportedExtensions = new List<string>
+        readonly static List<string> SupportedExtensions = new()
         {
             ".zip",
             ".tar"

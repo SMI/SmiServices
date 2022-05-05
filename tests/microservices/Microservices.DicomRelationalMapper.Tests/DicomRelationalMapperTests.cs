@@ -44,7 +44,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(Test_DodgyTagNames)));
+            DirectoryInfo d = new(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(Test_DodgyTagNames)));
             d.Create();
 
             var fi = TestData.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
@@ -106,7 +106,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_SingleFileMessage)));
+            DirectoryInfo d = new(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_SingleFileMessage)));
             d.Create();
 
             var fi = TestData.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
@@ -158,7 +158,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         {
             _helper.TruncateTablesIfExists();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_MileWideTest)));
+            DirectoryInfo d = new(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_MileWideTest)));
             d.Create();
 
             var r = new Random(5000);
@@ -303,28 +303,26 @@ namespace Microservices.DicomRelationalMapper.Tests
 
 
             //creates the queues, exchanges and bindings
-            using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
+            using var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
+            tester.SendMessage(_globals.DicomRelationalMapperOptions, msg1);
+            tester.SendMessage(_globals.DicomRelationalMapperOptions, msg2);
+
+            _globals.DicomRelationalMapperOptions.RunChecks = true;
+
+            using (var host = new DicomRelationalMapperHost(_globals))
             {
-                tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
-                tester.SendMessage(_globals.DicomRelationalMapperOptions, msg1);
-                tester.SendMessage(_globals.DicomRelationalMapperOptions, msg2);
+                host.Start();
 
-                _globals.DicomRelationalMapperOptions.RunChecks = true;
+                TestTimelineAwaiter.Await(() => host.Consumer.MessagesProcessed == 2, null, 30000, () => host.Consumer.DleErrors);
 
-                using (var host = new DicomRelationalMapperHost(_globals))
-                {
-                    host.Start();
+                Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
+                Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
+                Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
 
-                    TestTimelineAwaiter.Await(() => host.Consumer.MessagesProcessed == 2, null, 30000, () => host.Consumer.DleErrors);
-
-                    Assert.GreaterOrEqual(1, _helper.SeriesTable.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.GreaterOrEqual(1, _helper.StudyTable.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                    host.Stop("Test end");
-                }
-                tester.Shutdown();
+                host.Stop("Test end");
             }
+            tester.Shutdown();
         }
     }
 }

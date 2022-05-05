@@ -51,29 +51,27 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
-            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions))
+            using var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions);
+            tester.CreateExchange(options.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions.ExchangeName, null);
+
+            options.IsIdentifiableServiceOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
+            options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
+
+            var host = new IsIdentifiableHost(options);
+            Assert.IsNotNull(host);
+            host.Start();
+
+            tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage
             {
-                tester.CreateExchange(options.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions.ExchangeName, null);
+                DicomFilePath = "yay.dcm",
+                OutputFilePath = testDcm.FullName,
+                ProjectNumber = "100",
+                ExtractionDirectory = "./fish",
+                StatusMessage = "yay!",
+                Status = ExtractedFileStatus.Anonymised
+            });
 
-                options.IsIdentifiableServiceOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
-                options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
-
-                var host = new IsIdentifiableHost(options);
-                Assert.IsNotNull(host);
-                host.Start();
-
-                tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage()
-                {
-                    DicomFilePath = "yay.dcm",
-                    OutputFilePath = testDcm.FullName,
-                    ProjectNumber = "100",
-                    ExtractionDirectory = "./fish",
-                    StatusMessage = "yay!",
-                    Status = ExtractedFileStatus.Anonymised
-                });
-
-                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == 1);
-            }
+            TestTimelineAwaiter.Await(() => host.Consumer.AckCount == 1);
         }
 
         [Ignore("Requires leptonica fix")]
@@ -98,26 +96,24 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
             Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
-            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions))
+            using var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions);
+            options.IsIdentifiableServiceOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
+
+            var host = new IsIdentifiableHost(options);
+            host.Start();
+
+            tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage
             {
-                options.IsIdentifiableServiceOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
+                DicomFilePath = "yay.dcm",
+                OutputFilePath = testDcm.FullName,
+                ProjectNumber = "100",
+                ExtractionDirectory = "./fish",
+                StatusMessage = "yay!",
+                Status = ExtractedFileStatus.Anonymised
+            });
 
-                var host = new IsIdentifiableHost(options);
-                host.Start();
-
-                tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage
-                {
-                    DicomFilePath = "yay.dcm",
-                    OutputFilePath = testDcm.FullName,
-                    ProjectNumber = "100",
-                    ExtractionDirectory = "./fish",
-                    StatusMessage = "yay!",
-                    Status = ExtractedFileStatus.Anonymised
-                });
-
-                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
-                Assert.AreEqual(1, host.Consumer.AckCount, "Tesseract not acking");
-            }
+            TestTimelineAwaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
+            Assert.AreEqual(1, host.Consumer.AckCount, "Tesseract not acking");
         }
     }
 }

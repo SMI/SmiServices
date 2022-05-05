@@ -21,7 +21,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
     [TestFixture, RequiresRabbit]
     public class DicomTagReaderConsumerTests
     {
-        private readonly DicomTagReaderTestHelper _helper = new DicomTagReaderTestHelper();
+        private readonly DicomTagReaderTestHelper _helper = new();
 
         private IModel _mockModel;
 

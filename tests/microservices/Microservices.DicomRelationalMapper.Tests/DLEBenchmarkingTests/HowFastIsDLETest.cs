@@ -130,14 +130,14 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
                 allImages = g.GenerateImages(numberOfImages,r);
             
             DicomDatasetCollectionSource source = new();
-            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string>() { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
+            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
             source.FilenameField = "gggg";
 
             Stopwatch sw = new();
             sw.Start();
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-            source.Dispose(new ThrowImmediatelyDataLoadEventListener() { WriteToConsole = true }, null);
+            source.Dispose(new ThrowImmediatelyDataLoadEventListener { WriteToConsole = true }, null);
 
             sw.Stop();
             Console.WriteLine($"GetChunk took {sw.ElapsedMilliseconds}");
@@ -178,12 +178,12 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             using (var generator = new DicomDataGenerator(r, null, "CT"))
                 allImages = generator.GenerateImages(numberOfImages, r);
 
-            DicomDatasetCollectionSource source = new DicomDatasetCollectionSource();
-            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string>() { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
+            DicomDatasetCollectionSource source = new();
+            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
             source.FilenameField = "gggg";
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-            source.Dispose(new ThrowImmediatelyDataLoadEventListener() { WriteToConsole = true }, null);
+            source.Dispose(new ThrowImmediatelyDataLoadEventListener { WriteToConsole = true }, null);
 
             Assert.AreEqual(numberOfImages, allImages.Count);
             Assert.AreEqual(numberOfImages, dt.Rows.Count);

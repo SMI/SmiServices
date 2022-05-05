@@ -80,10 +80,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             var answer = _tableSwapper.GetSubstitutionFor(toSwap, out reason);
 
             //if we didn't get a hit in the lookup table use the guid allocation swapper
-            if (string.IsNullOrWhiteSpace(answer))
-                return _guidSwapper.GetSubstitutionFor(toSwap, out reason);
-            
-            return answer;
+            return !string.IsNullOrWhiteSpace(answer) ? answer : _guidSwapper.GetSubstitutionFor(toSwap, out reason);
         }
 
         /// <summary>

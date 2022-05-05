@@ -20,12 +20,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         private const string NullString = "NO MATCH";
 
-        private MemoryCache _cache = new MemoryCache(new MemoryCacheOptions()
+        private MemoryCache _cache = new(new MemoryCacheOptions
         {
             SizeLimit = 1024
         });
 
-        private ConcurrentDictionary<object, SemaphoreSlim> _locks = new ConcurrentDictionary<object, SemaphoreSlim>();
+        private ConcurrentDictionary<object, SemaphoreSlim> _locks = new();
 
         private readonly ILogger _logger;
 
@@ -43,11 +43,10 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public override string GetSubstitutionFor(string toSwap, out string reason)
         {
-            string result;
             reason = null;
 
             //lookup in memory
-            if (!_cache.TryGetValue(toSwap, out result))
+            if (!_cache.TryGetValue(toSwap, out string result))
             {
                 SemaphoreSlim locket = _locks.GetOrAdd(toSwap, k => new SemaphoreSlim(1, 1));
                 locket.Wait();
@@ -79,7 +78,8 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                             db.StringSet(toSwap, result ?? NullString);
                         }
 
-                        _cache.Set(toSwap, result ?? NullString, new MemoryCacheEntryOptions() {
+                        _cache.Set(toSwap, result ?? NullString, new MemoryCacheEntryOptions
+                        {
                             Size=1
                         });
                     }

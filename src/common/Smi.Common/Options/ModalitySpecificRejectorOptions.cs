@@ -24,10 +24,7 @@ namespace Smi.Common.Options
 
         public string[] GetModalities()
         {
-            if (string.IsNullOrWhiteSpace(Modalities))
-                return new string[0];
-
-            return Modalities.Split(new[] { ',' },StringSplitOptions.RemoveEmptyEntries);
+            return string.IsNullOrWhiteSpace(Modalities) ? Array.Empty<string>() : Modalities.Split(new[] { ',' },StringSplitOptions.RemoveEmptyEntries);
         }
 
     }

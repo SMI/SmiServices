@@ -27,7 +27,7 @@ namespace Smi.Common.Execution
         protected readonly IRabbitMqAdapter RabbitMqAdapter;
 
 
-        private readonly object _oAdapterLock = new object();
+        private readonly object _oAdapterLock = new();
         private bool _auxConnectionsCreated;
 
         private readonly ProducerOptions _fatalLoggingProducerOptions;

@@ -38,12 +38,16 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] ExtractedFileStatusMessage message,
             [NotNull] IMessageHeader header)
         {
-            if (message.Status == ExtractedFileStatus.None)
-                throw new ApplicationException("ExtractedFileStatus was None");
-            if (message.Status == ExtractedFileStatus.Anonymised)
-                throw new ApplicationException("Received an anonymisation successful message from the failure queue");
-
-            PersistMessageToStoreImpl(message, header);
+            switch (message.Status)
+            {
+                case ExtractedFileStatus.None:
+                    throw new ApplicationException("ExtractedFileStatus was None");
+                case ExtractedFileStatus.Anonymised:
+                    throw new ApplicationException("Received an anonymisation successful message from the failure queue");
+                default:
+                    PersistMessageToStoreImpl(message, header);
+                    break;
+            }
         }
 
         public void PersistMessageToStore(

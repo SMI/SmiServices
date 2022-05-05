@@ -70,8 +70,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             var dataLoadFactory = new HICDataLoadFactory(lmd, _configuration, new HICLoadConfigurationFlags(),
                 catalogueRepository, logManager);
 
-            var stagingCreator = _namer as ICreateAndDestroyStagingDuringLoads;
-            if (stagingCreator != null)
+            if (_namer is ICreateAndDestroyStagingDuringLoads stagingCreator)
                 stagingCreator.CreateStaging(lmd.GetDistinctLiveDatabaseServer());
 
             var listener = new NLogThrowerDataLoadEventListener(NLog.LogManager.GetCurrentClassLogger());
@@ -109,8 +108,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         {
             for (var i = 0; i < components.Count; i++)
             {
-                var composite = components[i] as CompositeDataLoadComponent;
-                if (composite != null)
+                if (components[i] is CompositeDataLoadComponent composite)
                     SwapMigrateRAWToStagingComponent(composite.Components);
 
                 if (components[i] is MigrateRAWToStaging)

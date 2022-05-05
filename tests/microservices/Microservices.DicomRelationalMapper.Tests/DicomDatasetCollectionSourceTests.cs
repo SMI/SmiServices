@@ -159,7 +159,7 @@ namespace Microservices.Tests.RDMPTests
             ds.Add(DicomTag.PatientAge, "123Y");
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
-                new DicomDataset()
+                new DicomDataset
                 {
                     {DicomTag.WedgeAngleFloat, "3.40282347e+038"}
                 });
@@ -241,7 +241,7 @@ namespace Microservices.Tests.RDMPTests
             ds.Add(DicomTag.PatientAge, "123Y");
             
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
-                new DicomDataset()
+                new DicomDataset
                 {
                     {DicomTag.WedgeAngleFloat, "3.40282347e+038"} //dodgy float in sequence (the sequence we are trying to elevate)
                 });
@@ -299,7 +299,7 @@ namespace Microservices.Tests.RDMPTests
             ds.Add(DicomTag.PatientAge, "123Y");
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
-                new DicomDataset()
+                new DicomDataset
                 {
                     {DicomTag.WedgeAngleFloat, "3.40282347e+038"}
                 });
@@ -350,7 +350,7 @@ namespace Microservices.Tests.RDMPTests
             ds.Add(DicomTag.PatientAge, "123Y");
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
-                new DicomDataset()
+                new DicomDataset
                 {
                     {DicomTag.WedgeAngleFloat, "3.40282347e+038"}
                 });

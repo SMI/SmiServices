@@ -11,7 +11,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         private readonly List<QueuedImage> _messages;
         private int _progress;
 
-        public HashSet<QueuedImage> CorruptMessages = new HashSet<QueuedImage>();
+        public HashSet<QueuedImage> CorruptMessages = new();
 
         public DicomFileMessageToDatasetListWorklist(List<QueuedImage> messages)
         {

@@ -32,14 +32,14 @@ namespace Microservices.DicomTagReader.Execution
 
         private static FileReadOption _fileReadOption;
 
-        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new();
         private int _nAccMessagesProcessed;
         protected int NFilesProcessed;
         private int _nMessagesSent;
         private readonly long[] _swTotals = new long[4]; // Enumerate, Read, Send, Total
 
         public bool IsExiting;
-        public readonly object TagReaderProcessLock = new object();
+        public readonly object TagReaderProcessLock = new();
         
         /// <summary>
         /// Optional function for last minute filtering of which files in an <see cref="AccessionDirectoryMessage"/> folder get processed
@@ -196,24 +196,18 @@ namespace Microservices.DicomTagReader.Execution
         {
             foreach(FileInfo zipFilePath in zipFilePaths)
             {
-                using(var archive = ZipFile.Open(zipFilePath.FullName,ZipArchiveMode.Read))
+                using var archive = ZipFile.Open(zipFilePath.FullName,ZipArchiveMode.Read);
+                foreach(var entry in archive.Entries)
                 {
-                    foreach(var entry in archive.Entries)
-                    {
-                        if(entry.FullName.EndsWith(".dcm",StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            byte[] buffer = null;
+                    if (!entry.FullName.EndsWith(".dcm", StringComparison.CurrentCultureIgnoreCase)) continue;
+                    byte[] buffer = null;
                     
-                            buffer = ReadFully(entry.Open());
-                            
-                            using (var memoryStream = new MemoryStream(buffer))
-                            {
-                                var dicom = DicomFile.Open(memoryStream);
+                    buffer = ReadFully(entry.Open());
 
-                                yield return DicomFileToMessage(dicom.Dataset,zipFilePath.FullName + "!" + entry.FullName,null);
-                            }      
-                        }
-                    }
+                    using var memoryStream = new MemoryStream(buffer);
+                    var dicom = DicomFile.Open(memoryStream);
+
+                    yield return DicomFileToMessage(dicom.Dataset, $"{zipFilePath.FullName}!{entry.FullName}",null);
                 }
             }
         }
@@ -273,15 +267,22 @@ namespace Microservices.DicomTagReader.Execution
         private byte[] ReadFully(Stream stream)
         {
             var buffer = new byte[32768];
-            using (var ms = new MemoryStream())
+            int len;
+            try
             {
-                while (true)
-                {
-                    var read = stream.Read(buffer, 0, buffer.Length);
-                    if (read <= 0)
-                        return ms.ToArray();
-                    ms.Write(buffer, 0, read);
-                }
+                len = (int)stream.Length;
+            }
+            catch
+            {
+                len = 32768;
+            }
+            using var ms = new MemoryStream(len);
+            while (true)
+            {
+                var read = stream.Read(buffer, 0, buffer.Length);
+                if (read <= 0)
+                    return ms.ToArray();
+                ms.Write(buffer, 0, read);
             }
         }
         protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,

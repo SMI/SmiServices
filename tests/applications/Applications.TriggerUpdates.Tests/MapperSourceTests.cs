@@ -45,7 +45,7 @@ namespace Applications.TriggerUpdates.Tests
                 map = db.CreateTable("Map",dt);
             }
 
-            mapperOptions = new IdentifierMapperOptions()
+            mapperOptions = new IdentifierMapperOptions
             {
                 MappingTableName = map.GetFullyQualifiedName(),
                 MappingConnectionString = db.Server.Builder.ConnectionString,
@@ -85,14 +85,15 @@ namespace Applications.TriggerUpdates.Tests
             SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
 
             //create a brand new mapping 
-            map.Insert(new Dictionary<string, object>(){ 
+            map.Insert(new Dictionary<string, object>
+            { 
                 {"CHI","0303030303" },
                 {"ECHI","0C0C0C0C0C" },
                 {SpecialFieldNames.ValidFrom,DateTime.Now },
                 {SpecialFieldNames.DataLoadRunID,55},
                 });
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
+            var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
             Assert.IsEmpty(source.GetUpdates(), "Since 0303030303 has never before been seen (not in guid table) we don't have any existing mappings to update");
         }
@@ -106,7 +107,7 @@ namespace Applications.TriggerUpdates.Tests
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
             archive.Drop();
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
+            var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
             var ex = Assert.Throws<Exception>(()=>source.GetUpdates().ToArray());
 
             StringAssert.StartsWith("No Archive table exists for mapping table",ex.Message);
@@ -132,7 +133,7 @@ namespace Applications.TriggerUpdates.Tests
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
+            var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
             var msg = source.GetUpdates().ToArray();
             Assert.IsNotNull(msg);
@@ -165,7 +166,7 @@ namespace Applications.TriggerUpdates.Tests
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions()
+            var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions
             {
                 DateOfLastUpdate = new DateTime(2020,01,01),
                 
@@ -205,7 +206,7 @@ namespace Applications.TriggerUpdates.Tests
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions()
+            var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions
             {
                 DateOfLastUpdate = new DateTime(2020,01,01),
                 
@@ -236,7 +237,8 @@ namespace Applications.TriggerUpdates.Tests
 
             // Simulate a data load that inserts the previously unknown value 0202020202 into the mapping as 0X0X0X0X0X
             // The value 0202020202 is in the guid mapping table! so we would expect a global system update to be issued for the temporary guid mapping to the new legit mapping
-            map.Insert(new Dictionary<string, object>(){ 
+            map.Insert(new Dictionary<string, object>
+            { 
                 {"CHI","0202020202" },
                 {"ECHI","0X0X0X0X0X" },
                 {SpecialFieldNames.ValidFrom,DateTime.Now },
@@ -248,7 +250,7 @@ namespace Applications.TriggerUpdates.Tests
  
             Assert.AreEqual(2,map.GetRowCount(),"We should have a mapping table with 2 entries, the old existing one 0101010101 and a new one 0202020202");
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
+            var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
             var msg = source.GetUpdates().ToArray();
             Assert.IsNotNull(msg);
@@ -281,7 +283,7 @@ namespace Applications.TriggerUpdates.Tests
                         
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
 
-            var source = new MapperSource(new GlobalOptions(){IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions() }, new TriggerUpdatesFromMapperOptions(){DateOfLastUpdate = new DateTime(2020,01,01)});
+            var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions() }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
             var msg = source.GetUpdates().ToArray();
             Assert.IsNotNull(msg);

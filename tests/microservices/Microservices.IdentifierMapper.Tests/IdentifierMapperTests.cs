@@ -27,6 +27,12 @@ namespace Microservices.IdentifierMapper.Tests
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class IdentifierMapperTests : DatabaseTests
     {
+        [OneTimeSetUp]
+        public void DisableFoDicomValidation()
+        {
+            new DicomSetupBuilder().SkipValidation();
+        }
+
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
         public void TestIdentifierSwap(DatabaseType type)
@@ -53,8 +59,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             var msg = GetTestDicomFileMessage();
 
-            string reason;
-            consumer.SwapIdentifier(msg, out reason);
+            consumer.SwapIdentifier(msg, out var reason);
 
             AssertDicomFileMessageHasPatientID(msg, "020202");
         }
@@ -89,15 +94,20 @@ namespace Microservices.IdentifierMapper.Tests
 
             var msg = GetTestDicomFileMessage(test);
 
-            string reason;
-            consumer.SwapIdentifier(msg, out reason);
+            consumer.SwapIdentifier(msg, out var reason);
 
-            if (test == Test.Normal)
-                AssertDicomFileMessageHasPatientID(msg, "020202");
-            else if (test == Test.ProperlyFormatedChi)
-                AssertDicomFileMessageHasPatientID(msg, "0202020202");
-            else
-                Assert.Fail("Wrong test case?");
+            switch (test)
+            {
+                case Test.Normal:
+                    AssertDicomFileMessageHasPatientID(msg, "020202");
+                    break;
+                case Test.ProperlyFormatedChi:
+                    AssertDicomFileMessageHasPatientID(msg, "0202020202");
+                    break;
+                default:
+                    Assert.Fail("Wrong test case?");
+                    break;
+            }
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer, 8, 25), RequiresRabbit]
@@ -133,8 +143,8 @@ namespace Microservices.IdentifierMapper.Tests
 
             Console.WriteLine("Generating Test data...");
 
-            List<Task> tasks = new List<Task>();
-            object oTaskLock = new object();
+            List<Task> tasks = new();
+            object oTaskLock = new();
 
             for (int i = 0; i < batchSize; i++)
             {
@@ -235,7 +245,7 @@ namespace Microservices.IdentifierMapper.Tests
             options.ReplacementColumnName = "pub";
             options.MappingDatabaseType = type;
 
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             sw.Start();
             
             mappingDataTable.Rows.Clear();
@@ -265,8 +275,7 @@ namespace Microservices.IdentifierMapper.Tests
             sw.Reset();
 
             sw.Start();
-            string reason;
-            var answer = swapper.GetSubstitutionFor("12325", out reason);
+            var answer = swapper.GetSubstitutionFor("12325", out var reason);
             sw.Stop();
             Console.WriteLine("Lookup Key:" + sw.ElapsedMilliseconds);
             sw.Reset();
@@ -300,8 +309,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             var msg = GetTestDicomFileMessage();
 
-            string reason;
-            consumer.SwapIdentifier(msg, out reason);
+            consumer.SwapIdentifier(msg, out var reason);
 
             var newDs = DicomTypeTranslater.DeserializeJsonToDataset(msg.DicomDataset);
             var guidAllocated = newDs.GetValue<string>(DicomTag.PatientID, 0);
@@ -333,8 +341,7 @@ namespace Microservices.IdentifierMapper.Tests
             var swapper = new ForGuidIdentifierSwapper();
             swapper.Setup(options);
 
-            string reason;
-            Assert.AreEqual(36, swapper.GetSubstitutionFor("01010101", out reason).Length);
+            Assert.AreEqual(36, swapper.GetSubstitutionFor("01010101", out var reason).Length);
             Assert.AreEqual(36, swapper.GetSubstitutionFor("02020202", out reason).Length);
 
             var answer1 = swapper.GetSubstitutionFor("03030303", out reason);
@@ -475,9 +482,8 @@ namespace Microservices.IdentifierMapper.Tests
             var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
 
             var msg = GetTestDicomFileMessage();
-            string reason;
 
-            Assert.False(consumer.SwapIdentifier(msg, out reason));
+            Assert.False(consumer.SwapIdentifier(msg, out var reason));
             Assert.AreEqual("Swapper Microservices.IdentifierMapper.Tests.SwapForFixedValueTester returned null", reason);
         }
 
@@ -489,7 +495,7 @@ namespace Microservices.IdentifierMapper.Tests
 
         private DicomFileMessage GetTestDicomFileMessage(Test testCase = Test.Normal, int numberOfRandomTagsPerDicom = 0)
         {
-            var msg = new DicomFileMessage()
+            var msg = new DicomFileMessage
             {
                 DicomFilePath = "Path/To/The/File.dcm",
                 SOPInstanceUID = "1.2.3.4",
@@ -499,7 +505,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             DicomDataset ds;
 
-            Random r = new Random(123);
+            Random r = new(123);
 
             
             using (var generator = new DicomDataGenerator(r, null, "CT"))
@@ -588,8 +594,7 @@ namespace Microservices.IdentifierMapper.Tests
             var swapper = new TableLookupSwapper();
             swapper.Setup(options.IdentifierMapperOptions);
 
-            string _;
-            string swapped = swapper.GetSubstitutionFor("CHI-1", out _);
+            string swapped = swapper.GetSubstitutionFor("CHI-1", out var _);
             Assert.AreEqual("REP-1", swapped);
             swapped = swapper.GetSubstitutionFor("CHI-1", out _);
             Assert.AreEqual("REP-1", swapped);

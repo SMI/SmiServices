@@ -33,7 +33,7 @@ namespace Microservices.IdentifierMapper.Tests
                 map = db.CreateTable("Map",dt);
             }
 
-            var options = new IdentifierMapperOptions()
+            var options = new IdentifierMapperOptions
             {
                 MappingTableName = map.GetFullyQualifiedName(),
                 MappingConnectionString = db.Server.Builder.ConnectionString,
@@ -46,7 +46,7 @@ namespace Microservices.IdentifierMapper.Tests
             swapper.Setup(options);
 
             //cache hit
-            string answer = swapper.GetSubstitutionFor("0101010101",out string reason);
+            var answer = swapper.GetSubstitutionFor("0101010101",out var reason);
             Assert.AreEqual("0A0A0A0A0A",answer);
             Assert.IsNull(reason);
 
@@ -60,7 +60,7 @@ namespace Microservices.IdentifierMapper.Tests
             //but the swap column should always be called guid
             Assert.IsNotNull(guidTable.DiscoverColumn("guid"));
 
-            string answer2 = swapper.GetSubstitutionFor("0202020202",out reason);
+            var answer2 = swapper.GetSubstitutionFor("0202020202",out reason);
             
             //should be a guid e.g. like "bc70d07d-4c77-4086-be1c-2971fd66ccf2"
             Assert.IsNotNull(answer2);
@@ -129,7 +129,7 @@ namespace Microservices.IdentifierMapper.Tests
                 });
 
 
-            var options = new IdentifierMapperOptions()
+            var options = new IdentifierMapperOptions
             {
                 MappingTableName = map.GetFullyQualifiedName(),
                 MappingConnectionString = db.Server.Builder.ConnectionString,
@@ -142,13 +142,11 @@ namespace Microservices.IdentifierMapper.Tests
             swapper.Setup(options);
 
             //cache hit
-            string answer = swapper.GetSubstitutionFor("010101010031002300020320402054240204022433040301",out string reason);
+            var answer = swapper.GetSubstitutionFor("010101010031002300020320402054240204022433040301",out var reason);
             Assert.IsNull(answer);
-            
-            if(createGuidTableUpFront)
-                StringAssert.AreEqualIgnoringCase("Supplied value was too long (48) - max allowed is (30)",reason);
-            else
-                StringAssert.AreEqualIgnoringCase("Supplied value was too long (48) - max allowed is (10)",reason);
+
+            StringAssert.AreEqualIgnoringCase(
+                    $"Supplied value was too long (48) - max allowed is ({(createGuidTableUpFront?30:10)})", reason);
         }
     }
 }

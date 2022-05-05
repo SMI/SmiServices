@@ -32,14 +32,14 @@ namespace Microservices.MongoDBPopulator.Tests
             _mongoTestClient.DropDatabase(TestDbName);
             TestDatabase = _mongoTestClient.GetDatabase(TestDbName);
 
-            Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions = new ConsumerOptions()
+            Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions = new ConsumerOptions
             {
                 QueueName = "TEST.SeriesQueue",
                 QoSPrefetchCount = 5,
                 AutoAck = false
             };
 
-            Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions = new ConsumerOptions()
+            Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions = new ConsumerOptions
             {
                 QueueName = "TEST.MongoImageQueue",
                 QoSPrefetchCount = 50,

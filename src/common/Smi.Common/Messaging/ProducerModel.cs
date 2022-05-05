@@ -29,7 +29,7 @@ namespace Smi.Common.Messaging
         private const int ConfirmTimeoutMs = 5000;
 
         // Used to stop messages being produced if we are in the process of crashing out
-        private readonly object _oSendLock = new object();
+        private readonly object _oSendLock = new();
 
 
         /// <summary>
