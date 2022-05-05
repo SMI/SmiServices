@@ -10,6 +10,7 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 using System.Diagnostics;
+using FellowOakDicom;
 
 namespace Smi.Common.Execution
 {
@@ -52,6 +53,9 @@ namespace Smi.Common.Execution
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)
                 throw new ArgumentException("All or part of the global options are null");
 
+            // Disable fo-dicom's DICOM validation globally from here
+            new DicomSetupBuilder().SkipValidation();
+
             HostProcessName = globals.HostProcessName;
             
             Logger = LogManager.GetLogger(GetType().Name);
@@ -62,7 +66,7 @@ namespace Smi.Common.Execution
 
             // log centrally
             Globals = globals;
-            Logger.Debug("Loaded global options:\n" + globals);
+            Logger.Debug($"Loaded global options:\n{globals}");
 
             // should also be centralized for non-host uses
             // Ensure this is false in case the default changes
@@ -130,7 +134,7 @@ namespace Smi.Common.Execution
         //TODO Expose timeout here
         public virtual void Stop(string reason)
         {
-            Logger.Info("Host Stop called: " + reason);
+            Logger.Info($"Host Stop called: {reason}");
 
             if (_stopCalled)
                 Logger.Warn("Host stop called twice");
@@ -147,7 +151,7 @@ namespace Smi.Common.Execution
             }
             catch (Exception e)
             {
-                Logger.Warn("Could not clean up control queues: " + e.Message);
+                Logger.Warn($"Could not clean up control queues: {e.Message}");
             }
 
             lock (_oAdapterLock)
@@ -168,22 +172,20 @@ namespace Smi.Common.Execution
         /// <param name="exception"></param>
         public void Fatal(string msg, Exception exception)
         {
+            Logger.Fatal(exception, msg);
             if (_stopCalled)
                 return;
 
-            Logger.Fatal(exception, msg);
+            try
+            {
+                _fatalLoggingProducer?.SendMessage(new FatalErrorMessage(msg, exception), null);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to log fatal error");
+            }
 
-            if (_fatalLoggingProducer != null)
-                try
-                {
-                    _fatalLoggingProducer.SendMessage(new FatalErrorMessage(msg, exception), null);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "Failed to log fatal error");
-                }
-
-            Stop("Fatal error in MicroserviceHost (" + msg + ")");
+            Stop($"Fatal error in MicroserviceHost ({msg})");
         }
     }
 }

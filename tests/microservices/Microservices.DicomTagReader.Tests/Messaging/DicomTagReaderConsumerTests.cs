@@ -29,8 +29,6 @@ namespace Microservices.DicomTagReader.Tests.Messaging
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            new DicomSetupBuilder().SkipValidation().Build();
-
             _helper.SetUpSuite();
 
             _mockModel = Mock.Of<IModel>();

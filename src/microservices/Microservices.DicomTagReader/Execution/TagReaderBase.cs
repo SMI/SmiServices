@@ -56,8 +56,6 @@ namespace Microservices.DicomTagReader.Execution
         /// <param name="fs">File system to use</param>
         public TagReaderBase(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions, IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
         {
-            new DicomSetupBuilder().SkipValidation().Build();
-
             Logger = LogManager.GetLogger(GetType().Name);
 
             _filesystemRoot = fileSystemOptions.FileSystemRoot;

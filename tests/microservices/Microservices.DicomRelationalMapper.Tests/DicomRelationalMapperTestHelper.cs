@@ -36,9 +36,6 @@ namespace Microservices.Tests.RDMPTests
 
         public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string root = null, ImageTableTemplateCollection template = null, bool persistentRaw = false, string modalityPrefix = null)
         {
-            // Disable fo-dicom validation again
-            new DicomSetupBuilder().SkipValidation().Build();
-
             ImageTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}ImageTable");
             SeriesTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}SeriesTable");
             StudyTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}StudyTable");

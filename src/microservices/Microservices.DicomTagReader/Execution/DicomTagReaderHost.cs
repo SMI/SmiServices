@@ -19,9 +19,6 @@ namespace Microservices.DicomTagReader.Execution
         public DicomTagReaderHost(GlobalOptions options)
             : base(options)
         {
-            // We don't generally want tag validation in the SMI pipeline: can't fix upstream data at this stage!
-            new DicomSetupBuilder().SkipValidation().Build();
-
             if (!Directory.Exists(options.FileSystemOptions.FileSystemRoot))
                 throw new ArgumentException(
                     $"Cannot find the FileSystemRoot specified in the given MicroservicesOptions ({options.FileSystemOptions.FileSystemRoot})");

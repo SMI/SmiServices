@@ -435,8 +435,6 @@ namespace Microservices.IdentifierMapper.Tests
         [TestCase(Test.DuplicatePatientIDAndDifferent,false)]
         public void Test_DuplicatePatientID(Test testCase,bool expectAllowed)
         {
-            new DicomSetupBuilder().SkipValidation().Build();
-
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
             //the declaration of what the guid namer table should be

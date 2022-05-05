@@ -29,7 +29,6 @@ namespace Microservices.DicomRelationalMapper.Tests
         [SetUp]
         public void Setup()
         {
-            new DicomSetupBuilder().SkipValidation().Build();
             BlitzMainDataTables();
 
             _globals = new GlobalOptionsFactory().Load(nameof(DicomRelationalMapperTests));

@@ -11,8 +11,6 @@ namespace Smi.Common.Tests
 
         public static void Setup()
         {
-            new DicomSetupBuilder().SkipValidation().Build();
-
             if (LogManager.Configuration == null)
                 LogManager.Configuration = new LoggingConfiguration();
             else if (LogManager.Configuration.FindTargetByName<ConsoleTarget>(TestLoggerName) != null)
