@@ -1,6 +1,5 @@
 ﻿using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
-using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;

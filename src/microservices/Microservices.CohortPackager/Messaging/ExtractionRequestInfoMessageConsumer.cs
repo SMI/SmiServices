@@ -3,7 +3,6 @@ using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
-using RabbitMQ.Client.Events;
 using System;
 
 namespace Microservices.CohortPackager.Messaging

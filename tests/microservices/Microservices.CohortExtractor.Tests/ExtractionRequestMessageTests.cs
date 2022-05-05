@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Dicom;
+﻿using Dicom;
 using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
 

@@ -3,7 +3,6 @@ using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using System;
-using System.Linq;
 
 
 namespace Smi.Common.Tests

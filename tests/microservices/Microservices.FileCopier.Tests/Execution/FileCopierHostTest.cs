@@ -8,7 +8,6 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using System.Text;
 
 

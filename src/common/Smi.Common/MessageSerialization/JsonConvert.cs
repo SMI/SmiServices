@@ -66,7 +66,7 @@ namespace Smi.Common.MessageSerialization
                 enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
             //TODO This might crash if for some reason we have invalid Unicode points
-            return DeserializeObject<T>(enc.GetString(deliverArgs.Body));
+            return DeserializeObject<T>(enc.GetString(deliverArgs.Body.Span));
         }
 
         public static T DeserializeObject<T>(byte[] body) where T : IMessage

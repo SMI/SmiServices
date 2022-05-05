@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using Applications.TriggerUpdates.Options;
 using Tests.Common;
 

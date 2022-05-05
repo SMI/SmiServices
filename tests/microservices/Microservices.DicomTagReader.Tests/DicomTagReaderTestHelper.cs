@@ -1,7 +1,6 @@
 ﻿
 using Moq;
 using NLog;
-using NUnit.Framework;
 using RabbitMQ.Client;
 using Smi.Common.Execution;
 using Smi.Common.Messages;

@@ -2,7 +2,6 @@
 using Dicom;
 using DicomTypeTranslation;
 using MongoDB.Driver;
-using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;

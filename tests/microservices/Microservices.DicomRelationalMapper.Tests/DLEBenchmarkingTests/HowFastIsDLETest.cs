@@ -30,7 +30,6 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using BadMedicine;
 using BadMedicine.Dicom;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
