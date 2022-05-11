@@ -26,7 +26,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
         
 	private String GetListContent()
 	{
-            StringBuilder accessionList = new StringBuilder();
+            StringBuilder accessionList = new();
 
 	    accessionList.AppendLine("/PACS/2018/01/01/AAA,");           // exists and has dicom files - fail (requires indication that is dir) 
 	    accessionList.AppendLine("/PACS/2018/01/01/AAA/,");          // exists and has dicom files - pass
@@ -47,7 +47,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
 	public void TestAccessionDirectoryLister()
         {
 			// Mock file system referenced in accession list
-            MockFileSystem mockFilesystem = new MockFileSystem(null,Environment.CurrentDirectory);
+            MockFileSystem mockFilesystem = new(null,Environment.CurrentDirectory);
 			string rootDir = Path.Combine(Path.GetPathRoot(Environment.CurrentDirectory),"PACS");
 
 	    string testDicom = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/test.dcm"));
@@ -70,14 +70,14 @@ namespace Applications.DicomDirectoryProcessor.Tests
 	    // Mock producer
 	    var totalSent = 0;
 
-            Mock<IProducerModel> mockProducerModel = new Mock<IProducerModel>();
+            Mock<IProducerModel> mockProducerModel = new();
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
                                             null,
                                             ""))
                 .Callback(() => ++totalSent);
 
-            AccessionDirectoryLister accessionLister = new AccessionDirectoryLister(rootDir, mockFilesystem, "*.dcm", mockProducerModel.Object);
+            AccessionDirectoryLister accessionLister = new(rootDir, mockFilesystem, "*.dcm", mockProducerModel.Object);
 
             accessionLister.SearchForDicomDirectories(accessionList);
 	    

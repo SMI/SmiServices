@@ -22,17 +22,7 @@ namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
             var options = new GlobalOptionsFactory().Load(nameof(RabbitAvailable));
             var rabbitOptions = options.RabbitOptions;
 
-            Console.WriteLine("Checking the following configuration:" + Environment.NewLine + rabbitOptions);
-            try
-            {
-                var adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
-            }
-            catch (Exception)
-            {
-                Assert.Fail("Could not access Rabbit MQ Server");
-            }
-
-            Assert.Pass();
+            Assert.DoesNotThrow(()=> _=new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(),nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
         }
     }
 }

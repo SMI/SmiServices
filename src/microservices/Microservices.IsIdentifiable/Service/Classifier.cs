@@ -49,13 +49,14 @@ namespace Microservices.IsIdentifiable.Service
         {
             var files = directory.GetFiles(searchPattern, SearchOption.AllDirectories).ToArray();
 
-            if(files.Length  == 0)
-                throw new FileNotFoundException($"Expected 1 file matching '{searchPattern}' to exist in {directory}");
-            
-            if(files.Length > 1)
-                throw new Exception($"Found '{files.Length}' file matching '{searchPattern}' in {directory} (expected 1)");
-
-            return files[0];
+            return files.Length switch
+            {
+                0 => throw new FileNotFoundException(
+                    $"Expected 1 file matching '{searchPattern}' to exist in {directory}"),
+                > 1 => throw new Exception(
+                    $"Found '{files.Length}' file matching '{searchPattern}' in {directory} (expected 1)"),
+                _ => files[0]
+            };
         }
 
     }

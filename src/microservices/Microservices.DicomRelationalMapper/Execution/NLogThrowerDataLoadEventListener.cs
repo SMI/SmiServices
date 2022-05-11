@@ -7,7 +7,7 @@ namespace Microservices.DicomRelationalMapper.Execution
     internal class NLogThrowerDataLoadEventListener:IDataLoadEventListener
     {
         private Logger _logger;
-        private ThrowImmediatelyDataLoadEventListener _thrower = new ThrowImmediatelyDataLoadEventListener();
+        private ThrowImmediatelyDataLoadEventListener _thrower = new();
 
         public NLogThrowerDataLoadEventListener(Logger logger)
         {

@@ -10,7 +10,7 @@ namespace Microservices.IdentifierMapper.Tests
         [Test]
         public void Test_IdentifierMapper_LoggingCounts()
         {
-            MemoryTarget target = new MemoryTarget();                                                  
+            MemoryTarget target = new();                                                  
             target.Layout = "${message}";
             
             var mapper = new SwapForFixedValueTester("fish");

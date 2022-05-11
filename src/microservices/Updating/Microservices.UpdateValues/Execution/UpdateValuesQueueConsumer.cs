@@ -18,7 +18,7 @@ namespace Microservices.UpdateValues.Execution
             _updater.TableInfosToUpdate = opts.TableInfosToUpdate;
         }
 
-        DateTime lastPerformanceAudit = new DateTime(2001,1,1);
+        DateTime lastPerformanceAudit = new(2001,1,1);
         TimeSpan auditEvery = TimeSpan.FromSeconds(60);
 
         protected override void ProcessMessageImpl(IMessageHeader header, UpdateValuesMessage message, ulong tag)

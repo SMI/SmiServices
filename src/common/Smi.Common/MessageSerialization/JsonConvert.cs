@@ -13,9 +13,9 @@ namespace Smi.Common.MessageSerialization
     /// </summary>
     public static class JsonConvert
     {
-        private static List<string> _errors = new List<string>();
+        private static List<string> _errors = new();
 
-        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings _serializerSettings = new()
         {
             Error = delegate (object sender, ErrorEventArgs args)
             {

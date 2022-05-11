@@ -1,5 +1,5 @@
 
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
@@ -44,8 +44,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         {
             Assert.False(message == null || document == null);
 
-            BsonElement element;
-            Assert.True(document.TryGetElement("header", out element));
+            Assert.True(document.TryGetElement("header", out var element));
 
             var docHeader = (BsonDocument)element.Value;
             Assert.AreEqual(_imageMessageProps.Count - 3, docHeader.ElementCount);
@@ -65,8 +64,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         {
             Assert.AreEqual(message.DicomFilePath, docHeader["DicomFilePath"].AsString);
 
-            BsonElement element;
-            Assert.True(docHeader.TryGetElement("MessageHeader", out element));
+            Assert.True(docHeader.TryGetElement("MessageHeader", out var element));
 
             var messageHeaderDoc = (BsonDocument)element.Value;
             Assert.NotNull(messageHeaderDoc);

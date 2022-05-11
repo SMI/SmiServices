@@ -23,8 +23,8 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         private DiscoveredTable _table;
 
-        private readonly Dictionary<string, string> _cachedAnswers = new Dictionary<string, string>();
-        private readonly object _oCacheLock = new object();
+        private readonly Dictionary<string, string> _cachedAnswers = new();
+        private readonly object _oCacheLock = new();
 
         private int _swapColumnLength;
 
@@ -97,12 +97,8 @@ where not exists(select *
 
                         break;
                     case FAnsi.DatabaseType.MySql:
-                        insertSql = string.Format(@"INSERT IGNORE INTO {0} SET {1} = '{2}', {3} = '{4}';",
-    _table.GetFullyQualifiedName(),
-    _options.SwapColumnName,
-    toSwap,
-    _options.ReplacementColumnName,
-    guid);
+                        insertSql =
+                            $@"INSERT IGNORE INTO {_table.GetFullyQualifiedName()} SET {_options.SwapColumnName} = '{toSwap}', {_options.ReplacementColumnName} = '{guid}';";
                         break;
                     default : throw new ArgumentOutOfRangeException(_options.MappingConnectionString);
                     

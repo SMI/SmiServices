@@ -11,9 +11,9 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
     public class PacsDirectoryFinder : DicomDirectoryFinder
     {
         // Regex that matches when we are at the yyyy\mm\dd\ directory level
-        private readonly Regex _dayDirectoryRegex = new Regex(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2})([\\\/]|$)");
+        private readonly Regex _dayDirectoryRegex = new(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2})([\\\/]|$)");
         // Regex that matches when we are at the yyyy\mm\dd\xxxxx directory level
-        private readonly Regex _accDirectoryRegex = new Regex(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2}[\\\/][a-zA-Z0-9._-]+[\\\/]$)");
+        private readonly Regex _accDirectoryRegex = new(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2}[\\\/][a-zA-Z0-9._-]+[\\\/]$)");
 
 
         public PacsDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)

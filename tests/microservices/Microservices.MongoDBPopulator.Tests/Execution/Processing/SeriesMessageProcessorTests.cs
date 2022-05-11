@@ -1,5 +1,5 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
@@ -44,8 +44,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         {
             Assert.False(message == null || document == null);
 
-            BsonElement element;
-            Assert.True(document.TryGetElement("header", out element));
+            Assert.True(document.TryGetElement("header", out var element));
 
             var docHeader = (BsonDocument)element.Value;
             Assert.AreEqual(_seriesMessageProps.Count - 3, docHeader.ElementCount);

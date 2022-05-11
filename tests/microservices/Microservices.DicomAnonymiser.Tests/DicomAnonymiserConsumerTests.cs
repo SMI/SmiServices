@@ -170,7 +170,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Assert
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
 
             mockAnonymiser.Verify(expectedAnonCall, Times.Once);
             mockProducerModel.Verify(expectedSendCall, Times.Once);
@@ -194,7 +194,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Assert
 
-            new TestTimelineAwaiter().Await(() => fatalArgs != null, "Expected Fatal to be called");
+            TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
             Assert.AreEqual("DicomAnonymiserConsumer should not handle identifiable extraction messages", fatalArgs.Exception.Message);
             Assert.AreEqual(0, consumer.AckCount);
@@ -231,7 +231,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Assert
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
 
             mockProducerModel.Verify(expectedCall, Times.Once);
         }
@@ -264,7 +264,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Assert
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
 
             mockProducerModel.Verify(expectedCall, Times.Once);
         }
@@ -287,7 +287,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Assert
 
-            new TestTimelineAwaiter().Await(() => fatalArgs != null, "Expected Fatal to be called");
+            TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
 
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
             Assert.AreEqual($"Expected extraction directory to exist: '{_extractDir}'", fatalArgs.Exception.Message);
@@ -326,7 +326,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             // Assert
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
 
             mockProducerModel.Verify(expectedCall, Times.Once);
         }

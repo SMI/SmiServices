@@ -6,7 +6,7 @@ namespace Smi.Common
     public static class ConnectionFactoryExtensions
     {
         public static ConnectionFactory CreateConnectionFactory(this RabbitOptions options)
-            => new ConnectionFactory
+            => new()
             {
                 HostName = options.RabbitMqHostName,
                 VirtualHost = options.RabbitMqVirtualHost,

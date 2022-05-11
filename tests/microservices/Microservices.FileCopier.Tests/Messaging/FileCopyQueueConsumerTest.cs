@@ -69,7 +69,7 @@ namespace Microservices.FileCopier.Tests.Messaging
 
             consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace Microservices.FileCopier.Tests.Messaging
 
             consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 0 && consumer.NackCount == 1);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 0 && consumer.NackCount == 1);
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace Microservices.FileCopier.Tests.Messaging
 
             consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => fatalCalled, "Expected Fatal to be called");
+            TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
@@ -121,7 +121,7 @@ namespace Microservices.FileCopier.Tests.Messaging
 
             consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => fatalCalled, "Expected Fatal to be called");
+            TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }

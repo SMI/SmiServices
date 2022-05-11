@@ -18,17 +18,13 @@ namespace Smi.Common.Events
 
         public FatalErrorEventArgs(BasicReturnEventArgs ra)
         {
-            Message = string.Format("BasicReturnEventArgs: {0} - {1}. (Exchange: {2}, RoutingKey: {3})",
-                ra.ReplyCode, ra.ReplyText, ra.Exchange, ra.RoutingKey);
+            Message =
+                $"BasicReturnEventArgs: {ra.ReplyCode} - {ra.ReplyText}. (Exchange: {ra.Exchange}, RoutingKey: {ra.RoutingKey})";
         }
 
         public override string ToString()
         {
-            return ""
-                + $"{base.ToString()}, "
-                + $"Message={Message}, "
-                + $"Exception={Exception}, "
-                + "";
+            return $"{base.ToString()}, Message={Message}, Exception={Exception}, ";
         }
     }
 }

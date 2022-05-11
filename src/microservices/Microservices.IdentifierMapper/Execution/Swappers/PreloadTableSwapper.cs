@@ -20,7 +20,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         private IMappingTableOptions _options;
 
         private Dictionary<string, string> _mapping;
-        private readonly object _oDictionaryLock = new object();
+        private readonly object _oDictionaryLock = new();
 
 
         public PreloadTableSwapper()
@@ -43,28 +43,27 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
                     DiscoveredTable tbl = options.Discover();
 
-                    using (DbConnection con = tbl.Database.Server.GetConnection())
-                    {
-                        con.Open();
+                    using DbConnection con = tbl.Database.Server.GetConnection();
+                    con.Open();
 
-                        string sql = string.Format("SELECT {0}, {1} FROM {2}", options.SwapColumnName, options.ReplacementColumnName, tbl.GetFullyQualifiedName());
-                        _logger.Debug("SQL: " + sql);
+                    string sql =
+                        $"SELECT {options.SwapColumnName}, {options.ReplacementColumnName} FROM {tbl.GetFullyQualifiedName()}";
+                    _logger.Debug($"SQL: {sql}");
 
-                        DbCommand cmd = tbl.Database.Server.GetCommand(sql, con);
-                        cmd.CommandTimeout = _options.TimeoutInSeconds;
+                    DbCommand cmd = tbl.Database.Server.GetCommand(sql, con);
+                    cmd.CommandTimeout = _options.TimeoutInSeconds;
 
-                        DbDataReader dataReader = cmd.ExecuteReader();
+                    DbDataReader dataReader = cmd.ExecuteReader();
 
-                        _mapping = new Dictionary<string, string>();
+                    _mapping = new Dictionary<string, string>();
 
-                        _logger.Debug("Populating dictionary from mapping table...");
-                        Stopwatch sw = Stopwatch.StartNew();
+                    _logger.Debug("Populating dictionary from mapping table...");
+                    Stopwatch sw = Stopwatch.StartNew();
 
-                        while (dataReader.Read())
-                            _mapping.Add(dataReader[_options.SwapColumnName].ToString(), dataReader[_options.ReplacementColumnName].ToString());
+                    while (dataReader.Read())
+                        _mapping.Add(dataReader[_options.SwapColumnName].ToString(), dataReader[_options.ReplacementColumnName].ToString());
 
-                        _logger.Debug("Mapping dictionary populated with " + _mapping.Count + " entries in " + sw.Elapsed.ToString("g"));
-                    }
+                    _logger.Debug("Mapping dictionary populated with " + _mapping.Count + " entries in " + sw.Elapsed.ToString("g"));
                 }
 
         }

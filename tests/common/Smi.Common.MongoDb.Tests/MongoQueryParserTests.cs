@@ -65,13 +65,11 @@ namespace Smi.Common.MongoDB.Tests
             Assert.IsTrue(t.IsCompleted);
             Assert.IsFalse(t.IsFaulted);
 
-            using (IAsyncCursor<BsonDocument> _ = t.Result)
-            {
-                _logger.Info("Received new batch");
+            using IAsyncCursor<BsonDocument> _ = t.Result;
+            _logger.Info("Received new batch");
 
-                Assert.AreEqual(expectedSkip, findOptions.Skip);
-                Assert.AreEqual(expectedLimit, findOptions.Limit);
-            }
+            Assert.AreEqual(expectedSkip, findOptions.Skip);
+            Assert.AreEqual(expectedLimit, findOptions.Limit);
         }
 
         #endregion

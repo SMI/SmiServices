@@ -7,7 +7,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 {
     public class CompletedExtractJobInfoTest
     {
-        private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
+        private readonly TestDateTimeProvider _dateTimeProvider = new();
 
         #region Fixture Methods 
 

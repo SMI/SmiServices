@@ -33,7 +33,7 @@ namespace Smi.Common.Messaging
 
         protected readonly ILogger Logger;
 
-        private readonly object _oConsumeLock = new object();
+        private readonly object _oConsumeLock = new();
         private bool _exiting;
 
         protected IModel Model;

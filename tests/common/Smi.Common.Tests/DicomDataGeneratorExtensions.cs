@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using BadMedicine;
 using BadMedicine.Dicom;
-using Dicom;
+using FellowOakDicom;
 using NUnit.Framework;
 
 namespace Smi.Common.Tests

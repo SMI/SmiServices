@@ -14,7 +14,7 @@ namespace Smi.Common.MongoDB
 
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private static readonly ListCollectionNamesOptions _listOptions = new ListCollectionNamesOptions();
+        private static readonly ListCollectionNamesOptions _listOptions = new();
 
         /// <summary>
         /// Creates a <see cref="MongoClient"/> from the given options, and checks that the user has the "readWrite" role for the given database

@@ -82,7 +82,7 @@ namespace Microservices.UpdateValues.Execution
         {
             var audit = _audits.GetOrAdd(t,(k)=>new UpdateTableAudit(k));
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
 
             builder.AppendLine("UPDATE ");
             builder.AppendLine(t.GetFullyQualifiedName());
@@ -118,21 +118,19 @@ namespace Microservices.UpdateValues.Execution
             audit.StartOne();
             try
             {
-                using(var con = t.Database.Server.GetConnection())
+                using var con = t.Database.Server.GetConnection();
+                con.Open();
+
+                var cmd = t.Database.Server.GetCommand(sql,con);
+                cmd.CommandTimeout = UpdateTimeout;
+
+                try
                 {
-                    con.Open();
-
-                    var cmd = t.Database.Server.GetCommand(sql,con);
-                    cmd.CommandTimeout = UpdateTimeout;
-
-                    try
-                    {
-                       return affectedRows = cmd.ExecuteNonQuery();
-                    }
-                    catch(Exception ex)
-                    {
-                        throw new Exception($"Failed to execute query {sql} " ,ex);
-                    }
+                    return affectedRows = cmd.ExecuteNonQuery();
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception($"Failed to execute query {sql} " ,ex);
                 }
             }
             finally
@@ -150,17 +148,14 @@ namespace Microservices.UpdateValues.Execution
         /// <returns></returns>
         protected string GetFieldEqualsValueExpression(DiscoveredColumn col, string value, string op)
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
 
             builder.Append(col.GetFullyQualifiedName());
-            builder.Append(" ");
+            builder.Append(' ');
             builder.Append(op??"=");
-            builder.Append(" ");
-                
-            if(string.IsNullOrWhiteSpace(value))
-                builder.Append("null");
-            else
-                builder.Append(value);
+            builder.Append(' ');
+
+            builder.Append(string.IsNullOrWhiteSpace(value) ? "null" : value);
 
             return builder.ToString();
         }

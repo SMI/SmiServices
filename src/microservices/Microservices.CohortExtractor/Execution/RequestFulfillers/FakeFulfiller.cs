@@ -29,18 +29,17 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
         {
-            Logger.Debug("Found " + message.KeyTag);
+            Logger.Debug($"Found {message.KeyTag}");
 
-            foreach (string valueToLookup in message.ExtractionIdentifiers)
+            foreach (var valueToLookup in message.ExtractionIdentifiers)
             {
                 var results = new ExtractImageCollection(valueToLookup);
-                string filePathValue = valueToLookup; // "img001.dcm";
-                string studyTagValue = "2";
-                string seriesTagValue = "3";
-                string instanceTagValue = "4";
-                bool rejection = false;
-                string rejectionReason = "";
-                var result = new QueryToExecuteResult(filePathValue, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
+                var studyTagValue = "2";
+                var seriesTagValue = "3";
+                var instanceTagValue = "4";
+                var rejection = false;
+                var rejectionReason = "";
+                var result = new QueryToExecuteResult(valueToLookup, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
                 if(!results.ContainsKey(result.SeriesTagValue))
                     results.Add(result.SeriesTagValue,new HashSet<QueryToExecuteResult>());
                 results[result.SeriesTagValue].Add(result);

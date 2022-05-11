@@ -1,4 +1,4 @@
-﻿using Dicom;
+using FellowOakDicom;
 using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
 

@@ -46,8 +46,8 @@ namespace Smi.Common
         private readonly string _hostId;
 
         private readonly IConnection _connection;
-        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new Dictionary<Guid, RabbitResources>();
-        private readonly object _oResourceLock = new object();
+        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new();
+        private readonly object _oResourceLock = new();
 
         private const int MinRabbitServerVersionMajor = 3;
         private const int MinRabbitServerVersionMinor = 7;
@@ -71,8 +71,7 @@ namespace Smi.Common
 
             if (_threaded)
             {
-                int minWorker, minIOC;
-                ThreadPool.GetMinThreads(out minWorker, out minIOC);
+                ThreadPool.GetMinThreads(out var minWorker, out var minIOC);
                 var workers = Math.Max(50, minWorker);
                 if (ThreadPool.SetMaxThreads(workers, 50))
                     _logger.Info($"Set Rabbit event concurrency to ({workers:n},50)");
@@ -331,7 +330,7 @@ namespace Smi.Common
         {
             public IModel Model { get; }
 
-            protected readonly object OResourceLock = new object();
+            protected readonly object OResourceLock = new();
 
             protected readonly ILogger Logger;
 

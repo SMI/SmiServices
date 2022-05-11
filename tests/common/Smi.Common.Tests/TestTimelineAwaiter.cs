@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using FellowOakDicom;
 using NLog;
 using NUnit.Framework;
 
@@ -23,7 +24,7 @@ namespace Smi.Common.Tests
         /// <param name="timeoutMessage"></param>
         /// <param name="timeout"></param>
         /// <param name="throwIfAnyFunc"></param>
-        public void Await(Func<bool> condition,string timeoutMessage= null,int timeout = 30000, Func<IEnumerable<Exception>> throwIfAnyFunc = null)
+        public static void Await(Func<bool> condition,string timeoutMessage= null,int timeout = 30000, Func<IEnumerable<Exception>> throwIfAnyFunc = null)
         {
             if (Debugger.IsAttached)
                 timeout = int.MaxValue;
@@ -36,20 +37,18 @@ namespace Smi.Common.Tests
 
                 var exceptions = throwIfAnyFunc?.Invoke()?.ToArray();
 
-                if (exceptions != null && exceptions.Any())
-                {
-                    var logger = LogManager.GetCurrentClassLogger();
+                if (exceptions == null || !exceptions.Any()) continue;
+                var logger = LogManager.GetCurrentClassLogger();
 
-                    foreach (Exception ex in exceptions)
-                        logger.Error(ex);
+                foreach (var ex in exceptions)
+                    logger.Error(ex);
 
-                    LogManager.Flush();
+                LogManager.Flush();
                     
-                    throw exceptions.Length == 1
-                        ? exceptions.Single()
-                        : new AggregateException(exceptions);
-                }
-                    
+                throw exceptions.Length == 1
+                    ? exceptions.Single()
+                    : new AggregateException(exceptions);
+
             }
 
             if (timeout <= 0)

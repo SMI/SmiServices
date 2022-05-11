@@ -9,7 +9,7 @@ namespace Smi.Common.Tests.Options
         public void TestFileSystemOptions_AsLinuxRootDir()
         {
 
-            var opts = new FileSystemOptions()
+            var opts = new FileSystemOptions
             {
                 FileSystemRoot = "/",
                 ExtractRoot = "/",

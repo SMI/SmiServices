@@ -6,7 +6,7 @@ namespace Microservices.IsIdentifiable
     {
         // DDMMYY + 4 digits 
         // \b bounded i.e. not more than 10 digits
-        readonly Regex _chiRegex = new Regex(@"\b[0-3][0-9][0-1][0-9][0-9]{6}\b");
+        static readonly Regex _chiRegex = new(@"\b[0-3][0-9][0-1][0-9][0-9]{6}\b");
         
         public string GetHumanReadableDescriptionOfValidation()
         {
@@ -15,18 +15,16 @@ namespace Microservices.IsIdentifiable
 
         public string Validate(object value, object[] otherColumns, string[] otherColumnNames)
         {
-            for (int i = 0; i < otherColumnNames.Length; i++)
+            for (var i = 0; i < otherColumnNames.Length; i++)
             {
-                var s = otherColumns[i] as string;
-
-                if(s != null && ContainsChi(s))
-                    return "Found chi in field " + otherColumnNames[i];
+                if(otherColumns[i] is string s && ContainsChi(s))
+                    return $"Found chi in field {otherColumnNames[i]}";
             }
 
             return null;
         }
 
-        public bool ContainsChi(string value)
+        private static bool ContainsChi(string value)
         {
             return _chiRegex.IsMatch(value);
         }

@@ -1,4 +1,4 @@
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Smi.Common.Messages;
@@ -19,49 +19,51 @@ namespace Microservices.IdentifierMapper.Messaging
         private readonly IProducerModel _producer;
         private readonly ISwapIdentifiers _swapper;
 
-        private readonly Regex _patientIdRegex = new Regex("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
+        private readonly Regex _patientIdRegex = new("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
-        private readonly BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,ulong>> msgq=new BlockingCollection<Tuple<DicomFileMessage,IMessageHeader, ulong>>();
+        private readonly BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,ulong>> msgq=new();
         private Thread acker;
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
         {
             _producer = producer;
             _swapper = swapper;
-            acker=new Thread(() =>
-            {
-                try
-                {
-                    while (true)
-                    {
-                        List<Tuple<IMessageHeader, ulong>> done = new List<Tuple<IMessageHeader, ulong>>();
-                        Tuple<DicomFileMessage, IMessageHeader, ulong> t;
-                        t = msgq.Take();
+            acker = new Thread(() =>
+              {
+                  try
+                  {
+                      while (true)
+                      {
+                          List<Tuple<IMessageHeader, ulong>> done = new();
+                          Tuple<DicomFileMessage, IMessageHeader, ulong> t;
+                          t = msgq.Take();
 
-                        lock (_producer)
-                        {
-                            _producer.SendMessage(t.Item1, t.Item2, "");
-                            done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
-                            while (msgq.TryTake(out t))
-                            {
-                                _producer.SendMessage(t.Item1, t.Item2, "");
-                                done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
-                            }
-                            _producer.WaitForConfirms();
-                            foreach (var ack in done)
-                            {
-                                Ack(ack.Item1, ack.Item2);
-                            }
-                        }
-                    }
-                }
-                catch (InvalidOperationException)
-                {
+                          lock (_producer)
+                          {
+                              _producer.SendMessage(t.Item1, t.Item2, "");
+                              done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
+                              while (msgq.TryTake(out t))
+                              {
+                                  _producer.SendMessage(t.Item1, t.Item2, "");
+                                  done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
+                              }
+                              _producer.WaitForConfirms();
+                              foreach (var ack in done)
+                              {
+                                  Ack(ack.Item1, ack.Item2);
+                              }
+                          }
+                      }
+                  }
+                  catch (InvalidOperationException)
+                  {
                     // The BlockingCollection will throw this exception when closed by Shutdown()
                     return;
-                }
-            });
-            acker.IsBackground = true;
+                  }
+              })
+            {
+                IsBackground = true
+            };
             acker.Start();
         }
 
@@ -112,7 +114,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
             if (!success)
             {
-                Logger.Info("Could not swap identifiers for message " + header.MessageGuid + ". Reason was: " + errorReason);
+                Logger.Info($"Could not swap identifiers for message {header.MessageGuid}. Reason was: {errorReason}");
                 ErrorAndNack(header, tag, errorReason, null);
             }
             else
@@ -128,11 +130,11 @@ namespace Microservices.IdentifierMapper.Messaging
 
             if (to == null)
             {
-                errorReason = "Swapper " + _swapper + " returned null";
+                errorReason = $"Swapper {_swapper} returned null";
                 return false;
             }
 
-            msg.DicomDataset = msg.DicomDataset.Replace(":[\"" + patientId + "\"]", ":[\"" + to + "\"]");
+            msg.DicomDataset = msg.DicomDataset.Replace($":[\"{patientId}\"]", $":[\"{to}\"]");
 
             return true;
         }
@@ -176,7 +178,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
             if (to == null)
             {
-                reason = "Swapper " + _swapper + " returned null";
+                reason = $"Swapper {_swapper} returned null";
                 return false;
             }
 
@@ -212,33 +214,27 @@ namespace Microservices.IdentifierMapper.Messaging
         {
             var val = DicomTypeTranslaterReader.GetCSharpValue(ds, DicomTag.PatientID);
 
-            if(val == null)
+            switch (val)
             {
-                return null;
-            }
-            if(val is string s)
-            {
-                return s;
-            }
-            
-            if(val is string[] arr)
-            {
-                var unique = arr.Where(a => !string.IsNullOrWhiteSpace(a)).Distinct().ToArray();
-
-                if(unique.Length == 0)
-                {
+                case null:
                     return null;
-                }
-
-                if(unique.Length == 1)
+                case string s:
+                    return s;
+                case string[] arr:
                 {
-                    return unique[0];
+                    var unique = arr.Where(a => !string.IsNullOrWhiteSpace(a)).Distinct().ToArray();
+
+                    return unique.Length switch
+                    {
+                        0 => null,
+                        1 => unique[0],
+                        _ => throw new BadPatientIDException(
+                            $"DicomDataset had multiple values for PatientID:{string.Join("\\", arr)}")
+                    };
                 }
-
-                throw new BadPatientIDException("DicomDataset had multiple values for PatientID:" + string.Join("\\", arr));
+                default:
+                    throw new BadPatientIDException($"DicomDataset had bad Type for PatientID:{val.GetType()}");
             }
-
-            throw new BadPatientIDException("DicomDataset had bad Type for PatientID:" + val.GetType());
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
     public static class MongoExtractJobInfoExtensions
     {
         public static ExtractJobInfo ToExtractJobInfo(this MongoExtractJobDoc mongoExtractJobDoc)
-            => new ExtractJobInfo(
+            => new(
                 mongoExtractJobDoc.ExtractionJobIdentifier,
                 mongoExtractJobDoc.JobSubmittedAt,
                 mongoExtractJobDoc.ProjectNumber,
@@ -19,7 +19,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 );
 
         public static CompletedExtractJobInfo ToExtractJobInfo(this MongoCompletedExtractJobDoc mongoCompletedExtractJobDoc)
-            => new CompletedExtractJobInfo(
+            => new(
                 mongoCompletedExtractJobDoc.ExtractionJobIdentifier,
                 mongoCompletedExtractJobDoc.JobSubmittedAt,
                 mongoCompletedExtractJobDoc.CompletedAt,

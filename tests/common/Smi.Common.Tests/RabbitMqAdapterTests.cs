@@ -20,8 +20,6 @@ namespace Smi.Common.Tests
     [TestFixture, RequiresRabbit]
     public class RabbitMqAdapterTests
     {
-        private RabbitMqAdapter _testAdapter;
-
         private ProducerOptions _testProducerOptions;
         private ConsumerOptions _testConsumerOptions;
 
@@ -35,11 +33,6 @@ namespace Smi.Common.Tests
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
             _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMqAdapterTests));
 
             _testProducerOptions = new ProducerOptions
@@ -55,16 +48,13 @@ namespace Smi.Common.Tests
             };
 
             _mockConsumer = Mock.Of<Consumer<IMessage>>();
-
-            _testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
-
             _tester = new MicroserviceTester(_testOptions.RabbitOptions, _testConsumerOptions);
         }
 
-        [TearDown]
+
+        [OneTimeTearDown]
         public void TearDown()
         {
-            _testAdapter?.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
             _tester.Shutdown();
         }
 
@@ -79,10 +69,10 @@ namespace Smi.Common.Tests
                 ExchangeName = null
             };
 
-            Assert.Throws<ArgumentException>(() => _testAdapter.SetupProducer(producerOptions));
+            Assert.Throws<ArgumentException>(() => _tester.Adapter.SetupProducer(producerOptions));
 
             producerOptions.ExchangeName = "TEST.DoesNotExistExchange";
-            Assert.Throws<ApplicationException>(() => _testAdapter.SetupProducer(producerOptions));
+            Assert.Throws<ApplicationException>(() => _tester.Adapter.SetupProducer(producerOptions));
         }
 
         /// <summary>
@@ -91,8 +81,10 @@ namespace Smi.Common.Tests
         [Test]
         public void TestStartConsumerThrowsOnNonExistentQueue()
         {
-            _testConsumerOptions.QueueName = "TEST.WrongQueue";
-            Assert.Throws<ApplicationException>(() => _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
+            var oldq = _testConsumerOptions.QueueName;
+            _testConsumerOptions.QueueName = $"TEST.WrongQueue{new Random().NextInt64()}";
+            Assert.Throws<ApplicationException>(() => _tester.Adapter.StartConsumer(_testConsumerOptions, _mockConsumer));
+            _testConsumerOptions.QueueName = oldq;
         }
 
         /// <summary>
@@ -102,8 +94,8 @@ namespace Smi.Common.Tests
         public void TestShutdownExitsProperly()
         {
             // Setup some consumers/producers so some channels are created
-            _testAdapter.SetupProducer(_testProducerOptions);
-            _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
+            _tester.Adapter.SetupProducer(_testProducerOptions);
+            _tester.Adapter.StartConsumer(_testConsumerOptions, _mockConsumer);
         }
 
         /// <summary>
@@ -112,9 +104,9 @@ namespace Smi.Common.Tests
         [Test]
         public void TestShutdownThrowsOnTimeout()
         {
-            _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.Throws<ApplicationException>(() => _testAdapter.Shutdown(TimeSpan.Zero));
-            _testAdapter = null;
+            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
+            Assert.Throws<ApplicationException>(() => testAdapter.Shutdown(TimeSpan.Zero));
         }
 
         /// <summary>
@@ -123,21 +115,22 @@ namespace Smi.Common.Tests
         [Test]
         public void TestNoNewConnectionsAfterShutdown()
         {
-            Assert.False(_testAdapter.ShutdownCalled);
+            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            Assert.False(testAdapter.ShutdownCalled);
 
-            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
-            Assert.True(_testAdapter.ShutdownCalled);
-            Assert.Throws<ApplicationException>(() => _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
-            Assert.Throws<ApplicationException>(() => _testAdapter.SetupProducer(_testProducerOptions));
+            Assert.True(testAdapter.ShutdownCalled);
+            Assert.Throws<ApplicationException>(() => testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
+            Assert.Throws<ApplicationException>(() => testAdapter.SetupProducer(_testProducerOptions));
         }
 
         [Test]
         public void TestStopConsumer()
         {
-            Guid consumerId = _testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.DoesNotThrow(() => _testAdapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
-            Assert.Throws<ApplicationException>(() => _testAdapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
+            var consumerId = _tester.Adapter.StartConsumer(_testConsumerOptions, _mockConsumer);
+            Assert.DoesNotThrow(() => _tester.Adapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
+            Assert.Throws<ApplicationException>(() => _tester.Adapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
         }
 
         [Test]
@@ -152,7 +145,7 @@ namespace Smi.Common.Tests
                 Password = _testOptions.RabbitOptions.RabbitMqPassword
             };
 
-            using IConnection connection = testFactory.CreateConnection();
+            using var connection = testFactory.CreateConnection();
             // These are all the server properties we can check using the connection
             PrintObjectDictionary(connection.ServerProperties);
 
@@ -162,7 +155,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestMultipleConfirmsOk()
         {
-            IProducerModel pm = _testAdapter.SetupProducer(_testProducerOptions, true);
+            var pm = _tester.Adapter.SetupProducer(_testProducerOptions, true);
 
             pm.SendMessage(new TestMessage(), null);
 
@@ -182,8 +175,8 @@ namespace Smi.Common.Tests
                 Password = _testOptions.RabbitOptions.RabbitMqPassword
             };
 
-            IConnection conn = fact.CreateConnection("TestConn");
-            IModel model = conn.CreateModel();
+            var conn = fact.CreateConnection("TestConn");
+            var model = conn.CreateModel();
 
             // Closing model twice is ok
             model.Close(200, "bye");
@@ -203,10 +196,11 @@ namespace Smi.Common.Tests
         [Test]
         public void TestWaitAfterChannelClosed()
         {
-            IModel model = _testAdapter.GetModel("TestConnection");
+            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var model = testAdapter.GetModel("TestConnection");
             model.ConfirmSelect();
 
-            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
             Assert.True(model.IsClosed);
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
@@ -216,7 +210,7 @@ namespace Smi.Common.Tests
         [TestCase(typeof(DoNothingConsumer))]
         public void Test_Shutdown(Type consumerType)
         {
-            MemoryTarget target = new MemoryTarget
+            MemoryTarget target = new()
             {
                 Layout = "${message}"
             };
@@ -228,8 +222,8 @@ namespace Smi.Common.Tests
             var consumer = (IConsumer)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
-            using var tester = new MicroserviceTester(o.RabbitOptions, new[] { _testConsumerOptions });
-            _testAdapter.StartConsumer(_testConsumerOptions, consumer, true);
+            using var tester = new MicroserviceTester(o.RabbitOptions, new[] { _testConsumerOptions }) {CleanUpAfterTest = false};
+            tester.Adapter.StartConsumer(_testConsumerOptions, consumer, true);
 
             //send a message to trigger consumer behaviour
             tester.SendMessage(_testConsumerOptions, new TestMessage());
@@ -238,22 +232,16 @@ namespace Smi.Common.Tests
             Thread.Sleep(3000);
 
             //now attempt to shut down adapter
-            _testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            tester.Adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
 
-            string expectedErrorMessage = "nothing to see here";
-
-            if (consumer is SelfClosingConsumer)
-                expectedErrorMessage = "exiting (channel is closed)";
-            if (consumer is DoNothingConsumer)
-                expectedErrorMessage = "exiting (shutdown was called)";
+            var expectedErrorMessage = consumer switch
+            {
+                SelfClosingConsumer => "exiting (channel is closed)",
+                DoNothingConsumer => "exiting (shutdown was called)",
+                _ => "nothing to see here"
+            };
 
             Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
-        }
-
-        [Test]
-        public void TestAckAfterNack()
-        {
-            Assert.Inconclusive("Not impl");
         }
 
         private class TestMessage : IMessage { }
@@ -261,20 +249,20 @@ namespace Smi.Common.Tests
 
         private static void PrintObjectDictionary(IDictionary<string, object> dictionary)
         {
-            foreach (KeyValuePair<string, object> prop in dictionary)
+            foreach (var prop in dictionary)
             {
-                if (prop.Value as byte[] != null)
+                if (prop.Value is byte[] bytes)
                 {
-                    Console.WriteLine(prop.Key + ":\t" + Encoding.UTF8.GetString((byte[])prop.Value));
+                    Console.WriteLine($"{prop.Key}:\t{Encoding.UTF8.GetString(bytes)}");
                 }
-                else if (prop.Value as IDictionary<string, object> != null)
+                else if (prop.Value is IDictionary<string, object> value)
                 {
-                    Console.WriteLine(prop.Key + ":");
-                    PrintObjectDictionary((IDictionary<string, object>)prop.Value);
+                    Console.WriteLine($"{prop.Key}:");
+                    PrintObjectDictionary(value);
                 }
                 else
                 {
-                    Console.WriteLine(prop.Key + ":\t" + prop.Value);
+                    Console.WriteLine($"{prop.Key}:\t{prop.Value}");
                 }
             }
         }

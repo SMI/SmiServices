@@ -8,7 +8,7 @@ namespace Smi.Common.Tests.Messages
     [TestFixture]
     public class MessageHeaderTest
     {
-        private readonly Dictionary<string, object> _testProps = new Dictionary<string, object>
+        private readonly Dictionary<string, object> _testProps = new()
         {
             {"MessageGuid", Guid.NewGuid().ToString()},
             {"ProducerProcessID", 123},

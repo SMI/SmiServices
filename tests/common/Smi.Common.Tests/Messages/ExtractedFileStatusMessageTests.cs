@@ -33,7 +33,7 @@ namespace Smi.Common.Tests.Messages
         [Test]
         public void Constructor_FromExtractFileMessage_CopiesFilePath()
         {
-            var fileMessage = new ExtractFileMessage()
+            var fileMessage = new ExtractFileMessage
             {
                 DicomFilePath = "foo.dcm",
                 OutputPath = "foo-an.dcm",

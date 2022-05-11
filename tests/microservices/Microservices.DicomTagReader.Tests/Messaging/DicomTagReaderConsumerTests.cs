@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
+using FellowOakDicom;
 
 
 namespace Microservices.DicomTagReader.Tests.Messaging
@@ -20,7 +21,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
     [TestFixture, RequiresRabbit]
     public class DicomTagReaderConsumerTests
     {
-        private readonly DicomTagReaderTestHelper _helper = new DicomTagReaderTestHelper();
+        private readonly DicomTagReaderTestHelper _helper = new();
 
         private IModel _mockModel;
 
@@ -51,8 +52,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
 
         private TagReaderBase GetMockTagReader(IFileSystem fileSystem = null)
         {
-            if (fileSystem == null)
-                fileSystem = _helper.MockFileSystem;
+            fileSystem ??= _helper.MockFileSystem;
 
             return new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, fileSystem);
         }

@@ -20,7 +20,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
         private const string WindowsNewLine = "\r\n";
         private const string LinuxNewLine = "\n";
 
-        private static readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
+        private static readonly TestDateTimeProvider _dateTimeProvider = new();
 
         #region Fixture Methods
 
@@ -122,7 +122,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             bool isIdentifiableExtraction = false,
             bool isNoFilterExtraction = false
         ) =>
-            new CompletedExtractJobInfo(
+            new(
                 Guid.NewGuid(),
                 _dateTimeProvider.UtcNow(),
                 _dateTimeProvider.UtcNow() + TimeSpan.FromHours(1),

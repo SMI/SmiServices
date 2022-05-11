@@ -24,7 +24,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
         private readonly SysTimers.Timer _processTimer;
         private readonly Action<Exception> _exceptionCallback;
-        private readonly object _oProcessorLock = new object();
+        private readonly object _oProcessorLock = new();
 
         private bool _startCalled;
 

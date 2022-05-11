@@ -62,9 +62,9 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         protected int FailedWriteAttempts;
         protected readonly int FailedWriteLimit;
 
-        protected readonly Queue<Tuple<BsonDocument, ulong>> ToProcess = new Queue<Tuple<BsonDocument, ulong>>();
+        protected readonly Queue<Tuple<BsonDocument, ulong>> ToProcess = new();
         protected readonly int MaxQueueSize;
-        protected readonly object LockObj = new object();
+        protected readonly object LockObj = new();
         private readonly SysTimers.Timer _processTimer;
 
         private readonly Action<Exception> _exceptionCallback;

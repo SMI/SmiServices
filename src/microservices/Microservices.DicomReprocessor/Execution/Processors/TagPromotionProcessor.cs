@@ -30,9 +30,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
 
             _options = options;
 
-            var asBatchProducer = producerModel as BatchProducerModel;
-
-            if (asBatchProducer == null)
+            if (producerModel is not BatchProducerModel asBatchProducer)
                 throw new ArgumentException("producerModel must be a batch producer");
 
             _producerModel = asBatchProducer;

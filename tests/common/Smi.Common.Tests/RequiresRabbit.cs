@@ -33,7 +33,7 @@ namespace Smi.Common.Tests
             }
             catch (BrokerUnreachableException e)
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
 
                 sb.AppendLine($"Uri:         {factory.Uri}");
                 sb.AppendLine($"Host:        {factory.HostName}");

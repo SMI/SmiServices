@@ -28,9 +28,9 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         protected int TotalSent;
 
         protected bool IsProcessing;
-        protected readonly CancellationTokenSource TokenSource = new CancellationTokenSource();
+        protected readonly CancellationTokenSource TokenSource = new();
 
-        protected readonly Stopwatch Stopwatch = new Stopwatch();
+        protected readonly Stopwatch Stopwatch = new();
         protected StringBuilder StringBuilder;
         protected List<List<long>> Times;
 
