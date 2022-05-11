@@ -57,19 +57,12 @@ private final GlobalOptions _options;
 		_rabbitMqAdapter = new RabbitMqAdapter(options.RabbitOptions, "CTPAnonymiserHost");
 		_logger.debug("Connected to RabbitMQ server version " + _rabbitMqAdapter.getRabbitMqServerVersion());
 
-		try {
-
-			_producer = _rabbitMqAdapter.SetupProducer(options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions);
-
-		} catch (IllegalArgumentException e) {
-
-			e.printStackTrace();
-		}
+		_producer = _rabbitMqAdapter.SetupProducer(options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions);
 
 		// Build the SMI Anonymiser tool
 		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).SRAnonTool(SRAnonTool).buildDat();
 
-		Channel channel = _rabbitMqAdapter.getChannel(String.format("%s::Consumer::%s", _rabbitMqAdapter._hostId, _options.CTPAnonymiserOptions.AnonFileConsumerOptions.QueueName));
+		Channel channel = _rabbitMqAdapter.getChannel();
 		_consumer = new CTPAnonymiserConsumer(
 				_options,
 				_producer,
@@ -88,7 +81,7 @@ private final GlobalOptions _options;
 		return _producer;
 	}
 
-	public void Shutdown() {
+	public void Shutdown() throws IOException {
 		_logger.info("Host shutdown called");
 		_rabbitMqAdapter.Shutdown();
 	}

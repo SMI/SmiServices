@@ -36,3 +36,4 @@
 | fo-dicom.Drawing | [GitHub](https://github.com/fo-dicom/fo-dicom) | [MS-PL](https://opensource.org/licenses/MS-PL)| Support library for reading DICOM pixel data |
 | coveralls.io | [GitHub](https://github.com/coveralls-net/coveralls.net) | [GNU](https://github.com/coveralls-net/coveralls.net#license)| Uploader for dot net coverage reports to Coveralls.io |
 | OpenCover | [GitHub](https://github.com/OpenCover/opencover) |[MIT Compatible](https://github.com/OpenCover/opencover/blob/master/LICENSE)  | Calculates code coverage for tests|
+| IsIdentifiable | [GitHub](https://github.com/SMI/IsIdentifiable) | [GNU](https://github.com/SMI/IsIdentifiable/blob/main/LICENSE) | Verifies that anonymisation has been successful in data extraction pipeline|

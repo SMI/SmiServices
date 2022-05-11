@@ -100,7 +100,7 @@ namespace Microservices.DicomAnonymiser.Tests
                 .Returns(ExtractedFileStatus.Anonymised);
 
             var statusExchange = globals.DicomAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
-            var successQueue = globals.IsIdentifiableOptions.QueueName;
+            var successQueue = globals.IsIdentifiableServiceOptions.QueueName;
             var failureQueue = globals.CohortPackagerOptions.NoVerifyStatusOptions.QueueName;
 
             List<ExtractedFileStatusMessage> statusMessages = new();

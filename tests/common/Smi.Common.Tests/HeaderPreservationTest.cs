@@ -1,6 +1,5 @@
 
 using NUnit.Framework;
-using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -16,37 +15,34 @@ namespace Smi.Common.Tests
         {
             var o = new GlobalOptionsFactory().Load(nameof(SendHeader));
 
-            var consumerOptions = new ConsumerOptions();
-            consumerOptions.QueueName = "TEST.HeaderPreservationTest_Read1";
-            consumerOptions.AutoAck = false;
-            consumerOptions.QoSPrefetchCount = 1;
+            var consumerOptions = new ConsumerOptions
+            {
+                QueueName = "TEST.HeaderPreservationTest_Read1",
+                AutoAck = false,
+                QoSPrefetchCount = 1
+            };
 
             TestConsumer consumer;
 
-            using (var tester = new MicroserviceTester(o.RabbitOptions, consumerOptions))
-            {
-                var header = new MessageHeader();
-                header.MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76");
-                header.Parents = new[] { Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76") };
+            using var tester = new MicroserviceTester(o.RabbitOptions, consumerOptions);
+            var header = new MessageHeader();
+            header.MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76");
+            header.Parents = new[] { Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76") };
 
-                tester.SendMessage(consumerOptions, header, new TestMessage() { Message = "hi" });
+            tester.SendMessage(consumerOptions, header, new TestMessage { Message = "hi" });
 
-                consumer = new TestConsumer();
-                var a = new RabbitMqAdapter(o.RabbitOptions.CreateConnectionFactory(), "TestHost");
-                a.StartConsumer(consumerOptions, consumer);
+            consumer = new TestConsumer();
+            tester.Adapter.StartConsumer(consumerOptions, consumer);
 
-                TestTimelineAwaiter awaiter = new TestTimelineAwaiter();
-                awaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
-                a.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
-            }
+            TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
 
             Assert.IsTrue(consumer.Passed);
         }
 
         private class TestConsumer : Consumer<TestMessage>
         {
-            public bool Passed { get; set; }
-            public bool Failed { get; set; }
+            public bool Passed { get; private set; }
+            public bool Failed { get; private set; }
 
 
             protected override void ProcessMessageImpl(IMessageHeader header, TestMessage message, ulong tag)

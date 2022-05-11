@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BadMedicine;
 using BadMedicine.Dicom;
-using Dicom;
+using FellowOakDicom;
 using FAnsi.Discovery;
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
@@ -47,7 +47,7 @@ namespace Microservices.CohortExtractor.Tests
             {
                 var r = new Random(500);
 
-                DicomDataGenerator g = new DicomDataGenerator(r,null);
+                DicomDataGenerator g = new(r,null);
                 g.MaximumImages = recordCount;
                 
                 var persons =  new PersonCollection();
@@ -56,7 +56,7 @@ namespace Microservices.CohortExtractor.Tests
                 while(recordCount > 0)
                     foreach (var image in g.GenerateStudyImages(persons.People[r.Next(persons.People.Length)],out var study))
                     {
-                        tbl.Insert(new Dictionary<string, object>()
+                        tbl.Insert(new Dictionary<string, object>
                         {
                             {"StudyInstanceUID", image.GetSingleValue<string>(DicomTag.StudyInstanceUID)},
                             {"SeriesInstanceUID", image.GetSingleValue<string>(DicomTag.SeriesInstanceUID)},
@@ -172,7 +172,7 @@ namespace Microservices.CohortExtractor.Tests
             var cataCT = Import(tblCT);
             var cataMR = Import(tblMR);
             
-            List<string> studies = new List<string>();
+            List<string> studies = new();
 
             //fetch all unique studies from the database
             using(var dt = tblCT.GetDataTable())

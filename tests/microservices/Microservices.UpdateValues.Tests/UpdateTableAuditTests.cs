@@ -2,7 +2,6 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Microservices.UpdateValues.Tests
@@ -36,7 +35,7 @@ namespace Microservices.UpdateValues.Tests
 
             Assert.AreEqual(0,audit.ExecutingQueries);
 
-            List<Task> tasks = new List<Task>();
+            List<Task> tasks = new();
 
             for(int i=0;i<50;i++)
             {

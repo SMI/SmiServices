@@ -1,5 +1,5 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using FAnsi.Discovery;
@@ -16,11 +16,8 @@ using Smi.Common.Options;
 using System;
 using System.IO;
 using System.Linq;
-using Rdmp.Core.Curation;
 using Rdmp.Dicom.TagPromotionSchema;
 using ReusableLibraryCode.Checks;
-using ReusableLibraryCode.DataAccess;
-using TypeGuesser;
 
 namespace Microservices.Tests.RDMPTests
 {
@@ -39,17 +36,19 @@ namespace Microservices.Tests.RDMPTests
 
         public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string root = null, ImageTableTemplateCollection template = null, bool persistentRaw = false, string modalityPrefix = null)
         {
-            ImageTable = databaseToCreateInto.ExpectTable(modalityPrefix + "ImageTable");
-            SeriesTable = databaseToCreateInto.ExpectTable(modalityPrefix + "SeriesTable");
-            StudyTable = databaseToCreateInto.ExpectTable(modalityPrefix + "StudyTable");
+            ImageTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}ImageTable");
+            SeriesTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}SeriesTable");
+            StudyTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}StudyTable");
 
             try
             {
-                File.Copy(typeof(InvalidDataHandling).Assembly.Location, Path.Combine(TestContext.CurrentContext.TestDirectory, "Rdmp.Dicom.dll"), true);
+                var dest = Path.Combine(TestContext.CurrentContext.TestDirectory, "Rdmp.Dicom.dll");
+                if (!File.Exists(dest))
+                    File.Copy(typeof(InvalidDataHandling).Assembly.Location, dest, false);
             }
             catch (System.IO.IOException)
             {
-                //nevermind, it's probably locked
+                //never mind, it's probably locked
             }
 
 
@@ -58,22 +57,32 @@ namespace Microservices.Tests.RDMPTests
                 repositoryLocator.CatalogueRepository.MEF.AddTypeToCatalogForTesting(type);
 
 
-            ICatalogueRepository catalogueRepository = repositoryLocator.CatalogueRepository;
-            IDataExportRepository dataExportRepository = repositoryLocator.DataExportRepository;
+            var catalogueRepository = repositoryLocator.CatalogueRepository;
+            var dataExportRepository = repositoryLocator.DataExportRepository;
 
             foreach (var t in new[] { ImageTable, SeriesTable, StudyTable })
                 if (t.Exists())
                     t.Drop();
 
-            var suite = new ExecuteCommandCreateNewImagingDatasetSuite(repositoryLocator, databaseToCreateInto, new DirectoryInfo(TestContext.CurrentContext.TestDirectory));
+            // delete any remnants
+            foreach(var p in catalogueRepository.GetAllObjects<Pipeline>())
+            {
+                if(p.Name.Contains("(Image Loading Pipe)"))
+                {
+                    p.DeleteInDatabase();
+                }
+            }
 
-            suite.Template = template ?? GetDefaultTemplate(databaseToCreateInto.Server.DatabaseType);
+            var suite = new ExecuteCommandCreateNewImagingDatasetSuite(repositoryLocator, databaseToCreateInto, new DirectoryInfo(TestContext.CurrentContext.TestDirectory))
+            {
+                Template = template ?? GetDefaultTemplate(databaseToCreateInto.Server.DatabaseType),
 
-            suite.PersistentRaw = persistentRaw;
-            suite.TablePrefix = modalityPrefix;
+                PersistentRaw = persistentRaw,
+                TablePrefix = modalityPrefix,
 
-            suite.DicomSourceType = pipelineDicomSourceType;
-            suite.CreateCoalescer = true;
+                DicomSourceType = pipelineDicomSourceType,
+                CreateCoalescer = true
+            };
 
             suite.Execute();
             DicomSourcePipelineComponent = suite.DicomSourcePipelineComponent; //store the component created so we can inject/adjust the arguments e.g. adding ElevationRequests to it
@@ -90,8 +99,8 @@ namespace Microservices.Tests.RDMPTests
             // Override the options with stuff coming from Core RDMP DatabaseTests (TestDatabases.txt)
             globalOptions.FileSystemOptions.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
 
-            globalOptions.RDMPOptions.CatalogueConnectionString = ((TableRepository)catalogueRepository).DiscoveredServer.Builder.ConnectionString;
-            globalOptions.RDMPOptions.DataExportConnectionString = ((TableRepository)dataExportRepository).DiscoveredServer.Builder.ConnectionString;
+            globalOptions.RDMPOptions.CatalogueConnectionString = (catalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
+            globalOptions.RDMPOptions.DataExportConnectionString = (dataExportRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
 
             globalOptions.DicomRelationalMapperOptions.LoadMetadataId = LoadMetadata.ID;
             globalOptions.DicomRelationalMapperOptions.MinimumBatchSize = 1;
@@ -118,12 +127,13 @@ namespace Microservices.Tests.RDMPTests
 
         public DicomFileMessage GetDicomFileMessage(string fileSystemRoot, FileInfo fi)
         {
-            var toReturn = new DicomFileMessage(fileSystemRoot, fi);
-
-            toReturn.StudyInstanceUID = "999";
-            toReturn.SeriesInstanceUID = "999";
-            toReturn.SOPInstanceUID = "999";
-            toReturn.DicomFileSize = fi.Length;
+            var toReturn = new DicomFileMessage(fileSystemRoot, fi)
+            {
+                StudyInstanceUID = "999",
+                SeriesInstanceUID = "999",
+                SOPInstanceUID = "999",
+                DicomFileSize = fi.Length
+            };
 
             var ds = DicomFile.Open(fi.FullName).Dataset;
             ds.Remove(DicomTag.PixelData);
@@ -134,11 +144,12 @@ namespace Microservices.Tests.RDMPTests
         }
         public DicomFileMessage GetDicomFileMessage(DicomDataset ds, string fileSystemRoot, string file)
         {
-            var toReturn = new DicomFileMessage(fileSystemRoot, file);
-
-            toReturn.StudyInstanceUID = "999";
-            toReturn.SeriesInstanceUID = "999";
-            toReturn.SOPInstanceUID = "999";
+            var toReturn = new DicomFileMessage(fileSystemRoot, file)
+            {
+                StudyInstanceUID = "999",
+                SeriesInstanceUID = "999",
+                SOPInstanceUID = "999"
+            };
 
             ds.Remove(DicomTag.PixelData);
 

@@ -17,7 +17,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
     [TestFixture, RequiresRabbit]
     public class TagReaderTests
     {
-        private readonly DicomTagReaderTestHelper _helper = new DicomTagReaderTestHelper();
+        private readonly DicomTagReaderTestHelper _helper = new();
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -182,7 +182,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             Assert.True(_helper.TestDir.EnumerateFiles("*.zip").Count() == 1);
 
             IMessage message = null;
-            List<IMessage> fileImages = new List<IMessage>();
+            List<IMessage> fileImages = new();
 
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))

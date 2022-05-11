@@ -17,7 +17,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
     [TestFixture, RequiresRabbit]
     public class DicomTagReaderHostTests
     {
-        private readonly DicomTagReaderTestHelper _helper = new DicomTagReaderTestHelper();
+        private readonly DicomTagReaderTestHelper _helper = new();
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

@@ -125,7 +125,7 @@ namespace Smi.Common.Options
         /// <returns></returns>
         public static T Verify<T>(object parsedOptions)
         {
-            if (!(parsedOptions is T asExpected))
+            if (parsedOptions is not T asExpected)
                 throw new NotImplementedException($"Did not construct expected type '{typeof(T).Name}'");
             return asExpected;
         }

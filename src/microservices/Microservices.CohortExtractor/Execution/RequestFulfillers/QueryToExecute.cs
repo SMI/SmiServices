@@ -30,7 +30,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// Lock to ensure we don't build multiple <see cref="GetQueryBuilder"/> at once if someone decides to multi
         /// thread the <see cref="Execute"/> method
         /// </summary>
-        readonly object _oLockExecute = new object();
+        readonly object _oLockExecute = new();
 
         /// <summary>
         /// Modality (if known) for records that the query should return
@@ -123,51 +123,49 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             var series = Columns.SeriesTagColumn?.GetRuntimeName();
             var instance = Columns.InstanceTagColumn?.GetRuntimeName();
 
-            using (DbConnection con = Server.GetConnection())
+            using DbConnection con = Server.GetConnection();
+            con.Open();
+
+            string sqlString = GetSqlForKeyValue(valueToLookup);
+
+            DbDataReader reader;
+            try
             {
-                con.Open();
+                reader = Server.GetCommand(sqlString, con).ExecuteReader();
+            }
+            catch (MySqlException)
+            {
+                _logger.Error($"The following query resulted in an exception: {sqlString}");
+                throw;
+            }
 
-                string sqlString = GetSqlForKeyValue(valueToLookup);
+            while (reader.Read())
+            {
+                object imagePath = reader[path];
 
-                DbDataReader reader;
-                try
+                if (imagePath == DBNull.Value)
+                    continue;
+
+                bool reject = false;
+                string rejectReason = null;
+
+                //Ask the rejectors how good this record is
+                foreach (IRejector rejector in rejectors)
                 {
-                    reader = Server.GetCommand(sqlString, con).ExecuteReader();
-                }
-                catch (MySqlException)
-                {
-                    _logger.Error($"The following query resulted in an exception: {sqlString}");
-                    throw;
-                }
-
-                while (reader.Read())
-                {
-                    object imagePath = reader[path];
-
-                    if (imagePath == DBNull.Value)
-                        continue;
-
-                    bool reject = false;
-                    string rejectReason = null;
-
-                    //Ask the rejectors how good this record is
-                    foreach (IRejector rejector in rejectors)
+                    if (rejector.Reject(reader, out rejectReason))
                     {
-                        if (rejector.Reject(reader, out rejectReason))
-                        {
-                            reject = true;
-                            break;
-                        }
+                        reject = true;
+                        break;
                     }
+                }
 
-                    yield return
+                yield return
                     new QueryToExecuteResult((string)imagePath,
                         study == null ? null : (string)reader[study],
                         series == null ? null : (string)(string)reader[series],
                         instance == null ? null : (string)(string)reader[instance],
                         reject,
                         rejectReason);
-                }
             }
         }
     }

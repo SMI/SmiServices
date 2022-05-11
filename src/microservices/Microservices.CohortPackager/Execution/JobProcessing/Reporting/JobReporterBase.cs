@@ -1,9 +1,9 @@
 using CsvHelper;
 using CsvHelper.Configuration;
+using IsIdentifiable.Reporting;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
-using Microservices.IsIdentifiable.Reporting;
 using Newtonsoft.Json;
 using NLog;
 using System;
@@ -314,7 +314,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
         protected abstract void FinishReportPart(Stream stream);
 
-        private StreamWriter GetStreamWriter(Stream stream) => new StreamWriter(stream) { NewLine = ReportNewLine };
+        private StreamWriter GetStreamWriter(Stream stream) => new(stream) { NewLine = ReportNewLine };
 
         private static IEnumerable<string> JobHeader(CompletedExtractJobInfo jobInfo)
         {

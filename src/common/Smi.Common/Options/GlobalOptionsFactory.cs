@@ -8,7 +8,7 @@ namespace Smi.Common.Options
 {
     public class GlobalOptionsFactory
     {
-        private readonly List<IOptionsDecorator> _decorators = new List<IOptionsDecorator>();
+        private readonly List<IOptionsDecorator> _decorators = new();
 
         /// <summary>
         /// Create a GlobalOptionsFactory with the given set of <see cref="IOptionsDecorator"/>s. Adds a single <see cref="EnvironmentVariableDecorator"/> by default if passed a null value.

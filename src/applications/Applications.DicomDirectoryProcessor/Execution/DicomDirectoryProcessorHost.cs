@@ -49,37 +49,35 @@ namespace Applications.DicomDirectoryProcessor.Execution
                     throw new ArgumentException("When in 'list' mode, path to accession directory file of format .csv expected (" + cliOptions.ToProcessDir.FullName + ")");
             }
 
-            if (cliOptions.DirectoryFormat.ToLower().Equals("pacs"))
+            switch (cliOptions.DirectoryFormat.ToLower())
             {
-                Logger.Info("Creating PACS directory finder");
+                case "pacs":
+                    Logger.Info("Creating PACS directory finder");
 
-                _ddf = new PacsDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
-                    globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
-            }
-            else if (cliOptions.DirectoryFormat.ToLower().Equals("list"))
-            {
-                Logger.Info("Creating accession directory lister");
+                    _ddf = new PacsDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
+                        globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
+                    break;
+                case "list":
+                    Logger.Info("Creating accession directory lister");
 
-                _ddf = new AccessionDirectoryLister(globals.FileSystemOptions.FileSystemRoot,
-                    globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
-            }
-            else if (cliOptions.DirectoryFormat.ToLower().Equals("default"))
-            {
-                Logger.Info("Creating basic directory finder");
+                    _ddf = new AccessionDirectoryLister(globals.FileSystemOptions.FileSystemRoot,
+                        globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
+                    break;
+                case "default":
+                    Logger.Info("Creating basic directory finder");
 
-                _ddf = new BasicDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
-                    globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
-            }
-            else if (cliOptions.DirectoryFormat.ToLower().Equals("zips"))
-            {
-                Logger.Info("Creating zip directory finder");
+                    _ddf = new BasicDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
+                        globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
+                    break;
+                case "zips":
+                    Logger.Info("Creating zip directory finder");
 
-                _ddf = new ZipDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
-                    globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
-            }
-            else
-            {
-                throw new ArgumentException("Could not match directory format " + cliOptions.DirectoryFormat + " to an directory scan implementation");
+                    _ddf = new ZipDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot,
+                        globals.FileSystemOptions.DicomSearchPattern, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions, isBatch: false));
+                    break;
+                default:
+                    throw new ArgumentException(
+                        $"Could not match directory format {cliOptions.DirectoryFormat} to an directory scan implementation");
             }
         }
 

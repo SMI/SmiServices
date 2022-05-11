@@ -15,9 +15,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     [TestFixture]
     public class MongoFileStatusDocTest
     {
-        private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
+        private readonly TestDateTimeProvider _dateTimeProvider = new();
 
-        private readonly MessageHeader _messageHeader = new MessageHeader
+        private readonly MessageHeader _messageHeader = new()
         {
             Parents = new[] { Guid.NewGuid(), },
         };

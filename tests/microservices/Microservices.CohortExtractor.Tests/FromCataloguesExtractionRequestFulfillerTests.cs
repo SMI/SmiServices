@@ -55,7 +55,7 @@ namespace Microservices.CohortExtractor.Tests
 
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
 
-            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage()
+            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
                 ExtractionIdentifiers = new List<string>(new string[] { "123" }),
@@ -95,7 +95,7 @@ namespace Microservices.CohortExtractor.Tests
             filter.SaveToDatabase();
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
 
-            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage()
+            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
                 ExtractionIdentifiers = new List<string>(new string[] { "123" }),
@@ -132,7 +132,7 @@ namespace Microservices.CohortExtractor.Tests
 
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
 
-            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage()
+            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
                 ExtractionIdentifiers = new List<string>(new string[] { "123.1" }),
@@ -174,7 +174,7 @@ namespace Microservices.CohortExtractor.Tests
             filter.SaveToDatabase();
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
 
-            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage()
+            var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
                 ExtractionIdentifiers = new List<string>(new string[] { "123.1" }),

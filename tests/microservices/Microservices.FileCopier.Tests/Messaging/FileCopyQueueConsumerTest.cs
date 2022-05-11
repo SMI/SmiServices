@@ -3,11 +3,9 @@ using Microservices.FileCopier.Messaging;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
-using Smi.Common.Tests.Messaging;
 using System;
 
 
@@ -66,37 +64,31 @@ namespace Microservices.FileCopier.Tests.Messaging
         [Test]
         public void Test_FileCopyQueueConsumer_ValidMessage_IsAcked()
         {
-            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
-
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
             consumer.SetModel(_mockModel.Object);
 
-            consumer.ProcessMessage(mockDeliverArgs);
+            consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
         }
 
         [Test]
         public void Test_FileCopyQueueConsumer_ApplicationException_IsNacked()
         {
-            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
-
             _mockFileCopier.Reset();
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<ApplicationException>();
 
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
             consumer.SetModel(_mockModel.Object);
 
-            consumer.ProcessMessage(mockDeliverArgs);
+            consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => consumer.AckCount == 0 && consumer.NackCount == 1);
+            TestTimelineAwaiter.Await(() => consumer.AckCount == 0 && consumer.NackCount == 1);
         }
 
         [Test]
         public void Test_FileCopyQueueConsumer_UnknownException_CallsFatalCallback()
         {
-            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
-
             _mockFileCopier.Reset();
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();
 
@@ -106,9 +98,9 @@ namespace Microservices.FileCopier.Tests.Messaging
             var fatalCalled = false;
             consumer.OnFatal += (sender, _) => fatalCalled = true;
 
-            consumer.ProcessMessage(mockDeliverArgs);
+            consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => fatalCalled, "Expected Fatal to be called");
+            TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
@@ -117,7 +109,6 @@ namespace Microservices.FileCopier.Tests.Messaging
         public void Test_FileCopyQueueConsumer_AnonExtraction_ThrowsException()
         {
             _message.IsIdentifiableExtraction = false;
-            BasicDeliverEventArgs mockDeliverArgs = ConsumerTestHelpers.GetMockDeliverArgs(_message);
 
             _mockFileCopier.Reset();
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();
@@ -128,9 +119,9 @@ namespace Microservices.FileCopier.Tests.Messaging
             var fatalCalled = false;
             consumer.OnFatal += (sender, _) => fatalCalled = true;
 
-            consumer.ProcessMessage(mockDeliverArgs);
+            consumer.TestMessage(_message);
 
-            new TestTimelineAwaiter().Await(() => fatalCalled, "Expected Fatal to be called");
+            TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }

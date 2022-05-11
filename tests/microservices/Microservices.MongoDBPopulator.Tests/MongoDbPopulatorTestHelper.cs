@@ -1,8 +1,7 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using MongoDB.Driver;
-using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
@@ -33,14 +32,14 @@ namespace Microservices.MongoDBPopulator.Tests
             _mongoTestClient.DropDatabase(TestDbName);
             TestDatabase = _mongoTestClient.GetDatabase(TestDbName);
 
-            Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions = new ConsumerOptions()
+            Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions = new ConsumerOptions
             {
                 QueueName = "TEST.SeriesQueue",
                 QoSPrefetchCount = 5,
                 AutoAck = false
             };
 
-            Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions = new ConsumerOptions()
+            Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions = new ConsumerOptions
             {
                 QueueName = "TEST.MongoImageQueue",
                 QoSPrefetchCount = 50,

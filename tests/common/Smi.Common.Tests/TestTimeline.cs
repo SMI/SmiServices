@@ -11,9 +11,9 @@ namespace Smi.Common.Tests
     public class TestTimeline : IDisposable
     {
         private readonly MicroserviceTester _tester;
-        Queue<Action> Operations = new Queue<Action>();
+        Queue<Action> Operations = new();
 
-        public CancellationTokenSource cts = new CancellationTokenSource();
+        public CancellationTokenSource cts = new();
 
         /// <summary>
         /// The exact time the TestTimeline was last started

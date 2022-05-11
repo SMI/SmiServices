@@ -107,14 +107,6 @@
       <FileName>Options\GlobalOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Smi.Common.Options.DeadLetterReprocessorOptions" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="18" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAIEAAAAAAAAAAAAAAAAAAIAAAAAAEA=</HashCode>
-      <FileName>Options\GlobalOptions.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
   <Class Name="Smi.Common.Options.MongoDatabases" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="19.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>

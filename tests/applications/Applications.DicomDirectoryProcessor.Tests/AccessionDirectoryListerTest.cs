@@ -1,11 +1,9 @@
-﻿
 using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Tests;
-using System.Collections.Generic;
 using System;
 using System.Text;
 using System.IO;
@@ -28,7 +26,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
         
 	private String GetListContent()
 	{
-            StringBuilder accessionList = new StringBuilder();
+            StringBuilder accessionList = new();
 
 	    accessionList.AppendLine("/PACS/2018/01/01/AAA,");           // exists and has dicom files - fail (requires indication that is dir) 
 	    accessionList.AppendLine("/PACS/2018/01/01/AAA/,");          // exists and has dicom files - pass
@@ -49,20 +47,20 @@ namespace Applications.DicomDirectoryProcessor.Tests
 	public void TestAccessionDirectoryLister()
         {
 			// Mock file system referenced in accession list
-            MockFileSystem mockFilesystem = new MockFileSystem(null,Environment.CurrentDirectory);
+            MockFileSystem mockFilesystem = new(null,Environment.CurrentDirectory);
 			string rootDir = Path.Combine(Path.GetPathRoot(Environment.CurrentDirectory),"PACS");
 
 	    string testDicom = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/test.dcm"));
-	    mockFilesystem.AddFile(testDicom, MockFileData.NullObject);
+	    mockFilesystem.AddFile(testDicom, null);
 	    
 	    string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/E-123/test.dcm"));
-	    mockFilesystem.AddFile(specialCase1, MockFileData.NullObject);
+	    mockFilesystem.AddFile(specialCase1, null);
 
 	    string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/01.01.2018/test.dcm"));
-	    mockFilesystem.AddFile(specialCase2, MockFileData.NullObject);
+	    mockFilesystem.AddFile(specialCase2, null);
 	    
 	    string testBad = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/BBB/test.txt"));
-	    mockFilesystem.AddFile(testBad, MockFileData.NullObject);
+	    mockFilesystem.AddFile(testBad, null);
 	    
 	    // Mock input file 
 	    string accessionList = Path.GetFullPath(Path.Combine(rootDir, "accessions.csv"));
@@ -72,14 +70,14 @@ namespace Applications.DicomDirectoryProcessor.Tests
 	    // Mock producer
 	    var totalSent = 0;
 
-            Mock<IProducerModel> mockProducerModel = new Mock<IProducerModel>();
+            Mock<IProducerModel> mockProducerModel = new();
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
                                             null,
                                             ""))
                 .Callback(() => ++totalSent);
 
-            AccessionDirectoryLister accessionLister = new AccessionDirectoryLister(rootDir, mockFilesystem, "*.dcm", mockProducerModel.Object);
+            AccessionDirectoryLister accessionLister = new(rootDir, mockFilesystem, "*.dcm", mockProducerModel.Object);
 
             accessionLister.SearchForDicomDirectories(accessionList);
 	    

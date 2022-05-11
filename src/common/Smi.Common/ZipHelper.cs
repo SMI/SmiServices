@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Text;
 
 namespace Smi.Common
 {
     public class ZipHelper
     {
-        readonly static List<string> SupportedExtensions = new List<string>
+        readonly static List<string> SupportedExtensions = new()
         {
             ".zip",
             ".tar"

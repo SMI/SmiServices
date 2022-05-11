@@ -210,96 +210,92 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             //TODO Docs
 
-            using (IClientSessionHandle session = _client.StartSession())
+            using IClientSessionHandle session = _client.StartSession();
+            session.StartTransaction();
+            string expectedCollNameForJob = ExpectedFilesCollectionName(jobId);
+            string statusCollNameForJob = StatusCollectionName(jobId);
+
+            try
             {
-                session.StartTransaction();
-                string expectedCollNameForJob = ExpectedFilesCollectionName(jobId);
-                string statusCollNameForJob = StatusCollectionName(jobId);
+                if (!TryGetMongoExtractJobDoc(jobId, out MongoExtractJobDoc toComplete))
+                    throw new ApplicationException($"Could not find job {jobId} in the job store");
 
-                try
+                if (toComplete.JobStatus == ExtractJobStatus.Failed)
+                    throw new ApplicationException($"Job {jobId} is marked as failed");
+
+                var completedJob = new MongoCompletedExtractJobDoc(toComplete, _dateTimeProvider.UtcNow());
+                _completedJobCollection.InsertOne(completedJob);
+
+                DeleteResult res = _inProgressJobCollection.DeleteOne(GetFilterForSpecificJob<MongoExtractJobDoc>(jobId));
+                if (!res.IsAcknowledged)
+                    throw new ApplicationException("Job data was archived but could not delete original from job store");
+
+                // Move the associated docs from each collection to the archives
+
+                IMongoCollection<MongoExpectedFilesDoc> expectedTempCollection = _database.GetCollection<MongoExpectedFilesDoc>(expectedCollNameForJob);
+                if (expectedTempCollection.CountDocuments(FilterDefinition<MongoExpectedFilesDoc>.Empty) == 0)
+                    throw new ApplicationException($"Collection of MongoExpectedFilesDoc for job {jobId} was missing or empty");
+                using (IAsyncCursor<MongoExpectedFilesDoc> cursor = expectedTempCollection.FindSync(FilterDefinition<MongoExpectedFilesDoc>.Empty))
                 {
-                    if (!TryGetMongoExtractJobDoc(jobId, out MongoExtractJobDoc toComplete))
-                        throw new ApplicationException($"Could not find job {jobId} in the job store");
-
-                    if (toComplete.JobStatus == ExtractJobStatus.Failed)
-                        throw new ApplicationException($"Job {jobId} is marked as failed");
-
-                    var completedJob = new MongoCompletedExtractJobDoc(toComplete, _dateTimeProvider.UtcNow());
-                    _completedJobCollection.InsertOne(completedJob);
-
-                    DeleteResult res = _inProgressJobCollection.DeleteOne(GetFilterForSpecificJob<MongoExtractJobDoc>(jobId));
-                    if (!res.IsAcknowledged)
-                        throw new ApplicationException("Job data was archived but could not delete original from job store");
-
-                    // Move the associated docs from each collection to the archives
-
-                    IMongoCollection<MongoExpectedFilesDoc> expectedTempCollection = _database.GetCollection<MongoExpectedFilesDoc>(expectedCollNameForJob);
-                    if (expectedTempCollection.CountDocuments(FilterDefinition<MongoExpectedFilesDoc>.Empty) == 0)
-                        throw new ApplicationException($"Collection of MongoExpectedFilesDoc for job {jobId} was missing or empty");
-                    using (IAsyncCursor<MongoExpectedFilesDoc> cursor = expectedTempCollection.FindSync(FilterDefinition<MongoExpectedFilesDoc>.Empty))
-                    {
-                        while (cursor.MoveNext())
-                            _completedExpectedFilesCollection.InsertMany(cursor.Current);
-                    }
-
-                    IMongoCollection<MongoFileStatusDoc> statusTemp = _database.GetCollection<MongoFileStatusDoc>(statusCollNameForJob);
-                    if (statusTemp.CountDocuments(FilterDefinition<MongoFileStatusDoc>.Empty) == 0)
-                        throw new ApplicationException($"Collection of MongoFileStatusDoc for job {jobId} was missing or empty");
-                    using (IAsyncCursor<MongoFileStatusDoc> cursor = statusTemp.FindSync(FilterDefinition<MongoFileStatusDoc>.Empty))
-                    {
-                        while (cursor.MoveNext())
-                            _completedStatusCollection.InsertMany(cursor.Current);
-                    }
-                }
-                catch (Exception)
-                {
-                    Logger.Debug("Caught exception from transaction. Aborting before re-throwing");
-                    session.AbortTransaction();
-                    throw;
+                    while (cursor.MoveNext())
+                        _completedExpectedFilesCollection.InsertMany(cursor.Current);
                 }
 
-                // TODO(rkm 2020-03-03) Can potentially add a retry here
-                session.CommitTransaction();
-
-                // NOTE(rkm 2020-03-09) "Operations that affect the database catalog, such as creating or dropping a collection or an index, are not allowed in transactions"
-                _database.DropCollection(expectedCollNameForJob);
-                _database.DropCollection(statusCollNameForJob);
+                IMongoCollection<MongoFileStatusDoc> statusTemp = _database.GetCollection<MongoFileStatusDoc>(statusCollNameForJob);
+                if (statusTemp.CountDocuments(FilterDefinition<MongoFileStatusDoc>.Empty) == 0)
+                    throw new ApplicationException($"Collection of MongoFileStatusDoc for job {jobId} was missing or empty");
+                using (IAsyncCursor<MongoFileStatusDoc> cursor = statusTemp.FindSync(FilterDefinition<MongoFileStatusDoc>.Empty))
+                {
+                    while (cursor.MoveNext())
+                        _completedStatusCollection.InsertMany(cursor.Current);
+                }
             }
+            catch (Exception)
+            {
+                Logger.Debug("Caught exception from transaction. Aborting before re-throwing");
+                session.AbortTransaction();
+                throw;
+            }
+
+            // TODO(rkm 2020-03-03) Can potentially add a retry here
+            session.CommitTransaction();
+
+            // NOTE(rkm 2020-03-09) "Operations that affect the database catalog, such as creating or dropping a collection or an index, are not allowed in transactions"
+            _database.DropCollection(expectedCollNameForJob);
+            _database.DropCollection(statusCollNameForJob);
         }
 
         protected override void MarkJobFailedImpl(Guid jobId, Exception cause)
         {
             //TODO Docs
 
-            using (IClientSessionHandle session = _client.StartSession())
+            using IClientSessionHandle session = _client.StartSession();
+            session.StartTransaction();
+
+            try
             {
-                session.StartTransaction();
+                if (!TryGetMongoExtractJobDoc(jobId, out MongoExtractJobDoc toFail))
+                    throw new ApplicationException($"Could not find job {jobId} in the job store");
 
-                try
-                {
-                    if (!TryGetMongoExtractJobDoc(jobId, out MongoExtractJobDoc toFail))
-                        throw new ApplicationException($"Could not find job {jobId} in the job store");
+                if (toFail.JobStatus == ExtractJobStatus.Failed || toFail.FailedJobInfoDoc != null)
+                    throw new ApplicationException($"Job {jobId} is already marked as failed");
 
-                    if (toFail.JobStatus == ExtractJobStatus.Failed || toFail.FailedJobInfoDoc != null)
-                        throw new ApplicationException($"Job {jobId} is already marked as failed");
+                toFail.JobStatus = ExtractJobStatus.Failed;
+                toFail.FailedJobInfoDoc = new MongoFailedJobInfoDoc(cause, _dateTimeProvider);
 
-                    toFail.JobStatus = ExtractJobStatus.Failed;
-                    toFail.FailedJobInfoDoc = new MongoFailedJobInfoDoc(cause, _dateTimeProvider);
-
-                    ReplaceOneResult res = _inProgressJobCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJobDoc>(jobId), toFail);
-                    if (!res.IsAcknowledged || res.ModifiedCount != 1)
-                        throw new ApplicationException($"Received invalid ReplaceOneResult: {res}");
-                }
-                catch (Exception)
-                {
-                    Logger.Debug("Caught exception from transaction. Aborting before re-throwing");
-                    session.AbortTransaction();
-                    throw;
-                }
-
-                // TODO(rkm 2020-03-03) Can potentially add a retry here
-                session.CommitTransaction();
+                ReplaceOneResult res = _inProgressJobCollection.ReplaceOne(GetFilterForSpecificJob<MongoExtractJobDoc>(jobId), toFail);
+                if (!res.IsAcknowledged || res.ModifiedCount != 1)
+                    throw new ApplicationException($"Received invalid ReplaceOneResult: {res}");
             }
+            catch (Exception)
+            {
+                Logger.Debug("Caught exception from transaction. Aborting before re-throwing");
+                session.AbortTransaction();
+                throw;
+            }
+
+            // TODO(rkm 2020-03-03) Can potentially add a retry here
+            session.CommitTransaction();
         }
 
         protected override CompletedExtractJobInfo GetCompletedJobInfoImpl(Guid jobId)

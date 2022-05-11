@@ -29,7 +29,7 @@ namespace Smi.Common.Messaging
         private const int ConfirmTimeoutMs = 5000;
 
         // Used to stop messages being produced if we are in the process of crashing out
-        private readonly object _oSendLock = new object();
+        private readonly object _oSendLock = new();
 
 
         /// <summary>
@@ -92,13 +92,12 @@ namespace Smi.Common.Messaging
 
             while (keepTrying)
             {
-                bool timedOut;
-                bool ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out timedOut);
+                bool ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out var timedOut);
 
                 if (timedOut)
                 {
                     keepTrying = (++numAttempts < _maxRetryAttempts);
-                    _logger.Warn("RabbitMQ WaitForConfirms timed out. numAttempts: " + numAttempts);
+                    _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}");
 
                     continue;
                 }

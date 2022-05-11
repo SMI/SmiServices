@@ -1,6 +1,5 @@
 ﻿using System;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;

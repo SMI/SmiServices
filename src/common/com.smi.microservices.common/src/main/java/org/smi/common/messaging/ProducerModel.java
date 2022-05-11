@@ -1,18 +1,17 @@
 
 package org.smi.common.messaging;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.smi.common.messages.IMessageHeader;
-import org.smi.common.messages.MessageHeaderFactory;
-
 import com.google.gson.Gson;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
+import org.smi.common.messages.IMessageHeader;
+import org.smi.common.messages.MessageHeaderFactory;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProducerModel implements IProducerModel {
 
@@ -25,13 +24,13 @@ public class ProducerModel implements IProducerModel {
 	public String _exchangeName;
 
 	/** Our Gson instance for converting objects to json */
-	private Gson _gson;
+	private final Gson _gson;
 
 	/** Default properties to use for sending new messages */
-	private AMQP.BasicProperties _properties;
+	private final AMQP.BasicProperties _properties;
 
 	/** Factory to build new MessageHeaders with */
-	private MessageHeaderFactory _headerFactory;
+	private final MessageHeaderFactory _headerFactory;
 
 	/**
 	 * Constructor
@@ -59,23 +58,14 @@ public class ProducerModel implements IProducerModel {
 	 * SMIPlugin.Microservices.Common.IProducerModel#SendMessage(java.lang.Object,
 	 * java.lang.String)
 	 */
-	public void SendMessage(Object message, String routingKey, IMessageHeader inResponseTo) {
+	public void SendMessage(Object message, String routingKey, IMessageHeader inResponseTo) throws IOException, InterruptedException {
 
 		if (routingKey == null)
 			routingKey = "";
 
-		byte[] body = null;
+		byte[] body = _gson.toJson(message, message.getClass()).getBytes(StandardCharsets.UTF_8);
 
-		try {
-
-			body = _gson.toJson(message, message.getClass()).getBytes("UTF-8");
-
-		} catch (UnsupportedEncodingException e) {
-
-			e.printStackTrace();
-		}
-
-		Map<String, Object> headers = new HashMap<String, Object>();
+		Map<String, Object> headers = new HashMap<>();
 
 		IMessageHeader header = _headerFactory.getHeader(inResponseTo);
 		header.Populate(headers);
@@ -89,22 +79,7 @@ public class ProducerModel implements IProducerModel {
 				.timestamp(new Date(System.currentTimeMillis() / 1000L))
 				.build();
 
-		try {
-
-			_channel.basicPublish(_exchangeName, routingKey, properties, body);
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
-
-		try {
-
-			_channel.waitForConfirms();
-
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
-		}
+		_channel.basicPublish(_exchangeName, routingKey, properties, body);
+		_channel.waitForConfirms();
 	}
 }

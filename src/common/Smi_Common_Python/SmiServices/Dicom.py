@@ -160,6 +160,8 @@ def test_sr_decode_ReferencedSOPSequence():
 # Decode the ConceptNameCodeSequence by returning the value of CodeMeaning inside
 
 def sr_decode_ConceptNameCodeSequence(cncs):
+    if not cncs:
+        return ''
     assert isinstance(cncs, list)
     for cncs_item in cncs:
         if has_tag(cncs_item, 'CodeMeaning'):

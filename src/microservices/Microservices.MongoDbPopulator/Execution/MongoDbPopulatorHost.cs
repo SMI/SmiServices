@@ -14,7 +14,7 @@ namespace Microservices.MongoDBPopulator.Execution
     /// </summary>
     public class MongoDbPopulatorHost : MicroserviceHost
     {
-        public readonly List<IMongoDbPopulatorMessageConsumer> Consumers = new List<IMongoDbPopulatorMessageConsumer>();
+        public readonly List<IMongoDbPopulatorMessageConsumer> Consumers = new();
 
 
         public MongoDbPopulatorHost(GlobalOptions options)

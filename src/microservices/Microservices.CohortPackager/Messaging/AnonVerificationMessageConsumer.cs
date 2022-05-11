@@ -1,6 +1,6 @@
 ﻿
+using IsIdentifiable.Reporting;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
-using Microservices.IsIdentifiable.Reporting;
 using Newtonsoft.Json;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;

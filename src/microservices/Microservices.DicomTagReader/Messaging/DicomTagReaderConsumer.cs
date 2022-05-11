@@ -3,7 +3,6 @@ using System;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Microservices.DicomTagReader.Execution;
-using RabbitMQ.Client.Events;
 using System.IO;
 using Smi.Common.Options;
 

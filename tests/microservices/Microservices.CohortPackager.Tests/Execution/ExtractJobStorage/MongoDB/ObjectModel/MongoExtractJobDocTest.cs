@@ -16,7 +16,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     {
         private readonly DateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
-        private readonly MessageHeader _messageHeader = new MessageHeader
+        private readonly MessageHeader _messageHeader = new()
         {
             Parents = new[] { Guid.NewGuid() }
         };

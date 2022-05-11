@@ -111,9 +111,9 @@ namespace Microservices.CohortExtractor.Execution
                 .Select(eds => eds.Catalogue)
                 .ToArray();
 
-            if (_auditor == null)
-                _auditor = ObjectFactory.CreateInstance<IAuditExtractions>(_consumerOptions.AuditorType, typeof(IAuditExtractions).Assembly,
-                    repositoryLocator);
+            _auditor ??= ObjectFactory.CreateInstance<IAuditExtractions>(_consumerOptions.AuditorType,
+                typeof(IAuditExtractions).Assembly,
+                repositoryLocator);
 
             if (_auditor == null)
                 throw new Exception("No IAuditExtractions set");
@@ -121,9 +121,8 @@ namespace Microservices.CohortExtractor.Execution
             if (!_consumerOptions.AllCatalogues)
                 catalogues = catalogues.Where(c => _consumerOptions.OnlyCatalogues.Contains(c.ID)).ToArray();
 
-            if (_fulfiller == null)
-                _fulfiller = ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType,
-                    typeof(IExtractionRequestFulfiller).Assembly, new object[] { catalogues });
+            _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType,
+                typeof(IExtractionRequestFulfiller).Assembly, new object[] { catalogues });
 
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
@@ -152,10 +151,10 @@ namespace Microservices.CohortExtractor.Execution
                     _fulfiller.Rejectors.Add(rejector);
                 }
 
-            if(!string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType))
-                _pathResolver = ObjectFactory.CreateInstance<IProjectPathResolver>(_consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly,repositoryLocator);
-            else
-                _pathResolver = new DefaultProjectPathResolver();
+            _pathResolver = string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType)
+                ? new DefaultProjectPathResolver()
+                : ObjectFactory.CreateInstance<IProjectPathResolver>(
+                    _consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly, repositoryLocator);
         }
     }
 }

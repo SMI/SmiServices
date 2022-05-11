@@ -36,20 +36,6 @@ MongoDatabases:
         UserName: ''
         Password: ''
         DatabaseName: 'extraction'
-    DeadLetterStoreOptions:
-        HostName: 'localhost'
-        Port: 27017
-        UserName: ''
-        Password: ''
-        DatabaseName: 'deadLetterStorage'
-
-DeadLetterReprocessorOptions:
-    DeadLetterConsumerOptions:
-        QueueName: 'TEST.DLQueue'
-        QoSPrefetchCount: 1
-        AutoAck: false
-    MaxRetryLimit: 5
-    DefaultRetryAfter: 60 # Minutes
 
 DicomRelationalMapperOptions:
     Guid: '6ff062af-5538-473f-801c-ed2b751c7897'
@@ -222,7 +208,7 @@ ExtractImagesOptions:
         ExchangeName: 'TEST.RequestInfoExchange'
         MaxConfirmAttempts: 1
 
-IsIdentifiableOptions:
+IsIdentifiableServiceOptions:
     QueueName: 'TEST.ExtractedFileToVerifyQueue'
     QoSPrefetchCount: 1
     AutoAck: false
@@ -232,17 +218,18 @@ IsIdentifiableOptions:
     ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
     DataDirectory: ''
     
-    #Optional. Full connection string to the database storing the whitelist of valid entries
-    WhitelistConnectionString:
-    #Optional. The DBMS provider of the whitelist table e.g. MySql
-    WhitelistDatabaseType:
-    #Optional. The unqualified name of the whitelist table
-    WhitelistTableName:
-    #Optional. The column in WhitelistTableName which contains the whitelist elements
-    WhitelistColumn:
+IsIdentifiableBaseOptions: 
+    #Optional. Full connection string to the database storing the Allowlist of valid entries
+    AllowlistConnectionString:
+    #Optional. The DBMS provider of the Allowlist table e.g. MySql
+    AllowlistDatabaseType:
+    #Optional. The unqualified name of the Allowlist table
+    AllowlistTableName:
+    #Optional. The column in AllowlistTableName which contains the Allowlist elements
+    AllowlistColumn:
     
-    #Optional. Path to a CSV file containing a single untitled column of whitelist values
-    WhitelistCsv:
+    #Optional. Path to a CSV file containing a single untitled column of Allowlist values
+    AllowlistCsv:
 
     #Optional. Generate a report on the proportion of values failing validation (for each column)
     #ColumnReport: true

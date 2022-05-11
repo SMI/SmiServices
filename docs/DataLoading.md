@@ -242,28 +242,9 @@ Messages that cannot be processed are 'nacked' and not returned to the processin
 
 #### Dead Letter Exchange
 
-Create an internal exchange and queue for the dead letters:
+Retries can be handled using an extra queue+exchange combination in RabbitMQ: dead messages go to the DLQ, sit in that DLQ and wait until their configured TTL elapses, after which they `expire' back to the main queue and get retried.
 
-- DeadLetterExchange
-  - DeadLetterQueue
-
-Now create a policy for all queues to send nacked messages to this exchange:
-
----
-
-![Configuring a dead letter exchange policy](./Images/DataLoading/DeadLetterExchange.png)
-
----
-
-Run DicomTagReader again to force another failure (because we still have no bound output queue for our successfully processed messages)
-
-This should result in the 'lost' message being sent to the dead letter queue:
-
----
-
-![Dead letter queue now shows 1 message waiting (the failing message) and the input queue has the remaining 3 messages](./Images/DataLoading/DeadLetterExchangeAfterError.png)
-
-_The unprocessed message now resides in the dead letter queue_
+https://igkuz.ru/ruby-retry-scheduled-tasks-with-dead-letter-exchange-in-rabbitmq/
 
 ---
 

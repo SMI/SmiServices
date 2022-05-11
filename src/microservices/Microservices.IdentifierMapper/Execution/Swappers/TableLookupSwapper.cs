@@ -58,10 +58,8 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 {
                     con.Open();
 
-                    string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@val",
-                        _options.ReplacementColumnName,
-                        _swapTable.GetFullyQualifiedName(),
-                        _options.SwapColumnName);
+                    string sql =
+                        $"SELECT {_options.ReplacementColumnName} FROM {_swapTable.GetFullyQualifiedName()} WHERE {_options.SwapColumnName}=@val";
 
                     DbCommand cmd = _server.GetCommand(sql, con);
                     _server.AddParameterWithValueToCommand("@val", cmd, toSwap);
@@ -70,7 +68,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
                     if (result == DBNull.Value || result == null)
                     {
-                        reason = "No match found for '" + toSwap + "'";
+                        reason = $"No match found for '{toSwap}'";
                         Fail++;
                         return null;
                     }

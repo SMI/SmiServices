@@ -4,22 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
-using RabbitMQ.Client.MessagePatterns;
 using Smi.Common.Events;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 
 namespace Smi.Common
 {
-
-// TODO(rkm 2021-12-17) Until we update our RabbitMQ interface
-#pragma warning disable CS0618 // Obsolete
-
     /// <summary>
     /// Adapter for the RabbitMQ API.
     /// </summary>
@@ -36,7 +30,7 @@ namespace Smi.Common
             {
                 lock (_oResourceLock)
                 {
-                    return _rabbitResources.Any(x => x.Value as ConsumerResources != null);
+                    return _rabbitResources.Any(x => x.Value is ConsumerResources);
                 }
             }
         }
@@ -51,9 +45,9 @@ namespace Smi.Common
         private readonly HostFatalHandler _hostFatalHandler;
         private readonly string _hostId;
 
-        private readonly IConnectionFactory _factory;
-        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new Dictionary<Guid, RabbitResources>();
-        private readonly object _oResourceLock = new object();
+        private readonly IConnection _connection;
+        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new();
+        private readonly object _oResourceLock = new();
 
         private const int MinRabbitServerVersionMajor = 3;
         private const int MinRabbitServerVersionMinor = 7;
@@ -77,28 +71,28 @@ namespace Smi.Common
 
             if (_threaded)
             {
-                int minWorker, minIOC;
-                ThreadPool.GetMinThreads(out minWorker, out minIOC);
-                int workers = Math.Max(50, minWorker);
+                ThreadPool.GetMinThreads(out var minWorker, out var minIOC);
+                var workers = Math.Max(50, minWorker);
                 if (ThreadPool.SetMaxThreads(workers, 50))
-                    _logger.Info($"Set Rabbit event concurrency to ({workers},50)");
+                    _logger.Info($"Set Rabbit event concurrency to ({workers:n},50)");
                 else
-                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers},50)");
+                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers:n},50)");
             }
 
-            _factory = connectionFactory;
-            
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("hostId");
-
             _hostId = hostId;
+
+            _connection = connectionFactory.CreateConnection(hostId);
+            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason.ToString()})");
+            _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");
 
             if (hostFatalHandler == null)
                 _logger.Warn("No handler given for fatal events");
 
             _hostFatalHandler = hostFatalHandler;
 
-            CheckValidServerSettings();
+            CheckValidServerSettings(_connection);
         }
 
 
@@ -120,19 +114,10 @@ namespace Smi.Common
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
-            // Client label is the same for the IConnection and Subscription since we have a separate connection per consumer
-            string label = string.Format("{0}::Consumer::{1}", _hostId, consumerOptions.QueueName);
-
-            IConnection connection = _factory.CreateConnection(label);
-
-            connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked for {consumerOptions.QueueName} ( Reason: {a.Reason})");
-            connection.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked for {consumerOptions.QueueName}");
-
-            IModel model = connection.CreateModel();
+            var model = _connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
             // Check queue exists
-
             try
             {
                 // Passively declare the queue (equivalent to checking the queue exists)
@@ -141,69 +126,35 @@ namespace Smi.Common
             catch (OperationInterruptedException e)
             {
                 model.Close(200, "StartConsumer - Queue missing");
-                connection.Close(200, "StartConsumer - Queue missing");
-
                 throw new ApplicationException($"Expected queue \"{consumerOptions.QueueName}\" to exist", e);
             }
 
             if (isSolo && model.ConsumerCount(consumerOptions.QueueName) > 0)
             {
                 model.Close(200, "StartConsumer - Already a consumer on the queue");
-                connection.Close(200, "StartConsumer - Already a consumer on the queue");
-
                 throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
-            Subscription subscription = null;
-            var connected = false;
-            var failed = 0;
-
-            while (!connected)
+            consumer.SetModel(model);
+            EventingBasicConsumer ebc = new(model);
+            ebc.Received += (o, a) =>
             {
-                try
-                {
-                    subscription = new Subscription(model, consumerOptions.QueueName, consumerOptions.AutoAck, label);
-                    connected = true;
-                }
-                catch (TimeoutException)
-                {
-                    if (++failed >= MaxSubscriptionAttempts)
-                    {
-                        _logger.Warn("Retries exceeded, throwing exception");
-                        throw;
-                    }
-
-                    _logger.Warn($"Timeout when creating Subscription, retrying in 5s...");
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
-                catch (OperationInterruptedException e)
-                {
-                    throw new ApplicationException(
-                        $"Error when creating subscription on queue \"{consumerOptions.QueueName}\"", e);
-                }
-                finally
-                {
-                    if (!connected)
-                    {
-                        model.Close(200, "StartConsumer - Couldn't create subscription");
-                        connection.Close(200, "StartConsumer - Couldn't create subscription");
-                    }
-                }
-            }
-
-            Guid taskId = Guid.NewGuid();
-            var taskTokenSource = new CancellationTokenSource();
-
-            var consumerTask = new Task(() => Consume(subscription, consumer, taskTokenSource.Token));
-
-            var resources = new ConsumerResources
-            {
-                Connection = connection,
-                Model = model,
-                Subscription = subscription,
-                ConsumerTask = consumerTask,
-                TokenSource = taskTokenSource
+                consumer.ProcessMessage(a);
             };
+            EventHandler<ShutdownEventArgs> shutdown = (o, a) =>
+            {
+                var reason = "cancellation was requested";
+                if (ebc.Model.IsClosed)
+                    reason = "channel is closed";
+                if (ShutdownCalled)
+                    reason = "shutdown was called";
+                _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
+            };
+            model.ModelShutdown += shutdown;
+            ebc.Shutdown += shutdown;
+
+            var resources = new ConsumerResources(ebc, consumerOptions.QueueName, model);
+            Guid taskId = Guid.NewGuid();
 
             lock (_oResourceLock)
             {
@@ -212,13 +163,12 @@ namespace Smi.Common
 
             consumer.OnFatal += (s, e) =>
             {
-                resources.Shutdown(DefaultOperationTimeout);
+                resources.Dispose();
                 _hostFatalHandler(s, e);
             };
 
-            consumerTask.Start();
-            _logger.Debug($"Consumer task started [QueueName={subscription?.QueueName}]");
-
+            model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
+            _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
             return taskId;
         }
         
@@ -236,12 +186,7 @@ namespace Smi.Common
             {
                 if (!_rabbitResources.ContainsKey(taskId))
                     throw new ApplicationException("Guid was not found in the task register");
-
-                var res = (ConsumerResources)_rabbitResources[taskId];
-
-                if (!res.Shutdown(timeout))
-                    throw new ApplicationException($"Consume task did not exit in time: {res.Subscription.ConsumerTag}");
-
+                _rabbitResources[taskId].Dispose();
                 _rabbitResources.Remove(taskId);
             }
         }
@@ -260,12 +205,8 @@ namespace Smi.Common
             if (!producerOptions.VerifyPopulated())
                 throw new ArgumentException("The given producer options have invalid values");
 
-            //TODO Should maybe refactor this so we have 1 IConnection per service
-            //NOTE: IConnection objects are thread safe
-            IConnection connection = _factory.CreateConnection(string.Format("{0}::Producer::{1}", _hostId, producerOptions.ExchangeName));
-
             //NOTE: IModel objects are /not/ thread safe
-            IModel model = connection.CreateModel();
+            var model = _connection.CreateModel();
             model.ConfirmSelect();
 
             try
@@ -276,12 +217,10 @@ namespace Smi.Common
             catch (OperationInterruptedException e)
             {
                 model.Close(200, "SetupProducer - Exchange missing");
-                connection.Close(200, "SetupProducer - Exchange missing");
-
                 throw new ApplicationException($"Expected exchange \"{producerOptions.ExchangeName}\" to exist", e);
             }
 
-            IBasicProperties props = model.CreateBasicProperties();
+            var props = model.CreateBasicProperties();
             props.ContentEncoding = "UTF-8";
             props.ContentType = "application/json";
             props.Persistent = true;
@@ -297,18 +236,10 @@ namespace Smi.Common
             catch (Exception)
             {
                 model.Close(200, "SetupProducer - Couldn't create ProducerModel");
-                connection.Close(200, "SetupProducer - Couldn't create ProducerModel");
-
                 throw;
             }
 
-            var resources = new ProducerResources
-            {
-                Connection = connection,
-                Model = model,
-                ProducerModel = producerModel,
-            };
-
+            var resources = new ProducerResources(model, producerModel);
             lock (_oResourceLock)
             {
                 _rabbitResources.Add(Guid.NewGuid(), resources);
@@ -335,16 +266,11 @@ namespace Smi.Common
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
-            IConnection connection = _factory.CreateConnection(connectionName);
-            IModel model = connection.CreateModel();
+            var model = _connection.CreateModel();
 
             lock (_oResourceLock)
             {
-                _rabbitResources.Add(Guid.NewGuid(), new RabbitResources
-                {
-                    Connection = connection,
-                    Model = model
-                });
+                _rabbitResources.Add(Guid.NewGuid(), new RabbitResources(model));
             }
 
             return model;
@@ -358,205 +284,104 @@ namespace Smi.Common
         {
             if (ShutdownCalled)
                 return;
+            if (timeout.Equals(TimeSpan.Zero))
+                throw new ApplicationException($"Invalid {nameof(timeout)} value");
 
             ShutdownCalled = true;
 
-            var exitOk = true;
-            var failedToExit = new List<string>();
-
             lock (_oResourceLock)
             {
-                foreach (RabbitResources res in _rabbitResources.Values)
+                foreach (var res in _rabbitResources.Values)
                 {
-                    var asConsumerRes = res as ConsumerResources;
-
-                    if (asConsumerRes != null)
-                    {
-                        exitOk &= asConsumerRes.Shutdown(timeout);
-                        failedToExit.Add(asConsumerRes.Subscription.ConsumerTag);
-                    }
-                    else
-                    {
-                        res.Dispose();
-                    }
+                    res.Dispose();
                 }
-
-                if (!exitOk)
-                    throw new ApplicationException($"Some consumer tasks did not exit in time: {string.Join(", ", failedToExit)}");
-
                 _rabbitResources.Clear();
             }
         }
 
         /// <summary>
-        /// Receives any messages sent to the subscription and passes on to the consumer object.
+        /// Checks that the minimum RabbitMQ server version is met
         /// </summary>
-        /// <param name="subscription">Subscription to monitor for messages on.</param>
-        /// <param name="consumer">Consumer to send messages on to.</param>
-        /// <param name="cancellationToken"></param>
-        private void Consume(ISubscription subscription, IConsumer consumer, CancellationToken cancellationToken)
+        private void CheckValidServerSettings(IConnection connection)
         {
-            ReaderWriterLockSlim worklock = new ReaderWriterLockSlim();
-            IModel m = subscription.Model;
-            consumer.SetModel(m);
+            if (!_connection.ServerProperties.ContainsKey("version"))
+                throw new ApplicationException("Could not get RabbitMQ server version");
 
-            while (m.IsOpen && !cancellationToken.IsCancellationRequested && !ShutdownCalled)
+            var version = Encoding.UTF8.GetString((byte[])_connection.ServerProperties["version"]);
+            var split = version.Split('.');
+
+            if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||
+                (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
+                 int.Parse(split[1]) < MinRabbitServerVersionMinor) ||
+                (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
+                 int.Parse(split[1]) == MinRabbitServerVersionMinor &&
+                 int.Parse(split[2]) < MinRabbitServerVersionPatch))
             {
-                BasicDeliverEventArgs e;
-
-                if (subscription.Next(500, out e))
-                {
-                    if (_threaded)
-                    {
-                        Task.Run(() =>
-                        {
-                            worklock.EnterReadLock();
-                            try
-                            {
-                                consumer.ProcessMessage(e);
-                            }
-                            finally
-                            {
-                                worklock.ExitReadLock();
-                            }
-                        }, cancellationToken);
-                    }
-                    else
-                        consumer.ProcessMessage(e);
-                }
+                throw new ApplicationException(
+                    $"Connected to RabbitMQ server version {version}, but minimum required is {MinRabbitServerVersionMajor}.{MinRabbitServerVersionMinor}.{MinRabbitServerVersionPatch}");
             }
-            if (_threaded)
-            {
-                // Taking a write lock means waiting for all read locks to
-                // release, i.e. all workers have finished
-                worklock.EnterWriteLock();
 
-                // Now there are no *new* messages being processed, flush the queue
-                consumer.Shutdown();
-                worklock.ExitWriteLock();
-            }
-            worklock.Dispose();
-
-            string reason = "unknown";
-
-            if (cancellationToken.IsCancellationRequested)
-                reason = "cancellation was requested";
-            else if (ShutdownCalled)
-                reason = "shutdown was called";
-            else if (!m.IsOpen)
-                reason = "channel is closed";
-
-            _logger.Debug("Consumer for {0} exiting ({1})", subscription.QueueName, reason);
-        }
-
-        /// <summary>
-        /// Checks we can create a basic connection, and also that the minimum RabbitMQ server version is met
-        /// </summary>
-        private void CheckValidServerSettings()
-        {
-            try
-            {
-                using (IConnection connection = _factory.CreateConnection("ServerDiscovery"))
-                {
-                    if (!connection.ServerProperties.ContainsKey("version"))
-                        throw new ApplicationException("Could not get RabbitMQ server version");
-
-                    string version = Encoding.UTF8.GetString((byte[])connection.ServerProperties["version"]);
-                    string[] split = version.Split('.');
-
-                    if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||
-                        int.Parse(split[1]) < MinRabbitServerVersionMinor ||
-                        int.Parse(split[2]) < MinRabbitServerVersionPatch)
-                    {
-
-                        throw new ApplicationException(string.Format("Connected to RabbitMQ server version {0}, but minimum required is {1}.{2}.{3}",
-                        version, MinRabbitServerVersionMajor, MinRabbitServerVersionMinor, MinRabbitServerVersionPatch));
-                    }
-
-                    _logger.Debug($"Connected to RabbitMQ server version {version}");
-                }
-            }
-            catch (BrokerUnreachableException e)
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine($"    URI:                            {_factory.Uri}");
-                sb.AppendLine($"    UserName:                       {_factory.UserName}");
-                sb.AppendLine($"    VirtualHost:                    {_factory.VirtualHost}");
-                sb.AppendLine($"    HandshakeContinuationTimeout:   {_factory.HandshakeContinuationTimeout}");
-                throw new ArgumentException($"Could not create a connection to RabbitMQ on startup:{Environment.NewLine}{sb}", e);
-            }
+            _logger.Debug($"Connected to RabbitMQ server version {version}");
         }
 
         #region Resource Classes
 
         private class RabbitResources : IDisposable
         {
-            public IConnection Connection { get; set; }
+            public IModel Model { get; }
 
-            public IModel Model { get; set; }
-
-
-            protected readonly object OResourceLock = new object();
+            protected readonly object OResourceLock = new();
 
             protected readonly ILogger Logger;
 
-            public RabbitResources()
+            public RabbitResources(IModel model)
             {
                 Logger = LogManager.GetLogger(GetType().Name);
+                Model = model;
             }
 
-
-            public void Dispose()
+            public virtual void Dispose()
             {
-                lock (OResourceLock)
-                {
-                    if (Model.IsOpen)
-                        Model.Close(200, "Disposed");
-
-                    if (Connection.IsOpen)
-                        Connection.Close(200, "Disposed", 10000);
-                }
+                if (Model.IsOpen)
+                    Model.Close();
             }
         }
 
         private class ProducerResources : RabbitResources
         {
             public IProducerModel ProducerModel { get; set; }
+
+            public ProducerResources(IModel model, IProducerModel ipm) : base(model)
+            {
+                ProducerModel = ipm;
+            }
         }
 
         private class ConsumerResources : RabbitResources
         {
-            public Task ConsumerTask { get; set; }
+            internal readonly EventingBasicConsumer ebc;
+            internal readonly string QueueName;
 
-            public CancellationTokenSource TokenSource { get; set; }
-
-            public ISubscription Subscription { get; set; }
-
-
-            public bool Shutdown(TimeSpan timeout)
+            public override void Dispose()
             {
-                bool exitOk;
-                lock (OResourceLock)
+                foreach (var tag in ebc.ConsumerTags)
                 {
-                    TokenSource.Cancel();
-
-                    // Consumer task can't directly shut itself down, as it will block here
-                    exitOk = ConsumerTask.Wait(timeout);
-
-                    Subscription.Close();
-
-                    Dispose();
+                    Model.BasicCancel(tag);
                 }
+                if (!Model.IsOpen)
+                    return;
+                Model.Close();
+                Model.Dispose();
+            }
 
-                Logger.Debug($"Consumer task shutdown [QueueName={Subscription.QueueName}]");
-
-                return exitOk;
+            internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model) : base(model)
+            {
+                this.ebc = ebc;
+                this.QueueName = q;
             }
         }
 
         #endregion
     }
-
-#pragma warning restore CS0618 // Obsolete
 
 }

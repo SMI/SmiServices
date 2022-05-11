@@ -1,5 +1,5 @@
 ﻿
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using Microservices.DicomRelationalMapper.Execution;
@@ -30,7 +30,6 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using BadMedicine;
 using BadMedicine.Dicom;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
@@ -49,7 +48,6 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         [OneTimeSetUp]
         public void SetupLogging()
         {
-
             var lm = CatalogueRepository.GetDefaultLogManager();
             lm.CreateNewLoggingTaskIfNotExists("aaa");
             _dli = lm.CreateDataLoadInfo("aaa", "HowFastIsDLETest", "Test", "", true);
@@ -58,8 +56,10 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         [Test]
         public void Test_NullRoot()
         {
-            var s = new DicomDatasetCollectionSource();
-            s.ArchiveRoot = null;
+            var s = new DicomDatasetCollectionSource
+            {
+                ArchiveRoot = null
+            };
         }
 
         [TestCase(DatabaseType.MySql, 600), RequiresRabbit]
@@ -71,8 +71,8 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             var db = GetCleanedServer(databaseType);
 
-            var d = CatalogueRepository.GetServerDefaults();
-            d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            if (CatalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer) is not null)
+                CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
             var template = ImageTableTemplateCollection.LoadFrom(_templateXml);
 
@@ -87,9 +87,10 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), root: null, template: template, persistentRaw: true);
 
             //do not use an explicit RAW data load server
-            d.ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            if (CatalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer) is not null)
+                CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
-            Random r = new Random(123);
+            Random r = new(123);
 
             List<DicomDataset> allImages;
 
@@ -100,19 +101,17 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
             {
-                using (var host = new DicomRelationalMapperHost(_globals))
-                {
-                    tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
+                using var host = new DicomRelationalMapperHost(_globals);
+                tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
 
-                    Console.WriteLine("Starting Host");
-                    host.Start();
+                Console.WriteLine("Starting Host");
+                host.Start();
 
-                    Stopwatch sw = Stopwatch.StartNew();
-                    new TestTimelineAwaiter().Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
+                Stopwatch sw = Stopwatch.StartNew();
+                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
 
-                    Console.Write("Time For DLE:" + sw.Elapsed.TotalSeconds + "s");
-                    host.Stop("Test finished");
-                }
+                Console.Write($"Time For DLE:{sw.Elapsed.TotalSeconds}s");
+                host.Stop("Test finished");
             }
 
             foreach (Pipeline allObject in CatalogueRepository.GetAllObjects<Pipeline>())
@@ -123,25 +122,25 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
         [TestCase(500)]
         public void TestGetChunktOnly(int numberOfImages)
         {
-            Random r = new Random(123);
+            Random r = new(123);
             
             List<DicomDataset> allImages;
 
-            using (DicomDataGenerator g = new DicomDataGenerator(r, null, "CT", "MR"))
-                allImages =g.GenerateImages(numberOfImages,r);
+            using (DicomDataGenerator g = new(r, null, "CT", "MR"))
+                allImages = g.GenerateImages(numberOfImages,r);
             
-            DicomDatasetCollectionSource source = new DicomDatasetCollectionSource();
-            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string>() { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
+            DicomDatasetCollectionSource source = new();
+            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
             source.FilenameField = "gggg";
 
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             sw.Start();
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-            source.Dispose(new ThrowImmediatelyDataLoadEventListener() { WriteToConsole = true }, null);
+            source.Dispose(new ThrowImmediatelyDataLoadEventListener { WriteToConsole = true }, null);
 
             sw.Stop();
-            Console.WriteLine("GetChunk took " + sw.ElapsedMilliseconds);
+            Console.WriteLine($"GetChunk took {sw.ElapsedMilliseconds}");
 
             Assert.AreEqual(numberOfImages, dt.Rows.Count);
             Assert.AreEqual(numberOfImages, dt.Rows.Cast<DataRow>().Select(w => w["SOPInstanceUID"]).Distinct().Count());
@@ -169,21 +168,22 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), root: null, template: template, persistentRaw: true);
 
             //do not use an explicit RAW data load server
-            CatalogueRepository.GetServerDefaults().ClearDefault(PermissableDefaults.RAWDataLoadServer);
+            if (CatalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer) is not null)
+                CatalogueRepository.ClearDefault(PermissableDefaults.RAWDataLoadServer);
 
-            Random r = new Random(123);
+            Random r = new(123);
             
             List<DicomDataset> allImages;
 
             using (var generator = new DicomDataGenerator(r, null, "CT"))
                 allImages = generator.GenerateImages(numberOfImages, r);
 
-            DicomDatasetCollectionSource source = new DicomDatasetCollectionSource();
-            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string>() { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
+            DicomDatasetCollectionSource source = new();
+            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
             source.FilenameField = "gggg";
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-            source.Dispose(new ThrowImmediatelyDataLoadEventListener() { WriteToConsole = true }, null);
+            source.Dispose(new ThrowImmediatelyDataLoadEventListener { WriteToConsole = true }, null);
 
             Assert.AreEqual(numberOfImages, allImages.Count);
             Assert.AreEqual(numberOfImages, dt.Rows.Count);
@@ -246,7 +246,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             var root = TestContext.CurrentContext.TestDirectory;
 
             var f = Path.GetRandomFileName();
-            var msg = new DicomFileMessage(root, Path.Combine(root, f + ".dcm"));
+            var msg = new DicomFileMessage(root, Path.Combine(root, $"{f}.dcm"));
             msg.SeriesInstanceUID = dicomDataset.GetString(DicomTag.SeriesInstanceUID);
             msg.StudyInstanceUID = dicomDataset.GetString(DicomTag.StudyInstanceUID);
             msg.SOPInstanceUID = dicomDataset.GetString(DicomTag.SOPInstanceUID);
