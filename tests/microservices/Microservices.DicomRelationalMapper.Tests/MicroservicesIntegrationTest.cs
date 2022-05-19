@@ -413,7 +413,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var r = new Random(500);
 
             //create a generator 
-            using var generator = new DicomDataGenerator(r, dir, "CT");
+            using var generator = new DicomDataGenerator(r, dir.FullName, "CT");
             generator.GenerateImageFiles(40,r);
             RunTest(dir, 40);
         }
