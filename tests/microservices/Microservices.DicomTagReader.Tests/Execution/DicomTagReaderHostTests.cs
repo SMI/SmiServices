@@ -95,7 +95,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var host = new DicomTagReaderHost(_helper.Options);
 
             var r = new Random(5);
-            var generator = new DicomDataGenerator(r,julyFolder,"CT");
+            var generator = new DicomDataGenerator(r,julyFolder.FullName,"CT");
             var files = generator.GenerateImageFiles(10,r).ToArray();
 
             host.AccessionDirectoryMessageConsumer.RunSingleFile(files[2]);

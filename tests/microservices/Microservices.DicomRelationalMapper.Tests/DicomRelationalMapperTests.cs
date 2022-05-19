@@ -164,7 +164,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var r = new Random(5000);
             FileInfo[] files;
 
-            using (var g = new DicomDataGenerator(r, d, "CT")) 
+            using (var g = new DicomDataGenerator(r, d.FullName, "CT")) 
                 files = g.GenerateImageFiles(1, r).ToArray();
 
             Assert.AreEqual(1,files.Length);
