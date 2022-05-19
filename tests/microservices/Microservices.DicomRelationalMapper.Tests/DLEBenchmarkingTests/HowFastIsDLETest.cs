@@ -94,7 +94,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             List<DicomDataset> allImages;
 
-            using (var generator = new DicomDataGenerator(r, null, "CT"))
+            using (var generator = new DicomDataGenerator(r, TestContext.CurrentContext.TestDirectory, "CT"){NoPixels = true})
                 allImages = generator.GenerateImages(numberOfImages, r);
             
             Assert.AreEqual(numberOfImages, allImages.Count);
