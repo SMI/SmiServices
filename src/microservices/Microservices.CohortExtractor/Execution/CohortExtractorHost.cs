@@ -20,6 +20,7 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using StackExchange.Redis;
 
 namespace Microservices.CohortExtractor.Execution
 {
@@ -173,6 +174,11 @@ namespace Microservices.CohortExtractor.Execution
                     if (_swapper == null)
                         throw new ArgumentException("Could not construct swapper, MicroserviceObjectFactory returned null");
 
+                    // if we were able to setup a swapper then configure the static
+                    // delegate to use UIDs instead of Guids
+
+                    // TODO: set this to preferred UID allocation method
+                    ForGuidIdentifierSwapper.GuidAllocator = () => "fish";
                 }
                 catch (Exception ex)
                 {
@@ -180,8 +186,20 @@ namespace Microservices.CohortExtractor.Execution
                 }
             }
 
-            // TODO: set this to preferred UID allocation method
-            ForGuidIdentifierSwapper.GuidAllocator = () => "fish";
+            // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
+            if (_swapper != null && !string.IsNullOrWhiteSpace(_consumerOptions?.ExtractionIdentifierSwapping?.RedisConnectionString))
+                try
+                {
+                    _swapper = new RedisSwapper(_consumerOptions.ExtractionIdentifierSwapping.RedisConnectionString, _swapper);
+                }
+                catch (RedisConnectionException e)
+                {
+                    // NOTE(rkm 2020-03-30) Log & throw! I hate this, but if we don't log here using NLog, then the exception will bubble-up
+                    //                      and only be printed to STDERR instead of to the log file and may be lost
+                    Logger.Error(e, "Could not connect to Redis");
+                    throw;
+                }
+
         }
     }
 }
