@@ -235,7 +235,6 @@
  <e en="T" t="00181005" n="GeneratorID">@remove()</e>
  <e en="T" t="00181007" n="CassetteID">@remove()</e>
  <e en="T" t="00181008" n="GantryID">@remove()</e>
- <e en="T" t="0018100b" n="ManufacturerDeviceClassUID">@remove()</e>
  <e en="T" t="00181010" n="SecondaryCaptureDeviceID">@remove()</e>
  <e en="T" t="00181011" n="HardcopyCreationDeviceID">@remove()</e>
  <e en="T" t="00181012" n="DateOfSecondaryCapture">@remove()</e>
@@ -401,7 +400,6 @@
  <e en="T" t="00181800" n="AcquisitionTimeSynchronized">@keep()</e>
  <e en="T" t="00181801" n="TimeSource">@remove()</e>
  <e en="T" t="00181802" n="TimeDistributionProtocol">@remove()</e>
- <e en="T" t="00182042" n="TargetUID">@remove()</e>
  <e en="T" t="00184000" n="AcquisitionComments">@remove()</e>
  <e en="T" t="00185000" n="OutputPower">@remove()</e>
  <e en="T" t="00185010" n="TransducerData">@remove()</e>

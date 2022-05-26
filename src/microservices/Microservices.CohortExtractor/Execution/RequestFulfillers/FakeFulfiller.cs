@@ -34,13 +34,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             foreach (var valueToLookup in message.ExtractionIdentifiers)
             {
                 var results = new ExtractImageCollection(valueToLookup);
-                string filePathValue = valueToLookup; // "img001.dcm";
-                string studyTagValue = "study-1";
-                string seriesTagValue = "series-1";
-                string instanceTagValue = "instance-1";
-                bool rejection = false;
-                string rejectionReason = "";
-                var result = new QueryToExecuteResult(filePathValue, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
+                var studyTagValue = "2";
+                var seriesTagValue = "3";
+                var instanceTagValue = "4";
+                var rejection = false;
+                var rejectionReason = "";
+                var result = new QueryToExecuteResult(valueToLookup, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
                 if(!results.ContainsKey(result.SeriesTagValue))
                     results.Add(result.SeriesTagValue,new HashSet<QueryToExecuteResult>());
                 results[result.SeriesTagValue].Add(result);
