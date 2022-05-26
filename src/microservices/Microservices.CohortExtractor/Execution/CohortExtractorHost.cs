@@ -180,6 +180,8 @@ namespace Microservices.CohortExtractor.Execution
                 }
             }
 
+            // TODO: set this to preferred UID allocation method
+            ForGuidIdentifierSwapper.GuidAllocator = () => "fish";
         }
     }
 }
