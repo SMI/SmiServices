@@ -64,24 +64,6 @@ namespace Microservices.CohortExtractor.Messaging
 
                 foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
-                    string replacementStudy = SwapIfApplicable(accepted.StudyTagValue);
-                    string replacementSeries = SwapIfApplicable(accepted.SeriesTagValue);
-                    string replacementSop = SwapIfApplicable(accepted.InstanceTagValue);
-
-                    if (!request.IsIdentifiableExtraction)
-                    {
-                        const string errMsg = "Couldn't get a replacement {} for {}. Reason: '{}'";
-
-                        replacementStudy = _uidSwapper.GetSubstitutionFor(accepted.StudyTagValue, out string reason);
-                        if (string.IsNullOrWhiteSpace(replacementStudy) || reason != null) throw new Exception(string.Format(errMsg, "StudyInstanceUID", accepted.StudyTagValue, reason));
-
-                        replacementSeries = _uidSwapper.GetSubstitutionFor(accepted.SeriesTagValue, out reason);
-                        if (string.IsNullOrWhiteSpace(replacementSeries) || reason != null) throw new Exception(string.Format(errMsg, "SeriesInstanceUID", accepted.SeriesTagValue, reason));
-
-                        replacementSop = _uidSwapper.GetSubstitutionFor(accepted.InstanceTagValue, out reason);
-                        if (string.IsNullOrWhiteSpace(replacementSop) || reason != null) throw new Exception(string.Format(errMsg, "SOPInstanceUID", accepted.InstanceTagValue, reason));
-                    }
-
                     var extractFileMessage = new ExtractFileMessage()
                     {
                         // Path to the original file
@@ -91,9 +73,9 @@ namespace Microservices.CohortExtractor.Messaging
                         // Output path for the anonymised file, relative to the extraction directory
                         OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/'),
 
-                        ReplacementStudyInstanceUID = replacementStudy,
-                        ReplacementSeriesInstanceUID = replacementSeries,
-                        ReplacementSOPInstanceUID = replacementSop,
+                        ReplacementStudyInstanceUID = request.IsIdentifiableExtraction ? null : SwapIfApplicable("StudyInstanceUID", accepted.StudyTagValue),
+                        ReplacementSeriesInstanceUID = request.IsIdentifiableExtraction ? null : SwapIfApplicable("SeriesInstanceUID", accepted.SeriesTagValue),
+                        ReplacementSOPInstanceUID =  request.IsIdentifiableExtraction ? null : SwapIfApplicable("SOPInstanceUID", accepted.InstanceTagValue),
                     };
 
                     Logger.Debug($"DicomFilePath={extractFileMessage.DicomFilePath}, OutputPath={extractFileMessage.OutputPath}");
@@ -133,15 +115,17 @@ namespace Microservices.CohortExtractor.Messaging
             Ack(header, tag);
         }
 
-        private object SwapIfApplicable(string val)
-        {
-            string failed = null;
-            var sub = _swapper?.GetSubstitutionFor(val, out failed);
+        private string SwapIfApplicable(string tagName, string value)
+        {                        
+            const string errMsg = "Couldn't get a replacement {} for {}. Reason: '{}'";
 
-            if (!string.IsNullOrEmpty(failed))
-                throw new System.Exception($"Failed to get identifier substitution for '{val}' because:" + failed);
+            string reason = null;
+            var replacement = _uidSwapper?.GetSubstitutionFor(value, out reason);
+
+            if (string.IsNullOrWhiteSpace(replacement) || reason != null)
+                throw new Exception(string.Format(errMsg, tagName, value, reason));
             
-            return sub;
+            return replacement;
         }
     }
 }
