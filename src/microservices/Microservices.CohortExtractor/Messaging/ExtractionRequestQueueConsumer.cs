@@ -2,6 +2,7 @@ using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -18,14 +19,15 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IAuditExtractions _auditor;
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
-
+        private readonly ISwapIdentifiers _swapper;
         private readonly IProjectPathResolver _resolver;
 
         public ExtractionRequestQueueConsumer(
             CohortExtractorOptions options,
             IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
             IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
-            IProducerModel fileMessageInfoProducer)
+            IProducerModel fileMessageInfoProducer, 
+            ISwapIdentifiers swapper = null)
         {
             _options = options;
             _fulfiller = fulfiller;
@@ -33,6 +35,7 @@ namespace Microservices.CohortExtractor.Messaging
             _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
+            _swapper = swapper;
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
@@ -58,6 +61,11 @@ namespace Microservices.CohortExtractor.Messaging
 
                 foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
+                    // TODO: pass these into the message when it is ready to accept them
+                    var anonStudyUID = SwapIfApplicable(accepted.StudyTagValue);
+                    var anonSeriesUID = SwapIfApplicable(accepted.SeriesTagValue);
+                    var anonInstanceUID = SwapIfApplicable(accepted.InstanceTagValue);
+
                     var extractFileMessage = new ExtractFileMessage(request)
                     {
                         // Path to the original file
@@ -103,6 +111,17 @@ namespace Microservices.CohortExtractor.Messaging
 
             Logger.Info("Finished processing message");
             Ack(header, tag);
+        }
+
+        private object SwapIfApplicable(string val)
+        {
+            string failed = null;
+            var sub = _swapper?.GetSubstitutionFor(val, out failed);
+
+            if (!string.IsNullOrEmpty(failed))
+                throw new System.Exception($"Failed to get identifier substitution for '{val}' because:" + failed);
+            
+            return sub;
         }
     }
 }

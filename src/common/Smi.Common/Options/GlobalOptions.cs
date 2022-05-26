@@ -177,18 +177,32 @@ namespace Smi.Common.Options
 
         public DiscoveredTable Discover()
         {
-            var server = new DiscoveredServer(MappingConnectionString, MappingDatabaseType);
+            return Discover(this);
+        }
 
-            var idx = MappingTableName.LastIndexOf('.');
-            var tableNameUnqualified = MappingTableName.Substring(idx + 1);
+        /// <summary>
+        /// Returns the <see cref="DiscoveredTable"/> referenced by <paramref name="opts"/>.
+        /// Table might not exist yet (see <see cref="DiscoveredTable.Exists"/>).
+        /// </summary>
+        /// <param name="opts"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">If there are missing/corrupt options 
+        /// in <paramref name="opts"/> that makes it impossible
+        /// to determine which table is described</exception>
+        public static DiscoveredTable Discover(IMappingTableOptions opts)
+        {
+            var server = new DiscoveredServer(opts.MappingConnectionString, opts.MappingDatabaseType);
 
-            idx = MappingTableName.IndexOf('.');
+            var idx = opts.MappingTableName.LastIndexOf('.');
+            var tableNameUnqualified = opts.MappingTableName.Substring(idx + 1);
+
+            idx = opts.MappingTableName.IndexOf('.');
             if (idx == -1)
-                throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
+                throw new ArgumentException($"MappingTableName did not contain the database/user section:'{opts.MappingTableName}'");
 
-            var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName.Substring(0, idx));
+            var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(opts.MappingTableName.Substring(0, idx));
             if (string.IsNullOrWhiteSpace(databaseName))
-                throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
+                throw new ArgumentException($"Could not get database/username from MappingTableName {opts.MappingTableName}");
 
             return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
         }
@@ -386,6 +400,12 @@ namespace Smi.Common.Options
         /// ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
         /// </summary>
         public List<int> RejectColumnInfos { get; set; }
+
+        /// <summary>
+        /// If DICOM UIDs are being substituted on extraction then this is the location of
+        /// the server that holds the mapping
+        /// </summary>
+        public ExtractionIdentifierSwappingOptions ExtractionIdentifierSwapping { get; set; }
 
         public override string ToString()
         {
