@@ -27,7 +27,7 @@ namespace Microservices.CohortExtractor.Execution
         private IReadOnlyCollection<QueryToExecuteResult> GetWhereRejected(bool isRejected)
         {
             
-            HashSet<QueryToExecuteResult> result = new HashSet<QueryToExecuteResult>();
+            HashSet<QueryToExecuteResult> result = new();
 
             foreach (HashSet<QueryToExecuteResult> v in Values)
             {

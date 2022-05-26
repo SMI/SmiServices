@@ -21,7 +21,6 @@ namespace Applications.SmiRunner
             typeof(CohortExtractorVerb),
             typeof(DicomAnonymiserVerb),
             typeof(CohortPackagerVerb),
-            typeof(DeadLetterReprocessorVerb),
             typeof(DicomRelationalMapperVerb),
             typeof(DicomReprocessorVerb),
             typeof(DicomTagReaderVerb),
@@ -55,12 +54,10 @@ namespace Applications.SmiRunner
                             // Applications
                             TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
-                            IsIdentifiableReviewerVerb _ => Applications.IsIdentifiableReviewer.Program.Main(rest),
                             ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
                             // Microservices
                             CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
                             CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),
-                            DeadLetterReprocessorVerb _ => Microservices.DeadLetterReprocessor.Program.Main(rest),
                             DicomAnonymiserVerb _ => Microservices.DicomAnonymiser.Program.Main(rest),
                             DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.Program.Main(rest),
                             DicomReprocessorVerb _ => Microservices.DicomReprocessor.Program.Main(rest),

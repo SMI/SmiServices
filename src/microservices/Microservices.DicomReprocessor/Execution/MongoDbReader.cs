@@ -27,17 +27,17 @@ namespace Microservices.DicomReprocessor.Execution
         private readonly string _collNamespace;
         private readonly IMongoCollection<BsonDocument> _collection;
 
-        private readonly FindOptions<BsonDocument> _findOptionsBase = new FindOptions<BsonDocument>
+        private readonly FindOptions<BsonDocument> _findOptionsBase = new()
         {
             NoCursorTimeout = true
         };
 
-        private readonly ParallelOptions _parallelOptions = new ParallelOptions
+        private readonly ParallelOptions _parallelOptions = new()
         {
             MaxDegreeOfParallelism = Environment.ProcessorCount > 1 ? Environment.ProcessorCount / 2 : 1
         };
 
-        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource _tokenSource = new();
         private bool _stopping;
 
         private readonly bool _autoRun;

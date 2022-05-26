@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using Microservices.IsIdentifiable.Reporting;
 using NLog;
-using RabbitMQ.Client.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Newtonsoft.Json;
+using IsIdentifiable.Reporting;
 
 namespace Microservices.IsIdentifiable.Service
 {

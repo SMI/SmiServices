@@ -78,10 +78,7 @@ namespace Smi.Common.Tests
             public A()
             {
 
-                #pragma warning disable CS0618 // Obsolete
-                ConnectionMode = ConnectionMode.Direct;
-                #pragma warning restore CS0618
-
+                DirectConnection = true;
                 ConnectTimeout = new TimeSpan(0, 0, 0, 5);
                 SocketTimeout = new TimeSpan(0, 0, 0, 5);
                 HeartbeatTimeout = new TimeSpan(0, 0, 0, 5);

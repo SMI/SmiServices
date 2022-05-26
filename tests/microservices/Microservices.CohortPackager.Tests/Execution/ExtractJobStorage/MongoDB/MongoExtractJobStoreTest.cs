@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     {
         private const string ExtractionDatabaseName = "testExtraction";
 
-        private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
+        private readonly TestDateTimeProvider _dateTimeProvider = new();
 
         #region Fixture Methods 
 
@@ -46,8 +46,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
         private sealed class TestMongoClient : StubMongoClient
         {
-            public readonly TestExtractionDatabase ExtractionDatabase = new TestExtractionDatabase();
-            public readonly Mock<IClientSessionHandle> MockSessionHandle = new Mock<IClientSessionHandle>();
+            public readonly TestExtractionDatabase ExtractionDatabase = new();
+            public readonly Mock<IClientSessionHandle> MockSessionHandle = new();
 
             public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
             {
@@ -65,29 +65,39 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         /// </summary>
         private sealed class TestExtractionDatabase : StubMongoDatabase
         {
-            public readonly MockExtractCollection<Guid, MongoExtractJobDoc> InProgressCollection = new MockExtractCollection<Guid, MongoExtractJobDoc>();
-            public readonly MockExtractCollection<Guid, MongoCompletedExtractJobDoc> CompletedJobCollection = new MockExtractCollection<Guid, MongoCompletedExtractJobDoc>();
-            public readonly Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>> ExpectedFilesCollections = new Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>>();
-            public readonly Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>> StatusCollections = new Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>>();
+            public readonly MockExtractCollection<Guid, MongoExtractJobDoc> InProgressCollection = new();
+            public readonly MockExtractCollection<Guid, MongoCompletedExtractJobDoc> CompletedJobCollection = new();
+            public readonly Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>> ExpectedFilesCollections = new();
+            public readonly Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>> StatusCollections = new();
 
             public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null)
             {
                 dynamic retCollection = null;
-                if (name == "inProgressJobs")
-                    retCollection = InProgressCollection;
-                else if (name == "completedJobs")
-                    retCollection = CompletedJobCollection;
-                else if (name.StartsWith("expectedFiles"))
+                switch (name)
                 {
-                    if (!ExpectedFilesCollections.ContainsKey(name))
-                        ExpectedFilesCollections[name] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
-                    retCollection = ExpectedFilesCollections[name];
-                }
-                else if (name.StartsWith("statuses"))
-                {
-                    if (!StatusCollections.ContainsKey(name))
-                        StatusCollections[name] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
-                    retCollection = StatusCollections[name];
+                    case "inProgressJobs":
+                        retCollection = InProgressCollection;
+                        break;
+                    case "completedJobs":
+                        retCollection = CompletedJobCollection;
+                        break;
+                    default:
+                    {
+                        if (name.StartsWith("expectedFiles"))
+                        {
+                            if (!ExpectedFilesCollections.ContainsKey(name))
+                                ExpectedFilesCollections[name] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
+                            retCollection = ExpectedFilesCollections[name];
+                        }
+                        else if (name.StartsWith("statuses"))
+                        {
+                            if (!StatusCollections.ContainsKey(name))
+                                StatusCollections[name] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
+                            retCollection = StatusCollections[name];
+                        }
+
+                        break;
+                    }
                 }
 
                 return retCollection != null
@@ -109,7 +119,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         /// <typeparam name="TVal"></typeparam>
         private sealed class MockExtractCollection<TKey, TVal> : StubMongoCollection<TKey, TVal>
         {
-            public readonly Dictionary<TKey, TVal> Documents = new Dictionary<TKey, TVal>();
+            public readonly Dictionary<TKey, TVal> Documents = new();
 
             public bool RejectChanges { get; set; }
 

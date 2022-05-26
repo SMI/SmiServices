@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using FAnsi;
 using FAnsi.Discovery;
 using Microservices.IdentifierMapper.Execution.Swappers;
@@ -37,7 +35,7 @@ namespace Microservices.IdentifierMapper.Tests
                 map = db.CreateTable("Map",dt);
             }
 
-            var options = new IdentifierMapperOptions()
+            var options = new IdentifierMapperOptions
             {
                 MappingTableName = map.GetFullyQualifiedName(),
                 MappingConnectionString = db.Server.Builder.ConnectionString,
@@ -101,7 +99,7 @@ namespace Microservices.IdentifierMapper.Tests
                 map = db.CreateTable("Map",dt);
             }
 
-            var options = new IdentifierMapperOptions()
+            var options = new IdentifierMapperOptions
             {
                 MappingTableName = map.GetFullyQualifiedName(),
                 MappingConnectionString = db.Server.Builder.ConnectionString,
@@ -146,9 +144,9 @@ namespace Microservices.IdentifierMapper.Tests
 
         private void ClearRedisServer()
         {
-            using(var admin = ConnectionMultiplexer.Connect(TestRedisServer +",allowAdmin=true"))
-                foreach (var server in admin.GetEndPoints().Select(e=> admin.GetServer(e)))
-                    server.FlushAllDatabases();
+            using var admin = ConnectionMultiplexer.Connect($"{TestRedisServer},allowAdmin=true");
+            foreach (var server in admin.GetEndPoints().Select(e=> admin.GetServer(e)))
+                server.FlushAllDatabases();
         }
     }
 }

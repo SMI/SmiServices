@@ -26,7 +26,7 @@ namespace Microservices.CohortExtractor.Tests
         [TestCase(Test.NoFulfiller, false)]
         public void UnitTest_Reflection_AuditorAndFulfillerTypeNames(Test testCase, bool fullName)
         {
-            CohortExtractorOptions opts = new CohortExtractorOptions();
+            CohortExtractorOptions opts = new();
 
             //override
             switch (testCase)
@@ -87,7 +87,7 @@ namespace Microservices.CohortExtractor.Tests
         [TestCase(false)]
         public void UnitTest_Reflection_RejectorTypeNames(bool supplyRejectorName)
         {
-            CohortExtractorOptions opts = new CohortExtractorOptions();
+            CohortExtractorOptions opts = new();
             opts.RequestFulfillerType =  typeof(FromCataloguesExtractionRequestFulfiller).FullName;
             opts.RejectorType = supplyRejectorName ? typeof(TestRejector).FullName : null;
             opts.Validate();

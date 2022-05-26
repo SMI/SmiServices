@@ -8,6 +8,7 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Data;
+using MapsDirectlyToDatabaseTable;
 using Tests.Common;
 
 namespace Microservices.Tests.RDMPTests
@@ -42,20 +43,20 @@ namespace Microservices.Tests.RDMPTests
             consumerOptions.DatabaseNamerType = typeName;
             consumerOptions.Guid = Guid.Empty;
 
-            globals.RDMPOptions.CatalogueConnectionString = CatalogueRepository.DiscoveredServer.Builder.ConnectionString;
-            globals.RDMPOptions.DataExportConnectionString = DataExportRepository.DiscoveredServer.Builder.ConnectionString;
+            if (CatalogueRepository is ITableRepository crtr)
+                globals.RDMPOptions.CatalogueConnectionString = crtr.DiscoveredServer.Builder.ConnectionString;
+            if (DataExportRepository is ITableRepository dertr)
+                globals.RDMPOptions.DataExportConnectionString = dertr.DiscoveredServer.Builder.ConnectionString;
 
             using (new MicroserviceTester(globals.RabbitOptions, globals.DicomRelationalMapperOptions))
             {
-                using (var host = new DicomRelationalMapperHost(globals))
-                {
-                    host.Start();
+                using var host = new DicomRelationalMapperHost(globals);
+                host.Start();
 
-                    Assert.AreEqual(expectedType, host.Consumer.DatabaseNamer.GetType());
-                    Assert.IsNotNull(host);
+                Assert.AreEqual(expectedType, host.Consumer.DatabaseNamer.GetType());
+                Assert.IsNotNull(host);
 
-                    host.Stop("Test finished");
-                }
+                host.Stop("Test finished");
             }
         }
     }

@@ -21,7 +21,7 @@ namespace Microservices.CohortPackager.Tests.Execution
     [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class CohortPackagerHostTest
     {
-        private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
+        private readonly TestDateTimeProvider _dateTimeProvider = new();
 
         #region Fixtures
 

@@ -29,9 +29,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
         {
-            Logger.Debug("Found " + message.KeyTag);
+            Logger.Debug($"Found {message.KeyTag}");
 
-            foreach (string valueToLookup in message.ExtractionIdentifiers)
+            foreach (var valueToLookup in message.ExtractionIdentifiers)
             {
                 var results = new ExtractImageCollection(valueToLookup);
                 string filePathValue = valueToLookup; // "img001.dcm";

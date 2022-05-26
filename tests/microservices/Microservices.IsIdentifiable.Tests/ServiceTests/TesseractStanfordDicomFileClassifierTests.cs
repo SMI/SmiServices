@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using Microservices.IsIdentifiable.Options;
+﻿using System.IO;
+using IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Service;
 using NUnit.Framework;
 
@@ -16,7 +13,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
         public void TestDataDirectory_DoesNotExist()
         {
             var d = new DirectoryInfo("asdflsdfjadfshsdfdsafldsf;dsfldsafj");
-            Assert.Throws<DirectoryNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableServiceOptions()));
+            Assert.Throws<DirectoryNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableDicomFileOptions()));
         }
         [Test]
         public void TestDataDirectory_Empty()
@@ -25,7 +22,7 @@ namespace Microservices.IsIdentifiable.Tests.ServiceTests
 
             var d = new DirectoryInfo(path);
             d.Create();
-            Assert.Throws<FileNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableServiceOptions()));
+            Assert.Throws<FileNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableDicomFileOptions()));
         }
     }
 }

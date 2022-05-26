@@ -6,7 +6,6 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using JetBrains.Annotations;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using NLog;
@@ -29,9 +28,9 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         protected int TotalSent;
 
         protected bool IsProcessing;
-        protected readonly CancellationTokenSource TokenSource = new CancellationTokenSource();
+        protected readonly CancellationTokenSource TokenSource = new();
 
-        protected readonly Stopwatch Stopwatch = new Stopwatch();
+        protected readonly Stopwatch Stopwatch = new();
         protected StringBuilder StringBuilder;
         protected List<List<long>> Times;
 

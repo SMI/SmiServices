@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using Applications.TriggerUpdates.Options;
 using Tests.Common;
 
@@ -31,7 +30,7 @@ namespace Applications.TriggerUpdates.Execution
         {
             var db = GetCleanedServer(dbType);
 
-            DataTable dt = new DataTable();
+            DataTable dt = new();
             dt.Columns.Add("PatientID",typeof(string));
             dt.Columns.Add("StudyDescription",typeof(string));
             dt.SetDoNotReType(true);
@@ -61,7 +60,7 @@ namespace Applications.TriggerUpdates.Execution
             // Import into RDMP the live table so we have a TableInfo pointer to it floating around
             Import(liveTable);
 
-            var mapperOptions = new IdentifierMapperOptions()
+            var mapperOptions = new IdentifierMapperOptions
             {
                 MappingTableName = map.GetFullyQualifiedName(),
                 MappingConnectionString = db.Server.Builder.ConnectionString,
@@ -78,11 +77,13 @@ namespace Applications.TriggerUpdates.Execution
             Assert.AreEqual(0,guidTable.GetRowCount(), "No temporary guids should exist yet");
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
             
-            guidTable.Insert(new Dictionary<string,object>(){ 
+            guidTable.Insert(new Dictionary<string,object>
+            { 
                 { "CHI","0202020202" },
                 { TableLookupWithGuidFallbackSwapper.GuidColumnName,"bbb-bbb-bbb"}
                 });
-            guidTable.Insert(new Dictionary<string,object>(){ 
+            guidTable.Insert(new Dictionary<string,object>
+            { 
                 { "CHI","0303030303" },
                 { TableLookupWithGuidFallbackSwapper.GuidColumnName,"ccc-ccc-ccc"}
                 });
@@ -95,7 +96,8 @@ namespace Applications.TriggerUpdates.Execution
             triggerImplementer.CreateTrigger(new ThrowImmediatelyCheckNotifier());
         
             //create a brand new mapping 
-            map.Insert(new Dictionary<string, object>(){ 
+            map.Insert(new Dictionary<string, object>
+            { 
                 {"CHI","0303030303" },
                 {"ECHI","0C0C0C0C0C" },
                 {SpecialFieldNames.ValidFrom,DateTime.Now },
@@ -104,7 +106,7 @@ namespace Applications.TriggerUpdates.Execution
 
             var globals = new GlobalOptionsFactory().Load(nameof(MapperSource_IntegrationTest));
             
-            var cliOptions = new TriggerUpdatesFromMapperOptions()
+            var cliOptions = new TriggerUpdatesFromMapperOptions
             {
                 DateOfLastUpdate = new DateTime(2020,01,01),
                 LiveDatabaseFieldName = "PatientID",
@@ -141,7 +143,7 @@ namespace Applications.TriggerUpdates.Execution
 
                 
                 //wait till updater is done updating the live table
-                new TestTimelineAwaiter().Await(() => destHost.Consumer.AckCount == 1);
+                TestTimelineAwaiter.Await(() => destHost.Consumer.AckCount == 1);
             }
 
             var liveDtAfter = liveTable.GetDataTable();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Microservices.IsIdentifiable.Reporting.Reports;
+using Failure = IsIdentifiable.Reporting.Failure;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -20,7 +20,7 @@ namespace Microservices.IsIdentifiable.Service
                 throw new DirectoryNotFoundException($"Could not find directory {DataDirectory.FullName}");
         }
 
-        public abstract IEnumerable<Reporting.Failure> Classify(IFileInfo dcm);
+        public abstract IEnumerable<Failure> Classify(IFileInfo dcm);
 
         /// <summary>
         /// Finds a single directory of a given name in the <see cref="DataDirectory"/> and asserts that it exists
@@ -49,13 +49,14 @@ namespace Microservices.IsIdentifiable.Service
         {
             var files = directory.GetFiles(searchPattern, SearchOption.AllDirectories).ToArray();
 
-            if(files.Length  == 0)
-                throw new FileNotFoundException($"Expected 1 file matching '{searchPattern}' to exist in {directory}");
-            
-            if(files.Length > 1)
-                throw new Exception($"Found '{files.Length}' file matching '{searchPattern}' in {directory} (expected 1)");
-
-            return files[0];
+            return files.Length switch
+            {
+                0 => throw new FileNotFoundException(
+                    $"Expected 1 file matching '{searchPattern}' to exist in {directory}"),
+                > 1 => throw new Exception(
+                    $"Found '{files.Length}' file matching '{searchPattern}' in {directory} (expected 1)"),
+                _ => files[0]
+            };
         }
 
     }

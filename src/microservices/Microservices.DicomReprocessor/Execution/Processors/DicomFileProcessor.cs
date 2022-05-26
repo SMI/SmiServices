@@ -1,5 +1,5 @@
 
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using MongoDB.Bson;
 using NLog;
@@ -43,8 +43,8 @@ namespace Microservices.DicomReprocessor.Execution.Processors
         private readonly IProducerModel _producerModel;
         private readonly string _reprocessingRoutingKey;
 
-        private List<Tuple<DicomFileMessage, IMessageHeader>> _messageBuffer = new List<Tuple<DicomFileMessage, IMessageHeader>>();
-        private readonly object _oBufferLock = new object();
+        private List<Tuple<DicomFileMessage, IMessageHeader>> _messageBuffer = new();
+        private readonly object _oBufferLock = new();
 
 
         public DicomFileProcessor(DicomReprocessorOptions options, IProducerModel producerModel, string reprocessingRoutingKey)

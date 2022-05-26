@@ -23,7 +23,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         private static HashSet<string> FetchTable(ColumnInfo columnInfo)
         {
             var logger = LogManager.GetCurrentClassLogger();
-            HashSet<string> toReturn = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+            HashSet<string> toReturn = new(StringComparer.CurrentCultureIgnoreCase);
 
             var qb = new QueryBuilder(limitationSQL: null, hashingAlgorithm: null);
             qb.AddColumn(new ColumnInfoToIColumn(new MemoryRepository(), columnInfo));

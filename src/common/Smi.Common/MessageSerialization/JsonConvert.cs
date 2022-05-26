@@ -13,9 +13,9 @@ namespace Smi.Common.MessageSerialization
     /// </summary>
     public static class JsonConvert
     {
-        private static List<string> _errors = new List<string>();
+        private static List<string> _errors = new();
 
-        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings _serializerSettings = new()
         {
             Error = delegate (object sender, ErrorEventArgs args)
             {
@@ -66,7 +66,7 @@ namespace Smi.Common.MessageSerialization
                 enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
             //TODO This might crash if for some reason we have invalid Unicode points
-            return DeserializeObject<T>(enc.GetString(deliverArgs.Body));
+            return DeserializeObject<T>(enc.GetString(deliverArgs.Body.Span));
         }
 
         public static T DeserializeObject<T>(byte[] body) where T : IMessage

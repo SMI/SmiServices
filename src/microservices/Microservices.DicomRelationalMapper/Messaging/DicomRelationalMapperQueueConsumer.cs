@@ -1,4 +1,4 @@
-﻿using Dicom;
+﻿using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -6,7 +6,6 @@ using Smi.Common.Options;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
 using NLog;
-using RabbitMQ.Client.Events;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.EntityNaming;
 using Rdmp.Core.DataLoad;
@@ -35,7 +34,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         /// </summary>
         public IReadOnlyCollection<Exception> DleErrors => new ReadOnlyCollection<Exception>(_dleExceptions);
         
-        private List<Exception> _dleExceptions = new List<Exception>();
+        private List<Exception> _dleExceptions = new();
 
         private readonly LoadMetadata _lmd;
         private readonly IRDMPPlatformRepositoryServiceLocator _repositoryLocator;
@@ -43,8 +42,8 @@ namespace Microservices.DicomRelationalMapper.Messaging
         private DateTime _lastRanDle = DateTime.Now;
 
         // Unprocessed messages awaiting an opportunity to be run
-        private readonly Queue<QueuedImage> _imageQueue = new Queue<QueuedImage>();
-        private readonly object _oQueueLock = new object();
+        private readonly Queue<QueuedImage> _imageQueue = new();
+        private readonly object _oQueueLock = new();
 
         private bool _stopCalled;
 
@@ -59,7 +58,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         private readonly TimeSpan _maximumRunDelayInSeconds;
 
         private Task _dleTask;
-        private readonly CancellationTokenSource _stopTokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource _stopTokenSource = new();
 
 
         /// <summary>
@@ -121,9 +120,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             _stopTokenSource.Cancel();
             _dleTask.Wait();
 
-            var createAndDestroyStaging = DatabaseNamer as ICreateAndDestroyStagingDuringLoads;
-
-            if (createAndDestroyStaging != null)
+            if (DatabaseNamer is ICreateAndDestroyStagingDuringLoads createAndDestroyStaging)
                 createAndDestroyStaging.DestroyStagingIfExists();
         }
 

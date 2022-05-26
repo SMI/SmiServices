@@ -14,13 +14,12 @@ namespace Smi.Common.Tests
 {
     public class MicroserviceTester : IDisposable
     {
-        private readonly RabbitMqAdapter _adapter;
+        public readonly RabbitMqAdapter Adapter;
 
-        private readonly Dictionary<ConsumerOptions, IProducerModel> _sendToConsumers = new Dictionary<ConsumerOptions, IProducerModel>();
+        private readonly Dictionary<ConsumerOptions, IProducerModel> _sendToConsumers = new();
 
-        private readonly List<string> _declaredExchanges = new List<string>();
-        private readonly List<string> _declaredQueues = new List<string>();
-        public readonly ConnectionFactory Factory;
+        private readonly List<string> _declaredExchanges = new();
+        private readonly List<string> _declaredQueues = new();
 
         /// <summary>
         /// When true, will delete any created queues/exchanges when Dispose is called. Can set to false to inspect
@@ -35,53 +34,41 @@ namespace Smi.Common.Tests
         /// Hosts to call Stop on in the Dispose step.  This ensures that all hosts are correctly shutdown even if Exceptions
         /// are thrown in test (provided the MicroserviceTester is in a using statement).
         /// </summary>
-        public HashSet<MicroserviceHost> StopOnDispose = new HashSet<MicroserviceHost>();
+        public HashSet<MicroserviceHost> StopOnDispose = new();
 
         public MicroserviceTester(RabbitOptions rabbitOptions, params ConsumerOptions[] peopleYouWantToSendMessagesTo)
         {
             CleanUpAfterTest = true;
 
-            _adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
+            Adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
 
-            Factory = new ConnectionFactory
+            using var model = Adapter.GetModel(nameof(MicroserviceTester));
+            //setup a sender channel for each of the consumers you want to test sending messages to
+            foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
             {
-                HostName = rabbitOptions.RabbitMqHostName,
-                Port = rabbitOptions.RabbitMqHostPort,
-                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
-                UserName = rabbitOptions.RabbitMqUserName,
-                Password = rabbitOptions.RabbitMqPassword
-            };
+                if (!consumer.QueueName.Contains("TEST."))
+                    consumer.QueueName = consumer.QueueName.Insert(0, "TEST.");
 
-            using (var con = Factory.CreateConnection())
-            using (var model = con.CreateModel())
-            {
-                //setup a sender channel for each of the consumers you want to test sending messages to
-                foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
+                var exchangeName = consumer.QueueName.Replace("Queue", "Exchange");
+
+                //terminate any old queues / exchanges
+                model.ExchangeDelete(exchangeName);
+                model.QueueDelete(consumer.QueueName);
+                _declaredExchanges.Add(exchangeName);
+
+                //Create a binding between the exchange and the queue
+                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
+                model.QueueDeclare(consumer.QueueName, true, false, false);//shared with other users
+                model.QueueBind(consumer.QueueName, exchangeName, "");
+                _declaredQueues.Add(consumer.QueueName);
+
+                //Create a producer which can send to the 
+                var producerOptions = new ProducerOptions
                 {
-                    if (!consumer.QueueName.Contains("TEST."))
-                        consumer.QueueName = consumer.QueueName.Insert(0, "TEST.");
+                    ExchangeName = exchangeName
+                };
 
-                    var exchangeName = consumer.QueueName.Replace("Queue", "Exchange");
-
-                    //terminate any old queues / exchanges
-                    model.ExchangeDelete(exchangeName);
-                    model.QueueDelete(consumer.QueueName);
-                    _declaredExchanges.Add(exchangeName);
-
-                    //Create a binding between the exchange and the queue
-                    model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
-                    model.QueueDeclare(consumer.QueueName, true, false, false);//shared with other users
-                    model.QueueBind(consumer.QueueName, exchangeName, "");
-                    _declaredQueues.Add(consumer.QueueName);
-
-                    //Create a producer which can send to the 
-                    var producerOptions = new ProducerOptions
-                    {
-                        ExchangeName = exchangeName
-                    };
-
-                    _sendToConsumers.Add(consumer, _adapter.SetupProducer(producerOptions, true));
-                }
+                _sendToConsumers.Add(consumer, Adapter.SetupProducer(producerOptions, true));
             }
         }
 
@@ -142,26 +129,23 @@ namespace Smi.Common.Tests
 
             string queueNameToUse = queueName ?? exchangeName.Replace("Exchange", "Queue");
 
-            using (var con = Factory.CreateConnection())
-            using (var model = con.CreateModel())
-            {
-                //setup a sender channel for each of the consumers you want to test sending messages to
+            using var model = Adapter.GetModel(nameof(CreateExchange));
+            //setup a sender channel for each of the consumers you want to test sending messages to
 
-                //terminate any old queues / exchanges
-                if (!isSecondaryBinding)
-                    model.ExchangeDelete(exchangeName);
+            //terminate any old queues / exchanges
+            if (!isSecondaryBinding)
+                model.ExchangeDelete(exchangeName);
 
-                model.QueueDelete(queueNameToUse);
+            model.QueueDelete(queueNameToUse);
 
-                //Create a binding between the exchange and the queue
-                if (!isSecondaryBinding)
-                    model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
+            //Create a binding between the exchange and the queue
+            if (!isSecondaryBinding)
+                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
 
-                model.QueueDeclare(queueNameToUse, true, false, false); //shared with other users
-                model.QueueBind(queueNameToUse, exchangeName, routingKey);
+            model.QueueDeclare(queueNameToUse, true, false, false); //shared with other users
+            model.QueueBind(queueNameToUse, exchangeName, routingKey);
 
-                Console.WriteLine("Created Exchange " + exchangeName + "=>" + queueNameToUse);
-            }
+            Console.WriteLine("Created Exchange " + exchangeName + "=>" + queueNameToUse);
         }
 
         /// <summary>
@@ -172,7 +156,7 @@ namespace Smi.Common.Tests
         /// <returns></returns>
         public IEnumerable<Tuple<IMessageHeader, T>> ConsumeMessages<T>(string queueName) where T : IMessage
         {
-            IModel model = _adapter.GetModel($"ConsumeMessages-{queueName}");
+            IModel model = Adapter.GetModel($"ConsumeMessages-{queueName}");
 
             while (true)
             {
@@ -180,7 +164,7 @@ namespace Smi.Common.Tests
                 if (message == null)
                     break;
                 var header = new MessageHeader(message.BasicProperties.Headers, Encoding.UTF8);
-                var iMessage = JsonConvert.DeserializeObject<T>(message.Body);
+                var iMessage = JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(message.Body.Span));
                 yield return new Tuple<IMessageHeader, T>(header, iMessage);
             }
         }
@@ -192,8 +176,6 @@ namespace Smi.Common.Tests
         {
             foreach (MicroserviceHost host in StopOnDispose)
                 host.Stop("MicroserviceTester Disposed");
-
-            _adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
         }
 
         /// <summary>
@@ -205,13 +187,12 @@ namespace Smi.Common.Tests
 
             if (CleanUpAfterTest)
             {
-                using (IConnection conn = Factory.CreateConnection())
-                using (IModel model = conn.CreateModel())
-                {
-                    _declaredExchanges.ForEach(x => model.ExchangeDelete(x));
-                    _declaredQueues.ForEach(x => model.QueueDelete(x));
-                }
+                using IModel model = Adapter.GetModel(nameof(MicroserviceTester.Dispose));
+                _declaredExchanges.ForEach(x => model.ExchangeDelete(x));
+                _declaredQueues.ForEach(x => model.QueueDelete(x));
             }
+
+            Adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
         }
     }
 }

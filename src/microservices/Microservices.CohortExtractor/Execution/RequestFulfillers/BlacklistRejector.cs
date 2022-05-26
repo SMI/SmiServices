@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using FAnsi.Discovery;
-using MapsDirectlyToDatabaseTable;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
 using Rdmp.Core.QueryBuilding;
@@ -114,29 +111,23 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public bool DoLookup(string studyuid, string seriesuid, string imageuid)
         {
             string sql = _queryBuilder.SQL;
-            
-            using (var con = _server.GetConnection())
-            {
-                con.Open();
-                using (var cmd = _server.GetCommand(sql, con))
-                {
-                    //Add the current row UIDs to the parameters of the command
-                    if(_studyFilter != null)
-                        _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultStudyIdColumnName, cmd, studyuid);
 
-                    if(_seriesFilter != null)
-                        _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultSeriesIdColumnName, cmd, seriesuid);
+            using var con = _server.GetConnection();
+            con.Open();
+            using var cmd = _server.GetCommand(sql, con);
+            //Add the current row UIDs to the parameters of the command
+            if(_studyFilter != null)
+                _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultStudyIdColumnName, cmd, studyuid);
 
-                    if(_instanceFilter != null)
-                        _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultInstanceIdColumnName, cmd, imageuid);
+            if(_seriesFilter != null)
+                _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultSeriesIdColumnName, cmd, seriesuid);
 
-                    using (var r = cmd.ExecuteReader())
-                    {
-                        //if we can read a record then we have an entry in the blacklist
-                        return r.Read();
-                    }
-                }
-            }
+            if(_instanceFilter != null)
+                _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultInstanceIdColumnName, cmd, imageuid);
+
+            using var r = cmd.ExecuteReader();
+            //if we can read a record then we have an entry in the blacklist
+            return r.Read();
         }
 
         /// <summary>

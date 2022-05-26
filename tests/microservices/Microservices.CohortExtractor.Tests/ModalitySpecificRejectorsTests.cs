@@ -1,9 +1,7 @@
 ﻿using NUnit.Framework;
 using Smi.Common.Options;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Microservices.CohortExtractor.Tests
 {

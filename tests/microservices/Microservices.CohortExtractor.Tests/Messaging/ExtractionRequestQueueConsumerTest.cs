@@ -111,16 +111,6 @@ namespace Microservices.CohortExtractor.Tests.Messaging
                 ExtractionIdentifiers = new List<string> { "foo" },
                 Modalities = null,
             };
-            var mockDeliverArgs = Mock.Of<BasicDeliverEventArgs>(MockBehavior.Strict);
-            mockDeliverArgs.DeliveryTag = 1;
-            mockDeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg));
-            mockDeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
-            var header = new MessageHeader();
-            header.Populate(mockDeliverArgs.BasicProperties.Headers);
-            // Have to convert these to bytes since RabbitMQ normally does that when sending
-            mockDeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
-            mockDeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
-            mockDeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
 
             var mockSwapper = new Mock<ISwapIdentifiers>(MockBehavior.Strict);
             string reason;
@@ -150,7 +140,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>())).Verifiable();
 
             consumer.SetModel(mockModel.Object);
-            consumer.ProcessMessage(mockDeliverArgs);
+            consumer.TestMessage(msg);
 
             Thread.Sleep(500); // Fatal call is race-y
             Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");

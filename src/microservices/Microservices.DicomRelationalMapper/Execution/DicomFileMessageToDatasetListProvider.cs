@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Dicom;
+using FellowOakDicom;
 using Microservices.DicomRelationalMapper.Messaging;
 using System.Collections.Generic;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
@@ -11,7 +11,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         private readonly List<QueuedImage> _messages;
         private int _progress;
 
-        public HashSet<QueuedImage> CorruptMessages = new HashSet<QueuedImage>();
+        public HashSet<QueuedImage> CorruptMessages = new();
 
         public DicomFileMessageToDatasetListWorklist(List<QueuedImage> messages)
         {
@@ -27,7 +27,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             _progress = 0;
         }
 
-        public DicomDataset GetNextDatasetToProcess(out string filename, out Dictionary<string, string> otherValuesToStoreInRow)
+        public FellowOakDicom.DicomDataset GetNextDatasetToProcess(out string filename, out Dictionary<string, string> otherValuesToStoreInRow)
         {
             otherValuesToStoreInRow = new Dictionary<string, string>();
 

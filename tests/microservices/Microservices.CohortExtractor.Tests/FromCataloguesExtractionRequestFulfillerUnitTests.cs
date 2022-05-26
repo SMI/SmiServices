@@ -1,6 +1,4 @@
-﻿using MapsDirectlyToDatabaseTable;
-using Microservices.CohortExtractor.Execution.RequestFulfillers;
-using Moq;
+﻿using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
@@ -66,7 +64,7 @@ namespace Microservices.CohortExtractor.Tests
             // basic rejector
             f.Rejectors.Add(new TestRejector());
             f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions() { Modalities = "MR", Overrides = true }, new RejectAll());
+                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = true }, new RejectAll());
 
             // CT should...
             var result = f.GetRejectorsFor(new ExtractionRequestMessage(),new QueryToExecute(
@@ -96,7 +94,7 @@ namespace Microservices.CohortExtractor.Tests
             // basic rejector
             f.Rejectors.Add(rej1 = new TestRejector());
             f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions() { Modalities = "MR", Overrides = false }, rej2 = new RejectAll());
+                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = false }, rej2 = new RejectAll());
 
             // CT should...
             var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -131,7 +129,7 @@ namespace Microservices.CohortExtractor.Tests
             // basic rejector
             f.Rejectors.Add(rej1 = new TestRejector());
             f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions() { Modalities = "MR,SR", Overrides = true }, rej2 = new RejectAll());
+                new ModalitySpecificRejectorOptions { Modalities = "MR,SR", Overrides = true }, rej2 = new RejectAll());
 
             // CT should...
             var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -165,7 +163,7 @@ namespace Microservices.CohortExtractor.Tests
             // basic rejector
             f.Rejectors.Add(rej1 = new TestRejector());
             f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions() { Modalities = "MR,CT", Overrides = true }, rej2 = new RejectAll());
+                new ModalitySpecificRejectorOptions { Modalities = "MR,CT", Overrides = true }, rej2 = new RejectAll());
 
             // CT should...
             var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -200,9 +198,9 @@ namespace Microservices.CohortExtractor.Tests
 
             // two rules for MR but one says to override while other says not to!
             f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions() { Modalities = "MR", Overrides = false }, rej2 = new RejectAll());
+                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = false }, rej2 = new RejectAll());
             f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions() { Modalities = "MR", Overrides = true }, rej2 = new RejectAll());
+                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = true }, rej2 = new RejectAll());
 
             // CT should...
             var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(

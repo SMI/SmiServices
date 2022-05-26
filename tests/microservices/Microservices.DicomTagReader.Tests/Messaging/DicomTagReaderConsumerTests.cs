@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
+using FellowOakDicom;
 
 
 namespace Microservices.DicomTagReader.Tests.Messaging
@@ -20,7 +21,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
     [TestFixture, RequiresRabbit]
     public class DicomTagReaderConsumerTests
     {
-        private readonly DicomTagReaderTestHelper _helper = new DicomTagReaderTestHelper();
+        private readonly DicomTagReaderTestHelper _helper = new();
 
         private IModel _mockModel;
 
@@ -51,32 +52,18 @@ namespace Microservices.DicomTagReader.Tests.Messaging
 
         private TagReaderBase GetMockTagReader(IFileSystem fileSystem = null)
         {
-            if (fileSystem == null)
-                fileSystem = _helper.MockFileSystem;
+            fileSystem ??= _helper.MockFileSystem;
 
             return new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, fileSystem);
         }
 
         private void CheckAckNackCounts(DicomTagReaderConsumer consumer, int desiredAckCount, int desiredNackCount)
         {
-            var mockdeliverArgs = Mock.Of<BasicDeliverEventArgs>();
-            mockdeliverArgs.DeliveryTag = 1;
-            mockdeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_helper.TestAccessionDirectoryMessage));
-            mockdeliverArgs.BasicProperties = new BasicProperties { Headers = new Dictionary<string, object>() };
-
-            var header = new MessageHeader();
-            header.Populate(mockdeliverArgs.BasicProperties.Headers);
-
-            // Have to convert these to bytes since RabbitMQ normally does that when sending
-            mockdeliverArgs.BasicProperties.Headers["MessageGuid"] = Encoding.UTF8.GetBytes(header.MessageGuid.ToString());
-            mockdeliverArgs.BasicProperties.Headers["ProducerExecutableName"] = Encoding.UTF8.GetBytes(header.ProducerExecutableName);
-            mockdeliverArgs.BasicProperties.Headers["Parents"] = Encoding.UTF8.GetBytes(string.Join("->", header.Parents));
-
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
 
             consumer.SetModel(_mockModel);
-            consumer.ProcessMessage(mockdeliverArgs);
+            consumer.TestMessage(_helper.TestAccessionDirectoryMessage);
 
             Assert.AreEqual(desiredAckCount, consumer.AckCount);
             Assert.AreEqual(desiredNackCount, consumer.NackCount);

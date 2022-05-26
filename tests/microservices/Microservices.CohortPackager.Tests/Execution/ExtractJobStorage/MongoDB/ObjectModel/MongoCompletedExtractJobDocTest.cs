@@ -16,7 +16,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     {
         private static readonly DateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
 
-        private readonly MongoExtractJobDoc _testExtractJobDoc = new MongoExtractJobDoc(
+        private readonly MongoExtractJobDoc _testExtractJobDoc = new(
             Guid.NewGuid(),
             MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader { Parents = new[] { Guid.NewGuid() } }, _dateTimeProvider),
             "1234",

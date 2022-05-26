@@ -11,11 +11,6 @@ using Rdmp.Core.Startup.Events;
 using ReusableLibraryCode;
 using ReusableLibraryCode.Checks;
 using System;
-using FAnsi.Implementation;
-using FAnsi.Implementations.MicrosoftSQL;
-using FAnsi.Implementations.MySql;
-using FAnsi.Implementations.Oracle;
-using FAnsi.Implementations.PostgreSql;
 using Smi.Common;
 
 
@@ -52,6 +47,11 @@ namespace Microservices.DicomRelationalMapper.Execution
             var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions.LoadMetadataId);
 
             Type databaseNamerType = repositoryLocator.CatalogueRepository.MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType);
+
+            if(databaseNamerType == null)
+            {
+                throw new Exception($"Could not find Type '{Globals.DicomRelationalMapperOptions.DatabaseNamerType}'");
+            }
 
             string liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
 

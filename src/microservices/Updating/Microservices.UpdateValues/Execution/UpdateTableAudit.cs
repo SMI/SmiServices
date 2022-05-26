@@ -1,6 +1,4 @@
 ﻿using FAnsi.Discovery;
-using Rdmp.Core.Curation.Data;
-using System;
 using System.Diagnostics;
 using System.Threading;
 
@@ -33,7 +31,7 @@ namespace Microservices.UpdateValues.Execution
         /// <summary>
         /// Lock for <see cref="Stopwatch"/>
         /// </summary>
-        private object lockWatch = new object();
+        private object lockWatch = new();
 
         /// <summary>
         /// The table that is being updated
