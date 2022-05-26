@@ -21,6 +21,7 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
         private readonly ISwapIdentifiers _uidSwapper;
+
         private readonly IProjectPathResolver _resolver;
 
         public ExtractionRequestQueueConsumer(
@@ -28,7 +29,7 @@ namespace Microservices.CohortExtractor.Messaging
             IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
             IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
             IProducerModel fileMessageInfoProducer,
-            ISwapIdentifiers uidSwapper
+            ISwapIdentifiers uidSwapper = null
         )
         {
             _options = options;
@@ -63,9 +64,9 @@ namespace Microservices.CohortExtractor.Messaging
 
                 foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
-                    string replacementStudy = null;
-                    string replacementSeries = null;
-                    string replacementSop = null;
+                    string replacementStudy = SwapIfApplicable(accepted.StudyTagValue);
+                    string replacementSeries = SwapIfApplicable(accepted.SeriesTagValue);
+                    string replacementSop = SwapIfApplicable(accepted.InstanceTagValue);
 
                     if (!request.IsIdentifiableExtraction)
                     {
@@ -130,6 +131,17 @@ namespace Microservices.CohortExtractor.Messaging
 
             Logger.Info("Finished processing message");
             Ack(header, tag);
+        }
+
+        private object SwapIfApplicable(string val)
+        {
+            string failed = null;
+            var sub = _swapper?.GetSubstitutionFor(val, out failed);
+
+            if (!string.IsNullOrEmpty(failed))
+                throw new System.Exception($"Failed to get identifier substitution for '{val}' because:" + failed);
+            
+            return sub;
         }
     }
 }

@@ -6,6 +6,7 @@ using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
 using RabbitMQ.Client.Exceptions;
 using Rdmp.Core.Curation.Data;
@@ -15,9 +16,11 @@ using Rdmp.Core.Startup;
 using ReusableLibraryCode.Checks;
 using Smi.Common;
 using Smi.Common.Execution;
+using Smi.Common.Helpers;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using StackExchange.Redis;
 
 namespace Microservices.CohortExtractor.Execution
 {
@@ -41,6 +44,7 @@ namespace Microservices.CohortExtractor.Execution
         private IExtractionRequestFulfiller _fulfiller;
         private IProjectPathResolver _pathResolver;
         private IProducerModel _fileMessageProducer;
+        private ISwapIdentifiers _swapper;
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -80,7 +84,7 @@ namespace Microservices.CohortExtractor.Execution
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer,_swapper);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
@@ -155,6 +159,47 @@ namespace Microservices.CohortExtractor.Execution
                 ? new DefaultProjectPathResolver()
                 : ObjectFactory.CreateInstance<IProjectPathResolver>(
                     _consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly, repositoryLocator);
+
+            if (_consumerOptions.ExtractionIdentifierSwapping == null || _consumerOptions.ExtractionIdentifierSwapping.IsEmpty())
+            {
+                Logger.Log(LogLevel.Info, "No ExtractionIdentifierSwapping configured, UIDs will not be substituted");
+            }
+            else
+            {
+                try
+                {
+                    var objectFactory = new MicroserviceObjectFactory();
+                    _swapper = objectFactory.CreateInstance<ISwapIdentifiers>(_consumerOptions.ExtractionIdentifierSwapping.SwapperType, typeof(ISwapIdentifiers).Assembly);
+
+                    if (_swapper == null)
+                        throw new ArgumentException("Could not construct swapper, MicroserviceObjectFactory returned null");
+
+                    // if we were able to setup a swapper then configure the static
+                    // delegate to use UIDs instead of Guids
+
+                    // TODO: set this to preferred UID allocation method
+                    ForGuidIdentifierSwapper.GuidAllocator = () => "fish";
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Could not create IdentifierMapper Swapper with SwapperType:{_consumerOptions?.ExtractionIdentifierSwapping?.SwapperType ?? "Null"}", ex);
+                }
+            }
+
+            // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
+            if (_swapper != null && !string.IsNullOrWhiteSpace(_consumerOptions?.ExtractionIdentifierSwapping?.RedisConnectionString))
+                try
+                {
+                    _swapper = new RedisSwapper(_consumerOptions.ExtractionIdentifierSwapping.RedisConnectionString, _swapper);
+                }
+                catch (RedisConnectionException e)
+                {
+                    // NOTE(rkm 2020-03-30) Log & throw! I hate this, but if we don't log here using NLog, then the exception will bubble-up
+                    //                      and only be printed to STDERR instead of to the log file and may be lost
+                    Logger.Error(e, "Could not connect to Redis");
+                    throw;
+                }
+
         }
     }
 }
