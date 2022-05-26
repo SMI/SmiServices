@@ -1,0 +1,1 @@
+Add Guid mapping to CohortExtractor and extraction messages. Fixup ExtractFileMessage class inheritance.
