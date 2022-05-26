@@ -28,7 +28,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         public override void Setup(IMappingTableOptions options)
         {
             _options = options;
-            _swapTable = MappingTableHelpers.DiscoverTable(options);
+            _swapTable =  options.Discover();
             _server = _swapTable.Database.Server;
 
             if(!_swapTable.Exists())
@@ -88,7 +88,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _logger.Debug("ClearCache called, single value cache cleared");
         }
 
-        public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

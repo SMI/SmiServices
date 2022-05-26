@@ -41,7 +41,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 {
                     _options = options;
 
-                    DiscoveredTable tbl = MappingTableHelpers.DiscoverTable(options);
+                    DiscoveredTable tbl = options.Discover();
 
                     using DbConnection con = tbl.Database.Server.GetConnection();
                     con.Open();
@@ -101,7 +101,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             Setup(_options);
         }
 
-        public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

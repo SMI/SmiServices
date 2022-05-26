@@ -73,7 +73,7 @@ namespace Applications.TriggerUpdates.Execution
             var swapper = new TableLookupWithGuidFallbackSwapper();
             swapper.Setup(mapperOptions);
 
-            var guidTable = swapper.GetMappingTableIfAny(mapperOptions);
+            var guidTable = swapper.GetGuidTableIfAny(mapperOptions);
             Assert.AreEqual(0,guidTable.GetRowCount(), "No temporary guids should exist yet");
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
             

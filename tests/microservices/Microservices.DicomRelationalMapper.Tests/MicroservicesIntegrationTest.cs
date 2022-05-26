@@ -614,7 +614,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             public override void ClearCache() { }
 
-            public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
+            public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
             {
                 return null;
             }

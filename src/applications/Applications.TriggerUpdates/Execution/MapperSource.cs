@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
@@ -63,15 +63,15 @@ namespace Applications.TriggerUpdates.Execution
 
             try
             {
-                var mappingTable = MappingTableHelpers.DiscoverTable(_globalOptions.IdentifierMapperOptions);
-
+                var mappingTable = _globalOptions.IdentifierMapperOptions.Discover();
+                                
                 if(!mappingTable.Exists())
                     throw new Exception($"Mapping table {mappingTable.GetFullyQualifiedName()} did not exist");
 
                 var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
             
                 //may be null!
-                var guidTable = _swapper.GetMappingTableIfAny(_globalOptions.IdentifierMapperOptions);
+                var guidTable = _swapper.GetGuidTableIfAny(_globalOptions.IdentifierMapperOptions);
 
                 if(!archiveTable.Exists())
                     throw new Exception($"No Archive table exists for mapping table {mappingTable.GetFullyQualifiedName()}");

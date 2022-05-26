@@ -6,7 +6,6 @@ using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
 using RabbitMQ.Client.Exceptions;
 using Rdmp.Core.Curation.Data;
@@ -43,16 +42,13 @@ namespace Microservices.CohortExtractor.Execution
         private IProjectPathResolver _pathResolver;
         private IProducerModel _fileMessageProducer;
 
-        private readonly ISwapIdentifiers _uidSwapper;
-
         /// <summary>
         /// Creates a new instance of the host with the given 
         /// </summary>
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        /// <param name="uidSwapper"></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller, ISwapIdentifiers uidSwapper = null)
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller)
             : base(options)
         {
             _consumerOptions = options.CohortExtractorOptions;
@@ -60,17 +56,6 @@ namespace Microservices.CohortExtractor.Execution
 
             _auditor = auditor;
             _fulfiller = fulfiller;
-
-            if (uidSwapper == null)
-            {
-                Logger.Info($"Not passed a UID swapper, creating one of type {options.CohortExtractorOptions.SwapperType}");
-                _uidSwapper = ObjectFactory.CreateInstance<ISwapIdentifiers>(options.CohortExtractorOptions.SwapperType, typeof(ISwapIdentifiers).Assembly);
-                _uidSwapper.Setup(options.CohortExtractorOptions);
-            }
-            else
-            {
-                _uidSwapper = uidSwapper;
-            }
         }
 
         /// <summary>
@@ -95,7 +80,7 @@ namespace Microservices.CohortExtractor.Execution
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer, _uidSwapper);
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }

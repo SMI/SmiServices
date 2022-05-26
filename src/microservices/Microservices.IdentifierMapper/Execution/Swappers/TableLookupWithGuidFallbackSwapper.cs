@@ -39,18 +39,18 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _tableSwapper.Setup(mappingTableOptions);
 
             var guidOptions = mappingTableOptions.Clone();
-            guidOptions.MappingTableName = GetMappingTableIfAny(guidOptions).GetFullyQualifiedName();
+            guidOptions.MappingTableName = GetGuidTableIfAny(guidOptions).GetFullyQualifiedName();
             guidOptions.ReplacementColumnName = GuidColumnName;
             _guidSwapper.Setup(guidOptions);
         }
 
         /// <summary>
-        /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetMappingTableIfAny(IMappingTableOptions)"/>
+        /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetGuidTableIfAny(IMappingTableOptions)"/>
         /// </summary>
         /// <returns></returns>
         public DiscoveredTable GetMappingTable(IMappingTableOptions options)
         {
-            return MappingTableHelpers.DiscoverTable(options);
+            return options.Discover();
         }
 
         /// <summary>
@@ -59,9 +59,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public override DiscoveredTable GetMappingTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
         {
-            var mappingTable = MappingTableHelpers.DiscoverTable(options);
+            var mappingTable = options.Discover();
             var guidTableName = mappingTable.GetRuntimeName() + GuidTableSuffix;
 
             return mappingTable.Database.ExpectTable(guidTableName,mappingTable.Schema,TableType.Table);
