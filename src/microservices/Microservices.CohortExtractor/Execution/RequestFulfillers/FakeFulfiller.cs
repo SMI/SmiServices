@@ -34,9 +34,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             foreach (var valueToLookup in message.ExtractionIdentifiers)
             {
                 var results = new ExtractImageCollection(valueToLookup);
-                var studyTagValue = "2";
-                var seriesTagValue = "3";
-                var instanceTagValue = "4";
+                var studyTagValue = "study-1";
+                var seriesTagValue = "series-1";
+                var instanceTagValue = "instance-1";
                 var rejection = false;
                 var rejectionReason = "";
                 var result = new QueryToExecuteResult(valueToLookup, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
