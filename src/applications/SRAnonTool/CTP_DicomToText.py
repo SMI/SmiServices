@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
     cfg_dict = {}
     if not args.yamlfile:
-        args.yamlfile = [os.path.join(os.environ['SMI_ROOT'], 'configs', 'smi_dataExtract.yaml')]
+        args.yamlfile = [os.path.join(os.environ.get('SMI_ROOT','.'), 'configs', 'smi_dataExtract.yaml')]
     for cfg_file in args.yamlfile:
         with open(cfg_file, 'r') as fd:
             # Merge all the yaml dicts into one
