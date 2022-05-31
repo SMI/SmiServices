@@ -15,6 +15,9 @@ namespace Applications.SmiRunner
         protected new const string BaseHelpText = VerbBase.BaseHelpText + "src/applications/Applications.";
     }
 
+    [Verb("dicom-loader",HelpText = "Load DICOM files")]
+    public sealed class DicomLoaderVerb : ApplicationVerbBase { }
+
     [Verb("dicom-directory-processor", HelpText = "Queue dicom files on disk for ETL")]
     public sealed class DicomDirectoryProcessorVerb : ApplicationVerbBase { }
 
