@@ -52,8 +52,9 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller)
-            : base(options)
+        /// <param name="rabbitMqAdapter">Override the rabbitmq adapter e.g. in tests</param>
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller,IRabbitMqAdapter rabbitMqAdapter = null)
+            : base(options,rabbitMqAdapter)
         {
             _consumerOptions = options.CohortExtractorOptions;
             _consumerOptions.Validate();

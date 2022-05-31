@@ -70,13 +70,6 @@ namespace Smi.Common.Options
         public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
         public DicomAnonymiserOptions DicomAnonymiserOptions { get; set; } = new DicomAnonymiserOptions();
 
-        /// <summary>
-        /// Set to true to suppress allocating a RabbitMQAdapter
-        /// in microservice hosts (useful for testing).
-        /// </summary>
-        [YamlIgnore]
-        public bool NoRabbit { get; set; } = false;
-
         #endregion
 
         public static string GenerateToString(object o)

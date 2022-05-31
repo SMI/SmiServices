@@ -1,7 +1,9 @@
 ﻿using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.IdentifierMapper.Execution.Swappers;
+using Moq;
 using NUnit.Framework;
+using Smi.Common;
 using Smi.Common.Options;
 using StackExchange.Redis;
 using System;
@@ -20,7 +22,6 @@ namespace Microservices.CohortExtractor.Tests
         {
             var opts = new GlobalOptions();
             opts.HostProcessName = "tests";
-            opts.NoRabbit = true;
 
             opts.CohortExtractorOptions.RequestFulfillerType = typeof(FakeFulfiller).Name;
 
@@ -36,7 +37,7 @@ namespace Microservices.CohortExtractor.Tests
                 //RedisConnectionString = "test"                
             };
 
-            var host = new CohortExtractorHost(opts,null,null);
+            var host = new CohortExtractorHost(opts,null,null,Mock.Of<IRabbitMqAdapter>());
 
             var initSwapper = typeof(CohortExtractorHost).GetMethod("SetupSwapper", BindingFlags.Instance | BindingFlags.NonPublic);
             initSwapper.Invoke(host, null);
@@ -48,8 +49,7 @@ namespace Microservices.CohortExtractor.Tests
         {
             var opts = new GlobalOptions();
             opts.HostProcessName = "tests";
-            opts.NoRabbit = true;
-
+            
             opts.CohortExtractorOptions.RequestFulfillerType = typeof(FakeFulfiller).Name;
 
             opts.CohortExtractorOptions.ExtractionIdentifierSwapping = new ExtractionIdentifierSwappingOptions
@@ -64,7 +64,7 @@ namespace Microservices.CohortExtractor.Tests
                 RedisConnectionString = "test"                
             };
 
-            var host = new CohortExtractorHost(opts, null, null);
+            var host = new CohortExtractorHost(opts, null, null, Mock.Of<IRabbitMqAdapter>());
 
             var initSwapper = typeof(CohortExtractorHost).GetMethod("SetupSwapper", BindingFlags.Instance | BindingFlags.NonPublic);
             var ex = Assert.Throws<TargetInvocationException>(()=>initSwapper.Invoke(host, null));
