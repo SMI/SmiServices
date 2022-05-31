@@ -44,7 +44,7 @@ namespace Microservices.CohortExtractor.Execution
         private IExtractionRequestFulfiller _fulfiller;
         private IProjectPathResolver _pathResolver;
         private IProducerModel _fileMessageProducer;
-        private ISwapIdentifiers _swapper;
+        public ISwapIdentifiers Swapper { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -84,7 +84,7 @@ namespace Microservices.CohortExtractor.Execution
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer,_swapper);
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer,Swapper);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
@@ -160,6 +160,11 @@ namespace Microservices.CohortExtractor.Execution
                 : ObjectFactory.CreateInstance<IProjectPathResolver>(
                     _consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly, repositoryLocator);
 
+            SetupSwapper();
+        }
+
+        private void SetupSwapper()
+        {
             if (_consumerOptions.ExtractionIdentifierSwapping == null || _consumerOptions.ExtractionIdentifierSwapping.IsEmpty())
             {
                 Logger.Log(LogLevel.Info, "No ExtractionIdentifierSwapping configured, UIDs will not be substituted");
@@ -169,16 +174,14 @@ namespace Microservices.CohortExtractor.Execution
                 try
                 {
                     var objectFactory = new MicroserviceObjectFactory();
-                    _swapper = objectFactory.CreateInstance<ISwapIdentifiers>(_consumerOptions.ExtractionIdentifierSwapping.SwapperType, typeof(ISwapIdentifiers).Assembly);
+                    Swapper = objectFactory.CreateInstance<ISwapIdentifiers>(_consumerOptions.ExtractionIdentifierSwapping.SwapperType, typeof(ISwapIdentifiers).Assembly);
 
-                    if (_swapper == null)
+                    if (Swapper == null)
                         throw new ArgumentException("Could not construct swapper, MicroserviceObjectFactory returned null");
 
                     // if we were able to setup a swapper then configure the static
                     // delegate to use UIDs instead of Guids
-
-                    // TODO: set this to preferred UID allocation method
-                    ForGuidIdentifierSwapper.GuidAllocator = () => "fish";
+                    ForGuidIdentifierSwapper.GuidAllocator = () => SmiDicomUIDGenerator.Generate();
                 }
                 catch (Exception ex)
                 {
@@ -187,10 +190,10 @@ namespace Microservices.CohortExtractor.Execution
             }
 
             // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
-            if (_swapper != null && !string.IsNullOrWhiteSpace(_consumerOptions?.ExtractionIdentifierSwapping?.RedisConnectionString))
+            if (Swapper != null && !string.IsNullOrWhiteSpace(_consumerOptions?.ExtractionIdentifierSwapping?.RedisConnectionString))
                 try
                 {
-                    _swapper = new RedisSwapper(_consumerOptions.ExtractionIdentifierSwapping.RedisConnectionString, _swapper);
+                    Swapper = new RedisSwapper(_consumerOptions.ExtractionIdentifierSwapping.RedisConnectionString, Swapper);
                 }
                 catch (RedisConnectionException e)
                 {

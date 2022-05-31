@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using DatabaseType = FAnsi.DatabaseType;
 using IsIdentifiable.Options;
+using YamlDotNet.Serialization;
 
 namespace Smi.Common.Options
 {
@@ -68,6 +69,13 @@ namespace Smi.Common.Options
 
         public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
         public DicomAnonymiserOptions DicomAnonymiserOptions { get; set; } = new DicomAnonymiserOptions();
+
+        /// <summary>
+        /// Set to true to suppress allocating a RabbitMQAdapter
+        /// in microservice hosts (useful for testing).
+        /// </summary>
+        [YamlIgnore]
+        public bool NoRabbit { get; set; } = false;
 
         #endregion
 

@@ -84,7 +84,7 @@ namespace Smi.Common.Execution
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
             RabbitMqAdapter = rabbitMqAdapter;
-            if (RabbitMqAdapter == null)
+            if (RabbitMqAdapter == null && !globals.NoRabbit)
             {
                 ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
                 RabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
