@@ -3,6 +3,7 @@ using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using NUnit.Framework;
 using Smi.Common.Options;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace Microservices.CohortExtractor.Tests
                 MappingTableName = "mytbl",
                 ReplacementColumnName = "anon",
                 SwapColumnName = "priv",
-                SwapperType = nameof(TableLookupWithGuidFallbackSwapper),
+                SwapperType = typeof(TableLookupWithGuidFallbackSwapper).FullName,
                 TimeoutInSeconds = 100,
                 //RedisConnectionString = "test"                
             };
@@ -41,6 +42,33 @@ namespace Microservices.CohortExtractor.Tests
             initSwapper.Invoke(host, null);
 
             Assert.IsInstanceOf<TableLookupWithGuidFallbackSwapper>(host.Swapper);
+        }
+        [Test]
+        public void TestRightSwapperType_WithRedis()
+        {
+            var opts = new GlobalOptions();
+            opts.HostProcessName = "tests";
+            opts.NoRabbit = true;
+
+            opts.CohortExtractorOptions.RequestFulfillerType = typeof(FakeFulfiller).Name;
+
+            opts.CohortExtractorOptions.ExtractionIdentifierSwapping = new ExtractionIdentifierSwappingOptions
+            {
+                MappingConnectionString = "ff",
+                MappingDatabaseType = FAnsi.DatabaseType.MySql,
+                MappingTableName = "mytbl",
+                ReplacementColumnName = "anon",
+                SwapColumnName = "priv",
+                SwapperType = typeof(TableLookupWithGuidFallbackSwapper).FullName,
+                TimeoutInSeconds = 100,
+                RedisConnectionString = "test"                
+            };
+
+            var host = new CohortExtractorHost(opts, null, null);
+
+            var initSwapper = typeof(CohortExtractorHost).GetMethod("SetupSwapper", BindingFlags.Instance | BindingFlags.NonPublic);
+            var ex = Assert.Throws<TargetInvocationException>(()=>initSwapper.Invoke(host, null));
+            Assert.IsInstanceOf<RedisException>(ex.InnerException);
         }
     }
 }
