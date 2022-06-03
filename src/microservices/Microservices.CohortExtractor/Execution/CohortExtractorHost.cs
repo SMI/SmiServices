@@ -180,6 +180,8 @@ namespace Microservices.CohortExtractor.Execution
                     if (Swapper == null)
                         throw new ArgumentException("Could not construct swapper, MicroserviceObjectFactory returned null");
 
+                    Swapper.Setup(Globals.CohortExtractorOptions.ExtractionIdentifierSwapping);
+
                     // if we were able to setup a swapper then configure the static
                     // delegate to use UIDs instead of Guids
                     ForGuidIdentifierSwapper.GuidAllocator = () => SmiDicomUIDGenerator.Generate();
