@@ -73,6 +73,10 @@ namespace Microservices.CohortExtractor.Messaging
                         // Output path for the anonymised file, relative to the extraction directory
                         OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/'),
 
+                        StudyInstanceUID = accepted.StudyTagValue,
+                        SeriesInstanceUID = accepted.SeriesTagValue,
+                        SOPInstanceUID = accepted.InstanceTagValue,
+
                         ReplacementStudyInstanceUID = request.IsIdentifiableExtraction ? null : SwapIfApplicable("StudyInstanceUID", accepted.StudyTagValue),
                         ReplacementSeriesInstanceUID = request.IsIdentifiableExtraction ? null : SwapIfApplicable("SeriesInstanceUID", accepted.SeriesTagValue),
                         ReplacementSOPInstanceUID =  request.IsIdentifiableExtraction ? null : SwapIfApplicable("SOPInstanceUID", accepted.InstanceTagValue),
@@ -124,7 +128,7 @@ namespace Microservices.CohortExtractor.Messaging
 
             if (string.IsNullOrWhiteSpace(replacement) || reason != null)
                 throw new Exception($"Couldn't get a replacement {tagName} for {value}. Reason: '{reason}'");
-            
+
             return replacement;
         }
     }
