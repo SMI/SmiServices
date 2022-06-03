@@ -116,14 +116,14 @@ namespace Microservices.CohortExtractor.Messaging
         }
 
         private string SwapIfApplicable(string tagName, string value)
-        {                        
-            const string errMsg = "Couldn't get a replacement {} for {}. Reason: '{}'";
+        {
+            if (_uidSwapper == null)
+                return null;
 
-            string reason = null;
-            var replacement = _uidSwapper?.GetSubstitutionFor(value, out reason);
+            var replacement = _uidSwapper.GetSubstitutionFor(value, out string reason);
 
             if (string.IsNullOrWhiteSpace(replacement) || reason != null)
-                throw new Exception(string.Format(errMsg, tagName, value, reason));
+                throw new Exception($"Couldn't get a replacement {tagName} for {value}. Reason: '{reason}'");
             
             return replacement;
         }
