@@ -101,6 +101,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{2D0D9CEF-7AF1-
 		bin\smi\writeDatabaseStrings.py = bin\smi\writeDatabaseStrings.py
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Setup", "src\applications\Setup\Setup.csproj", "{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -243,6 +245,10 @@ Global
 		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Debug|x64.Build.0 = Debug|x64
 		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Release|x64.ActiveCfg = Release|x64
 		{48000929-AB84-4764-9A9B-A827CAC7BD79}.Release|x64.Build.0 = Release|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Debug|x64.ActiveCfg = Debug|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Debug|x64.Build.0 = Debug|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Release|x64.ActiveCfg = Release|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -284,6 +290,7 @@ Global
 		{789280D8-0998-42E6-8E81-3019C681C9FE} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{48000929-AB84-4764-9A9B-A827CAC7BD79} = {421CCD37-3817-4748-B184-A134E19DD75C}
 		{2D0D9CEF-7AF1-4779-92BA-5E124233C160} = {A47D6857-A0E0-4604-9E11-3088F32BD378}
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}
