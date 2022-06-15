@@ -47,7 +47,25 @@ namespace Setup {
         
         private Terminal.Gui.LineView lineview2;
         
+        private Terminal.Gui.Label label4;
+        
+        private Terminal.Gui.Label label42;
+        
+        private Terminal.Gui.CheckBox cbDicomTagReader;
+        
         private Terminal.Gui.CheckBox cbCohortExtractor;
+        
+        private Terminal.Gui.CheckBox cbMongoDbPopulator;
+        
+        private Terminal.Gui.CheckBox cbDicomAnonymiser;
+        
+        private Terminal.Gui.CheckBox cbIdentifierMapper;
+        
+        private Terminal.Gui.CheckBox cbIsIdentifiable;
+        
+        private Terminal.Gui.CheckBox cbDicomRelationalMapper;
+        
+        private Terminal.Gui.CheckBox cbCohortPackager;
         
         private void InitializeComponent() {
             this.Width = Dim.Fill(0);
@@ -220,16 +238,104 @@ namespace Setup {
             this.lineview2.LineRune = '─';
             this.lineview2.Orientation = Terminal.Gui.Graphs.Orientation.Horizontal;
             this.Add(this.lineview2);
+            this.label4 = new Terminal.Gui.Label();
+            this.label4.Width = 9;
+            this.label4.Height = 1;
+            this.label4.X = 0;
+            this.label4.Y = 10;
+            this.label4.Data = "label4";
+            this.label4.Text = "Data Load";
+            this.label4.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.Add(this.label4);
+            this.label42 = new Terminal.Gui.Label();
+            this.label42.Width = 10;
+            this.label42.Height = 1;
+            this.label42.X = 27;
+            this.label42.Y = 10;
+            this.label42.Data = "label42";
+            this.label42.Text = "Extraction";
+            this.label42.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.Add(this.label42);
+            this.cbDicomTagReader = new Terminal.Gui.CheckBox();
+            this.cbDicomTagReader.Width = 4;
+            this.cbDicomTagReader.Height = 1;
+            this.cbDicomTagReader.X = 1;
+            this.cbDicomTagReader.Y = 11;
+            this.cbDicomTagReader.Data = "cbDicomTagReader";
+            this.cbDicomTagReader.Text = "DicomTagReader";
+            this.cbDicomTagReader.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbDicomTagReader.Checked = false;
+            this.Add(this.cbDicomTagReader);
             this.cbCohortExtractor = new Terminal.Gui.CheckBox();
             this.cbCohortExtractor.Width = 4;
             this.cbCohortExtractor.Height = 1;
-            this.cbCohortExtractor.X = 2;
-            this.cbCohortExtractor.Y = 10;
+            this.cbCohortExtractor.X = 28;
+            this.cbCohortExtractor.Y = 11;
             this.cbCohortExtractor.Data = "cbCohortExtractor";
             this.cbCohortExtractor.Text = "CohortExtractor";
             this.cbCohortExtractor.TextAlignment = Terminal.Gui.TextAlignment.Left;
-            this.cbCohortExtractor.Checked = false;
+            this.cbCohortExtractor.Checked = true;
             this.Add(this.cbCohortExtractor);
+            this.cbMongoDbPopulator = new Terminal.Gui.CheckBox();
+            this.cbMongoDbPopulator.Width = 4;
+            this.cbMongoDbPopulator.Height = 1;
+            this.cbMongoDbPopulator.X = 1;
+            this.cbMongoDbPopulator.Y = 12;
+            this.cbMongoDbPopulator.Data = "cbMongoDbPopulator";
+            this.cbMongoDbPopulator.Text = "MongoDbPopulator";
+            this.cbMongoDbPopulator.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbMongoDbPopulator.Checked = false;
+            this.Add(this.cbMongoDbPopulator);
+            this.cbDicomAnonymiser = new Terminal.Gui.CheckBox();
+            this.cbDicomAnonymiser.Width = 4;
+            this.cbDicomAnonymiser.Height = 1;
+            this.cbDicomAnonymiser.X = 28;
+            this.cbDicomAnonymiser.Y = 12;
+            this.cbDicomAnonymiser.Data = "cbDicomAnonymiser";
+            this.cbDicomAnonymiser.Text = "DicomAnonymiser";
+            this.cbDicomAnonymiser.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbDicomAnonymiser.Checked = true;
+            this.Add(this.cbDicomAnonymiser);
+            this.cbIdentifierMapper = new Terminal.Gui.CheckBox();
+            this.cbIdentifierMapper.Width = 4;
+            this.cbIdentifierMapper.Height = 1;
+            this.cbIdentifierMapper.X = 1;
+            this.cbIdentifierMapper.Y = 13;
+            this.cbIdentifierMapper.Data = "cbIdentifierMapper";
+            this.cbIdentifierMapper.Text = "IdentifierMapper";
+            this.cbIdentifierMapper.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbIdentifierMapper.Checked = true;
+            this.Add(this.cbIdentifierMapper);
+            this.cbIsIdentifiable = new Terminal.Gui.CheckBox();
+            this.cbIsIdentifiable.Width = 4;
+            this.cbIsIdentifiable.Height = 1;
+            this.cbIsIdentifiable.X = 28;
+            this.cbIsIdentifiable.Y = 13;
+            this.cbIsIdentifiable.Data = "cbIsIdentifiable";
+            this.cbIsIdentifiable.Text = "IsIdentifiable";
+            this.cbIsIdentifiable.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbIsIdentifiable.Checked = false;
+            this.Add(this.cbIsIdentifiable);
+            this.cbDicomRelationalMapper = new Terminal.Gui.CheckBox();
+            this.cbDicomRelationalMapper.Width = 4;
+            this.cbDicomRelationalMapper.Height = 1;
+            this.cbDicomRelationalMapper.X = 1;
+            this.cbDicomRelationalMapper.Y = 14;
+            this.cbDicomRelationalMapper.Data = "cbDicomRelationalMapper";
+            this.cbDicomRelationalMapper.Text = "DicomRelationalMapper";
+            this.cbDicomRelationalMapper.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbDicomRelationalMapper.Checked = true;
+            this.Add(this.cbDicomRelationalMapper);
+            this.cbCohortPackager = new Terminal.Gui.CheckBox();
+            this.cbCohortPackager.Width = 4;
+            this.cbCohortPackager.Height = 1;
+            this.cbCohortPackager.X = 28;
+            this.cbCohortPackager.Y = 14;
+            this.cbCohortPackager.Data = "cbCohortPackager";
+            this.cbCohortPackager.Text = "CohortPackager";
+            this.cbCohortPackager.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbCohortPackager.Checked = false;
+            this.Add(this.cbCohortPackager);
         }
     }
 }

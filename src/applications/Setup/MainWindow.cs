@@ -72,7 +72,15 @@ namespace Setup {
             RegisterEvents(cbMongoDb, "Connect to MongoDb", () => _probe.MongoDb);
             RegisterEvents(cbRdmp, "Connect to RDMP", () => _probe.Rdmp);
 
-            RegisterEvents(cbCohortExtractor, "CohortExtractor", () => _probe.CohortExtractor);
+            RegisterEvents(cbDicomTagReader, "Dicom Tag Reader", () => _probe.DicomTagReader);
+            RegisterEvents(cbMongoDbPopulator, "Mongo Db Populator", () => _probe.MongoDbPopulator);
+            RegisterEvents(cbIdentifierMapper, "Identifier Mapper", () => _probe.IdentifierMapper);
+            RegisterEvents(cbDicomRelationalMapper, "Dicom Relational Mapper", () => _probe.DicomRelationalMapper);
+
+            RegisterEvents(cbCohortExtractor, "Cohort Extractor", () => _probe.CohortExtractor);
+            RegisterEvents(cbDicomAnonymiser, "Dicom Anonymiser", () => _probe.DicomAnonymiser);
+            RegisterEvents(cbIsIdentifiable, "IsIdentifiable", () => _probe.IsIdentifiable);
+            RegisterEvents(cbCohortPackager, "Cohort Packager", () => _probe.CohortPackager);
 
             btnBrowseForDefaultYaml.Clicked += BtnBrowseForDefaultYaml_Clicked;
             btnCheckInfrastructure.Clicked += BtnCheckInfrastructure_Clicked;
@@ -174,7 +182,15 @@ namespace Setup {
             SetState(cbMongoDb, _probe.MongoDb);
             SetState(cbRdmp, _probe.Rdmp);
 
+            SetState(cbDicomTagReader, _probe.DicomTagReader);
+            SetState(cbMongoDbPopulator, _probe.MongoDbPopulator);
+            SetState(cbIdentifierMapper, _probe.IdentifierMapper);
+            SetState(cbDicomRelationalMapper, _probe.DicomRelationalMapper);
+
             SetState(cbCohortExtractor, _probe.CohortExtractor);
+            SetState(cbDicomAnonymiser, _probe.DicomAnonymiser);
+            SetState(cbIsIdentifiable, _probe.IsIdentifiable);
+            SetState(cbCohortPackager, _probe.CohortPackager);
         }
 
         private void SetState(CheckBox cb, CheckEventArgs? result)

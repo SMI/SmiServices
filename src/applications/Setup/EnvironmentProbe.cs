@@ -1,5 +1,11 @@
 ﻿using Microservices.CohortExtractor.Execution;
+using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
+using Microservices.DicomAnonymiser;
+using Microservices.DicomRelationalMapper.Execution;
+using Microservices.DicomTagReader.Execution;
+using Microservices.IdentifierMapper.Execution;
+using Microservices.IsIdentifiable.Service;
 using Microservices.MongoDBPopulator.Execution;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
@@ -26,6 +32,13 @@ namespace Setup
 
         public CheckEventArgs? CohortExtractor { get; private set; }
         public CheckEventArgs? MongoDb { get; private set; }
+        public CheckEventArgs? DicomTagReader { get; private set; }
+        public CheckEventArgs? MongoDbPopulator { get; private set; }
+        public CheckEventArgs? IdentifierMapper { get; private set; }
+        public CheckEventArgs? DicomRelationalMapper { get; private set; }
+        public CheckEventArgs? DicomAnonymiser { get; private set; }
+        public CheckEventArgs? IsIdentifiable { get; private set; }
+        public CheckEventArgs? CohortPackager { get; private set; }
 
         public EnvironmentProbe(string? yamlFile)
         {
@@ -53,7 +66,16 @@ namespace Setup
         }
         internal void CheckMicroservices()
         {
+            ProbeDicomTagReader();
+            ProbeMongoDbPopulator();
+            ProbeIdentifierMapper();
+            ProbeDicomRelationalMapper();
+
             ProbeCohortExtractor();
+            ProbeDicomAnonymiser();
+            ProbeIsIdentifiable();
+            ProbeCohortPackager();
+
         }
 
         public void ProbeRdmp()
@@ -154,23 +176,66 @@ namespace Setup
 
         public void ProbeCohortExtractor()
         {
+            Probe(nameof(CohortExtractorHost),(o) => new CohortExtractorHost(o, null, null),(p)=>CohortExtractor = p);
+        }
+
+        private void ProbeDicomAnonymiser()
+        {
+            Probe(nameof(DicomAnonymiserHost), (o) => new DicomAnonymiserHost(o), (p) => DicomAnonymiser = p);
+        }
+        private void ProbeIsIdentifiable()
+        {
+            Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o), (p) => IsIdentifiable = p);
+        }
+
+        private void ProbeCohortPackager()
+        {
+            Probe(nameof(CohortPackagerHost), (o) => new CohortPackagerHost(o), (p) => CohortPackager = p);
+        }
+
+        public void ProbeDicomRelationalMapper()
+        {
+            Probe(nameof(DicomRelationalMapperHost), (o) => new DicomRelationalMapperHost(o), (p) => DicomRelationalMapper = p);
+        }
+
+        private void ProbeIdentifierMapper()
+        {
+            Probe(nameof(IdentifierMapperHost), (o) => new IdentifierMapperHost(o), (p) => IdentifierMapper = p);
+        }
+
+        private void ProbeMongoDbPopulator()
+        {
+            Probe(nameof(MongoDbPopulatorHost), (o) => new MongoDbPopulatorHost(o), (p) => MongoDbPopulator = p);
+        }
+
+        private void ProbeDicomTagReader()
+        {
+            Probe(nameof(DicomTagReaderHost), (o) => new DicomTagReaderHost(o), (p) => DicomTagReader = p);
+        }
+        private void Probe(string probeName, Func<GlobalOptions,MicroserviceHost> hostConstructor, Action<CheckEventArgs?> storeResult)
+        {
+            // clear old results
+            storeResult(null);
+
+            if (Options == null)
+                return;
+
             try
             {
-                var host = new CohortExtractorHost(Options, null, null);
+                var host = hostConstructor(Options);
 
                 host.StartAuxConnections();
                 host.Start();
 
                 host.Stop("Finished Testing");
 
-                CohortExtractor = new CheckEventArgs("Testing CohortExtractor Succeeded", CheckResult.Success);
+                storeResult(new CheckEventArgs($"{probeName} Succeeded", CheckResult.Success));
             }
             catch (Exception ex)
             {
-                CohortExtractor = new CheckEventArgs("Testing CohortExtractor Failed", CheckResult.Fail, ex);
+                storeResult(new CheckEventArgs($"{probeName} Failed", CheckResult.Fail, ex));
             }
-
-
         }
+
     }
 }
