@@ -76,11 +76,16 @@ namespace Setup {
         private void RegisterTry(Button btn, Action<EnvironmentProbe> probeAction)
         {
             btn.Clicked += ()=>{
-                _probe = new EnvironmentProbe(tbDefaultYaml.Text.ToString());
+                ReloadYaml();
                 probeAction(_probe);
                 SetCheckboxStates();
                     };
 
+        }
+
+        private void ReloadYaml()
+        {
+            _probe = new EnvironmentProbe(tbDefaultYaml.Text.ToString());
         }
 
         private void RegisterEvents(CheckBox cb, string taskTitle, Func<CheckEventArgs?> resultGetter)
@@ -127,11 +132,13 @@ namespace Setup {
 
         private void BtnCheckInfrastructure_Clicked()
         {
+            ReloadYaml();
             _probe.CheckInfrastructure();
             SetCheckboxStates();
         }
         private void BtnCheckMicroservices_Clicked()
         {
+            ReloadYaml();
             _probe.CheckMicroservices();
             SetCheckboxStates();
         }
@@ -166,7 +173,8 @@ namespace Setup {
         {
             var path = tbDefaultYaml.Text.ToString();
             SetupSettings.YamlFile = path ?? "";
-            _probe = new EnvironmentProbe(path);
+
+            ReloadYaml();
             SetCheckboxStates();
         }
 
@@ -178,7 +186,8 @@ namespace Setup {
             if (!ofd.Canceled && !string.IsNullOrEmpty(ofd.FilePath.ToString()))
             {
                 tbDefaultYaml.Text = ofd.FilePath;
-                _probe = new EnvironmentProbe(tbDefaultYaml.Text.ToString());
+
+                ReloadYaml();
             }
         }
     }
