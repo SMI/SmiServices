@@ -1,4 +1,5 @@
-﻿using Setup;
+﻿using NLog;
+using Setup;
 using Smi.Common;
 using System.Linq;
 using Terminal.Gui;
@@ -13,6 +14,9 @@ class Program
         Application.Driver.UnChecked = 'x';
         
         FansiImplementations.Load();
+
+        // don't log to console!
+        LogManager.SuspendLogging();
 
         Application.Run(new MainWindow(), (e) => {
             MessageBox.ErrorQuery("Global Error", e.ToString(), "Ok");
