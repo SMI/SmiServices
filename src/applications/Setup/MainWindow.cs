@@ -67,6 +67,7 @@ namespace Setup {
             btnCheckMicroservices.Clicked += BtnCheckMicroservices_Clicked;
 
             RegisterTry(btnTryRabbitMq, (p)=>p.ProbeRabbitMq());
+            RegisterTry(btnTryMongoDb,(p)=>p.ProbeMongoDb());
             RegisterTry(btnTryRdmp, (p)=>p.ProbeRdmp());
 
         }
