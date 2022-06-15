@@ -1,4 +1,5 @@
 ﻿using Setup;
+using Smi.Common;
 using System.Linq;
 using Terminal.Gui;
 
@@ -10,6 +11,8 @@ class Program
         Application.Init();
 
         Application.Driver.UnChecked = 'x';
+        
+        FansiImplementations.Load();
 
         Application.Run(new MainWindow(), (e) => {
             MessageBox.ErrorQuery("Global Error", e.ToString(), "Ok");
