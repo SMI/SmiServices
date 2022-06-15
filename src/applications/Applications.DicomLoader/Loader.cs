@@ -135,12 +135,20 @@ public static class Loader
         }
 
         if (ImageStore.CountDocuments(
-                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header", new BsonDocument("DicomFilePath", filename)))) > 0)
+                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header", new BsonDocument("DicomFilePath", filename))),new CountOptions(),ct) > 0)
         {
             Console.WriteLine($@"{filename} already loaded, skipping");
             return ValueTask.CompletedTask;
         }
-        Process(new FileInfo(filename),ImageStore, ct);
+
+        try
+        {
+            Process(new FileInfo(filename), ImageStore, ct);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"{filename} processing failed to due {e}");
+        }
         return ValueTask.CompletedTask;
     }
 
