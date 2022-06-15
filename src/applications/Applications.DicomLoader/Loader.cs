@@ -45,7 +45,8 @@ public static class Loader
         {
             if (!force && _seriesList.Count < 100)
                 return;
-            SeriesStore?.InsertMany(_seriesList.Values);
+            if (!_seriesList.IsEmpty)
+                SeriesStore?.InsertMany(_seriesList.Values);
             _seriesList.Clear();
         }
     }
@@ -63,7 +64,7 @@ public static class Loader
         var bBuffer=new byte[132];
         var buffer = new Span<byte>(bBuffer);
         using var fileStream = File.OpenRead(fi.FullName);
-        if (fileStream.Read(buffer) == 132 && buffer[128..]==_dicomMagic)
+        if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
         {
             var ds = DicomFile.Open(fileStream).Dataset;
             Process(ds,fi.FullName,fi.DirectoryName ?? throw new ApplicationException($"Unable to find parent directory for {fi.FullName}"),fi.Length, iStore, ct);
