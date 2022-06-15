@@ -75,6 +75,7 @@ namespace Setup
                     Options.RDMPOptions.DataExportConnectionString);
 
                 var startup = new Startup(new EnvironmentInfo(), provider);
+                
                 bool failed = false;
                 var sb = new StringBuilder();
                 var exceptions = new List<Exception>();
@@ -90,7 +91,7 @@ namespace Setup
                     }
                 };
 
-                startup.DoStartup(new ThrowImmediatelyCheckNotifier());
+                startup.DoStartup(new ThrowImmediatelyCheckNotifier() { WriteToConsole = false }) ;
 
                 Rdmp = new CheckEventArgs(sb.ToString(), failed ? CheckResult.Fail : CheckResult.Success);
             }
