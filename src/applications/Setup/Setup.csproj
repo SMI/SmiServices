@@ -13,6 +13,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
+    <ProjectReference Include="..\..\microservices\Microservices.CohortExtractor\Microservices.CohortExtractor.csproj" />
+    <ProjectReference Include="..\..\microservices\Microservices.CohortPackager\Microservices.CohortPackager.csproj" />
+    <ProjectReference Include="..\..\microservices\Microservices.MongoDbPopulator\Microservices.MongoDbPopulator.csproj" />
   </ItemGroup>
 
 </Project>

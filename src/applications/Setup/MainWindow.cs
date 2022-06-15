@@ -57,15 +57,20 @@ namespace Setup {
 
             RegisterEvents(cbYamlValid, "Deserialize Yaml",() => _probe.DeserializeYaml);
             RegisterEvents(cbRabbitMq, "Connect to RabbitMQ", () => _probe.RabbitMq);
+            RegisterEvents(cbMongoDb, "Connect to MongoDb", () => _probe.MongoDb);
             RegisterEvents(cbRdmp, "Connect to RDMP", () => _probe.Rdmp);
 
+            RegisterEvents(cbCohortExtractor, "CohortExtractor", () => _probe.CohortExtractor);
+
             btnBrowseForDefaultYaml.Clicked += BtnBrowseForDefaultYaml_Clicked;
-            btnRefreshInfrastructure.Clicked += BtnRefreshInfrastructure_Clicked;
+            btnCheckInfrastructure.Clicked += BtnCheckInfrastructure_Clicked;
+            btnCheckMicroservices.Clicked += BtnCheckMicroservices_Clicked;
 
             RegisterTry(btnTryRabbitMq, (p)=>p.ProbeRabbitMq());
             RegisterTry(btnTryRdmp, (p)=>p.ProbeRdmp());
 
         }
+
 
         private void RegisterTry(Button btn, Action<EnvironmentProbe> probeAction)
         {
@@ -119,9 +124,14 @@ namespace Setup {
         }
 
 
-        private void BtnRefreshInfrastructure_Clicked()
+        private void BtnCheckInfrastructure_Clicked()
         {
             _probe.CheckInfrastructure();
+            SetCheckboxStates();
+        }
+        private void BtnCheckMicroservices_Clicked()
+        {
+            _probe.CheckMicroservices();
             SetCheckboxStates();
         }
 
@@ -129,9 +139,10 @@ namespace Setup {
         {
             SetState(cbYamlValid, _probe.DeserializeYaml);
             SetState(cbRabbitMq, _probe.RabbitMq);
-            SetState(cbMongoDb, null);
-            SetState(cbRelationalDatabase, null);
+            SetState(cbMongoDb, _probe.MongoDb);
             SetState(cbRdmp, _probe.Rdmp);
+
+            SetState(cbCohortExtractor, _probe.CohortExtractor);
         }
 
         private void SetState(CheckBox cb, CheckEventArgs? result)

@@ -1,8 +1,13 @@
-﻿using Rdmp.Core.Startup;
+﻿using Microservices.CohortExtractor.Execution;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
+using Microservices.MongoDBPopulator.Execution;
+using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
 using ReusableLibraryCode;
 using ReusableLibraryCode.Checks;
 using Smi.Common;
+using Smi.Common.Execution;
+using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -12,19 +17,18 @@ namespace Setup
 {
 
     internal class EnvironmentProbe
-    {
-        private string? yamlFile;
-        
+    {        
         public CheckEventArgs DeserializeYaml { get; }
 
-        public CheckEventArgs? RabbitMq { get; set; }
+        public CheckEventArgs? RabbitMq { get; private set; }
         public  GlobalOptions? Options { get; }
-        public CheckEventArgs? Rdmp { get; internal set; }
+        public CheckEventArgs? Rdmp { get; private set; }
+
+        public CheckEventArgs? CohortExtractor { get; private set; }
+        public CheckEventArgs? MongoDb { get; private set; }
 
         public EnvironmentProbe(string? yamlFile)
         {
-            this.yamlFile = yamlFile;
-
             try
             {
                 if (string.IsNullOrWhiteSpace(yamlFile))
@@ -43,7 +47,13 @@ namespace Setup
         {
             ProbeRabbitMq();
 
-            ProbeRdmp();            
+            ProbeMongoDb();
+
+            ProbeRdmp();
+        }
+        internal void CheckMicroservices()
+        {
+            ProbeCohortExtractor();
         }
 
         public void ProbeRdmp()
@@ -109,6 +119,57 @@ namespace Setup
             {
                 RabbitMq = new CheckEventArgs("Failed to connect to RabbitMq", CheckResult.Fail, ex);
             }
+        }
+
+        public void ProbeMongoDb()
+        {
+            MongoDb = null;
+            if (Options == null)
+                return;
+
+            try
+            {
+                if (Options.MongoDatabases == null)
+                    return;
+
+                // this opens connection to the server and tests for collection existing                
+                new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
+                         Options.MongoDbPopulatorOptions.ImageCollection);
+
+
+                MongoDbOptions mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions;
+                var jobStore = new MongoExtractJobStore(
+                    MongoClientHelpers.GetMongoClient(mongoDbOptions, "Setup"),
+                    mongoDbOptions.DatabaseName,new Smi.Common.Helpers.DateTimeProvider()                    
+                );
+
+                MongoDb = new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);
+            }
+            catch (Exception ex)
+            {
+                MongoDb = new CheckEventArgs("MongoDb Checking Failed", CheckResult.Fail, ex);
+            }
+        }
+
+        public void ProbeCohortExtractor()
+        {
+            try
+            {
+                var host = new CohortExtractorHost(Options, null, null);
+
+                host.StartAuxConnections();
+                host.Start();
+
+                host.Stop("Finished Testing");
+
+                CohortExtractor = new CheckEventArgs("Testing CohortExtractor Succeeded", CheckResult.Success);
+            }
+            catch (Exception ex)
+            {
+                CohortExtractor = new CheckEventArgs("Testing CohortExtractor Failed", CheckResult.Fail, ex);
+            }
+
+
         }
     }
 }

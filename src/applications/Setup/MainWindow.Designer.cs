@@ -21,11 +21,11 @@ namespace Setup {
         
         private Terminal.Gui.Button btnBrowseForDefaultYaml;
         
-        private Terminal.Gui.Button btnRefreshInfrastructure;
-        
         private Terminal.Gui.CheckBox cbYamlValid;
         
         private Terminal.Gui.Label label2;
+        
+        private Terminal.Gui.Button btnCheckInfrastructure;
         
         private Terminal.Gui.LineView lineview1;
         
@@ -37,13 +37,17 @@ namespace Setup {
         
         private Terminal.Gui.Button btnTryMongoDb;
         
-        private Terminal.Gui.CheckBox cbRelationalDatabase;
-        
-        private Terminal.Gui.Button btnTryRelationalDb;
-        
         private Terminal.Gui.CheckBox cbRdmp;
         
         private Terminal.Gui.Button btnTryRdmp;
+        
+        private Terminal.Gui.Label label3;
+        
+        private Terminal.Gui.Button btnCheckMicroservices;
+        
+        private Terminal.Gui.LineView lineview2;
+        
+        private Terminal.Gui.CheckBox cbCohortExtractor;
         
         private void InitializeComponent() {
             this.Width = Dim.Fill(0);
@@ -86,25 +90,15 @@ namespace Setup {
             this.btnBrowseForDefaultYaml.TextAlignment = Terminal.Gui.TextAlignment.Centered;
             this.btnBrowseForDefaultYaml.IsDefault = false;
             this.Add(this.btnBrowseForDefaultYaml);
-            this.btnRefreshInfrastructure = new Terminal.Gui.Button();
-            this.btnRefreshInfrastructure.Width = 11;
-            this.btnRefreshInfrastructure.Height = 1;
-            this.btnRefreshInfrastructure.X = 13;
-            this.btnRefreshInfrastructure.Y = 1;
-            this.btnRefreshInfrastructure.Data = "btnRefreshInfrastructure";
-            this.btnRefreshInfrastructure.Text = "Refresh";
-            this.btnRefreshInfrastructure.TextAlignment = Terminal.Gui.TextAlignment.Centered;
-            this.btnRefreshInfrastructure.IsDefault = false;
-            this.Add(this.btnRefreshInfrastructure);
             this.cbYamlValid = new Terminal.Gui.CheckBox();
-            this.cbYamlValid.Width = 4;
+            this.cbYamlValid.Width = 1;
             this.cbYamlValid.Height = 1;
-            this.cbYamlValid.X = 26;
+            this.cbYamlValid.X = Pos.Left(tbDefaultYaml);
             this.cbYamlValid.Y = 1;
             this.cbYamlValid.Data = "cbYamlValid";
             this.cbYamlValid.Text = "Yaml Valid";
             this.cbYamlValid.TextAlignment = Terminal.Gui.TextAlignment.Left;
-            this.cbYamlValid.Checked = true;
+            this.cbYamlValid.Checked = false;
             this.Add(this.cbYamlValid);
             this.label2 = new Terminal.Gui.Label();
             this.label2.Width = 15;
@@ -112,9 +106,19 @@ namespace Setup {
             this.label2.X = 0;
             this.label2.Y = 2;
             this.label2.Data = "label2";
-            this.label2.Text = "Infrastructure:";
+            this.label2.Text = "Infrastructure";
             this.label2.TextAlignment = Terminal.Gui.TextAlignment.Left;
             this.Add(this.label2);
+            this.btnCheckInfrastructure = new Terminal.Gui.Button();
+            this.btnCheckInfrastructure.Width = 9;
+            this.btnCheckInfrastructure.Height = 1;
+            this.btnCheckInfrastructure.X = 15;
+            this.btnCheckInfrastructure.Y = 2;
+            this.btnCheckInfrastructure.Data = "btnCheckInfrastructure";
+            this.btnCheckInfrastructure.Text = "Check";
+            this.btnCheckInfrastructure.TextAlignment = Terminal.Gui.TextAlignment.Centered;
+            this.btnCheckInfrastructure.IsDefault = false;
+            this.Add(this.btnCheckInfrastructure);
             this.lineview1 = new Terminal.Gui.LineView();
             this.lineview1.Width = Dim.Fill(0);
             this.lineview1.Height = 1;
@@ -166,31 +170,11 @@ namespace Setup {
             this.btnTryMongoDb.TextAlignment = Terminal.Gui.TextAlignment.Centered;
             this.btnTryMongoDb.IsDefault = false;
             this.Add(this.btnTryMongoDb);
-            this.cbRelationalDatabase = new Terminal.Gui.CheckBox();
-            this.cbRelationalDatabase.Width = 4;
-            this.cbRelationalDatabase.Height = 1;
-            this.cbRelationalDatabase.X = 2;
-            this.cbRelationalDatabase.Y = 6;
-            this.cbRelationalDatabase.Data = "cbRelationalDatabase";
-            this.cbRelationalDatabase.Text = "Relational Database";
-            this.cbRelationalDatabase.TextAlignment = Terminal.Gui.TextAlignment.Left;
-            this.cbRelationalDatabase.Checked = true;
-            this.Add(this.cbRelationalDatabase);
-            this.btnTryRelationalDb = new Terminal.Gui.Button();
-            this.btnTryRelationalDb.Width = 7;
-            this.btnTryRelationalDb.Height = 1;
-            this.btnTryRelationalDb.X = 25;
-            this.btnTryRelationalDb.Y = 6;
-            this.btnTryRelationalDb.Data = "btnTryRelationalDb";
-            this.btnTryRelationalDb.Text = "Try";
-            this.btnTryRelationalDb.TextAlignment = Terminal.Gui.TextAlignment.Centered;
-            this.btnTryRelationalDb.IsDefault = false;
-            this.Add(this.btnTryRelationalDb);
             this.cbRdmp = new Terminal.Gui.CheckBox();
             this.cbRdmp.Width = 4;
             this.cbRdmp.Height = 1;
             this.cbRdmp.X = 2;
-            this.cbRdmp.Y = 7;
+            this.cbRdmp.Y = 6;
             this.cbRdmp.Data = "cbRdmp";
             this.cbRdmp.Text = "RDMP";
             this.cbRdmp.TextAlignment = Terminal.Gui.TextAlignment.Left;
@@ -200,12 +184,52 @@ namespace Setup {
             this.btnTryRdmp.Width = 7;
             this.btnTryRdmp.Height = 1;
             this.btnTryRdmp.X = 25;
-            this.btnTryRdmp.Y = 7;
+            this.btnTryRdmp.Y = 6;
             this.btnTryRdmp.Data = "btnTryRdmp";
             this.btnTryRdmp.Text = "Try";
             this.btnTryRdmp.TextAlignment = Terminal.Gui.TextAlignment.Centered;
             this.btnTryRdmp.IsDefault = false;
             this.Add(this.btnTryRdmp);
+            this.label3 = new Terminal.Gui.Label();
+            this.label3.Width = 14;
+            this.label3.Height = 1;
+            this.label3.X = 0;
+            this.label3.Y = 8;
+            this.label3.Data = "label3";
+            this.label3.Text = "Microservices";
+            this.label3.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.Add(this.label3);
+            this.btnCheckMicroservices = new Terminal.Gui.Button();
+            this.btnCheckMicroservices.Width = 9;
+            this.btnCheckMicroservices.Height = 1;
+            this.btnCheckMicroservices.X = 14;
+            this.btnCheckMicroservices.Y = 8;
+            this.btnCheckMicroservices.Data = "btnCheckMicroservices";
+            this.btnCheckMicroservices.Text = "Check";
+            this.btnCheckMicroservices.TextAlignment = Terminal.Gui.TextAlignment.Centered;
+            this.btnCheckMicroservices.IsDefault = false;
+            this.Add(this.btnCheckMicroservices);
+            this.lineview2 = new Terminal.Gui.LineView();
+            this.lineview2.Width = Dim.Fill(0);
+            this.lineview2.Height = 1;
+            this.lineview2.X = 0;
+            this.lineview2.Y = 9;
+            this.lineview2.Data = "lineview2";
+            this.lineview2.Text = "";
+            this.lineview2.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.lineview2.LineRune = '─';
+            this.lineview2.Orientation = Terminal.Gui.Graphs.Orientation.Horizontal;
+            this.Add(this.lineview2);
+            this.cbCohortExtractor = new Terminal.Gui.CheckBox();
+            this.cbCohortExtractor.Width = 4;
+            this.cbCohortExtractor.Height = 1;
+            this.cbCohortExtractor.X = 2;
+            this.cbCohortExtractor.Y = 10;
+            this.cbCohortExtractor.Data = "cbCohortExtractor";
+            this.cbCohortExtractor.Text = "CohortExtractor";
+            this.cbCohortExtractor.TextAlignment = Terminal.Gui.TextAlignment.Left;
+            this.cbCohortExtractor.Checked = false;
+            this.Add(this.cbCohortExtractor);
         }
     }
 }
