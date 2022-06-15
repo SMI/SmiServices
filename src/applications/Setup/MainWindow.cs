@@ -13,6 +13,7 @@ namespace Setup {
     using ReusableLibraryCode.Checks;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using Terminal.Gui;
     using Attribute = Terminal.Gui.Attribute;
 
@@ -26,6 +27,12 @@ namespace Setup {
         /// The currently selected yaml file
         /// </summary>
         public string? YamlFile => tbDefaultYaml.Text.ToString();
+
+        /// <summary>
+        /// The last contents of the yaml config file.  If there are no changes
+        /// then we don't bother clearing the probe in <see cref="ReloadYaml"/>
+        /// </summary>
+        private string _lastYaml = "";
 
         public MainWindow() {
             InitializeComponent();
@@ -50,7 +57,12 @@ namespace Setup {
 
             // load the yaml and update system status
             tbDefaultYaml.Text = SetupSettings.YamlFile;
-            _probe = new EnvironmentProbe(tbDefaultYaml.Text.ToString());
+
+            ReloadYaml();
+
+            if (_probe == null)
+                throw new Exception("ReloadYaml failed to load probe somehow!");
+
             SetCheckboxStates();
 
             tbDefaultYaml.TextChanged += TbDefaultYaml_TextChanged;
@@ -85,6 +97,18 @@ namespace Setup {
 
         private void ReloadYaml()
         {
+            var f = tbDefaultYaml.Text.ToString();
+            if(File.Exists(f))
+            {
+                var newYaml = File.ReadAllText(f);
+                
+                // no need to generate a new probe because the yaml has not changed
+                if (string.Equals(newYaml, _lastYaml))
+                    return;
+
+                _lastYaml = newYaml;
+            }
+
             _probe = new EnvironmentProbe(tbDefaultYaml.Text.ToString());
         }
 
