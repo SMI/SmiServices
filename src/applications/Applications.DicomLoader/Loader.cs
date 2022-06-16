@@ -98,9 +98,19 @@ public class Loader
             if (ct.IsCancellationRequested)
                 return;
             if (entry.IsDirectory) continue;
-            using var eStream = entry.OpenEntryStream();
-            var ds = DicomFile.Open(eStream).Dataset;
-            Process(ds, $"{fi.FullName}!{entry.Key}",dName, entry.Size, ct);
+            try
+            {
+                using var ms = new MemoryStream();
+                using (var eStream = entry.OpenEntryStream())
+                    eStream.CopyTo(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
+                Process(ds, $"{fi.FullName}!{entry.Key}", dName, entry.Size, ct);
+            }
+            catch (DicomFileException e)
+            {
+                Console.WriteLine($"Failed to load DICOM data from {fi.FullName} entry {entry.Key} due to {e}");
+            }
         }
     }
 
