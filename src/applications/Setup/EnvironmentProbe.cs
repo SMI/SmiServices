@@ -11,12 +11,15 @@ using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
 using ReusableLibraryCode;
 using ReusableLibraryCode.Checks;
+using ReusableLibraryCode.Progress;
 using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Setup
@@ -34,6 +37,32 @@ namespace Setup
         public CheckEventArgs? MongoDb { get; private set; }
         public CheckEventArgs? DicomTagReader { get; private set; }
         public CheckEventArgs? MongoDbPopulator { get; private set; }
+
+        public const string CheckInfrastructureTaskName = "Checking Infrastructure";
+        public const string CheckMicroservicesTaskName = "Checking Microservices";
+
+        internal int GetExitCode()
+        {
+            // get all things we can check
+            foreach(var prop in typeof(EnvironmentProbe).GetProperties())
+            {
+                var val = prop.GetValue(this);
+                
+                // did any checks run
+                if(val is CheckEventArgs cea)
+                {
+                    // that failed
+                    if (cea.Result == CheckResult.Fail)
+                    {
+                        // something failed so exit code is failure (non zero)
+                        return 100;
+                    }   
+                }
+            }
+
+            return 0;
+        }
+
         public CheckEventArgs? IdentifierMapper { get; private set; }
         public CheckEventArgs? DicomRelationalMapper { get; private set; }
         public CheckEventArgs? DicomAnonymiser { get; private set; }
@@ -56,26 +85,56 @@ namespace Setup
             }
         }
 
-        internal void CheckInfrastructure()
+        internal void CheckInfrastructure(IDataLoadEventListener? listener = null)
         {
+            var sw = Stopwatch.StartNew();
+            int max = 3;
+            int current = 0;
+            var task = CheckInfrastructureTaskName;
+
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
+
             ProbeRabbitMq();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
 
             ProbeMongoDb();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
 
             ProbeRdmp();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
         }
-        internal void CheckMicroservices()
+        internal void CheckMicroservices(IDataLoadEventListener? listener = null)
         {
+            var sw = Stopwatch.StartNew();
+            int max = 8;
+            int current = 0;
+            string task = CheckMicroservicesTaskName;
+
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
+
             ProbeDicomTagReader();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+
             ProbeMongoDbPopulator();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+
             ProbeIdentifierMapper();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+
             ProbeDicomRelationalMapper();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
 
             ProbeCohortExtractor();
-            ProbeDicomAnonymiser();
-            ProbeIsIdentifiable();
-            ProbeCohortPackager();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
 
+            ProbeDicomAnonymiser();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+
+            ProbeIsIdentifiable();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+
+            ProbeCohortPackager();
+            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
         }
 
         public void ProbeRdmp()
