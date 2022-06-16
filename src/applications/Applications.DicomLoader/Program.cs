@@ -1,12 +1,10 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandLine;
 using JetBrains.Annotations;
-using MongoDB.Bson;
-using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 
@@ -14,39 +12,50 @@ namespace Applications.DicomLoader;
 
 public static class Program
 {
+    private static CancellationTokenSource? _cts;
     public static int Main(IEnumerable<string> args)
     {
         return SmiCliInit.ParseAndRun<DicomLoaderOptions>(args, typeof(Program), OnParse);
     }
 
-    private static int OnParse(GlobalOptions g, DicomLoaderOptions d)
+    private static int OnParse(GlobalOptions g, DicomLoaderOptions cliOptions)
     {
-        return OnParse(g, d, null);
+        return OnParse(g, cliOptions, null);
     }
 
-    // ReSharper disable once UnusedParameter.Global
-    public static int OnParse(GlobalOptions _, DicomLoaderOptions dicomLoaderOptions,Stream? fileList)
+    private static void CancelHandler(object? _, ConsoleCancelEventArgs a)
     {
-        if (dicomLoaderOptions.Database is null) throw new ArgumentNullException(nameof(dicomLoaderOptions.Database));
-        Loader.Database=MongoClientHelpers.GetMongoClient(dicomLoaderOptions.Database, nameof(DicomLoader)).GetDatabase(dicomLoaderOptions.Database.DatabaseName);
-        Loader.ImageStore = Loader.Database.GetCollection<BsonDocument>(dicomLoaderOptions.ImageCollection);
-        Loader.SeriesStore = Loader.Database.GetCollection<SeriesMessage>(dicomLoaderOptions.SeriesCollection);
+        _cts?.Cancel();
+        a.Cancel = true;
+    }
+
+    private static int OnParse(GlobalOptions go, DicomLoaderOptions dicomLoaderOptions, Stream? fileList)
+    {
+        Loader loader =
+            new(
+                MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader))
+                    .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName),
+                go.MongoDbPopulatorOptions.ImageCollection, go.MongoDbPopulatorOptions.SeriesCollection,dicomLoaderOptions.ForceReload);
 
         LineReader.LineReader fileNames = new(fileList??Console.OpenStandardInput(), '\0');
-        CancellationTokenSource cts = new();
-        Console.CancelKeyPress += (_, e) =>
-        {
-            cts.Cancel();
-            e.Cancel = true;
-        };
+        using CancellationTokenSource cts = new();
+        _cts = cts;
+        Console.CancelKeyPress += CancelHandler;
         ParallelOptions parallelOptions = new()
         {
             MaxDegreeOfParallelism = -1,
             CancellationToken = cts.Token
         };
-        Parallel.ForEachAsync(fileNames.ReadLines(), parallelOptions, Loader.Load).Wait(cts.Token);
-        Loader.Flush(true);
-        Loader.Report();
+        Parallel.ForEachAsync(fileNames.ReadLines(), parallelOptions, loader.Load).Wait(cts.Token);
+        Console.CancelKeyPress -= CancelHandler;
+        _cts = null;
+        loader.Flush(true);
+        loader.Report();
+        if (dicomLoaderOptions.ForceRecount)
+        {
+            // TODO: Implement recalculating SeriesCollection from ImageCollection
+            throw new NotImplementedException();
+        }
         return 0;
     }
 }
@@ -54,7 +63,21 @@ public static class Program
 [UsedImplicitly]
 public class DicomLoaderOptions : CliOptions
 {
-    public MongoDbOptions? Database { get; set; }
-    public string? ImageCollection { get; [UsedImplicitly] set; }
-    public string? SeriesCollection { get; [UsedImplicitly] set; }
+    [Option(
+        't',
+        "totals",
+        Default = false,
+        Required = false,
+        HelpText = "Rebuild the Mongo SeriesCollection data and image counts based on the ImageCollection contents (TODO)"
+    )]
+    public bool ForceRecount { get; [UsedImplicitly] set; }
+
+    [Option(
+        'r',
+        "reload",
+        Default = false,
+        Required = false,
+        HelpText = "Re-load and overwrite existing data instead of skipping previously seen files (TODO)"
+    )]
+    public bool ForceReload { get; [UsedImplicitly] set; }
 }

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
@@ -11,23 +10,25 @@ using DicomTypeTranslation;
 using FellowOakDicom;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using SharpCompress.Readers;
+using SharpCompress.Archives;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 
 namespace Applications.DicomLoader;
 
-public static class Loader
+public class Loader
 {
-    private static readonly object _flushLock=new ();
-    private static int _fileCount;
-    private static readonly ConcurrentDictionary<string,SeriesMessage> _seriesList=new ();
-    private static readonly Stopwatch _timer = Stopwatch.StartNew();
+    private readonly object _flushLock=new ();
+    private int _fileCount;
+    private readonly ConcurrentDictionary<string,SeriesMessage> _seriesList=new ();
+    private readonly Stopwatch _timer = Stopwatch.StartNew();
+    private readonly IMongoCollection<BsonDocument> _imageStore;
+    private readonly IMongoCollection<SeriesMessage> _seriesStore;
 
-    private static SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
+    private SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
     {
         // Try loading from Mongo in case we were interrupted previously
-        var b=SeriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
+        var b=_seriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
         return b ?? new SeriesMessage
         {
             DirectoryPath = directoryName,
@@ -45,19 +46,19 @@ public static class Loader
     /// <summary>
     /// Write the pending Series data out to Mongo
     /// </summary>
-    public static void Flush(bool force=false)
+    public void Flush(bool force=false)
     {
         lock (_flushLock)
         {
             if (!force && _seriesList.Count < 100)
                 return;
             if (!_seriesList.IsEmpty)
-                SeriesStore?.InsertMany(_seriesList.Values);
+                _seriesStore.InsertMany(_seriesList.Values);
             _seriesList.Clear();
         }
     }
 
-    public static void Report()
+    public void Report()
     {
         if (_timer.ElapsedMilliseconds == 0) return;
         Console.WriteLine($"Processed {_fileCount} files in {_timer.ElapsedMilliseconds}ms ({1000*_fileCount/_timer.ElapsedMilliseconds} per second)");
@@ -65,31 +66,53 @@ public static class Loader
 
     private static readonly byte[] _dicomMagic = Encoding.ASCII.GetBytes("DICM");
 
-    private static void Process(FileInfo fi, IMongoCollection<BsonDocument> iStore, CancellationToken ct)
+    public Loader(IMongoDatabase database, string imageCollection, string seriesCollection, bool forceReload)
     {
+        _imageStore = database.GetCollection<BsonDocument>(imageCollection);
+        _seriesStore = database.GetCollection<SeriesMessage>(seriesCollection);
+    }
+
+    /// <summary>
+    /// Open a file and load it (if DICOM) or its contents (if an archive)
+    /// </summary>
+    /// <param name="fi">DICOM file or archive of DICOM files to load</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <exception cref="ApplicationException"></exception>
+    private void Process(FileInfo fi, CancellationToken ct)
+    {
+        var dName = fi.DirectoryName ?? throw new ApplicationException($"No parent directory for '{fi.FullName}'");
         var bBuffer=new byte[132];
         var buffer = new Span<byte>(bBuffer);
         using var fileStream = File.OpenRead(fi.FullName);
         if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
         {
             var ds = DicomFile.Open(fileStream).Dataset;
-            Process(ds,fi.FullName,fi.DirectoryName ?? throw new ApplicationException($"Unable to find parent directory for {fi.FullName}"),fi.Length, iStore, ct);
+            Process(ds, fi.FullName,dName, fi.Length, ct);
             return;
         }
         // Not DICOM? OK, try it as an archive:
         using var archiveStream = File.OpenRead(fi.FullName);
-        using var archive=ReaderFactory.Open(archiveStream);
-        while(archive.MoveToNextEntry())
+        using var archive=ArchiveFactory.Open(archiveStream);
+        foreach(var entry in archive.Entries)
         {
-            if (archive.Entry.IsDirectory) continue;
-            using var entry = archive.OpenEntryStream();
-            var ds = DicomFile.Open(entry).Dataset;
-            Process(ds,$"{fi.FullName}!{archive.Entry.Key}",fi.DirectoryName??throw new ApplicationException($"No parent directory for {fi.FullName}"),archive.Entry.Size,iStore,ct);
+            if (ct.IsCancellationRequested)
+                return;
+            if (entry.IsDirectory) continue;
+            using var eStream = entry.OpenEntryStream();
+            var ds = DicomFile.Open(eStream).Dataset;
+            Process(ds, $"{fi.FullName}!{entry.Key}",dName, entry.Size, ct);
         }
     }
 
-    private static void Process(DicomDataset ds, string path, string directoryName, long size,
-        IMongoCollection<BsonDocument> iStore, CancellationToken ct)
+    /// <summary>
+    /// Do the actual work of loading the DICOM dataset which came from a 'file' (or archive entry)
+    /// </summary>
+    /// <param name="ds">Dataset to load</param>
+    /// <param name="path">Filename or archive entry (/data/foo.zip!file.dcm) from which ds came</param>
+    /// <param name="directoryName">The directory name from which we're loading</param>
+    /// <param name="size">File or archive entry size in bytes</param>
+    /// <param name="ct">Cancellation token</param>
+    private void Process(DicomDataset ds, string path, string directoryName, long size, CancellationToken ct)
     {
         // Consider flushing every 256 file loads
         if ((Interlocked.Increment(ref _fileCount) & 0xff) == 0)
@@ -97,6 +120,8 @@ public static class Loader
             Flush();
             Report();
         }
+        if (ct.IsCancellationRequested)
+            return;
 
         var identifiers = new string[3];
 
@@ -124,25 +149,28 @@ public static class Loader
         _seriesList.AddOrUpdate(identifiers[1],id=>LoadSm(id,directoryName,ds,identifiers[0]) , IncSm);
         DicomDataset filtered = new(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
 
-        iStore.InsertOne(
+        _imageStore.InsertOne(
             new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader())).AddRange(
                 DicomTypeTranslaterReader.BuildBsonDocument(filtered)), cancellationToken: ct);
     }
 
-    public static ValueTask Load(string filename, CancellationToken ct)
+    /// <summary>
+    /// Try to load the named DICOM file or archive of DICOM files into Mongo, ignoring if duplicate
+    /// </summary>
+    /// <param name="filename">File or archive to load</param>
+    /// <param name="ct">Cancellation token for graceful cancellations</param>
+    /// <returns></returns>
+    public ValueTask Load(string filename, CancellationToken ct)
     {
-        if (ImageStore is null) throw new ArgumentNullException(nameof(ImageStore));
-        if (SeriesStore is null) throw new ArgumentNullException(nameof(SeriesStore));
-        if (Database is null) throw new ArgumentNullException(nameof(Database));
-
         if (!File.Exists(filename))
         {
             Console.WriteLine($@"{filename} does not exist, skipping");
             return ValueTask.CompletedTask;
         }
 
-        if (ImageStore.CountDocuments(
-                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header", new BsonDocument("DicomFilePath", filename))),new CountOptions(),ct) > 0)
+        if (_imageStore.CountDocuments(
+                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
+                    new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0)
         {
             Console.WriteLine($@"{filename} already loaded, skipping");
             return ValueTask.CompletedTask;
@@ -150,7 +178,7 @@ public static class Loader
 
         try
         {
-            Process(new FileInfo(filename), ImageStore, ct);
+            Process(new FileInfo(filename), ct);
         }
         catch (Exception e)
         {
@@ -158,8 +186,4 @@ public static class Loader
         }
         return ValueTask.CompletedTask;
     }
-
-    public static IMongoCollection<BsonDocument>? ImageStore { get; set; }
-    public static IMongoCollection<SeriesMessage>? SeriesStore { get; set; }
-    public static IMongoDatabase? Database { get; set; }
 }
