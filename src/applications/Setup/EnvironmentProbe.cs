@@ -25,21 +25,34 @@ using System.Text;
 namespace Setup
 {
 
+
+    public class Probeable
+    {
+        public string Name { get; }
+        public Func<CheckEventArgs?> Run { get; }
+        public string Category { get; }
+        public CheckEventArgs? Result { get; set; }
+
+        public Probeable(string name, Func<CheckEventArgs?> run, string category)
+        {
+            Name = name;
+            this.Run = run;
+            Category = category;
+        }
+    }
+
     internal class EnvironmentProbe
     {        
         public CheckEventArgs DeserializeYaml { get; }
-
-        public CheckEventArgs? RabbitMq { get; private set; }
-        public  GlobalOptions? Options { get; }
-        public CheckEventArgs? Rdmp { get; private set; }
-
-        public CheckEventArgs? CohortExtractor { get; private set; }
-        public CheckEventArgs? MongoDb { get; private set; }
-        public CheckEventArgs? DicomTagReader { get; private set; }
-        public CheckEventArgs? MongoDbPopulator { get; private set; }
-
+        public GlobalOptions? Options { get; }
+        
         public const string CheckInfrastructureTaskName = "Checking Infrastructure";
         public const string CheckMicroservicesTaskName = "Checking Microservices";
+
+        public const string Infrastructure = "Infrastructure";
+        public const string Microservices = "Microservices";
+
+        public Dictionary<string, Probeable> Probes = new();
 
         internal int GetExitCode()
         {
@@ -62,15 +75,43 @@ namespace Setup
 
             return 0;
         }
-
-        public CheckEventArgs? IdentifierMapper { get; private set; }
-        public CheckEventArgs? DicomRelationalMapper { get; private set; }
-        public CheckEventArgs? DicomAnonymiser { get; private set; }
-        public CheckEventArgs? IsIdentifiable { get; private set; }
-        public CheckEventArgs? CohortPackager { get; private set; }
-
+        
         public EnvironmentProbe(string? yamlFile)
         {
+            Probes = new();
+            Add(Infrastructure, "RabbitMq", ProbeRabbitMq);
+            Add(Infrastructure, "MongoDb", ProbeMongoDb);
+            Add(Infrastructure, "Rdmp", ProbeRdmp);
+
+            Add(Microservices, "CohortExtractor", ()=> Probe(nameof(CohortExtractorHost), (o) => new CohortExtractorHost(o, null, null)));
+            Add(Microservices, "DicomAnonymiser", () => Probe(nameof(DicomAnonymiserHost), (o) => new DicomAnonymiserHost(o)));
+            Add(Microservices, "IsIdentifiable", ()=> Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o)));
+            Add(Microservices, "CohortPackager", () => Probe(nameof(CohortPackagerHost), (o) => new CohortPackagerHost(o)));
+            Add(Microservices, "DicomRelationalMapper", () => Probe(nameof(DicomRelationalMapperHost), (o) => new DicomRelationalMapperHost(o)));
+            Add(Microservices, "IdentifierMapper", () => Probe(nameof(IdentifierMapperHost), (o) => new IdentifierMapperHost(o)));
+            Add(Microservices, "MongoDbPopulator", () => Probe(nameof(MongoDbPopulatorHost), (o) => new MongoDbPopulatorHost(o)));
+            Add(Microservices, "DicomTagReader", () => Probe(nameof(DicomTagReaderHost), (o) => new DicomTagReaderHost(o)));
+
+
+
+            /*
+ {
+                get
+DicomTagReader {
+                    get;
+                    MongoDbPopulator {
+                        ge
+                    IdentifierMapper {
+                            ge
+                    DicomRelationalMapper
+                    DicomAnonymiser {
+                                get
+                    IsIdentifiable {
+                                    get;
+                                    CohortPackager {
+                                        get;
+
+            */
             try
             {
                 if (string.IsNullOrWhiteSpace(yamlFile))
@@ -85,67 +126,58 @@ namespace Setup
             }
         }
 
+        private void Add(string category, string name, Func<CheckEventArgs?> probeMethod)
+        {
+            Probes.Add(name, new Probeable(name, probeMethod,category));
+        }
+
         internal void CheckInfrastructure(IDataLoadEventListener? listener = null)
         {
+            var probes = Probes.Where(p => p.Value.Category == Infrastructure).ToArray();
+
             var sw = Stopwatch.StartNew();
-            int max = 3;
+            int max = probes.Length;
             int current = 0;
             var task = CheckInfrastructureTaskName;
 
             listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
 
-            ProbeRabbitMq();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+            foreach (var p in probes)
+            {
+                // clear old result
+                p.Value.Result = null;
+                p.Value.Result = p.Value.Run();
 
-            ProbeMongoDb();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
-
-            ProbeRdmp();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+                listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+            }
         }
         internal void CheckMicroservices(IDataLoadEventListener? listener = null)
         {
+            var probes = Probes.Where(p => p.Value.Category == Microservices).ToArray();
+
             var sw = Stopwatch.StartNew();
-            int max = 8;
+            int max = probes.Length;
             int current = 0;
-            string task = CheckMicroservicesTaskName;
+            var task = CheckMicroservicesTaskName;
 
             listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
 
-            ProbeDicomTagReader();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+            foreach (var p in probes)
+            {
+                // clear old result
+                p.Value.Result = null;
+                p.Value.Result = p.Value.Run();
 
-            ProbeMongoDbPopulator();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
-
-            ProbeIdentifierMapper();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
-
-            ProbeDicomRelationalMapper();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
-
-            ProbeCohortExtractor();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
-
-            ProbeDicomAnonymiser();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
-
-            ProbeIsIdentifiable();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
-
-            ProbeCohortPackager();
-            listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+                listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(++current, ProgressType.Records, max), sw.Elapsed));
+            }
         }
 
-        public void ProbeRdmp()
+        public CheckEventArgs? ProbeRdmp()
         {
-            // clear any old records
-            Rdmp = null;
-
             try
             {
                 if (Options == null)
-                    return;
+                    return null;
 
                 if (Options.RDMPOptions == null || string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString))
                 {
@@ -174,45 +206,41 @@ namespace Setup
 
                 startup.DoStartup(new ThrowImmediatelyCheckNotifier() { WriteToConsole = false }) ;
 
-                Rdmp = new CheckEventArgs(sb.ToString(), failed ? CheckResult.Fail : CheckResult.Success);
+                return new CheckEventArgs(sb.ToString(), failed ? CheckResult.Fail : CheckResult.Success);
             }
             catch (Exception ex)
             {
-                Rdmp = new CheckEventArgs("Failed to connect to RDMP", CheckResult.Fail, ex);
+                return new CheckEventArgs("Failed to connect to RDMP", CheckResult.Fail, ex);
             }
         }
 
-        public void ProbeRabbitMq()
+        public CheckEventArgs? ProbeRabbitMq()
         {
-            // clear any old records
-            RabbitMq = null;
-
             if (Options == null)
-                return;
+                return null;
 
             try
             {
                 var factory = ConnectionFactoryExtensions.CreateConnectionFactory(Options.RabbitOptions);
                 var adapter = new RabbitMqAdapter(factory, "setup");
 
-                RabbitMq = new CheckEventArgs("Connected to RabbitMq", CheckResult.Success);
+                return new CheckEventArgs("Connected to RabbitMq", CheckResult.Success);
             }
             catch (Exception ex)
             {
-                RabbitMq = new CheckEventArgs("Failed to connect to RabbitMq", CheckResult.Fail, ex);
+                return new CheckEventArgs("Failed to connect to RabbitMq", CheckResult.Fail, ex);
             }
         }
 
-        public void ProbeMongoDb()
+        public CheckEventArgs? ProbeMongoDb()
         {
-            MongoDb = null;
             if (Options == null)
-                return;
+                return null;
 
             try
             {
                 if (Options.MongoDatabases == null)
-                    return;
+                    return null;
 
                 // this opens connection to the server and tests for collection existing                
                 new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
@@ -225,59 +253,18 @@ namespace Setup
                     mongoDbOptions.DatabaseName,new Smi.Common.Helpers.DateTimeProvider()                    
                 );
 
-                MongoDb = new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);
+                return new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);
             }
             catch (Exception ex)
             {
-                MongoDb = new CheckEventArgs("MongoDb Checking Failed", CheckResult.Fail, ex);
+                return new CheckEventArgs("MongoDb Checking Failed", CheckResult.Fail, ex);
             }
         }
 
-        public void ProbeCohortExtractor()
+        private CheckEventArgs? Probe(string probeName, Func<GlobalOptions,MicroserviceHost> hostConstructor)
         {
-            Probe(nameof(CohortExtractorHost),(o) => new CohortExtractorHost(o, null, null),(p)=>CohortExtractor = p);
-        }
-
-        private void ProbeDicomAnonymiser()
-        {
-            Probe(nameof(DicomAnonymiserHost), (o) => new DicomAnonymiserHost(o), (p) => DicomAnonymiser = p);
-        }
-        private void ProbeIsIdentifiable()
-        {
-            Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o), (p) => IsIdentifiable = p);
-        }
-
-        private void ProbeCohortPackager()
-        {
-            Probe(nameof(CohortPackagerHost), (o) => new CohortPackagerHost(o), (p) => CohortPackager = p);
-        }
-
-        public void ProbeDicomRelationalMapper()
-        {
-            Probe(nameof(DicomRelationalMapperHost), (o) => new DicomRelationalMapperHost(o), (p) => DicomRelationalMapper = p);
-        }
-
-        private void ProbeIdentifierMapper()
-        {
-            Probe(nameof(IdentifierMapperHost), (o) => new IdentifierMapperHost(o), (p) => IdentifierMapper = p);
-        }
-
-        private void ProbeMongoDbPopulator()
-        {
-            Probe(nameof(MongoDbPopulatorHost), (o) => new MongoDbPopulatorHost(o), (p) => MongoDbPopulator = p);
-        }
-
-        private void ProbeDicomTagReader()
-        {
-            Probe(nameof(DicomTagReaderHost), (o) => new DicomTagReaderHost(o), (p) => DicomTagReader = p);
-        }
-        private void Probe(string probeName, Func<GlobalOptions,MicroserviceHost> hostConstructor, Action<CheckEventArgs?> storeResult)
-        {
-            // clear old results
-            storeResult(null);
-
             if (Options == null)
-                return;
+                return null;
 
             try
             {
@@ -288,11 +275,11 @@ namespace Setup
 
                 host.Stop("Finished Testing");
 
-                storeResult(new CheckEventArgs($"{probeName} Succeeded", CheckResult.Success));
+                return new CheckEventArgs($"{probeName} Succeeded", CheckResult.Success);
             }
             catch (Exception ex)
             {
-                storeResult(new CheckEventArgs($"{probeName} Failed", CheckResult.Fail, ex));
+                return new CheckEventArgs($"{probeName} Failed", CheckResult.Fail, ex);
             }
         }
 

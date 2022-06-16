@@ -85,18 +85,10 @@ class Program
 
         AddResult(table,probe.DeserializeYaml, nameof(probe.DeserializeYaml));
 
-        AddResult(table, probe.RabbitMq, nameof(probe.RabbitMq));
-        AddResult(table, probe.MongoDb, nameof(probe.MongoDb));
-        AddResult(table, probe.Rdmp, nameof(probe.Rdmp));
-
-        AddResult(table, probe.DicomTagReader,nameof(probe.DicomTagReader));
-        AddResult(table, probe.MongoDbPopulator, nameof(probe.MongoDbPopulator));
-        AddResult(table, probe.IdentifierMapper, nameof(probe.IdentifierMapper));
-        AddResult(table, probe.DicomRelationalMapper, nameof(probe.DicomRelationalMapper));
-        AddResult(table, probe.CohortExtractor, nameof(probe.CohortExtractor));
-        AddResult(table, probe.DicomAnonymiser, nameof(probe.DicomAnonymiser));
-        AddResult(table, probe.IsIdentifiable, nameof(probe.IsIdentifiable));
-        AddResult(table, probe.CohortPackager, nameof(probe.CohortPackager));
+        foreach (var p in probe.Probes)
+        {
+            AddResult(table, p.Value.Result, p.Value.Name);
+        }
 
         // Render the table to the console
         AnsiConsole.Write(table);

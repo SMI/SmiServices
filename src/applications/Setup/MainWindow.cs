@@ -68,19 +68,19 @@ namespace Setup {
             tbDefaultYaml.TextChanged += TbDefaultYaml_TextChanged;
 
             RegisterEvents(cbYamlValid, "Deserialize Yaml",() => _probe.DeserializeYaml);
-            RegisterEvents(cbRabbitMq, "Connect to RabbitMQ", () => _probe.RabbitMq);
-            RegisterEvents(cbMongoDb, "Connect to MongoDb", () => _probe.MongoDb);
-            RegisterEvents(cbRdmp, "Connect to RDMP", () => _probe.Rdmp);
+            RegisterEvents(cbRabbitMq, "Connect to RabbitMQ", ()=>_probe.Probes["RabbitMq"].Result);
+            RegisterEvents(cbMongoDb, "Connect to MongoDb", ()=>_probe.Probes["MongoDb"].Result);
+            RegisterEvents(cbRdmp, "Connect to RDMP", ()=>_probe.Probes["Rdmp"].Result);
 
-            RegisterEvents(cbDicomTagReader, "Dicom Tag Reader", () => _probe.DicomTagReader);
-            RegisterEvents(cbMongoDbPopulator, "Mongo Db Populator", () => _probe.MongoDbPopulator);
-            RegisterEvents(cbIdentifierMapper, "Identifier Mapper", () => _probe.IdentifierMapper);
-            RegisterEvents(cbDicomRelationalMapper, "Dicom Relational Mapper", () => _probe.DicomRelationalMapper);
+            RegisterEvents(cbDicomTagReader, "Dicom Tag Reader", ()=>_probe.Probes["DicomTagReader"].Result);
+            RegisterEvents(cbMongoDbPopulator, "Mongo Db Populator", ()=>_probe.Probes["MongoDbPopulator"].Result);
+            RegisterEvents(cbIdentifierMapper, "Identifier Mapper", ()=>_probe.Probes["IdentifierMapper"].Result);
+            RegisterEvents(cbDicomRelationalMapper, "Dicom Relational Mapper", ()=>_probe.Probes["DicomRelationalMapper"].Result);
 
-            RegisterEvents(cbCohortExtractor, "Cohort Extractor", () => _probe.CohortExtractor);
-            RegisterEvents(cbDicomAnonymiser, "Dicom Anonymiser", () => _probe.DicomAnonymiser);
-            RegisterEvents(cbIsIdentifiable, "IsIdentifiable", () => _probe.IsIdentifiable);
-            RegisterEvents(cbCohortPackager, "Cohort Packager", () => _probe.CohortPackager);
+            RegisterEvents(cbCohortExtractor, "Cohort Extractor", ()=>_probe.Probes["CohortExtractor"].Result);
+            RegisterEvents(cbDicomAnonymiser, "Dicom Anonymiser", ()=>_probe.Probes["DicomAnonymiser"].Result);
+            RegisterEvents(cbIsIdentifiable, "IsIdentifiable", ()=>_probe.Probes["IsIdentifiable"].Result);
+            RegisterEvents(cbCohortPackager, "Cohort Packager", ()=>_probe.Probes["CohortPackager"].Result);
 
             btnBrowseForDefaultYaml.Clicked += BtnBrowseForDefaultYaml_Clicked;
             btnCheckInfrastructure.Clicked += BtnCheckInfrastructure_Clicked;
@@ -178,19 +178,19 @@ namespace Setup {
         private void SetCheckboxStates()
         {
             SetState(cbYamlValid, _probe.DeserializeYaml);
-            SetState(cbRabbitMq, _probe.RabbitMq);
-            SetState(cbMongoDb, _probe.MongoDb);
-            SetState(cbRdmp, _probe.Rdmp);
+            SetState(cbRabbitMq, _probe.Probes["RabbitMq"].Result);
+            SetState(cbMongoDb, _probe.Probes["MongoDb"].Result);
+            SetState(cbRdmp, _probe.Probes["Rdmp"].Result);
 
-            SetState(cbDicomTagReader, _probe.DicomTagReader);
-            SetState(cbMongoDbPopulator, _probe.MongoDbPopulator);
-            SetState(cbIdentifierMapper, _probe.IdentifierMapper);
-            SetState(cbDicomRelationalMapper, _probe.DicomRelationalMapper);
+            SetState(cbDicomTagReader, _probe.Probes["DicomTagReader"].Result);
+            SetState(cbMongoDbPopulator, _probe.Probes["MongoDbPopulator"].Result);
+            SetState(cbIdentifierMapper, _probe.Probes["IdentifierMapper"].Result);
+            SetState(cbDicomRelationalMapper, _probe.Probes["DicomRelationalMapper"].Result);
 
-            SetState(cbCohortExtractor, _probe.CohortExtractor);
-            SetState(cbDicomAnonymiser, _probe.DicomAnonymiser);
-            SetState(cbIsIdentifiable, _probe.IsIdentifiable);
-            SetState(cbCohortPackager, _probe.CohortPackager);
+            SetState(cbCohortExtractor, _probe.Probes["CohortExtractor"].Result);
+            SetState(cbDicomAnonymiser, _probe.Probes["DicomAnonymiser"].Result);
+            SetState(cbIsIdentifiable, _probe.Probes["IsIdentifiable"].Result);
+            SetState(cbCohortPackager, _probe.Probes["CohortPackager"].Result);
         }
 
         private void SetState(CheckBox cb, CheckEventArgs? result)
