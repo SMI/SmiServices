@@ -123,7 +123,7 @@ class Program
         }
         table.AddRow(taskName,
             result == null ? "Not Attempted" : result.Result == CheckResult.Fail ? "[red]Fail[/]" : "[green]Success[/]",
-            sb.ToString().Trim()
+            result?.Result == CheckResult.Fail ?  sb.ToString().Trim() :""
             ) ;
     }
 
