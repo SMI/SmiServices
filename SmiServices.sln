@@ -104,6 +104,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.DicomLoader", "src\applications\Applications.DicomLoader\Applications.DicomLoader.csproj", "{7511DB5B-F806-4B2C-AD2D-0054F143728F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.DicomLoader.Tests", "tests\applications\Applications.DicomLoader.Tests\Applications.DicomLoader.Tests.csproj", "{28162388-F036-478B-97B2-7AD407AECD92}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Setup", "src\applications\Setup\Setup.csproj", "{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -255,6 +256,10 @@ Global
 		{28162388-F036-478B-97B2-7AD407AECD92}.Debug|x64.Build.0 = Debug|x64
 		{28162388-F036-478B-97B2-7AD407AECD92}.Release|x64.ActiveCfg = Release|x64
 		{28162388-F036-478B-97B2-7AD407AECD92}.Release|x64.Build.0 = Release|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Debug|x64.ActiveCfg = Debug|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Debug|x64.Build.0 = Debug|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Release|x64.ActiveCfg = Release|x64
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -298,6 +303,7 @@ Global
 		{2D0D9CEF-7AF1-4779-92BA-5E124233C160} = {A47D6857-A0E0-4604-9E11-3088F32BD378}
 		{7511DB5B-F806-4B2C-AD2D-0054F143728F} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{28162388-F036-478B-97B2-7AD407AECD92} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}
