@@ -27,6 +27,8 @@ class Program
     {
         int exitCode = 0;
 
+        FansiImplementations.Load();
+
         Parser.Default.ParseArguments<SetupOptions>(args)
                    .WithParsed(o =>
                    {
@@ -162,8 +164,6 @@ class Program
         Application.Init();
 
         Application.Driver.UnChecked = 'x';
-
-        FansiImplementations.Load();
 
         // don't log to console!
         LogManager.SuspendLogging();
