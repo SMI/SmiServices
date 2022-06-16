@@ -43,7 +43,8 @@ public class DicomLoaderTests
         var testImages=generator.GenerateStudyImages(new Person(r), out var study);
         var files = string.Join('\0',di.GetFiles("*",new EnumerationOptions {RecurseSubdirectories = true}).Select(x => x.FullName));
         using var fileList=new MemoryStream(Encoding.UTF8.GetBytes(files));
-        typeof(Program).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static)!
+        typeof(Program).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static,
+                new[] { typeof(GlobalOptions), typeof(DicomLoaderOptions), typeof(Stream) })!
             .Invoke(null, new object[]{_gOptions, null!, fileList});
         //Program.OnParse(_gOptions,null!,fileList);
 
