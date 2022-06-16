@@ -30,7 +30,7 @@ namespace Setup
         }
 
         /// <summary>
-        /// Add or Upate
+        /// Add or Update
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
@@ -407,7 +407,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -421,7 +421,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -435,7 +435,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -447,7 +447,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -461,7 +461,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -473,7 +473,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -485,7 +485,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -497,7 +497,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
@@ -509,7 +509,7 @@ namespace Setup
         /// <summary>
         /// Adds or updates the value 
         /// </summary>
-        /// <param name="key">Key for settting</param>
+        /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
