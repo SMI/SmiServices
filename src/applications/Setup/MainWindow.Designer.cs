@@ -78,7 +78,7 @@ namespace Setup {
             this.Border.BorderBrush = Terminal.Gui.Color.Blue;
             this.Border.Effect3D = false;
             this.TextAlignment = Terminal.Gui.TextAlignment.Left;
-            this.Title = null;
+            this.Title = "Setup Tester (Ctrl+Q to exit)";
             this.label1 = new Terminal.Gui.Label();
             this.label1.Width = 12;
             this.label1.Height = 1;
