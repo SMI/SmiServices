@@ -87,9 +87,6 @@ class Program
         AddResult(table, probe.MongoDb, nameof(probe.MongoDb));
         AddResult(table, probe.Rdmp, nameof(probe.Rdmp));
 
-        AddResult(table, probe.DeserializeYaml, nameof(probe.DeserializeYaml));
-
-
         AddResult(table, probe.DicomTagReader,nameof(probe.DicomTagReader));
         AddResult(table, probe.MongoDbPopulator, nameof(probe.MongoDbPopulator));
         AddResult(table, probe.IdentifierMapper, nameof(probe.IdentifierMapper));
