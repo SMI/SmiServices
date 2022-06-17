@@ -279,17 +279,26 @@ class DicomText:
         self._r_text = ''    # XXX could start with '\n' to match semehr behaviour
         self._redacted_text = ''
         self._annotations = annot_list
+        # A 'TextValue' element is not a sequence so manually call the callback
         if 'TextValue' in self._dicom_raw:
             self._dataset_redact_callback(None, self._dicom_raw['TextValue'])
+        # A 'ContentSequence' needs to be walked
         if 'ContentSequence' in self._dicom_raw:
             for content_sequence_item in self._dicom_raw.ContentSequence:
                 content_sequence_item.walk(self._dataset_redact_callback)
         rc = True
+        # Now check that all annotations were redacted, return False if not
         for annot in self._annotations:
             if not annot.get('replaced'):
                 print('ERROR: could not find annotation (%s) in document' % repr(annot['text']))
                 rc = False
         return rc
+
+    def redact_PN_DA_callback(self, dataset, data_element):
+        if data_element.VR == "PN":
+            data_element.value = DicomText._redact_char.rjust(len(data_element.value), DicomText._redact_char)
+        if data_element.VR == "DA":
+            data_element.value = "19000101"
 
     def text(self):
         """ Returns the text after parse() has been called.
@@ -317,6 +326,9 @@ class DicomText:
             dicom_dest.TextValue = self._dicom_raw.TextValue
         if 'ContentSequence' in self._dicom_raw:
             dicom_dest.ContentSequence = self._dicom_raw.ContentSequence
+        # Redact names and dates in case CTP didn't do it
+        dicom_dest.walk(self.redact_PN_DA_callback)
+        # Save the modified file
         dicom_dest.save_as(destfile)
 
 def test_DicomText():

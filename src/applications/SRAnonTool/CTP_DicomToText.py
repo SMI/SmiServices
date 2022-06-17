@@ -163,10 +163,6 @@ if __name__ == '__main__':
             # Merge all the yaml dicts into one
             cfg_dict = Merger([(list, ["append"]),(dict, ["merge"])],["override"],["override"]).merge(cfg_dict, yaml.safe_load(fd))
 
-    # Initialise the PatientID mapping by opening a DB connection
-    if cfg_dict:
-        IdentifierMapper.CHItoEUPI(cfg_dict)
-
     # For reading SRs
     mongo_dicom_host = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('HostName',{})
     mongo_dicom_user = cfg_dict.get('MongoDatabases', {}).get('DicomStoreOptions',{}).get('UserName',{})
@@ -188,6 +184,14 @@ if __name__ == '__main__':
     log_stdout_handler = logging.StreamHandler(sys.stdout)
     logging.basicConfig(level=logging.INFO, handlers=[log_file_handler, log_stdout_handler],
         format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
+
+    # ---------------------------------------------------------------------
+    # Initialise the PatientID mapping by opening a DB connection
+    if cfg_dict:
+        try:
+            IdentifierMapper.CHItoEUPI(cfg_dict)
+        except:
+            logging.warning('Cannot initialise CHI to EUPI mapping (check IdentifierMapperOptions and check database server)')
 
     # ---------------------------------------------------------------------
     if os.path.isfile(args.input):
