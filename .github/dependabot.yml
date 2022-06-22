@@ -10,8 +10,6 @@ updates:
   - rkm
   - tznind
   - jas88
-  ignore:
-  - dependency-name: "fo-dicom*"
 - package-ecosystem: maven
   directory: "/src/common/com.smi.microservices.parent"
   schedule:
