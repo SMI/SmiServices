@@ -13,7 +13,7 @@ do
   if ! find news -name "${i}*.md" -print -quit | grep -q .
   then
     echo -n "Missing news file for PR #${i}:"
-    curl -s https://api.github.com/repos/SMI/SmiServices/pulls/${i} | grep \"title\"|cut -d'"' -f4
+    curl -s https://api.github.com/repos/SMI/SmiServices/pulls/${i} | grep \"title\"|cut -d'"' -f4 | grep . || echo
   fi
 done
 
