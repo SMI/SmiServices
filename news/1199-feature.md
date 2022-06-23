@@ -1,1 +1,0 @@
-Added Setup utility for checking config settings (connection strings, queue setup etc)

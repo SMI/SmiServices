@@ -1,1 +1,0 @@
-Update RabbitMQ Nuget package and associated API calls

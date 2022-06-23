@@ -12,18 +12,11 @@ The release workflow is to checkout a new `release/` branch from master, update 
 
 -   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
     ```console
-    $ git checkout master && git pull
-    $ git log  --oneline <previous_tag>.. | grep -vP "dependabot|Bump|pre-commit-ci" | grep -P '#\d+'
-    ec182696 Merge pull request #430 from SMI/feature/extraction-fixes
-    051a134e Merge pull request #444 from SMI/feature/trigger-updates
-    65fcfe41 Merge pull request #440 from SMI/feature/value-updater
-    8515f059 Merge pull request #438 from SMI/feature/consensus-tidyup
-    38e25c2a Merge pull request #434 from SMI/feature/consensus-rule
-    9d81b942 Merge branch 'master' into develop
-    ee39d850 Merge pull request #408 from SMI/feature/isidentifiable-more-logs
-    c709f7ed Merge pull request #404 from SMI/feature/no-an-suffix
-    d7d90f4a Merge pull request #402 from SMI/feature/update-docs
-    830bac67 Merge branch 'master' into develop
+    $ git checkout master && git pull && ./bin/release/missing-news.sh
+    Missing news file for PR #1151:Explicitly initialise LocalDB on Windows
+    Missing news file for PR #1042:Is ident package use
+    Missing news file for PR #1079:bump all HIC libraries to latest, and fo-dicom to 4.0.8
+    Missing news file for PR #1057:[Snyk] Security upgrade edu.stanford.nlp:stanford-corenlp from 3.9.2 to 4.3.1
     ```
     Go through these PRs and check each has an accurate [news file][news_files] entry. Create any missing files if needed.
 
@@ -43,7 +36,7 @@ The release workflow is to checkout a new `release/` branch from master, update 
     Switched to a new branch 'release/v1.2.3'
     ```
 
--   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running the `utils/updateChangelog.py` script. Review the diff and check for any obvious errors.
+-   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running the `bin/release/updateChangelog.py` script. Review the diff and check for any obvious errors.
 
 -   Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
     -   `README.md`: Bump the version in the header
