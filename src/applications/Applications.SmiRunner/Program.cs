@@ -10,6 +10,7 @@ namespace Applications.SmiRunner
     {
         public static readonly Type[] AllApplications =
         {
+            typeof(DicomLoaderVerb),
             typeof(DicomDirectoryProcessorVerb),
             typeof(ExtractImagesVerb),
             typeof(IsIdentifiableReviewerVerb),
@@ -33,10 +34,9 @@ namespace Applications.SmiRunner
 
         internal static int Main(string[] args)
         {
-            IEnumerable<string> rest = args.Skip(1);
+            var rest = args.Skip(1);
 
-            var allTypes = new List<Type>();
-            allTypes.AddRange(AllApplications);
+            var allTypes = new List<Type>(AllApplications);
             allTypes.AddRange(AllServices);
 
             int res;
@@ -52,6 +52,7 @@ namespace Applications.SmiRunner
                         return service switch
                         {
                             // Applications
+                            DicomLoaderVerb _   => Applications.DicomLoader.Program.Main(rest),
                             TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
                             ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
