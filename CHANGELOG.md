@@ -11,62 +11,6 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
-## [5.1.0] 2022-06-23
-
-## Feature
-
--   [#1074](https://github.com/SMI/SmiServices/pull/1074) by rkm. Switch CI to
-    GitHub Actions
--   [#1134](https://github.com/SMI/SmiServices/pull/1134) by jas88. Remove
-    DeadLetterReprocessor and associated code, more elegant native RabbitMQ
-    approach available if needed.
--   [#1199](https://github.com/SMI/SmiServices/pull/1199) by tznind. Added Setup
-    utility for checking config settings (connection strings, queue setup etc)
-
-## Bugfix
-
--   [#1087](https://github.com/SMI/SmiServices/pull/1087) by rkm. [CI] Misc. CI
-    fixes
-    -   Fixes the build scripts to respect any intermediate non-zero return
-        codes
-    -   Fixes the build scripts to only build `linux-x64` and `win-x64`
-    -   Fixes the build scripts to select the correct build configuration
-    -   Removes a bogus test leftover from #1089
-    -   Temporarily disables a few tests requiring a fix for the `leptonica`
-        libs
--   [#1088](https://github.com/SMI/SmiServices/pull/1088) by rkm. Use
-    DirectConnection instead of obsolete ConnectionMode. Fixes #990
--   [#1089](https://github.com/SMI/SmiServices/pull/1089) by rkm. Remove invalid
-    extraction modality check. Fixes #1059
--   [#1128](https://github.com/SMI/SmiServices/pull/1128) by jas88. Update
-    RabbitMQ Nuget package and associated API calls
--   [#1138](https://github.com/SMI/SmiServices/pull/1138) by jas88. Use
-    Chocolatey to install SQL 2019 LocalDB instead of Powershell script
--   [#929](https://github.com/SMI/SmiServices/pull/929) by howff. Structured
-    Reports improvements from PR#929
-    -   Updated documentation
-    -   Simplify SRAnonTool using external program semehr_anon.py
-    -   Handle ConceptNameCodeSequence which has VR but no Value
-    -   Ensure 'replaced' flag is not reset
-    -   Write replacement DICOM whichever content tag is found
-    -   Extract metadata from Mongo to go alongside anonymised text
-    -   Redact numeric DICOM tags with all '9' not all 'X'
-    -   Allow badly-formatted text content which contains HTML but does not
-        escape non-HTML symbols
-
-## Change
-
--   [#1023](https://github.com/SMI/SmiServices/pull/1023) by jas88. RabbitMQ
-    tidyup
-    -   Fix both C# and Java server version check logic
-    -   Reuse Connection more per RabbitMQ guidance
-    -   Tidy up some Java exception handling logic
-
-## Meta
-
--   [#1082](https://github.com/SMI/SmiServices/pull/1082) by rkm. CI: Don't exit
-    early if a single test project has failures
-
 ## [5.0.1] 2022-02-18
 
 ## Bugfix
@@ -1091,8 +1035,7 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.0...master
-[5.1.0]: https://github.com/SMI/SmiServices/compare/v5.0.1...v5.1.0
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.0.1...master
 [5.0.1]: https://github.com/SMI/SmiServices/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/SMI/SmiServices/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/SMI/SmiServices/compare/v3.2.1...v4.0.0

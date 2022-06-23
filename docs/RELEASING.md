@@ -36,7 +36,7 @@ The release workflow is to checkout a new `release/` branch from master, update 
     Switched to a new branch 'release/v1.2.3'
     ```
 
--   Update the [CHANGELOG](/CHANGELOG.md) for the new release by running `./bin/release/updateChangelog.py`. Review the diff and check for any obvious errors.
+-   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running the `bin/release/updateChangelog.py` script. Review the diff and check for any obvious errors.
 
 -   Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
     -   `README.md`: Bump the version in the header
