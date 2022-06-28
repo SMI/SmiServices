@@ -4,6 +4,9 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="HIC.RDMP.Dicom" Version="5.0.10" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
   </ItemGroup>
 </Project>

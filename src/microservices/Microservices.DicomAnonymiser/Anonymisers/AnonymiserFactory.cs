@@ -5,9 +5,20 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 {
     public static class AnonymiserFactory
     {
-        public static IDicomAnonymiser CreateAnonymiser(DicomAnonymiserOptions dicomAnonymiserOptions)
+        public static IDicomAnonymiser CreateAnonymiser(GlobalOptions globals, DicomAnonymiserOptions dicomAnonymiserOptions)
         {
             var anonymiserTypeStr = dicomAnonymiserOptions.AnonymiserType;
+
+            if(anonymiserTypeStr.StartsWith(nameof(RdmpFoDicomAnonymiser)))
+            {
+                var tokens = anonymiserTypeStr.Split(":");
+                if (tokens.Length != 2 || !int.TryParse(tokens[1], out _))
+                {
+                    throw new Exception("Expected a type string in the format 'RdmpFoDicomAnonymiser:134' where the number indicates the ID of the anonymiser PipelineComponent in RDMP");
+                }
+                return new RdmpFoDicomAnonymiser(globals,int.Parse(tokens[1]));
+            }
+
             if (!Enum.TryParse(anonymiserTypeStr, ignoreCase: true, out AnonymiserType anonymiserType))
                 throw new ArgumentException($"Could not parse '{anonymiserTypeStr}' to a valid AnonymiserType");
 
