@@ -29,14 +29,11 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         private ThrowImmediatelyDataLoadEventListener _listener;
         private ZipPool _zipPool;
 
-        public RdmpFoDicomAnonymiser(GlobalOptions globals, int id)
+        public RdmpFoDicomAnonymiser(IRDMPPlatformRepositoryServiceLocator repositoryServiceLocator, int id)
         {
             ID = id;
+            _repo = repositoryServiceLocator;
             
-            _repo = new LinkedRepositoryProvider(
-            globals.RDMPOptions.CatalogueConnectionString,
-            globals.RDMPOptions.DataExportConnectionString);
-
             var startup = new Startup(new EnvironmentInfo(), _repo);
             startup.DoStartup(new ThrowImmediatelyCheckNotifier());
 
@@ -68,6 +65,10 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 
         public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile)
         {
+            // create where we are putting it incase it doesn't
+            // exist yet
+            destFile.Directory.Create();
+
             _anonymiserComponent.ProcessFile(
                 new AmbiguousFilePath(sourceFile.FullName), _listener, _zipPool, "ANON", new PutHere(destFile), null);
 

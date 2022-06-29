@@ -1,4 +1,5 @@
-﻿using Smi.Common.Options;
+﻿using Rdmp.Core.Startup;
+using Smi.Common.Options;
 using System;
 
 namespace Microservices.DicomAnonymiser.Anonymisers
@@ -16,7 +17,13 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                 {
                     throw new Exception("Expected a type string in the format 'RdmpFoDicomAnonymiser:134' where the number indicates the ID of the anonymiser PipelineComponent in RDMP");
                 }
-                return new RdmpFoDicomAnonymiser(globals,int.Parse(tokens[1]));
+
+
+                var repo = new LinkedRepositoryProvider(
+                globals.RDMPOptions.CatalogueConnectionString,
+                globals.RDMPOptions.DataExportConnectionString);
+
+                return new RdmpFoDicomAnonymiser(repo,int.Parse(tokens[1]));
             }
 
             if (!Enum.TryParse(anonymiserTypeStr, ignoreCase: true, out AnonymiserType anonymiserType))
