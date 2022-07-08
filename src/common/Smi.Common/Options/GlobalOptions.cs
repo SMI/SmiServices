@@ -408,6 +408,12 @@ namespace Smi.Common.Options
         /// </summary>
         public ExtractionIdentifierSwappingOptions ExtractionIdentifierSwapping { get; set; }
 
+        // TODO(rkm 2022-07-08) We may need to raise this to the global namespace instead of hanging it off CohortExtractorOptions
+        /// <summary>
+        /// The prefix to use when generating replacement UIDs.
+        /// </summary>
+        public string UIDPrefix { get; set; }
+
         public override string ToString()
         {
             return GlobalOptions.GenerateToString(this);
