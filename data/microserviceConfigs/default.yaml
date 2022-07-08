@@ -62,6 +62,7 @@ TriggerUpdatesOptions:
     MaxConfirmAttempts: 1
 
 CohortExtractorOptions:
+    GeneratedUIDPrefix: "83777349" # "SMI1" in ASCII
     QueueName: 'TEST.RequestQueue'
     QoSPrefetchCount: 10000
     AutoAck: false

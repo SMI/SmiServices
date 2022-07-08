@@ -21,9 +21,6 @@ namespace Smi.Common.Helpers
         // https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
         private const string _uidCharset = "0123456789";
 
-        // The "derived UID" prefix, plus "SMI1" in ASCII
-        //private const string _prefix = "2.25.83777349.";
-
         private readonly string _prefix;
         private readonly int _postfixLength;
 

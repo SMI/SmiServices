@@ -184,7 +184,7 @@ namespace Microservices.CohortExtractor.Execution
 
                     // if we were able to setup a swapper then configure the static
                     // delegate to use UIDs instead of Guids
-                    var uidGenerator = new SmiDicomUIDGenerator(Globals.CohortExtractorOptions.UIDPrefix);
+                    var uidGenerator = new SmiDicomUIDGenerator(Globals.CohortExtractorOptions.GeneratedUIDPrefix);
                     ForGuidIdentifierSwapper.GuidAllocator = () => uidGenerator.Generate();
                 }
                 catch (Exception ex)
