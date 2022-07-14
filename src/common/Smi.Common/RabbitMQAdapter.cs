@@ -48,6 +48,7 @@ namespace Smi.Common
         private readonly IConnection _connection;
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new();
         private readonly object _oResourceLock = new();
+        private readonly object _exitLock = new();
 
         private const int MinRabbitServerVersionMajor = 3;
         private const int MinRabbitServerVersionMinor = 7;
@@ -80,7 +81,7 @@ namespace Smi.Common
             }
 
             if (string.IsNullOrWhiteSpace(hostId))
-                throw new ArgumentException("hostId");
+                throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
             _hostId = hostId;
 
             _connection = connectionFactory.CreateConnection(hostId);
@@ -92,7 +93,7 @@ namespace Smi.Common
 
             _hostFatalHandler = hostFatalHandler;
 
-            CheckValidServerSettings(_connection);
+            CheckValidServerSettings();
         }
 
 
@@ -297,12 +298,14 @@ namespace Smi.Common
                 }
                 _rabbitResources.Clear();
             }
+            lock(_exitLock)
+                Monitor.PulseAll(_exitLock);
         }
 
         /// <summary>
         /// Checks that the minimum RabbitMQ server version is met
         /// </summary>
-        private void CheckValidServerSettings(IConnection connection)
+        private void CheckValidServerSettings()
         {
             if (!_connection.ServerProperties.ContainsKey("version"))
                 throw new ApplicationException("Could not get RabbitMQ server version");
@@ -382,6 +385,17 @@ namespace Smi.Common
         }
 
         #endregion
+
+        public void Wait()
+        {
+            lock (_exitLock)
+            {
+                while (!ShutdownCalled)
+                {
+                    Monitor.Wait(_exitLock);
+                }
+            }
+        }
     }
 
 }

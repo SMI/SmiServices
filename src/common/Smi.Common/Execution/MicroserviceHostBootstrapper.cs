@@ -67,9 +67,9 @@ namespace Smi.Common.Execution
                 return -2;
             }
             
-            // Only thing keeping process from exiting after this point are any
-            // running tasks (i.e. RabbitMQ consumer tasks)
+            // Wait until Rabbit tasks are finished:
 
+            host.Wait();
             Console.WriteLine("MicroserviceHostBootstrapper exiting. Service will exit when consumer threads are joined");
             return 0;
         }

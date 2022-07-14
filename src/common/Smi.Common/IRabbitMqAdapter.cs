@@ -18,6 +18,7 @@ namespace Smi.Common
         IModel GetModel(string connectionName);
 
         void Shutdown(TimeSpan timeout);
+        public void Wait();
 
         // Dreams of .NET Core 3.0...
         // void Shutdown() => Shutdown(TimeSpan.FromSeconds(5));
