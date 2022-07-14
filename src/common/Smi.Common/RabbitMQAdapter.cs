@@ -298,7 +298,8 @@ namespace Smi.Common
                 }
                 _rabbitResources.Clear();
             }
-            Monitor.PulseAll(_exitLock);
+            lock(_exitLock)
+                Monitor.PulseAll(_exitLock);
         }
 
         /// <summary>
