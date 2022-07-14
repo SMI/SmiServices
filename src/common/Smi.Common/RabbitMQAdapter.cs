@@ -48,6 +48,7 @@ namespace Smi.Common
         private readonly IConnection _connection;
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new();
         private readonly object _oResourceLock = new();
+        private readonly object _exitLock = new();
 
         private const int MinRabbitServerVersionMajor = 3;
         private const int MinRabbitServerVersionMinor = 7;
@@ -297,7 +298,7 @@ namespace Smi.Common
                 }
                 _rabbitResources.Clear();
             }
-            Monitor.PulseAll(this);
+            Monitor.PulseAll(_exitLock);
         }
 
         /// <summary>
@@ -386,11 +387,11 @@ namespace Smi.Common
 
         public void Wait()
         {
-            lock (this)
+            lock (_exitLock)
             {
                 while (!ShutdownCalled)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_exitLock);
                 }
             }
         }
