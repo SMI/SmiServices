@@ -187,5 +187,10 @@ namespace Smi.Common.Execution
 
             Stop($"Fatal error in MicroserviceHost ({msg})");
         }
+
+        public void Wait()
+        {
+            RabbitMqAdapter.Wait();
+        }
     }
 }

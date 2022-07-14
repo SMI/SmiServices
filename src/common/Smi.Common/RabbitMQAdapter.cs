@@ -80,7 +80,7 @@ namespace Smi.Common
             }
 
             if (string.IsNullOrWhiteSpace(hostId))
-                throw new ArgumentException("hostId");
+                throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
             _hostId = hostId;
 
             _connection = connectionFactory.CreateConnection(hostId);
@@ -92,7 +92,7 @@ namespace Smi.Common
 
             _hostFatalHandler = hostFatalHandler;
 
-            CheckValidServerSettings(_connection);
+            CheckValidServerSettings();
         }
 
 
@@ -297,12 +297,13 @@ namespace Smi.Common
                 }
                 _rabbitResources.Clear();
             }
+            Monitor.PulseAll(this);
         }
 
         /// <summary>
         /// Checks that the minimum RabbitMQ server version is met
         /// </summary>
-        private void CheckValidServerSettings(IConnection connection)
+        private void CheckValidServerSettings()
         {
             if (!_connection.ServerProperties.ContainsKey("version"))
                 throw new ApplicationException("Could not get RabbitMQ server version");
@@ -382,6 +383,17 @@ namespace Smi.Common
         }
 
         #endregion
+
+        public void Wait()
+        {
+            lock (this)
+            {
+                while (!ShutdownCalled)
+                {
+                    Monitor.Wait(this);
+                }
+            }
+        }
     }
 
 }
