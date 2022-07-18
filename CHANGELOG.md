@@ -11,6 +11,14 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.1.1] 2022-07-18
+
+## Bugfix
+
+-   [#1216](https://github.com/SMI/SmiServices/pull/1216) by jas88. Bugfix:
+    issue #1217, microservices prematurely exiting since RabbitMQ no longer
+    delays completion
+
 ## [5.1.0] 2022-06-23
 
 ## Feature
@@ -1096,7 +1104,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.1...master
+[5.1.1]: https://github.com/SMI/SmiServices/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/SMI/SmiServices/compare/v5.0.1...v5.1.0
 [5.0.1]: https://github.com/SMI/SmiServices/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/SMI/SmiServices/compare/v4.0.0...v5.0.0
