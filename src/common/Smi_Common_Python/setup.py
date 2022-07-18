@@ -37,17 +37,11 @@ def version_from_AssemblyInfo():
         ver = '0.0.0'
     return(ver)
 
-def find_source_path():
-    """ The path to the packages, so you can call setup.py from its own directory or from the repo root """
-    if isdir('src/common/Smi_Common_Python'):
-        return('src/common/Smi_Common_Python')
-    return('.')
-
 setup(
     name='SmiServices',
     version=version_from_AssemblyInfo(),
-    packages=find_packages(where=find_source_path(), exclude=('tests',)),
-    package_dir={'':find_source_path()},
+    packages=find_packages(where=dirname(__file__), exclude=('tests',)),
+    package_dir={'':dirname(__file__)},
     url='https://github.com/SMI/SmiServices',
     license='GPLv3',
     description='Common Python modules for SmiServices',
