@@ -11,6 +11,14 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.1.2] 2022-07-18
+
+## Bugfix
+
+-   [#1223](https://github.com/SMI/SmiServices/pull/1223) by rkm. Fix setup.py
+    in Smi_Common_Python to include all files, regardless of the current
+    directory.
+
 ## [5.1.1] 2022-07-18
 
 ## Bugfix
@@ -1104,7 +1112,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.1...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.2...master
+[5.1.2]: https://github.com/SMI/SmiServices/compare/v5.1.1...v5.1.2
 [5.1.1]: https://github.com/SMI/SmiServices/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/SMI/SmiServices/compare/v5.0.1...v5.1.0
 [5.0.1]: https://github.com/SMI/SmiServices/compare/v5.0.0...v5.0.1
