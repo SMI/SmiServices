@@ -8,5 +8,5 @@ using System.Reflection;
 
 // These should be overwritten by release builds
 [assembly: AssemblyVersion("5.1.1")]
-[assembly: AssemblyFileVersion("5.1.1")]
-[assembly: AssemblyInformationalVersion("5.1.1")] // This one can have the extra build info after it
+[assembly: AssemblyFileVersion("5.1.2")]
+[assembly: AssemblyInformationalVersion("5.1.2")] // This one can have the extra build info after it
