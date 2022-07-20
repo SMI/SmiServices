@@ -28,6 +28,6 @@
     <Folder Include="x64\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="IsIdentifiable" Version="0.0.4" />
+    <PackageReference Include="IsIdentifiable" Version="0.0.5" />
   </ItemGroup>
 </Project>
