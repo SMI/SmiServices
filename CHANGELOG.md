@@ -11,6 +11,10 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.1.3] 2022-07-21
+
+-   [#1229](https://github.com/SMI/SmiServices/pull/1229) by dependabot. Bump IsIdentifiable from 0.0.4 to 0.0.5 to fix broken API
+
 ## [5.1.2] 2022-07-18
 
 ## Bugfix
@@ -1112,7 +1116,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.2...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.3...master
+[5.1.3]: https://github.com/SMI/SmiServices/compare/v5.1.2...v5.1.3
 [5.1.2]: https://github.com/SMI/SmiServices/compare/v5.1.1...v5.1.2
 [5.1.1]: https://github.com/SMI/SmiServices/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/SMI/SmiServices/compare/v5.0.1...v5.1.0
