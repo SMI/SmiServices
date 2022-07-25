@@ -13,15 +13,24 @@ namespace Microservices.IsIdentifiable.Service
     public class IsIdentifiableQueueConsumer : Consumer<ExtractedFileStatusMessage>, IDisposable
     {
         private readonly IProducerModel _producer;
-        private readonly IFileSystem _fileSystem = new FileSystem();
+        private readonly IFileSystem _fileSystem;
         private readonly string _extractionRoot;
         private readonly IClassifier _classifier;
 
-        public IsIdentifiableQueueConsumer(IProducerModel producer, string extractionRoot, IClassifier classifier)
+        public IsIdentifiableQueueConsumer(
+            IProducerModel producer,
+            string extractionRoot,
+            IClassifier classifier,
+            IFileSystem fileSystem = null
+        )
         {
             _producer = producer ?? throw new ArgumentNullException(nameof(producer));
             _extractionRoot = string.IsNullOrWhiteSpace(extractionRoot) ? throw new ArgumentException($"Argument cannot be null or whitespace", nameof(extractionRoot)) : extractionRoot; ;
             _classifier = classifier ?? throw new ArgumentNullException(nameof(classifier));
+            _fileSystem = fileSystem ?? new FileSystem();
+
+            if (!_fileSystem.Directory.Exists(_extractionRoot))
+                throw new DirectoryNotFoundException($"Could not find the extraction root '{_extractionRoot}' in the filesystem");
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileStatusMessage message, ulong tag)

@@ -1,9 +1,11 @@
-﻿using Microservices.IsIdentifiable.Service;
+using Microservices.IsIdentifiable.Service;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messaging;
 using Smi.Common.Tests;
 using System;
+using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Microservices.IsIdentifiable.Tests.Service
 {
@@ -84,6 +86,38 @@ namespace Microservices.IsIdentifiable.Tests.Service
                 );
             });
             Assert.AreEqual("Value cannot be null. (Parameter 'classifier')", exc.Message);
+        }
+
+        [Test]
+        public void Constructor_MissingExtractRoot_ThrowsException()
+        {
+            var mockFs = new MockFileSystem();
+
+            var exc = Assert.Throws<DirectoryNotFoundException>(() =>
+            {
+                new IsIdentifiableQueueConsumer(
+                   new Mock<IProducerModel>().Object,
+                   "foo",
+                   new Mock<IClassifier>().Object,
+                   mockFs
+                );
+            });
+            Assert.AreEqual("Could not find the extraction root 'foo' in the filesystem", exc.Message);
+        }
+
+        [Test]
+        public void Constructor_ValidExtractRoot_DoesNotThrowException()
+        {
+            var mockFs = new MockFileSystem();
+
+            var dir = mockFs.DirectoryInfo.FromDirectoryName("foo");
+            dir.Create();
+            var _ = new IsIdentifiableQueueConsumer(
+                   new Mock<IProducerModel>().Object,
+                   dir.FullName,
+                   new Mock<IClassifier>().Object,
+                   mockFs
+            );
         }
 
         #endregion
