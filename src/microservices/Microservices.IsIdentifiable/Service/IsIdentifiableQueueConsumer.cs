@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Abstractions;
 using NLog;
@@ -14,14 +14,12 @@ namespace Microservices.IsIdentifiable.Service
     {
         private readonly IProducerModel _producer;
         private readonly IFileSystem _fileSystem = new FileSystem();
-        private readonly string _fileSystemRoot;
         private readonly string _extractionRoot;
         private readonly IClassifier _classifier;
 
-        public IsIdentifiableQueueConsumer(IProducerModel producer, string fileSystemRoot, string extractionRoot, IClassifier classifier)
+        public IsIdentifiableQueueConsumer(IProducerModel producer, string extractionRoot, IClassifier classifier)
         {
             _producer = producer;
-            _fileSystemRoot = fileSystemRoot;
             _extractionRoot = extractionRoot;
             _classifier = classifier;
         }
