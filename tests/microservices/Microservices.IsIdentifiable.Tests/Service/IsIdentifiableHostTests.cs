@@ -6,7 +6,7 @@ using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 
-namespace Microservices.IsIdentifiable.Tests.ServiceTests
+namespace Microservices.IsIdentifiable.Tests.Service
 {
     [TestFixture, RequiresRabbit]
     public class IsIdentifiableHostTests
