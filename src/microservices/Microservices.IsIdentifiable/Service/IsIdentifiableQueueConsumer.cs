@@ -1,12 +1,14 @@
-using System;
-using System.IO;
-using System.IO.Abstractions;
+using IsIdentifiable.Reporting;
+using Newtonsoft.Json;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
-using Newtonsoft.Json;
-using IsIdentifiable.Reporting;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -35,48 +37,57 @@ namespace Microservices.IsIdentifiable.Service
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileStatusMessage message, ulong tag)
         {
-            bool isClean = true;
-            object resultObject;
+            // We should only ever receive messages regarding anonymised images
+            if (message.Status != ExtractedFileStatus.Anonymised)
+                throw new ApplicationException($"Received a message with anonymised status and message: '{message.Status}'");
 
-            try
+            IFileInfo toProcess = _fileSystem.FileInfo.FromFileName(
+                _fileSystem.Path.Combine(
+                    _extractionRoot,
+                    message.ExtractionDirectory,
+                    message.OutputFilePath
+                )
+            );
+
+            if (!toProcess.Exists)
             {
-                // We should only ever receive messages regarding anonymised images
-                if (message.Status != ExtractedFileStatus.Anonymised)
-                    throw new ApplicationException($"Received a message with anonymised status of {message.Status}");
-
-                IFileInfo toProcess = _fileSystem.FileInfo.FromFileName( Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputFilePath) );
-
-                if(!toProcess.Exists)
-                    throw new ApplicationException("IsIdentifiable service cannot find file "+toProcess.FullName);
-
-                var result = _classifier.Classify(toProcess);
-
-                foreach (Failure f in result)
-                {
-                    Logger.Log(LogLevel.Info,$"Validation failed for {f.Resource} Problem Value:{f.ProblemValue}");
-                    isClean = false;
-                }
-                resultObject = result;
-            }
-            catch (ApplicationException e)
-            {
-                // Catch specific exceptions we are aware of, any uncaught will bubble up to the wrapper
-                ErrorAndNack(header, tag, "Error while processing AnonSuccessMessage", e);
+                ErrorAndNack(
+                    header,
+                    tag,
+                    $"Exception while processing {message.GetType().Name}",
+                    new ApplicationException($"Could not find '{toProcess.FullName}'")
+                );
                 return;
             }
 
-            _producer.SendMessage(new ExtractedFileVerificationMessage(message)
+            IEnumerable<Failure> failures;
+
+            try
             {
-                IsIdentifiable = ! isClean,
-                Report = JsonConvert.SerializeObject(resultObject)
-            }, header);
+                failures = _classifier.Classify(toProcess);
+            }
+            catch (ArithmeticException ae)
+            {
+                ErrorAndNack(header, tag, $"Exception while classifying {message.GetType().Name}", ae);
+                return;
+            }
+
+            foreach (Failure f in failures)
+                Logger.Log(LogLevel.Info, $"Validation failed for {f.Resource} Problem Value:{f.ProblemValue}");
+
+            var response = new ExtractedFileVerificationMessage(message)
+            {
+                IsIdentifiable = failures.Any(),
+                Report = JsonConvert.SerializeObject(failures),
+            };
+            _producer.SendMessage(response, header);
 
             Ack(header, tag);
         }
 
         public void Dispose()
         {
-            if(_classifier is IDisposable d)
+            if (_classifier is IDisposable d)
                 d.Dispose();
         }
     }
