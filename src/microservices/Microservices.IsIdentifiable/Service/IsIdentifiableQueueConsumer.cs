@@ -19,9 +19,9 @@ namespace Microservices.IsIdentifiable.Service
 
         public IsIdentifiableQueueConsumer(IProducerModel producer, string extractionRoot, IClassifier classifier)
         {
-            _producer = producer;
-            _extractionRoot = extractionRoot;
-            _classifier = classifier;
+            _producer = producer ?? throw new ArgumentNullException(nameof(producer));
+            _extractionRoot = string.IsNullOrWhiteSpace(extractionRoot) ? throw new ArgumentException($"Argument cannot be null or whitespace", nameof(extractionRoot)) : extractionRoot; ;
+            _classifier = classifier ?? throw new ArgumentNullException(nameof(classifier));
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileStatusMessage message, ulong tag)
