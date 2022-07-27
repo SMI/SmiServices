@@ -57,6 +57,10 @@ namespace Microservices.IsIdentifiable.Tests.Service
             options.IsIdentifiableServiceOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
             options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
+            var extractRoot = Path.Join(Path.GetTempPath(), "extractRoot");
+            Directory.CreateDirectory(extractRoot);
+            options.FileSystemOptions.ExtractRoot = extractRoot;
+
             var host = new IsIdentifiableHost(options);
             Assert.IsNotNull(host);
             host.Start();
