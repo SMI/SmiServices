@@ -1,8 +1,11 @@
-﻿using IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Service;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
+using Smi.Common.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -12,12 +15,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq.Expressions;
 
 namespace Microservices.IsIdentifiable.Tests.Service
 {
     public class IsIdentifiableQueueConsumerTests
     {
         #region Fixture Methods
+
+        private MockFileSystem _mockFs;
+        private IDirectoryInfo _extractRootDirInfo;
+        private string _extractDir;
+        ExtractedFileStatusMessage _extractedFileStatusMessage;
+        private Mock<IModel> _mockModel;
+        FatalErrorEventArgs _fatalArgs;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -33,10 +44,51 @@ namespace Microservices.IsIdentifiable.Tests.Service
         #region Test Methods
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _mockFs = new MockFileSystem();
+            _extractRootDirInfo = _mockFs.Directory.CreateDirectory("extract");
+
+            var extractDirName = "extractDir";
+            _extractDir = _mockFs.Path.Combine(_extractRootDirInfo.FullName, extractDirName);
+            _mockFs.Directory.CreateDirectory(_extractDir);
+            _mockFs.AddFile(_mockFs.Path.Combine(_extractDir, "foo-an.dcm"), null);
+
+            _extractedFileStatusMessage = new ExtractedFileStatusMessage
+            {
+                DicomFilePath = "foo.dcm",
+                Status = ExtractedFileStatus.Anonymised,
+                ProjectNumber = "proj1",
+                ExtractionDirectory = extractDirName,
+                OutputFilePath = "foo-an.dcm",
+            };
+
+            _mockModel = new Mock<IModel>(MockBehavior.Strict);
+            _mockModel.Setup(x => x.IsClosed).Returns(false);
+            _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
+            _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
+
+            _fatalArgs = null;
+        }
 
         [TearDown]
         public void TearDown() { }
+
+        private IsIdentifiableQueueConsumer GetNewIsIdentifiableQueueConsumer(
+            IProducerModel mockProducerModel = null,
+            IClassifier mockClassifier = null
+        )
+        {
+            var consumer = new IsIdentifiableQueueConsumer(
+                mockProducerModel ?? new Mock<IProducerModel>(MockBehavior.Strict).Object,
+                _extractRootDirInfo.FullName,
+                mockClassifier ?? new Mock<IClassifier>(MockBehavior.Strict).Object,
+                _mockFs
+            );
+            consumer.SetModel(_mockModel.Object);
+            consumer.OnFatal += (_, args) => _fatalArgs = args;
+            return consumer;
+        }
 
         #endregion
 
@@ -112,72 +164,107 @@ namespace Microservices.IsIdentifiable.Tests.Service
         }
 
         [Test]
-        public void Constructor_ValidExtractRoot_DoesNotThrowException()
+        public void ProcessMessage_HappyPath_NoFailures()
         {
-            var mockFs = new MockFileSystem();
-
-            var dir = mockFs.DirectoryInfo.FromDirectoryName("foo");
-            dir.Create();
-            var _ = new IsIdentifiableQueueConsumer(
-                   new Mock<IProducerModel>().Object,
-                   dir.FullName,
-                   new Mock<IClassifier>().Object,
-                   mockFs
-            );
-        }
-
-        [Test]
-        public void ProcessMessage_HappyPath()
-        {
-            // Arrange
-
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
+            Expression<Func<IProducerModel, IMessageHeader>> expectedSendMessageCall =
+                x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
+            ExtractedFileVerificationMessage response = null;
             mockProducerModel
-                .Setup(
-                    x => x.SendMessage(
-                        It.IsAny<ExtractedFileVerificationMessage>(),
-                        null,
-                        ""
-                    )
-                )
+                .Setup(expectedSendMessageCall)
+                .Callback<IMessage, IMessageHeader, string>((x, _, _) => response = (ExtractedFileVerificationMessage)x)
                 .Returns(new MessageHeader());
 
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
             mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(new List<Failure>());
 
-            var mockFs = new MockFileSystem();
-            var mockExtractRoot = mockFs.Directory.CreateDirectory("extractRoot");
-            var mockExtractionDir = mockFs.Directory.CreateDirectory($"{mockExtractRoot}/proj1/extractions/ex1");
-            mockFs.AddFile($"{mockExtractionDir}/foo-an.dcm", null);
-
-            var mockModel = new Mock<IModel>(MockBehavior.Strict);
-            mockModel.Setup(x => x.IsClosed).Returns(false);
-            mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
-
-            var consumer = new IsIdentifiableQueueConsumer(
-                mockProducerModel.Object,
-                mockExtractRoot.FullName,
-                mockClassifier.Object,
-                mockFs
-            );
-            consumer.SetModel(mockModel.Object);
-
-            var message = new ExtractedFileStatusMessage
-            {
-                DicomFilePath = "/src/foo.dcm",
-                Status = ExtractedFileStatus.Anonymised,
-                ProjectNumber = "proj1",
-                ExtractionDirectory = "proj1/extractions/ex1",
-                OutputFilePath = "foo-an.dcm",
-            };
+            var consumer = GetNewIsIdentifiableQueueConsumer(mockProducerModel.Object, mockClassifier.Object);
 
             // Act
 
-            consumer.TestMessage(message);
+            consumer.TestMessage(_extractedFileStatusMessage);
 
             // Assert
 
+            Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(1, consumer.AckCount);
+            mockProducerModel.Verify(expectedSendMessageCall, Times.Once);
+            Assert.AreEqual(false, response.IsIdentifiable);
+            Assert.AreEqual("[]", response.Report);
+        }
+
+        [Test]
+        public void ProcessMessage_HappyPath_WithFailures()
+        {
+            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
+            Expression<Func<IProducerModel, IMessageHeader>> expectedSendMessageCall =
+                x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
+            ExtractedFileVerificationMessage response = null;
+            mockProducerModel
+                .Setup(expectedSendMessageCall)
+                .Callback<IMessage, IMessageHeader, string>((x, _, _) => response = (ExtractedFileVerificationMessage)x)
+                .Returns(new MessageHeader());
+
+            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
+            var failure = new Failure(new List<FailurePart> { new FailurePart("foo", FailureClassification.Person, 123) });
+            var failures = new List<Failure> { failure };
+            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(failures);
+
+            var consumer = GetNewIsIdentifiableQueueConsumer(mockProducerModel.Object, mockClassifier.Object);
+
+            // Act
+
+            consumer.TestMessage(_extractedFileStatusMessage);
+
+            // Assert
+
+            Assert.AreEqual(0, consumer.NackCount);
+            Assert.AreEqual(1, consumer.AckCount);
+            mockProducerModel.Verify(expectedSendMessageCall, Times.Once);
+            Assert.AreEqual(true, response.IsIdentifiable);
+            Assert.AreEqual(JsonConvert.SerializeObject(failures), response.Report);
+        }
+
+        [Test]
+        public void ProcessMessage_ExtractedFileStatusNotAnonymised_ThrowsException()
+        {
+            // Arrange
+
+            var consumer = GetNewIsIdentifiableQueueConsumer();
+
+            _extractedFileStatusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
+            _extractedFileStatusMessage.StatusMessage = "foo";
+
+            // Act
+
+            consumer.TestMessage(_extractedFileStatusMessage);
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
+            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
+            Assert.AreEqual("Received an ExtractedFileStatusMessage message with status 'ErrorWontRetry' and message 'foo'", _fatalArgs.Exception.Message);
+            Assert.AreEqual(0, consumer.NackCount);
+            Assert.AreEqual(0, consumer.AckCount);
+        }
+
+        [Test]
+        public void ProcessMessage_MissingFile_ErrorAndNack()
+        {
+            // Arrange
+
+            var consumer = GetNewIsIdentifiableQueueConsumer();
+
+            _extractedFileStatusMessage.OutputFilePath = "bar-an.dcm";
+
+            // Act
+
+            consumer.TestMessage(_extractedFileStatusMessage);
+
+            // Assert
+
+            Assert.AreEqual(0, consumer.AckCount);
+            Assert.AreEqual(1, consumer.NackCount);
         }
 
         #endregion

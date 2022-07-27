@@ -39,7 +39,7 @@ namespace Microservices.IsIdentifiable.Service
         {
             // We should only ever receive messages regarding anonymised images
             if (message.Status != ExtractedFileStatus.Anonymised)
-                throw new ApplicationException($"Received a message with anonymised status and message: '{message.Status}'");
+                throw new ApplicationException($"Received an {message.GetType().Name} message with status '{message.Status}' and message '{message.StatusMessage}'");
 
             IFileInfo toProcess = _fileSystem.FileInfo.FromFileName(
                 _fileSystem.Path.Combine(
