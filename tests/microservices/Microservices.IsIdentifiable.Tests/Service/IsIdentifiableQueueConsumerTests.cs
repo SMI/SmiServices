@@ -1,10 +1,16 @@
+﻿using IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Service;
 using Moq;
 using NUnit.Framework;
+using RabbitMQ.Client;
+using Smi.Common.Messages;
+using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Tests;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace Microservices.IsIdentifiable.Tests.Service
@@ -118,6 +124,60 @@ namespace Microservices.IsIdentifiable.Tests.Service
                    new Mock<IClassifier>().Object,
                    mockFs
             );
+        }
+
+        [Test]
+        public void ProcessMessage_HappyPath()
+        {
+            // Arrange
+
+            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
+            mockProducerModel
+                .Setup(
+                    x => x.SendMessage(
+                        It.IsAny<ExtractedFileVerificationMessage>(),
+                        null,
+                        ""
+                    )
+                )
+                .Returns(new MessageHeader());
+
+            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
+            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(new List<Failure>());
+
+            var mockFs = new MockFileSystem();
+            var mockExtractRoot = mockFs.Directory.CreateDirectory("extractRoot");
+            var mockExtractionDir = mockFs.Directory.CreateDirectory($"{mockExtractRoot}/proj1/extractions/ex1");
+            mockFs.AddFile($"{mockExtractionDir}/foo-an.dcm", null);
+
+            var mockModel = new Mock<IModel>(MockBehavior.Strict);
+            mockModel.Setup(x => x.IsClosed).Returns(false);
+            mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
+
+            var consumer = new IsIdentifiableQueueConsumer(
+                mockProducerModel.Object,
+                mockExtractRoot.FullName,
+                mockClassifier.Object,
+                mockFs
+            );
+            consumer.SetModel(mockModel.Object);
+
+            var message = new ExtractedFileStatusMessage
+            {
+                DicomFilePath = "/src/foo.dcm",
+                Status = ExtractedFileStatus.Anonymised,
+                ProjectNumber = "proj1",
+                ExtractionDirectory = "proj1/extractions/ex1",
+                OutputFilePath = "foo-an.dcm",
+            };
+
+            // Act
+
+            consumer.TestMessage(message);
+
+            // Assert
+
+            Assert.AreEqual(1, consumer.AckCount);
         }
 
         #endregion
