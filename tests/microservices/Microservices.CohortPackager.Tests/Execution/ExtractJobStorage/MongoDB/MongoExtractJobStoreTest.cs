@@ -82,22 +82,22 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                         retCollection = CompletedJobCollection;
                         break;
                     default:
-                    {
-                        if (name.StartsWith("expectedFiles"))
                         {
-                            if (!ExpectedFilesCollections.ContainsKey(name))
-                                ExpectedFilesCollections[name] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
-                            retCollection = ExpectedFilesCollections[name];
-                        }
-                        else if (name.StartsWith("statuses"))
-                        {
-                            if (!StatusCollections.ContainsKey(name))
-                                StatusCollections[name] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
-                            retCollection = StatusCollections[name];
-                        }
+                            if (name.StartsWith("expectedFiles"))
+                            {
+                                if (!ExpectedFilesCollections.ContainsKey(name))
+                                    ExpectedFilesCollections[name] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
+                                retCollection = ExpectedFilesCollections[name];
+                            }
+                            else if (name.StartsWith("statuses"))
+                            {
+                                if (!StatusCollections.ContainsKey(name))
+                                    StatusCollections[name] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
+                                retCollection = StatusCollections[name];
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                 }
 
                 return retCollection != null
@@ -397,12 +397,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
                 "original.dcm",
                 "anon.dcm",
-                false,
-                true,
                 ExtractedFileStatus.ErrorWontRetry,
+                VerifiedFileStatus.NotVerified,
                 "Could not anonymise");
 
-            Assert.True(statusDoc.Equals(expected));
+            Assert.AreEqual(expected, statusDoc);
         }
 
         [Test]
@@ -420,7 +419,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = "1234/test",
                 DicomFilePath = "original.dcm",
-                IsIdentifiable = false,
+                Status = VerifiedFileStatus.NotIdentifiable,
                 Report = "[]", // NOTE(rkm 2020-03-10) An "empty" report from IsIdentifiable
             };
             var header = new MessageHeader();
@@ -435,9 +434,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
                 "original.dcm",
                 "anon.dcm",
-                true,
-                false,
                 ExtractedFileStatus.Anonymised,
+                VerifiedFileStatus.NotIdentifiable,
                 "[]");
 
             Assert.True(statusDoc.Equals(expected));
@@ -475,9 +473,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
                 "input.dcm",
                 "anon1.dcm",
-                true,
-                false,
                 ExtractedFileStatus.Anonymised,
+                VerifiedFileStatus.NotIdentifiable,
                 "Verified");
 
             var client = new TestMongoClient();
@@ -554,9 +551,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
                 "input.dcm",
                 "anon1.dcm",
-                true,
-                false,
                 ExtractedFileStatus.Anonymised,
+                VerifiedFileStatus.NotIdentifiable,
                 "Verified");
 
             var client = new TestMongoClient();

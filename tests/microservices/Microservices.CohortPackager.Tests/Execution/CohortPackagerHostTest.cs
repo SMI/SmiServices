@@ -175,7 +175,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
-                IsIdentifiable = false,
+                Status = VerifiedFileStatus.NotIdentifiable,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
             };
@@ -267,7 +267,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
-                IsIdentifiable = false,
+                Status = VerifiedFileStatus.NotIdentifiable,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
             };
@@ -288,7 +288,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
-                IsIdentifiable = true,
+                Status = VerifiedFileStatus.IsIdentifiable,
                 Report = failureReport,
                 DicomFilePath = "series-2-orig-2.dcm",
             };
