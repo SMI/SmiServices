@@ -166,6 +166,8 @@ namespace Microservices.IsIdentifiable.Tests.Service
         [Test]
         public void ProcessMessage_HappyPath_NoFailures()
         {
+            // Arrange
+
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             Expression<Func<IProducerModel, IMessageHeader>> expectedSendMessageCall =
                 x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
@@ -196,6 +198,8 @@ namespace Microservices.IsIdentifiable.Tests.Service
         [Test]
         public void ProcessMessage_HappyPath_WithFailures()
         {
+            // Arrange
+
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             Expression<Func<IProducerModel, IMessageHeader>> expectedSendMessageCall =
                 x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
@@ -226,7 +230,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
         }
 
         [Test]
-        public void ProcessMessage_ExtractedFileStatusNotAnonymised_ThrowsException()
+        public void ProcessMessage_ExtractedFileStatusNotAnonymised_CallsFatal()
         {
             // Arrange
 
@@ -265,6 +269,49 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(1, consumer.NackCount);
+        }
+
+        [Test]
+        public void ProcessMessage_ClassifierArithmeticException_ErrorAndNack()
+        {
+            // Arrange
+
+            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
+            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new ArithmeticException("divide by zero"));
+
+            var consumer = GetNewIsIdentifiableQueueConsumer(null, mockClassifier.Object);
+
+            // Act
+
+            consumer.TestMessage(_extractedFileStatusMessage);
+
+            // Assert
+
+            Assert.AreEqual(1, consumer.NackCount);
+            Assert.AreEqual(0, consumer.AckCount);
+        }
+
+        [Test]
+        public void ProcessMessage_ClassifierUnhandledException_CallsFatal()
+        {
+            // Arrange
+
+            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
+            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new Exception("whee"));
+
+            var consumer = GetNewIsIdentifiableQueueConsumer(null, mockClassifier.Object);
+
+            // Act
+
+            consumer.TestMessage(_extractedFileStatusMessage);
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
+            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
+            Assert.AreEqual("whee", _fatalArgs.Exception.Message);
+            Assert.AreEqual(0, consumer.NackCount);
+            Assert.AreEqual(0, consumer.AckCount);
         }
 
         #endregion
