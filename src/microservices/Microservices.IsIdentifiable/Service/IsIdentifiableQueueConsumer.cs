@@ -27,7 +27,7 @@ namespace Microservices.IsIdentifiable.Service
         )
         {
             _producer = producer ?? throw new ArgumentNullException(nameof(producer));
-            _extractionRoot = string.IsNullOrWhiteSpace(extractionRoot) ? throw new ArgumentException($"Argument cannot be null or whitespace", nameof(extractionRoot)) : extractionRoot; ;
+            _extractionRoot = string.IsNullOrWhiteSpace(extractionRoot) ? throw new ArgumentException($"Argument cannot be null or whitespace", nameof(extractionRoot)) : extractionRoot;
             _classifier = classifier ?? throw new ArgumentNullException(nameof(classifier));
             _fileSystem = fileSystem ?? new FileSystem();
 
