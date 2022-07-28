@@ -29,6 +29,9 @@ namespace Microservices.IsIdentifiable.Tests.Service
         ExtractedFileStatusMessage _extractedFileStatusMessage;
         private Mock<IModel> _mockModel;
         FatalErrorEventArgs _fatalArgs;
+        Mock<IProducerModel> _mockProducerModel;
+        Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall;
+        ExtractedFileVerificationMessage _response;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -69,6 +72,13 @@ namespace Microservices.IsIdentifiable.Tests.Service
             _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
 
             _fatalArgs = null;
+
+            _mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
+            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
+            _mockProducerModel
+                .Setup(_expectedSendMessageCall)
+                .Callback<IMessage, IMessageHeader, string>((x, _, _) => _response = (ExtractedFileVerificationMessage)x)
+                .Returns(new MessageHeader());
         }
 
         [TearDown]
@@ -168,19 +178,10 @@ namespace Microservices.IsIdentifiable.Tests.Service
         {
             // Arrange
 
-            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            Expression<Func<IProducerModel, IMessageHeader>> expectedSendMessageCall =
-                x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
-            ExtractedFileVerificationMessage response = null;
-            mockProducerModel
-                .Setup(expectedSendMessageCall)
-                .Callback<IMessage, IMessageHeader, string>((x, _, _) => response = (ExtractedFileVerificationMessage)x)
-                .Returns(new MessageHeader());
-
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
             mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(new List<Failure>());
 
-            var consumer = GetNewIsIdentifiableQueueConsumer(mockProducerModel.Object, mockClassifier.Object);
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object, mockClassifier.Object);
 
             // Act
 
@@ -190,9 +191,9 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(1, consumer.AckCount);
-            mockProducerModel.Verify(expectedSendMessageCall, Times.Once);
-            Assert.AreEqual(false, response.IsIdentifiable);
-            Assert.AreEqual("[]", response.Report);
+            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
+            Assert.AreEqual(VerifiedFileStatus.NotIdentifiable, _response.Status);
+            Assert.AreEqual("[]", _response.Report);
         }
 
         [Test]
@@ -200,21 +201,12 @@ namespace Microservices.IsIdentifiable.Tests.Service
         {
             // Arrange
 
-            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            Expression<Func<IProducerModel, IMessageHeader>> expectedSendMessageCall =
-                x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
-            ExtractedFileVerificationMessage response = null;
-            mockProducerModel
-                .Setup(expectedSendMessageCall)
-                .Callback<IMessage, IMessageHeader, string>((x, _, _) => response = (ExtractedFileVerificationMessage)x)
-                .Returns(new MessageHeader());
-
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
             var failure = new Failure(new List<FailurePart> { new FailurePart("foo", FailureClassification.Person, 123) });
             var failures = new List<Failure> { failure };
             mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(failures);
 
-            var consumer = GetNewIsIdentifiableQueueConsumer(mockProducerModel.Object, mockClassifier.Object);
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object, mockClassifier.Object);
 
             // Act
 
@@ -224,9 +216,9 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(1, consumer.AckCount);
-            mockProducerModel.Verify(expectedSendMessageCall, Times.Once);
-            Assert.AreEqual(true, response.IsIdentifiable);
-            Assert.AreEqual(JsonConvert.SerializeObject(failures), response.Report);
+            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
+            Assert.AreEqual(VerifiedFileStatus.IsIdentifiable, _response.Status);
+            Assert.AreEqual(JsonConvert.SerializeObject(failures), _response.Report);
         }
 
         [Test]
@@ -247,17 +239,17 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
-            Assert.AreEqual("Received an ExtractedFileStatusMessage message with status 'ErrorWontRetry' and message 'foo'", _fatalArgs.Exception.Message);
+            Assert.AreEqual("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'", _fatalArgs.Exception.Message);
             Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(0, consumer.AckCount);
         }
 
         [Test]
-        public void ProcessMessage_MissingFile_ErrorAndNack()
+        public void ProcessMessage_MissingFile_SendsErrorWontRetry()
         {
             // Arrange
 
-            var consumer = GetNewIsIdentifiableQueueConsumer();
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object);
 
             _extractedFileStatusMessage.OutputFilePath = "bar-an.dcm";
 
@@ -267,19 +259,23 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             // Assert
 
-            Assert.AreEqual(0, consumer.AckCount);
-            Assert.AreEqual(1, consumer.NackCount);
+            Assert.AreEqual(0, consumer.NackCount);
+            Assert.AreEqual(1, consumer.AckCount);
+            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
+            Assert.AreEqual(VerifiedFileStatus.ErrorWontRetry, _response.Status);
+            var outPath = _mockFs.Path.Combine(_extractDir, "bar-an.dcm");
+            Assert.AreEqual($"Exception while processing ExtractedFileStatusMessage: Could not find file to process '{outPath}'", _response.Report);
         }
 
         [Test]
-        public void ProcessMessage_ClassifierArithmeticException_ErrorAndNack()
+        public void ProcessMessage_ClassifierArithmeticException_SendsErrorWontRetry()
         {
             // Arrange
 
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
             mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new ArithmeticException("divide by zero"));
 
-            var consumer = GetNewIsIdentifiableQueueConsumer(null, mockClassifier.Object);
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object, mockClassifier.Object);
 
             // Act
 
@@ -287,8 +283,11 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             // Assert
 
-            Assert.AreEqual(1, consumer.NackCount);
-            Assert.AreEqual(0, consumer.AckCount);
+            Assert.AreEqual(0, consumer.NackCount);
+            Assert.AreEqual(1, consumer.AckCount);
+            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
+            Assert.AreEqual(VerifiedFileStatus.ErrorWontRetry, _response.Status);
+            Assert.True(_response.Report.StartsWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
         }
 
         [Test]
