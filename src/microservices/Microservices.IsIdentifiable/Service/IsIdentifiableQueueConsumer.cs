@@ -1,6 +1,5 @@
 using IsIdentifiable.Reporting;
 using Newtonsoft.Json;
-using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -73,7 +72,7 @@ namespace Microservices.IsIdentifiable.Service
             }
 
             foreach (Failure f in failures)
-                Logger.Log(LogLevel.Info, $"Validation failed for {f.Resource} Problem Value:{f.ProblemValue}");
+                Logger.Info($"Validation failed for {f.Resource} Problem Value:{f.ProblemValue}");
 
             var response = new ExtractedFileVerificationMessage(message)
             {
