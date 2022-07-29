@@ -24,10 +24,6 @@
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Options\" />
-    <Folder Include="x64\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="IsIdentifiable" Version="0.0.5" />
   </ItemGroup>
 </Project>

@@ -37,7 +37,7 @@ namespace Microservices.IsIdentifiable.Service
 
             _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions, isBatch: false);
 
-            Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions.FileSystemRoot, globals.FileSystemOptions.ExtractRoot, classifier);
+            Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions.ExtractRoot, classifier);
         }
 
         public override void Start()

@@ -3,7 +3,7 @@ using IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Service;
 using NUnit.Framework;
 
-namespace Microservices.IsIdentifiable.Tests.ServiceTests
+namespace Microservices.IsIdentifiable.Tests.Service
 {
     class TesseractStanfordDicomFileClassifierTests
     {

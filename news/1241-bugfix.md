@@ -1,0 +1,4 @@
+-	Refactor IsIdentifiableQueueConsumer
+	-	Improve exception handling to better handle errors caused by IClassifier
+	-	Remove redundant `fileSystemRoot` from constructor
+	-	Add tests
