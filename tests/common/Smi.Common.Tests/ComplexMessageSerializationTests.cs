@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.MessageSerialization;
@@ -23,7 +24,7 @@ namespace Smi.Common.Tests
                 ProjectNumber = "1234-5678",
             };
 
-            var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
+            var str = JsonSerializer.Serialize(msg);// Newtonsoft.Json.JsonConvert.SerializeObject(msg);
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
             Assert.AreEqual(msg2.ExtractFileMessagesDispatched.Count,1);
@@ -78,8 +79,8 @@ namespace Smi.Common.Tests
                 KeyTag = "SeriesInstanceUID",
                 ExtractionIdentifiers = identifiers
             };
-
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
+            
+            var json = JsonSerializer.Serialize(message);
             Assert.NotNull(json);
 
             var reconstructed = JsonConvert.DeserializeObject<ExtractionRequestMessage>(json);

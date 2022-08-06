@@ -1,6 +1,4 @@
-﻿
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Smi.Common.MessageSerialization
@@ -13,17 +11,14 @@ namespace Smi.Common.MessageSerialization
     /// </summary>
     /// <typeparam name="TK"></typeparam>
     /// <typeparam name="TV"></typeparam>
-    [JsonObject(MemberSerialization.OptIn)]
     public class JsonCompatibleDictionary<TK, TV> : Dictionary<TK, TV>
     {
-        [JsonProperty]
         public TK[] SerializeableKeys
         {
             get { return Keys.ToArray(); }
             set { Hydrate(value); }
         }
 
-        [JsonProperty]
         public TV[] SerializeableValues
         {
             get { return Values.ToArray(); }

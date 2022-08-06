@@ -1,6 +1,4 @@
-﻿
-using Equ;
-using Newtonsoft.Json;
+﻿using Equ;
 
 namespace Smi.Common.Messages
 {
@@ -14,31 +12,26 @@ namespace Smi.Common.Messages
         /// <summary>
         /// Directory path relative to the root path.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string DirectoryPath { get; set; }
 
         /// <summary>
         /// Dicom tag (0020,000D).
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string StudyInstanceUID { get; set; }
 
         /// <summary>
         /// Dicom tag (0020,000E).
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string SeriesInstanceUID { get; set; }
 
         /// <summary>
         /// Number of images found in the series.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public int ImagesInSeries { get; set; }
 
         /// <summary>
         /// Key-value pairs of Dicom tags and their values.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string DicomDataset { get; set; }
     }
 }

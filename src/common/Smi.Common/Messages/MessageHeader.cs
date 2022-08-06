@@ -1,6 +1,4 @@
-﻿
-using Equ;
-using Newtonsoft.Json;
+﻿using Equ;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -34,7 +32,6 @@ namespace Smi.Common.Messages
             _producerProcessID = Process.GetCurrentProcess().Id;
         }
 
-        [JsonConstructor]
         public MessageHeader()
             : this(default(MessageHeader)) { }
 

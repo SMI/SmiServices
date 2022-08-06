@@ -1,5 +1,4 @@
 using IsIdentifiable.Reporting;
-using Newtonsoft.Json;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -8,6 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Smi.Common.MessageSerialization;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -77,7 +79,7 @@ namespace Microservices.IsIdentifiable.Service
             var response = new ExtractedFileVerificationMessage(message)
             {
                 IsIdentifiable = failures.Any(),
-                Report = JsonConvert.SerializeObject(failures),
+                Report = JsonSerializer.Serialize(failures)
             };
             _producer.SendMessage(response, header);
 

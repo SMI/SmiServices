@@ -1,6 +1,4 @@
-﻿
-using Equ;
-using Newtonsoft.Json;
+﻿using Equ;
 using System;
 using System.IO;
 
@@ -14,7 +12,6 @@ namespace Smi.Common.Messages
         /// <summary>
         /// Directory path relative to the root path.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string DirectoryPath { get; set; }
 
 

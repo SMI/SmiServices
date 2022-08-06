@@ -8,7 +8,7 @@ using System;
 namespace Microservices.MongoDBPopulator.Messaging
 {
     public class MongoDbPopulatorMessageConsumer<T> : Consumer<T>, IMongoDbPopulatorMessageConsumer
-        where T : IMessage
+        where T : class, IMessage
     {
         public ConsumerOptions ConsumerOptions { get; }
 

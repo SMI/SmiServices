@@ -1,8 +1,6 @@
-
 using Microservices.DicomTagReader.Execution;
 using Microservices.DicomTagReader.Messaging;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;

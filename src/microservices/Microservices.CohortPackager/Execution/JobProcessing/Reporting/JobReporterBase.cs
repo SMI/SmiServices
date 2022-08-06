@@ -4,7 +4,6 @@ using IsIdentifiable.Reporting;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
-using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 
@@ -367,22 +367,22 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             // TODO Create a wrapper type for this(?)
             // Dict<TagName, Dict<FailureValue, List<Files>>>
             var groupedFailures = new Dictionary<string, Dictionary<string, List<string>>>();
-            foreach (FileVerificationFailureInfo fileVerificationFailureInfo in _jobStore.GetCompletedJobVerificationFailures(extractionJobIdentifier))
+            foreach (var fileVerificationFailureInfo in _jobStore.GetCompletedJobVerificationFailures(extractionJobIdentifier))
             {
                 IEnumerable<Failure> fileFailures;
                 try
                 {
-                    fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(fileVerificationFailureInfo.Data);
+                    fileFailures = JsonSerializer.Deserialize<List<Failure>>(fileVerificationFailureInfo.Data);
                 }
-                catch (JsonException e)
+                catch (Exception e)
                 {
                     throw new ApplicationException("Could not deserialize report to IEnumerable<Failure>", e);
                 }
 
-                foreach (Failure failure in fileFailures)
+                foreach (var failure in fileFailures)
                 {
-                    string tag = failure.ProblemField;
-                    string value = failure.ProblemValue;
+                    var tag = failure.ProblemField;
+                    var value = failure.ProblemValue;
 
                     if (!groupedFailures.ContainsKey(tag))
                         groupedFailures.Add(tag, new Dictionary<string, List<string>>

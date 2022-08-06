@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using Smi.Common.Events;
 using Smi.Common.Messages;
-using Newtonsoft.Json;
 using NLog;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -119,11 +119,11 @@ namespace Smi.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        protected IMessageHeader SendMessageImpl(IMessage message, IMessageHeader inResponseTo = null, string routingKey = "")
+        protected IMessageHeader SendMessageImpl<T>(T message, IMessageHeader inResponseTo = null, string routingKey = "") where T : class, IMessage
         {
             lock (_oSendLock)
             {
-                byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+                var body=JsonSerializer.SerializeToUtf8Bytes(message, typeof(T));
 
                 _messageBasicProperties.Timestamp = new AmqpTimestamp(MessageHeader.UnixTimeNow());
                 _messageBasicProperties.Headers = new Dictionary<string, object>();

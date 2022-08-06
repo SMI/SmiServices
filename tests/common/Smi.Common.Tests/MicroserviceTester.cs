@@ -154,7 +154,7 @@ namespace Smi.Common.Tests
         /// <typeparam name="T"></typeparam>
         /// <param name="queueName"></param>
         /// <returns></returns>
-        public IEnumerable<Tuple<IMessageHeader, T>> ConsumeMessages<T>(string queueName) where T : IMessage
+        public IEnumerable<Tuple<IMessageHeader, T>> ConsumeMessages<T>(string queueName) where T : class, IMessage
         {
             IModel model = Adapter.GetModel($"ConsumeMessages-{queueName}");
 
@@ -164,7 +164,7 @@ namespace Smi.Common.Tests
                 if (message == null)
                     break;
                 var header = new MessageHeader(message.BasicProperties.Headers, Encoding.UTF8);
-                var iMessage = JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(message.Body.Span));
+                var iMessage = JsonConvert.DeserializeObject<T>(message.Body.Span);
                 yield return new Tuple<IMessageHeader, T>(header, iMessage);
             }
         }

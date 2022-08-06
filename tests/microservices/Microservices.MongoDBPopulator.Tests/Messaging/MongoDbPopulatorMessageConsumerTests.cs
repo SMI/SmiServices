@@ -1,7 +1,5 @@
-﻿
-using Microservices.MongoDBPopulator.Messaging;
+﻿using Microservices.MongoDBPopulator.Messaging;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -10,6 +8,7 @@ using Smi.Common.Messages;
 using Smi.Common.Tests;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 
 namespace Microservices.MongoDBPopulator.Tests.Messaging
@@ -50,7 +49,7 @@ namespace Microservices.MongoDBPopulator.Tests.Messaging
             mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>())).Callback(() => ++nackCount);
             consumer.SetModel(mockModel.Object);
 
-            mockDeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(null));
+            mockDeliverArgs.Body = JsonSerializer.SerializeToUtf8Bytes<object>(null);
             consumer.ProcessMessage(mockDeliverArgs);
             Assert.AreEqual(1, nackCount);
         }

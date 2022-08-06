@@ -1,6 +1,4 @@
-﻿
-using Equ;
-using Newtonsoft.Json;
+﻿using Equ;
 using System;
 using System.IO;
 using System.Text;
@@ -17,7 +15,6 @@ namespace Smi.Common.Messages
         /// <summary>
         /// File path relative to the root path.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string DicomFilePath { get; set; }
 
         public long DicomFileSize { get; set; } = -1;
@@ -25,25 +22,21 @@ namespace Smi.Common.Messages
         /// <summary>
         /// Dicom tag (0020,000D).
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string StudyInstanceUID { get; set; }
 
         /// <summary>
         /// Dicom tag (0020,000E).
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string SeriesInstanceUID { get; set; }
 
         /// <summary>
         /// Dicom tag (0008,0018)
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string SOPInstanceUID { get; set; }
 
         /// <summary>
         /// Key-value pairs of Dicom tags and their values.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string DicomDataset { get; set; }
 
 

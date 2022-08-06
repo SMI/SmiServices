@@ -1,78 +1,59 @@
-
-using Smi.Common.Messages;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using RabbitMQ.Client.Events;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Smi.Common.Messages;
+using System.Text.Json.Serialization;
+using IsIdentifiable.Reporting;
+using Smi.Common.Messages.Extraction;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace Smi.Common.MessageSerialization
+namespace Smi.Common.MessageSerialization;
+
+/// <summary>
+/// Helper class to (de)serialize objects from RabbitMQ messages.
+/// </summary>
+public static class JsonConvert
 {
-    /// <summary>
-    /// Helper class to (de)serialize objects from RabbitMQ messages.
-    /// </summary>
-    public static class JsonConvert
+    private static readonly Dictionary<Type, System.Text.Json.Serialization.Metadata.JsonTypeInfo> contexts = new()
     {
-        private static List<string> _errors = new();
-
-        private static readonly JsonSerializerSettings _serializerSettings = new()
-        {
-            Error = delegate (object sender, ErrorEventArgs args)
-            {
-                _errors.Add(args.ErrorContext.Error.Message);
-                args.ErrorContext.Handled = true;
-            },
-            MissingMemberHandling = MissingMemberHandling.Error
-        };
-
-
-        /// <summary>
-        /// Deserialize a message from a string.
-        /// </summary>
-        /// <typeparam name="T">The type of <see cref="IMessage"/> to deserialize into.</typeparam>
-        /// <param name="message">The message to deserialize.</param>
-        /// <returns></returns>
-        public static T DeserializeObject<T>(string message) where T : IMessage
-        {
-            _errors = new List<string>();
-
-            var messageObj = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(message, _serializerSettings);
-
-            if (messageObj == null && _errors.Count == 0)
-                throw new JsonSerializationException("Deserialized message object is null, message was empty.");
-
-            if (_errors.Count == 0)
-                return messageObj;
-
-            var e = new JsonSerializationException("Couldn't deserialize message to " + typeof(T).FullName + ". See exception data.");
-
-            for (var i = 0; i < _errors.Count; i++)
-                e.Data.Add(i, _errors[i]);
-
-            throw e;
-        }
-
-        /// <summary>
-        /// Deserialize a message straight from the <see cref="BasicDeliverEventArgs"/>. Encoding defaults to UTF8 if not set.
-        /// </summary>
-        /// <typeparam name="T">The type of <see cref="IMessage"/> to deserialize into.</typeparam>
-        /// <param name="deliverArgs">The message and all associated information.</param>
-        /// <returns></returns>
-        public static T DeserializeObject<T>(BasicDeliverEventArgs deliverArgs) where T : IMessage
-        {
-            Encoding enc = Encoding.UTF8;
-
-            if (deliverArgs.BasicProperties != null && deliverArgs.BasicProperties.ContentEncoding != null)
-                enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
-
-            //TODO This might crash if for some reason we have invalid Unicode points
-            return DeserializeObject<T>(enc.GetString(deliverArgs.Body.Span));
-        }
-
-        public static T DeserializeObject<T>(byte[] body) where T : IMessage
-        {
-            Encoding enc = Encoding.UTF8;
-            return DeserializeObject<T>(enc.GetString(body));
-        }
+        {typeof(ExtractedFileStatusMessage),JsonContext.Default.ExtractedFileStatusMessage},
+        {typeof(ExtractFileCollectionInfoMessage),JsonContext.Default.ExtractFileCollectionInfoMessage},
+        {typeof(ExtractionRequestMessage),JsonContext.Default.ExtractionRequestMessage},
+        {typeof(IEnumerable<Failure>),JsonContext.Default.FailureList}
+    };
+    
+    /// <summary>
+    /// Deserialize a message from a string.
+    /// </summary>
+    /// <typeparam name="T">The type of <see cref="IMessage"/> to deserialize into.</typeparam>
+    /// <param name="message">The message to deserialize.</param>
+    /// <returns></returns>
+    public static T DeserializeObject<T>(ReadOnlySpan<byte> message) where T : class, IMessage
+    {
+        if (!contexts.TryGetValue(typeof(T), out var context))
+            throw new ArgumentException($"No JSON conversion for IMessage type {typeof(T)}");
+        if (JsonSerializer.Deserialize(message, typeof(T), JsonContext.Default) is not T messageObj)
+            throw new ApplicationException("Deserialized message object is null, message was empty.");
+        return messageObj;
     }
+
+    public static T DeserializeObject<T>(string s) where T : class, IMessage
+    {
+        return DeserializeObject<T>(Encoding.UTF8.GetBytes(s).ToArray());
+    }
+
+}
+
+internal class FailureList : List<Failure> {
+
+}
+
+[JsonSerializable(typeof(ExtractedFileStatusMessage))]
+[JsonSerializable(typeof(ExtractFileCollectionInfoMessage))]
+[JsonSerializable(typeof(ExtractionRequestMessage))]
+[JsonSerializable(typeof(FailureList))]
+internal partial class JsonContext : JsonSerializerContext
+{
+
 }

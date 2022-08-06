@@ -2,7 +2,6 @@
 using IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Service;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using Smi.Common.Events;
@@ -16,6 +15,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace Microservices.IsIdentifiable.Tests.Service
 {
@@ -226,7 +226,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             Assert.AreEqual(1, consumer.AckCount);
             mockProducerModel.Verify(expectedSendMessageCall, Times.Once);
             Assert.AreEqual(true, response.IsIdentifiable);
-            Assert.AreEqual(JsonConvert.SerializeObject(failures), response.Report);
+            Assert.AreEqual(JsonSerializer.Serialize(failures), response.Report);
         }
 
         [Test]

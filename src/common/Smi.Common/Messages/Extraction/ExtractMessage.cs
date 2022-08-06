@@ -1,7 +1,5 @@
-
 using Equ;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 using System;
 
 
@@ -12,25 +10,18 @@ namespace Smi.Common.Messages.Extraction
     /// </summary>
     public abstract class ExtractMessage : MemberwiseEquatable<ExtractMessage>, IExtractMessage
     {
-        [JsonProperty(Required = Required.Always)]
         public Guid ExtractionJobIdentifier { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public string ProjectNumber { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public string ExtractionDirectory { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public DateTime JobSubmittedAt { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public bool IsIdentifiableExtraction { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public bool IsNoFilterExtraction { get; set; }
 
-        [JsonConstructor]
         protected ExtractMessage() { }
 
 

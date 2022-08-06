@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +12,7 @@ using RabbitMQ.Client.Events;
 
 namespace Smi.Common.Messaging
 {
-    public abstract class Consumer<TMessage> : IConsumer where TMessage : IMessage
+    public abstract class Consumer<TMessage> : IConsumer where TMessage : class, IMessage
     {
         /// <summary>
         /// Count of the messages Acknowledged by this Consumer, use <see cref="Ack(IMessageHeader, ulong)"/> to increment this
@@ -110,7 +109,7 @@ namespace Smi.Common.Messaging
 
             try
             {
-                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage message))
+                if (!SafeDeserializeToMessage(header, deliverArgs, out TMessage message))
                     return;
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
             }
@@ -144,14 +143,14 @@ namespace Smi.Common.Messaging
         /// <param name="iMessage"></param>
         /// <returns></returns>
         /// </summary>
-        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, out T iMessage) where T : IMessage
+        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, out T iMessage) where T : class, IMessage
         {
             try
             {
-                iMessage = JsonConvert.DeserializeObject<T>(deliverArgs);
+                iMessage = JsonConvert.DeserializeObject<T>(deliverArgs.Body.Span);
                 return true;
             }
-            catch (Newtonsoft.Json.JsonSerializationException e)
+            catch (ApplicationException e)
             {
                 // Deserialization exception - Can never process this message
 

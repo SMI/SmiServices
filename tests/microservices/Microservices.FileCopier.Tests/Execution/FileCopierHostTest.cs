@@ -1,5 +1,4 @@
 using Microservices.FileCopier.Execution;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -9,6 +8,7 @@ using Smi.Common.Tests;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
+using Smi.Common.MessageSerialization;
 
 
 namespace Microservices.FileCopier.Tests.Execution
@@ -81,7 +81,8 @@ namespace Microservices.FileCopier.Tests.Execution
             using var model = tester.Adapter.GetModel(nameof(FileCopierHostTest));
             var consumer = new EventingBasicConsumer(model);
             ExtractedFileStatusMessage statusMessage = null;
-            consumer.Received += (_, ea) => statusMessage = JsonConvert.DeserializeObject<ExtractedFileStatusMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
+            consumer.Received += (_, ea) =>
+                statusMessage = JsonConvert.DeserializeObject<ExtractedFileStatusMessage>(ea.Body.Span);
             model.BasicConsume(outputQueueName, true, "", consumer);
 
             TestTimelineAwaiter.Await(() => statusMessage != null);
