@@ -162,30 +162,6 @@ jobs:
         name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
         path: dist/${{ needs.init.outputs.build_ref }}/*
         if-no-files-found: error
-  nerd:
-    needs: [init]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
-    runs-on: ${{ matrix.image }}
-    steps:
-    - name: checkout
-      uses: actions/checkout@v3
-    - name: Setup Java JDK
-      uses: actions/setup-java@v3.4.1
-      with:
-        java-version: ${{ env.java-version }}
-        distribution: ${{ env.java-distribution }}
-        cache: maven
-    - name: build, test, and package nerd
-      run: ./bin/nerd/buildTestPackage.py ${{ needs.init.outputs.build_ref }}
-    - name: "[linux] upload packages"
-      if: ${{ matrix.os == 'linux' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
-        path: dist/${{ needs.init.outputs.build_ref }}/*
-        if-no-files-found: error
   smi-py:
     needs: [init]
     strategy:
@@ -219,7 +195,7 @@ jobs:
         if-no-files-found: error
   upload-to-release:
     if: contains(github.ref, 'refs/tags/v')
-    needs: [init, smi, ctp, nerd, smi-py]
+    needs: [init, smi, ctp, smi-py]
     runs-on: ubuntu-20.04
     steps:
     - name: checkout
