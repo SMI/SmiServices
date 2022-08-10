@@ -30,6 +30,8 @@ namespace Applications.SmiRunner
     [Verb("trigger-updates", HelpText = "Queue system wide database updates to specific fields e.g. changes in PatientID, Tag Promotion etc")]
     public sealed class TriggerUpdatesVerb : ApplicationVerbBase { }
 
+    [Verb("setup", HelpText = "Tool for assisting in the setup and checking of SmiServices configurations")]
+    public sealed class SetupVerb : ApplicationVerbBase { }
     #endregion
 
     #region Microservices
