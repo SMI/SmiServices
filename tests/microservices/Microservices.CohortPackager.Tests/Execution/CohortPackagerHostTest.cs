@@ -23,6 +23,29 @@ namespace Microservices.CohortPackager.Tests.Execution
     {
         private readonly TestDateTimeProvider _dateTimeProvider = new();
 
+        #region Fixture Methods
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            TestLogger.Setup();
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown() { }
+
+        #endregion
+
+        #region Test Methods
+
+        [SetUp]
+        public void SetUp() { }
+
+        [TearDown]
+        public void TearDown() { }
+
+        #endregion
+
         #region Fixtures
 
         // TODO(rkm 2020-12-17) Test if the old form of this is fixed in NUnit 3.13 (see https://github.com/nunit/nunit/issues/2574)
@@ -65,7 +88,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         #endregion
 
-        #region Test Methods
+        #region Tests
 
         private bool HaveFiles(PathFixtures pf) => Directory.Exists(pf.ProjReportsDirAbsolute) && Directory.EnumerateFiles(pf.ProjExtractDirAbsolute).Any();
 
@@ -127,11 +150,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                     break;
             }
         }
-
-        #endregion
-
-        #region Tests
-
+                
         [TestCase(ReportFormat.Combined)]
         [TestCase(ReportFormat.Split)]
         public void Integration_HappyPath(ReportFormat reportFormat)
