@@ -3,16 +3,17 @@ using NLog;
 using ReusableLibraryCode;
 using ReusableLibraryCode.Checks;
 using ReusableLibraryCode.Progress;
-using Setup;
 using Smi.Common;
 using Spectre.Console;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terminal.Gui;
 
-class Program
+namespace Setup;
+public class Program
 {
     class SetupOptions
     {
@@ -23,7 +24,7 @@ class Program
         public string? UnattendedYaml { get; set; }
     } 
 
-    public static int Main(string[] args)
+    public static int Main(IEnumerable<string> args)
     {
         int exitCode = 0;
 
