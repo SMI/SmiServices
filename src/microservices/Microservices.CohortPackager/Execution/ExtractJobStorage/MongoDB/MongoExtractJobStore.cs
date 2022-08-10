@@ -331,7 +331,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus.IsError(), true);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
+                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
+                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
+            );
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.NotVerified);
             return CompletedStatusDocsForFilter(filter).Select(x => new FileAnonFailureInfo(x.Item1, x.Item2));
         }
@@ -340,7 +343,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus.IsError(), false);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
+                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
+                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
+             );
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.IsIdentifiable);
             return CompletedStatusDocsForFilter(filter).Select(x => new FileVerificationFailureInfo(x.Item1, x.Item2));
         }
