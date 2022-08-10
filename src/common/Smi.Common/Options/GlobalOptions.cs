@@ -545,11 +545,24 @@ namespace Smi.Common.Options
     {
         public string CatalogueConnectionString { get; set; }
         public string DataExportConnectionString { get; set; }
+        
+        /// <summary>
+        /// Alternative to connection strings for if you have RDMP running with a YAML file system backend.
+        /// If specified then this will override the connection strings
+        /// </summary>
+        public string YamlDir {get;set;}
 
         public IRDMPPlatformRepositoryServiceLocator GetRepositoryProvider()
         {
             CatalogueRepository.SuppressHelpLoading = true;
 
+            // if using file system backend for RDMP create that repo instead
+            if(!string.IsNullOrWhiteSpace(YamlDir))
+            {
+                return new RepositoryProvider(new YamlRepository(new System.IO.DirectoryInfo(YamlDir)));
+            }
+
+            // We are using database backend for RDMP (i.e. Sql Server)
             var cata = new SqlConnectionStringBuilder(CatalogueConnectionString);
             var dx = new SqlConnectionStringBuilder(DataExportConnectionString);
 
