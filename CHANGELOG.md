@@ -11,9 +11,35 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.2.0] 2022-08-10
+
+## Feature
+
+-   [#1254](https://github.com/SMI/SmiServices/pull/1254) by tznind. Change
+    "Setup" to a library and make it runnable from smi as verb
+-   [#1255](https://github.com/SMI/SmiServices/pull/1255) by tznind. Add support
+    for running RDMP with YamlRepository backend
+
+## Bugfix
+
+-   [#1241](https://github.com/SMI/SmiServices/pull/1241) by rkm. Refactor
+    IsIdentifiableQueueConsumer
+    -   Improve exception handling to better handle errors caused by IClassifier
+    -   Remove redundant `fileSystemRoot` from constructor
+    -   Add tests
+-   [#1256](https://github.com/SMI/SmiServices/pull/1256) by rkm. Ensure MongoDB
+    service started in Windows CI. Caused by
+    https://github.com/actions/runner-images/issues/5949.
+
+## Removal
+
+-   [#1251](https://github.com/SMI/SmiServices/pull/1251) by rkm. Remove
+    remaining IsIdentifiable code and CI config
+
 ## [5.1.3] 2022-07-21
 
--   [#1229](https://github.com/SMI/SmiServices/pull/1229) by dependabot. Bump IsIdentifiable from 0.0.4 to 0.0.5 to fix broken API
+-   [#1229](https://github.com/SMI/SmiServices/pull/1229) by dependabot. Bump
+    IsIdentifiable from 0.0.4 to 0.0.5 to fix broken API
 
 ## [5.1.2] 2022-07-18
 
@@ -1116,7 +1142,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.1.3...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.2.0...master
+[5.2.0]: https://github.com/SMI/SmiServices/compare/v5.1.3...v5.2.0
 [5.1.3]: https://github.com/SMI/SmiServices/compare/v5.1.2...v5.1.3
 [5.1.2]: https://github.com/SMI/SmiServices/compare/v5.1.1...v5.1.2
 [5.1.1]: https://github.com/SMI/SmiServices/compare/v5.1.0...v5.1.1

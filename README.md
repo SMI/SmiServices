@@ -5,7 +5,7 @@
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
-Version: `5.1.3`
+Version: `5.2.0`
 
 # SMI Services
 
@@ -196,6 +196,8 @@ Both SmiServices and [RDMP] use [NLog] for logging.  A number of additional syst
 - All ETL activities are audited in the hierarchical RDMP logging database.  This includes run duration, record counts, error messages during load etc.
 
 ### 2.4 Release / Roll-out and Deployment Plan
+
+The technical process of Release is covered in [RELEASING.md](./docs/RELEASING.md)
 
 The latest binaries can be downloaded from the [GitHub releases page](https://github.com/SMI/SmiServices/releases/latest).  
 

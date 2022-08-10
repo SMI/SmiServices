@@ -179,13 +179,16 @@ DicomTagReader {
                 if (Options == null)
                     return null;
 
-                if (Options.RDMPOptions == null || string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString))
+                if (Options.RDMPOptions == null || 
+
+                    // Must specify either SqlServer or file system backend for RDMP platform metadata
+                    (string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString) &&
+                    string.IsNullOrWhiteSpace(Options.RDMPOptions.YamlDir)))
                 {
                     throw new Exception("No RDMP connection settings specified");
                 }
 
-                var provider = new LinkedRepositoryProvider(Options.RDMPOptions.CatalogueConnectionString,
-                    Options.RDMPOptions.DataExportConnectionString);
+                var provider = Options.RDMPOptions.GetRepositoryProvider();
 
                 var startup = new Startup(new EnvironmentInfo(), provider);
                 

@@ -23,6 +23,8 @@ RDMPOptions:
     CatalogueConnectionString: 'server=localhost\sqlexpress;integrated security=true;database=RDMP_Catalogue'
     DataExportConnectionString: 'server=localhost\sqlexpress;integrated security=true;database=RDMP_DataExport'
 
+    # Alternative to connection strings for if you have RDMP running with a YAML file system backend.  If specified then this will override the connection strings        
+    YamlDir: 
 MongoDatabases:
     DicomStoreOptions:
         HostName: 'localhost'

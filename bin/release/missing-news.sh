@@ -8,7 +8,7 @@ fi
 
 lasttag=$(git tag -l|tail -n1)
 
-for i in `git log --oneline ${lasttag}..|egrep -v "dependabot|Bump|pre-commit-ci"|egrep -o 'Merge pull request #\d+'|cut -d'#' -f2`
+for i in `git log --oneline ${lasttag}..|egrep -v "dependabot|Bump|pre-commit-ci|snyk-fix" | grep -Po 'Merge pull request #\d+'|cut -d'#' -f2`
 do
   if ! find news -name "${i}*.md" -print -quit | grep -q .
   then
