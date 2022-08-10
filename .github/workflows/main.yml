@@ -69,7 +69,9 @@ jobs:
     - name: "[windows] start MongoDB service"
       if: ${{ matrix.os == 'windows' }}
       shell: pwsh
-      run: Start-Service -Name mongodb
+      run: |
+        Set-Service mongodb -StartupType Automatic
+        Start-Service -Name mongodb
     - name: "[linux] re-write database strings"
       if: ${{ matrix.os == 'linux' }}
       run: |
