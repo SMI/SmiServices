@@ -55,7 +55,7 @@ jobs:
     steps:
     - name: "[linux] enable disk caching"
       if: ${{ matrix.os == 'linux' }}
-      run: apt-get install -y libeatmydata1
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
     - name: setup .NET
@@ -127,7 +127,7 @@ jobs:
     steps:
     - name: "[linux] enable disk caching"
       if: ${{ matrix.os == 'linux' }}
-      run: apt-get install -y libeatmydata1
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
     - name: Setup Java JDK
@@ -160,7 +160,7 @@ jobs:
     steps:
     - name: "[linux] enable disk caching"
       if: ${{ matrix.os == 'linux' }}
-      run: apt-get install -y libeatmydata1
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
     - name: setup Python
@@ -192,7 +192,7 @@ jobs:
     steps:
     - name: "[linux] enable disk caching"
       if: ${{ matrix.os == 'linux' }}
-      run: apt-get install -y libeatmydata1
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
     - name: download artifacts
