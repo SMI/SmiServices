@@ -28,6 +28,7 @@
     <ProjectReference Include="..\Applications.DicomLoader\Applications.DicomLoader.csproj" />
     <ProjectReference Include="..\Applications.ExtractImages\Applications.ExtractImages.csproj" />
     <ProjectReference Include="..\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj" />
+    <ProjectReference Include="..\Setup\Setup.csproj" />
   </ItemGroup>
 
 </Project>
