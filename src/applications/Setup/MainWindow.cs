@@ -86,18 +86,22 @@ namespace Setup {
             btnCheckInfrastructure.Clicked += BtnCheckInfrastructure_Clicked;
             btnCheckMicroservices.Clicked += BtnCheckMicroservices_Clicked;
 
-            RegisterTry(btnTryRabbitMq, (p)=>p.ProbeRabbitMq());
-            RegisterTry(btnTryMongoDb,(p)=>p.ProbeMongoDb());
-            RegisterTry(btnTryRdmp, (p)=>p.ProbeRdmp());
-
+            RegisterTry(btnTryRabbitMq, (p)=>p.Probes["RabbitMq"]);
+            RegisterTry(btnTryMongoDb,(p)=>p.Probes["MongoDb"]);
+            RegisterTry(btnTryRdmp, (p)=>p.Probes["Rdmp"]);
         }
 
 
-        private void RegisterTry(Button btn, Action<EnvironmentProbe> probeAction)
+        private void RegisterTry(Button btn, Func<EnvironmentProbe,Probeable> probeFunc)
         {
             btn.Clicked += ()=>{
                 ReloadYaml();
-                probeAction(_probe);
+                var probe = probeFunc(_probe);
+
+                 // clear old result
+                probe.Result = null;
+                probe.Result = probe.Run();
+
                 SetCheckboxStates();
                     };
 
