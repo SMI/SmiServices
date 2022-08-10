@@ -197,6 +197,8 @@ Both SmiServices and [RDMP] use [NLog] for logging.  A number of additional syst
 
 ### 2.4 Release / Roll-out and Deployment Plan
 
+The technical process of Release is covered in [RELEASING.md](./docs/RELEASING.md)
+
 The latest binaries can be downloaded from the [GitHub releases page](https://github.com/SMI/SmiServices/releases/latest).  
 
 Each release has a [Changelog] describing all changes made to the codebase (additions, bugfixes etc).  Changelog entries include a link to the 'git diff' which shows code changes and more technical descriptions of changes.
