@@ -77,6 +77,10 @@ jobs:
     - name: "[linux] start services"
       if: ${{ matrix.os == 'linux' }}
       run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
+    - name: "[windows] start MongoDB service"
+      if: ${{ matrix.os == 'windows' }}
+      shell: pwsh
+      run: Start-Service -Name mongodb
     - name: "[linux] re-write database strings"
       if: ${{ matrix.os == 'linux' }}
       run: |
