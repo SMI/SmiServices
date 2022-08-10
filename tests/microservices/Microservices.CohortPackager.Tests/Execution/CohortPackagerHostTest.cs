@@ -380,13 +380,13 @@ namespace Microservices.CohortPackager.Tests.Execution
             var testExtractFileStatusMessage2 = new ExtractedFileStatusMessage
             {
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
-                OutputFilePath = "src_missing.dcm",
+                OutputFilePath = null,
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
                 Status = ExtractedFileStatus.FileMissing,
-                StatusMessage = null,
-                DicomFilePath = "study-1-orig-2.dcm",
+                StatusMessage = "Couldn't find src_missing.dcm",
+                DicomFilePath = "src_missing.dcm",
                 IsIdentifiableExtraction = true,
             };
 
