@@ -53,36 +53,31 @@ jobs:
       matrix: ${{ fromJson(needs.init.outputs.matrix) }}
     runs-on: ${{ matrix.image }}
     steps:
+    - name: "[linux] enable disk caching"
+      if: ${{ matrix.os == 'linux' }}
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
-    - name: setup .NET
-      # NOTE(rkm 2022-02-20) Uses global.json
-      uses: actions/setup-dotnet@v2
-    - name: set tessdata vars
-      run: |
-        set -euxo pipefail
-        path=$(grep "_PATH =" ./bin/smi/downloadTessdata.py | cut -d'"' -f2)
-        echo "tessdata_path=$path" >> $GITHUB_ENV
-        ver=$(grep "_VERSION =" ./bin/smi/downloadTessdata.py | cut -d'"' -f2)
-        echo "tessdata_version=$ver" >> $GITHUB_ENV
-    - name: cache tessdata
-      id: cache-tessdata
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.tessdata_path }}
-        key: 'tessdata|${{ env.tessdata_version }}|v5'
-    - name: download tessdata
-      if: steps.cache-tessdata.outputs.cache-hit != 'true'
-      run: ./bin/smi/downloadTessdata.py
-    - name: "[linux] start services"
-      if: ${{ matrix.os == 'linux' }}
-      run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
     - name: "[windows] start MongoDB service"
       if: ${{ matrix.os == 'windows' }}
       shell: pwsh
       run: |
         Set-Service mongodb -StartupType Automatic
         Start-Service -Name mongodb
+    - uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    - name: setup .NET
+      # NOTE(rkm 2022-02-20) Uses global.json
+      uses: actions/setup-dotnet@v2
+    - name: download tessdata
+      run: ./bin/smi/downloadTessdata.py
+    - name: "[linux] start services"
+      if: ${{ matrix.os == 'linux' }}
+      run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
     - name: "[linux] re-write database strings"
       if: ${{ matrix.os == 'linux' }}
       run: |
@@ -111,14 +106,7 @@ jobs:
     - name: "[windows] re-write database strings"
       if: ${{ matrix.os == 'windows' }}
       run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
-    - name: cache rdmp-cli
-      id: cache-rdmp-cli
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.rdmp-cli-dir }}
-        key: 'rdmp-cli|${{ env.rdmp_cli_ver }}|v1'
     - name: download rdmp-cli
-      if: steps.cache-rdmp-cli.outputs.cache-hit != 'true'
       run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
     - name: install RDMP databases
       run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
@@ -145,6 +133,9 @@ jobs:
       matrix: ${{ fromJson(needs.init.outputs.matrix) }}
     runs-on: ${{ matrix.image }}
     steps:
+    - name: "[linux] enable disk caching"
+      if: ${{ matrix.os == 'linux' }}
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
     - name: Setup Java JDK
@@ -175,6 +166,9 @@ jobs:
       matrix: ${{ fromJson(needs.init.outputs.matrix) }}
     runs-on: ${{ matrix.image }}
     steps:
+    - name: "[linux] enable disk caching"
+      if: ${{ matrix.os == 'linux' }}
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
     - name: setup Python
@@ -204,6 +198,9 @@ jobs:
     needs: [init, smi, ctp, smi-py]
     runs-on: ubuntu-20.04
     steps:
+    - name: "[linux] enable disk caching"
+      if: ${{ matrix.os == 'linux' }}
+      run: sudo apt-get install -y libeatmydata1
     - name: checkout
       uses: actions/checkout@v3
     - name: download artifacts
