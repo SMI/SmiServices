@@ -13,7 +13,6 @@ namespace Applications.SmiRunner
             typeof(DicomLoaderVerb),
             typeof(DicomDirectoryProcessorVerb),
             typeof(ExtractImagesVerb),
-            typeof(IsIdentifiableReviewerVerb),
             typeof(TriggerUpdatesVerb),
             typeof(SetupVerb),
         };

@@ -220,7 +220,7 @@ IsIdentifiableServiceOptions:
     ClassifierType: 'Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier'
     DataDirectory: ''
     
-IsIdentifiableBaseOptions: 
+IsIdentifiableOptions: 
     #Optional. Full connection string to the database storing the Allowlist of valid entries
     AllowlistConnectionString:
     #Optional. The DBMS provider of the Allowlist table e.g. MySql

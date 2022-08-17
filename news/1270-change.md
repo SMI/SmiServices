@@ -1,0 +1,1 @@
+Rename yaml config file `IsIdentifiableBaseOptions` to `IsIdentifiableOptions` and removed unused CLI verbs in `smi`
