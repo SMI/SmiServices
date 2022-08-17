@@ -30,7 +30,7 @@ namespace Microservices.IsIdentifiable.Service
                 throw new ArgumentException("A DataDirectory must be set",nameof(globals));
 
             var objectFactory = new MicroserviceObjectFactory();
-            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableBaseOptions);
+            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions);
 
             if(classifier == null)
                 throw new TypeLoadException($"Could not find IClassifier Type { classifierTypename }");

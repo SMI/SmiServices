@@ -64,7 +64,7 @@ namespace Smi.Common.Options
         public TriggerUpdatesOptions TriggerUpdatesOptions { get; set; } = new TriggerUpdatesOptions();
 
         public IsIdentifiableServiceOptions IsIdentifiableServiceOptions { get; set; } = new IsIdentifiableServiceOptions();
-        public IsIdentifiableDicomFileOptions IsIdentifiableBaseOptions { get; set; } = new IsIdentifiableDicomFileOptions();
+        public IsIdentifiableDicomFileOptions IsIdentifiableOptions { get; set; } = new IsIdentifiableDicomFileOptions();
 
         public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
         public DicomAnonymiserOptions DicomAnonymiserOptions { get; set; } = new DicomAnonymiserOptions();
