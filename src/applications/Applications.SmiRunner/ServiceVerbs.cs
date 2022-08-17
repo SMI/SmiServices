@@ -24,9 +24,6 @@ namespace Applications.SmiRunner
     [Verb("extract-images", HelpText = "Launch an image extraction job")]
     public sealed class ExtractImagesVerb : ApplicationVerbBase { }
 
-    [Verb("is-identifiable-reviewer", HelpText = "Review identifiable information found by is-identifiable")]
-    public sealed class IsIdentifiableReviewerVerb : ApplicationVerbBase { }
-
     [Verb("trigger-updates", HelpText = "Queue system wide database updates to specific fields e.g. changes in PatientID, Tag Promotion etc")]
     public sealed class TriggerUpdatesVerb : ApplicationVerbBase { }
 
