@@ -4,26 +4,16 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Rules.template.yaml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="..\..\..\data\logging\Smi.NLog.config" Link="Smi.NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Rules.template.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="IsIdentifiable" Version="0.0.6" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="IsIdentifiable" Version="0.0.6" />
   </ItemGroup>
 </Project>
