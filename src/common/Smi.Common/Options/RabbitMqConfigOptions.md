@@ -194,6 +194,6 @@ YAML syntax reference is abundant online. YAML is basically a sequence of key-va
 indented lines will be properties of the previous outdented line. Dashes indicate array elements, although you can use square brackets as well (see above).
 
 If you want to add one option to an existing section, you need to create the corresponding property in the `GlobalOptions` class, as
-everything is strongly typed and it will error if a property in the YAML file is not matched by the class (the viceversa instead is allowed).
+everything is strongly typed and it will error if a property in the YAML file is not matched by the class (the vice-versa instead is allowed).
 
 If you create a new microservice, put its specific settings into a new top-level element in the YAML file.
