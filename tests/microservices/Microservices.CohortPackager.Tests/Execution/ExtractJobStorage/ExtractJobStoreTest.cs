@@ -88,7 +88,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Report needs to contain content if marked as IsIdentifiable
             message = new ExtractedFileVerificationMessage();
             message.OutputFilePath = "anon.dcm";
-            message.IsIdentifiable = true;
+            message.Status = VerifiedFileStatus.IsIdentifiable;
             message.Report = "[]";
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
             // NOTE(rkm 2020-07-23) The actual report content is verified to be valid the message consumer, so don't need to re-check here
@@ -98,7 +98,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Report can be empty if not marked as IsIdentifiable
             message = new ExtractedFileVerificationMessage();
             message.OutputFilePath = "anon.dcm";
-            message.IsIdentifiable = false;
+            message.Status = VerifiedFileStatus.NotIdentifiable;
             message.Report = "[]";
             testExtractJobStore.PersistMessageToStore(message, header);
         }

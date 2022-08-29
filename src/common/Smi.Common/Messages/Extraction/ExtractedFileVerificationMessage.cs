@@ -5,7 +5,7 @@ namespace Smi.Common.Messages.Extraction
     public class ExtractedFileVerificationMessage : ExtractMessage, IFileReferenceMessage
     {
         [JsonProperty(Required = Required.Always)]
-        public bool IsIdentifiable { get; set; }
+        public VerifiedFileStatus Status { get; set; }
 
         [JsonProperty(Required = Required.Always)]
         public string Report { get; set; }

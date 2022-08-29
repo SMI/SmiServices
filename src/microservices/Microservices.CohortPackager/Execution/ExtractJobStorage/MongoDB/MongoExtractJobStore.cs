@@ -79,10 +79,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.DicomFilePath,
                 message.OutputFilePath,
-                wasAnonymised: false,
-                isIdentifiable: true,
                 message.Status,
-                statusMessage: message.StatusMessage);
+                VerifiedFileStatus.NotVerified,
+                statusMessage: message.StatusMessage
+            );
 
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
@@ -98,10 +98,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.DicomFilePath,
                 message.OutputFilePath,
-                wasAnonymised: true,
-                isIdentifiable: message.IsIdentifiable,
                 ExtractedFileStatus.Anonymised,
-                statusMessage: message.Report);
+                message.Status,
+                statusMessage: message.Report
+            );
 
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
@@ -329,11 +329,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId)
         {
-            // NOTE(rkm 2020-03-16) Files which failed anonymisation should have statuses where WasAnonymised=false and IsIdentifiable=true
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.WasAnonymised, false);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.IsIdentifiable, true);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
+                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
+                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
+            );
+            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.NotVerified);
             return CompletedStatusDocsForFilter(filter).Select(x => new FileAnonFailureInfo(x.Item1, x.Item2));
         }
 
@@ -341,8 +343,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.WasAnonymised, true);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.IsIdentifiable, true);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
+                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
+                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
+             );
+            filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.IsIdentifiable);
             return CompletedStatusDocsForFilter(filter).Select(x => new FileVerificationFailureInfo(x.Item1, x.Item2));
         }
 

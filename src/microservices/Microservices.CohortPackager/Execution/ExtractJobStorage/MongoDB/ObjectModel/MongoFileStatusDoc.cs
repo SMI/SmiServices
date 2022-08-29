@@ -25,15 +25,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [CanBeNull]
         public string OutputFileName { get; set; }
 
-        [BsonElement("wasAnonymised")]
-        public bool WasAnonymised { get; set; }
-
-        [BsonElement("isIdentifiable")]
-        public bool IsIdentifiable { get; set; }
-
         [BsonElement("extractedFileStatus")]
         [BsonRepresentation(BsonType.String)]
         public ExtractedFileStatus ExtractedFileStatus { get; set; }
+
+        [BsonElement("verifiedFileStatus")]
+        [BsonRepresentation(BsonType.String)]
+        public VerifiedFileStatus VerifiedFileStatus { get; set; }
 
         /// <summary>
         /// Should only be null for identifiable extractions where the file was successfully copied. Otherwise will be the failure reason from CTP or the report content from the IsIdentifiable verification
@@ -54,20 +52,20 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             [NotNull] MongoExtractionMessageHeaderDoc header,
             [NotNull] string dicomFilePath,
             [CanBeNull] string outputFileName,
-            bool wasAnonymised,
-            bool isIdentifiable,
             ExtractedFileStatus extractedFileStatus,
-            [CanBeNull] string statusMessage)
+            VerifiedFileStatus verifiedFileStatus,
+            [CanBeNull] string statusMessage
+        )
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             DicomFilePath = dicomFilePath ?? throw new ArgumentNullException(nameof(dicomFilePath));
             OutputFileName = outputFileName;
-            WasAnonymised = wasAnonymised;
-            IsIdentifiable = isIdentifiable;
-            ExtractedFileStatus = (extractedFileStatus != ExtractedFileStatus.None) ? extractedFileStatus : throw new ArgumentException(nameof(extractedFileStatus));
+            ExtractedFileStatus = (extractedFileStatus != ExtractedFileStatus.None) ? extractedFileStatus : throw new ArgumentException("Cannot be None", nameof(extractedFileStatus));
+            VerifiedFileStatus = (verifiedFileStatus != VerifiedFileStatus.None) ? verifiedFileStatus : throw new ArgumentException("Cannot be None", nameof(verifiedFileStatus));
+
             StatusMessage = statusMessage;
-            if (!IsIdentifiable && string.IsNullOrWhiteSpace(statusMessage))
-                throw new ArgumentNullException(nameof(statusMessage));
+            if (string.IsNullOrWhiteSpace(StatusMessage) && ExtractedFileStatus != ExtractedFileStatus.Copied)
+                throw new ArgumentException("Cannot be null or whitespace except for successful file copies", nameof(statusMessage));
         }
 
         // ^ISupportInitialize
@@ -76,12 +74,22 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         // ^ISupportInitialize
         public void EndInit()
         {
-            if (!ExtraElements.ContainsKey("anonymisedFileName"))
-                return;
+            // NOTE(rkm 2022-07-28) Removed after v1.11.1
+            if (ExtraElements.ContainsKey("anonymisedFileName"))
+            {
+                OutputFileName = (string)ExtraElements["anonymisedFileName"];
+                DicomFilePath = "<unknown>";
+                ExtractedFileStatus = OutputFileName == null ? ExtractedFileStatus.ErrorWontRetry : ExtractedFileStatus.Anonymised;
+            }
 
-            OutputFileName = (string)ExtraElements["anonymisedFileName"];
-            DicomFilePath = "<unknown>";
-            ExtractedFileStatus = OutputFileName == null ? ExtractedFileStatus.ErrorWontRetry : ExtractedFileStatus.Anonymised;
+            // NOTE(rkm 2022-07-28) Removed after v5.1.3
+            if (ExtraElements.ContainsKey("isIdentifiable"))
+            {
+                if (OutputFileName == null)
+                    VerifiedFileStatus = VerifiedFileStatus.NotVerified;
+                else
+                    VerifiedFileStatus = (bool)ExtraElements["isIdentifiable"] ? VerifiedFileStatus.IsIdentifiable : VerifiedFileStatus.NotIdentifiable;
+            }
         }
     }
 }
