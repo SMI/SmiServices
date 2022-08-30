@@ -24,7 +24,7 @@
     <PackageReference Include="Equ" Version="2.3.0" />
     <PackageReference Include="coveralls.io" Version="1.4.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.1" />
-    <PackageReference Include="HIC.FAnsiSql" Version="2.0.5" />
+    <PackageReference Include="HIC.FAnsiSql" Version="3.0.0" />
   	<PackageReference Include="IsIdentifiable" Version="0.0.7" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.17" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
