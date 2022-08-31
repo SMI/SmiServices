@@ -178,8 +178,12 @@ class DicomText:
         # Now handle the TextValue tag
         # Wrap the text with [[Text]] and [[EndText]] for SemEHR
         if 'TextValue' in self._dicom_raw:
+            textval = str(self._dicom_raw['TextValue'].value + '\n')
             self._p_text = self._p_text + '[[Text]]\n'
-            self._p_text = self._p_text + str(self._dicom_raw['TextValue'].value + '\n')
+            if self._replace_HTML_entities:
+                self._p_text = self._p_text + redact_html_tags_in_string(textval)
+            else:
+                self._p_text = self._p_text + textval
             self._p_text = self._p_text + '[[EndText]]\n'
         # Now the text in the ContentSequence
         # Wrap the text with [[ContentSequence]] and [[EndContentSequence]] for SemEHR
