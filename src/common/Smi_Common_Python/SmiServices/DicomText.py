@@ -41,18 +41,19 @@ def redact_html_tags_in_string(html_str):
     # First replace single-instance tags <script.../> and <style.../>
     html_str = re.sub('<script[^>]*/>', replfunc, html_str)
     html_str = re.sub('<style[^>]*/>',  replfunc, html_str)
+    html_str = re.sub('&nbsp;', '      ', html_str)
     # Now replace the whole <script>...</script> and style sequence
     html_str = re.sub('<script[^>]*>.*?</script>', replfunc, html_str, flags=re.I|re.M|re.S)
     html_str = re.sub('<style[^>]*>.*?</style>', replfunc, html_str, flags=re.I|re.M|re.S)
     # Finally remove single-instance tags like <p> and <br>
-    html_str = re.sub('<(.DOCTYPE|a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|big|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|meta|meter|nav|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|source|span|strike|strong|style|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr)( [^<>]*){0,1}>', replfunc, html_str, flags=re.IGNORECASE)
+    html_str = re.sub('</{0,1}(.DOCTYPE|a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|big|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|meta|meter|nav|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|source|span|strike|strong|style|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr)( [^<>]*){0,1}>', replfunc, html_str, flags=re.IGNORECASE)
     return(html_str)
 
 def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3'
+    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3&nbsp;</p>'
     dest = redact_html_tags_in_string(src)
     # changing the \r to a space in the expected string also tests the string_match function
-    expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3'
+    expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3      ....'
     assert(string_match(dest, expected))
 
 # ---------------------------------------------------------------------
@@ -177,8 +178,12 @@ class DicomText:
         # Now handle the TextValue tag
         # Wrap the text with [[Text]] and [[EndText]] for SemEHR
         if 'TextValue' in self._dicom_raw:
+            textval = str(self._dicom_raw['TextValue'].value + '\n')
             self._p_text = self._p_text + '[[Text]]\n'
-            self._p_text = self._p_text + str(self._dicom_raw['TextValue'].value + '\n')
+            if self._replace_HTML_entities:
+                self._p_text = self._p_text + redact_html_tags_in_string(textval)
+            else:
+                self._p_text = self._p_text + textval
             self._p_text = self._p_text + '[[EndText]]\n'
         # Now the text in the ContentSequence
         # Wrap the text with [[ContentSequence]] and [[EndContentSequence]] for SemEHR
