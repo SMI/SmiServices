@@ -88,7 +88,7 @@ jobs:
       run: |
         set -euxo pipefail
         rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-        echo "rdmp_cli_ver=v$rdmp_cli_ver" >> $GITHUB_ENV
+        echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
     - name: "[windows] Install SQL LocalDB"
       if: ${{ matrix.os == 'windows' }}
       uses: crazy-max/ghaction-chocolatey@v2
@@ -112,7 +112,7 @@ jobs:
     - name: download rdmp-cli
       if: ${{ matrix.os == 'linux' }}
       run: |
-        curl -L https://github.com/HicServices/RDMP/releases/download/${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
+        curl -L https://github.com/HicServices/RDMP/releases/download/v${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
         mv rdmp-${{ env.rdmp_cli_ver }}-cli-linux rdmp-cli
     - name: install RDMP databases
       run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
