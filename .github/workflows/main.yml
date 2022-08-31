@@ -107,7 +107,13 @@ jobs:
       if: ${{ matrix.os == 'windows' }}
       run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
     - name: download rdmp-cli
+      if: ${{ matrix.os == 'windows' }}
       run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
+    - name: download rdmp-cli
+      if: ${{ matrix.os == 'linux' }}
+      run: |
+        curl -L https://github.com/HicServices/RDMP/releases/download/${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
+        mv rdmp-${{ env.rdmp_cli_ver }}-cli-linux rdmp-cli
     - name: install RDMP databases
       run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
     - name: show dotnet info

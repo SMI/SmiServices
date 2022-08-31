@@ -41,7 +41,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     platform = "linux" if os.name == "posix" else "win"
     url = (
         "https://github.com/HicServices/RDMP/releases/download/"
-        f"{args.version}/rdmp-cli-{platform}-x64.zip"
+        f"{args.version}/rdmp-{args.version}-cli-{platform}-x64.zip"
     )
     print(f"Downloading {url}")
     with tempfile.TemporaryDirectory() as tmpdir:
