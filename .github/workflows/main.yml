@@ -64,12 +64,6 @@ jobs:
       run: |
         Set-Service mongodb -StartupType Automatic
         Start-Service -Name mongodb
-    - uses: actions/cache@v3
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
     - name: setup .NET
       # NOTE(rkm 2022-02-20) Uses global.json
       uses: actions/setup-dotnet@v2
