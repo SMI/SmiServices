@@ -66,27 +66,12 @@ namespace Microservices.CohortPackager.Execution
             else if (dateTimeProvider != null)
                 throw new ArgumentException("jobStore and dateTimeProvider are mutually exclusive arguments");
 
-            // If not passed a reporter or notifier, try and construct one from the given options
-
-            string reportFormatStr = Globals.CohortPackagerOptions.ReportFormat;
-            if (reporter == null)
-            {
-                reporter = JobReporterFactory.GetReporter(
-                    Globals.CohortPackagerOptions.ReporterType,
-                    jobStore,
-                    fileSystem ?? new FileSystem(),
-                    Globals.FileSystemOptions.ExtractRoot,
-                    reportFormatStr,
-                    Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine)
-                );
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(reportFormatStr))
-                    throw new ArgumentException($"Passed an IJobReporter, but this conflicts with the ReportFormat of '{reportFormatStr}' in the given options");
-                if (fileSystem != null)
-                    throw new ArgumentException("Passed a fileSystem, but this will be unused as also passed an existing IJobReporter");
-            }
+            reporter ??= new JobReporter(
+                jobStore,
+                fileSystem ?? new FileSystem(),
+                globals.FileSystemOptions.ExtractRoot,
+                Regex.Unescape(globals.CohortPackagerOptions.ReportNewLine)
+            );
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
                 Globals.CohortPackagerOptions.NotifierType

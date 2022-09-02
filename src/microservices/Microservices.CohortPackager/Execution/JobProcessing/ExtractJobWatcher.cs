@@ -70,7 +70,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             }
         }
 
-        public void ProcessJobs(Guid specificJob = new Guid())
+        public void ProcessJobs(Guid specificJob = default)
         {
             _processTimer.Stop();
 
@@ -96,6 +96,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
                     }
                     catch (Exception e)
                     {
+                        _logger.Error(e, "Unhandled exception");
                         StopProcessing("ProcessJob threw an unhandled exception");
                         _exceptionCallback(e);
                         return;
@@ -125,7 +126,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
             _jobStore.MarkJobCompleted(jobId);
 
-            _reporter.CreateReport(jobId);
+            _reporter.CreateReports(jobId);
             _logger.Info($"Report for {jobId} created");
 
             _notifier.NotifyJobCompleted(jobInfo);

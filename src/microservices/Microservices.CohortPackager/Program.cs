@@ -47,18 +47,16 @@ namespace Microservices.CohortPackager
             string newLine = Regex.Unescape(cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine);
 
             // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory
-            IJobReporter reporter = JobReporterFactory.GetReporter(
-                "FileReporter",
+            var reporter = new JobReporter(
                 jobStore,
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
-                cliOptions.ReportFormat.ToString(),
                 newLine
             );
 
             try
             {
-                reporter.CreateReport(cliOptions.ExtractionId);
+                reporter.CreateReports(cliOptions.ExtractionId);
             }
             catch (Exception e)
             {
