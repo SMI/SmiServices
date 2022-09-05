@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.18" />
+    <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.19" />
     <PackageReference Include="Spectre.Console" Version="0.44.0" />
     <PackageReference Include="Terminal.Gui" Version="1.7.2" />
   </ItemGroup>
