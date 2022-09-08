@@ -2,6 +2,7 @@
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -78,10 +79,18 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             var fakeFulfiller = new FakeFulfiller();
 
             var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
+
+            ExtractFileMessage message = null;
             string fileMessageRoutingKey = null;
+
             mockFileMessageProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
-                .Callback((IMessage _, IMessageHeader __, string routingKey) => { fileMessageRoutingKey = routingKey; })
+                .Callback((IMessage m, IMessageHeader _, string routingKey) =>
+                    {
+                        message = (ExtractFileMessage)m;
+                        fileMessageRoutingKey = routingKey;
+                    }
+                )
                 .Returns(new MessageHeader());
             mockFileMessageProducerModel.Setup(x => x.WaitForConfirms());
 
@@ -103,12 +112,20 @@ namespace Microservices.CohortExtractor.Tests.Messaging
                 Modalities = null,
             };
 
+            var mockSwapper = new Mock<ISwapIdentifiers>(MockBehavior.Strict);
+            string reason;
+            mockSwapper.Setup(x => x.GetSubstitutionFor("study-1", out reason)).Returns("study-1-swap");
+            mockSwapper.Setup(x => x.GetSubstitutionFor("series-1", out reason)).Returns("series-1-swap");
+            mockSwapper.Setup(x => x.GetSubstitutionFor("instance-1", out reason)).Returns("instance-1-swap");
+
             var consumer = new ExtractionRequestQueueConsumer(
                 globals.CohortExtractorOptions,
                 fakeFulfiller,
                 new NullAuditExtractions(), new DefaultProjectPathResolver(),
                 mockFileMessageProducerModel.Object,
-                mockFileInfoMessageProducerModel.Object);
+                mockFileInfoMessageProducerModel.Object,
+                mockSwapper.Object
+            );
 
             var fatalCalled = false;
             FatalErrorEventArgs fatalErrorEventArgs = null;
@@ -129,6 +146,21 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             Assert.False(fatalCalled, $"Fatal was called with {fatalErrorEventArgs}");
             mockModel.Verify(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()), Times.Once);
             Assert.AreEqual(expectedRoutingKey, fileMessageRoutingKey);
+
+            var expectedMessage = new ExtractFileMessage();
+
+            if (!isIdentifiableExtraction)
+            {
+                Assert.AreEqual("study-1-swap", message.ReplacementStudyInstanceUID);
+                Assert.AreEqual("series-1-swap", message.ReplacementSeriesInstanceUID);
+                Assert.AreEqual("instance-1-swap", message.ReplacementSOPInstanceUID);
+            }
+            else
+            {
+                Assert.IsNull(message.ReplacementStudyInstanceUID);
+                Assert.IsNull(message.ReplacementSeriesInstanceUID);
+                Assert.IsNull(message.ReplacementSOPInstanceUID);
+            }
         }
 
         #endregion

@@ -41,7 +41,6 @@ namespace Smi.Common.Messages.Extraction
             DateTime jobSubmittedAt,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction)
-            : this()
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
             ProjectNumber = projectNumber;

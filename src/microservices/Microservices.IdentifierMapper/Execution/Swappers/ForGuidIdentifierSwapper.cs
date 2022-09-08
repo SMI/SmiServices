@@ -28,6 +28,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         private int _swapColumnLength;
 
+        /// <summary>
+        /// Static delegate to use instead of <see cref="Guid.NewGuid"/> for allocating
+        /// anonymous strings.  Set to null to reset default behaviour.
+        /// </summary>
+        public static Func<string> GuidAllocator;
+
         public ForGuidIdentifierSwapper()
         {
             _logger = LogManager.GetCurrentClassLogger();
@@ -67,9 +73,8 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                     Success++;
                     return _cachedAnswers[toSwap];
                 }
-                    
                                 
-                var guid = Guid.NewGuid().ToString();
+                var guid = GuidAllocator?.Invoke() ?? Guid.NewGuid().ToString();
 
                 switch(_options.MappingDatabaseType)
                 {

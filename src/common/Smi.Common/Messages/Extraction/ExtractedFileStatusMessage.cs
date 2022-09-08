@@ -5,14 +5,8 @@ namespace Smi.Common.Messages.Extraction
     /// <summary>
     /// Status message sent by services which extract files (CTP, FileCopier)
     /// </summary>
-    public class ExtractedFileStatusMessage : ExtractMessage, IFileReferenceMessage
+    public class ExtractedFileStatusMessage : ExtractFileMessageBase
     {
-        /// <summary>
-        /// Original file path
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string DicomFilePath { get; set; }
-
         /// <summary>
         /// The <see cref="ExtractedFileStatus"/> for this file
         /// </summary>
@@ -35,7 +29,7 @@ namespace Smi.Common.Messages.Extraction
         [JsonConstructor]
         public ExtractedFileStatusMessage() { }
 
-        public ExtractedFileStatusMessage(ExtractFileMessage request)
+        public ExtractedFileStatusMessage(ExtractFileMessageBase request)
             : base(request)
         {
             DicomFilePath = request.DicomFilePath;

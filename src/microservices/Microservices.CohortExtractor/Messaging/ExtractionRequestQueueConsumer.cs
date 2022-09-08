@@ -2,10 +2,12 @@ using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using System;
 using System.ComponentModel;
 
 namespace Microservices.CohortExtractor.Messaging
@@ -18,6 +20,7 @@ namespace Microservices.CohortExtractor.Messaging
         private readonly IAuditExtractions _auditor;
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
+        private readonly ISwapIdentifiers _uidSwapper;
 
         private readonly IProjectPathResolver _resolver;
 
@@ -25,7 +28,9 @@ namespace Microservices.CohortExtractor.Messaging
             CohortExtractorOptions options,
             IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
             IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
-            IProducerModel fileMessageInfoProducer)
+            IProducerModel fileMessageInfoProducer,
+            ISwapIdentifiers uidSwapper = null
+        )
         {
             _options = options;
             _fulfiller = fulfiller;
@@ -33,6 +38,7 @@ namespace Microservices.CohortExtractor.Messaging
             _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
+            _uidSwapper = uidSwapper;
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
@@ -58,14 +64,22 @@ namespace Microservices.CohortExtractor.Messaging
 
                 foreach (QueryToExecuteResult accepted in matchedFiles.Accepted)
                 {
-                    var extractFileMessage = new ExtractFileMessage(request)
+                    var extractFileMessage = new ExtractFileMessage()
                     {
                         // Path to the original file
                         DicomFilePath = accepted.FilePathValue.TrimStart('/', '\\'),
                         // Extraction directory relative to the extract root
                         ExtractionDirectory = extractionDirectory,
                         // Output path for the anonymised file, relative to the extraction directory
-                        OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/')
+                        OutputPath = _resolver.GetOutputPath(accepted, request).Replace('\\', '/'),
+
+                        StudyInstanceUID = accepted.StudyTagValue,
+                        SeriesInstanceUID = accepted.SeriesTagValue,
+                        SOPInstanceUID = accepted.InstanceTagValue,
+
+                        ReplacementStudyInstanceUID = request.IsIdentifiableExtraction ? null : SwapIfApplicable("StudyInstanceUID", accepted.StudyTagValue),
+                        ReplacementSeriesInstanceUID = request.IsIdentifiableExtraction ? null : SwapIfApplicable("SeriesInstanceUID", accepted.SeriesTagValue),
+                        ReplacementSOPInstanceUID =  request.IsIdentifiableExtraction ? null : SwapIfApplicable("SOPInstanceUID", accepted.InstanceTagValue),
                     };
 
                     Logger.Debug($"DicomFilePath={extractFileMessage.DicomFilePath}, OutputPath={extractFileMessage.OutputPath}");
@@ -103,6 +117,19 @@ namespace Microservices.CohortExtractor.Messaging
 
             Logger.Info("Finished processing message");
             Ack(header, tag);
+        }
+
+        private string SwapIfApplicable(string tagName, string value)
+        {
+            if (_uidSwapper == null)
+                return null;
+
+            var replacement = _uidSwapper.GetSubstitutionFor(value, out string reason);
+
+            if (string.IsNullOrWhiteSpace(replacement) || reason != null)
+                throw new Exception($"Couldn't get a replacement {tagName} for {value}. Reason: '{reason}'");
+
+            return replacement;
         }
     }
 }

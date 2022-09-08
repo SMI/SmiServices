@@ -6,6 +6,7 @@ using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
+using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
 using RabbitMQ.Client.Exceptions;
 using Rdmp.Core.Curation.Data;
@@ -15,9 +16,11 @@ using Rdmp.Core.Startup;
 using ReusableLibraryCode.Checks;
 using Smi.Common;
 using Smi.Common.Execution;
+using Smi.Common.Helpers;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using StackExchange.Redis;
 
 namespace Microservices.CohortExtractor.Execution
 {
@@ -41,6 +44,7 @@ namespace Microservices.CohortExtractor.Execution
         private IExtractionRequestFulfiller _fulfiller;
         private IProjectPathResolver _pathResolver;
         private IProducerModel _fileMessageProducer;
+        public ISwapIdentifiers Swapper { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -48,8 +52,9 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller)
-            : base(options)
+        /// <param name="rabbitMqAdapter">Override the rabbitmq adapter e.g. in tests</param>
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller,IRabbitMqAdapter rabbitMqAdapter = null)
+            : base(options,rabbitMqAdapter)
         {
             _consumerOptions = options.CohortExtractorOptions;
             _consumerOptions.Validate();
@@ -80,7 +85,7 @@ namespace Microservices.CohortExtractor.Execution
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer,Swapper);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
@@ -155,6 +160,53 @@ namespace Microservices.CohortExtractor.Execution
                 ? new DefaultProjectPathResolver()
                 : ObjectFactory.CreateInstance<IProjectPathResolver>(
                     _consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly, repositoryLocator);
+
+            SetupSwapper();
+        }
+
+        private void SetupSwapper()
+        {
+            if (_consumerOptions.ExtractionIdentifierSwapping == null || _consumerOptions.ExtractionIdentifierSwapping.IsEmpty())
+            {
+                Logger.Log(LogLevel.Info, "No ExtractionIdentifierSwapping configured, UIDs will not be substituted");
+            }
+            else
+            {
+                try
+                {
+                    var objectFactory = new MicroserviceObjectFactory();
+                    Swapper = objectFactory.CreateInstance<ISwapIdentifiers>(_consumerOptions.ExtractionIdentifierSwapping.SwapperType, typeof(ISwapIdentifiers).Assembly);
+
+                    if (Swapper == null)
+                        throw new ArgumentException("Could not construct swapper, MicroserviceObjectFactory returned null");
+
+                    Swapper.Setup(Globals.CohortExtractorOptions.ExtractionIdentifierSwapping);
+
+                    // if we were able to setup a swapper then configure the static
+                    // delegate to use UIDs instead of Guids
+                    var uidGenerator = new SmiDicomUIDGenerator(Globals.CohortExtractorOptions.GeneratedUIDPrefix);
+                    ForGuidIdentifierSwapper.GuidAllocator = () => uidGenerator.Generate();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Could not create IdentifierMapper Swapper with SwapperType:{_consumerOptions?.ExtractionIdentifierSwapping?.SwapperType ?? "Null"}", ex);
+                }
+            }
+
+            // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
+            if (Swapper != null && !string.IsNullOrWhiteSpace(_consumerOptions?.ExtractionIdentifierSwapping?.RedisConnectionString))
+                try
+                {
+                    Swapper = new RedisSwapper(_consumerOptions.ExtractionIdentifierSwapping.RedisConnectionString, Swapper);
+                }
+                catch (RedisConnectionException e)
+                {
+                    // NOTE(rkm 2020-03-30) Log & throw! I hate this, but if we don't log here using NLog, then the exception will bubble-up
+                    //                      and only be printed to STDERR instead of to the log file and may be lost
+                    Logger.Error(e, "Could not connect to Redis");
+                    throw;
+                }
+
         }
     }
 }

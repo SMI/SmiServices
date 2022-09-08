@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Smi.Common.Messages.Extraction.ExtractedFileStatusMessage" Collapsed="true">
+    <Position X="8" Y="6.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAEAAAAAAAAAAAAAAAAAAAAAICAAAA=</HashCode>
+      <FileName>Messages\Extraction\ExtractedFileStatusMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractedFileVerificationMessage" Collapsed="true">
+    <Position X="13.5" Y="6.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAACABAA=</HashCode>
+      <FileName>Messages\Extraction\ExtractedFileVerificationMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractFileCollectionInfoMessage" Collapsed="true">
+    <Position X="19.75" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAACAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Messages\Extraction\ExtractFileCollectionInfoMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractFileMessageBase" Collapsed="true">
+    <Position X="11" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Messages\Extraction\ExtractFileMessageBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractionRequestInfoMessage" Collapsed="true">
+    <Position X="16.75" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAQAAAAEAAAAAAIAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Messages\Extraction\ExtractionRequestInfoMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractionRequestMessage" Collapsed="true">
+    <Position X="23" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAEAAAAAAIAAAAAAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>Messages\Extraction\ExtractionRequestMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractMessage" Collapsed="true">
+    <Position X="15.25" Y="3.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAQAAABIAAAEACAAAAAAAAAAI=</HashCode>
+      <FileName>Messages\Extraction\ExtractMessage.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Smi.Common.Messages.Extraction.ExtractFileMessage" Collapsed="true">
+    <Position X="11" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Messages\Extraction\ExtractFileMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

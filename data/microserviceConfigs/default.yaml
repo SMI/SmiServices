@@ -64,6 +64,7 @@ TriggerUpdatesOptions:
     MaxConfirmAttempts: 1
 
 CohortExtractorOptions:
+    GeneratedUIDPrefix: "83777349" # "SMI1" in ASCII
     QueueName: 'TEST.RequestQueue'
     QoSPrefetchCount: 10000
     AutoAck: false
@@ -89,7 +90,16 @@ CohortExtractorOptions:
     ExtractFilesInfoProducerOptions: 
         ExchangeName: 'TEST.FileCollectionInfoExchange'
         MaxConfirmAttempts: 1
-        
+    ExtractionIdentifierSwapping:
+        MappingConnectionString: 'Server=localhost\sqlexpress;Integrated Security=true;Initial Catalog=MappingDatabase;'
+        MappingDatabaseType: 'MicrosoftSQLServer'
+        MappingTableName: 'MappingTable'
+        TimeoutInSeconds: 600
+        SwapColumnName: 'CHI'
+        ReplacementColumnName: 'ECHI'
+        SwapperType: 'Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper'
+        RedisConnectionString: ''
+
 CohortPackagerOptions:
     JobWatcherTimeoutInSeconds: 30
     ReporterType: 'LoggingReporter'
