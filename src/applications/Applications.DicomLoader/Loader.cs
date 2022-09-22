@@ -8,9 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DicomTypeTranslation;
 using FellowOakDicom;
+using LibArchive.Net;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using SharpCompress.Archives;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 
@@ -91,26 +91,33 @@ public class Loader
             return;
         }
         // Not DICOM? OK, try it as an archive:
-        using var archiveStream = File.OpenRead(fi.FullName);
-        using var archive=ArchiveFactory.Open(archiveStream);
-        foreach(var entry in archive.Entries)
+        try
         {
-            if (ct.IsCancellationRequested)
-                return;
-            if (entry.IsDirectory) continue;
-            try
+            using var archive = new LibArchiveReader(fi.FullName);
+            foreach(var entry in archive.Entries())
             {
-                using var ms = new MemoryStream();
-                using (var eStream = entry.OpenEntryStream())
-                    eStream.CopyTo(ms);
-                ms.Seek(0, SeekOrigin.Begin);
-                var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
-                Process(ds, $"{fi.FullName}!{entry.Key}", dName, entry.Size, ct);
+                if (ct.IsCancellationRequested)
+                    return;
+                try
+                {
+                    using var ms = new MemoryStream();
+                    using (var eStream = entry.Stream)
+                        eStream.CopyTo(ms);
+                    if (ms.Length <= 0)
+                        continue;
+                    ms.Seek(0, SeekOrigin.Begin);
+                    var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
+                    Process(ds, $"{fi.FullName}!{entry.Name}", dName, ms.Length, ct);
+                }
+                catch (DicomFileException e)
+                {
+                    Console.WriteLine($"Failed to load DICOM data from {fi.FullName} entry {entry.Name} due to {e}");
+                }
             }
-            catch (DicomFileException e)
-            {
-                Console.WriteLine($"Failed to load DICOM data from {fi.FullName} entry {entry.Key} due to {e}");
-            }
+        }
+        catch (ApplicationException e)
+        {
+            Console.WriteLine($"Unable to read {fi.FullName} as DICOM or archive: {e.Message}");
         }
     }
 
