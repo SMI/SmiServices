@@ -26,7 +26,7 @@
     <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.1" />
     <PackageReference Include="HIC.FAnsiSql" Version="3.0.0" />
   	<PackageReference Include="IsIdentifiable" Version="0.0.7" />
-    <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.20" />
+    <PackageReference Include="HIC.RDMP.Plugin" Version="8.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="5.0.4" />
