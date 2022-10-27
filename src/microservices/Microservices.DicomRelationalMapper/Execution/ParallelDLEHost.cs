@@ -56,7 +56,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         /// <returns>The exit code of the data load after it completes</returns>
         private ExitCodeType RunDLE(LoadMetadata lmd, object payload)
         {
-            var catalogueRepository = (CatalogueRepository)lmd.Repository;
+            var catalogueRepository = lmd.CatalogueRepository;
 
             //ensures that RAW/STAGING always have unique names
             _configuration = new HICDatabaseConfiguration(lmd, _namer);
