@@ -66,7 +66,7 @@ jobs:
         Start-Service -Name mongodb
     - name: setup .NET
       # NOTE(rkm 2022-02-20) Uses global.json
-      uses: actions/setup-dotnet@v3.0.2
+      uses: actions/setup-dotnet@v3.0.3
     - name: download tessdata
       run: ./bin/smi/downloadTessdata.py
     - name: "[linux] start services"
