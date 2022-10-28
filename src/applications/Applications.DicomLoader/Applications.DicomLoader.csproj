@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LineReader" Version="0.1.0" />
-    <PackageReference Include="LibArchive.Net" Version="0.1.1" />
+    <PackageReference Include="LibArchive.Net" Version="0.1.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
