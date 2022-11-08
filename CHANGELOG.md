@@ -11,6 +11,38 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.3.0] 2022-11-08
+
+## Feature
+
+-   [#1259](https://github.com/SMI/SmiServices/pull/1259) by rkm. Add support
+    for extraction processing failures
+    -   Remove `IsIdentifiable` field from `ExtractedFileVerificationMessage`
+        and replace with new `VerifiedFileStatus` enum
+    -   Update extraction job classes in `CohortPackager` to store this new
+        field, and handle backwards-incompatibility when reading older
+        extraction logs
+
+## Bugfix
+
+-   [#1285](https://github.com/SMI/SmiServices/pull/1285) by howff. Improve the
+    removal of HTML tags from StructuredReport (SR) text
+-   [#1314](https://github.com/SMI/SmiServices/pull/1314) by jas88. Replace
+    SharpCompress usage due to buggy LZMA handling to fix issue #1313
+-   [#1350](https://github.com/SMI/SmiServices/pull/1350) by tznind. Fix
+    DicomRelationalMapper when running with a YamlRepository backend
+
+## Change
+
+-   [#1270](https://github.com/SMI/SmiServices/pull/1270) by tznind. Rename yaml
+    config file `IsIdentifiableBaseOptions` to `IsIdentifiableOptions` and
+    removed unused CLI verbs in `smi`
+
+## Meta
+
+-   [#1261](https://github.com/SMI/SmiServices/pull/1261) by jas88. Update
+    caching strategy in CI
+
 ## [5.2.0] 2022-08-10
 
 ## Feature
@@ -1142,7 +1174,8 @@ First stable release after importing the repository from the private
 -   Anonymous `MappingTableName` must now be fully specified to pass validation
     (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.2.0...master
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.3.0...master
+[5.3.0]: https://github.com/SMI/SmiServices/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/SMI/SmiServices/compare/v5.1.3...v5.2.0
 [5.1.3]: https://github.com/SMI/SmiServices/compare/v5.1.2...v5.1.3
 [5.1.2]: https://github.com/SMI/SmiServices/compare/v5.1.1...v5.1.2
