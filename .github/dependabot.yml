@@ -8,7 +8,6 @@ updates:
   target-branch: master
   reviewers:
   - rkm
-  - tznind
   - jas88
 - package-ecosystem: maven
   directory: "/src/common/com.smi.microservices.parent"
@@ -18,7 +17,6 @@ updates:
   target-branch: master
   reviewers:
   - rkm
-  - tznind
   - jas88
 - package-ecosystem: "github-actions"
   directory: "/"
@@ -26,7 +24,6 @@ updates:
     interval: daily
   reviewers:
   - rkm
-  - tznind
   - jas88
 - package-ecosystem: "pip"
   directory: "/src/common/Smi_Common_Python"
@@ -34,11 +31,17 @@ updates:
     interval: daily
   allow:
     - dependency-type: "all"
+  reviewers:
+  - rkm
+  - jas88
 - package-ecosystem: "pip"
   directory: "/src/applications/SRAnonTool"
   schedule:
     interval: daily
   allow:
     - dependency-type: "all"
+  reviewers:
+  - rkm
+  - jas88
 
 
