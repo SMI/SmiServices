@@ -4,4 +4,4 @@ pydicom
 pymongo
 PyYAML
 mysql_connector_python
-protobuf<=3.19.4
+protobuf<=3.19.5
