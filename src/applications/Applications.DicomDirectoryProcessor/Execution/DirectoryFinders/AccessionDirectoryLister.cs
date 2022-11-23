@@ -44,7 +44,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                     continue;
                 }
 
-                var dirInfo = FileSystem.DirectoryInfo.FromDirectoryName(accessionDirectory);
+                var dirInfo = FileSystem.DirectoryInfo.New(accessionDirectory);
                 IEnumerable<IFileInfo> fileEnumerator;
 
                 try

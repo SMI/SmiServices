@@ -52,7 +52,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                     string dir = dirStack.Pop();
                     Logger.Debug("Scanning " + dir);
 
-                    IDirectoryInfo dirInfo = FileSystem.DirectoryInfo.FromDirectoryName(dir);
+                    IDirectoryInfo dirInfo = FileSystem.DirectoryInfo.New(dir);
 
                     if (!dirInfo.Exists)
                     {
