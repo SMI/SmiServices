@@ -64,7 +64,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                 Stopwatch.Restart();
                 StringBuilder = new StringBuilder();
 
-                IDirectoryInfo dirInfo = FileSystem.DirectoryInfo.FromDirectoryName(dir);
+                IDirectoryInfo dirInfo = FileSystem.DirectoryInfo.New(dir);
                 LogTime(TimeLabel.NewDirInfo);
 
                 IEnumerable<IFileInfo> fileEnumerator;

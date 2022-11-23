@@ -28,7 +28,7 @@ namespace Applications.ExtractImages
 
         public Tuple<ExtractionKey, List<string>> Parse(string csvFilePath)
         {
-            using var fileStream = _fileSystem.FileStream.Create(csvFilePath, FileMode.Open, FileAccess.Read);
+            using var fileStream = _fileSystem.FileStream.New(csvFilePath, FileMode.Open, FileAccess.Read);
             using var streamReader = new StreamReader(fileStream);
             using var reader = new CsvReader(streamReader, _csvConfiguration);
 
