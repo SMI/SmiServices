@@ -83,12 +83,14 @@ public class Loader
         var dName = fi.DirectoryName ?? throw new ApplicationException($"No parent directory for '{fi.FullName}'");
         var bBuffer=new byte[132];
         var buffer = new Span<byte>(bBuffer);
-        using var fileStream = File.OpenRead(fi.FullName);
-        if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
+        using (var fileStream = File.OpenRead(fi.FullName))
         {
-            var ds = DicomFile.Open(fileStream).Dataset;
-            Process(ds, fi.FullName,dName, fi.Length, ct);
-            return;
+            if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
+            {
+                var ds = DicomFile.Open(fileStream).Dataset;
+                Process(ds, fi.FullName,dName, fi.Length, ct);
+                return;
+            }
         }
         // Not DICOM? OK, try it as an archive:
         try
