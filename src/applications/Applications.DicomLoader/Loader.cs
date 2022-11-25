@@ -102,18 +102,22 @@ public class Loader
                     return;
                 try
                 {
-                    using var ms = new MemoryStream();
-                    using (var eStream = entry.Stream)
-                        eStream.CopyTo(ms);
-                    if (ms.Length <= 0)
-                        continue;
-                    ms.Seek(0, SeekOrigin.Begin);
-                    var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
-                    Process(ds, $"{fi.FullName}!{entry.Name}", dName, ms.Length, ct);
+                    var path = $"{fi.FullName}!{entry.Name}";
+                    if (!ExistingEntry(path))
+                    {
+                        using var ms = new MemoryStream();
+                        using (var eStream = entry.Stream)
+                            eStream.CopyTo(ms);
+                        if (ms.Length <= 0)
+                            continue;
+                        ms.Seek(0, SeekOrigin.Begin);
+                        var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
+                        Process(ds, path, dName, ms.Length, ct);
+                    }
                 }
                 catch (DicomFileException e)
                 {
-                    Console.WriteLine($"Failed to load DICOM data from {fi.FullName} entry {entry.Name} due to {e}");
+                    Console.WriteLine($"{fi.FullName}!{entry.Name}:{e.Message}");
                 }
             }
         }
@@ -174,6 +178,18 @@ public class Loader
     }
 
     /// <summary>
+    /// Check if a filename is an existing MongoDB entry
+    /// </summary>
+    /// <param name="filename">Filename (possibly in the form archive!entry) to check for</param>
+    /// <returns>Whether there's already an entry for this file</returns>
+    private bool ExistingEntry(string filename)
+    {
+        return (_imageStore.CountDocuments(
+            new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
+                new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0);
+    }
+
+    /// <summary>
     /// Try to load the named DICOM file or archive of DICOM files into Mongo, ignoring if duplicate
     /// </summary>
     /// <param name="filename">File or archive to load</param>
@@ -187,11 +203,8 @@ public class Loader
             return ValueTask.CompletedTask;
         }
 
-        if (_imageStore.CountDocuments(
-                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
-                    new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0)
+        if (ExistingEntry(filename))
         {
-            Console.WriteLine($@"{filename} already loaded, skipping");
             return ValueTask.CompletedTask;
         }
 
@@ -201,7 +214,7 @@ public class Loader
         }
         catch (Exception e)
         {
-            Console.WriteLine($"{filename} processing failed to due {e}");
+            Console.WriteLine($"{filename}:{e}");
         }
         return ValueTask.CompletedTask;
     }
