@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,6 +56,8 @@ public class Loader
             if (!_seriesList.IsEmpty)
                 _seriesStore.InsertMany(_seriesList.Values);
             _seriesList.Clear();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(2, GCCollectionMode.Forced, true, true);
         }
     }
 
