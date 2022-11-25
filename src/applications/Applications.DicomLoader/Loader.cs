@@ -106,7 +106,7 @@ public class Loader
                 try
                 {
                     var path = $"{fi.FullName}!{entry.Name}";
-                    if (!ExistingEntry(path))
+                    if (!ExistingEntry(path, ct))
                     {
                         using var ms = new MemoryStream();
                         using (var eStream = entry.Stream)
@@ -184,8 +184,9 @@ public class Loader
     /// Check if a filename is an existing MongoDB entry
     /// </summary>
     /// <param name="filename">Filename (possibly in the form archive!entry) to check for</param>
+    /// <param name="ct"></param>
     /// <returns>Whether there's already an entry for this file</returns>
-    private bool ExistingEntry(string filename)
+    private bool ExistingEntry(string filename, CancellationToken ct)
     {
         return (_imageStore.CountDocuments(
             new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
@@ -206,7 +207,7 @@ public class Loader
             return ValueTask.CompletedTask;
         }
 
-        if (ExistingEntry(filename))
+        if (ExistingEntry(filename, ct))
         {
             return ValueTask.CompletedTask;
         }
