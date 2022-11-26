@@ -177,6 +177,7 @@ public class Loader
         if (ct.IsCancellationRequested)
             return;
 
+        ds.Remove(new[] { DicomTag.PixelData });
         var identifiers = new string[3];
 
         // Pre-fetch these to ensure they exist before we go further
