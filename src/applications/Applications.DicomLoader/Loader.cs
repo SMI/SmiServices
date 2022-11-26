@@ -224,9 +224,7 @@ public class Loader
     /// <returns>Whether there's already an entry for this file</returns>
     private bool ExistingEntry(string filename, CancellationToken ct)
     {
-        return (_imageStore.CountDocuments(
-            new BsonDocument("header",
-                new BsonDocument("DicomFilePath", filename)), new CountOptions(), ct) > 0);
+        return _imageStore.AsQueryable().Any(i => i.GetValue("header").AsBsonDocument.GetValue("DicomFilePath").AsString.CompareTo(filename) == 0);
     }
 
     /// <summary>
