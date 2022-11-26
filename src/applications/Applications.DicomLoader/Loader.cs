@@ -21,12 +21,15 @@ namespace Applications.DicomLoader;
 public class Loader
 {
     private readonly object _flushLock=new ();
-    private readonly object _mongoLock = new();
     private int _fileCount;
     private readonly ConcurrentDictionary<string,SeriesMessage> _seriesList=new ();
     private readonly Stopwatch _timer = Stopwatch.StartNew();
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
+    private static readonly InsertManyOptions mongoinsertoptions = new()
+    {
+        
+    };
 
     /// <summary>
     /// Make sure Mongo ignores its internal-only _id attribute when
@@ -46,10 +49,8 @@ public class Loader
     
     private SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
     {
-        SeriesMessage b;
         // Try loading from Mongo in case we were interrupted previously
-        lock(_mongoLock)
-            b=_seriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
+        var b=_seriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
         return b ?? new SeriesMessage
         {
             DirectoryPath = directoryName,
@@ -215,10 +216,9 @@ public class Loader
     /// <returns>Whether there's already an entry for this file</returns>
     private bool ExistingEntry(string filename, CancellationToken ct)
     {
-        lock (_mongoLock)
-            return (_imageStore.CountDocuments(
-                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
-                    new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0);
+        return (_imageStore.CountDocuments(
+            new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
+                new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0);
     }
 
     /// <summary>
