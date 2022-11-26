@@ -12,6 +12,7 @@ using FellowOakDicom;
 using LibArchive.Net;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Rdmp.Core.CommandExecution.AtomicCommands;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 
@@ -20,6 +21,7 @@ namespace Applications.DicomLoader;
 public class Loader
 {
     private readonly object _flushLock=new ();
+    private readonly object _mongoLock = new();
     private int _fileCount;
     private readonly ConcurrentDictionary<string,SeriesMessage> _seriesList=new ();
     private readonly Stopwatch _timer = Stopwatch.StartNew();
@@ -28,8 +30,10 @@ public class Loader
 
     private SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
     {
+        SeriesMessage b;
         // Try loading from Mongo in case we were interrupted previously
-        var b=_seriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
+        lock(_mongoLock)
+            b=_seriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
         return b ?? new SeriesMessage
         {
             DirectoryPath = directoryName,
@@ -188,9 +192,10 @@ public class Loader
     /// <returns>Whether there's already an entry for this file</returns>
     private bool ExistingEntry(string filename, CancellationToken ct)
     {
-        return (_imageStore.CountDocuments(
-            new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
-                new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0);
+        lock (_mongoLock)
+            return (_imageStore.CountDocuments(
+                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
+                    new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0);
     }
 
     /// <summary>
