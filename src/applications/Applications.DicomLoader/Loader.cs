@@ -54,7 +54,7 @@ public class Loader
         return b ?? new SeriesMessage
         {
             DirectoryPath = directoryName,
-            DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds),
+            DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(new DicomDataset(ds.Where(i => i is not DicomOtherByteFragment).ToArray())),
             ImagesInSeries = 1,
             SeriesInstanceUID = id,
             StudyInstanceUID = studyId
