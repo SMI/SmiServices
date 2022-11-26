@@ -75,7 +75,14 @@ public class Loader
             List<BsonDocument> imageBatch = new();
             while(_imageQueue.TryDequeue(out var I))
                 imageBatch.Add(I);
-            _imageStore.InsertMany(imageBatch);
+            try
+            {
+                _imageStore.InsertMany(imageBatch);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Image flush:{e.Message}");
+            }
             if (!force && _seriesList.Count < 100)
                 return;
             if (!_seriesList.IsEmpty)
