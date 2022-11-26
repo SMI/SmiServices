@@ -203,9 +203,17 @@ public class Loader
         _seriesList.AddOrUpdate(identifiers[1],id=>LoadSm(id,directoryName,ds,identifiers[0]) , IncSm);
         DicomDataset filtered = new(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
 
-        _imageStore.InsertOne(
-            new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader())).AddRange(
-                DicomTypeTranslaterReader.BuildBsonDocument(filtered)), cancellationToken: ct);
+        try
+        {
+            _imageStore.InsertOne(
+                new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader()))
+                    .AddRange(
+                        DicomTypeTranslaterReader.BuildBsonDocument(filtered)), cancellationToken: ct);
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"{path}:{e.Message}");
+        }
     }
 
     /// <summary>
@@ -217,8 +225,8 @@ public class Loader
     private bool ExistingEntry(string filename, CancellationToken ct)
     {
         return (_imageStore.CountDocuments(
-            new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
-                new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0);
+            new BsonDocument("header",
+                new BsonDocument("DicomFilePath", filename)), new CountOptions(), ct) > 0);
     }
 
     /// <summary>
