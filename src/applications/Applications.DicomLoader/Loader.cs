@@ -11,7 +11,9 @@ using DicomTypeTranslation;
 using FellowOakDicom;
 using LibArchive.Net;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using NPOI.XSSF.UserModel.Charts;
 using Rdmp.Core.CommandExecution.AtomicCommands;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
@@ -28,6 +30,22 @@ public class Loader
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
 
+    /// <summary>
+    /// Make sure Mongo ignores its internal-only _id attribute when
+    /// re-loading saved SeriesMessage instances. ALso disable fo-dicom
+    /// validation: we'd rather copy data accurately than enforce DICOM
+    /// compliance at this level.
+    /// </summary>
+    static Loader()
+    {
+        BsonClassMap.RegisterClassMap<SeriesMessage>(map =>
+        {
+            map.AutoMap();
+            map.SetIgnoreExtraElements(true);
+        });
+        new DicomSetupBuilder().SkipValidation();
+    }
+    
     private SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
     {
         SeriesMessage b;
