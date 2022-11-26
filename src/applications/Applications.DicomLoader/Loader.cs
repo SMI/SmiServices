@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -26,10 +27,7 @@ public class Loader
     private readonly Stopwatch _timer = Stopwatch.StartNew();
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
-    private static readonly InsertManyOptions mongoinsertoptions = new()
-    {
-        
-    };
+    private readonly ConcurrentQueue<BsonDocument> _imageQueue=new();
 
     /// <summary>
     /// Make sure Mongo ignores its internal-only _id attribute when
@@ -70,8 +68,14 @@ public class Loader
     /// </summary>
     public void Flush(bool force=false)
     {
+        if (!force && _imageQueue.Count < 100 && _seriesList.Count < 100)
+            return;
         lock (_flushLock)
         {
+            List<BsonDocument> imageBatch = new();
+            while(_imageQueue.TryDequeue(out var I))
+                imageBatch.Add(I);
+            _imageStore.InsertMany(imageBatch);
             if (!force && _seriesList.Count < 100)
                 return;
             if (!_seriesList.IsEmpty)
@@ -204,17 +208,10 @@ public class Loader
         _seriesList.AddOrUpdate(identifiers[1],id=>LoadSm(id,directoryName,ds,identifiers[0]) , IncSm);
         DicomDataset filtered = new(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
 
-        try
-        {
-            _imageStore.InsertOne(
-                new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader()))
-                    .AddRange(
-                        DicomTypeTranslaterReader.BuildBsonDocument(filtered)), cancellationToken: ct);
-        }
-        catch (Exception e)
-        {
-            Console.Error.WriteLine($"{path}:{e.Message}");
-        }
+        _imageQueue.Enqueue(
+            new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader()))
+                .AddRange(
+                    DicomTypeTranslaterReader.BuildBsonDocument(filtered)), cancellationToken: ct);
     }
 
     /// <summary>
