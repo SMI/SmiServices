@@ -13,8 +13,6 @@ using LibArchive.Net;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using NPOI.XSSF.UserModel.Charts;
-using Rdmp.Core.CommandExecution.AtomicCommands;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 
@@ -76,7 +74,14 @@ public class Loader
             if (!force && _seriesList.Count < 100)
                 return;
             if (!_seriesList.IsEmpty)
-                _seriesStore.InsertMany(_seriesList.Values);
+                try
+                {
+                    _seriesStore.InsertMany(_seriesList.Values);
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine($"MongoDB:{e.Message}");
+                }
             _seriesList.Clear();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect(2, GCCollectionMode.Forced, true, true);
