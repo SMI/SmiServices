@@ -217,8 +217,7 @@ public class Loader
 
         _imageQueue.Enqueue(
             new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader()))
-                .AddRange(
-                    DicomTypeTranslaterReader.BuildBsonDocument(filtered)), cancellationToken: ct);
+                .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(filtered)));
     }
 
     /// <summary>
