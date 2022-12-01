@@ -37,11 +37,12 @@ public class Loader
     /// </summary>
     static Loader()
     {
-        BsonClassMap.RegisterClassMap<SeriesMessage>(map =>
-        {
-            map.AutoMap();
-            map.SetIgnoreExtraElements(true);
-        });
+        if (BsonClassMap.GetRegisteredClassMaps().All(m => m.ClassType != typeof(SeriesMessage)))
+            BsonClassMap.RegisterClassMap<SeriesMessage>(map =>
+            {
+                map.AutoMap();
+                map.SetIgnoreExtraElements(true);
+            });
         new DicomSetupBuilder().SkipValidation();
     }
     
