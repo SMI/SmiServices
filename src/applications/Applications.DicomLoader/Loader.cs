@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ using DicomTypeTranslation;
 using FellowOakDicom;
 using LibArchive.Net;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
@@ -24,7 +27,25 @@ public class Loader
     private readonly Stopwatch _timer = Stopwatch.StartNew();
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
+    private readonly ConcurrentQueue<BsonDocument> _imageQueue=new();
 
+    /// <summary>
+    /// Make sure Mongo ignores its internal-only _id attribute when
+    /// re-loading saved SeriesMessage instances. ALso disable fo-dicom
+    /// validation: we'd rather copy data accurately than enforce DICOM
+    /// compliance at this level.
+    /// </summary>
+    static Loader()
+    {
+        if (BsonClassMap.GetRegisteredClassMaps().All(m => m.ClassType != typeof(SeriesMessage)))
+            BsonClassMap.RegisterClassMap<SeriesMessage>(map =>
+            {
+                map.AutoMap();
+                map.SetIgnoreExtraElements(true);
+            });
+        new DicomSetupBuilder().SkipValidation();
+    }
+    
     private SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
     {
         // Try loading from Mongo in case we were interrupted previously
@@ -32,7 +53,7 @@ public class Loader
         return b ?? new SeriesMessage
         {
             DirectoryPath = directoryName,
-            DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds),
+            DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(new DicomDataset(ds.Where(i => i is not DicomOtherByteFragment).ToArray())),
             ImagesInSeries = 1,
             SeriesInstanceUID = id,
             StudyInstanceUID = studyId
@@ -48,13 +69,35 @@ public class Loader
     /// </summary>
     public void Flush(bool force=false)
     {
+        if (!force && _imageQueue.Count < 100 && _seriesList.Count < 100)
+            return;
         lock (_flushLock)
         {
+            List<BsonDocument> imageBatch = new();
+            while(_imageQueue.TryDequeue(out var I))
+                imageBatch.Add(I);
+            try
+            {
+                _imageStore.InsertMany(imageBatch);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Image flush:{e.Message}");
+            }
             if (!force && _seriesList.Count < 100)
                 return;
             if (!_seriesList.IsEmpty)
-                _seriesStore.InsertMany(_seriesList.Values);
+                try
+                {
+                    _seriesStore.InsertMany(_seriesList.Values);
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine($"MongoDB:{e.Message}");
+                }
             _seriesList.Clear();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(2, GCCollectionMode.Forced, true, true);
         }
     }
 
@@ -83,12 +126,14 @@ public class Loader
         var dName = fi.DirectoryName ?? throw new ApplicationException($"No parent directory for '{fi.FullName}'");
         var bBuffer=new byte[132];
         var buffer = new Span<byte>(bBuffer);
-        using var fileStream = File.OpenRead(fi.FullName);
-        if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
+        using (var fileStream = File.OpenRead(fi.FullName))
         {
-            var ds = DicomFile.Open(fileStream).Dataset;
-            Process(ds, fi.FullName,dName, fi.Length, ct);
-            return;
+            if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
+            {
+                var ds = DicomFile.Open(fileStream).Dataset;
+                Process(ds, fi.FullName,dName, fi.Length, ct);
+                return;
+            }
         }
         // Not DICOM? OK, try it as an archive:
         try
@@ -100,18 +145,22 @@ public class Loader
                     return;
                 try
                 {
-                    using var ms = new MemoryStream();
-                    using (var eStream = entry.Stream)
-                        eStream.CopyTo(ms);
-                    if (ms.Length <= 0)
-                        continue;
-                    ms.Seek(0, SeekOrigin.Begin);
-                    var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
-                    Process(ds, $"{fi.FullName}!{entry.Name}", dName, ms.Length, ct);
+                    var path = $"{fi.FullName}!{entry.Name}";
+                    if (!ExistingEntry(path, ct))
+                    {
+                        using var ms = new MemoryStream();
+                        using (var eStream = entry.Stream)
+                            eStream.CopyTo(ms);
+                        if (ms.Length <= 0)
+                            continue;
+                        ms.Seek(0, SeekOrigin.Begin);
+                        var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
+                        Process(ds, path, dName, ms.Length, ct);
+                    }
                 }
                 catch (DicomFileException e)
                 {
-                    Console.WriteLine($"Failed to load DICOM data from {fi.FullName} entry {entry.Name} due to {e}");
+                    Console.WriteLine($"{fi.FullName}!{entry.Name}:{e.Message}");
                 }
             }
         }
@@ -140,6 +189,7 @@ public class Loader
         if (ct.IsCancellationRequested)
             return;
 
+        ds.Remove(new[] { DicomTag.PixelData });
         var identifiers = new string[3];
 
         // Pre-fetch these to ensure they exist before we go further
@@ -166,9 +216,20 @@ public class Loader
         _seriesList.AddOrUpdate(identifiers[1],id=>LoadSm(id,directoryName,ds,identifiers[0]) , IncSm);
         DicomDataset filtered = new(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
 
-        _imageStore.InsertOne(
-            new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader())).AddRange(
-                DicomTypeTranslaterReader.BuildBsonDocument(filtered)), cancellationToken: ct);
+        _imageQueue.Enqueue(
+            new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader()))
+                .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(filtered)));
+    }
+
+    /// <summary>
+    /// Check if a filename is an existing MongoDB entry
+    /// </summary>
+    /// <param name="filename">Filename (possibly in the form archive!entry) to check for</param>
+    /// <param name="ct"></param>
+    /// <returns>Whether there's already an entry for this file</returns>
+    private bool ExistingEntry(string filename, CancellationToken ct)
+    {
+        return _imageStore.AsQueryable().Any(i => i["header.DicomFilePath"].CompareTo(filename) == 0);
     }
 
     /// <summary>
@@ -185,11 +246,8 @@ public class Loader
             return ValueTask.CompletedTask;
         }
 
-        if (_imageStore.CountDocuments(
-                new BsonDocumentFilterDefinition<BsonDocument>(new BsonDocument("header",
-                    new BsonDocument("DicomFilePath", filename))), new CountOptions(), ct) > 0)
+        if (ExistingEntry(filename, ct))
         {
-            Console.WriteLine($@"{filename} already loaded, skipping");
             return ValueTask.CompletedTask;
         }
 
@@ -199,7 +257,7 @@ public class Loader
         }
         catch (Exception e)
         {
-            Console.WriteLine($"{filename} processing failed to due {e}");
+            Console.WriteLine($"{filename}:{e}");
         }
         return ValueTask.CompletedTask;
     }
