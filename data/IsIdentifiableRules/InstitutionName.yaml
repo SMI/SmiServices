@@ -2,226 +2,223 @@
 
 # BasicRules specify the patterns to Ignore or Report
 
-BasicRules: 
+BasicRules:
+  # Ignore specific hospital names if they occur in InstitutionName
+  # (not all need to be listed, these are picked up as a Person by NERd)
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^QUEEN ELIZABETH UNIVERSITY HOSP$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^St John.s Hospital Livingston$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Royal Alexandra Hospital CT. TOSH$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Victoria Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^University Hosp. Crosshouse CT.$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^NEW VICTORIA HOSPITAL$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^QUEEN MARGARET HOSPITAL$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Royal Alexandra Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^LORN \. ISLANDS$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^GALLOWAY COMMUNITY HOSPITAL$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Edinburgh RI$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^John Mallard PET Centre Aberdeen$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Ross Hall Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Lister Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Glasgow Royal Inf$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Cumberland Infirmary, Carlisle$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^R\.M\.P\.D\. CARLISLE$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^John Radcliffe Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Freeman Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Ysbyty Gwynedd$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Castle Hill$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Preston PETCT Centre$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^JCUH$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Princess Royal.*Telford$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Univ Cen Hospital Tbilisi$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Neuro-Jame Cook Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Princess Royal$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Atkinson Morley$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^RHSC$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^National, Queen Square$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^QEUH$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Ross Hall$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^MR$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Golden Jubilee National Hosp$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^VICTORIA HOSP. KIRKCALDY$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Craig MRI$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^RIE$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Glasgow Royal Infirmary, MRI Phil$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Dumfries and Galloway RI$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Beatson West of Scotland Cancer$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Golden Jubilee$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Stobhill Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^St. John.s Hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^New Victoria Hosp. Glasgow$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^RHSC Edinburgh$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Woodend$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^NINEWELLS$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^Southern General Hos$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^VICTORIA INFIRMARY$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^cric edinburgh$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^southern general hospital glasgow$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^western general edinburgh$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^prince charles hospital$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPattern: ^bmi cavell$
 
- # Ignore specific hospital names if they occur in InstitutionName
- # (not all need to be listed, these are picked up as a Person by NERd)
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^QUEEN ELIZABETH UNIVERSITY HOSP$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^St John.s Hospital Livingston$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Royal Alexandra Hospital CT. TOSH$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Victoria Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^University Hosp. Crosshouse CT.$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^NEW VICTORIA HOSPITAL$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^QUEEN MARGARET HOSPITAL$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Royal Alexandra Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^LORN \. ISLANDS$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^GALLOWAY COMMUNITY HOSPITAL$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Edinburgh RI$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^John Mallard PET Centre Aberdeen$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Ross Hall Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Lister Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Glasgow Royal Inf$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Cumberland Infirmary, Carlisle$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^R\.M\.P\.D\. CARLISLE$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^John Radcliffe Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Freeman Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Ysbyty Gwynedd$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Castle Hill$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Preston PETCT Centre$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^JCUH$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Princess Royal.*Telford$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Univ Cen Hospital Tbilisi$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Neuro-Jame Cook Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Princess Royal$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Atkinson Morley$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^RHSC$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^National, Queen Square$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^QEUH$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Ross Hall$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^MR$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Golden Jubilee National Hosp$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^VICTORIA HOSP. KIRKCALDY$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Craig MRI$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^RIE$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Glasgow Royal Infirmary, MRI Phil$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Dumfries and Galloway RI$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Beatson West of Scotland Cancer$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Golden Jubilee$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Stobhill Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^St. John.s Hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^New Victoria Hosp. Glasgow$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^RHSC Edinburgh$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Woodend$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^NINEWELLS$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^Southern General Hos$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^VICTORIA INFIRMARY$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^cric edinburgh$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^southern general hospital glasgow$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^western general edinburgh$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^prince charles hospital$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPattern: ^bmi cavell$
-
-# Additional failures which NERd did not pick up
-# These are hospitals so should not appear outside of InstitutionName
-# These need to come AFTER the Ignore actions because they are not specific to a column
-# whereas the Ignore rules need to allow institutions through in InstitutionName.
- - Action: Report
-   IfPattern: Western General
-   As: Organization
- - Action: Report
-   IfPattern: Western
-   As: Organization
- - Action: Report
-   IfPattern: GJNH
-   As: Organization
- - Action: Report
-   IfPattern: Ninewells
-   As: Organization
- - Action: Report
-   IfPattern: Raigmore
-   As: Organization
- - Action: Report
-   IfPattern: Gartnavel
-   As: Organization
- - Action: Report
-   IfPattern: Dumfries.*Galloway.Royal
-   As: Organization
- - Action: Report
-   CaseSensitive: true
-   IfPattern: CRIC
-   As: Organization
-
+  # Additional failures which NERd did not pick up
+  # These are hospitals so should not appear outside of InstitutionName
+  # These need to come AFTER the Ignore actions because they are not specific to a column
+  # whereas the Ignore rules need to allow institutions through in InstitutionName.
+  - Action: Report
+    IfPattern: Western General
+    As: Organization
+  - Action: Report
+    IfPattern: Western
+    As: Organization
+  - Action: Report
+    IfPattern: GJNH
+    As: Organization
+  - Action: Report
+    IfPattern: Ninewells
+    As: Organization
+  - Action: Report
+    IfPattern: Raigmore
+    As: Organization
+  - Action: Report
+    IfPattern: Gartnavel
+    As: Organization
+  - Action: Report
+    IfPattern: Dumfries.*Galloway.Royal
+    As: Organization
+  - Action: Report
+    CaseSensitive: true
+    IfPattern: CRIC
+    As: Organization
 
 # ---------------------------------------------------------------------
 # WhiteListRules specify the failures which can be ignored
 
 WhiteListRules:
-
- # We expect to find Organizations and Locations in the InstitutionName!
- # Some like GJNH are reported by our own rule below but we filter them out here.
- - Action: Ignore
-   IfColumn: InstitutionName
-   As: Organization
- - Action: Ignore
-   IfColumn: InstitutionName
-   As: Location
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPartPattern: gjnh  # NOTE(rkm 2020-05-20) Golden Jubilee National Hospital
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPartPattern: western general
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPartPattern: ^lamboo$
- - Action: Ignore
-   IfColumn: InstitutionName
-   IfPartPattern: ^hosp$
+  # We expect to find Organizations and Locations in the InstitutionName!
+  # Some like GJNH are reported by our own rule below but we filter them out here.
+  - Action: Ignore
+    IfColumn: InstitutionName
+    As: Organization
+  - Action: Ignore
+    IfColumn: InstitutionName
+    As: Location
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPartPattern: gjnh # NOTE(rkm 2020-05-20) Golden Jubilee National Hospital
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPartPattern: western general
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPartPattern: ^lamboo$
+  - Action: Ignore
+    IfColumn: InstitutionName
+    IfPartPattern: ^hosp$

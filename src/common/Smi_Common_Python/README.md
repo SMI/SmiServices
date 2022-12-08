@@ -32,6 +32,7 @@ pytest SmiServices/*.py
 ```
 
 Test each module individually, for example:
+
 ```
 python3 -m pytest SmiServices/Dicom.py
 python3 -m pytest SmiServices/DicomText.py
@@ -144,12 +145,11 @@ messages.
 ## StructuredReport.py
 
 Provides a function `SR_parse` which can parse a Python dict containing a DICOM
-Structured Report and return the content as a usable string.  The dict can be
+Structured Report and return the content as a usable string. The dict can be
 read from a DICOM file using pydicom or can be obtained from the MongoDB database
 which represents the data in a similar but different format (i.e. no VR tag).
 
 Some utility functions are used by the DicomText module.
-
 
 # Parsing Structured Reports
 
@@ -163,12 +163,11 @@ Some utility functions are used by the DicomText module.
   mongojson = mongodb.DicomFilePathToJSON(args.input)
 ```
 
-
 ## Method 1 - use the StructuredReport module
 
 ```
   SR.SR_parse(dicom_raw_json, document_name, output_fd)
-  SR.SR_parse(mongojson, document_name, output_fd)    
+  SR.SR_parse(mongojson, document_name, output_fd)
 ```
 
 ## Method 2 - use the pydicom walk method

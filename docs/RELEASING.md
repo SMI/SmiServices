@@ -11,6 +11,7 @@ The release workflow is to checkout a new `release/` branch from master, update 
 -   Review all open PRs and check if any have been approved and can be merged to be included in the release.
 
 -   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
+
     ```console
     $ git checkout master && git pull && ./bin/release/missing-news.sh
     Missing news file for PR #1151:Explicitly initialise LocalDB on Windows
@@ -18,6 +19,7 @@ The release workflow is to checkout a new `release/` branch from master, update 
     Missing news file for PR #1079:bump all HIC libraries to latest, and fo-dicom to 4.0.8
     Missing news file for PR #1057:[Snyk] Security upgrade edu.stanford.nlp:stanford-corenlp from 3.9.2 to 4.3.1
     ```
+
     Go through these PRs and check each has an accurate [news file][news_files] entry. Create any missing files if needed.
 
 -   Identify the next release version. This can be determined by looking at the previous release and deciding if the new code to be released is a major, minor, or patch change as per [semver](https://semver.org). E.g. if the previous release was `v1.2.3` and only new non-breaking features are in the news files directory, then the next release should be`v1.3.0`. The definition of "breaking" can often be subjective though, so ask other members of the project if you're unsure.
@@ -39,6 +41,7 @@ The release workflow is to checkout a new `release/` branch from master, update 
 -   Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running `./bin/release/updateChangelog.py <prev version> <next version>`. Note that this currently requires `prettier` to be installed from npm. Review the diff and check for any obvious errors.
 
 -   Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
+
     -   `README.md`: Bump the version in the header
     -   `src/SharedAssemblyInfo.cs`: Bump the versions in each property
 

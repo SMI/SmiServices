@@ -1,4 +1,3 @@
-
 # SMI Services Contributing Guidelines
 
-- TODO 😊
+-   TODO 😊

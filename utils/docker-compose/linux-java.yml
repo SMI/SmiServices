@@ -2,9 +2,9 @@
 version: "3.7"
 
 services:
-    rabbitmq:
-        container_name: rabbitmq
-        image: rabbitmq:latest
-        user: rabbitmq
-        ports:
-            - 5672:5672
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:latest
+    user: rabbitmq
+    ports:
+      - 5672:5672

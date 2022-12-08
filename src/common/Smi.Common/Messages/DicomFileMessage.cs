@@ -109,4 +109,3 @@ namespace Smi.Common.Messages
         }
     }
 }
-

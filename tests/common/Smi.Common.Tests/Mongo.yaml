@@ -1,2 +1,2 @@
-﻿Host: 'localhost'
+﻿Host: "localhost"
 Port: 27017

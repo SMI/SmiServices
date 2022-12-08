@@ -5,19 +5,22 @@ The SRAnonTool is a set of programs to assist with anonymising DICOM Structured 
 ## Requirements
 
 Python package requirements:
-* pydicom
-* pymongo
-* deepmerge
+
+-   pydicom
+-   pymongo
+-   deepmerge
 
 Python library requirements:
-* The SmiServices python library, see `src/common/Smi_Common_Python/`
+
+-   The SmiServices python library, see `src/common/Smi_Common_Python/`
 
 External tool requirements:
-* The SmiServices CTP anonymiser
-* SemEHR/CogStack anonymiser (or the test stub)
-* dcm2json (for testing; optional; from the dcmtk package)
-* jq (for testing; optional)
-* diff (for testing)
+
+-   The SmiServices CTP anonymiser
+-   SemEHR/CogStack anonymiser (or the test stub)
+-   dcm2json (for testing; optional; from the dcmtk package)
+-   jq (for testing; optional)
+-   diff (for testing)
 
 ## Installation
 
@@ -35,11 +38,11 @@ Ensure the `default.yaml` file contains the necessary `FileSystemOptions`, `Logg
 
 Install the SemEHR/CogStack anonymiser, which currently uses the following directories (which may be symbolic links):
 
-* `/opt/semehr/CogStack` - contains the scripts
-* `/opt/semehr/data/input_docs` - raw text copied here will be anonymised
-* `/opt/semehr/data/anonymised` - output anonymous text and xml files
-* `/opt/gcp/bio-yodie-1-2-1` - the UMLS dictionary
-* `/opt/gcp/gcp-2.5-18658` - java libraries
+-   `/opt/semehr/CogStack` - contains the scripts
+-   `/opt/semehr/data/input_docs` - raw text copied here will be anonymised
+-   `/opt/semehr/data/anonymised` - output anonymous text and xml files
+-   `/opt/gcp/bio-yodie-1-2-1` - the UMLS dictionary
+-   `/opt/gcp/gcp-2.5-18658` - java libraries
 
 The old SemEHR anonymiser requires Python2; all the other scripts require Python3, including the new SemEHR anonymiser.
 If using the test stub then only the data directories are required and Python2 is not required.
@@ -47,8 +50,9 @@ If using the test stub then only the data directories are required and Python2 i
 ## Usage as part of CTP
 
 Configure CTP to call the script CTP_SRAnonTool.sh when it detects a DICOM file with `SR` in the `Modality` tag, by editing `default.yaml` as above. CTP will call the script with two options:
-* `-i input.dcm` - the raw DICOM file before anonymisation
-* `-o output.dcm` - the DICOM file which CTP has already anonymised
+
+-   `-i input.dcm` - the raw DICOM file before anonymisation
+-   `-o output.dcm` - the DICOM file which CTP has already anonymised
 
 The script will extract the text from the `input.dcm` file, anonymise it, and write the redacted text into the `output.dcm` file, which must already exist.
 
@@ -56,9 +60,9 @@ The script will extract the text from the `input.dcm` file, anonymise it, and wr
 
 The script `CTP_SRAnonTool.sh` calls three components:
 
-* `CTP_DicomToText.py` - extracts the text from the raw DICOM file into a format suitable for SemEHR-CogStack.
-* `CogStack-SemEHR/anonymisation/anonymiser.py` - this is the script in SemEHR-CogStack which anonymises the text.
-* `CTP_XMLToDicom.py` - redacts the text from the raw DICOM file and write the redacted text into the output DICOM file.
+-   `CTP_DicomToText.py` - extracts the text from the raw DICOM file into a format suitable for SemEHR-CogStack.
+-   `CogStack-SemEHR/anonymisation/anonymiser.py` - this is the script in SemEHR-CogStack which anonymises the text.
+-   `CTP_XMLToDicom.py` - redacts the text from the raw DICOM file and write the redacted text into the output DICOM file.
 
 Usage: `[-e virtualenv] [-s semehr_dir]  -i read_from.dcm  -o write_into.dcm`
 
@@ -150,7 +154,6 @@ Usage: `-y default.yaml -i input.dcm -x input.xml -o output.dcm`
 
 `-o output.dcm` - full path to the anonymised DICOM file, which must already exist, where the redacted text is written
 
-
 ## Testing
 
 In the test subdirectory, run
@@ -173,6 +176,7 @@ The defaults are:
 `-y default.yaml` - `../../../../data/microserviceConfigs/default.yaml`
 
 To run in the test directory
+
 ```
 mkdir -p ./data/input_docs
 mkdir -p ./data/anonymised

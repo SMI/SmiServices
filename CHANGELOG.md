@@ -1227,5 +1227,4 @@ First stable release after importing the repository from the private
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
 [isidentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
-[socketrules]:
-    ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules
+[socketrules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules

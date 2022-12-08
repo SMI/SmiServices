@@ -40,7 +40,7 @@ namespace Microservices.DicomAnonymiser.Tests
         [SetUp]
         public void SetUp()
         {
-            // nocommit: check this is set properly for each test
+            // TODO(rkm 2022-12-08) check this is set properly for each test
             var tempTestDirPath = TestFileSystemHelpers.GetTemporaryTestDirectory();
             _tempTestDir = Directory.CreateDirectory(tempTestDirPath);
             _dicomRoot = Directory.CreateDirectory(Path.Combine(_tempTestDir.FullName, "dicom"));

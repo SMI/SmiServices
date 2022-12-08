@@ -1,235 +1,193 @@
 {
-  "vhosts":[
+  "vhosts": [
     {
-      "name":"smi_dataLoad"
+      "name": "smi_dataLoad"
     }
   ],
-  "policies":[
+  "policies": [
     {
-      "name":"deadLetterDataLoad",
-      "vhost":"smi_dataLoad",
-      "pattern":"",
-      "apply-to":"queues",
-      "definition":{
-        "dead-letter-exchange":"DLExchange"
+      "name": "deadLetterDataLoad",
+      "vhost": "smi_dataLoad",
+      "pattern": "",
+      "apply-to": "queues",
+      "definition": {
+        "dead-letter-exchange": "DLExchange"
       },
-      "priority":0
+      "priority": 0
     }
   ],
-  "exchanges":[
+  "exchanges": [
     {
-      "name":"AccessionDirectoryExchange",
-      "vhost":"smi_dataLoad",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "AccessionDirectoryExchange",
+      "vhost": "smi_dataLoad",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"IdentifiableImageExchange",
-      "vhost":"smi_dataLoad",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "IdentifiableImageExchange",
+      "vhost": "smi_dataLoad",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"IdentifiableSeriesExchange",
-      "vhost":"smi_dataLoad",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "IdentifiableSeriesExchange",
+      "vhost": "smi_dataLoad",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"AnonymousImageExchange",
-      "vhost":"smi_dataLoad",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "AnonymousImageExchange",
+      "vhost": "smi_dataLoad",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"ControlExchange",
-      "vhost":"smi_dataLoad",
-      "type":"topic",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "ControlExchange",
+      "vhost": "smi_dataLoad",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     },
     {
-      "name":"DLExchange",
-      "vhost":"smi_dataLoad",
-      "type":"topic",
-      "durable":true,
-      "auto_delete":false,
-      "internal":true,
-      "arguments":{
-
-      }
+      "name": "DLExchange",
+      "vhost": "smi_dataLoad",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": true,
+      "arguments": {}
     },
     {
-      "name":"FatalLoggingExchange",
-      "vhost":"smi_dataLoad",
-      "type":"direct",
-      "durable":true,
-      "auto_delete":false,
-      "internal":false,
-      "arguments":{
-
-      }
+      "name": "FatalLoggingExchange",
+      "vhost": "smi_dataLoad",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     }
   ],
-  "queues":[
+  "queues": [
     {
-      "name":"AccessionDirectoryQueue",
-      "vhost":"smi_dataLoad",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "AccessionDirectoryQueue",
+      "vhost": "smi_dataLoad",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "name":"IdentifiableImageQueue",
-      "vhost":"smi_dataLoad",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "IdentifiableImageQueue",
+      "vhost": "smi_dataLoad",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "name":"MongoImageQueue",
-      "vhost":"smi_dataLoad",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "MongoImageQueue",
+      "vhost": "smi_dataLoad",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "name":"MongoSeriesQueue",
-      "vhost":"smi_dataLoad",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "MongoSeriesQueue",
+      "vhost": "smi_dataLoad",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "name":"AnonymousImageQueue",
-      "vhost":"smi_dataLoad",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "AnonymousImageQueue",
+      "vhost": "smi_dataLoad",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "name":"DLQueue",
-      "vhost":"smi_dataLoad",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "DLQueue",
+      "vhost": "smi_dataLoad",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     },
     {
-      "name":"FatalLoggingQueue",
-      "vhost":"smi_dataLoad",
-      "durable":true,
-      "auto_delete":false,
-      "arguments":{
-
-      }
+      "name": "FatalLoggingQueue",
+      "vhost": "smi_dataLoad",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     }
   ],
-  "bindings":[
+  "bindings": [
     {
-      "source":"AccessionDirectoryExchange",
-      "vhost":"smi_dataLoad",
-      "destination":"AccessionDirectoryQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
-    },    
-    {
-      "source":"IdentifiableImageExchange",
-      "vhost":"smi_dataLoad",
-      "destination":"IdentifiableImageQueue",
-      "destination_type":"queue",
-      "routing_key":"reprocessed",
-      "arguments":{
-
-      }
+      "source": "AccessionDirectoryExchange",
+      "vhost": "smi_dataLoad",
+      "destination": "AccessionDirectoryQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
     },
     {
-      "source":"IdentifiableImageExchange",
-      "vhost":"smi_dataLoad",
-      "destination":"MongoImageQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "source": "IdentifiableImageExchange",
+      "vhost": "smi_dataLoad",
+      "destination": "IdentifiableImageQueue",
+      "destination_type": "queue",
+      "routing_key": "reprocessed",
+      "arguments": {}
     },
     {
-      "source":"IdentifiableSeriesExchange",
-      "vhost":"smi_dataLoad",
-      "destination":"MongoSeriesQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "source": "IdentifiableImageExchange",
+      "vhost": "smi_dataLoad",
+      "destination": "MongoImageQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
     },
     {
-      "source":"AnonymousImageExchange",
-      "vhost":"smi_dataLoad",
-      "destination":"AnonymousImageQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "source": "IdentifiableSeriesExchange",
+      "vhost": "smi_dataLoad",
+      "destination": "MongoSeriesQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
     },
     {
-      "source":"DLExchange",
-      "vhost":"smi_dataLoad",
-      "destination":"DLQueue",
-      "destination_type":"queue",
-      "routing_key":"#",
-      "arguments":{
-
-      }
+      "source": "AnonymousImageExchange",
+      "vhost": "smi_dataLoad",
+      "destination": "AnonymousImageQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
     },
     {
-      "source":"FatalLoggingExchange",
-      "vhost":"smi_dataLoad",
-      "destination":"FatalLoggingQueue",
-      "destination_type":"queue",
-      "routing_key":"",
-      "arguments":{
-
-      }
+      "source": "DLExchange",
+      "vhost": "smi_dataLoad",
+      "destination": "DLQueue",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "FatalLoggingExchange",
+      "vhost": "smi_dataLoad",
+      "destination": "FatalLoggingQueue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
     }
   ]
 }
