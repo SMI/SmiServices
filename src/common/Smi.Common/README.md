@@ -1,16 +1,18 @@
 # Microservice Hosts
 
 ## Contents
-- [Implementing a Host](#implementing-a-host)
-- [Implementing a Consumer](#implementing-a-consumer)
-- [Logging](#logging)
-- [Rules of Microservice Club](#rules-of-microservice-club)
-  - [The First Rule](#the-first-rule)
-  - [The Second Rule](#the-second-rule)
-- [Class Diagram](#class-diagram)
+
+-   [Implementing a Host](#implementing-a-host)
+-   [Implementing a Consumer](#implementing-a-consumer)
+-   [Logging](#logging)
+-   [Rules of Microservice Club](#rules-of-microservice-club)
+    -   [The First Rule](#the-first-rule)
+    -   [The Second Rule](#the-second-rule)
+-   [Class Diagram](#class-diagram)
 
 ## Implementing a Host
-First load an instance of `GlobalOptions` in your `Program.cs`. 
+
+First load an instance of `GlobalOptions` in your `Program.cs`.
 This is the base class for specifying all your configuration options.
 
 ```csharp
@@ -19,15 +21,15 @@ public class Program
     public static int Main(string[] args)
     {
         var options = new GlobalOptionsFactory().Load();
-        
+
         // ...
     }
 }
 ```
 
-Next you need to decide which queues you want to read from and which you want to write to. 
-For this example let's assume you want to consume only from a single queue. 
-Your Consumer Options will be available from the GlobaOptions. 
+Next you need to decide which queues you want to read from and which you want to write to.
+For this example let's assume you want to consume only from a single queue.
+Your Consumer Options will be available from the GlobaOptions.
 The `FatalLoggingProducerOptions` instance is created by the base host class.
 
 ```csharp
@@ -36,7 +38,7 @@ public class Program
     public static int Main(string[] args)
     {
         var options = new GlobalOptionsFactory().Load(); // will use the 'default.yaml' file
-        
+
         var consumerOptions = options.MyHostOptions; // you don't really need this here...
 
         // ...
@@ -50,12 +52,11 @@ For this to work you will need to update [default.yaml](../../../data/microservi
 # ... other stuff above
 
 MyHostOptions: #you can also put this the following into a subclass to avoid cramming too many things at the root level
-    QueueName: 'MyQueueName'
-    ConsumerTag: 'MyQueueTag'
+    QueueName: "MyQueueName"
+    ConsumerTag: "MyQueueTag"
     QoSPrefetchCount: 1
     AutoAck: false
     # other options you may need
-
 # ... other stuff below
 ```
 
@@ -65,15 +66,15 @@ If this is a brand new Host, also add the relevant bit into the `GlobalOptions`:
 public class GlobalOptions
 {
     // SNIP LOTS OF CODE
-        
+
     #region AllOptions
 
     // ... other stuff above
     public MyHostOptions MyHostOptions { get; set; }
 
     #endregion
-}    
-    
+}
+
 // new class for the new options
 public class MyHostOptions : ConsumerOptions
 {
@@ -112,7 +113,7 @@ public class Program
     public static int Main(string[] args)
     {
         var options = new GlobalOptionsFactory().Load();
-            
+
         var bootstrapper = new MicroserviceHostBootstrapper(
             () => new CohortPackagerHost(options));
         return bootstrapper.Main();
@@ -121,15 +122,16 @@ public class Program
 ```
 
 ### Expected Results
-At this stage running the program is meaningful, it should give you sensible logs complaining about missing exchanges on your RabbitMQ Server. 
+
+At this stage running the program is meaningful, it should give you sensible logs complaining about missing exchanges on your RabbitMQ Server.
 You can now explore how to change (in the yaml file) / create these yourself.
 
-When you have resolved the exchanges/queues you should get an error relating to `consumer` being null (we commented it out remember). 
+When you have resolved the exchanges/queues you should get an error relating to `consumer` being null (we commented it out remember).
 Proceed to the next section to see how to implement an `IConsumer`
 
 ## Implementing a Consumer
 
-A consumer is a class which listens to a RabbitMQ queue and does something based on the messages that appear. 
+A consumer is a class which listens to a RabbitMQ queue and does something based on the messages that appear.
 Create a new class derived from the `Consumer` abstract class.
 
 ```csharp
@@ -148,7 +150,7 @@ public class MyConsumer : Consumer
         MyMessage message;
         if (!SafeDeserializeToMessage(header, deliverEventArgs, out message))
             return;
-    
+
         // Do your work here, Ack or Nack depending on result
 
         if(success)
@@ -161,7 +163,7 @@ public class MyConsumer : Consumer
 
 The `ProcessMessageImpl` method is where you will do your processing and must either `Ack` or `ErrorAndNack`.
 
-The `IMessageHeader` contains provenance information about the message being dequeued.  You can use it for logging (see below) 
+The `IMessageHeader` contains provenance information about the message being dequeued. You can use it for logging (see below)
 and must also supply it when producing new messages (this ensures the message audit chain is kept in tact).
 
 ## Logging
@@ -172,6 +174,7 @@ specified in the `FileSystemOptions.LogConfigFile` config variable if it exists 
 processed / ignored etc.
 
 This means that you can get a logger at any time by calling:
+
 ```csharp
 var logger = NLog.LogManager.GetCurrentClassLogger();
 ```
@@ -184,6 +187,7 @@ The `Trace` logging level should be reserved for fine grained timing/performance
 messages should therefore be `Debug`. Trace logging will be disabled unless the CLI option `--trace-logging` is provided.
 
 ### Logging through the IMessageHeader
+
 In addition to using the `Log` methods to log routine events, you can log message specific events via `IMessageHeader`:
 
 ```csharp
@@ -197,8 +201,7 @@ protected override void ProcessMessageImpl(IMessageHeader header, IModel model, 
 Logging through a header means that the Guid of the message (and the Guid all previous messages in the chain) will appear in the log e.g.
 ![Class Diagram](Images/MessageGuidLogs.png)
 
-Logging through the header is recommended whenever the audited fact relates specifically to the content of the message (e.g. couldn't open a file referenced in a `DicomFileMessage`).  Logging through the header automatically happens when sending and acknowledging messages, this results in a view of every message the system sent and the relationship tree of knock on messages (see image above).
-
+Logging through the header is recommended whenever the audited fact relates specifically to the content of the message (e.g. couldn't open a file referenced in a `DicomFileMessage`). Logging through the header automatically happens when sending and acknowledging messages, this results in a view of every message the system sent and the relationship tree of knock on messages (see image above).
 
 ## Rules of Microservice Club
 
@@ -219,12 +222,13 @@ protected override void ProcessMessageImpl(IMessageHeader header, IModel model, 
 }
 ```
 
-The Fatal method is in both `Consumer` and `MicroserviceHost` and causes the current Microservice to shutdown cleanly 
+The Fatal method is in both `Consumer` and `MicroserviceHost` and causes the current Microservice to shutdown cleanly
 and log a `FatalErrorMessage` to the RabbitMQ fatal message exchange (See `FatalLoggingProducerOptions`).
 
 If your `ProcessMessageImpl` throws an unhandled Exception then a Fatal shutdown will automatically occur.
 
 ### The Second Rule
+
 The second rule of Microservice Club is you don't nack messages without giving a reason. This is facilitated through the `Consumer.ErrorAndNack` method.  
 This will log an error to NLog and Nack the message for you.
 
@@ -234,7 +238,6 @@ protected override void ProcessMessageImpl(IMessageHeader header, IModel model, 
     ErrorAndNack(header,model,basicDeliverEventArgs,"Something went wrong", new Exception("What went wrong"));
 }
 ```
-
 
 ## Class Diagram
 

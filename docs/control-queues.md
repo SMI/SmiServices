@@ -1,14 +1,13 @@
-
 # Microservice Control Queues
 
 This describes how the services can be controlled via RabbitMQ messages.
 
 ### Contents
 
-- [Commands](#commands)
-- [Sending a message](#sending-a-message)
-- [Implementing a new control command handler](#implementing-a-new-control-command-handler)
-- [Control Queues and Cleanup](#control-queues-and-cleanup)
+-   [Commands](#commands)
+-   [Sending a message](#sending-a-message)
+-   [Implementing a new control command handler](#implementing-a-new-control-command-handler)
+-   [Control Queues and Cleanup](#control-queues-and-cleanup)
 
 ## Commands
 
@@ -18,29 +17,29 @@ RabbitMQ message routing keys are used to control which services receive the mes
 
 ### General - any service
 
-- `stop` - Stops the service
-- `ping` - Logs a `pong` message. Useful for debugging
+-   `stop` - Stops the service
+-   `ping` - Logs a `pong` message. Useful for debugging
 
 ### DicomReprocessor
 
-- `set-sleep-time-ms` - Sets the sleep time between batches. This also requires the new value to be set in the message body
+-   `set-sleep-time-ms` - Sets the sleep time between batches. This also requires the new value to be set in the message body
 
 ### IdentifierMapper
 
-- `refresh` - Refreshes any caches in use
+-   `refresh` - Refreshes any caches in use
 
 ### CohortPackager
 
-- `processjobs` - Checks if any in progress jobs are complete
+-   `processjobs` - Checks if any in progress jobs are complete
 
 ## Sending a message
 
 Messages can be sent either via the Web UI or via a CLI (see below for details). In either case, the following applies:
 
-- The `<who>` field must exactly match the name of the microservice process (e.g. `identifiermapper`)
-- All routing keys should be lowercase
-- `all` can be used as the `<who>` keyword to control all services
-- A specific service can be messaged by including its `PID` at the end of the routing key. This is currently the only way to control a specific service instance rather than all services of a certain type
+-   The `<who>` field must exactly match the name of the microservice process (e.g. `identifiermapper`)
+-   All routing keys should be lowercase
+-   `all` can be used as the `<who>` keyword to control all services
+-   A specific service can be messaged by including its `PID` at the end of the routing key. This is currently the only way to control a specific service instance rather than all services of a certain type
 
 Examples of some routing keys:
 
@@ -51,7 +50,6 @@ smi.control.identifiermapper.refresh1234 # Refresh the IdentifierMapper service 
 ```
 
 Note that some services may take some time to finish their current operation and exit after recieveing a `shutdown` command.
-
 
 ### Via the Web UI
 
@@ -84,11 +82,10 @@ That's it! Now you will be passed the full routing key for any control message a
 
 The actual implementation of the control queues works as follows:
 
-- When each service starts up, it creates a new queue named with its service name and process ID
-- It then binds this queue to the global `ControlExchange`. Two bindings are created:
-  - `smi.control.all.*`: Matches any "send to all" routing keys
-  - `smi.control.<process_name>.*`: Matches "all services of my type" routing keys
-- On shutdown (when the RMQ connection is closed), the control queue should be automatically deleted by the server
+-   When each service starts up, it creates a new queue named with its service name and process ID
+-   It then binds this queue to the global `ControlExchange`. Two bindings are created:
+    -   `smi.control.all.*`: Matches any "send to all" routing keys
+    -   `smi.control.<process_name>.*`: Matches "all services of my type" routing keys
+-   On shutdown (when the RMQ connection is closed), the control queue should be automatically deleted by the server
 
 The creation of the control queue is performed during a single ad-hoc connection, and is not part of the standard Consumer process (for _reasons_). One consequence of this is that if a microservice crashes _after_ the control queue is created, but _before_ the actual subscription to the queue is started (i.e. at some point during startup before RabbitMQAdapter.StartConsumer is called), then the control queue may not be automatically deleted. This isn't really an issue other than causing visual clutter on the RabbitMQ management interface. These dangling queues can be manually deleted with the [TidyQueues](../utils/RabbitMqTidyQueues) utility tool.
-

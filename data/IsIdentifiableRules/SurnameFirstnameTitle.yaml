@@ -3,84 +3,84 @@
 # BasicRules specify the patterns to Ignore or Report
 
 BasicRules:
- # Names not detected by NER in the form SURNAMEFIRSTNAMETITLENUMBER
- # eg. SMITHJOHNMR1 need to be caught manually, BUT need to whitelist
- # genuine protocolnames such as AXIALT2
- # Most have a TITLE of MR, MRS, MS, MAST or MISS, but some don't.
- - Action: Report
-   IfColumn: ProtocolName
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MR[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: ProtocolName
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MRS[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: ProtocolName
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MS[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: ProtocolName
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MAST[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: ProtocolName
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MISS[0-9]{1,2}$
-   As: Person
- # Same for SeriesDescription
- - Action: Report
-   IfColumn: SeriesDescription
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MR[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: SeriesDescription
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MRS[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: SeriesDescription
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MS[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: SeriesDescription
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MAST[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: SeriesDescription
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}MISS[0-9]{1,2}$
-   As: Person
- # Now for the ones which don't have MR/MRS/etc
- - Action: Report
-   IfColumn: ProtocolName
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}[0-9]{1,2}$
-   As: Person
- - Action: Report
-   IfColumn: SeriesDescription
-   CaseSensitive: true
-   IfPattern: ^[A-Z]{4,}[0-9]{1,2}$
-   As: Person
+  # Names not detected by NER in the form SURNAMEFIRSTNAMETITLENUMBER
+  # eg. SMITHJOHNMR1 need to be caught manually, BUT need to whitelist
+  # genuine protocolnames such as AXIALT2
+  # Most have a TITLE of MR, MRS, MS, MAST or MISS, but some don't.
+  - Action: Report
+    IfColumn: ProtocolName
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MR[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: ProtocolName
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MRS[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: ProtocolName
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MS[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: ProtocolName
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MAST[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: ProtocolName
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MISS[0-9]{1,2}$
+    As: Person
+  # Same for SeriesDescription
+  - Action: Report
+    IfColumn: SeriesDescription
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MR[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: SeriesDescription
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MRS[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: SeriesDescription
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MS[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: SeriesDescription
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MAST[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: SeriesDescription
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}MISS[0-9]{1,2}$
+    As: Person
+  # Now for the ones which don't have MR/MRS/etc
+  - Action: Report
+    IfColumn: ProtocolName
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}[0-9]{1,2}$
+    As: Person
+  - Action: Report
+    IfColumn: SeriesDescription
+    CaseSensitive: true
+    IfPattern: ^[A-Z]{4,}[0-9]{1,2}$
+    As: Person
 
 # WhiteListRules specify the failures which can be ignored
 
 WhiteListRules:
- # Things which our BasicFules classified as a Person but are not
- - Action: Ignore
-   IfColumn: SeriesDescription
-   CaseSensitive: true
-   IfPartPattern: ^AXIAL
-   As: Person
- - Action: Ignore
-   IfColumn: ProtocolName
-   CaseSensitive: true
-   IfPartPattern: ^AXIAL
-   As: Person
+  # Things which our BasicFules classified as a Person but are not
+  - Action: Ignore
+    IfColumn: SeriesDescription
+    CaseSensitive: true
+    IfPartPattern: ^AXIAL
+    As: Person
+  - Action: Ignore
+    IfColumn: ProtocolName
+    CaseSensitive: true
+    IfPartPattern: ^AXIAL
+    As: Person

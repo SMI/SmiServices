@@ -75,4 +75,3 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         }
     }
 }
-

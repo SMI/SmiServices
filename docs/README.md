@@ -6,7 +6,7 @@ The platform is currently deployed in the National Safe Haven, so some documenta
 
 ### Contents
 
-- [Controlling the services](#controlling-the-services)
+-   [Controlling the services](#controlling-the-services)
 
 ## Controlling the services
 

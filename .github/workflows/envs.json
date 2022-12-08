@@ -1,12 +1,12 @@
 {
-    "include": [
-        {
-            "os": "linux",
-            "image": "ubuntu-20.04"
-        },
-        {
-            "os": "windows",
-            "image": "windows-2022"
-        }
-    ]
+  "include": [
+    {
+      "os": "linux",
+      "image": "ubuntu-20.04"
+    },
+    {
+      "os": "windows",
+      "image": "windows-2022"
+    }
+  ]
 }

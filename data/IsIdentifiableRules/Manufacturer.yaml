@@ -2,80 +2,78 @@
 
 # BasicRules specify the patterns to Ignore or Report
 
-BasicRules: 
+BasicRules:
+  - Action: Ignore
+    IfColumn: Manufacturer
+    IfPattern: ^Philips Medical Systems$
+  - Action: Ignore
+    IfColumn: Manufacturer
+    IfPattern: ^TOSHIBA_MEC$
+  - Action: Ignore
+    IfColumn: Manufacturer
+    IfPattern: ^Hitachi Medical Corporation$
+  - Action: Ignore
+    IfColumn: Manufacturer
+    IfPattern: ^Shenzhen Anke High Tech. Corp. Ltd.$
+  - Action: Ignore
+    IfColumn: ManufacturerModelName
+    IfPattern: ^Signa HDxt$
+  - Action: Ignore
+    IfColumn: ManufacturerModelName
+    IfPattern: ^AIRIS_Vento$
 
- - Action: Ignore
-   IfColumn: Manufacturer
-   IfPattern: ^Philips Medical Systems$
- - Action: Ignore
-   IfColumn: Manufacturer
-   IfPattern: ^TOSHIBA_MEC$
- - Action: Ignore
-   IfColumn: Manufacturer
-   IfPattern: ^Hitachi Medical Corporation$
- - Action: Ignore
-   IfColumn: Manufacturer
-   IfPattern: ^Shenzhen Anke High Tech. Corp. Ltd.$
- - Action: Ignore
-   IfColumn: ManufacturerModelName
-   IfPattern: ^Signa HDxt$
- - Action: Ignore
-   IfColumn: ManufacturerModelName
-   IfPattern: ^AIRIS_Vento$
+  # These patterns have been derived by testing 100 CT and 100 MR images with Stanford CoreNLP.
+  # NOTE the manufacturer strings are necessarily substrings but sufficiently unique
+  # as no PII has been observed in PrivateCreator in conjunction with these values
+  # and they are added automatically not by hand.
 
- # These patterns have been derived by testing 100 CT and 100 MR images with Stanford CoreNLP.
- # NOTE the manufacturer strings are necessarily substrings but sufficiently unique
- # as no PII has been observed in PrivateCreator in conjunction with these values
- # and they are added automatically not by hand.
+  # SIEMENS
+  - Action: Ignore
+    IfColumn: PrivateCreator
+    IfPattern: SIEMENS MR HEADER
+  - Action: Ignore
+    IfColumn: PrivateCreator
+    IfPattern: SIEMENS CSA HEADER
+  - Action: Ignore
+    IfColumn: PrivateCreator
+    IfPattern: SIEMENS MED
+  - Action: Ignore
+    IfColumn: PrivateCreator
+    IfPattern: SIEMENS CT
+  - Action: Ignore
+    IfColumn: Manufacturer
+    IfPattern: ^SIEMENS$
 
- # SIEMENS
- - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: SIEMENS MR HEADER
- - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: SIEMENS CSA HEADER
- - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: SIEMENS MED
- - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: SIEMENS CT
- - Action: Ignore
-   IfColumn: Manufacturer
-   IfPattern: ^SIEMENS$
+  - Action: Ignore
+    IfColumn: Manufacturer
+    IfPattern: ^PNMS$
+  - Action: Ignore
+    IfColumn: Manufacturer
+    IfPattern: ^Carestream Health$
+  - Action: Ignore
+    IfColumn: ManufacturerModelName
+    IfPattern: ^Asteion$
 
- - Action: Ignore
-   IfColumn: Manufacturer
-   IfPattern: ^PNMS$
- - Action: Ignore
-   IfColumn: Manufacturer
-   IfPattern: ^Carestream Health$
- - Action: Ignore
-   IfColumn: ManufacturerModelName
-   IfPattern: ^Asteion$
+  # Philips
+  - Action: Ignore
+    IfColumn: PrivateCreator
+    IfPattern: Philips MR Imaging DD
+  - Action: Ignore
+    IfColumn: PrivateCreator
+    IfPattern: Philips Imaging DD
 
- # Philips
- - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: Philips MR Imaging DD
- - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: Philips Imaging DD
-
- # Toshiba
- - Action: Ignore
-   IfColumn: PrivateCreator
-   IfPattern: TOSHIBA_MEC_CT
+  # Toshiba
+  - Action: Ignore
+    IfColumn: PrivateCreator
+    IfPattern: TOSHIBA_MEC_CT
 
 WhiteListRules:
-
-# SIEMENS
-- Action: Ignore
-  IfColumn: SeriesDescription
-  IfPartPattern: ^siemens$
-  IfPattern: ^siemens muga
-- Action: Ignore
-  IfColumn: ReconstructionMethod
-  IfPartPattern: ^(siemens|butterworth)$
-  IfPattern: ^osem.*siemens
+  # SIEMENS
+  - Action: Ignore
+    IfColumn: SeriesDescription
+    IfPartPattern: ^siemens$
+    IfPattern: ^siemens muga
+  - Action: Ignore
+    IfColumn: ReconstructionMethod
+    IfPartPattern: ^(siemens|butterworth)$
+    IfPattern: ^osem.*siemens

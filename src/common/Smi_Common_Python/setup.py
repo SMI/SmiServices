@@ -49,4 +49,3 @@ setup(
     requires=[translate_req(r) for r in requirements],
     install_requires=requirements
 )
-

@@ -8,4 +8,3 @@
     <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
   </ItemGroup>
 </Project>
-
