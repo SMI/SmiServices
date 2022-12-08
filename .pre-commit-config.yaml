@@ -1,14 +1,53 @@
 ---
-
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      # General
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-xml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      # Python
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-docstring-first
+      - id: debug-statements
+      # - id: name-tests-test
+      - id: requirements-txt-fixer
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+  - repo: https://github.com/rkm/pre-commit-nocommit
+    rev: "v1.0.0"
+    hooks:
+      - id: nocommit
+        exclude: |
+          (?x)^(
+            .pre-commit-config.yaml|
+            meta/pre-commit-config-base.yaml|
+          )$
   - repo: https://github.com/codespell-project/codespell
     rev: "v2.2.2"
     hooks:
       - id: codespell
-        args:
-          [
-            --ignore-words, .meta/codespell-ignores,
-            --exclude-file, .meta/codespell-excludes,
+        args: [
+            --ignore-words,
+            .meta/codespell-ignores,
+            --exclude-file,
+            .meta/codespell-excludes,
             # NOTE(rkm 2021-07-13) Ignore stanford english.all.3class.distsim.crf.ser.gz file
-            --ignore-regex, '\.ser\.gz\b',
+            --ignore-regex,
+            '\.ser\.gz\b',
           ]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.0-alpha.4
+    hooks:
+      - id: prettier
