@@ -1,9 +1,8 @@
-
 Note: This was copied from a rough spec. document which was last updated on 2018-11-29.
 
 # Image Extraction Flags & Refactoring
 
-__Version 2.0 - 2018-11-29__
+**Version 2.0 - 2018-11-29**
 
 In the initial dataset we published to, only CT images with ImageType like `ORIGINAL\PRIMARY` were copied from our internal catalogue. This was our initial method for controlling what images were valid for extraction. It is important however that researchers can be informed of the data that will be included (and excluded) from any cohort that is generated, and also that we can disable certain images from being extracted due to 'dodgy' or corrupt data.
 
@@ -30,23 +29,23 @@ To aid the RC team, we could also add an Extractable flag at the Series/Study le
 
 This is the other part of our definition what is extractable. This would consist of a very simple table containing rules that can be used to determine if an image is allowed to be extracted. An image would be considered extractable if the result of applying all the rules in a row to its dicom tags is true, for any row. For our current rules, we would have something like:
 
-ImageType | Modality
----|---
-LIKE '%ORIGINAL\\PRIMARY%' | EQ 'CT'
-LIKE '%ORIGINAL\\PRIMARY%' | EQ 'MR'
+| ImageType                  | Modality |
+| -------------------------- | -------- |
+| LIKE '%ORIGINAL\\PRIMARY%' | EQ 'CT'  |
+| LIKE '%ORIGINAL\\PRIMARY%' | EQ 'MR'  |
 
 Exact syntax of this to be decided. For example, any given image would be extractable if matched the filter `ImageType LIKE '%ORIGINAL\\PRIMARY%' AND Modality = 'CT'` or `ImageType LIKE '%ORIGINAL\\PRIMARY%' AND Modality = 'MR'`.
 
-- ❓ How would this evolve over time? (performance for many rules, ordering of rules etc.)
-- ❓ This should be fairly easy to deal with in the application layer, but how easy will it be calculate if an image is extractable from a database query?
-- ❓ How to manage adding new columns to this?
+-   ❓ How would this evolve over time? (performance for many rules, ordering of rules etc.)
+-   ❓ This should be fairly easy to deal with in the application layer, but how easy will it be calculate if an image is extractable from a database query?
+-   ❓ How to manage adding new columns to this?
 
 ## Extraction changes
 
 Majority of this is software-related, however we should really create a short extraction guide for the RCs to use. It should include:
 
-- Valid identifier formats permitted in the ID request file (i.e. "SOPInstanceUID" not "imageId")
-- Notes on use of extractable flags
+-   Valid identifier formats permitted in the ID request file (i.e. "SOPInstanceUID" not "imageId")
+-   Notes on use of extractable flags
 
 ### CohortExtractor
 

@@ -16,4 +16,3 @@ do
     curl -s https://api.github.com/repos/SMI/SmiServices/pulls/${i} | grep \"title\"|cut -d'"' -f4 | grep . || echo
   fi
 done
-

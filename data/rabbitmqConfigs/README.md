@@ -1,4 +1,3 @@
-
 # RabbitMQ Configuration
 
 ## Reset the server

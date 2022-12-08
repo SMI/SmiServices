@@ -2,7 +2,6 @@
 
 # SocketRules specify the connection to the nerd (Named Entity Recogniser daemon)
 
-SocketRules:   
- - Host: localhost
-   Port: 1881
-
+SocketRules:
+  - Host: localhost
+    Port: 1881

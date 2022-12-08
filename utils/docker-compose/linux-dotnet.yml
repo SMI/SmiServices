@@ -2,35 +2,35 @@
 version: "3.7"
 
 services:
-    rabbitmq:
-        container_name: rabbitmq
-        image: rabbitmq:latest
-        user: rabbitmq
-        ports:
-            - 5672:5672
-    mariadb:
-        container_name: mariadb
-        image: mariadb:latest
-        environment:
-            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-YourStrongPassw0rd}
-        ports:
-            - 3306:3306
-    redis:
-        container_name: redis
-        image: redis:latest
-        ports:
-            - 6379:6379
-    mssql:
-        container_name: mssql
-        image: mcr.microsoft.com/mssql/server:2017-latest
-        environment:
-            - ACCEPT_EULA=Y
-            - SA_PASSWORD=${DB_PASSWORD:-YourStrongPassw0rd}
-        ports:
-            - 1433:1433
-    mongodb:
-        container_name: mongodb
-        image: mongo:latest
-        command: mongod --replSet rs0
-        ports:
-            - 27017:27017
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:latest
+    user: rabbitmq
+    ports:
+      - 5672:5672
+  mariadb:
+    container_name: mariadb
+    image: mariadb:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-YourStrongPassw0rd}
+    ports:
+      - 3306:3306
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - 6379:6379
+  mssql:
+    container_name: mssql
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD:-YourStrongPassw0rd}
+    ports:
+      - 1433:1433
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    command: mongod --replSet rs0
+    ports:
+      - 27017:27017

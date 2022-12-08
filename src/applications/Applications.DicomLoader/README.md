@@ -3,8 +3,9 @@
 Primary Author: [James Sutherland](https://github.com/jas88)
 
 ## Contents
- 1. [Overview](#1-overview)
- 2. [Setup / Installation](#2-setup--installation)
+
+1.  [Overview](#1-overview)
+2.  [Setup / Installation](#2-setup--installation)
 
 ### 1. Overview
 

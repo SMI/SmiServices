@@ -1,4 +1,3 @@
-
 # First Install
 
 For the moment you have to manually install DAT and its dependencies to your local Maven repo for the build to find it. To do this, run installDat.bat (installDat.sh on linux) once before you try and build for the first time.
@@ -28,7 +27,7 @@ First `cd` into one of the `Microservice.*` directories, then:
 
 `java -jar target\***-portable-***.jar ...`
 
-where `...` are any command line options you wish to supply the microservice. 
+where `...` are any command line options you wish to supply the microservice.
 
 **To package deployable archives**:
 Back in `SMIPlugin/Java/Microservices`, build the projects as above, then run:
@@ -53,4 +52,3 @@ To properly set up the logging across the microservices, we use the following me
 4. Then just implement your log messages appropriately.
 
 Everything is logged to file, `INFO`, `WARN`, and `ERROR` are also logged to console.
-

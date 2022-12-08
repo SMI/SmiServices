@@ -27,7 +27,7 @@ Where `type` is one of
 -   `removal`
 -   `meta`
 
-*Note* Ensure that the file is named with the _PR_ number, rather than any associated _issue_ number.
+_Note_ Ensure that the file is named with the _PR_ number, rather than any associated _issue_ number.
 
 Quick tip: You can get the most recent issue or PR number with the following one-liner. Then add one to determine the new one for your PR (so long as you're quick!)
 
@@ -46,5 +46,6 @@ or, if more detail is required, multiple lines formatted as a sub-list
 
 ```md
 Fixed a foobar
+
 -   Requires users to change xyz
 ```
