@@ -11,9 +11,13 @@ using System.Threading.Tasks;
 using DicomTypeTranslation;
 using FellowOakDicom;
 using LibArchive.Net;
+using Microservices.DicomRelationalMapper.Execution;
+using Microservices.DicomRelationalMapper.Messaging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using Rdmp.Core.Curation.Data.DataLoad;
+using Rdmp.Core.DataLoad;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 
@@ -27,7 +31,7 @@ public class Loader
     private readonly Stopwatch _timer = Stopwatch.StartNew();
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
-    private readonly ConcurrentQueue<BsonDocument> _imageQueue=new();
+    private readonly ConcurrentQueue<ValueTuple<DicomFileMessage,DicomDataset>> _imageQueue=new();
 
     /// <summary>
     /// Make sure Mongo ignores its internal-only _id attribute when
@@ -45,7 +49,7 @@ public class Loader
             });
         new DicomSetupBuilder().SkipValidation();
     }
-    
+
     private SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
     {
         // Try loading from Mongo in case we were interrupted previously
@@ -69,20 +73,38 @@ public class Loader
     /// </summary>
     public void Flush(bool force=false)
     {
-        if (!force && _imageQueue.Count < 100 && _seriesList.Count < 100)
+        if (!force && _imageQueue.Count < 1000 && _seriesList.Count < 100)
             return;
         lock (_flushLock)
         {
-            List<BsonDocument> imageBatch = new();
-            while(_imageQueue.TryDequeue(out var I))
+            List<(DicomFileMessage, DicomDataset)> imageBatch = new();
+            var builder = Builders<BsonDocument>.Filter;
+            while (_imageQueue.TryDequeue(out var I))
+            {
                 imageBatch.Add(I);
-            try
-            {
-                _imageStore.InsertMany(imageBatch);
+                if (_loadOptions.ForceReload)
+                    _imageStore.DeleteOne(builder.Eq("header.DicomFilePath", I.Item1.DicomFilePath));
+                try
+                {
+                    _imageStore.InsertOne(new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(I.Item1, new MessageHeader()))
+                        .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(I.Item2)));
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine($"Image flush:{e.Message}");
+                }
             }
-            catch (Exception e)
+            if (_parallelDleHost != null)
             {
-                Console.Error.WriteLine($"Image flush:{e.Message}");
+                var imageList = new List<QueuedImage>();
+                imageBatch.Each(i =>
+                {
+                    imageList.Add(new QueuedImage(null,0,i.Item1,i.Item2));
+                });
+                var workList = new DicomFileMessageToDatasetListWorklist(imageList);
+                var result=_parallelDleHost.RunDLE(_lmd, workList);
+                if (result!=ExitCodeType.Success && result!=ExitCodeType.OperationNotRequired)
+                    Console.Error.WriteLine($"DLE load failed with result {result}");
             }
             if (!force && _seriesList.Count < 100)
                 return;
@@ -108,9 +130,16 @@ public class Loader
     }
 
     private static readonly byte[] _dicomMagic = Encoding.ASCII.GetBytes("DICM");
+    private readonly DicomLoaderOptions _loadOptions;
+    private readonly ParallelDLEHost? _parallelDleHost;
+    private readonly LoadMetadata? _lmd;
 
-    public Loader(IMongoDatabase database, string imageCollection, string seriesCollection, bool forceReload)
+    public Loader(IMongoDatabase database, string imageCollection, string seriesCollection,
+        DicomLoaderOptions loadOptions, ParallelDLEHost? parallelDleHost,LoadMetadata? lmd)
     {
+        _loadOptions = loadOptions;
+        _parallelDleHost = parallelDleHost;
+        _lmd = lmd;
         _imageStore = database.GetCollection<BsonDocument>(imageCollection);
         _seriesStore = database.GetCollection<SeriesMessage>(seriesCollection);
     }
@@ -146,7 +175,11 @@ public class Loader
                 try
                 {
                     var path = $"{fi.FullName}!{entry.Name}";
-                    if (!ExistingEntry(path, ct))
+                    if (!_loadOptions.ForceReload && ExistingEntry(path, ct))
+                    {
+                        return; // Exit whole archive processing on duplicate, unless force-reloading
+                    }
+                    else
                     {
                         using var ms = new MemoryStream();
                         using (var eStream = entry.Stream)
@@ -180,8 +213,8 @@ public class Loader
     /// <param name="ct">Cancellation token</param>
     private void Process(DicomDataset ds, string path, string directoryName, long size, CancellationToken ct)
     {
-        // Consider flushing every 256 file loads
-        if ((Interlocked.Increment(ref _fileCount) & 0xff) == 0)
+        // Consider flushing every 4096 file loads
+        if ((Interlocked.Increment(ref _fileCount) & 0xfff) == 0)
         {
             Flush();
             Report();
@@ -216,9 +249,7 @@ public class Loader
         _seriesList.AddOrUpdate(identifiers[1],id=>LoadSm(id,directoryName,ds,identifiers[0]) , IncSm);
         DicomDataset filtered = new(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
 
-        _imageQueue.Enqueue(
-            new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(message, new MessageHeader()))
-                .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(filtered)));
+        _imageQueue.Enqueue((message, filtered));
     }
 
     /// <summary>

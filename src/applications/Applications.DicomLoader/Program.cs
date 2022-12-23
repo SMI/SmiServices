@@ -5,6 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using JetBrains.Annotations;
+using Microservices.DicomRelationalMapper.Execution;
+using Microsoft.Extensions.DependencyInjection;
+using Rdmp.Core.Curation.Data.DataLoad;
+using Rdmp.Core.Curation.Data.EntityNaming;
+using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 
@@ -31,11 +36,28 @@ public static class Program
 
     private static int OnParse(GlobalOptions go, DicomLoaderOptions dicomLoaderOptions, Stream? fileList)
     {
+        ParallelDLEHost host = null;
+        LoadMetadata lmd = null;
+        if (dicomLoaderOptions.LoadSql)
+        {
+            // Initialise a ParallelDleHost to shove the Mongo entries into SQL too:
+            var rdmpRepo = go.RDMPOptions.GetRepositoryProvider();
+            var databaseNamerType = rdmpRepo.CatalogueRepository.MEF.GetType(go.DicomRelationalMapperOptions.DatabaseNamerType);
+            if(databaseNamerType == null)
+            {
+                throw new Exception($"Could not find Type '{go.DicomRelationalMapperOptions.DatabaseNamerType}'");
+            }
+
+            lmd = rdmpRepo.CatalogueRepository.GetObjectByID<LoadMetadata>(go.DicomRelationalMapperOptions.LoadMetadataId);
+            var liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
+            var instance = new MicroserviceObjectFactory().CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, go.DicomRelationalMapperOptions.Guid);
+            host = new ParallelDLEHost(rdmpRepo,instance,true);
+        }
         Loader loader =
             new(
                 MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader))
                     .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName),
-                go.MongoDbPopulatorOptions.ImageCollection, go.MongoDbPopulatorOptions.SeriesCollection,dicomLoaderOptions.ForceReload);
+                go.MongoDbPopulatorOptions.ImageCollection, go.MongoDbPopulatorOptions.SeriesCollection,dicomLoaderOptions,host,lmd);
 
         LineReader.LineReader fileNames = new(fileList??Console.OpenStandardInput(), '\0');
         using CancellationTokenSource cts = new();
@@ -63,6 +85,9 @@ public static class Program
 [UsedImplicitly]
 public class DicomLoaderOptions : CliOptions
 {
+    [Option('s',"sql",Default = false,Required = false,HelpText = "Load data on to the SQL stage after Mongo")]
+    public bool LoadSql { get; set; }
+
     [Option(
         't',
         "totals",
