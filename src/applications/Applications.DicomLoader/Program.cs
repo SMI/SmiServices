@@ -36,8 +36,8 @@ public static class Program
 
     private static int OnParse(GlobalOptions go, DicomLoaderOptions dicomLoaderOptions, Stream? fileList)
     {
-        ParallelDLEHost host = null;
-        LoadMetadata lmd = null;
+        ParallelDLEHost? host = null;
+        LoadMetadata? lmd = null;
         if (dicomLoaderOptions.LoadSql)
         {
             // Initialise a ParallelDleHost to shove the Mongo entries into SQL too:
