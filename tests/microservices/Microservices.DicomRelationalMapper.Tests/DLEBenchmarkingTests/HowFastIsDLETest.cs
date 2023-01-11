@@ -130,7 +130,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
                 allImages = g.GenerateImages(numberOfImages,r);
             
             DicomDatasetCollectionSource source = new();
-            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
+            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener());
             source.FilenameField = "gggg";
 
             Stopwatch sw = new();
@@ -179,7 +179,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
                 allImages = generator.GenerateImages(numberOfImages, r);
 
             DicomDatasetCollectionSource source = new();
-            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener()); ;
+            source.PreInitialize(new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm", new Dictionary<string, string> { { "MessageGuid", "0x123" } }), new ThrowImmediatelyDataLoadEventListener());
             source.FilenameField = "gggg";
 
             var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
