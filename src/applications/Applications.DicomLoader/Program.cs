@@ -13,6 +13,7 @@ using Rdmp.Core.Curation.Data.EntityNaming;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
 using ReusableLibraryCode.Checks;
+using Smi.Common;
 using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
@@ -45,6 +46,7 @@ public static class Program
         LoadMetadata? lmd = null;
         if (dicomLoaderOptions.LoadSql)
         {
+            FansiImplementations.Load();
             // Initialise a ParallelDleHost to shove the Mongo entries into SQL too:
             var rdmpRepo = go.RDMPOptions.GetRepositoryProvider();
             var startup = new Startup(new EnvironmentInfo(), rdmpRepo);
