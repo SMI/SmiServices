@@ -7,11 +7,16 @@ using CommandLine;
 using JetBrains.Annotations;
 using Microservices.DicomRelationalMapper.Execution;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.EntityNaming;
+using Rdmp.Core.Startup;
+using Rdmp.Core.Startup.Events;
+using ReusableLibraryCode.Checks;
 using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
+using TB.ComponentModel;
 
 namespace Applications.DicomLoader;
 
@@ -42,6 +47,17 @@ public static class Program
         {
             // Initialise a ParallelDleHost to shove the Mongo entries into SQL too:
             var rdmpRepo = go.RDMPOptions.GetRepositoryProvider();
+            var startup = new Startup(new EnvironmentInfo(), rdmpRepo);
+            List<Exception> errors = new();
+            startup.DatabaseFound += (sender, args) =>
+            {
+                if (args.Status == RDMPPlatformDatabaseStatus.Healthy && args.Exception is null)
+                    return;
+                errors.Add(args.Exception ?? new ApplicationException($"Database {args.SummariseAsString()} unhealthy state {args.Status}"));
+            };
+            startup.DoStartup(new ThrowImmediatelyCheckNotifier());
+            if (!errors.IsNullOrEmpty())
+                throw new AggregateException(errors.ToArray());
             var databaseNamerType = rdmpRepo.CatalogueRepository.MEF.GetType(go.DicomRelationalMapperOptions.DatabaseNamerType);
             if(databaseNamerType == null)
             {
