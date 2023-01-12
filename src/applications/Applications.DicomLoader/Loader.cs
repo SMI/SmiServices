@@ -99,7 +99,7 @@ public class Loader
                 var imageList = new List<QueuedImage>();
                 imageBatch.Each(i =>
                 {
-                    imageList.Add(new QueuedImage(null,0,i.Item1,i.Item2));
+                    imageList.Add(new QueuedImage(new MessageHeader(),0,i.Item1,i.Item2));
                 });
                 var workList = new DicomFileMessageToDatasetListWorklist(imageList);
                 var result=_parallelDleHost.RunDLE(_lmd, workList);
