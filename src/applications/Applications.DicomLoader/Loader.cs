@@ -26,7 +26,7 @@ namespace Applications.DicomLoader;
 public class Loader
 {
     private readonly object _flushLock=new ();
-    private int _fileCount;
+    private ulong _fileCount;
     private readonly ConcurrentDictionary<string,SeriesMessage> _seriesList=new ();
     private readonly Stopwatch _timer = Stopwatch.StartNew();
     private readonly IMongoCollection<BsonDocument> _imageStore;
@@ -214,7 +214,7 @@ public class Loader
     private void Process(DicomDataset ds, string path, string directoryName, long size, CancellationToken ct)
     {
         // Consider flushing every 4096 file loads
-        if ((Interlocked.Increment(ref _fileCount) & 0xfff) == 0)
+        if ((Interlocked.Increment(ref _fileCount) & 0xff) == 0)
         {
             Flush();
             Report();
