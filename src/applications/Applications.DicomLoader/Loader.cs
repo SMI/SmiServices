@@ -26,7 +26,7 @@ namespace Applications.DicomLoader;
 public class Loader
 {
     private readonly object _flushLock=new ();
-    private ulong _fileCount;
+    private long _fileCount;
     private readonly ConcurrentDictionary<string,SeriesMessage> _seriesList=new ();
     private readonly Stopwatch _timer = Stopwatch.StartNew();
     private readonly IMongoCollection<BsonDocument> _imageStore;
