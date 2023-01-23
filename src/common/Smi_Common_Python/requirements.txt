@@ -1,5 +1,5 @@
 deepmerge
-mysql_connector_python<8.0.29
+mysql_connector_python<8.0.33
 pika
 protobuf<3.20.0
 pydicom
