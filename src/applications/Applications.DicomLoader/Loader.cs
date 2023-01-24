@@ -99,15 +99,22 @@ public class Loader
         // Delete pre-existing entries, if applicable, then insert our queue:
         if (_loadOptions.ForceReload)
         {
+            var sw = new Stopwatch();
+            sw.Start();
             var builder = Builders<BsonDocument>.Filter;
             _imageStore.DeleteMany(builder.AnyEq("header.DicomFilePath",
                 imageBatch.Select(i => i.Item1.DicomFilePath)));
+            Console.Error.WriteLine($"Deleted {imageBatch.Count} entries from Mongo in {sw.ElapsedMilliseconds}ms");
         }
+
+        var mongoStopwatch = new Stopwatch();
+        mongoStopwatch.Start();
         try
         {
             _imageStore.InsertMany(imageBatch.Select(i=>
                 new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(i.Item1, new MessageHeader()))
                     .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(i.Item2))));
+            Console.Error.WriteLine($"Inserted {imageBatch.Count} entries to Mongo in {mongoStopwatch.ElapsedMilliseconds}ms");
         }
         catch (Exception e)
         {
@@ -179,6 +186,7 @@ public class Loader
         _loadOptions = loadOptions;
         _parallelDleHost = parallelDleHost;
         _lmd = lmd;
+        database.Settings.WriteConcern = new WriteConcern(w:1,fsync:false,journal:false);
         _imageStore = database.GetCollection<BsonDocument>(imageCollection);
         _seriesStore = database.GetCollection<SeriesMessage>(seriesCollection);
     }
