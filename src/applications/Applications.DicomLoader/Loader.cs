@@ -70,7 +70,7 @@ public class Loader
         return sm;
     }
 
-    private bool backlogged=false;
+    private volatile bool backlogged=false;
 
     /// <summary>
     /// Write the pending Series data out to Mongo
