@@ -77,13 +77,13 @@ public class Loader
     /// </summary>
     public void Flush(bool force=false)
     {
-        if (!force && _imageQueue.Count < 1000)
+        if (!force && _imageQueue.Count < 50_000)
             return;
         List<(DicomFileMessage, DicomDataset)> imageBatch;
         lock (_flushLock)
         {
             // Duplicate this check, because things could have changed while we waited for the lock:
-            if (!force && _imageQueue.Count < 1000)
+            if (!force && _imageQueue.Count < 50_000)
                 return;
             imageBatch = new List<(DicomFileMessage, DicomDataset)>();
             while (_imageQueue.TryDequeue(out var I))
