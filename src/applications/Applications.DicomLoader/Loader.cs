@@ -97,10 +97,8 @@ public class Loader
         if (_loadOptions.ForceReload)
         {
             var builder = Builders<BsonDocument>.Filter;
-            foreach (var (dicomFileMessage, _) in imageBatch)
-            {
-                _imageStore.DeleteOne(builder.Eq("header.DicomFilePath", dicomFileMessage.DicomFilePath));
-            }
+            _imageStore.DeleteMany(builder.AnyEq("header.DicomFilePath",
+                imageBatch.Select(i => i.Item1.DicomFilePath)));
         }
         try
         {
