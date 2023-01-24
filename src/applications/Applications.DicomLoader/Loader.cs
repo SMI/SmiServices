@@ -13,6 +13,7 @@ using FellowOakDicom;
 using LibArchive.Net;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Messaging;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -73,29 +74,75 @@ public class Loader
     /// </summary>
     public void Flush(bool force=false)
     {
-        if (!force && _imageQueue.Count < 1000 && _seriesList.Count < 100)
+        if (!force && _imageQueue.Count < 1000)
             return;
+        List<(DicomFileMessage, DicomDataset)> imageBatch;
         lock (_flushLock)
         {
-            List<(DicomFileMessage, DicomDataset)> imageBatch = new();
-            var builder = Builders<BsonDocument>.Filter;
+            // Duplicate this check, because things could have changed while we waited for the lock:
+            if (!force && _imageQueue.Count < 1000)
+                return;
+            imageBatch = new List<(DicomFileMessage, DicomDataset)>();
             while (_imageQueue.TryDequeue(out var I))
             {
                 imageBatch.Add(I);
-                if (_loadOptions.ForceReload)
-                    _imageStore.DeleteOne(builder.Eq("header.DicomFilePath", I.Item1.DicomFilePath));
-                try
-                {
-                    _imageStore.InsertOne(new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(I.Item1, new MessageHeader()))
-                        .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(I.Item2)));
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine($"Image flush:{e.Message}");
-                }
             }
-            if (_parallelDleHost != null)
+        }
+
+        // Nothing to do? Return early:
+        if (!force && imageBatch.IsNullOrEmpty())
+            return;
+
+        // Delete pre-existing entries, if applicable, then insert our queue:
+        if (_loadOptions.ForceReload)
+        {
+            var builder = Builders<BsonDocument>.Filter;
+            foreach (var (dicomFileMessage, _) in imageBatch)
             {
+                _imageStore.DeleteOne(builder.Eq("header.DicomFilePath", dicomFileMessage.DicomFilePath));
+            }
+        }
+        try
+        {
+            _imageStore.InsertMany(imageBatch.Select(i=>
+                new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(i.Item1, new MessageHeader()))
+                    .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(i.Item2))));
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Image flush:{e.Message}");
+        }
+
+
+        if (force || _seriesList.Count > 100)
+        {
+            // Now flush the SeriesMessage list to Mongo:
+            try
+            {
+                List<SeriesMessage> sm = new();
+                foreach (var key in _seriesList.Keys)
+                {
+                    if (_seriesList.Remove(key, out var seriesItem))
+                    {
+                        sm.Add(seriesItem);
+                    }
+                }
+                _seriesStore.InsertMany(sm);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"MongoDB:{e.Message}");
+            }
+        }
+
+        if (_parallelDleHost != null)
+        {
+            Stopwatch lockTimer = new();
+            lockTimer.Start();
+            long lockWait;
+            lock (_parallelDleHost)
+            {
+                lockWait = lockTimer.ElapsedMilliseconds;
                 var imageList = new List<QueuedImage>();
                 imageBatch.Each(i =>
                 {
@@ -106,21 +153,10 @@ public class Loader
                 if (result!=ExitCodeType.Success && result!=ExitCodeType.OperationNotRequired)
                     Console.Error.WriteLine($"DLE load failed with result {result}");
             }
-            if (!force && _seriesList.Count < 100)
-                return;
-            if (!_seriesList.IsEmpty)
-                try
-                {
-                    _seriesStore.InsertMany(_seriesList.Values);
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine($"MongoDB:{e.Message}");
-                }
-            _seriesList.Clear();
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect(2, GCCollectionMode.Forced, true, true);
+            Console.WriteLine($"SQL load completed on {imageBatch.Count} items in {lockTimer.ElapsedMilliseconds}ms, {lockWait}ms lock contention");
         }
+        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+        GC.Collect(2, GCCollectionMode.Forced, true, true);
     }
 
     public void Report()
@@ -175,7 +211,7 @@ public class Loader
                 try
                 {
                     var path = $"{fi.FullName}!{entry.Name}";
-                    if (!_loadOptions.ForceReload && ExistingEntry(path, ct))
+                    if (!_loadOptions.ForceReload && ExistingEntry(path))
                     {
                         return; // Exit whole archive processing on duplicate, unless force-reloading
                     }
@@ -213,7 +249,7 @@ public class Loader
     /// <param name="ct">Cancellation token</param>
     private void Process(DicomDataset ds, string path, string directoryName, long size, CancellationToken ct)
     {
-        // Consider flushing every 4096 file loads
+        // Consider flushing every 256 file loads
         if ((Interlocked.Increment(ref _fileCount) & 0xff) == 0)
         {
             Flush();
@@ -256,9 +292,8 @@ public class Loader
     /// Check if a filename is an existing MongoDB entry
     /// </summary>
     /// <param name="filename">Filename (possibly in the form archive!entry) to check for</param>
-    /// <param name="ct"></param>
     /// <returns>Whether there's already an entry for this file</returns>
-    private bool ExistingEntry(string filename, CancellationToken ct)
+    private bool ExistingEntry(string filename)
     {
         return _imageStore.AsQueryable().Any(i => i["header.DicomFilePath"].CompareTo(filename) == 0);
     }
@@ -277,7 +312,7 @@ public class Loader
             return ValueTask.CompletedTask;
         }
 
-        if (ExistingEntry(filename, ct))
+        if (ExistingEntry(filename))
         {
             return ValueTask.CompletedTask;
         }
