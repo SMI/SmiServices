@@ -96,6 +96,8 @@ public class Loader
         if (!force && imageBatch.IsNullOrEmpty())
             return;
 
+        backlogged = true;
+
         // Delete pre-existing entries, if applicable, then insert our queue:
         if (_loadOptions.ForceReload)
         {
@@ -150,7 +152,6 @@ public class Loader
             long lockWait;
             lock (_parallelDleHost)
             {
-                backlogged = true;
                 lockWait = lockTimer.ElapsedMilliseconds;
                 var imageList = new List<QueuedImage>();
                 imageBatch.Each(i =>
@@ -161,12 +162,12 @@ public class Loader
                 var result=_parallelDleHost.RunDLE(_lmd, workList);
                 if (result!=ExitCodeType.Success && result!=ExitCodeType.OperationNotRequired)
                     Console.Error.WriteLine($"DLE load failed with result {result}");
-                backlogged = false;
             }
             Console.WriteLine($"SQL load completed on {imageBatch.Count} items in {lockTimer.ElapsedMilliseconds}ms, {lockWait}ms lock contention");
         }
         GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
         GC.Collect(2, GCCollectionMode.Forced, true, true);
+        backlogged = false;
     }
 
     public void Report()
