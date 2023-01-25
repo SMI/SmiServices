@@ -186,7 +186,6 @@ public class Loader
         _loadOptions = loadOptions;
         _parallelDleHost = parallelDleHost;
         _lmd = lmd;
-        database.Settings.WriteConcern = new WriteConcern(w:1,fsync:false,journal:false);
         _imageStore = database.GetCollection<BsonDocument>(imageCollection);
         _seriesStore = database.GetCollection<SeriesMessage>(seriesCollection);
     }
