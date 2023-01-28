@@ -9,8 +9,7 @@
     <IsPublishable>false</IsPublishable>
     <LangVersion>10.0</LangVersion>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <PlatformTarget>anyCPU</PlatformTarget>
-    <RuntimeIdentifiers>linux-x64;win-x64;linux-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x64;win-x64;osx-arm64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <TargetFramework>net6</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
