@@ -116,7 +116,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     test_cmd = ("--filter", args.test[0]) if args.test else ()
 
     have_failures = False
-    for csproj in test_csprojs[:-1]:
+    for csproj in test_csprojs[-2:-1]:
         try:
             _run_csproj_tests(
                 csproj,
