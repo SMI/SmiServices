@@ -134,7 +134,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         args.configuration,
         args.no_build,
         not args.no_coverage,
-        '/p:CoverletOutputFormat="opencover"' if not args.no_coverage else "",
+        '/p:CoverletOutputFormat="cobertura"' if not args.no_coverage else "",
         *test_cmd,
     )
 

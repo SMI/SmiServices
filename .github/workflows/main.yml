@@ -119,6 +119,12 @@ jobs:
           ./bin/smi/buildTestPackage.py \
               ${{ needs.init.outputs.build_ref }} \
               "$cov"
+      - name: upload coverage
+        if: ${{ matrix.os == 'linux' }}
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          files: ./coverage/coverage.cobertura.xml
+          fail_ci_if_error: true
       - name: upload dist
         uses: actions/upload-artifact@v3
         with:
