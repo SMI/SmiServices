@@ -4,15 +4,16 @@ The SMI Services project team uses the Feature Branch Workflow to accomplish wor
 
 This workflow works if you are a member of the SMI organisation, or a direct member of the repo, however, external contributors will need to fork the repo first as described here: [GitHub Fork a repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo). Once forked, the Feature Branch Workflow remains the same as desrcibed below.
 
-**Feature Branch Workflow**: 
-- Clone Project
-- Create Branch
-- Add/Commit Changes
-- Push Changes
-- Open Pull Request
-- Request Review
-- Merge Changes
-- Repeat Process
+**Feature Branch Workflow**:
+
+-   Clone Project
+-   Create Branch
+-   Add/Commit Changes
+-   Push Changes
+-   Open Pull Request
+-   Request Review
+-   Merge Changes
+-   Repeat Process
 
 Here is an example of a typical Feature Branch Workflow whilst working on the SMI project:
 
@@ -40,6 +41,7 @@ Here is an example of a typical Feature Branch Workflow whilst working on the SM
 
     git commit -m "Update/Add new feature X"
     ```
+
     This adds and commits the changes to the local repository.
 
 4. **Push Changes**: Once you have committed the changes to your local repository, push your branch to the central repository.
