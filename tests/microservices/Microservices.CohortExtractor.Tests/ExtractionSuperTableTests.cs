@@ -54,7 +54,9 @@ namespace Microservices.CohortExtractor.Tests
                 persons.GeneratePeople(500,r);
 
                 while(recordCount > 0)
+#pragma warning disable SCS0005 // Weak random number generator
                     foreach (var image in g.GenerateStudyImages(persons.People[r.Next(persons.People.Length)],out var study))
+#pragma warning restore SCS0005
                     {
                         tbl.Insert(new Dictionary<string, object>
                         {
