@@ -23,7 +23,7 @@
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Equ" Version="2.3.0" />
     <PackageReference Include="coveralls.io" Version="1.4.2" />
-    <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.2" />
+    <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.3" />
     <PackageReference Include="HIC.FAnsiSql" Version="3.0.1" />
   	<PackageReference Include="IsIdentifiable" Version="0.0.9" />
     <PackageReference Include="HIC.RDMP.Plugin" Version="8.0.7" />
