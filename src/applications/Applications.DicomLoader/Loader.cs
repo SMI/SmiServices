@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +14,7 @@ using LibArchive.Net;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Messaging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -33,6 +34,10 @@ public class Loader
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
     private readonly ConcurrentQueue<ValueTuple<DicomFileMessage,DicomDataset>> _imageQueue=new();
+    private static readonly RecyclableMemoryStreamManager _streamManager;
+
+    // Used to ensure we only buffer one unpacked DICOM object at once: they can be huge, as in Cardiology videos
+    private static readonly object _bufferLock;
 
     /// <summary>
     /// Make sure Mongo ignores its internal-only _id attribute when
@@ -42,6 +47,8 @@ public class Loader
     /// </summary>
     static Loader()
     {
+        _streamManager = new RecyclableMemoryStreamManager();
+        _bufferLock = new object();
         if (BsonClassMap.GetRegisteredClassMaps().All(m => m.ClassType != typeof(SeriesMessage)))
             BsonClassMap.RegisterClassMap<SeriesMessage>(map =>
             {
@@ -159,14 +166,21 @@ public class Loader
                     imageList.Add(new QueuedImage(new MessageHeader(),0,i.Item1,i.Item2));
                 });
                 var workList = new DicomFileMessageToDatasetListWorklist(imageList);
-                var result=_parallelDleHost.RunDLE(_lmd, workList);
-                if (result!=ExitCodeType.Success && result!=ExitCodeType.OperationNotRequired)
-                    Console.Error.WriteLine($"DLE load failed with result {result}");
+                try
+                {
+                    var result=_parallelDleHost.RunDLE(_lmd, workList);
+                    if (result!=ExitCodeType.Success && result!=ExitCodeType.OperationNotRequired)
+                        Console.Error.WriteLine($"DLE load failed with result {result}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"***** ABEND *****\nRunDLE blew up with: {e}");
+                    backlogged = false;
+                    throw;
+                }
             }
             Console.WriteLine($"SQL load completed on {imageBatch.Count} items in {lockTimer.ElapsedMilliseconds}ms, {lockWait}ms lock contention");
         }
-        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-        GC.Collect(2, GCCollectionMode.Forced, true, true);
         backlogged = false;
     }
 
@@ -176,7 +190,7 @@ public class Loader
         Console.WriteLine($"Processed {_fileCount} files in {_timer.ElapsedMilliseconds}ms ({1000*_fileCount/_timer.ElapsedMilliseconds} per second)");
     }
 
-    private static readonly byte[] _dicomMagic = Encoding.ASCII.GetBytes("DICM");
+    private static readonly byte[] _dicomMagic = Encoding.UTF8.GetBytes("DICM"); // Can be "DICM"u8 once we reach C# 11.0!
     private readonly DicomLoaderOptions _loadOptions;
     private readonly ParallelDLEHost? _parallelDleHost;
     private readonly LoadMetadata? _lmd;
@@ -207,6 +221,9 @@ public class Loader
             if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
             {
                 var ds = DicomFile.Open(fileStream).Dataset;
+
+                // Strip pixel data ASAP: we don't want it anyway
+                ds.Remove(DicomTag.PixelData);
                 Process(ds, fi.FullName,dName, fi.Length, ct);
                 return;
             }
@@ -227,14 +244,22 @@ public class Loader
                         return; // Exit whole archive processing on duplicate, unless force-reloading
                     }
 
-                    using var ms = new MemoryStream();
-                    using (var eStream = entry.Stream)
-                        eStream.CopyTo(ms);
-                    if (ms.Length <= 0)
-                        continue;
-                    ms.Seek(0, SeekOrigin.Begin);
-                    var ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
-                    Process(ds, path, dName, ms.Length, ct);
+                    long fileSize;
+                    DicomDataset ds;
+                    lock (_bufferLock)
+                    {
+                        using var ms = _streamManager.GetStream();
+                        using (var eStream = entry.Stream)
+                            eStream.CopyTo(ms);
+                        if (ms.Length <= 0)
+                            continue;
+                        ms.Seek(0, SeekOrigin.Begin);
+                        ds = DicomFile.Open(ms, FileReadOption.ReadAll).Dataset;
+                        fileSize = ms.Length;
+                        // Strip pixel data ASAP: we don't want it anyway
+                        ds.Remove(DicomTag.PixelData);
+                    }
+                    Process(ds, path, dName, fileSize, ct);
                 }
                 catch (DicomFileException e)
                 {
@@ -258,9 +283,6 @@ public class Loader
     /// <param name="ct">Cancellation token</param>
     private void Process(DicomDataset ds, string path, string directoryName, long size, CancellationToken ct)
     {
-        // Strip pixel data ASAP: we don't want it anyway
-        ds.Remove(DicomTag.PixelData);
-
         // Throttle to avoid runaway backlog if doing SQL loads:
         while (backlogged)
             Thread.Sleep(10_000);
