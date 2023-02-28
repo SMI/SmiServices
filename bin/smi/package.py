@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import platform
 import shutil
 import sys
 from typing import Optional
@@ -11,6 +12,7 @@ import common as C
 
 import dotnetCommon as DC
 
+_PLAT = "arm64" if platform.processor() == "arm" else "x64"
 _LINUX = "linux"
 _WINDOWS = "win"
 
@@ -47,6 +49,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "dotnet",
         "publish",
         "--use-current-runtime",
+        f"-p:Platform={_PLAT}",
         "--configuration", args.configuration,
         "--no-build" if args.no_build else "",
         "-p:PublishTrimmed=false",

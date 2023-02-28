@@ -4,6 +4,7 @@ import argparse
 import glob
 import json
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -19,6 +20,7 @@ import dotnetCommon as DC
 import downloadTessdata
 
 
+_PLAT = "arm64" if platform.processor() == "arm" else "x64"
 _COV_DIR = C.PROJ_ROOT / "coverage"
 
 
@@ -46,7 +48,7 @@ def _run_csproj_tests(
         "test",
         "--configuration", configuration,
         "--verbosity", "quiet",
-        "-p:Platform=x64",
+        f"-p:Platform={_PLAT}",
         "--settings", (C.PROJ_ROOT / "data/nunit.runsettings").resolve(),
         "--no-build" if no_build else "",
         csproj,
@@ -132,7 +134,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         args.configuration,
         args.no_build,
         not args.no_coverage,
-        '/p:CoverletOutputFormat="opencover"' if not args.no_coverage else "",
+        '/p:CoverletOutputFormat="cobertura"' if not args.no_coverage else "",
         *test_cmd,
     )
 

@@ -32,9 +32,31 @@ namespace Smi.Common.MongoDB.Tests
         public virtual Task CreateViewAsync<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task CreateViewAsync<TDocument, TResult>(IClientSessionHandle session, string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual void DropCollection(string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+
+        public virtual void DropCollection(string name, DropCollectionOptions options,
+            CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
         public virtual void DropCollection(IClientSessionHandle session, string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+
+        public virtual void DropCollection(IClientSessionHandle session, string name, DropCollectionOptions options,
+            CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
         public virtual Task DropCollectionAsync(string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+
+        public virtual Task DropCollectionAsync(string name, DropCollectionOptions options,
+            CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
         public virtual Task DropCollectionAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+
+        public virtual Task DropCollectionAsync(IClientSessionHandle session, string name, DropCollectionOptions options,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null) => throw new NotImplementedException();
         public virtual IAsyncCursor<string> ListCollectionNames(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<string> ListCollectionNames(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

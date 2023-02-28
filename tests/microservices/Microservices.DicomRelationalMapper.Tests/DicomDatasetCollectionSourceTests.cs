@@ -102,8 +102,10 @@ namespace Microservices.Tests.RDMPTests
         [TestCase(InvalidDataHandling.ThrowException)]
         public void SourceRead_InvalidFloat_ToTable(InvalidDataHandling dataHandlingStrategy)
         {
-            var source = new DicomDatasetCollectionSource();
-            source.InvalidDataHandlingStrategy = dataHandlingStrategy;
+            var source = new DicomDatasetCollectionSource
+            {
+                InvalidDataHandlingStrategy = dataHandlingStrategy
+            };
 
             var ds = new DicomDataset();
             ds.Add(DicomTag.PatientAge, "123Y");
@@ -119,7 +121,7 @@ namespace Microservices.Tests.RDMPTests
             switch (dataHandlingStrategy)
             {
                 case InvalidDataHandling.ThrowException:
-                    Assert.Throws<OverflowException>(()=>source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
+                    Assert.Throws<ArgumentException>(()=>source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
                     return;
 
                 case InvalidDataHandling.ConvertToNullAndWarn:
@@ -151,8 +153,10 @@ namespace Microservices.Tests.RDMPTests
         public void SourceRead_InvalidFloatInSequence_ToTable(InvalidDataHandling dataHandlingStrategy)
         {
             
-            var source = new DicomDatasetCollectionSource();
-            source.InvalidDataHandlingStrategy = dataHandlingStrategy;
+            var source = new DicomDatasetCollectionSource
+            {
+                InvalidDataHandlingStrategy = dataHandlingStrategy
+            };
 
             //when we have a dicom file with an invalid Float number
             var ds = new DicomDataset();
@@ -194,7 +198,7 @@ namespace Microservices.Tests.RDMPTests
                     Assert.AreEqual(0,worklist.CorruptMessages.Count);
                     break;
                 case InvalidDataHandling.ThrowException:
-                    Assert.Throws<OverflowException>(() => source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
+                    Assert.Throws<ArgumentException>(() => source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
                     return;
 
                 default:
@@ -258,7 +262,7 @@ namespace Microservices.Tests.RDMPTests
             switch (dataHandlingStrategy)
             {
                 case InvalidDataHandling.ThrowException:
-                    Assert.Throws<OverflowException>(() => source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
+                    Assert.Throws<ArgumentException>(() => source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
                     return;
 
                 case InvalidDataHandling.ConvertToNullAndWarn:
