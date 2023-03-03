@@ -24,7 +24,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
             _guid = explicitGuid == Guid.Empty ? Guid.NewGuid().ToString("N") : explicitGuid.ToString();
 
             //MySql can't handle long table names
-            _guid = _guid.Substring(0, 8);
+            _guid = _guid[..8];
         }
 
         public override string GetName(string tableName, LoadBubble convention)
@@ -32,15 +32,12 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
 
             var basic = base.GetName(tableName, convention);
 
-            if (convention == LoadBubble.Live || convention == LoadBubble.Archive)
-                return basic;
-
-            return "t" + _guid.Replace("-", "") + basic;
+            return convention is LoadBubble.Live or LoadBubble.Archive ? basic : $"t{_guid.Replace("-", "")}{basic}";
         }
 
         public override string ToString()
         {
-            return base.ToString() + "(GUID:" + _guid + ")";
+            return $"{base.ToString()}(GUID:{_guid})";
         }
     }
 }

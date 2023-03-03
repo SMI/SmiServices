@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CommandLine;
 using JetBrains.Annotations;
 using Microservices.DicomRelationalMapper.Execution;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.EntityNaming;
@@ -17,7 +16,6 @@ using Smi.Common;
 using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
-using TB.ComponentModel;
 
 namespace Applications.DicomLoader;
 
@@ -83,13 +81,13 @@ public static class Program
         Console.CancelKeyPress += CancelHandler;
         ParallelOptions parallelOptions = new()
         {
-            MaxDegreeOfParallelism = -1,
+            MaxDegreeOfParallelism = dicomLoaderOptions.Parallelism,
             CancellationToken = cts.Token
         };
         Parallel.ForEachAsync(fileNames.ReadLines(), parallelOptions, loader.Load).Wait(cts.Token);
         Console.CancelKeyPress -= CancelHandler;
         _cts = null;
-        loader.Flush(true);
+        loader.Flush();
         loader.Report();
         if (dicomLoaderOptions.ForceRecount)
         {
@@ -103,6 +101,20 @@ public static class Program
 [UsedImplicitly]
 public class DicomLoaderOptions : CliOptions
 {
+    [Option('m', "memoryLimit", Default = 16, Required = false, HelpText = "Memory threshold to flush in GiB")]
+    public long MemoryLimit
+    {
+        get;
+        set;
+    } = 16;
+
+    [Option('p', "parallelism", Default = -1, Required = false, HelpText = "Number of threads to run in parallel")]
+    public int Parallelism
+    {
+        get;
+        set;
+    } = -1;
+
     [Option('s',"sql",Default = false,Required = false,HelpText = "Load data on to the SQL stage after Mongo")]
     public bool LoadSql { get; set; }
 

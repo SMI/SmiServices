@@ -200,13 +200,15 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="batchHeaders"></param>
         /// <param name="latestDeliveryTag"></param>
-        protected void Ack(IList<IMessageHeader> batchHeaders, ulong latestDeliveryTag)
+        protected void Ack(IEnumerable<IMessageHeader> batchHeaders, ulong latestDeliveryTag)
         {
-            foreach (IMessageHeader header in batchHeaders)
+            foreach (var header in batchHeaders)
+            {
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
+                AckCount++;
+            }
 
             Model.BasicAck(latestDeliveryTag, true);
-            AckCount += batchHeaders.Count;
         }
 
         /// <summary>

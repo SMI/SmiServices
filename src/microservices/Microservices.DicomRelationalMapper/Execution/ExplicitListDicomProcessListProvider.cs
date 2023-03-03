@@ -1,4 +1,4 @@
-﻿using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
+using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 using System;
 using System.IO;
 using Rdmp.Dicom.Extraction.FoDicomBased;
@@ -39,7 +39,8 @@ namespace Microservices.DicomRelationalMapper.Execution
                 return true;
             }
 
-            throw new Exception("Array element " + index + " of filesAndOrDirectories was not a File or Directory (or the referenced file did not exist).  Array element is '" + _filesAndOrDirectories[index] + "'");
+            throw new Exception(
+                $"Array element {index} of filesAndOrDirectories was not a File or Directory (or the referenced file did not exist).  Array element is '{_filesAndOrDirectories[index]}'");
         }
     }
 }

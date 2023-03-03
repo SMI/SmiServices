@@ -1,4 +1,4 @@
-﻿
+
 using System.Text.RegularExpressions;
 using Microservices.DicomRelationalMapper.Execution.Namers;
 using FAnsi.Discovery;
@@ -59,8 +59,10 @@ namespace Microservices.DicomRelationalMapper.Execution
             var catalogueRepository = lmd.CatalogueRepository;
 
             //ensures that RAW/STAGING always have unique names
-            _configuration = new HICDatabaseConfiguration(lmd, _namer);
-            _configuration.UpdateButDoNotDiff = new Regex("^MessageGuid");
+            _configuration = new HICDatabaseConfiguration(lmd, _namer)
+            {
+                UpdateButDoNotDiff = new Regex("^MessageGuid")
+            };
 
             var logManager = catalogueRepository.GetDefaultLogManager();
 
@@ -75,11 +77,11 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             var listener = new NLogThrowerDataLoadEventListener(NLog.LogManager.GetCurrentClassLogger());
 
-            IDataLoadExecution execution = dataLoadFactory.Create(listener);
+            var execution = dataLoadFactory.Create(listener);
 
-            IExternalDatabaseServer raw = catalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer);
+            var raw = catalogueRepository.GetDefaultFor(PermissableDefaults.RAWDataLoadServer);
 
-            DiscoveredServer liveDb = lmd.GetDistinctLiveDatabaseServer();
+            var liveDb = lmd.GetDistinctLiveDatabaseServer();
 
             //do we want to try to cut down the time it takes to do RAW=>STAGING by using INSERT INTO  instead of running anonymisation/migration pipeline
             if (_useInsertIntoForRawMigration)
@@ -92,14 +94,15 @@ namespace Microservices.DicomRelationalMapper.Execution
                 else
                 {
                     //Cannot use because different servers / DatabaseTypes.
-                    listener.OnNotify(this, new NotifyEventArgs(ProgressEventType.Warning, "CANNOT SWAP RAW=>STAGING migration strategy to INSERT INTO because RAW is on '" + raw.Server + "' (" + raw.DatabaseType + ") and STAGING is on '" + liveDb.Name + "' (" + liveDb.DatabaseType + ")"));
+                    listener.OnNotify(this, new NotifyEventArgs(ProgressEventType.Warning,
+                        $"CANNOT SWAP RAW=>STAGING migration strategy to INSERT INTO because RAW is on '{raw.Server}' ({raw.DatabaseType}) and STAGING is on '{liveDb.Name}' ({liveDb.DatabaseType})"));
                 }
             else
                 listener.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "Flag is false for SWAP RAW=>STAGING migration strategy to INSERT INTO So won't do it"));
 
             var procedure = new DataLoadProcess(_repositoryLocator, lmd, null, logManager, listener, execution,_configuration);
 
-            ExitCodeType exitCode = procedure.Run(new GracefulCancellationToken(), payload);
+            var exitCode = procedure.Run(new GracefulCancellationToken(), payload);
 
             return exitCode;
         }

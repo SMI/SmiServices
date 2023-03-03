@@ -1,6 +1,4 @@
-﻿using System;
-using FAnsi.Discovery;
-using FAnsi.Discovery.QuerySyntax;
+using System;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.DataFlowPipeline;
@@ -9,7 +7,6 @@ using Rdmp.Core.DataLoad.Engine.DatabaseManagement.Operations;
 using Rdmp.Core.DataLoad.Engine.Job;
 using Rdmp.Core.DataLoad.Engine.LoadExecution.Components;
 using ReusableLibraryCode.Progress;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 
@@ -54,7 +51,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             var sw = Stopwatch.StartNew();
 
-            foreach (TableInfo table in job.RegularTablesToLoad)
+            foreach (var table in job.RegularTablesToLoad)
             {
                 var fromDb = table.GetDatabaseRuntimeName(LoadStage.AdjustRaw, namer);
                 var toDb = table.GetDatabaseRuntimeName(LoadStage.AdjustStaging, namer);
@@ -73,8 +70,6 @@ namespace Microservices.DicomRelationalMapper.Execution
                 var sql =
                     $@"INSERT INTO {syntaxHelper.EnsureFullyQualified(toDb, null, toTable)}({string.Join(",", commonColumns.Select(c => syntaxHelper.EnsureWrapped(c)))}) SELECT DISTINCT {string.Join(",", commonColumns.Select(c => syntaxHelper.EnsureWrapped(c)))} FROM {syntaxHelper.EnsureFullyQualified(fromDb, null, fromTable)}";
 
-                job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "About to send SQL:" + sql));
-
                 var cmd = server.GetCommand(sql, con);
                 cmd.CommandTimeout = 0;
 
@@ -84,14 +79,15 @@ namespace Microservices.DicomRelationalMapper.Execution
                 }
                 catch (Exception ex)
                 {
-                    job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Error, "Failed to migrate rows", ex));
+                    job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Error, $"Failed to migrate rows using '{sql}'", ex));
                     throw;
                 }
             }
 
             sw.Stop();
 
-            job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "Migrated all rows using INSERT INTO in " + sw.ElapsedMilliseconds + "ms"));
+            job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information,
+                $"Migrated all rows using INSERT INTO in {sw.ElapsedMilliseconds}ms"));
             return ExitCodeType.Success;
         }
     }

@@ -1,4 +1,4 @@
-﻿using FellowOakDicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -34,7 +34,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         /// </summary>
         public IReadOnlyCollection<Exception> DleErrors => new ReadOnlyCollection<Exception>(_dleExceptions);
         
-        private List<Exception> _dleExceptions = new();
+        private readonly List<Exception> _dleExceptions = new();
 
         private readonly LoadMetadata _lmd;
         private readonly IRDMPPlatformRepositoryServiceLocator _repositoryLocator;
@@ -170,7 +170,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             {
                 while (_imageQueue.Count > 0)
                 {
-                    QueuedImage queuedImage = _imageQueue.Dequeue();
+                    var queuedImage = _imageQueue.Dequeue();
 
                     if (seenSoFar.Contains(queuedImage.DicomFileMessage.DicomDataset))
                     {
@@ -190,17 +190,17 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
             if (duplicates.Any())
             {
-                Logger.Log(LogLevel.Warn, "Acking " + duplicates.Count + " duplicate Datasets");
+                Logger.Log(LogLevel.Warn, $"Acking {duplicates.Count} duplicate Datasets");
                 duplicates.ForEach(x => Ack(x.Header, x.tag));
             }
 
             var parallelDleHost = new ParallelDLEHost(_repositoryLocator, DatabaseNamer, _useInsertIntoForRawMigration);
-            Logger.Info("Starting DLE with " + toProcess.Count + " messages");
+            Logger.Info($"Starting DLE with {toProcess.Count} messages");
 
             if (RunChecks)
                 RunDleChecks();
 
-            int remainingRetries = _retryOnFailureCount;
+            var remainingRetries = _retryOnFailureCount;
             Exception firstException = null;
 
             ExitCodeType exitCode;
@@ -234,7 +234,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         var r = new Random();
                         var wait = r.Next(_retryDelayInSeconds * 2);
                         
-                        Logger.Info("Sleeping " + wait + "s after failure");
+                        Logger.Info($"Sleeping {wait}s after failure");
                         Task.Delay(new TimeSpan(0, 0, 0, wait)).Wait();
 
                         if (RunChecks)
@@ -244,24 +244,24 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         }
                     }
 
-                    firstException = firstException ?? e;
+                    firstException ??= e;
                 }
             }
             while (remainingRetries-- > 0 && (exitCode == ExitCodeType.Error || exitCode == ExitCodeType.Abort));
 
-            Logger.Info("DLE exited with code " + exitCode);
+            Logger.Info($"DLE exited with code {exitCode}");
 
             switch (exitCode)
             {
                 case ExitCodeType.Success:
                 case ExitCodeType.OperationNotRequired:
                     {
-                        foreach (QueuedImage corrupt in datasetProvider.CorruptMessages)
+                        foreach (var corrupt in datasetProvider.CorruptMessages)
                             ErrorAndNack(corrupt.Header, corrupt.tag, "Nacking Corrupt image", null);
 
-                        QueuedImage[] successes = toProcess.Except(datasetProvider.CorruptMessages).ToArray();
+                        var successes = toProcess.Except(datasetProvider.CorruptMessages).ToArray();
 
-                        Ack(successes.Select(x => x.Header).ToList(),
+                        Ack(successes.Select(x => x.Header),
                             successes.Select(x => x.tag).Max(x => x));
 
                         break;
@@ -270,13 +270,13 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 case ExitCodeType.Abort:
                     {
                         _stopTokenSource.Cancel();
-                        Fatal("DLE Crashed " + (_retryOnFailureCount + 1) + " time(s) on the same batch", firstException);
+                        Fatal($"DLE Crashed {(_retryOnFailureCount + 1)} time(s) on the same batch", firstException);
                         break;
                     }
                 default:
                     {
                         _stopTokenSource.Cancel();
-                        Fatal("No case for DLE exit code " + exitCode, null);
+                        Fatal($"No case for DLE exit code {exitCode}", null);
                         break;
                     }
             }
@@ -298,8 +298,9 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             //make sure we stop the consume loop if it hasn't already stopped
-            if(_stopTokenSource != null && !_stopTokenSource.IsCancellationRequested)
+            if(_stopTokenSource is { IsCancellationRequested: false })
                 _stopTokenSource.Cancel();
         }
     }

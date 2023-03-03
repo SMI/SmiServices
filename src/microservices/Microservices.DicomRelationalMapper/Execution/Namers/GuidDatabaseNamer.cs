@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FAnsi.Discovery;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.EntityNaming;
@@ -37,10 +37,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
         {
             var basic = base.GetDatabaseName(rootDatabaseName, stage);
 
-            if (stage == LoadBubble.Live || stage == LoadBubble.Archive)
-                return basic;
-
-            return "t" + _guid.Replace("-", "") + basic;
+            return stage is LoadBubble.Live or LoadBubble.Archive ? basic : $"t{_guid.Replace("-", "")}{basic}";
         }
 
         public void CreateStaging(DiscoveredServer liveServer)
@@ -57,13 +54,13 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
 
         public void DestroyStagingIfExists()
         {
-            if(_stagingDatabase != null && _stagingDatabase.Exists())
+            if(_stagingDatabase?.Exists() == true)
                 _stagingDatabase.Drop();
         }
 
         public override string ToString()
         {
-            return base.ToString() + "(GUID:" + _guid +")";
+            return $"{base.ToString()}(GUID:{_guid})";
         }
     }
 }
