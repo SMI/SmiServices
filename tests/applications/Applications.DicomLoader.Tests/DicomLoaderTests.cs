@@ -55,8 +55,8 @@ public class DicomLoaderTests
         }
 
         // Move 10 of the DICOM files into a ZIP archive to test that function too
-        var archiveName = Path.Combine(di.FullName, "arctest.zip");
-        var zipFiles = di.GetFiles("*.dcm", new EnumerationOptions() { RecurseSubdirectories = true })[..10];
+        var archiveName = Path.Combine(di.FullName, "arcTest.zip");
+        var zipFiles = di.GetFiles("*.dcm", new EnumerationOptions { RecurseSubdirectories = true })[..10];
         using (var archiveStream=File.OpenWrite(archiveName))
         using (var archiver = ZipArchive.Create())
         {

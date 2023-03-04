@@ -49,7 +49,7 @@ public static class Program
             var rdmpRepo = go.RDMPOptions.GetRepositoryProvider();
             var startup = new Startup(new EnvironmentInfo(), rdmpRepo);
             List<Exception> errors = new();
-            startup.DatabaseFound += (sender, args) =>
+            startup.DatabaseFound += (_, args) =>
             {
                 if (args.Status == RDMPPlatformDatabaseStatus.Healthy && args.Exception is null)
                     return;
@@ -105,6 +105,7 @@ public class DicomLoaderOptions : CliOptions
     public long MemoryLimit
     {
         get;
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
         set;
     } = 16;
 
@@ -112,10 +113,12 @@ public class DicomLoaderOptions : CliOptions
     public int Parallelism
     {
         get;
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
         set;
     } = -1;
 
     [Option('s',"sql",Default = false,Required = false,HelpText = "Load data on to the SQL stage after Mongo")]
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public bool LoadSql { get; set; }
 
     [Option(

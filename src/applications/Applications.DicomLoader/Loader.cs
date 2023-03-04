@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -239,15 +238,17 @@ public class Loader
     public Loader(IMongoDatabase database, string imageCollection, string seriesCollection,
         DicomLoaderOptions loadOptions, ParallelDLEHost? parallelDleHost,LoadMetadata? lmd)
     {
+        _imageQueueLock = new object();
+        _seriesListLock = new object();
         _loadOptions = loadOptions;
-        _imageQueue = new List<(DicomFileMessage, DicomDataset)>();
-        _seriesList = new Dictionary<string, SeriesMessage>();
+        lock(_imageQueueLock)
+            _imageQueue = new List<(DicomFileMessage, DicomDataset)>();
+        lock(_seriesListLock)
+            _seriesList = new Dictionary<string, SeriesMessage>();
         _timer = Stopwatch.StartNew();
         _parallelDleHost = parallelDleHost;
         _lmd = lmd;
         _statsLock = new object();
-        _imageQueueLock = new object();
-        _seriesListLock = new object();
         _imageStore = database.GetCollection<BsonDocument>(imageCollection);
         _seriesStore = database.GetCollection<SeriesMessage>(seriesCollection);
     }
@@ -340,7 +341,6 @@ public class Loader
         if (ct.IsCancellationRequested)
             return;
 
-        ds.Remove(new[] { DicomTag.PixelData });
         var identifiers = new string[3];
 
         // Pre-fetch these to ensure they exist before we go further
@@ -373,7 +373,7 @@ public class Loader
                 _seriesList[identifiers[1]] = LoadSm(identifiers[1], directoryName, ds, identifiers[0]);
             }
         }
-        lock(_imageQueue)
+        lock(_imageQueueLock)
             _imageQueue.Add((message, ds));
     }
 
