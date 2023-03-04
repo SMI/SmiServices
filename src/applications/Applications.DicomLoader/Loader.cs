@@ -117,17 +117,15 @@ public class Loader
         }
     }
 
-    private async Task MongoFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch,bool series=true)
+    private async Task MongoFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
     {
-        if (imageBatch.Count > 10_000)
+        await MongoSeriesFlush();
+        while (imageBatch.Count > 10_000)
         {
             await MongoImageFlush(imageBatch[..10_000]);
-            await MongoFlush(imageBatch[10_000..],false);
+            imageBatch = imageBatch[10_000..];
         }
-        else
-            await MongoImageFlush(imageBatch);
-        if (series)
-            await MongoSeriesFlush();
+        await MongoImageFlush(imageBatch);
     }
 
     private async Task MongoImageFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
