@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -26,14 +27,17 @@ namespace Applications.DicomLoader;
 public class Loader
 {
     private long _dicomCount,_fileCount;
-    private readonly Dictionary<string,SeriesMessage> _seriesList;
     private readonly Stopwatch _timer;
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
     private List<ValueTuple<DicomFileMessage,DicomDataset>> _imageQueue;
     private static readonly RecyclableMemoryStreamManager _streamManager;
     private volatile bool _backlogged, _flushing;
-    private readonly object _statsLock,_imageQueueLock,_seriesListLock;
+    private readonly object _statsLock,_imageQueueLock;
+
+    // Yes, we lock the series list. Read-only while accessing, write while flushing.
+    private readonly ReaderWriterLockSlim _seriesListLock;
+    private ConcurrentDictionary<string, SeriesMessage> _seriesList;
 
     /// <summary>
     /// Make sure Mongo ignores its internal-only _id attribute when
@@ -70,7 +74,8 @@ public class Loader
     /// <summary>
     /// Write the pending data out to Mongo and optionally SQL
     /// </summary>
-    public void Flush()
+    /// <param name="cancellationToken"></param>
+    public void Flush(CancellationToken? cancellationToken=null)
     {
         (DicomFileMessage, DicomDataset)[] imageBatch;
         lock (_imageQueueLock)
@@ -111,9 +116,11 @@ public class Loader
 
         lock (_statsLock)
         {
+            // Skip GC if we're quitting anyway
+            if (cancellationToken?.IsCancellationRequested != false) return;
+            //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            //GC.Collect(2, GCCollectionMode.Forced, true, true);
             _backlogged = false;
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect(2, GCCollectionMode.Forced, true, true);
         }
     }
 
@@ -128,6 +135,7 @@ public class Loader
         await MongoImageFlush(imageBatch);
     }
 
+    static readonly InsertManyOptions insertManyOptions = new () { IsOrdered = false };
     private async Task MongoImageFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
     {
         // Delete pre-existing entries, if applicable, then insert our queue:
@@ -151,7 +159,7 @@ public class Loader
                 .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                 .Select(i =>
                     new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(i.Item1, new MessageHeader()))
-                        .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(i.Item2))));
+                        .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(i.Item2))), insertManyOptions);
         }
         catch (Exception e)
         {
@@ -165,62 +173,74 @@ public class Loader
     private async Task MongoSeriesFlush()
     {
         var mongoStopwatch = Stopwatch.StartNew();
-        int seriesCount;
-        lock (_seriesListLock)
-        {
-            seriesCount = _seriesList.Count;
-            _seriesStore.DeleteMany(Builders<SeriesMessage>.Filter.In("SeriesInstanceUID",
-                _seriesList.Values.Select(s => s.SeriesInstanceUID)));
-            try
-            {
-                _seriesStore.InsertMany(_seriesList.Values);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"MongoDB:{e.Message}");
-            }
 
-            _seriesList.Clear();
+        // Grab the seriesList _write_ lock, we're about to swap it for a new one
+        ConcurrentDictionary<string, SeriesMessage> tmp;
+        long lockStart;
+        long lockTime;
+        int waiting;
+        try
+        {
+            lockStart = mongoStopwatch.ElapsedMilliseconds;
+            _seriesListLock.EnterWriteLock();
+            lockTime = mongoStopwatch.ElapsedMilliseconds;
+            tmp = _seriesList;
+            _seriesList = new ConcurrentDictionary<string, SeriesMessage>(Environment.ProcessorCount,_seriesList.TryGetNonEnumeratedCount(out var size)?size:1000);
+            waiting = _seriesListLock.WaitingReadCount;
+        }
+        finally
+        {
+            _seriesListLock.ExitWriteLock();
+        }
+        var seriesBatch = tmp.Values.ToArray();
+        var seriesCount = seriesBatch.Length;
+        var chunk = new ArraySegment<string>(seriesBatch.Select(s => s.SeriesInstanceUID).ToArray());
+        while (chunk.Count > 1000)
+        {
+            await _seriesStore.DeleteManyAsync(
+                Builders<SeriesMessage>.Filter.In("SeriesInstanceUID", chunk[..1000]));
+            chunk = chunk[1000..];
+        }
+        await _seriesStore.DeleteManyAsync(Builders<SeriesMessage>.Filter.In("SeriesInstanceUID",
+            chunk));
+        var deleteTime = mongoStopwatch.ElapsedMilliseconds;
+        try
+        {
+            await _seriesStore.InsertManyAsync(seriesBatch, insertManyOptions);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"MongoDB series write:{e.Message}");
         }
 
+
         await Console.Error.WriteLineAsync(
-            $"Stored {seriesCount} Series objects to Mongo in {mongoStopwatch.ElapsedMilliseconds}ms");
+            $"Flushed {seriesCount} Series objects to Mongo in {mongoStopwatch.ElapsedMilliseconds}ms. Waited {lockTime-lockStart}ms for write lock, had {waiting} threads waiting after swap, took {deleteTime-lockTime}ms to delete and {mongoStopwatch.ElapsedMilliseconds-deleteTime}ms to write.");
     }
 
-    public void Report()
+    public void Report(CancellationToken? cancellationToken=null)
     {
         if (_timer.ElapsedMilliseconds == 0) return;
+        cancellationToken?.ThrowIfCancellationRequested();
         var memoryLimit = _loadOptions.MemoryLimit * 1024 * 1024 * 1024;
         bool shouldFlush;
         long used;
         lock (_statsLock)
         {
             used = GC.GetTotalMemory(false);
-            if (used <= memoryLimit*3)
-            {
-                Console.WriteLine($"Processed {_dicomCount} DICOM objects from {_fileCount} files in {_timer.ElapsedMilliseconds / 1000}s ({1000 * _dicomCount / _timer.ElapsedMilliseconds} per second) using {used / (1024 * 1024)}MiB");
-                return;
-            }
-
-            var sw = Stopwatch.StartNew();
-            var newUsed = GC.GetTotalMemory(true);
-            Console.Error.WriteLine(
-                $"GC trimmed memory footprint from {used / (1 << 20)}MiB to {newUsed / (1 << 20)}MiB in {sw.ElapsedMilliseconds}ms");
-            used = newUsed;
-
+            _backlogged = used > memoryLimit * 3;
             shouldFlush = !_flushing && used > memoryLimit;
             if (shouldFlush)
             {
                 _flushing = true;
             }
-            _backlogged = used > _loadOptions.MemoryLimit * 1024 * (1024 * 1024)*2;
         }
 
         Console.WriteLine($"Processed {_dicomCount} DICOM objects from {_fileCount} files in {_timer.ElapsedMilliseconds/1000}s ({1000 * _dicomCount / _timer.ElapsedMilliseconds} per second) using {used/(1024*1024)}MiB{(shouldFlush?" and about to flush":"")}");
         if (!shouldFlush) return;
         try
         {
-            Flush();
+            Flush(cancellationToken);
         }
         finally
         {
@@ -237,12 +257,20 @@ public class Loader
         DicomLoaderOptions loadOptions, ParallelDLEHost? parallelDleHost,LoadMetadata? lmd)
     {
         _imageQueueLock = new object();
-        _seriesListLock = new object();
+        _seriesListLock = new ReaderWriterLockSlim();
         _loadOptions = loadOptions;
         lock(_imageQueueLock)
             _imageQueue = new List<(DicomFileMessage, DicomDataset)>();
-        lock(_seriesListLock)
-            _seriesList = new Dictionary<string, SeriesMessage>();
+
+        try
+        {
+            _seriesListLock.EnterWriteLock();
+            _seriesList = new ConcurrentDictionary<string, SeriesMessage>(Environment.ProcessorCount, 1000);
+        }
+        finally
+        {
+            _seriesListLock.ExitWriteLock();
+        }
         _timer = Stopwatch.StartNew();
         _parallelDleHost = parallelDleHost;
         _lmd = lmd;
@@ -259,6 +287,7 @@ public class Loader
     /// <exception cref="ApplicationException"></exception>
     private void Process(FileInfo fi, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         var dName = fi.DirectoryName ?? throw new ApplicationException($"No parent directory for '{fi.FullName}'");
         var bBuffer=new byte[132];
         var buffer = new Span<byte>(bBuffer);
@@ -270,6 +299,7 @@ public class Loader
 
                 // Strip pixel data ASAP: we don't want it anyway
                 ds.Remove(DicomTag.PixelData);
+                ds = new DicomDataset(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
                 Interlocked.Increment(ref _fileCount);
                 Process(ds, fi.FullName,dName, fi.Length, ct);
                 return;
@@ -282,8 +312,7 @@ public class Loader
             Interlocked.Increment(ref _fileCount);
             foreach (var entry in archive.Entries())
             {
-                if (ct.IsCancellationRequested)
-                    return;
+                ct.ThrowIfCancellationRequested();
                 try
                 {
                     var path = $"{fi.FullName}!{entry.Name}";
@@ -306,6 +335,7 @@ public class Loader
                     }
                     // Strip pixel data ASAP: we don't want it anyway
                     ds.Remove(DicomTag.PixelData);
+                    ds = new DicomDataset(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
                     Process(ds, path, dName, fileSize, ct);
                 }
                 catch (DicomFileException e)
@@ -331,11 +361,12 @@ public class Loader
     private void Process(DicomDataset ds, string path, string directoryName, long size, CancellationToken ct)
     {
         // Throttle to avoid runaway backlog if doing SQL loads:
-        while (_backlogged)
-            Thread.Sleep(10_000);
+        while (_backlogged && !ct.IsCancellationRequested)
+            ct.WaitHandle.WaitOne(10_000);
+        ct.ThrowIfCancellationRequested();
 
         // Update stats and consider flushing every 256 file loads
-        if ((Interlocked.Increment(ref _dicomCount) & 0xff) == 0) Report();
+        if ((Interlocked.Increment(ref _dicomCount) & 0xff) == 0) Report(ct);
         if (ct.IsCancellationRequested)
             return;
 
@@ -361,15 +392,20 @@ public class Loader
             DicomFileSize = size,
             DicomFilePath = path
         };
-        ds = new DicomDataset(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
-        lock (_seriesListLock)
+        var series = identifiers[1];
+        try
         {
-            if (_seriesList.ContainsKey(identifiers[1]))
-                _seriesList[identifiers[1]].ImagesInSeries++;
-            else
+            _seriesListLock.EnterReadLock();
+            _seriesList.AddOrUpdate(series, (_) => LoadSm(series, directoryName, ds, identifiers[0]), (_, seriesMessage) =>
             {
-                _seriesList[identifiers[1]] = LoadSm(identifiers[1], directoryName, ds, identifiers[0]);
-            }
+                lock (seriesMessage)
+                    seriesMessage.ImagesInSeries++;
+                return seriesMessage;
+            });
+        }
+        finally
+        {
+            _seriesListLock.ExitReadLock();
         }
         lock(_imageQueueLock)
             _imageQueue.Add((message, ds));
