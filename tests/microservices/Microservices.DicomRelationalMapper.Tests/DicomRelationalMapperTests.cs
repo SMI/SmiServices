@@ -172,7 +172,9 @@ namespace Microservices.DicomRelationalMapper.Tests
             var existingColumns = _helper.ImageTable.DiscoverColumns();
 
             //Add 200 random tags
+#pragma warning disable SCS0005 // Weak random number generator
             foreach (string tag in TagColumnAdder.GetAvailableTags().OrderBy(a => r.Next()).Take(200))
+#pragma warning restore SCS0005
             {
                 string dataType;
 
