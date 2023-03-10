@@ -24,7 +24,7 @@
     <PackageReference Include="Equ" />
     <PackageReference Include="HIC.DicomTypeTranslation" />
     <PackageReference Include="HIC.FAnsiSql" />
-  	<PackageReference Include="IsIdentifiable" />
+    <PackageReference Include="IsIdentifiable" />
     <PackageReference Include="HIC.RDMP.Plugin" />
     <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="Newtonsoft.Json" />
