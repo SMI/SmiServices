@@ -80,7 +80,7 @@ jobs:
       - name: set RDMP version
         run: |
           set -euxo pipefail
-          rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin src/common/Smi.Common/Smi.Common.csproj | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+          rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin Directory.Packages.props | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
           echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
       - name: "[windows] Install SQL LocalDB"
         if: ${{ matrix.os == 'windows' }}

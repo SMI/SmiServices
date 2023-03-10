@@ -7,7 +7,7 @@
     <None Include="DicomRelationalMapper.cd" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="HIC.RDMP.Dicom" Version="6.0.2" />
+    <PackageReference Include="HIC.RDMP.Dicom" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
