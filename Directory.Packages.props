@@ -9,7 +9,7 @@
     <PackageVersion Include="coverlet.msbuild" Version="3.2.0"/>
     <PackageVersion Include="CsvHelper" Version="30.0.1"/>
     <PackageVersion Include="Equ" Version="2.3.0"/>
-    <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.0.2"/>
+    <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.0.3"/>
     <PackageVersion Include="HIC.FAnsiSql" Version="3.0.1"/>
     <PackageVersion Include="HIC.RDMP.Dicom" Version="6.0.2"/>
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.0.7"/>
@@ -28,7 +28,7 @@
     <PackageVersion Include="System.IO.Abstractions" Version="19.2.1"/>
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0"/>
     <PackageVersion Include="Terminal.Gui" Version="1.9.0"/>
-    <PackageVersion Include="YamlDotNet" Version="12.3.1"/>
+    <PackageVersion Include="YamlDotNet" Version="13.0.1"/>
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.15"/>
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.0.7"/>
