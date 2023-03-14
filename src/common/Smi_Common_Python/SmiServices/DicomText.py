@@ -23,9 +23,12 @@ def test_string_match():
 
 # ---------------------------------------------------------------------
 
-def redact_html_tags_in_string(html_str):
+def redact_html_tags_in_string(html_str, replace_char='.', replace_newline='\n'):
     """ Replace the HTML tags in a string with equal length of a
     repeating character (space or dot for example).
+    The character (or string!) is given in replace_char, default dot.
+    You can also replace newlines with spaces using replace_newline=' '.
+    Either can also be the empty string '' to squash the result.
     Handles multi-line tags such as <style> and <script> which
     should have their enclosed text fully redacted.
     Doesn't handle embedded html within those sections though,
@@ -33,16 +36,20 @@ def redact_html_tags_in_string(html_str):
     clinical software.
     Returns the new string.
     """
-    replchar = '.'
+    replchar = replace_char
     def replfunc(s):
-        return replchar.rjust(len(s.group(0)), replchar)
-    # Use re.I (ignore case) re.M (multi-line) re.S (dot matches all)
-    # re.S needed to match CR/LF when scripts are multi-line.
+        return replchar.rjust(len(s.group(0)), replchar) if replchar else ''
     # First replace single-instance tags <script.../> and <style.../>
     html_str = re.sub('<script[^>]*/>', replfunc, html_str)
     html_str = re.sub('<style[^>]*/>',  replfunc, html_str)
+    # Replace non-breaking space with multiple spaces to preserve string length
     html_str = re.sub('&nbsp;', '      ', html_str)
-    # Now replace the whole <script>...</script> and style sequence
+    # Replace both types of newlines
+    html_str = re.sub('\r', replace_newline, html_str)
+    html_str = re.sub('\n', replace_newline, html_str)
+    # Now replace the whole <script>...</script> and style sequence.
+    #  Use re.I (ignore case) re.M (multi-line) re.S (dot matches all)
+    #  re.S needed to match CR/LF when scripts are multi-line.
     html_str = re.sub('<script[^>]*>.*?</script>', replfunc, html_str, flags=re.I|re.M|re.S)
     html_str = re.sub('<style[^>]*>.*?</style>', replfunc, html_str, flags=re.I|re.M|re.S)
     # Finally remove single-instance tags like <p> and <br>
@@ -51,9 +58,21 @@ def redact_html_tags_in_string(html_str):
 
 def test_redact_html_tags_in_string():
     src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3&nbsp;</p>'
-    dest = redact_html_tags_in_string(src)
     # changing the \r to a space in the expected string also tests the string_match function
+    dest = redact_html_tags_in_string(src)
     expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3      ....'
+    assert(string_match(dest, expected))
+    # Test replacing HTML with spaces
+    dest = redact_html_tags_in_string(src, replace_char=' ')
+    expected = '                                                           text1 <1 month \n    text2                            text3          '
+    assert(string_match(dest, expected))
+    # Test the newline replacement
+    dest = redact_html_tags_in_string(src, replace_char=' ', replace_newline=' ')
+    expected = '                                                           text1 <1 month      text2                            text3          '
+    assert(string_match(dest, expected))
+    # Test squashing HTML and newlines
+    dest = redact_html_tags_in_string(src, replace_char='', replace_newline='')
+    expected = '  text1 <1 monthtext2  text3      '
     assert(string_match(dest, expected))
 
 # ---------------------------------------------------------------------
@@ -84,13 +103,17 @@ class DicomText:
     _include_unexpected_tags = False # SemEHR does not use unknown tags anyway so ignore them
     _warn_unexpected_tag = False     # print if an unexpected tag is encountered
     _replace_HTML_entities = True    # replace HTML tags with same length of space chars
+    _replace_HTML_char = '.'         # replace HTML tags with same length of space chars
+    _replace_newline_char = '\n'     # replace CR and LF with spaces
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
     _redact_char = 'X'               # character used to redact text
     _redact_char_digit = '9'         # character used to redact digits in text
 
     def __init__(self, filename, \
         include_header = _include_header, \
-        replace_HTML_entities = _replace_HTML_entities):
+        replace_HTML_entities = _replace_HTML_entities, \
+        replace_HTML_char = _replace_HTML_char, \
+        replace_newline_char = _replace_newline_char):
         """ The DICOM file is read during construction.
         """
         self._p_text = '' # maintain string progress during plaintext walk
@@ -104,6 +127,8 @@ class DicomText:
         # Copy class settings to instance settings with overrides
         self._include_header = include_header
         self._replace_HTML_entities = replace_HTML_entities
+        self._replace_HTML_char = replace_HTML_char
+        self._replace_newline_char = replace_newline_char
         # XXX do we need to decode the text?
         self._dicom_raw.decode()
 
@@ -142,7 +167,9 @@ class DicomText:
             rc = rc + ('%s' % (str(data_element.value))) + '\n'
             # Replace HTML tags with spaces
             if self._replace_HTML_entities:
-                rc = redact_html_tags_in_string(rc)
+                rc = redact_html_tags_in_string(rc,
+                    replace_char = self._replace_HTML_char,
+                    replace_newline = self._replace_newline_char)
         if rc == '':
             return
         self._offset_list.append( { 'offset':len(self._p_text), 'string': rc} )
@@ -181,7 +208,9 @@ class DicomText:
             textval = str(self._dicom_raw['TextValue'].value + '\n')
             self._p_text = self._p_text + '[[Text]]\n'
             if self._replace_HTML_entities:
-                self._p_text = self._p_text + redact_html_tags_in_string(textval)
+                self._p_text = self._p_text + redact_html_tags_in_string(textval,
+                    replace_char = self._replace_HTML_char,
+                    replace_newline = self._replace_newline_char)
             else:
                 self._p_text = self._p_text + textval
             self._p_text = self._p_text + '[[EndText]]\n'
@@ -249,7 +278,9 @@ class DicomText:
                 # SemEHR may have an extra line at the start so start_char offset need adjusting
                 for offset in [self._redact_offset] + list(range(-32, 32)):
                     # Do the comparison using text without html but replace inside text with html
-                    rc_without_html = redact_html_tags_in_string(rc) if self._replace_HTML_entities else rc
+                    rc_without_html = redact_html_tags_in_string(rc,
+                        replace_char = self._replace_HTML_char,
+                        replace_newline = self._replace_newline_char) if self._replace_HTML_entities else rc
                     if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at, data_element.VR)
                         replaced = replacedAny = True
