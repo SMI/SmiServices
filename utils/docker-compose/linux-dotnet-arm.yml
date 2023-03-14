@@ -4,7 +4,7 @@ version: "3.7"
 services:
   rabbitmq:
     container_name: rabbitmq
-    image: rabbitmq:management
+    image: rabbitmq:latest
     user: rabbitmq
     ports:
       - 5672:5672
@@ -34,6 +34,18 @@ services:
   mongodb:
     container_name: mongodb
     image: mongo:latest
-    command: mongod --replSet rs0
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        mongod --bind_ip_all --fork --logpath /var/log/mongodb.log --replSet rs0
+        if ! mongosh --quiet --eval "rs.status()" >/dev/null 2>&1; then
+          mongosh --eval "rs.initiate()"
+        else
+          echo "Replica set already initialized."
+        fi
+        tail -f /dev/null
     ports:
       - 27017:27017
+    restart: always
