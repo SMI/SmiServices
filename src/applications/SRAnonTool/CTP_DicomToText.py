@@ -92,14 +92,17 @@ def extract_mongojson_file(input, output, metadata_output=None):
 
 # ---------------------------------------------------------------------
 
-def extract_dicom_file(input, output, metadata_output=None):
+def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = {}):
     """ Extract text from a DICOM file input
     into the output, which can be a filename,
     or a directory in which case the file is named by SOPInstanceUID.
+    If metadata_output is a directory path then the metadata file is written there.
+    If a DicomTextArgs dict is passed then it is used as the parameters
+    to the DicomText object constructor, e.g. 'replace_HTML_char'
     """
 
     # Extract text using DicomText class
-    dicomtext = DicomText.DicomText(input)
+    dicomtext = DicomText.DicomText(input, **DicomTextArgs)
     dicomtext.parse()
 
     if os.path.isdir(output):
@@ -121,7 +124,7 @@ def extract_dicom_file(input, output, metadata_output=None):
 
 # ---------------------------------------------------------------------
 
-def extract_file(input, output, metadata_output=None):
+def extract_file(input, output, metadata_output=None, DicomTextArgs={}):
     """ If it's a readable DICOM file then extract it
     otherwise try to find it in MongoDB.
     """
@@ -132,7 +135,7 @@ def extract_file(input, output, metadata_output=None):
         is_dcm = False
 
     if is_dcm:
-        extract_dicom_file(input, output, metadata_output)
+        extract_dicom_file(input, output, metadata_output, DicomTextArgs = DicomTextArgs)
     else:
         extract_mongojson_file(input, output, metadata_output)
 
@@ -148,6 +151,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', dest='output_dir', action="store", help='path to directory where extracted text will be written')
     parser.add_argument('-m', dest='metadata_dir', action="store", help='path to directory where extracted metadata will be written')
     parser.add_argument('--semehr-unique', dest='semehr_unique', action="store_true", help='only extract from MongoDB/dicom if not already in MongoDB/semehr')
+    parser.add_argument('--replace-html', action="store", help='replace HTML with a character, default is dot (.), or "squash" to eliminate')
+    parser.add_argument('--replace-newlines', action="store", help='replace carriage returns and newlines with a character (e.g. a space) or "squash" to eliminate')
     args = parser.parse_args()
     if not args.input:
         parser.print_help()
@@ -194,9 +199,27 @@ if __name__ == '__main__':
             logging.warning('Cannot initialise CHI to EUPI mapping (check IdentifierMapperOptions and check database server)')
 
     # ---------------------------------------------------------------------
+    # If the file is a DICOM then DicomText has options to change the output format.
+    # These are passed to the DicomText constructor.
+    DicomTextArgs = {
+        #'include_header' : True,
+        #'replace_HTML_entities' : True,
+        'replace_HTML_char' : '.',
+        'replace_newline_char' : '\n'
+    }
+    if args.replace_html:
+        DicomTextArgs['replace_HTML_char'] = args.replace_html
+        if args.replace_html == "squash":
+            DicomTextArgs['replace_HTML_char'] = ''
+    if args.replace_newlines:
+        DicomTextArgs['replace_newline_char'] = args.replace_newlines
+        if args.replace_newlines == "squash":
+            DicomTextArgs['replace_newline_char'] = ''
+
+    # ---------------------------------------------------------------------
     if os.path.isfile(args.input):
         # actual path to DICOM
-        extract_file(args.input, args.output_dir, args.metadata_dir)
+        extract_file(args.input, args.output_dir, args.metadata_dir, DicomTextArgs)
     elif os.path.isfile(os.path.join(root_dir, args.input)):
         # relative to FileSystemRoot
         extract_file(os.path.join(root_dir, args.input), args.output_dir, args.metadata_dir)
