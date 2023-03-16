@@ -127,12 +127,13 @@ class DicomText:
             # "LO" Long String typically used for headings
             rc = rc + ('# %s' % str(data_element.value)) + '\n'
         else:
-            rc = rc + ('%s' % (str(data_element.value))) + '\n'
+            rc = rc + ('%s' % (str(data_element.value)))
             # Replace HTML tags with spaces
             if self._replace_HTML_entities:
                 rc = redact_html_tags_in_string(rc,
                     replace_char = self._replace_HTML_char,
                     replace_newline = self._replace_newline_char)
+            rc += '\n'
         if rc == '':
             return
         self._offset_list.append( { 'offset':len(self._p_text), 'string': rc} )
@@ -168,7 +169,7 @@ class DicomText:
         # Now handle the TextValue tag
         # Wrap the text with [[Text]] and [[EndText]] for SemEHR
         if 'TextValue' in self._dicom_raw:
-            textval = str(self._dicom_raw['TextValue'].value + '\n')
+            textval = str(self._dicom_raw['TextValue'].value)
             self._p_text = self._p_text + '[[Text]]\n'
             if self._replace_HTML_entities:
                 self._p_text = self._p_text + redact_html_tags_in_string(textval,
@@ -176,7 +177,7 @@ class DicomText:
                     replace_newline = self._replace_newline_char)
             else:
                 self._p_text = self._p_text + textval
-            self._p_text = self._p_text + '[[EndText]]\n'
+            self._p_text = self._p_text + '\n[[EndText]]\n'
         # Now the text in the ContentSequence
         # Wrap the text with [[ContentSequence]] and [[EndContentSequence]] for SemEHR
         if 'ContentSequence' in self._dicom_raw:
