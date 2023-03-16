@@ -37,14 +37,14 @@ jobs:
           set -euxo pipefail
           matrix="$(jq --compact-output . .github/workflows/envs.json)"
           echo $matrix
-          echo "::set-output name=matrix::$matrix"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
       - name: set build ref
         id: build_ref
         run: |
           set -euxo pipefail
           build_ref="$GITHUB_REF_NAME"
           [ "$GITHUB_REF_TYPE" != "tag" ] && build_ref="${GITHUB_SHA:0:6}"
-          echo "::set-output name=build_ref::$build_ref"
+          echo "build_ref=$build_ref" >> $GITHUB_OUTPUT
   smi:
     needs: [init]
     strategy:
