@@ -78,6 +78,7 @@ This program can be used as part of the SRAnonTool pipeline or it can be used st
 usage: CTP_DicomToText.py [-h] [-y YAMLFILE] [-i INPUT] [-o OUTPUT_DIR] [-m METADATA_DIR] [--semehr-unique] [--replace-html REPLACE_HTML] [--replace-newlines REPLACE_NEWLINES]`
 
 The options are:
+
 ```
   -y YAMLFILE           path to yaml config file (can be used more than once)
   -i INPUT              SOPInstanceUID or path to raw DICOM file from which text will be redacted
