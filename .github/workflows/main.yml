@@ -123,6 +123,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         uses: codecov/codecov-action@v3.1.1
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage.cobertura.xml
           fail_ci_if_error: true
       - name: upload dist
