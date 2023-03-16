@@ -49,6 +49,10 @@ class DicomText:
         replace_HTML_char = _replace_HTML_char, \
         replace_newline_char = _replace_newline_char):
         """ The DICOM file is read during construction.
+        If include_header is True then (default True).
+        If replace_HTML_entities is True then all HTML is replaced by dots (default True).
+        If replace_HTML_char is given then it is used instead of dots (default is dots).
+        If replace_newline_char is given then it is used to replace \r and \n (default is \n).
         """
         self._p_text = '' # maintain string progress during plaintext walk
         self._r_text = '' # maintain string progress during redaction walk
@@ -68,6 +72,31 @@ class DicomText:
 
     def __repr__(self):
         return f'<DicomText: {self._filename}>'
+
+    def setRedactChar(self, rchar):
+        """ Change the character used to anonymise/redact text.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        Only used for text not digits (see redact_char_digit).
+        See also redact_random_length.
+        This is a static class member not an instance member
+        so it applies to all instances of this class.
+        """
+        DicomText._redact_char = rchar
+
+    def setReplaceHTMLChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_HTML_char = rchar
+
+    def setReplaceNewlineChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_newline_char = rchar
 
     def SOPInstanceUID(self):
         """ Simply returns the SOPInstanceUID from the DICOM file
@@ -171,7 +200,8 @@ class DicomText:
             redact_char = DicomText._redact_char_digit
         if DicomText._redact_random_length:
             redact_length = random.randint(-int(rlen/2), int(rlen/2))
-        rc = plaintext[0:offset] + redact_char.rjust(redact_length, redact_char) + plaintext[offset+rlen:]
+        redacted_part = redact_char.rjust(redact_length, redact_char) if redact_char else ''
+        rc = plaintext[0:offset] + redacted_part + plaintext[offset+rlen:]
         return rc
 
     def _dataset_redact_callback(self, dataset, data_element):
