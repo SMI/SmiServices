@@ -7,8 +7,6 @@ namespace Microservices.IsIdentifiable.Tests.Service
 {
     class TesseractStanfordDicomFileClassifierTests
     {
-
-        //e.g. english.all.3class.distsim.crf.ser.gz
         [Test]
         public void TestDataDirectory_DoesNotExist()
         {
