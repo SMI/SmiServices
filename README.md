@@ -439,7 +439,7 @@ $ ./bin/ctp/buildTestPackage.py --install-libs local
 $ ./bin/ctp/buildTestPackage.py --install-libs local -PUnitTests
 ```
 
-This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test suite can be skipped by instead running `compile`, or by passing `-DskipTests`.
+This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test suite can be skipped by passing `-DskipTests`.
 
 To build a single project and its dependencies, you can do:
 
