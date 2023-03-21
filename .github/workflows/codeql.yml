@@ -34,7 +34,8 @@ jobs:
         uses: github/codeql-action/autobuild@v2
       - name: Build java
         if: matrix.language == "java"
-        run: ./bin/ctp/build.py  --install-libs
+        # NOTE(rkm 2023-03-21) Ensure test code is detected but don't actually run anything
+        run: ./bin/ctp/test.py --install-libs -DskipTests
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
         with:
