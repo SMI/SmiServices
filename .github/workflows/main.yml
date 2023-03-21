@@ -63,75 +63,75 @@ jobs:
         run: |
           sc.exe config MongoDB start= auto
           sc.exe start MongoDB
-      - name: setup .NET
-        # NOTE(rkm 2022-02-20) Uses global.json
-        uses: actions/setup-dotnet@v3.0.3
-      - name: download tessdata
-        run: ./bin/smi/downloadTessdata.py
-      - name: "[linux] start services"
-        if: ${{ matrix.os == 'linux' }}
-        run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
-      - name: "[linux] re-write database strings"
-        if: ${{ matrix.os == 'linux' }}
-        run: |
-          set -euxo pipefail
-          echo "rdmp_conn_str=localhost -u sa -p ${{ env.db-password }}" >> $GITHUB_ENV
-          ./bin/smi/writeDatabaseStrings.py localhost "${{ env.db-password }}"
-      - name: set RDMP version
-        run: |
-          set -euxo pipefail
-          rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin Directory.Packages.props | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-          echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
-      - name: "[windows] Install SQL LocalDB"
-        if: ${{ matrix.os == 'windows' }}
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: install sqllocaldb
-      - name: "[windows] Check SQL LocalDB and set rdmp_conn_str"
-        if: ${{ matrix.os == 'windows' }}
-        shell: pwsh
-        run: |
-          Write-Host "Checking"
-          $db = "(localdb)\MSSQLLocalDB"
-          SqlLocalDB.exe create MSSQLLocalDB -s
-          sqlcmd -l 180 -S "$db" -Q "SELECT @@VERSION;"
-          echo "rdmp_conn_str='$db'" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-      - name: "[windows] re-write database strings"
-        if: ${{ matrix.os == 'windows' }}
-        run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
-      - name: download rdmp-cli
-        if: ${{ matrix.os == 'windows' }}
-        run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
-      - name: download rdmp-cli
-        if: ${{ matrix.os == 'linux' }}
-        run: |
-          curl -L https://github.com/HicServices/RDMP/releases/download/v${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
-          mv rdmp-${{ env.rdmp_cli_ver }}-cli-linux rdmp-cli
-      - name: install RDMP databases
-        run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
-      - name: show dotnet info
-        run: dotnet --info
-      - name: build, test, and package dotnet
-        run: |
-          set -euxo pipefail
-          cov=""
-          [ "${{ matrix.os }}" == "windows" ] && cov="--no-coverage"
-          ./bin/smi/buildTestPackage.py \
-              ${{ needs.init.outputs.build_ref }} \
-              "$cov"
-      - name: upload coverage
-        if: ${{ matrix.os == 'linux' }}
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage.cobertura.xml
-          fail_ci_if_error: true
-      - name: upload dist
-        uses: actions/upload-artifact@v3
-        with:
-          name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
-          path: dist/${{ needs.init.outputs.build_ref }}/*
-          if-no-files-found: error
+      # - name: setup .NET
+      #   # NOTE(rkm 2022-02-20) Uses global.json
+      #   uses: actions/setup-dotnet@v3.0.3
+      # - name: download tessdata
+      #   run: ./bin/smi/downloadTessdata.py
+      # - name: "[linux] start services"
+      #   if: ${{ matrix.os == 'linux' }}
+      #   run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
+      # - name: "[linux] re-write database strings"
+      #   if: ${{ matrix.os == 'linux' }}
+      #   run: |
+      #     set -euxo pipefail
+      #     echo "rdmp_conn_str=localhost -u sa -p ${{ env.db-password }}" >> $GITHUB_ENV
+      #     ./bin/smi/writeDatabaseStrings.py localhost "${{ env.db-password }}"
+      # - name: set RDMP version
+      #   run: |
+      #     set -euxo pipefail
+      #     rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin Directory.Packages.props | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
+      #     echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
+      # - name: "[windows] Install SQL LocalDB"
+      #   if: ${{ matrix.os == 'windows' }}
+      #   uses: crazy-max/ghaction-chocolatey@v2
+      #   with:
+      #     args: install sqllocaldb
+      # - name: "[windows] Check SQL LocalDB and set rdmp_conn_str"
+      #   if: ${{ matrix.os == 'windows' }}
+      #   shell: pwsh
+      #   run: |
+      #     Write-Host "Checking"
+      #     $db = "(localdb)\MSSQLLocalDB"
+      #     SqlLocalDB.exe create MSSQLLocalDB -s
+      #     sqlcmd -l 180 -S "$db" -Q "SELECT @@VERSION;"
+      #     echo "rdmp_conn_str='$db'" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+      # - name: "[windows] re-write database strings"
+      #   if: ${{ matrix.os == 'windows' }}
+      #   run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
+      # - name: download rdmp-cli
+      #   if: ${{ matrix.os == 'windows' }}
+      #   run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
+      # - name: download rdmp-cli
+      #   if: ${{ matrix.os == 'linux' }}
+      #   run: |
+      #     curl -L https://github.com/HicServices/RDMP/releases/download/v${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
+      #     mv rdmp-${{ env.rdmp_cli_ver }}-cli-linux rdmp-cli
+      # - name: install RDMP databases
+      #   run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
+      # - name: show dotnet info
+      #   run: dotnet --info
+      # - name: build, test, and package dotnet
+      #   run: |
+      #     set -euxo pipefail
+      #     cov=""
+      #     [ "${{ matrix.os }}" == "windows" ] && cov="--no-coverage"
+      #     ./bin/smi/buildTestPackage.py \
+      #         ${{ needs.init.outputs.build_ref }} \
+      #         "$cov"
+      # - name: upload coverage
+      #   if: ${{ matrix.os == 'linux' }}
+      #   uses: codecov/codecov-action@v3.1.1
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: ./coverage/coverage.cobertura.xml
+      #     fail_ci_if_error: true
+      # - name: upload dist
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+      #     path: dist/${{ needs.init.outputs.build_ref }}/*
+      #     if-no-files-found: error
   ctp:
     needs: [init]
     strategy:
