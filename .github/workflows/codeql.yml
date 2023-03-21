@@ -30,10 +30,10 @@ jobs:
         with:
           languages: ${{ matrix.language }}
       - name: Autobuild
-        if: ${{ matrix.language != "java" }}
+        if: ${{ matrix.language != 'java' }}
         uses: github/codeql-action/autobuild@v2
       - name: Build java
-        if: ${{ matrix.language == "java" }}
+        if: ${{ matrix.language == 'java' }}
         run: ./bin/ctp/build.py  --install-libs
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
