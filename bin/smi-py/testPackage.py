@@ -15,7 +15,9 @@ import test as T
 
 def main() -> int:
 
-    parser = C.get_parser()
+    parser = argparse.ArgumentParser()
+    C.add_clean_arg(parser)
+    C.add_tag_arg(parser)
     parser.add_argument(
         "python_build_exe",
         type=Path,
