@@ -24,6 +24,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     JC.add_common_args(parser)
     args, rest = parser.parse_known_args(argv)
 
+    if args.install_libs:
+        rc = L.main()
+        if rc:
+            return rc
+
     stages = ["test"]
     if args.clean:
         stages.insert(0, "clean")
