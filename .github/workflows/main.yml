@@ -155,9 +155,9 @@ jobs:
         run: ./bin/ctp/startDockerLinux.py
       - name: "[windows] skip integration tests"
         if: ${{ matrix.os == 'windows' }}
-        run: echo "MVN_PROFILE=-PunitTests" >> $GITHUB_ENV
+        run: echo "JAVA_TESTS=--skip-integration-tests" >> $GITHUB_ENV
       - name: build, test, and package ctp
-        run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.MVN_PROFILE }}
+        run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
       - name: "[linux] upload packages"
         if: ${{ matrix.os == 'linux' }}
         uses: actions/upload-artifact@v3

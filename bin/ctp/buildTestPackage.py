@@ -27,6 +27,10 @@ def main() -> int:
         "--skip-tests",
         action="store_true",
     )
+    parser.add_argument(
+        "--skip-integration-tests",
+        action="store_true",
+    )
     args, _ = parser.parse_known_args()
 
     build_args = []
@@ -39,6 +43,8 @@ def main() -> int:
     if args.skip_tests:
         rc = JB.main(build_args)
     else:
+        if args.skip_integration_tests:
+            build_args.append("-PunitTests")
         rc = JT.main(build_args)
 
     if rc:
