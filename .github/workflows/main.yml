@@ -61,8 +61,8 @@ jobs:
         if: ${{ matrix.os == 'windows' }}
         shell: pwsh
         run: |
-          Set-Service mongodb -StartupType Automatic
-          Start-Service -Name mongodb
+          sc.exe config MongoDB start= auto
+          sc.exe start MongoDB
       - name: setup .NET
         # NOTE(rkm 2022-02-20) Uses global.json
         uses: actions/setup-dotnet@v3.0.3
