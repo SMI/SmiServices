@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import glob
 import os
 import shutil
@@ -9,57 +10,48 @@ from pathlib import Path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import common as C
 
+import build as JB
+import package as JP
+import test as JT
+import javaCommon as JC
 import installLibs as L
 
 
 def main() -> int:
 
-    parser = C.get_parser()
+    parser = argparse.ArgumentParser()
+    C.add_clean_arg(parser)
+    C.add_tag_arg(parser)
+    JC.add_common_args(parser)
     parser.add_argument(
-        "--install-libs",
+        "--skip-tests",
         action="store_true",
-        help="Install the CTP libraries only if specified"
     )
-    args, rest = parser.parse_known_args()
+    parser.add_argument(
+        "--skip-integration-tests",
+        action="store_true",
+    )
+    args, _ = parser.parse_known_args()
 
-    dist_tag_dir = C.DIST_DIR / args.tag
-
+    build_args = []
     if args.clean:
-        shutil.rmtree(dist_tag_dir)
-    dist_tag_dir.mkdir(parents=True, exist_ok=True)
-
+        build_args.append("--clean")
     if args.install_libs:
-        rc = L.main()
-        if rc:
-            return rc
+        build_args.append("--install-libs")
 
-    mvn = "mvn" if os.name == "posix" else "mvn.cmd"
-    cmd = (
-        mvn,
-        "-ntp",
-        "-DtrimStackTrace=false",
-        "package",
-        "assembly:single@create-deployable",
-        "-f", (C.PROJ_ROOT / "src/common/com.smi.microservices.parent").resolve(),
-        *rest,
-    )
-    C.run(cmd)
+    # Build and test
+    if args.skip_tests:
+        rc = JB.main(build_args)
+    else:
+        if args.skip_integration_tests:
+            build_args.append("-PunitTests")
+        rc = JT.main(build_args)
 
-    zips = {
-        Path(x) for x in
-        glob.glob(
-            f"{C.PROJ_ROOT}/src/**/*deploy-distribution.zip",
-            recursive=True,
-        )
-    }
-    assert 1 == len(zips), "Expected 1 zip file (CTP)"
-    for zip_path in zips:
-        shutil.copyfile(
-            zip_path,
-            dist_tag_dir / f"{zip_path.name.split('-')[0]}-{args.tag}.zip",
-        )
+    if rc:
+        return rc
 
-    C.create_checksums(dist_tag_dir, "ctp")
+    # Package
+    rc = JP.main((args.tag,))
 
     return 0
 
