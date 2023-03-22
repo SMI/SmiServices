@@ -7,6 +7,8 @@ using CommandLine;
 using JetBrains.Annotations;
 using Microservices.DicomRelationalMapper.Execution;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.EntityNaming;
 using Rdmp.Core.Startup;
@@ -40,9 +42,13 @@ public static class Program
 
     private static int OnParse(GlobalOptions go, DicomLoaderOptions dicomLoaderOptions, Stream? fileList)
     {
+        using CancellationTokenSource cts = new();
+        _cts = cts;
+        Console.CancelKeyPress += CancelHandler;
+
         ParallelDLEHost? host = null;
         LoadMetadata? lmd = null;
-        if (dicomLoaderOptions.LoadSql)
+        if (dicomLoaderOptions.LoadSql || dicomLoaderOptions.MatchMode)
         {
             FansiImplementations.Load();
             // Initialise a ParallelDleHost to shove the Mongo entries into SQL too:
@@ -69,16 +75,26 @@ public static class Program
             var instance = new MicroserviceObjectFactory().CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, go.DicomRelationalMapperOptions.Guid);
             host = new ParallelDLEHost(rdmpRepo,instance,true);
         }
+
+        // MatchMode: reconcile Mongo contents with SQL:
+        var mongo = MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader))
+            .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName);
+        if (dicomLoaderOptions.MatchMode)
+        {
+            var findOptions = new FindOptions<BsonDocument,BsonDocument>
+            {
+                Sort = "header.DicomFilePath"
+            };
+            mongo.GetCollection<BsonDocument>(go.MongoDbPopulatorOptions.ImageCollection).FindSync("",findOptions,cts.Token);
+            return 0;
+        }
+
         Loader loader =
             new(
-                MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader))
-                    .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName),
+                mongo,
                 go.MongoDbPopulatorOptions.ImageCollection, go.MongoDbPopulatorOptions.SeriesCollection,dicomLoaderOptions,host,lmd);
 
         LineReader.LineReader fileNames = new(fileList??Console.OpenStandardInput(), '\0');
-        using CancellationTokenSource cts = new();
-        _cts = cts;
-        Console.CancelKeyPress += CancelHandler;
         ParallelOptions parallelOptions = new()
         {
             MaxDegreeOfParallelism = dicomLoaderOptions.Parallelism,
@@ -101,6 +117,7 @@ public static class Program
 [UsedImplicitly]
 public class DicomLoaderOptions : CliOptions
 {
+<<<<<<< HEAD
     [Option('m', "memoryLimit", Default = 16, Required = false, HelpText = "Memory threshold to flush in GiB")]
     public long MemoryLimit
     {
@@ -116,6 +133,20 @@ public class DicomLoaderOptions : CliOptions
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
         set;
     } = -1;
+=======
+    [Option('m',"match",Default = false,Required = false,HelpText = "Match Mongo against SQL")]
+    public bool MatchMode { get; set; }
+
+    [Option(
+        'r',
+        "reload",
+        Default = false,
+        Required = false,
+        HelpText = "Re-load and overwrite existing data instead of skipping previously seen files (TODO)"
+    )]
+    public bool ForceReload { get; [UsedImplicitly] set; }
+
+>>>>>>> 3b98ed23 (Stub implementation of MatchMode for SQL-Mongo reconciliation)
 
     [Option('s',"sql",Default = false,Required = false,HelpText = "Load data on to the SQL stage after Mongo")]
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
@@ -129,13 +160,4 @@ public class DicomLoaderOptions : CliOptions
         HelpText = "Rebuild the Mongo SeriesCollection data and image counts based on the ImageCollection contents (TODO)"
     )]
     public bool ForceRecount { get; [UsedImplicitly] set; }
-
-    [Option(
-        'r',
-        "reload",
-        Default = false,
-        Required = false,
-        HelpText = "Re-load and overwrite existing data instead of skipping previously seen files (TODO)"
-    )]
-    public bool ForceReload { get; [UsedImplicitly] set; }
 }
