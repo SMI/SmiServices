@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Linq;
 using MongoDB.Bson;
@@ -33,7 +33,7 @@ namespace Smi.Common.MongoDB
                 {
                     ApplicationName = applicationName,
                     Server = new MongoServerAddress(options.HostName, options.Port),
-                    WriteConcern = new WriteConcern(w:1, journal: false,fsync:false)
+                    WriteConcern = new WriteConcern(w:0, journal: false,fsync:false)
                 });
 
             if (string.IsNullOrWhiteSpace(options.Password))
