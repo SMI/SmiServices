@@ -4,8 +4,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LineReader" Version="0.1.0" />
-    <PackageReference Include="LibArchive.Net" Version="0.1.3" />
+    <PackageReference Include="LineReader" />
+    <PackageReference Include="LibArchive.Net" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />

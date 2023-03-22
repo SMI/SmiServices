@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import sys
 
@@ -14,12 +15,13 @@ import test as DT
 
 def main() -> int:
 
-    parser = C.get_parser()
+    parser = argparse.ArgumentParser()
+    C.add_clean_arg(parser)
+    C.add_tag_arg(parser)
     DC.add_args(parser, "release")
     parser.add_argument(
-        "--test",
-        nargs=1,
-        help="Run a specific test class",
+        "--skip-tests",
+        action="store_true",
     )
     parser.add_argument(
         "--no-coverage",
@@ -29,21 +31,23 @@ def main() -> int:
 
     cfg_args = ("-c", args.configuration)
 
-    # Clean and Build
-    rc = DB.main((*cfg_args, "--clean"))
+    # Build
+    build_args = [*cfg_args,]
+    if args.clean:
+        build_args.append("--clean")
+    rc = DB.main(build_args)
     if rc:
         return rc
 
     # Test
-    test_cmd = ("--test", args.test[0]) if args.test else ()
-    rc = DT.main((
-        *cfg_args,
-        "--no-coverage" if args.no_coverage else "",
-        "--no-build",
-        *test_cmd
-    ))
-    if rc:
-        return rc
+    if not args.skip_tests:
+        rc = DT.main((
+            *cfg_args,
+            "--no-coverage" if args.no_coverage else "",
+            "--no-build",
+        ))
+        if rc:
+            return rc
 
     # Package
     rc = DP.main((*cfg_args, args.tag))

@@ -19,24 +19,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="30.0.1" />
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="Equ" Version="2.3.0" />
-    <PackageReference Include="coveralls.io" Version="1.4.2" />
-    <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.3" />
-    <PackageReference Include="HIC.FAnsiSql" Version="3.0.1" />
-  	<PackageReference Include="IsIdentifiable" Version="0.0.9" />
-    <PackageReference Include="HIC.RDMP.Plugin" Version="8.0.7" />
-    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="NLog" Version="5.1.2" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
-    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.IO.Abstractions" Version="19.1.18" />
-    <PackageReference Include="YamlDotNet" Version="13.0.1" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="Equ" />
+    <PackageReference Include="HIC.DicomTypeTranslation" />
+    <PackageReference Include="HIC.FAnsiSql" />
+    <PackageReference Include="IsIdentifiable" />
+    <PackageReference Include="HIC.RDMP.Plugin" />
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="NLog" />
+    <PackageReference Include="RabbitMQ.Client" />
+    <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 </Project>

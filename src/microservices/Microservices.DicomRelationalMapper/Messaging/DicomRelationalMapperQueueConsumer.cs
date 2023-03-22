@@ -142,7 +142,29 @@ public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, ID
                     _stopTokenSource.Cancel();
                     faultCause = e;
                     _dleExceptions.Add(e);
-                    Logger.Log(LogLevel.Error,e,"DLE crashed during RunDleIfRequired");
+                    exitCode = ExitCodeType.Error;
+
+                    if (remainingRetries > 0)
+                    {
+                        //wait a random length of time averaging the _retryDelayInSeconds to avoid retrying at the same time as other processes
+                        //where there is resource contention that results in simultaneous failures.
+                        var r = new Random();
+
+#pragma warning disable SCS0005 // Weak random number generator
+                        var wait = r.Next(_retryDelayInSeconds * 2);
+#pragma warning restore SCS0005
+
+                        Logger.Info("Sleeping " + wait + "s after failure");
+                        Task.Delay(new TimeSpan(0, 0, 0, wait)).Wait();
+
+                        if (RunChecks)
+                        {
+                            Logger.Warn(e, "Running checks before we retry");
+                            RunDleChecks();
+                        }
+                    }
+
+                    firstException = firstException ?? e;
                 }
             }
 

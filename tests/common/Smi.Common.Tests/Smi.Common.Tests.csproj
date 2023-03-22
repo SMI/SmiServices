@@ -22,12 +22,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="HIC.BadMedicine.Dicom" Version="0.0.15" />
-    <PackageReference Include="HIC.RDMP.Plugin.Test" Version="8.0.7" />
-    <PackageReference Include="Moq" Version="4.18.4" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NunitXml.TestLogger" Version="3.0.131" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.1.18" />
+    <PackageReference Include="HIC.BadMedicine.Dicom" />
+    <PackageReference Include="HIC.RDMP.Plugin.Test" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="NunitXml.TestLogger" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
