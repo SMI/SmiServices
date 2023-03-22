@@ -71,6 +71,18 @@ public class Loader
         };
     }
 
+    private static SeriesMessage IncSm(string _,SeriesMessage sm)
+    {
+        sm.ImagesInSeries++;
+        return sm;
+    }
+
+    private volatile bool backlogged=false;
+    private static readonly InsertManyOptions insertOptions = new InsertManyOptions()
+    {
+        IsOrdered = false
+    };
+
     /// <summary>
     /// Write the pending data out to Mongo and optionally SQL
     /// </summary>
@@ -114,14 +126,7 @@ public class Loader
 
         mf.Wait();
 
-        lock (_statsLock)
-        {
-            // Skip GC if we're quitting anyway
-            if (cancellationToken?.IsCancellationRequested != false) return;
-            //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            //GC.Collect(2, GCCollectionMode.Forced, true, true);
-            _backlogged = false;
-        }
+        _backlogged = false;
     }
 
     private async Task MongoFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
@@ -435,7 +440,7 @@ public class Loader
             return ValueTask.CompletedTask;
         }
 
-        if (ExistingEntry(filename))
+        if (!_loadOptions.ForceReload && ExistingEntry(filename))
         {
             return ValueTask.CompletedTask;
         }
