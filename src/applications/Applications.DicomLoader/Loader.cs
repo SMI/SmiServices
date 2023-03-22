@@ -86,8 +86,7 @@ public class Loader
     /// <summary>
     /// Write the pending data out to Mongo and optionally SQL
     /// </summary>
-    /// <param name="cancellationToken"></param>
-    public void Flush(CancellationToken? cancellationToken=null)
+    public void Flush()
     {
         (DicomFileMessage, DicomDataset)[] imageBatch;
         lock (_imageQueueLock)
@@ -140,7 +139,7 @@ public class Loader
         await MongoImageFlush(imageBatch);
     }
 
-    static readonly InsertManyOptions insertManyOptions = new () { IsOrdered = false };
+    static readonly InsertManyOptions _insertManyOptions = new () { IsOrdered = false };
     private async Task MongoImageFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
     {
         // Delete pre-existing entries, if applicable, then insert our queue:
@@ -164,7 +163,7 @@ public class Loader
                 .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                 .Select(i =>
                     new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(i.Item1, new MessageHeader()))
-                        .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(i.Item2))), insertManyOptions);
+                        .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(i.Item2))), _insertManyOptions);
         }
         catch (Exception e)
         {
@@ -211,7 +210,7 @@ public class Loader
         var deleteTime = mongoStopwatch.ElapsedMilliseconds;
         try
         {
-            await _seriesStore.InsertManyAsync(seriesBatch, insertManyOptions);
+            await _seriesStore.InsertManyAsync(seriesBatch, _insertManyOptions);
         }
         catch (Exception e)
         {
@@ -245,7 +244,7 @@ public class Loader
         if (!shouldFlush) return;
         try
         {
-            Flush(cancellationToken);
+            Flush();
         }
         finally
         {
