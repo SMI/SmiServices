@@ -11,49 +11,40 @@ Version: `5.3.0`
 
 ## Contents
 
-- [SMI Services](#smi-services)
-  - [Contents](#contents)
-  - [1.0 Introduction](#10-introduction)
-    - [1.1 Overview](#11-overview)
-    - [1.2 Glossary or Terminology](#12-glossary-or-terminology)
-    - [1.3 Background and Context](#13-background-and-context)
-    - [1.4 Goals and Technical Requirements](#14-goals-and-technical-requirements)
-    - [1.5 Out of Scope](#15-out-of-scope)
-    - [1.6 Assumptions](#16-assumptions)
-  - [2.0 Solutions](#20-solutions)
-    - [2.1 Deliverable Solution / Design](#21-deliverable-solution--design)
-    - [2.2 Test Plan](#22-test-plan)
-    - [2.3 Monitoring and Alerting Plan](#23-monitoring-and-alerting-plan)
-    - [2.4 Release / Roll-out and Deployment Plan](#24-release--roll-out-and-deployment-plan)
-    - [2.5 Rollback Plan](#25-rollback-plan)
-    - [2.6 Associated Documentation](#26-associated-documentation)
-  - [3.0 Further Considerations](#30-further-considerations)
-    - [3.1 Human Resource Requirements](#31-human-resource-requirements)
-    - [3.2 Security considerations](#32-security-considerations)
-    - [3.3 Legal and Ethical considerations](#33-legal-and-ethical-considerations)
-    - [3.4 Accessibility considerations](#34-accessibility-considerations)
-    - [3.5 Support considerations](#35-support-considerations)
-  - [4.0 Future Work](#40-future-work)
-    - [4.1 Residual work estimates and timelines](#41-residual-work-estimates-and-timelines)
-    - [4.2 Open Questions](#42-open-questions)
-  - [5.0 End Matter](#50-end-matter)
-    - [5.1 Related Work](#51-related-work)
-    - [5.2 Acknowledgments](#52-acknowledgments)
-  - [Microservices](#microservices)
-    - [Data Load Microservices](#data-load-microservices)
-    - [Image Extraction Microservices](#image-extraction-microservices)
-    - [Audit and Logging Systems](#audit-and-logging-systems)
-  - [.sln Overview](#sln-overview)
-  - [Building](#building)
-    - [Building the C# Projects](#building-the-c-projects)
-    - [Building the Java Projects](#building-the-java-projects)
-  - [Running](#running)
-  - [Developing](#developing)
-    - [C# Projects](#c-projects)
-    - [Java Projects](#java-projects)
-    - [pre-commit](#pre-commit)
-  - [Note On Versioning](#note-on-versioning)
-  - [Scalability](#scalability)
+1. [Introduction](#10-introduction)
+    1. [Overview](#11-overview)
+    2. [Glossary or Terminology](#12-glossary-or-terminology)
+    3. [Background and Context](#13-background-and-context)
+    4. [Goals and Technical Requirements](#14-goals-and-technical-requirements)
+    5. [Out of Scope](#15-out-of-scope)
+    6. [Assumptions](#16-assumptions)
+2. [Solutions](#20-solutions)
+    1. [Deliverable Solution / Design](#21-deliverable-solution--design)
+    1. [Test Plan](#22-test-plan)
+    1. [Monitoring and Alerting Plan](#23-monitoring-and-alerting-plan)
+    1. [Release / Roll-out and Deployment Plan](#24-release--roll-out-and-deployment-plan)
+    1. [Rollback Plan](#25-rollback-plan)
+    1. [Associated Documentation](#26-associated-documentation)
+3. [Further Considerations](#30-further-considerations)
+    1. [Human Resource Requirements](#31-human-resource-requirements)
+    2. [Security Considerations](#32-security-considerations)
+    3. [Legal and Ethical considerations](#33-legal-and-ethical-considerations)
+    4. [Accessibility considerations](#34-accessibility-considerations)
+    5. [Support considerations](#35-support-considerations)
+4. [Future Work](#40-future-work)
+    1. [Residual work estimates and timelines](#41-residual-work-estimates-and-timelines)
+    1. [Open Questions](#42-open-questions)
+5. [End Matter](#50-end-matter)
+    1. [Related Work](#51-related-work)
+    1. [Acknowledgments](#52-acknowledgments)
+6. [Microservices](#microservices)
+    1. [Data Load Microservices](#data-load-microservices)
+    1. [Image Extraction Microservices](#image-extraction-microservices)
+7. [.sln Overivew](#sln-overview)
+8. [Building](#building)
+9. [Running](#running)
+10. [Dependencies](#dependencies)
+11. [Scalability](#scalability)
 
 ## 1.0 Introduction
 
@@ -436,10 +427,10 @@ $ ./bin/ctp/buildTestPackage.py --install-libs local
 -   Windows
 
 ```bash
-$ ./bin/ctp/buildTestPackage.py --install-libs local -PUnitTests
+$ ./bin/ctp/buildTestPackage.py --install-libs local --skip-integration-tests
 ```
 
-This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test suite can be skipped by passing `-DskipTests`.
+This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `--skip-integration-tests`. The entire test suite can be skipped by passing `--skip-tests`.
 
 To build a single project and its dependencies, you can do:
 
