@@ -117,14 +117,14 @@ public static class Program
 [UsedImplicitly]
 public class DicomLoaderOptions : CliOptions
 {
-<<<<<<< HEAD
-    [Option('m', "memoryLimit", Default = 16, Required = false, HelpText = "Memory threshold to flush in GiB")]
-    public long MemoryLimit
-    {
-        get;
-        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
-        set;
-    } = 16;
+    [Option(
+        'd',
+        "delete",
+        Default = false,
+        Required = false,
+        HelpText = "Delete existing data instead of skipping previously seen files"
+    )]
+    public bool DeleteConflicts { get; [UsedImplicitly] set; }
 
     [Option('p', "parallelism", Default = -1, Required = false, HelpText = "Number of threads to run in parallel")]
     public int Parallelism
@@ -133,20 +133,17 @@ public class DicomLoaderOptions : CliOptions
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
         set;
     } = -1;
-=======
+
     [Option('m',"match",Default = false,Required = false,HelpText = "Match Mongo against SQL")]
     public bool MatchMode { get; set; }
 
-    [Option(
-        'r',
-        "reload",
-        Default = false,
-        Required = false,
-        HelpText = "Re-load and overwrite existing data instead of skipping previously seen files (TODO)"
-    )]
-    public bool ForceReload { get; [UsedImplicitly] set; }
-
->>>>>>> 3b98ed23 (Stub implementation of MatchMode for SQL-Mongo reconciliation)
+    [Option('r', "ramLimit", Default = 16, Required = false, HelpText = "RAM threshold to flush in GiB")]
+    public long RamLimit
+    {
+        get;
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+        set;
+    } = 16;
 
     [Option('s',"sql",Default = false,Required = false,HelpText = "Load data on to the SQL stage after Mongo")]
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
