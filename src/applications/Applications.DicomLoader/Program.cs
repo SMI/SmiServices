@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -48,7 +49,9 @@ public static class Program
 
         ParallelDLEHost? host = null;
         LoadMetadata? lmd = null;
-        if (dicomLoaderOptions.LoadSql || dicomLoaderOptions.MatchMode)
+        var mongo = MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader))
+            .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName);
+        if (dicomLoaderOptions.LoadSql || dicomLoaderOptions.MatchMode!=null)
         {
             FansiImplementations.Load();
             // Initialise a ParallelDleHost to shove the Mongo entries into SQL too:
@@ -64,36 +67,33 @@ public static class Program
             startup.DoStartup(new ThrowImmediatelyCheckNotifier());
             if (!errors.IsNullOrEmpty())
                 throw new AggregateException(errors.ToArray());
-            var databaseNamerType = rdmpRepo.CatalogueRepository.MEF.GetType(go.DicomRelationalMapperOptions.DatabaseNamerType);
-            if(databaseNamerType == null)
-            {
+            var databaseNamerType = rdmpRepo.CatalogueRepository.MEF.GetType(go.DicomRelationalMapperOptions.DatabaseNamerType) ??
                 throw new Exception($"Could not find Type '{go.DicomRelationalMapperOptions.DatabaseNamerType}'");
-            }
 
             lmd = rdmpRepo.CatalogueRepository.GetObjectByID<LoadMetadata>(go.DicomRelationalMapperOptions.LoadMetadataId);
             var liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
             var instance = new MicroserviceObjectFactory().CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, go.DicomRelationalMapperOptions.Guid);
             host = new ParallelDLEHost(rdmpRepo,instance,true);
-        }
 
-        // MatchMode: reconcile Mongo contents with SQL:
-        var mongo = MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader))
-            .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName);
-        if (dicomLoaderOptions.MatchMode)
-        {
-            var findOptions = new FindOptions<BsonDocument,BsonDocument>
+            // MatchMode: reconcile Mongo contents with SQL:
+            if (dicomLoaderOptions.MatchMode!= null)
             {
-                Sort = "header.DicomFilePath"
-            };
-            mongo.GetCollection<BsonDocument>(go.MongoDbPopulatorOptions.ImageCollection).FindSync("",findOptions,cts.Token);
-            return 0;
+                var findOptions = new FindOptions<BsonDocument, BsonDocument>
+                {
+                    Sort = "{\"header.DicomFilePath\":1}"
+                };
+                using var cursor = mongo.GetCollection<BsonDocument>(go.MongoDbPopulatorOptions.ImageCollection).FindSync(dicomLoaderOptions.MatchMode, findOptions, cts.Token);
+                Loader.FlushRelational(host ?? throw new InvalidOperationException(),
+                    lmd ?? throw new InvalidOperationException(),
+                    cursor.ToEnumerable(cts.Token).Select(Loader.ParseBson));
+                return 0;
+            }
         }
 
         Loader loader =
             new(
                 mongo,
-                go.MongoDbPopulatorOptions.ImageCollection, go.MongoDbPopulatorOptions.SeriesCollection,dicomLoaderOptions,host,lmd);
-
+                go.MongoDbPopulatorOptions.ImageCollection, go.MongoDbPopulatorOptions.SeriesCollection, dicomLoaderOptions, host, lmd);
         LineReader.LineReader fileNames = new(fileList??Console.OpenStandardInput(), '\0');
         ParallelOptions parallelOptions = new()
         {
@@ -134,8 +134,8 @@ public class DicomLoaderOptions : CliOptions
         set;
     } = -1;
 
-    [Option('m',"match",Default = false,Required = false,HelpText = "Match Mongo against SQL")]
-    public bool MatchMode { get; set; }
+    [Option('m',"match",Default = null,Required = false,HelpText = "Copy matching Mongo entries to SQL and exit")]
+    public string? MatchMode { get; [UsedImplicitly] set; }
 
     [Option('r', "ramLimit", Default = 16, Required = false, HelpText = "RAM threshold to flush in GiB")]
     public long RamLimit

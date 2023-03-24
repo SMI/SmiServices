@@ -1,4 +1,4 @@
-﻿
+
 using Equ;
 using Newtonsoft.Json;
 using System;
@@ -54,10 +54,11 @@ namespace Smi.Common.Messages
 
         public DicomFileMessage(string root, string file)
         {
-            if (!file.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
-                throw new Exception("File '" + file + "' did not share a common root with the root '" + root + "'");
+            // Assume that only WinNT is case-insensitive, not entirely accurate but better than assuming everything is...
+            if (!file.StartsWith(root, Environment.OSVersion.Platform==PlatformID.Win32NT ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture))
+                throw new Exception($"File '{file}' did not share a common root with the root '{root}'");
 
-            DicomFilePath = file.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar);
+            DicomFilePath = file[root.Length..].TrimStart(Path.DirectorySeparatorChar);
         }
 
         public string GetAbsolutePath(string rootPath)
@@ -99,11 +100,11 @@ namespace Smi.Common.Messages
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine("DicomFilePath: " + DicomFilePath);
-            sb.AppendLine("StudyInstanceUID: " + StudyInstanceUID);
-            sb.AppendLine("SeriesInstanceUID: " + SeriesInstanceUID);
-            sb.AppendLine("SOPInstanceUID: " + SOPInstanceUID);
-            sb.AppendLine("=== DicomDataset ===\n" + DicomDataset + "\n====================");
+            sb.AppendLine($"DicomFilePath: {DicomFilePath}");
+            sb.AppendLine($"StudyInstanceUID: {StudyInstanceUID}");
+            sb.AppendLine($"SeriesInstanceUID: {SeriesInstanceUID}");
+            sb.AppendLine($"SOPInstanceUID: {SOPInstanceUID}");
+            sb.AppendLine($"=== DicomDataset ===\n{DicomDataset}\n====================");
 
             return sb.ToString();
         }

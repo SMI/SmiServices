@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,15 +72,10 @@ public class Loader
 
     private static SeriesMessage IncSm(string _,SeriesMessage sm)
     {
-        sm.ImagesInSeries++;
+        lock(sm)
+            sm.ImagesInSeries++;
         return sm;
     }
-
-    private volatile bool backlogged=false;
-    private static readonly InsertManyOptions insertOptions = new InsertManyOptions()
-    {
-        IsOrdered = false
-    };
 
     /// <summary>
     /// Write the pending data out to Mongo and optionally SQL
@@ -96,36 +90,44 @@ public class Loader
         }
 
         using var mf=MongoFlush(new ArraySegment<(DicomFileMessage, DicomDataset)>(imageBatch));
-
-        if (_parallelDleHost != null)
+        try
         {
-            Stopwatch lockTimer = new();
-            lockTimer.Start();
-            long lockWait;
-            lock (_parallelDleHost)
+            if (_parallelDleHost != null && _lmd != null) FlushRelational(_parallelDleHost,_lmd, imageBatch);
+        }
+        finally
+        {
+            mf.Wait();
+            _backlogged = false;
+        }
+    }
+
+    public static void FlushRelational(ParallelDLEHost host,LoadMetadata lmd,IEnumerable<(DicomFileMessage,DicomDataset)> imageBatch)
+    {
+        int count;
+        var lockTimer = Stopwatch.StartNew();
+        long lockWait;
+        lock (host)
+        {
+            lockWait = lockTimer.ElapsedMilliseconds;
+            var workList = new DicomFileMessageToDatasetListWorklist(imageBatch.Select(i =>
+                new QueuedImage(new MessageHeader(), 0, i.Item1, i.Item2)));
+            try
             {
-                lockWait = lockTimer.ElapsedMilliseconds;
-                var workList = new DicomFileMessageToDatasetListWorklist(imageBatch.Select(i =>
-                    new QueuedImage(new MessageHeader(), 0, i.Item1, i.Item2)));
-                try
-                {
-                    var result=_parallelDleHost.RunDLE(_lmd, workList);
-                    if (result is not ExitCodeType.Success and not ExitCodeType.OperationNotRequired)
-                        Console.Error.WriteLine($"DLE load failed with result {result}");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"***** ABEND *****\nRunDLE blew up with: {e}");
-                    _backlogged = false;
-                    throw;
-                }
+                var result = host.RunDLE(lmd, workList);
+                if (result is not ExitCodeType.Success and not ExitCodeType.OperationNotRequired)
+                    Console.Error.WriteLine($"DLE load failed with result {result}");
             }
-            Console.WriteLine($"SQL load completed on {imageBatch.Length} items in {lockTimer.ElapsedMilliseconds}ms, {lockWait}ms lock contention");
+            catch (Exception e)
+            {
+                Console.WriteLine($"***** ABEND *****\nRunDLE blew up with: {e}");
+                throw;
+            }
+
+            count = workList.Count;
         }
 
-        mf.Wait();
-
-        _backlogged = false;
+        Console.WriteLine(
+            $"SQL load completed on {count} items in {lockTimer.ElapsedMilliseconds}ms, {lockWait}ms lock contention");
     }
 
     private async Task MongoFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
@@ -139,11 +141,11 @@ public class Loader
         await MongoImageFlush(imageBatch);
     }
 
-    static readonly InsertManyOptions _insertManyOptions = new () { IsOrdered = false };
+    private static readonly InsertManyOptions _insertManyOptions = new () { IsOrdered = false };
     private async Task MongoImageFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
     {
         // Delete pre-existing entries, if applicable, then insert our queue:
-        if (_loadOptions.ForceReload)
+        if (_loadOptions.DeleteConflicts)
         {
             var sw = Stopwatch.StartNew();
             var builder = Builders<BsonDocument>.Filter;
@@ -226,7 +228,7 @@ public class Loader
     {
         if (_timer.ElapsedMilliseconds == 0) return;
         cancellationToken?.ThrowIfCancellationRequested();
-        var memoryLimit = _loadOptions.MemoryLimit * 1024 * 1024 * 1024;
+        var memoryLimit = _loadOptions.RamLimit * 1024 * 1024 * 1024;
         bool shouldFlush;
         long used;
         lock (_statsLock)
@@ -320,7 +322,7 @@ public class Loader
                 try
                 {
                     var path = $"{fi.FullName}!{entry.Name}";
-                    if (!_loadOptions.ForceReload && ExistingEntry(path))
+                    if (!_loadOptions.DeleteConflicts && ExistingEntry(path))
                     {
                         return; // Exit whole archive processing on duplicate, unless force-reloading
                     }
@@ -400,12 +402,7 @@ public class Loader
         try
         {
             _seriesListLock.EnterReadLock();
-            _seriesList.AddOrUpdate(series, (_) => LoadSm(series, directoryName, ds, identifiers[0]), (_, seriesMessage) =>
-            {
-                lock (seriesMessage)
-                    seriesMessage.ImagesInSeries++;
-                return seriesMessage;
-            });
+            _seriesList.AddOrUpdate(series, _ => LoadSm(series, directoryName, ds, identifiers[0]), IncSm);
         }
         finally
         {
@@ -439,7 +436,7 @@ public class Loader
             return ValueTask.CompletedTask;
         }
 
-        if (!_loadOptions.ForceReload && ExistingEntry(filename))
+        if (!_loadOptions.DeleteConflicts && ExistingEntry(filename))
         {
             return ValueTask.CompletedTask;
         }
@@ -453,5 +450,21 @@ public class Loader
             Console.WriteLine($"{filename}:{e}");
         }
         return ValueTask.CompletedTask;
+    }
+
+    public static (DicomFileMessage,DicomDataset) ParseBson(BsonDocument arg)
+    {
+        // TODO: Recover file header and dataset from Bson
+        var ds = DicomTypeTranslaterWriter.BuildDicomDataset(arg);
+        var header=arg.GetElement("header").Value as BsonDocument ?? throw new Exception($"No header in {arg}");
+        var msg = new DicomFileMessage
+        {
+            StudyInstanceUID = arg.GetElement("StudyInstanceUID").Value.AsString,
+            DicomFilePath = header.GetElement("DicomFilePath").Value.AsString,
+            DicomFileSize = header.GetElement("DicomFileSize").Value.AsInt64,
+            SOPInstanceUID = arg.GetElement("SOPInstanceUID").Value.AsString,
+            SeriesInstanceUID = arg.GetElement("SeriesInstanceUID").Value.AsString
+        };
+        return (msg, ds);
     }
 }

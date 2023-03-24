@@ -8,6 +8,7 @@ namespace Microservices.DicomRelationalMapper.Execution;
 public class DicomFileMessageToDatasetListWorklist : IDicomDatasetWorklist
 {
     private readonly IEnumerator<QueuedImage> _messages;
+    public int Count { get; private set; } = 0;
 
     public readonly HashSet<QueuedImage> CorruptMessages = new();
 
@@ -34,6 +35,8 @@ public class DicomFileMessageToDatasetListWorklist : IDicomDatasetWorklist
             otherValuesToStoreInRow = null;
             return null;
         }
+
+        Count++;
 
         var toReturn = _messages.Current;
         filename = toReturn?.DicomFileMessage.DicomFilePath;
