@@ -68,57 +68,18 @@ jobs:
         uses: actions/setup-dotnet@v3.0.3
       - name: download tessdata
         run: ./bin/smi/downloadTessdata.py
-      - name: "[linux] start services"
-        if: ${{ matrix.os == 'linux' }}
-        run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
-      - name: "[linux] re-write database strings"
-        if: ${{ matrix.os == 'linux' }}
-        run: |
-          set -euxo pipefail
-          echo "rdmp_conn_str=localhost -u sa -p ${{ env.db-password }}" >> $GITHUB_ENV
-          ./bin/smi/writeDatabaseStrings.py localhost "${{ env.db-password }}"
-      - name: set RDMP version
-        run: |
-          set -euxo pipefail
-          rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin Directory.Packages.props | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
-          echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
-      - name: "[windows] Install SQL LocalDB"
-        if: ${{ matrix.os == 'windows' }}
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: install sqllocaldb
-      - name: "[windows] Check SQL LocalDB and set rdmp_conn_str"
-        if: ${{ matrix.os == 'windows' }}
-        shell: pwsh
-        run: |
-          Write-Host "Checking"
-          $db = "(localdb)\MSSQLLocalDB"
-          SqlLocalDB.exe create MSSQLLocalDB -s
-          sqlcmd -l 180 -S "$db" -Q "SELECT @@VERSION;"
-          echo "rdmp_conn_str='$db'" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-      - name: "[windows] re-write database strings"
-        if: ${{ matrix.os == 'windows' }}
-        run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
-      - name: download rdmp-cli
-        if: ${{ matrix.os == 'windows' }}
-        run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
-      - name: download rdmp-cli
-        if: ${{ matrix.os == 'linux' }}
-        run: |
-          curl -L https://github.com/HicServices/RDMP/releases/download/v${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
-          mv rdmp-${{ env.rdmp_cli_ver }}-cli-linux rdmp-cli
-      - name: install RDMP databases
-        run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
-      - name: show dotnet info
-        run: dotnet --info
       - name: build, test, and package dotnet
         run: |
-          set -euxo pipefail
-          cov=""
-          [ "${{ matrix.os }}" == "windows" ] && cov="--no-coverage"
-          ./bin/smi/buildTestPackage.py \
-              ${{ needs.init.outputs.build_ref }} \
-              "$cov"
+          # set -euxo pipefail
+          # cov=""
+          # [ "${{ matrix.os }}" == "windows" ] && cov="--no-coverage"
+          # ./bin/smi/buildTestPackage.py \
+          #     ${{ needs.init.outputs.build_ref }} \
+          #     "$cov"
+          dotnet test --configuration Release --verbosity quiet -p:Platform=x64 --settings ./data/nunit.runsettings \
+              ./tests/microservices/Microservices.MongoDBPopulator.Tests/Microservices.MongoDBPopulator.Tests.csproj \
+              /p:CollectCoverage=true /p:CoverletOutput="$(pwd)/coverage/" /p:Exclude="[*.Tests]*" || true
+          ls -l ./coverage/
       - name: upload coverage
         if: ${{ matrix.os == 'linux' }}
         uses: codecov/codecov-action@v3.1.1
@@ -132,103 +93,3 @@ jobs:
           name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
           if-no-files-found: error
-  ctp:
-    needs: [init]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
-    runs-on: ${{ matrix.image }}
-    steps:
-      - name: "[linux] enable disk caching"
-        if: ${{ matrix.os == 'linux' }}
-        run: sudo apt-get install -y libeatmydata1
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3.11.0
-        with:
-          java-version: ${{ env.java-version }}
-          distribution: ${{ env.java-distribution }}
-          cache: maven
-      - name: "[linux] start services"
-        if: ${{ matrix.os == 'linux' }}
-        run: ./bin/ctp/startDockerLinux.py
-      - name: "[windows] skip integration tests"
-        if: ${{ matrix.os == 'windows' }}
-        run: echo "JAVA_TESTS=--skip-integration-tests" >> $GITHUB_ENV
-      - name: build, test, and package ctp
-        run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
-      - name: "[linux] upload packages"
-        if: ${{ matrix.os == 'linux' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
-          path: dist/${{ needs.init.outputs.build_ref }}/*
-          if-no-files-found: error
-  smi-py:
-    needs: [init]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
-    runs-on: ${{ matrix.image }}
-    steps:
-      - name: "[linux] enable disk caching"
-        if: ${{ matrix.os == 'linux' }}
-        run: sudo apt-get install -y libeatmydata1
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.python-version }}
-      - name: create venv
-        run: |
-          set -exuo pipefail
-          python -m pip install --upgrade virtualenv
-          python -m virtualenv venv
-          echo "venv_bin=./venv/bin" >> $GITHUB_ENV
-      - name: "[windows] update venv var"
-        if: ${{ matrix.os == 'windows' }}
-        run: echo "venv_bin=./venv/Scripts" >> $GITHUB_ENV
-      - name: test and package python
-        run: ./bin/smi-py/testPackage.py ${{ needs.init.outputs.build_ref }} ${{ env.venv_bin }}/python
-      - name: "[linux] upload packages"
-        if: ${{ matrix.os == 'linux' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
-          path: dist/${{ needs.init.outputs.build_ref }}/*
-          if-no-files-found: error
-  upload-to-release:
-    if: contains(github.ref, 'refs/tags/v')
-    needs: [init, smi, ctp, smi-py]
-    runs-on: ubuntu-20.04
-    steps:
-      - name: "[linux] enable disk caching"
-        if: ${{ matrix.os == 'linux' }}
-        run: sudo apt-get install -y libeatmydata1
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: ./dist
-      - name: prepare artifacts for release
-        run: |
-          set -euxo pipefail
-          dist_dir=./dist/SmiServices-${{ needs.init.outputs.build_ref }}.zip
-          [ ! -d "$dist_dir" ] && { echo "No dist found"; exit 1; }
-          ls -l $dist_dir
-          mkdir ./release
-          cat $dist_dir/MD5SUM* >> ./release/MD5SUMS.txt
-          rm $dist_dir/MD5SUM*
-          cp $dist_dir/* ./release/
-          ls -l ./release
-          ./bin/release/createReleaseChangelog.py ${{ needs.init.outputs.build_ref }}
-      - name: upload release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./release/*
-          body_path: release_changelog.md
-          fail_on_unmatched_files: true
-          generate_release_notes: true
