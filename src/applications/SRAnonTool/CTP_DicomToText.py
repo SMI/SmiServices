@@ -61,7 +61,7 @@ def patientid_map(PatientID):
 
 # ---------------------------------------------------------------------
 
-def extract_mongojson(mongojson, output, metadata_output=None):
+def extract_mongojson(mongojson, output, metadata_output=None, DicomTextArgs = {}):
     """ Called by extract_mongojson_file
     to parse the JSON from Mongo and write to output.
     mongojson - the DICOM in JSON format.
@@ -71,13 +71,14 @@ def extract_mongojson(mongojson, output, metadata_output=None):
         filename = mongojson['SOPInstanceUID'] + '.txt'
         output = os.path.join(output, filename)
     if metadata_output and os.path.isdir(metadata_output):
-        filename = mongojson['SOPInstanceUID'] + '.json'
-        metadata_output = os.path.join(metadata_output, filename)
+        mfilename = mongojson['SOPInstanceUID'] + '.json'
+        metadata_output = os.path.join(metadata_output, mfilename)
     logging.info('Parse %s' % mongojson.get('header',{}).get('DicomFilePath','<NoFilePath?>'))
     if 'PatientID' in mongojson:
         mongojson['PatientID'] = patientid_map(mongojson['PatientID'])
     with open(output, 'w') as fd:
-        SR.SR_parse(mongojson, filename, fd)
+        sr = SR.StructuredReport(**DicomTextArgs)
+        sr.SR_parse(mongojson, filename, fd)
     if metadata_output:
         with open(metadata_output, 'w') as fd:
             print(json.dumps({k:mongojson[k] for k in metadata_fields if k in mongojson}), file=fd)
@@ -85,13 +86,13 @@ def extract_mongojson(mongojson, output, metadata_output=None):
     logging.info(f'Wrote {output}')
 
 
-def extract_mongojson_file(input, output, metadata_output=None):
+def extract_mongojson_file(input, output, metadata_output=None, DicomTextArgs = {}):
     """ Read MongoDB data in JSON format from input file
     convert to output, which can be a filename or directory.
     """
     with open(input, 'r') as fd:
         mongojson = json.load(fd)
-    extract_mongojson(mongojson, output, metadata_output=metadata_output)
+    extract_mongojson(mongojson, output, metadata_output=metadata_output, DicomTextArgs = DicomTextArgs)
 
 
 # ---------------------------------------------------------------------
@@ -141,7 +142,7 @@ def extract_file(input, output, metadata_output=None, DicomTextArgs={}):
     if is_dcm:
         extract_dicom_file(input, output, metadata_output, DicomTextArgs = DicomTextArgs)
     else:
-        extract_mongojson_file(input, output, metadata_output)
+        extract_mongojson_file(input, output, metadata_output, DicomTextArgs = DicomTextArgs)
 
 
 
@@ -204,7 +205,7 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------
     # If the file is a DICOM then DicomText has options to change the output format.
-    # These are passed to the DicomText constructor.
+    # These are passed to the DicomText and StructuredReport constructors.
     DicomTextArgs = {
         #'include_header' : True,
         #'replace_HTML_entities' : True,
@@ -226,12 +227,12 @@ if __name__ == '__main__':
         extract_file(args.input, args.output_dir, args.metadata_dir, DicomTextArgs)
     elif os.path.isfile(os.path.join(root_dir, args.input)):
         # relative to FileSystemRoot
-        extract_file(os.path.join(root_dir, args.input), args.output_dir, args.metadata_dir)
+        extract_file(os.path.join(root_dir, args.input), args.output_dir, args.metadata_dir, DicomTextArgs)
     elif os.path.isdir(args.input):
         # Recurse directory
         for root, dirs, files in os.walk(args.input, topdown=False):
             for name in files:
-                extract_file(os.path.join(root, name), args.output_dir, args.metadata_dir)
+                extract_file(os.path.join(root, name), args.output_dir, args.metadata_dir, DicomTextArgs)
     elif mongo_dicom_db != {}:
         # Only DicomFilePath and StudyDate are indexed in MongoDB.
         # Passing a SOPInstanceUID would be handy but no point if not indexed.
@@ -244,11 +245,11 @@ if __name__ == '__main__':
             for mongojson in mongodb_in.StudyDateToJSONList(args.input):
                 # If it's already in the annotation database then don't bother extracting.
                 if not args.semehr_unique or not mongodb_out.findSOPInstanceUID(mongojson['SOPInstanceUID']):
-                    extract_mongojson(mongojson, args.output_dir, args.metadata_dir)
+                    extract_mongojson(mongojson, args.output_dir, args.metadata_dir, DicomTextArgs)
         # Otherwise assume a DICOM file path which can be retrieved from MongoDB
         else:
             mongojson = mongodb_in.DicomFilePathToJSON(args.input)
-            extract_mongojson(mongojson, args.output_dir, args.metadata_dir)
+            extract_mongojson(mongojson, args.output_dir, args.metadata_dir, DicomTextArgs)
     else:
         logging.error(f'Cannot find {args.input} as file and MongoDB not configured')
         exit(1)
