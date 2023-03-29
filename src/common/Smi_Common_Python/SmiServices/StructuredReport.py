@@ -444,10 +444,28 @@ def test_SR_parse_key():
             ]
         }
     }
+
+    # Create a SR object
+    sr = StructuredReport(replace_HTML_char = '.')
     tmpfile = 'tmp_pytest_output.txt'
+
+    # Test with the above piece of JSON
     with open(tmpfile, 'w') as fd:
-        _SR_parse_key(SR_dict, 'ContentSequence', fd)
-    with open(tmpfile, 'r') as fd:
-        result = fd.read()
-    os.remove(tmpfile)
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+    result = open(tmpfile, 'r').read()
     assert(result == '[[Request]] MRI: Knee\n')
+
+    # Add some HTML into the string and check it's redacted
+    SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
+    with open(tmpfile, 'w') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+    result = open(tmpfile, 'r').read()
+    assert(result == '[[Request]] ..........................MRI: Knee\n')
+
+    # Check that the HTML redaction can also squash (remove) characters
+    sr.setReplaceHTMLChar('')
+    with open(tmpfile, 'w') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+    result = open(tmpfile, 'r').read()
+    assert(result == '[[Request]] MRI: Knee\n')
+    os.remove(tmpfile)
