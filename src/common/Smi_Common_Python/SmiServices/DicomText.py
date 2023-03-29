@@ -49,7 +49,7 @@ class DicomText:
         replace_HTML_char = _replace_HTML_char, \
         replace_newline_char = _replace_newline_char):
         """ The DICOM file is read during construction.
-        If include_header is True then (default True).
+        If include_header is True some DICOM header fields are output (default True).
         If replace_HTML_entities is True then all HTML is replaced by dots (default True).
         If replace_HTML_char is given then it is used instead of dots (default is dots).
         If replace_newline_char is given then it is used to replace \r and \n (default is \n).
