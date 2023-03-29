@@ -49,6 +49,12 @@ metadata_fields = [
 # PatientID mapping from CHI to EUPI
 
 def patientid_map(PatientID):
+    """ Map patientid from CHI to EUPI using the database
+    defined in the IdentifierMapper configuration yaml file.
+    Returns "UNKNOWN" if there is no mapping or the database
+    is not available.
+    XXX Note that there's no error raised for database failure.
+    """
     try:
         eupi = IdentifierMapper.CHItoEUPI().lookup(PatientID)
     except Exception as e:
@@ -66,6 +72,9 @@ def extract_mongojson(mongojson, output, metadata_output=None, DicomTextArgs = N
     to parse the JSON from Mongo and write to output.
     mongojson - the DICOM in JSON format.
     output - can be a directory or a filename.
+    metadata_output - likewise.
+    DicomTextArgs - can be a dict with options passed to StructuredReport
+    ('replace_HTML_char' and 'replace_newline_char' in particular).
     """
 
     if not DicomTextArgs:
@@ -93,6 +102,11 @@ def extract_mongojson(mongojson, output, metadata_output=None, DicomTextArgs = N
 def extract_mongojson_file(input, output, metadata_output=None, DicomTextArgs = None):
     """ Read MongoDB data in JSON format from input file
     convert to output, which can be a filename or directory.
+    input - filename containing DICOM data in JSON format
+    output - can be a directory or a filename.
+    metadata_output - likewise.
+    DicomTextArgs - can be a dict with options passed to StructuredReport
+    ('replace_HTML_char' and 'replace_newline_char' in particular).
     """
     with open(input, 'r') as fd:
         mongojson = json.load(fd)
@@ -102,12 +116,13 @@ def extract_mongojson_file(input, output, metadata_output=None, DicomTextArgs = 
 # ---------------------------------------------------------------------
 
 def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = None):
-    """ Extract text from a DICOM file input
-    into the output, which can be a filename,
-    or a directory in which case the file is named by SOPInstanceUID.
-    If metadata_output is a directory path then the metadata file is written there.
-    If a DicomTextArgs dict is passed then it is used as the parameters
-    to the DicomText object constructor, e.g. 'replace_HTML_char'
+    """ Extract text from a DICOM file.
+    intput - filename of DICOM file.
+    output - can be a directory or a filename.
+    For a directory the file is named by its SOPInstanceUID.
+    metadata_output - likewise.
+    DicomTextArgs - can be a dict with options passed to DicomText
+    ('replace_HTML_char' and 'replace_newline_char' in particular).
     """
 
     if not DicomTextArgs:
@@ -137,8 +152,14 @@ def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = None
 # ---------------------------------------------------------------------
 
 def extract_file(input, output, metadata_output=None, DicomTextArgs=None):
-    """ If it's a readable DICOM file then extract it
-    otherwise try to find it in MongoDB.
+    """ Extract text from a DICOM file or a JSON file (from MongoDB).
+    intput - filename of DICOM/JSON file.
+    output - can be a directory or a filename.
+    For a directory the file is named by its SOPInstanceUID.
+    metadata_output - likewise.
+    DicomTextArgs - can be a dict with options passed to DicomText
+    ('replace_HTML_char' and 'replace_newline_char' in particular).
+    Calls extract_dicom_file or extract_mongojson_file as appropriate.
     """
     try:
         pydicom.dcmread(input)
