@@ -6,16 +6,19 @@ import re
 
 # ---------------------------------------------------------------------
 
-def string_match(str1, str2):
+def string_match_ignore_linebreak(str1, str2):
     """ String comparison which ignores carriage returns \r by treating as spaces
-    because that's how SemEHR new anonymiser delivers the string (in phi json anyway) """
+    because that's how SemEHR new anonymiser delivers the string (in phi json anyway).
+    This function is only used in DicomText._dataset_redact_callback() """
     if re.sub('[\r\n]', ' ', str1) == re.sub('[\r\n]', ' ', str2):
         return True
     return False
 
-def test_string_match():
-    assert(string_match('hello', 'hello'))
-    assert(string_match('hello\r\nworld', 'hello \nworld'))
+def test_string_match_ignore_linebreak():
+    assert(string_match_ignore_linebreak('hello', 'hello'))
+    assert(string_match_ignore_linebreak('hello\r\nworld', 'hello \nworld'))
+    assert(string_match_ignore_linebreak('hello\r\nworld', 'hello  world'))
+    assert(string_match_ignore_linebreak('hello\r\rworld', 'hello  world'))
 
 # ---------------------------------------------------------------------
 
@@ -54,21 +57,21 @@ def redact_html_tags_in_string(html_str, replace_char='.', replace_newline='\n')
 
 def test_redact_html_tags_in_string():
     src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3&nbsp;</p>'
-    # changing the \r to a space in the expected string also tests the string_match function
+    # changing the \r to a space in the expected string also tests the string_match_ignore_linebreak function
     dest = redact_html_tags_in_string(src)
     expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3      ....'
-    assert(string_match(dest, expected))
+    assert(string_match_ignore_linebreak(dest, expected))
     # Test replacing HTML with spaces
     dest = redact_html_tags_in_string(src, replace_char=' ')
     expected = '                                                           text1 <1 month \n    text2                            text3          '
-    assert(string_match(dest, expected))
+    assert(string_match_ignore_linebreak(dest, expected))
     # Test the newline replacement
     dest = redact_html_tags_in_string(src, replace_char=' ', replace_newline=' ')
     expected = '                                                           text1 <1 month      text2                            text3          '
-    assert(string_match(dest, expected))
+    assert(string_match_ignore_linebreak(dest, expected))
     # Test squashing HTML and newlines
     dest = redact_html_tags_in_string(src, replace_char='', replace_newline='')
     expected = '  text1 <1 monthtext2  text3      '
-    assert(string_match(dest, expected))
+    assert(string_match_ignore_linebreak(dest, expected))
 
 # ---------------------------------------------------------------------

@@ -6,7 +6,7 @@ import pydicom
 import re
 import random
 from SmiServices.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
-from SmiServices.StringUtils import string_match, redact_html_tags_in_string
+from SmiServices.StringUtils import string_match_ignore_linebreak, redact_html_tags_in_string
 
 
 # ---------------------------------------------------------------------
@@ -246,7 +246,7 @@ class DicomText:
                     rc_without_html = redact_html_tags_in_string(rc,
                         replace_char = self._replace_HTML_char,
                         replace_newline = self._replace_newline_char) if self._replace_HTML_entities else rc
-                    if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
+                    if string_match_ignore_linebreak(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at, data_element.VR)
                         replaced = replacedAny = True
                         annot['replaced'] = True
