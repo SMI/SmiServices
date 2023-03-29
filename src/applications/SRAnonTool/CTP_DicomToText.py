@@ -61,12 +61,16 @@ def patientid_map(PatientID):
 
 # ---------------------------------------------------------------------
 
-def extract_mongojson(mongojson, output, metadata_output=None, DicomTextArgs = {}):
+def extract_mongojson(mongojson, output, metadata_output=None, DicomTextArgs = None):
     """ Called by extract_mongojson_file
     to parse the JSON from Mongo and write to output.
     mongojson - the DICOM in JSON format.
     output - can be a directory or a filename.
     """
+
+    if not DicomTextArgs:
+        DicomTextArgs = {}
+
     if os.path.isdir(output):
         filename = mongojson['SOPInstanceUID'] + '.txt'
         output = os.path.join(output, filename)
@@ -86,7 +90,7 @@ def extract_mongojson(mongojson, output, metadata_output=None, DicomTextArgs = {
     logging.info(f'Wrote {output}')
 
 
-def extract_mongojson_file(input, output, metadata_output=None, DicomTextArgs = {}):
+def extract_mongojson_file(input, output, metadata_output=None, DicomTextArgs = None):
     """ Read MongoDB data in JSON format from input file
     convert to output, which can be a filename or directory.
     """
@@ -97,7 +101,7 @@ def extract_mongojson_file(input, output, metadata_output=None, DicomTextArgs = 
 
 # ---------------------------------------------------------------------
 
-def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = {}):
+def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = None):
     """ Extract text from a DICOM file input
     into the output, which can be a filename,
     or a directory in which case the file is named by SOPInstanceUID.
@@ -105,6 +109,9 @@ def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = {}):
     If a DicomTextArgs dict is passed then it is used as the parameters
     to the DicomText object constructor, e.g. 'replace_HTML_char'
     """
+
+    if not DicomTextArgs:
+        DicomTextArgs = {}
 
     # Extract text using DicomText class
     dicomtext = DicomText.DicomText(input, **DicomTextArgs)
@@ -129,7 +136,7 @@ def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = {}):
 
 # ---------------------------------------------------------------------
 
-def extract_file(input, output, metadata_output=None, DicomTextArgs={}):
+def extract_file(input, output, metadata_output=None, DicomTextArgs=None):
     """ If it's a readable DICOM file then extract it
     otherwise try to find it in MongoDB.
     """
