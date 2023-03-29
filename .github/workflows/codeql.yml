@@ -1,0 +1,42 @@
+---
+name: "CodeQL"
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["master"]
+  schedule:
+    - cron: "0 5 * * *"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["csharp", "java", "python"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+      - name: Autobuild
+        if: ${{ matrix.language != 'java' }}
+        uses: github/codeql-action/autobuild@v2
+      - name: Build java
+        if: ${{ matrix.language == 'java' }}
+        # NOTE(rkm 2023-03-21) Ensure test code is detected but don't actually run anything
+        run: ./bin/ctp/test.py --install-libs -DskipTests
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"

@@ -7,6 +7,9 @@ from pathlib import Path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import common as C
 
+import javaCommon as JC
+
+
 _CTP_LIB_DIR = Path(f"{C.PROJ_ROOT}/lib/ctp")
 assert _CTP_LIB_DIR.is_dir()
 
@@ -27,9 +30,8 @@ _DAT_JARS = [
 
 def main() -> int:
 
-    mvn = "mvn" if os.name == "posix" else "mvn.cmd"
     base_cmd = (
-        mvn,
+        JC.mvn_exe(),
         "--quiet", "--no-transfer-progress",
         "install:install-file"
     )
