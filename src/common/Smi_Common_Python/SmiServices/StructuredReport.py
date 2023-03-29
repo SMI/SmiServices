@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+from tempfile import TemporaryFile
 from SmiServices import Dicom
 from SmiServices.Dicom import tag_is, tag_val, has_tag
 from SmiServices.StringUtils import redact_html_tags_in_string
@@ -447,25 +448,23 @@ def test_SR_parse_key():
 
     # Create a SR object
     sr = StructuredReport(replace_HTML_char = '.')
-    tmpfile = 'tmp_pytest_output.txt'
 
     # Test with the above piece of JSON
-    with open(tmpfile, 'w') as fd:
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
-    result = open(tmpfile, 'r').read()
-    assert(result == '[[Request]] MRI: Knee\n')
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] MRI: Knee\n')
 
     # Add some HTML into the string and check it's redacted
     SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
-    with open(tmpfile, 'w') as fd:
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
-    result = open(tmpfile, 'r').read()
-    assert(result == '[[Request]] ..........................MRI: Knee\n')
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] ..........................MRI: Knee\n')
 
     # Check that the HTML redaction can also squash (remove) characters
     sr.setReplaceHTMLChar('')
-    with open(tmpfile, 'w') as fd:
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
-    result = open(tmpfile, 'r').read()
-    assert(result == '[[Request]] MRI: Knee\n')
-    os.remove(tmpfile)
+        fd.seek(0)
+    assert(fd.read() == '[[Request]] MRI: Knee\n')
