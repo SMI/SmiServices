@@ -49,7 +49,11 @@ metadata_fields = [
 # PatientID mapping from CHI to EUPI
 
 def patientid_map(PatientID):
-    eupi = IdentifierMapper.CHItoEUPI().lookup(PatientID)
+    try:
+        eupi = IdentifierMapper.CHItoEUPI().lookup(PatientID)
+    except Exception as e:
+        #print(e)
+        eupi = None
     if not eupi:
         return 'UNKNOWN'
     return eupi
