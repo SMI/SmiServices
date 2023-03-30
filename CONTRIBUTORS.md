@@ -9,6 +9,7 @@
 -   [Ruairidh MacLeod](https://github.com/rkm)
 -   [Bianca Prodan](https://github.com/2bPro)
 -   [Kara Moraw](https://github.com/karacolada)
+-   [Daniyal Arshad](https://github.com/darshad-github)
 
 ### Former
 
