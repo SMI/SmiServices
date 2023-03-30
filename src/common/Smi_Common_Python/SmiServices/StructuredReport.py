@@ -467,4 +467,4 @@ def test_SR_parse_key():
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
-    assert(fd.read() == '[[Request]] MRI: Knee\n')
+        assert(fd.read() == '[[Request]] MRI: Knee\n')
