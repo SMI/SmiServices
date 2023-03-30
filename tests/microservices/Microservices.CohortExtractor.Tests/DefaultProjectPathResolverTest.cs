@@ -129,6 +129,28 @@ namespace Microservices.CohortExtractor.Tests
                 new DefaultProjectPathResolver().GetOutputPath(result, requestMessage));
         }
 
+        [TestCase(".study", "series")]
+        [TestCase(".study", ".series")]
+        [TestCase(null, ".series")]
+        [TestCase(".study", null)]
+        public void TestDefaultProjectPathResolver_HiddenDirectories(string study, string series)
+        {
+            var result = new QueryToExecuteResult(
+                "foo.dcm",
+                study,
+                series,
+                "sop",
+                false,
+                null);
+
+            Assert.AreEqual(
+                Path.Combine(
+                    study?.TrimStart('.') ?? "unknown",
+                    series?.TrimStart('.') ?? "unknown",
+                    "foo-an.dcm"),
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+        }
+
         #endregion
     }
 }
