@@ -412,39 +412,31 @@ This will automatically rebuild any dependent projects which have changes as wel
 
 ### Building the Java Projects
 
-Building the Java projects requires Java JDK `>= 1.7` (OpenJDK recommended 🙂), and Maven.
+Building the Java projects requires Java JDK `>= 1.7` (OpenJDK recommended 🙂), and Maven`>=3.6`.
 
-The CTP dependency first needs to be manually installed:
+Note: If you need to use Maven`<3.6`, you might need to remove some of the flags in the build scripts ([`bin/ctp/buildTestPackage.py`](bin/ctp/buildTestPackage.py#L39) and [`bin/ctp/installLibs.py`](bin/ctp/installLibs.py#L33)).
+
+Install the CTP dependency, build and test the projects by running:
 
 -   Linux
 
 ```bash
-$ cd lib/java/
-$ ./installDat.sh
+$ ./bin/ctp/buildTestPackage.py --install-libs local
 ```
 
 -   Windows
 
 ```bash
-$ cd lib\java\
-$ .\installDat.bat
+$ ./bin/ctp/buildTestPackage.py --install-libs local --skip-integration-tests
 ```
 
-The projects can then be built and tested by returning to the top level directory and running:
-
-```bash
-$ mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
-```
-
-This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `-PunitTests`. The entire test suite can be skipped by instead running `compile`, or by passing `-DskipTests`.
+This will compile and run the tests for the projects. The full test suite requires a local RabbitMQ server, however these can be skipped by passing `--skip-integration-tests`. The entire test suite can be skipped by passing `--skip-tests`.
 
 To build a single project and its dependencies, you can do:
 
 ```bash
 $ mvn -f src/common/com.smi.microservices.parent/pom.xml test -pl com.smi.microservices:ctpanonymiser -am
 ```
-
-Note: If you have Maven `>=3.6.1` then you can pass `-ntp` to each of the above commands in order to hide the large volume of messages related to the downloading of dependencies.
 
 ## Running
 
