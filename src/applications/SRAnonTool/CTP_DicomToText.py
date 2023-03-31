@@ -117,7 +117,7 @@ def extract_mongojson_file(input, output, metadata_output=None, DicomTextArgs = 
 
 def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = None):
     """ Extract text from a DICOM file.
-    intput - filename of DICOM file.
+    input - filename of DICOM file.
     output - can be a directory or a filename.
     For a directory the file is named by its SOPInstanceUID.
     metadata_output - likewise.
@@ -153,7 +153,7 @@ def extract_dicom_file(input, output, metadata_output=None, DicomTextArgs = None
 
 def extract_file(input, output, metadata_output=None, DicomTextArgs=None):
     """ Extract text from a DICOM file or a JSON file (from MongoDB).
-    intput - filename of DICOM/JSON file.
+    input - filename of DICOM/JSON file.
     output - can be a directory or a filename.
     For a directory the file is named by its SOPInstanceUID.
     metadata_output - likewise.
