@@ -6,55 +6,8 @@ import pydicom
 import re
 import random
 from SmiServices.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
+from SmiServices.StringUtils import string_match_ignore_linebreak, redact_html_tags_in_string
 
-
-# ---------------------------------------------------------------------
-
-def string_match(str1, str2):
-    """ String comparison which ignores carriage returns \r by treating as spaces
-    because that's how SemEHR new anonymiser delivers the string (in phi json anyway) """
-    if re.sub('[\r\n]', ' ', str1) == re.sub('[\r\n]', ' ', str2):
-        return True
-    return False
-
-def test_string_match():
-    assert(string_match('hello', 'hello'))
-    assert(string_match('hello\r\nworld', 'hello \nworld'))
-
-# ---------------------------------------------------------------------
-
-def redact_html_tags_in_string(html_str):
-    """ Replace the HTML tags in a string with equal length of a
-    repeating character (space or dot for example).
-    Handles multi-line tags such as <style> and <script> which
-    should have their enclosed text fully redacted.
-    Doesn't handle embedded html within those sections though,
-    so not truly robust but likely sufficient for simple html from
-    clinical software.
-    Returns the new string.
-    """
-    replchar = '.'
-    def replfunc(s):
-        return replchar.rjust(len(s.group(0)), replchar)
-    # Use re.I (ignore case) re.M (multi-line) re.S (dot matches all)
-    # re.S needed to match CR/LF when scripts are multi-line.
-    # First replace single-instance tags <script.../> and <style.../>
-    html_str = re.sub('<script[^>]*/>', replfunc, html_str)
-    html_str = re.sub('<style[^>]*/>',  replfunc, html_str)
-    html_str = re.sub('&nbsp;', '      ', html_str)
-    # Now replace the whole <script>...</script> and style sequence
-    html_str = re.sub('<script[^>]*>.*?</script>', replfunc, html_str, flags=re.I|re.M|re.S)
-    html_str = re.sub('<style[^>]*>.*?</style>', replfunc, html_str, flags=re.I|re.M|re.S)
-    # Finally remove single-instance tags like <p> and <br>
-    html_str = re.sub('</{0,1}(.DOCTYPE|a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|big|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|meta|meter|nav|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|source|span|strike|strong|style|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr)( [^<>]*){0,1}>', replfunc, html_str, flags=re.IGNORECASE)
-    return(html_str)
-
-def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3&nbsp;</p>'
-    dest = redact_html_tags_in_string(src)
-    # changing the \r to a space in the expected string also tests the string_match function
-    expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3      ....'
-    assert(string_match(dest, expected))
 
 # ---------------------------------------------------------------------
 
@@ -84,14 +37,22 @@ class DicomText:
     _include_unexpected_tags = False # SemEHR does not use unknown tags anyway so ignore them
     _warn_unexpected_tag = False     # print if an unexpected tag is encountered
     _replace_HTML_entities = True    # replace HTML tags with same length of space chars
+    _replace_HTML_char = '.'         # replace HTML tags with same length of space chars
+    _replace_newline_char = '\n'     # replace CR and LF with spaces
     _redact_random_length = False    # do not use True unless you're sure the change in length won't break something
     _redact_char = 'X'               # character used to redact text
     _redact_char_digit = '9'         # character used to redact digits in text
 
     def __init__(self, filename, \
         include_header = _include_header, \
-        replace_HTML_entities = _replace_HTML_entities):
+        replace_HTML_entities = _replace_HTML_entities, \
+        replace_HTML_char = _replace_HTML_char, \
+        replace_newline_char = _replace_newline_char):
         """ The DICOM file is read during construction.
+        If include_header is True some DICOM header fields are output (default True).
+        If replace_HTML_entities is True then all HTML is replaced by dots (default True).
+        If replace_HTML_char is given then it is used instead of dots (default is dots).
+        If replace_newline_char is given then it is used to replace \r and \n (default is \n).
         """
         self._p_text = '' # maintain string progress during plaintext walk
         self._r_text = '' # maintain string progress during redaction walk
@@ -104,11 +65,38 @@ class DicomText:
         # Copy class settings to instance settings with overrides
         self._include_header = include_header
         self._replace_HTML_entities = replace_HTML_entities
+        self._replace_HTML_char = replace_HTML_char
+        self._replace_newline_char = replace_newline_char
         # XXX do we need to decode the text?
         self._dicom_raw.decode()
 
     def __repr__(self):
         return f'<DicomText: {self._filename}>'
+
+    def setRedactChar(self, rchar):
+        """ Change the character used to anonymise/redact text.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        Only used for text not digits (see redact_char_digit).
+        See also redact_random_length.
+        This is a static class member not an instance member
+        so it applies to all instances of this class.
+        """
+        DicomText._redact_char = rchar
+
+    def setReplaceHTMLChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_HTML_char = rchar
+
+    def setReplaceNewlineChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_newline_char = rchar
 
     def SOPInstanceUID(self):
         """ Simply returns the SOPInstanceUID from the DICOM file
@@ -139,10 +127,13 @@ class DicomText:
             # "LO" Long String typically used for headings
             rc = rc + ('# %s' % str(data_element.value)) + '\n'
         else:
-            rc = rc + ('%s' % (str(data_element.value))) + '\n'
+            rc = rc + ('%s' % (str(data_element.value)))
             # Replace HTML tags with spaces
             if self._replace_HTML_entities:
-                rc = redact_html_tags_in_string(rc)
+                rc = redact_html_tags_in_string(rc,
+                    replace_char = self._replace_HTML_char,
+                    replace_newline = self._replace_newline_char)
+            rc += '\n'
         if rc == '':
             return
         self._offset_list.append( { 'offset':len(self._p_text), 'string': rc} )
@@ -178,13 +169,15 @@ class DicomText:
         # Now handle the TextValue tag
         # Wrap the text with [[Text]] and [[EndText]] for SemEHR
         if 'TextValue' in self._dicom_raw:
-            textval = str(self._dicom_raw['TextValue'].value + '\n')
+            textval = str(self._dicom_raw['TextValue'].value)
             self._p_text = self._p_text + '[[Text]]\n'
             if self._replace_HTML_entities:
-                self._p_text = self._p_text + redact_html_tags_in_string(textval)
+                self._p_text = self._p_text + redact_html_tags_in_string(textval,
+                    replace_char = self._replace_HTML_char,
+                    replace_newline = self._replace_newline_char)
             else:
                 self._p_text = self._p_text + textval
-            self._p_text = self._p_text + '[[EndText]]\n'
+            self._p_text = self._p_text + '\n[[EndText]]\n'
         # Now the text in the ContentSequence
         # Wrap the text with [[ContentSequence]] and [[EndContentSequence]] for SemEHR
         if 'ContentSequence' in self._dicom_raw:
@@ -208,7 +201,8 @@ class DicomText:
             redact_char = DicomText._redact_char_digit
         if DicomText._redact_random_length:
             redact_length = random.randint(-int(rlen/2), int(rlen/2))
-        rc = plaintext[0:offset] + redact_char.rjust(redact_length, redact_char) + plaintext[offset+rlen:]
+        redacted_part = redact_char.rjust(redact_length, redact_char) if redact_char else ''
+        rc = plaintext[0:offset] + redacted_part + plaintext[offset+rlen:]
         return rc
 
     def _dataset_redact_callback(self, dataset, data_element):
@@ -249,8 +243,10 @@ class DicomText:
                 # SemEHR may have an extra line at the start so start_char offset need adjusting
                 for offset in [self._redact_offset] + list(range(-32, 32)):
                     # Do the comparison using text without html but replace inside text with html
-                    rc_without_html = redact_html_tags_in_string(rc) if self._replace_HTML_entities else rc
-                    if string_match(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
+                    rc_without_html = redact_html_tags_in_string(rc,
+                        replace_char = self._replace_HTML_char,
+                        replace_newline = self._replace_newline_char) if self._replace_HTML_entities else rc
+                    if string_match_ignore_linebreak(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at, data_element.VR)
                         replaced = replacedAny = True
                         annot['replaced'] = True
