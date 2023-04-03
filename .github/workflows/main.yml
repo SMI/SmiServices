@@ -59,9 +59,9 @@ jobs:
         uses: actions/checkout@v3
       - name: "[windows] start MongoDB service"
         if: ${{ matrix.os == 'windows' }}
-        shell: pwsh
+        shell: cmd
         run: |
-          reg.exe add HKLM\\System\\CurrentControlSet\\Control /v ServicesPipeTimeout /t REG_DWORD /d 300000
+          reg.exe add HKLM\System\CurrentControlSet\Control /v ServicesPipeTimeout /t REG_DWORD /d 300000
           sc.exe config MongoDB start= auto
           sc.exe start MongoDB
       - name: setup .NET
