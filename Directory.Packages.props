@@ -13,7 +13,7 @@
     <PackageVersion Include="HIC.FAnsiSql" Version="3.0.1"/>
     <PackageVersion Include="HIC.RDMP.Dicom" Version="6.0.2"/>
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.0.7"/>
-    <PackageVersion Include="IsIdentifiable" Version="0.0.9"/>
+    <PackageVersion Include="IsIdentifiable" Version="0.1.0"/>
     <PackageVersion Include="JetBrains.Annotations" Version="2022.3.1"/>
     <PackageVersion Include="LibArchive.Net" Version="0.1.3"/>
     <PackageVersion Include="LineReader" Version="0.1.0"/>
