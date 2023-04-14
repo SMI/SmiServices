@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using Microservices.IsIdentifiable.Service;
 using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using System.IO.Abstractions;
 
 namespace Microservices.IsIdentifiable.Tests.Service
 {
@@ -28,7 +29,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_NoClassifier));
 
             options.IsIdentifiableServiceOptions.ClassifierType = "";
-            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options));
+            var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options, new FileSystem()));
             StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableServiceOptions.ClassifierType), ex.Message);
         }
 
@@ -39,7 +40,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableServiceOptions.ClassifierType = "HappyFunTimes";
-            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options));
+            var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options, new FileSystem()));
             StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex.Message);
         }
 
@@ -48,7 +49,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
         {
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_ValidClassifier));
 
-            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
+            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm"));
             TestData.Create(testDcm);
 
             using var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions);
@@ -61,7 +62,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             Directory.CreateDirectory(extractRoot);
             options.FileSystemOptions.ExtractRoot = extractRoot;
 
-            var host = new IsIdentifiableHost(options);
+            var host = new IsIdentifiableHost(options, new FileSystem());
             Assert.IsNotNull(host);
             host.Start();
 
@@ -103,7 +104,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             using var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions);
             options.IsIdentifiableServiceOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
 
-            var host = new IsIdentifiableHost(options);
+            var host = new IsIdentifiableHost(options, new FileSystem());
             host.Start();
 
             tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage

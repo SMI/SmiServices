@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution;
+using Microservices.CohortExtractor.Execution;
 using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.DicomAnonymiser;
@@ -19,6 +19,7 @@ using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 
@@ -85,7 +86,7 @@ namespace Setup
 
             Add(Microservices, "CohortExtractor", ()=> Probe(nameof(CohortExtractorHost), (o) => new CohortExtractorHost(o, null, null)));
             Add(Microservices, "DicomAnonymiser", () => Probe(nameof(DicomAnonymiserHost), (o) => new DicomAnonymiserHost(o)));
-            Add(Microservices, "IsIdentifiable", ()=> Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o)));
+            Add(Microservices, "IsIdentifiable", ()=> Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o, new FileSystem())));
             Add(Microservices, "CohortPackager", () => Probe(nameof(CohortPackagerHost), (o) => new CohortPackagerHost(o)));
             Add(Microservices, "DicomRelationalMapper", () => Probe(nameof(DicomRelationalMapperHost), (o) => new DicomRelationalMapperHost(o)));
             Add(Microservices, "IdentifierMapper", () => Probe(nameof(IdentifierMapperHost), (o) => new IdentifierMapperHost(o)));
