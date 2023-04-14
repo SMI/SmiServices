@@ -1,6 +1,7 @@
 using Equ;
 using JetBrains.Annotations;
 using System;
+using System.IO.Abstractions;
 using System.Text;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -94,7 +95,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             string[] split = ExtractionDirectory.Split('/', '\\');
             return split[^1];
         }
-        
+
         /// <summary>
         /// Returns the project extraction directory (first two parts of projName/extractions/extractName)
         /// </summary>
@@ -103,6 +104,16 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         {
             int idx = ExtractionDirectory.LastIndexOfAny(new[] { '/', '\\' });
             return ExtractionDirectory.Substring(0, idx);
+        }
+
+        /// <summary>
+        /// Returns the reports directory for this extraction. Will be of the form projName/extractions/reports/extractionName.
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <returns></returns>
+        public string ExtractionReportsDir(IFileSystem fileSystem)
+        {
+            return fileSystem.Path.Combine(ProjectNumber, "extractions", "reports", ExtractionName());
         }
 
         public override string ToString()

@@ -5,6 +5,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ImplicitUsings>disable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
     <LangVersion>10.0</LangVersion>

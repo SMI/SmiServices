@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
@@ -125,7 +125,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
 
             _jobStore.MarkJobCompleted(jobId);
 
-            _reporter.CreateReport(jobId);
+            _reporter.CreateReports(jobId);
             _logger.Info($"Report for {jobId} created");
 
             _notifier.NotifyJobCompleted(jobInfo);

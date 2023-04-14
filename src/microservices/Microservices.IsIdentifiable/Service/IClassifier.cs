@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
+using IsIdentifiable.Reporting;
+using System.Collections.Generic;
 using System.IO.Abstractions;
-using Failure = IsIdentifiable.Reporting.Failure;
 
 namespace Microservices.IsIdentifiable.Service
 {
@@ -10,7 +9,7 @@ namespace Microservices.IsIdentifiable.Service
         /// <summary>
         /// The location in which you can get your required data files
         /// </summary>
-        DirectoryInfo DataDirectory { get; set; }
+        IDirectoryInfo DataDirectory { get; set; }
 
         IEnumerable<Failure> Classify(IFileInfo dcm);
     }

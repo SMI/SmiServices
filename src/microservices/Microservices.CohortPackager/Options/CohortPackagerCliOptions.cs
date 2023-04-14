@@ -1,7 +1,6 @@
-﻿using CommandLine;
+using CommandLine;
 using CommandLine.Text;
 using JetBrains.Annotations;
-using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -21,16 +20,6 @@ namespace Microservices.CohortPackager.Options
         public Guid ExtractionId { get; set; }
 
         [Option(
-            'f',
-            "format",
-            Required = false,
-            Default = ReportFormat.Combined,
-            HelpText = "[Optional] The report format to use when --recreate-report is specified. This value (even when the default is used) overrides any value set in the YAML config"
-        )]
-        [UsedImplicitly]
-        public ReportFormat ReportFormat { get; set; }
-
-        [Option(
             'o',
             "output-newline",
             Required = false,
@@ -45,8 +34,8 @@ namespace Microservices.CohortPackager.Options
         {
             get
             {
-                yield return new Example("Normal scenario - run as a service", new CohortPackagerCliOptions { ExtractionId = Guid.Empty });
-                yield return new Example("Recreate a single report", new CohortPackagerCliOptions { ExtractionId = Guid.NewGuid(), ReportFormat = ReportFormat.Split });
+                yield return new Example("Run CohortPackager as a service", new CohortPackagerCliOptions { ExtractionId = Guid.Empty });
+                yield return new Example("Recreate a single report", new CohortPackagerCliOptions { ExtractionId = Guid.NewGuid() });
             }
         }
     }

@@ -1,23 +1,22 @@
-﻿using System;
+using IsIdentifiable.Reporting;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Failure = IsIdentifiable.Reporting.Failure;
 
 namespace Microservices.IsIdentifiable.Service
 {
     public abstract class Classifier : IClassifier
     {
-        public DirectoryInfo DataDirectory { get; set; }
+        public IDirectoryInfo DataDirectory { get; set; }
 
 
-        protected Classifier(DirectoryInfo dataDirectory)
+        protected Classifier(IDirectoryInfo dataDirectory)
         {
             DataDirectory = dataDirectory;
 
             if(!DataDirectory.Exists)
-                throw new DirectoryNotFoundException($"Could not find directory {DataDirectory.FullName}");
+                throw new System.IO.DirectoryNotFoundException($"Could not find directory {DataDirectory.FullName}");
         }
 
         public abstract IEnumerable<Failure> Classify(IFileInfo dcm);
@@ -27,12 +26,12 @@ namespace Microservices.IsIdentifiable.Service
         /// </summary>
         /// <param name="toFind"></param>
         /// <returns></returns>
-        protected DirectoryInfo GetSubdirectory(string toFind)
+        protected IDirectoryInfo GetSubdirectory(string toFind)
         {
             var stanfordNerDir = DataDirectory.GetDirectories(toFind).SingleOrDefault();
             
             if(stanfordNerDir == null)
-                throw new DirectoryNotFoundException($"Expected sub-directory called '{toFind}' to exist in '{DataDirectory}'");
+                throw new System.IO.DirectoryNotFoundException($"Expected sub-directory called '{toFind}' to exist in '{DataDirectory}'");
 
             return stanfordNerDir;
         }
@@ -45,13 +44,13 @@ namespace Microservices.IsIdentifiable.Service
         /// <param name="searchPattern"></param>
         /// <param name="directory"></param>
         /// <returns></returns>
-        protected FileInfo FindOneFile(string searchPattern, DirectoryInfo directory)
+        protected IFileInfo FindOneFile(string searchPattern, IDirectoryInfo directory)
         {
-            var files = directory.GetFiles(searchPattern, SearchOption.AllDirectories).ToArray();
+            var files = directory.GetFiles(searchPattern, System.IO.SearchOption.AllDirectories).ToArray();
 
             return files.Length switch
             {
-                0 => throw new FileNotFoundException(
+                0 => throw new System.IO.FileNotFoundException(
                     $"Expected 1 file matching '{searchPattern}' to exist in {directory}"),
                 > 1 => throw new Exception(
                     $"Found '{files.Length}' file matching '{searchPattern}' in {directory} (expected 1)"),

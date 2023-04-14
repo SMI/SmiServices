@@ -1,26 +1,33 @@
-﻿using System.IO;
 using IsIdentifiable.Options;
 using Microservices.IsIdentifiable.Service;
 using NUnit.Framework;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Microservices.IsIdentifiable.Tests.Service
 {
     class TesseractStanfordDicomFileClassifierTests
     {
+        private MockFileSystem _fileSystem;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _fileSystem = new MockFileSystem();
+        }
+
         [Test]
         public void TestDataDirectory_DoesNotExist()
         {
-            var d = new DirectoryInfo("asdflsdfjadfshsdfdsafldsf;dsfldsafj");
-            Assert.Throws<DirectoryNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableDicomFileOptions()));
+            var d = _fileSystem.DirectoryInfo.New("asdflsdfjadfshsdfdsafldsf;dsfldsafj");
+            Assert.Throws<System.IO.DirectoryNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableDicomFileOptions()));
         }
+
         [Test]
         public void TestDataDirectory_Empty()
         {
-            var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, nameof(TestDataDirectory_Empty));
-
-            var d = new DirectoryInfo(path);
+            var d = _fileSystem.DirectoryInfo.New(nameof(TestDataDirectory_Empty));
             d.Create();
-            Assert.Throws<FileNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableDicomFileOptions()));
+            Assert.Throws<System.IO.FileNotFoundException>(()=>new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableDicomFileOptions()));
         }
     }
 }

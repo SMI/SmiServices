@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Smi.Common.Messages.Extraction;
 using System;
 
 
@@ -9,24 +10,30 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
     /// </summary>
     public class FileAnonFailureInfo
     {
-        // TODO(rkm 2020-10-27) This should probably instead reference the source file which failed to anonymise
         /// <summary>
-        /// The path of the output DICOM file which could not be extracted
+        /// The source DICOM file, relative to the filesystem root
         /// </summary>
-        [NotNull] public readonly string ExpectedAnonFile;
+        [NotNull] public readonly string DicomFilePath;
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        [NotNull] public readonly ExtractedFileStatus Status;
 
         /// <summary>
         /// The reason for the file not being extracted
         /// </summary>
-        [NotNull] public readonly string Reason;
+        [NotNull] public readonly string StatusMessage;
 
         public FileAnonFailureInfo(
-            [NotNull] string expectedAnonFile,
-            [NotNull] string reason
+            [NotNull] string dicomFilePath,
+            ExtractedFileStatus status,
+            [NotNull] string statusMessage
         )
         {
-            ExpectedAnonFile = string.IsNullOrWhiteSpace(expectedAnonFile) ? throw new ArgumentException(nameof(expectedAnonFile)) : expectedAnonFile;
-            Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException(nameof(reason)) : reason;
+            DicomFilePath = string.IsNullOrWhiteSpace(dicomFilePath) ? throw new ArgumentException(null, nameof(dicomFilePath)) : dicomFilePath;
+            Status = (status == default || status.ExtractionSucceeded()) ? throw new ArgumentException("Invalid status (default or successful)", nameof(status)) : status;
+            StatusMessage = string.IsNullOrWhiteSpace(statusMessage) ? throw new ArgumentException(null, nameof(statusMessage)) : statusMessage;
         }
     }
 }

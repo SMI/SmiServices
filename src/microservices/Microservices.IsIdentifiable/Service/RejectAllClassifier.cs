@@ -9,7 +9,7 @@ namespace Microservices.IsIdentifiable.Service
 {
     public class RejectAllClassifier: Classifier
     {
-        public RejectAllClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions _) : base(dataDirectory)
+        public RejectAllClassifier(IDirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions _) : base(dataDirectory)
         {
         }
 
