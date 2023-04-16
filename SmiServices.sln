@@ -107,6 +107,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomLoader.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Setup", "src\applications\Setup\Setup.csproj", "{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.ServiceTester", "src\applications\Applications.ServiceTester\Applications.ServiceTester.csproj", "{3307EC58-1634-4074-AC4D-0A71B77847B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|arm64 = Debug|arm64
@@ -411,6 +413,14 @@ Global
 		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Release|arm64.Build.0 = Release|arm64
 		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Release|x64.ActiveCfg = Release|x64
 		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}.Release|x64.Build.0 = Release|x64
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Debug|x64.Build.0 = Debug|Any CPU
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Release|x64.ActiveCfg = Release|Any CPU
+		{3307EC58-1634-4074-AC4D-0A71B77847B6}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -455,6 +465,7 @@ Global
 		{7511DB5B-F806-4B2C-AD2D-0054F143728F} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{28162388-F036-478B-97B2-7AD407AECD92} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{3307EC58-1634-4074-AC4D-0A71B77847B6} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

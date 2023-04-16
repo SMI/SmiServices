@@ -13,6 +13,7 @@ namespace Applications.SmiRunner
             typeof(DicomLoaderVerb),
             typeof(DicomDirectoryProcessorVerb),
             typeof(ExtractImagesVerb),
+            typeof(ServiceTesterVerb),
             typeof(TriggerUpdatesVerb),
             typeof(SetupVerb),
         };
@@ -56,6 +57,7 @@ namespace Applications.SmiRunner
                             TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
                             ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
+                            ServiceTesterVerb => Applications.ServiceTester.Program.Main(rest),
                             SetupVerb _ => Setup.Program.Main(rest),
 
                             // Microservices

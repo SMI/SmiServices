@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Applications.DicomDirectoryProcessor\Applications.DicomDirectoryProcessor.csproj" />
     <ProjectReference Include="..\Applications.DicomLoader\Applications.DicomLoader.csproj" />
     <ProjectReference Include="..\Applications.ExtractImages\Applications.ExtractImages.csproj" />
+    <ProjectReference Include="..\Applications.ServiceTester\Applications.ServiceTester.csproj" />
     <ProjectReference Include="..\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj" />
     <ProjectReference Include="..\Setup\Setup.csproj" />
   </ItemGroup>
