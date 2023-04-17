@@ -55,7 +55,7 @@ namespace Applications.ServiceTester
                 string.IsNullOrWhiteSpace(parsedOptions.MessageFilePath) ||
                 string.IsNullOrWhiteSpace(parsedOptions.ExchangeName))
             {
-                Console.Error.WriteLine($"MessageFilePath and ExchangeName are required");
+                Console.Error.WriteLine($"MessageFilePath and ExchangeName are required for sending messages");
                 return 1;
             }
 

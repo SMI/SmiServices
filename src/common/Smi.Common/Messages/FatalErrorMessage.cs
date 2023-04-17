@@ -1,4 +1,4 @@
-﻿
+
 using Equ;
 using Newtonsoft.Json;
 using System;
@@ -13,6 +13,9 @@ namespace Smi.Common.Messages
         [JsonProperty(Required = Required.DisallowNull)]
         public Exception Exception { get; set; }
 
+
+        [JsonConstructor]
+        public FatalErrorMessage() { }
 
         public FatalErrorMessage(string message, Exception exception)
         {
