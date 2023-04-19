@@ -10,8 +10,8 @@
 
 prog=$(basename "$0")
 progdir=$(dirname "$0")
-usage="usage: ${prog} [-d] [-v] [-e virtualenv] [-s semehr_root] -i read_from.dcm  -o write_into.dcm"
-options="dve:s:i:o:"
+usage="usage: ${prog} [-d] [-v] [-e virtualenv] [-s semehr_root] [-y yaml] -i read_from.dcm  -o write_into.dcm"
+options="dve:s:y:i:o:"
 semehr_dir="/opt/semehr"
 virtenv=""
 debug=0
@@ -66,6 +66,7 @@ case $var in
 	d) debug=1;;
 	v) verbose=1;;
 	e) virtenv="$OPTARG";;
+	y) default_yaml0="$OPTARG";;
 	i) input_dcm="$OPTARG";;
 	o) output_dcm="$OPTARG";;
 	s) semehr_dir="$OPTARG";;
@@ -91,14 +92,19 @@ if [ "$virtenv" != "" ]; then
 	fi
 fi
 
-# Find the config files
-if [ -d $SMI_ROOT/configs ]; then
-	default_yaml0="$SMI_ROOT/configs/smi_dataLoad_mysql.yaml"
-	default_yaml1="$SMI_ROOT/configs/smi_dataExtract.yaml"
-else
-	default_yaml0="${progdir}/../../../data/microserviceConfigs/default.yaml"
+# Find the config files, if not specified try SMI defaults otherwise in the repo
+if [ "$default_yaml0" == "" ]; then
+	if [ -f "$SMI_ROOT/configs/smi_dataExtract.yaml" ]; then
+		default_yaml0="$SMI_ROOT/configs/smi_dataLoad_mysql.yaml"
+		default_yaml1="$SMI_ROOT/configs/smi_dataExtract.yaml"
+	else
+		default_yaml0="${progdir}/../../../data/microserviceConfigs/default.yaml"
+	fi
+fi
+if [ "$default_yaml1" == "" ]; then
 	default_yaml1="$default_yaml0"
 fi
+
 
 # ---------------------------------------------------------------------
 # Determine the SemEHR filenames - create per-process directories
