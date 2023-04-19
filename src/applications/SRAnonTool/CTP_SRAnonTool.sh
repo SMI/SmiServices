@@ -79,7 +79,8 @@ if [ ! -f "$input_dcm" ]; then
 	tidy_exit 2 "ERROR: cannot read input file '${input_dcm}'"
 fi
 if [ ! -f "$output_dcm" ]; then
-	tidy_exit 3 "ERROR: cannot write to ${output_dcm} because it must already exist"
+	#tidy_exit 3 "ERROR: cannot write to ${output_dcm} because it must already exist"
+	cp "$input_dcm" "$output_dcm"
 fi
 
 # Activate the virtual environment
