@@ -29,6 +29,7 @@ import pydicom
 import re
 from deepmerge import Merger    # for deep merging yaml dictionaries
 from SmiServices import Mongo
+from SmiServices import Dicom
 from SmiServices import DicomText
 from SmiServices import StructuredReport as SR
 from SmiServices import IdentifierMapper
@@ -81,10 +82,10 @@ def extract_mongojson(mongojson, output, metadata_output=None, DicomTextArgs = N
         DicomTextArgs = {}
 
     if os.path.isdir(output):
-        filename = mongojson['SOPInstanceUID'] + '.txt'
+        filename = Dicom.tag_val(mongojson,'SOPInstanceUID', atomic=True) + '.txt'
         output = os.path.join(output, filename)
     if metadata_output and os.path.isdir(metadata_output):
-        mfilename = mongojson['SOPInstanceUID'] + '.json'
+        mfilename = Dicom.tag_val(mongojson,'SOPInstanceUID', atomic=True) + '.json'
         metadata_output = os.path.join(metadata_output, mfilename)
     logging.info('Parse %s' % mongojson.get('header',{}).get('DicomFilePath','<NoFilePath?>'))
     if 'PatientID' in mongojson:
