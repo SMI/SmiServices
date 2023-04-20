@@ -367,6 +367,22 @@ class StructuredReport:
 
 
     # ---------------------------------------------------------------------
+    def find_PersonNames(self, json_dict, names_list):
+        """ Return a list of names (decoded from PN format having ^ separators)
+        from all of the 'PersonName' tags (which probably does not include any
+        top-level tags with a vr of PN). This is a recursive function.
+        Returns the names in the names_list list which must already exist.
+        """
+        if isinstance(json_dict, list):
+            for item in json_dict:
+                self.find_PersonNames(item, names_list)
+        elif isinstance(json_dict, dict):
+            if 'PersonName' in json_dict:
+                return names_list.append(Dicom.sr_decode_PNAME(tag_val(json_dict, 'PersonName', atomic=True)))
+            for item in json_dict.keys():
+                self.find_PersonNames(json_dict[item], names_list)
+
+    # ---------------------------------------------------------------------
     # Internal function to parse a DICOM tag which calls itself recursively
     # when it finds a sequence
     # Uses str_output_string to format the output.
@@ -424,6 +440,10 @@ class StructuredReport:
                 print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
 
     def SR_parse(self, json_dict, doc_name, fp = sys.stdout):
+        """ Parse a Structured Report held in a python dictionary
+        which has come from MongoDB or from dcm2json
+        Output to the file pointer fp (default is stdout).
+        """
 
         self._SR_output_string('Document name', doc_name, fp)
 
@@ -432,6 +452,12 @@ class StructuredReport:
         # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
         for sr_extract_dict in sr_keys_to_extract:
             self._SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+        # Now output [[Other Names]] for all the elements having vr of PN
+        names_list = []
+        self.find_PersonNames(json_dict, names_list)
+        print(names_list)
+        for name in names_list:
+            self._SR_output_string('Other Names', name, fp)
 
         # Now output all the remaining tags which are not ignored
         for json_key in json_dict:
