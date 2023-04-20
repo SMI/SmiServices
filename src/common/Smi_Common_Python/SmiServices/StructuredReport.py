@@ -342,9 +342,13 @@ class StructuredReport:
         # The Key may also be a list but only take first element
         if isinstance(keystr, list):
             keystr = keystr[0]
+        # Handle a value like { "Alphabetic": "my name" }
+        if isinstance(valstr, dict) and 'Alphabetic' in valstr:
+            valstr = valstr['Alphabetic']
         # If there is no value the do not print anything at all
         if valstr == None or valstr == '':
             return
+        # XXX should we be using Dicom.sr_decode_PNAME if it's a PN/PNAME ???
         # Replace CRs with LF
         valstr = re.sub('\r+', '\n', valstr)
         # Replace HTML tags such as <br>
