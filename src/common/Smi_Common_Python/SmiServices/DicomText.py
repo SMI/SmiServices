@@ -5,6 +5,7 @@ import os
 import pydicom
 import re
 import random
+from SmiServices import Dicom
 from SmiServices.StructuredReport import sr_keys_to_extract, sr_keys_to_ignore
 from SmiServices.StringUtils import string_match_ignore_linebreak, redact_html_tags_in_string
 
@@ -115,6 +116,15 @@ class DicomText:
         else:
             return ''
 
+    def list_of_PNAMEs(self):
+        """ Return a list of the values of all tags with a VR of PN
+        """
+        names = set()
+        for elem in self._dicom_raw.iterall():
+            if elem.VR == 'PN' and len(str(elem.value)):
+                names.add(str(elem.value))
+        return list(names)
+
     def _dataset_read_callback(self, dataset, data_element):
         """ Internal function called during a walk of the dataset.
         Builds a class-member string _p_text as it goes.
@@ -148,10 +158,16 @@ class DicomText:
         #  except explicitly do not include TextValue, handled below
         list_of_tagname_desired = [ k['tag'] for k in sr_keys_to_extract ]
         if self._include_header:
+            # Add all the known [[something]] headers
             for srkey in sr_keys_to_extract:
                 if srkey['tag'] in self._dicom_raw and srkey['tag'] != 'TextValue':
                     line = '[[%s]] %s\n' % (srkey['label'], srkey['decode_func'](str(self._dicom_raw[srkey['tag']].value)))
                     self._p_text = self._p_text + line
+            # Collect all names in the whole document and add [[Other Names]] header
+            names_list = self.list_of_PNAMEs()
+            for name in names_list:
+                line = '[[Other Names]] %s\n' % Dicom.sr_decode_PNAME(name)
+                self._p_text = self._p_text + line
         # Now read ALL tags and use a blacklist (and ignore already done in whitelist).
         # Private tags will have tagname='' so ignore those too.
         if self._include_header:
@@ -384,6 +400,7 @@ Internal derangement of the right knee with marked injury and with partial tear 
 [[Patient Birth Date]] 19781024
 [[Patient Sex]] M
 [[Referring Physician Name]] 
+[[Other Names]] John R Walz
 [[ContentSequence]]
 # Request
 MRI: Knee
