@@ -458,6 +458,12 @@ def test_SR_parse_key():
                         ]
                     },
                     "TextValue": { "vr": "UT", "Value": [ "MRI: Knee" ] }
+                },
+                {
+                  "RelationshipType": { "vr": "CS", "Value": [ "CONTAINS" ] },
+                  "ValueType": { "vr": "CS", "Value": [ "PNAME" ] },
+                  "ConceptNameCodeSequence": { "vr": "SQ", "Value": [ { "CodeMeaning": { "vr": "LO", "Value": [ "Physician" ] } } ] },
+                  "PersonName": { "vr": "PN", "Value": [ { "Alphabetic": "Klugman^^^Dr." } ] }
                 }
             ]
         }
@@ -470,18 +476,18 @@ def test_SR_parse_key():
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] MRI: Knee\n')
+        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
 
     # Add some HTML into the string and check it's redacted
     SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] ..........................MRI: Knee\n')
+        assert(fd.read() == '[[Request]] ..........................MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
 
     # Check that the HTML redaction can also squash (remove) characters
     sr.setReplaceHTMLChar('')
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] MRI: Knee\n')
+        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
