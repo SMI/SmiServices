@@ -1,9 +1,9 @@
 ## CI Status
 
 [![main](https://github.com/smi/SmiServices/actions/workflows/main.yml/badge.svg)](https://github.com/smi/SmiServices/actions/workflows/main.yml)
+[![CodeQL](https://github.com/SMI/SmiServices/actions/workflows/codeql.yml/badge.svg)](https://github.com/SMI/SmiServices/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/SMI/SmiServices/branch/master/graph/badge.svg?token=O6G26DHLEY)](https://codecov.io/gh/SMI/SmiServices)
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/SmiServices.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/SmiServices/alerts/)
 
 Version: `5.3.0`
 
