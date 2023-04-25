@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/SMI/SmiServices/branch/master/graph/badge.svg?token=O6G26DHLEY)](https://codecov.io/gh/SMI/SmiServices)
 ![GitHub](https://img.shields.io/github/license/SMI/SmiServices)
 
-Version: `5.3.0`
+Version: `5.4.0`
 
 # SMI Services
 
