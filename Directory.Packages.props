@@ -32,7 +32,7 @@
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.15"/>
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.0.7"/>
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.5.0"/>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
     <PackageVersion Include="Moq" Version="4.18.4"/>
     <PackageVersion Include="NUnit" Version="3.13.3"/>
     <PackageVersion Include="NUnit3TestAdapter" Version="4.4.2"/>
