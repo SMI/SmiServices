@@ -257,7 +257,7 @@ class DicomText:
                 #if not replaced:
                 #    print('WARNING: offsets slipped:')
                 #    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
-        if data_element.VR == 'PN' or data_element.VR == 'DA':
+        if data_element.VR == 'PN' or data_element.VR == 'DA' or data_element.VR == 'DT':
             # Always fully redact the content of PersonName and Date tags
             replacement = self.redact_string(rc, 0, len(rc), data_element.VR)
             replacedAny = True
@@ -300,6 +300,8 @@ class DicomText:
             data_element.value = DicomText._redact_char.rjust(len(data_element.value), DicomText._redact_char)
         if data_element.VR == "DA":
             data_element.value = "19000101"
+        if data_element.VR == "DT":
+            data_element.value = "19000101000000"
 
     def text(self):
         """ Returns the text after parse() has been called.
