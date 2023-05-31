@@ -215,7 +215,7 @@ namespace Smi.Common.Tests
                 Layout = "${message}"
             };
 
-            NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);          
+            LogManager.Setup().LoadConfiguration(x => x.ForLogger(LogLevel.Debug).WriteTo(target));
 
             var o = new GlobalOptionsFactory().Load(nameof(Test_Shutdown));
 
