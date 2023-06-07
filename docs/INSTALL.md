@@ -32,8 +32,10 @@ MySQL databases will be:
 
 -   Download the files in this directory (currently [install.sh](install.sh) and [schema.sql](schema.sql)), make install.sh executable.
 
-`chmod +x install.sh
-./install.sh`
+```
+chmod +x install.sh
+./install.sh
+```
 
 TODO:
 
