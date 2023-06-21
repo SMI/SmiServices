@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\microservices\Updating\Microservices.UpdateValues\Microservices.UpdateValues.csproj" />
     <ProjectReference Include="..\Applications.DicomDirectoryProcessor\Applications.DicomDirectoryProcessor.csproj" />
     <ProjectReference Include="..\Applications.DicomLoader\Applications.DicomLoader.csproj" />
+    <ProjectReference Include="..\Applications.DynamicRulesTester\Applications.DynamicRulesTester.csproj" />
     <ProjectReference Include="..\Applications.ExtractImages\Applications.ExtractImages.csproj" />
     <ProjectReference Include="..\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj" />
     <ProjectReference Include="..\Setup\Setup.csproj" />

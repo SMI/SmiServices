@@ -11,13 +11,17 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
     {
         private string _dynamicRules;
         private Script<string> _script;
-        public const string DynamicRulesPath = "./DynamicRules.txt";
-        public DynamicRejector()
+        private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
+
+        public DynamicRejector(string dynamicRulesPath)
         {
-            if(!File.Exists(DynamicRulesPath))
-                throw new FileNotFoundException($"Could not find rules file '{DynamicRulesPath}'");
+            if(dynamicRulesPath == null)
+                dynamicRulesPath = DefaultDynamicRulesPath;
+
+            if(!File.Exists(dynamicRulesPath))
+                throw new FileNotFoundException($"Could not find rules file '{dynamicRulesPath}'");
             
-            _dynamicRules = File.ReadAllText(DynamicRulesPath);
+            _dynamicRules = File.ReadAllText(dynamicRulesPath);
 
             try
             {
@@ -27,7 +31,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
             }
             catch (CompilationErrorException e)
             {
-                throw new Exception($"Failed to compile {DynamicRulesPath} " + string.Join(Environment.NewLine, e.Diagnostics),e);
+                throw new Exception($"Failed to compile {dynamicRulesPath} " + string.Join(Environment.NewLine, e.Diagnostics),e);
             }
         }
 

@@ -18,6 +18,9 @@ namespace Applications.SmiRunner
     [Verb("dicom-loader",HelpText = "Load DICOM files into MongoDB")]
     public sealed class DicomLoaderVerb : ApplicationVerbBase { }
 
+    [Verb("dynamic-rules-tester", HelpText = "Tester for DynamicRule configurations")]
+    public sealed class DynamicRulesTesterVerb : ApplicationVerbBase { }
+
     [Verb("dicom-directory-processor", HelpText = "Queue dicom files on disk for ETL")]
     public sealed class DicomDirectoryProcessorVerb : ApplicationVerbBase { }
 
