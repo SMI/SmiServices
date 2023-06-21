@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Data;
 using System.Data.Common;
 using System.IO;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -32,16 +33,17 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
 
         public class Payload
         {
-            public Payload(DbDataReader dbDataReader)
+            public Payload(IDataRecord dbDataReader)
             {
                 row = dbDataReader;
             }
 
             // ReSharper disable once InconsistentNaming (use this name because it should look like a local in the script).
-            public DbDataReader row { get; set; }
+            public IDataRecord row { get; set; }
         }
 
-        public bool Reject(DbDataReader row, out string reason)
+        /// <inheritdoc/>
+        public bool Reject(IDataRecord row, out string reason)
         {
             var result = _script.RunAsync(globals: new Payload(row)).Result;
 
