@@ -8,25 +8,50 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace Applications.DynamicRulesTester;
 
 public static class Program
 {
     private static ILogger _logger = LogManager.GetCurrentClassLogger();
+    private static IFileSystem _fileSystem;
 
-    public static int Main(IEnumerable<string> args)
+    public static int Main(IEnumerable<string> args, IFileSystem fileSystem = null)
     {
-        return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, typeof(Program), OnParse);
+        _fileSystem = fileSystem ?? new FileSystem();
+
+        try
+        {
+            return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, typeof(Program), OnParse);
+        }
+        catch (Exception e)
+        {
+            _logger.Error(e, $"Unhandled exception during execution");
+            return 2;
+        }
     }
 
     private static int OnParse(GlobalOptions _, DynamicRulesTesterCliOptions cliOptions)
     {
-        var dynamicRejector = new DynamicRejector(cliOptions.DynamicRulesFile);
-        var jsonRecord = new JsonFileRecord(cliOptions.TestRowFile);
+        var dynamicRejector = new DynamicRejector(cliOptions.DynamicRulesFile, _fileSystem);
 
-        if (dynamicRejector.Reject(jsonRecord, out string reason))
+        using var stream = _fileSystem.File.OpenRead(cliOptions.TestRowFile);
+        using var reader = new System.IO.StreamReader(stream);
+        var jsonString = reader.ReadToEnd();
+
+        if (string.IsNullOrWhiteSpace(jsonString))
+        {
+            _logger.Error("Test record is empty ...");
+            return 1;
+        }
+
+        _logger.Debug($"Loaded test row JSON:\n{jsonString}");
+
+        var rowItems = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
+        var jsonFileRecord = new JsonFileRecord(rowItems);
+
+        if (dynamicRejector.Reject(jsonFileRecord, out string reason))
         {
             _logger.Warn($"Rejection reason was:'{reason}'");
             return 1;
@@ -62,13 +87,9 @@ public static class Program
     {
         private readonly IDictionary<string, string> _items;
 
-        public JsonFileRecord(string fileName)
+        public JsonFileRecord(Dictionary<string, string> items)
         {
-            using var reader = new StreamReader(fileName);
-            var jsonString = reader.ReadToEnd();
-            _logger.Debug($"Loaded test row JSON:\n{jsonString}");
-
-            _items = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
+            _items = items;
         }
 
         public object this[string name] => _items[name];

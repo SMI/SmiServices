@@ -107,7 +107,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DicomLoader.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Setup", "src\applications\Setup\Setup.csproj", "{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.DynamicRulesTester", "src\applications\Applications.DynamicRulesTester\Applications.DynamicRulesTester.csproj", "{EEE45247-01A0-49DD-AA60-7DAEC2925E77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Applications.DynamicRulesTester", "src\applications\Applications.DynamicRulesTester\Applications.DynamicRulesTester.csproj", "{EEE45247-01A0-49DD-AA60-7DAEC2925E77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Applications.DynamicRulesTester.Tests", "tests\applications\Applications.DynamicRulesTester.Tests\Applications.DynamicRulesTester.Tests.csproj", "{58714DDB-FB9D-477D-BCB2-76A07F647BA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -425,6 +427,18 @@ Global
 		{EEE45247-01A0-49DD-AA60-7DAEC2925E77}.Release|arm64.Build.0 = Release|Any CPU
 		{EEE45247-01A0-49DD-AA60-7DAEC2925E77}.Release|x64.ActiveCfg = Release|Any CPU
 		{EEE45247-01A0-49DD-AA60-7DAEC2925E77}.Release|x64.Build.0 = Release|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Debug|arm64.Build.0 = Debug|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Debug|x64.Build.0 = Debug|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Release|arm64.ActiveCfg = Release|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Release|arm64.Build.0 = Release|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Release|x64.ActiveCfg = Release|Any CPU
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -470,6 +484,7 @@ Global
 		{28162388-F036-478B-97B2-7AD407AECD92} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{CBFDB23B-2B67-49C3-A08D-095F23B7FD2C} = {8B943F2C-835B-484A-86D2-3F1462970605}
 		{EEE45247-01A0-49DD-AA60-7DAEC2925E77} = {8B943F2C-835B-484A-86D2-3F1462970605}
+		{58714DDB-FB9D-477D-BCB2-76A07F647BA9} = {8B943F2C-835B-484A-86D2-3F1462970605}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11CDEA53-71E8-4A9B-BC0D-74F4EB54F740}

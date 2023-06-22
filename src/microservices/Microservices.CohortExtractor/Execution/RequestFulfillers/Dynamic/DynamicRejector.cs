@@ -1,37 +1,45 @@
-using System;
-using System.Data;
-using System.Data.Common;
-using System.IO;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using System;
+using System.Data;
+using System.IO.Abstractions;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
 {
     public class DynamicRejector : IRejector
     {
-        private string _dynamicRules;
-        private Script<string> _script;
+        private readonly string _dynamicRules;
+        private readonly Script<string> _script;
         private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
 
-        public DynamicRejector(string dynamicRulesPath)
+        public DynamicRejector(string dynamicRulesPath, IFileSystem fileSystem = null)
         {
-            if(dynamicRulesPath == null)
+            if (dynamicRulesPath == null)
                 dynamicRulesPath = DefaultDynamicRulesPath;
 
-            if(!File.Exists(dynamicRulesPath))
-                throw new FileNotFoundException($"Could not find rules file '{dynamicRulesPath}'");
-            
-            _dynamicRules = File.ReadAllText(dynamicRulesPath);
+            fileSystem ??= new FileSystem();
+
+            if (!fileSystem.File.Exists(dynamicRulesPath))
+                throw new System.IO.FileNotFoundException($"Could not find rules file '{dynamicRulesPath}'");
+
+            _dynamicRules = fileSystem.File.ReadAllText(dynamicRulesPath);
+
+            if (string.IsNullOrWhiteSpace(_dynamicRules))
+                throw new ArgumentOutOfRangeException();
+
+            _script = CSharpScript.Create<string>(
+                _dynamicRules,
+                ScriptOptions.Default.WithReferences(typeof(Convert).Assembly),
+                typeof(Payload)
+            );
 
             try
             {
-                _script = CSharpScript.Create<string>(_dynamicRules,
-                    ScriptOptions.Default.WithReferences(typeof(Convert).Assembly),typeof(Payload));
                 _script.Compile();
             }
             catch (CompilationErrorException e)
             {
-                throw new Exception($"Failed to compile {dynamicRulesPath} " + string.Join(Environment.NewLine, e.Diagnostics),e);
+                throw new Exception($"Failed to compile {dynamicRulesPath} " + string.Join(Environment.NewLine, e.Diagnostics), e);
             }
         }
 
@@ -55,7 +63,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
                 throw result.Exception;
 
             reason = result.ReturnValue;
-            
+
             return !string.IsNullOrWhiteSpace(reason);
         }
     }
