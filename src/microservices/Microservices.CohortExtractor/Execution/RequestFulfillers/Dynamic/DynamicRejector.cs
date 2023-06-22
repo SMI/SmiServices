@@ -8,7 +8,6 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
 {
     public class DynamicRejector : IRejector
     {
-        private readonly string _dynamicRules;
         private readonly Script<string> _script;
         private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
 
@@ -22,25 +21,16 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
             if (!fileSystem.File.Exists(dynamicRulesPath))
                 throw new System.IO.FileNotFoundException($"Could not find rules file '{dynamicRulesPath}'");
 
-            _dynamicRules = fileSystem.File.ReadAllText(dynamicRulesPath);
+            var dynamicRules = fileSystem.File.ReadAllText(dynamicRulesPath);
 
-            if (string.IsNullOrWhiteSpace(_dynamicRules))
-                throw new ArgumentOutOfRangeException();
+            if (string.IsNullOrWhiteSpace(dynamicRules))
+                throw new ArgumentOutOfRangeException("Rules file is empty");
 
             _script = CSharpScript.Create<string>(
-                _dynamicRules,
-                ScriptOptions.Default.WithReferences(typeof(Convert).Assembly),
+                dynamicRules,
+                ScriptOptions.Default.WithReferences(typeof(Convert).Assembly).WithWarningLevel(0),
                 typeof(Payload)
             );
-
-            try
-            {
-                _script.Compile();
-            }
-            catch (CompilationErrorException e)
-            {
-                throw new Exception($"Failed to compile {dynamicRulesPath} " + string.Join(Environment.NewLine, e.Diagnostics), e);
-            }
         }
 
         public class Payload

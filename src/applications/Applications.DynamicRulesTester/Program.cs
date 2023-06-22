@@ -83,6 +83,7 @@ public static class Program
         public string TestRowFile { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     internal class JsonFileRecord : IDataRecord
     {
         private readonly IDictionary<string, string> _items;
