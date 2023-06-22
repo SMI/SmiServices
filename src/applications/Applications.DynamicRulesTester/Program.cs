@@ -27,7 +27,7 @@ public static class Program
         }
         catch (Exception e)
         {
-            _logger.Error(e, $"Unhandled exception during execution");
+            _logger.Error(e, "Unhandled exception during execution");
             return 2;
         }
     }
@@ -42,7 +42,7 @@ public static class Program
 
         if (string.IsNullOrWhiteSpace(jsonString))
         {
-            _logger.Error("Test record is empty ...");
+            _logger.Error("Test record cannot be empty");
             return 1;
         }
 

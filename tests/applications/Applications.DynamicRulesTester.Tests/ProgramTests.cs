@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace Applications.DynamicRulesTester.Tests;
+
 public class ProgramTests
 {
     private MockFileSystem _fileSystem;
