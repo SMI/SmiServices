@@ -14,7 +14,7 @@
     <PackageVersion Include="HIC.RDMP.Dicom" Version="6.0.2"/>
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.0.7"/>
     <PackageVersion Include="IsIdentifiable" Version="0.1.0"/>
-    <PackageVersion Include="JetBrains.Annotations" Version="2022.3.1"/>
+    <PackageVersion Include="JetBrains.Annotations" Version="2023.2.0"/>
     <PackageVersion Include="LibArchive.Net" Version="0.1.4"/>
     <PackageVersion Include="LineReader" Version="0.1.0"/>
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.6.0"/>
