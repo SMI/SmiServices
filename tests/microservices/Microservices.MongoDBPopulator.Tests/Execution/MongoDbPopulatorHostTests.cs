@@ -44,7 +44,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
             options.MongoDatabases.DicomStoreOptions.Port = 12345;
 
             // ReSharper disable once ObjectCreationAsStatement
-            Assert.Throws<ArgumentException>(() => new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, null));
+            Assert.Throws<ArgumentException>(() => new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, new ConsumerOptions()));
         }
 
         /// <summary>

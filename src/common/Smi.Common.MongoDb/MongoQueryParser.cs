@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NLog;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Smi.Common.MongoDB
@@ -54,7 +55,7 @@ namespace Smi.Common.MongoDB
             return await coll.FindAsync(find, findOptions);
         }
 
-        private static bool TryParseDocumentProperty(BsonDocument docQuery, string propertyName, out BsonDocument propertyDocument)
+        private static bool TryParseDocumentProperty(BsonDocument docQuery, string propertyName, [NotNullWhen(true)] out BsonDocument? propertyDocument)
         {
             if (docQuery.TryGetValue(propertyName, out BsonValue value))
                 try
@@ -71,7 +72,6 @@ namespace Smi.Common.MongoDB
 
             _logger.Info("No document found for property " + propertyName);
             propertyDocument = null;
-
             return false;
         }
 

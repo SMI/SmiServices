@@ -36,7 +36,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         // NOTE(rkm 2020-10-27) A bit heavy-handed, but might help to track-down why some of the rejection reasons were empty in the final report
         private static void CheckRejectionDict(Dictionary<string, int> rejectionItems)
         {
-            if (rejectionItems == null || rejectionItems.Count == 0)
+            if (rejectionItems.Count == 0)
                 throw new ArgumentException("Null or empty dictionary");
 
             if (rejectionItems.Any(x => string.IsNullOrWhiteSpace(x.Key)))

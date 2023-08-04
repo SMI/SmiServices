@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
@@ -11,7 +12,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
         private readonly Script<string> _script;
         private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
 
-        public DynamicRejector(string dynamicRulesPath, IFileSystem fileSystem = null)
+        public DynamicRejector(string? dynamicRulesPath, IFileSystem? fileSystem = null)
         {
             if (dynamicRulesPath == null)
                 dynamicRulesPath = DefaultDynamicRulesPath;
@@ -45,7 +46,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
         }
 
         /// <inheritdoc/>
-        public bool Reject(IDataRecord row, out string reason)
+        public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
         {
             var result = _script.RunAsync(globals: new Payload(row)).Result;
 

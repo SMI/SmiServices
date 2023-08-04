@@ -92,7 +92,7 @@ namespace Applications.ExtractImages
                 Modalities = modalitiesString,
 
                 // NOTE(rkm 2021-04-01) Set below
-                ExtractionIdentifiers = null,
+                ExtractionIdentifiers = null!,
             };
 
             List<ExtractionRequestMessage> ermList =

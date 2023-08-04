@@ -115,7 +115,7 @@ namespace Microservices.IdentifierMapper.Messaging
             if (!success)
             {
                 Logger.Info($"Could not swap identifiers for message {header.MessageGuid}. Reason was: {errorReason}");
-                ErrorAndNack(header, tag, errorReason, null);
+                ErrorAndNack(header, tag, errorReason, new Exception());
             }
             else
             {

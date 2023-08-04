@@ -44,7 +44,7 @@ namespace Microservices.DicomTagReader.Execution
         /// <summary>
         /// Optional function for last minute filtering of which files in an <see cref="AccessionDirectoryMessage"/> folder get processed
         /// </summary>
-        public Func<string,bool> IncludeFile {get;set;}
+        public Func<string,bool>? IncludeFile {get;set;}
 
         /// <summary>
         /// Interrogates directory tree for dicom files and produces series info and individual file info
@@ -78,7 +78,7 @@ namespace Microservices.DicomTagReader.Execution
         /// </summary>
         /// <param name="header"></param>
         /// <param name="message"></param>
-        public void ReadTags(IMessageHeader header, AccessionDirectoryMessage message)
+        public void ReadTags(IMessageHeader? header, AccessionDirectoryMessage message)
         {
             _stopwatch.Restart();
 

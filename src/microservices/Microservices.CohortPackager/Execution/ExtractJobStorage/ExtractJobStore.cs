@@ -82,10 +82,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             Guid jobId,
             Exception cause)
         {
-            if (jobId == default(Guid))
+            if (jobId == default)
                 throw new ArgumentNullException(nameof(jobId));
-            if (cause == null)
-                throw new ArgumentNullException(nameof(cause));
 
             MarkJobFailedImpl(jobId, cause);
             Logger.Debug($"Marked job {jobId} as failed");

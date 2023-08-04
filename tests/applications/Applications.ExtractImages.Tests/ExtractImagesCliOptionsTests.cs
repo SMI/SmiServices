@@ -39,7 +39,7 @@ namespace Applications.ExtractImages.Tests
         {
             Parser parser = SmiCliInit.GetDefaultParser();
 
-            void Verify(IEnumerable<string> args, string modalities, bool ident, bool noFilters)
+            void Verify(IEnumerable<string> args, string? modalities, bool ident, bool noFilters)
             {
                 parser.ParseArguments<ExtractImagesCliOptions>(args)
                     .WithParsed(options =>

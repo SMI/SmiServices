@@ -13,7 +13,7 @@ namespace Microservices.IsIdentifiable
             return "Checks all cells in the current row for any fields containing chis";
         }
 
-        public string Validate(object value, object[] otherColumns, string[] otherColumnNames)
+        public string Validate(object[] otherColumns, string[] otherColumnNames)
         {
             for (var i = 0; i < otherColumnNames.Length; i++)
             {

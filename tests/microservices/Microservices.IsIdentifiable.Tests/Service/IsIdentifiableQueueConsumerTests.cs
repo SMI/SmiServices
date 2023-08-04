@@ -28,7 +28,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
         private string _extractDir;
         ExtractedFileStatusMessage _extractedFileStatusMessage;
         private Mock<IModel> _mockModel;
-        FatalErrorEventArgs _fatalArgs;
+        FatalErrorEventArgs? _fatalArgs;
         Mock<IProducerModel> _mockProducerModel;
         Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall;
         ExtractedFileVerificationMessage _response;
@@ -85,8 +85,8 @@ namespace Microservices.IsIdentifiable.Tests.Service
         public void TearDown() { }
 
         private IsIdentifiableQueueConsumer GetNewIsIdentifiableQueueConsumer(
-            IProducerModel mockProducerModel = null,
-            IClassifier mockClassifier = null
+            IProducerModel? mockProducerModel = null,
+            IClassifier? mockClassifier = null
         )
         {
             var consumer = new IsIdentifiableQueueConsumer(
@@ -105,33 +105,9 @@ namespace Microservices.IsIdentifiable.Tests.Service
         #region Tests
 
         [Test]
-        public void Constructor_NullProducerModel_ThrowsException()
-        {
-            var exc = Assert.Throws<ArgumentNullException>(() =>
-            {
-                new IsIdentifiableQueueConsumer(
-                    null,
-                    "foo",
-                    new Mock<IClassifier>().Object
-                );
-            });
-            Assert.AreEqual("Value cannot be null. (Parameter 'producer')", exc.Message);
-        }
-
-        [Test]
-        public void Constructor_NullOrWhitespaceExtractionRoot_ThrowsException()
+        public void Constructor_WhitespaceExtractionRoot_ThrowsException()
         {
             var exc = Assert.Throws<ArgumentException>(() =>
-            {
-                new IsIdentifiableQueueConsumer(
-                    new Mock<IProducerModel>().Object,
-                    null,
-                    new Mock<IClassifier>().Object
-                );
-            });
-            Assert.AreEqual("Argument cannot be null or whitespace (Parameter 'extractionRoot')", exc.Message);
-
-            exc = Assert.Throws<ArgumentException>(() =>
             {
                 new IsIdentifiableQueueConsumer(
                     new Mock<IProducerModel>().Object,
@@ -140,20 +116,6 @@ namespace Microservices.IsIdentifiable.Tests.Service
                 );
             });
             Assert.AreEqual("Argument cannot be null or whitespace (Parameter 'extractionRoot')", exc.Message);
-        }
-
-        [Test]
-        public void Constructor_NullClassifier_ThrowsException()
-        {
-            var exc = Assert.Throws<ArgumentNullException>(() =>
-            {
-                new IsIdentifiableQueueConsumer(
-                    new Mock<IProducerModel>().Object,
-                    "foo",
-                    null
-                );
-            });
-            Assert.AreEqual("Value cannot be null. (Parameter 'classifier')", exc.Message);
         }
 
         [Test]

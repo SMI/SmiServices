@@ -49,7 +49,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             public readonly TestExtractionDatabase ExtractionDatabase = new();
             public readonly Mock<IClientSessionHandle> MockSessionHandle = new();
 
-            public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
+            public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings? settings = null)
             {
                 if (name == ExtractionDatabaseName)
                     return ExtractionDatabase;
@@ -57,7 +57,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             }
 
             // NOTE(rkm 2020-03-10) We don't actually implement transaction rollback as we only need to be able to start with a fresh collection for each test
-            public override IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => MockSessionHandle.Object;
+            public override IClientSessionHandle StartSession(ClientSessionOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => MockSessionHandle.Object;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             public readonly Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>> ExpectedFilesCollections = new();
             public readonly Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>> StatusCollections = new();
 
-            public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null)
+            public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings? settings = null)
             {
                 dynamic retCollection = null;
                 switch (name)

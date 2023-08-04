@@ -26,9 +26,9 @@ namespace Applications.ExtractImages
         public ExtractImagesHost(
             GlobalOptions globals,
             ExtractImagesCliOptions cliOptions,
-            IExtractionMessageSender extractionMessageSender = null,
-            IRabbitMqAdapter rabbitMqAdapter = null,
-            IFileSystem fileSystem = null,
+            IExtractionMessageSender? extractionMessageSender = null,
+            IRabbitMqAdapter? rabbitMqAdapter = null,
+            IFileSystem? fileSystem = null,
             bool threaded = false
         )
         : base(

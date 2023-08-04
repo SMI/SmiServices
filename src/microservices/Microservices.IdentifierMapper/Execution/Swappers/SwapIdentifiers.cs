@@ -18,7 +18,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public abstract void Setup(IMappingTableOptions mappingTableOptions);
 
-        public abstract string GetSubstitutionFor(string toSwap, out string reason);
+        public abstract string? GetSubstitutionFor(string toSwap, out string? reason);
 
         public abstract void ClearCache();
 

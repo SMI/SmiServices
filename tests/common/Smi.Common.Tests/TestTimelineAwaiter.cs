@@ -24,12 +24,16 @@ namespace Smi.Common.Tests
         /// <param name="timeoutMessage"></param>
         /// <param name="timeout"></param>
         /// <param name="throwIfAnyFunc"></param>
-        public static void Await(Func<bool> condition,string timeoutMessage= null,int timeout = 30000, Func<IEnumerable<Exception>> throwIfAnyFunc = null)
+        public static void Await(
+            Func<bool> condition,
+            string? timeoutMessage = null,
+            int timeout = 30000,
+            Func<IEnumerable<Exception>>? throwIfAnyFunc = null
+        )
         {
             if (Debugger.IsAttached)
                 timeout = int.MaxValue;
 
-            
             while (!condition() && timeout > 0)
             {
                 Thread.Sleep(100);
@@ -44,7 +48,7 @@ namespace Smi.Common.Tests
                     logger.Error(ex);
 
                 LogManager.Flush();
-                    
+
                 throw exceptions.Length == 1
                     ? exceptions.Single()
                     : new AggregateException(exceptions);

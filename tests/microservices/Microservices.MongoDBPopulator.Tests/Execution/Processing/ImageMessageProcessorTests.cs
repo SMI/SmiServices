@@ -140,7 +140,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions, "largeDocumentTest");
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 1, null);
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 1, (Exception _) => {});
             var mockModel = Mock.Of<IModel>();
             processor.Model = mockModel;
 
@@ -182,7 +182,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions, "largeDocumentTest");
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 2, null);
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 2, (Exception e) => {});
             var mockModel = Mock.Of<IModel>();
             processor.Model = mockModel;
 

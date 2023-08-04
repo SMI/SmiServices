@@ -27,7 +27,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             _progress = 0;
         }
 
-        public FellowOakDicom.DicomDataset GetNextDatasetToProcess(out string filename, out Dictionary<string, string> otherValuesToStoreInRow)
+        public DicomDataset GetNextDatasetToProcess(out string? filename, out Dictionary<string, string> otherValuesToStoreInRow)
         {
             otherValuesToStoreInRow = new Dictionary<string, string>();
 

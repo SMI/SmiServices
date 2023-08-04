@@ -57,7 +57,7 @@ namespace Smi.Common.MongoDB.Tests
             throw new NotImplementedException();
         }
 
-        public virtual IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null) => throw new NotImplementedException();
+        public virtual IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings? settings = null) => throw new NotImplementedException();
         public virtual IAsyncCursor<string> ListCollectionNames(ListCollectionNamesOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<string> ListCollectionNames(IClientSessionHandle session, ListCollectionNamesOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task<IAsyncCursor<string>> ListCollectionNamesAsync(ListCollectionNamesOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
@@ -70,10 +70,10 @@ namespace Smi.Common.MongoDB.Tests
         public virtual void RenameCollection(IClientSessionHandle session, string oldName, string newName, RenameCollectionOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task RenameCollectionAsync(IClientSessionHandle session, string oldName, string newName, RenameCollectionOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
-        public virtual TResult RunCommand<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
-        public virtual TResult RunCommand<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
-        public virtual Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
-        public virtual Task<TResult> RunCommandAsync<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        public virtual TResult RunCommand<TResult>(Command<TResult> command, ReadPreference? readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        public virtual TResult RunCommand<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference? readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        public virtual Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference? readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        public virtual Task<TResult> RunCommandAsync<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference? readPreference = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IChangeStreamCursor<TResult> Watch<TResult>(PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline, ChangeStreamOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IChangeStreamCursor<TResult> Watch<TResult>(IClientSessionHandle session, PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline, ChangeStreamOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline, ChangeStreamOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

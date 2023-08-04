@@ -11,17 +11,17 @@ namespace Smi.Common.Messages.Updating
         /// <summary>
         /// Optional Sql operators e.g. "=", "&lt;" etc to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>.  If null or empty "=" is assumed for all WHERE comparisons
         /// </summary>
-        public string[] Operators {get;set;} = null;
+        public string[]? Operators {get;set;} = null;
 
         /// <summary>
         /// The field(s) to search the database for (this should be the human readable name without qualifiers as it may match multiple tables e.g. ECHI)
         /// </summary>
-        public string[] WhereFields {get;set;} = new string[0];
+        public string?[] WhereFields {get;set;} = new string[0];
 
         /// <summary>
         /// The values to search for when deciding which records to update
         /// </summary>
-        public string[] HaveValues {get;set;} = new string[0];
+        public string?[] HaveValues {get;set;} = new string[0];
 
         /// <summary>
         /// The field(s) which should be updated, may be the same as the <see cref="WhereFields"/>

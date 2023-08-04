@@ -82,8 +82,8 @@ namespace Microservices.DicomAnonymiser.Tests
         }
 
         private DicomAnonymiserConsumer GetNewDicomAnonymiserConsumer(
-            IDicomAnonymiser mockDicomAnonymiser = null,
-            IProducerModel mockProducerModel = null
+            IDicomAnonymiser? mockDicomAnonymiser = null,
+            IProducerModel? mockProducerModel = null
         )
         {
             var consumer = new DicomAnonymiserConsumer(
@@ -104,34 +104,6 @@ namespace Microservices.DicomAnonymiser.Tests
         #endregion
 
         #region Tests
-
-        [Test]
-        public void Constructor_MissingFileSystemRoots_ThrowsException()
-        {
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                new DicomAnonymiserConsumer(
-                    _options,
-                    fileSystemRoot: null,
-                    _extractRootDirInfo.FullName,
-                    new Mock<IDicomAnonymiser>(MockBehavior.Strict).Object,
-                    new Mock<IProducerModel>(MockBehavior.Strict).Object,
-                    _mockFs
-                );
-            });
-
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                new DicomAnonymiserConsumer(
-                    new DicomAnonymiserOptions(),
-                    _dicomRootDirInfo.FullName,
-                    extractRoot: null,
-                    new Mock<IDicomAnonymiser>(MockBehavior.Strict).Object,
-                    new Mock<IProducerModel>(MockBehavior.Strict).Object,
-                    _mockFs
-                );
-            });
-        }
 
         [Test]
         public void ProcessMessageImpl_HappyPath()

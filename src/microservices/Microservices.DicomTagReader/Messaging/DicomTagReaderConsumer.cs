@@ -24,7 +24,7 @@ namespace Microservices.DicomTagReader.Messaging
         /// <param name="dicomTagReaderOptions"></param>>
         public DicomTagReaderConsumer(TagReaderBase reader, GlobalOptions dicomTagReaderOptions)
         {
-            _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            _reader = reader;
             _opts = dicomTagReaderOptions;
         }
 
@@ -56,7 +56,7 @@ namespace Microservices.DicomTagReader.Messaging
 
             Ack(header, tag);
         }
-        
+
         /// <summary>
         /// Runs a single file (dicom or zip) through tag reading process
         /// </summary>
@@ -65,7 +65,7 @@ namespace Microservices.DicomTagReader.Messaging
         {
             // tell reader only to consider our specific file
             _reader.IncludeFile = f=>new FileInfo(f).FullName.Equals(file.FullName,StringComparison.CurrentCultureIgnoreCase);
-            _reader.ReadTags(null,new AccessionDirectoryMessage(_opts.FileSystemOptions.FileSystemRoot,file.Directory));
+            _reader.ReadTags(null, new AccessionDirectoryMessage(_opts.FileSystemOptions.FileSystemRoot,file.Directory));
 
             // good practice to clear this afterwards
             _reader.IncludeFile = null;

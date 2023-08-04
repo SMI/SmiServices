@@ -65,7 +65,7 @@ namespace Smi.Common
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
         /// <param name="threaded"></param>
-        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
+        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
         {
             //_threaded = options.ThreadReceivers;
             _threaded = threaded;

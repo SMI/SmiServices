@@ -37,8 +37,8 @@ namespace Microservices.CohortExtractor.Execution
         public ExtractionRequestQueueConsumer? Consumer { get; set; }
         private readonly CohortExtractorOptions _consumerOptions;
 
-        private IAuditExtractions _auditor;
-        private IExtractionRequestFulfiller _fulfiller;
+        private IAuditExtractions? _auditor;
+        private IExtractionRequestFulfiller? _fulfiller;
         private IProjectPathResolver _pathResolver;
         private IProducerModel _fileMessageProducer;
 
@@ -48,7 +48,7 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller)
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller)
             : base(options)
         {
             _consumerOptions = options.CohortExtractorOptions;

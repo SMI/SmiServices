@@ -41,7 +41,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         /// </summary>
         [BsonExtraElements]
         [UsedImplicitly]
-        public IDictionary<string, object> ExtraElements { get; set; }
+        public IDictionary<string, object>? ExtraElements { get; set; }
 
 
         public MongoFileStatusDoc(

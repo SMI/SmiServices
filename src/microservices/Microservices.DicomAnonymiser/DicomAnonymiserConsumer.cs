@@ -27,7 +27,7 @@ namespace Microservices.DicomAnonymiser
             string extractRoot,
             IDicomAnonymiser anonymiser,
             IProducerModel statusMessageProducer,
-            IFileSystem fileSystem = null
+            IFileSystem? fileSystem = null
         )
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));

@@ -36,13 +36,13 @@ namespace Smi.Common.Messages
 
         [JsonConstructor]
         public MessageHeader()
-            : this(default(MessageHeader)) { }
+            : this(parent: default) { }
 
         /// <summary>
         /// Declares that your process is about to send a message.  Optionally as a result of processing another message (<paramref name="parent"/>).
         /// </summary>
         /// <param name="parent">The triggering message that caused you to want to send this message</param>
-        public MessageHeader(IMessageHeader parent = null)
+        public MessageHeader(IMessageHeader? parent = null)
         {
             ProducerProcessID = _producerProcessID;
             ProducerExecutableName = _producerExecutableName;
@@ -107,7 +107,7 @@ namespace Smi.Common.Messages
             return Parents != null && Parents.Contains(other.MessageGuid);
         }
 
-        public void Log(ILogger logger, LogLevel level, string message, Exception ex = null)
+        public void Log(ILogger logger, LogLevel level, string message, Exception? ex = null)
         {
             //TODO This is massively over-logging - ProducerProcessID, ProducerExecutableName, OriginalPublishTimestamp are found in the logs anyway
             var theEvent = new LogEventInfo(level, logger.Name, message);

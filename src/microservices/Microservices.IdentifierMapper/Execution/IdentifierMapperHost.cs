@@ -26,7 +26,7 @@ namespace Microservices.IdentifierMapper.Execution
 
 
 
-        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null)
+        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers? swapper = null)
             : base(options)
         {
             _consumerOptions = options.IdentifierMapperOptions;

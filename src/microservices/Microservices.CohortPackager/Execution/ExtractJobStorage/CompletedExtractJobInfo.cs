@@ -20,7 +20,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             string extractionDirectory,
             string keyTag,
             uint keyCount,
-            string extractionModality,
+            string? extractionModality,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction
         )

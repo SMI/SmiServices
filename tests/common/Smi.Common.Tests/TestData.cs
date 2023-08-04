@@ -21,7 +21,7 @@ namespace Smi.Common.Tests
         /// <param name="fileInfo"></param>
         /// <param name="testFile">The test file to create, should be a static member of this class.  Defaults to <see cref="IMG_013"/></param>
         /// <returns></returns>
-        public static FileInfo Create(FileInfo fileInfo, string testFile=null)
+        public static FileInfo Create(FileInfo fileInfo, string? testFile = null)
         {
             var from = Path.Combine(TestContext.CurrentContext.TestDirectory, testFile??IMG_013);
 

@@ -28,12 +28,12 @@ namespace Microservices.DicomRelationalMapper.Messaging
         public INameDatabasesAndTablesDuringLoads DatabaseNamer { get; private set; }
 
         public int MessagesProcessed { get { return NackCount + AckCount; } }
-        
+
         /// <summary>
         /// Collection of all DLE crash messages (including those where successful restart runs were performed).
         /// </summary>
         public IReadOnlyCollection<Exception> DleErrors => new ReadOnlyCollection<Exception>(_dleExceptions);
-        
+
         private List<Exception> _dleExceptions = new();
 
         private readonly LoadMetadata _lmd;
@@ -77,7 +77,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             _minimumBatchSize = options.MinimumBatchSize;
             _useInsertIntoForRawMigration = options.UseInsertIntoForRAWMigration;
             _retryOnFailureCount = options.RetryOnFailureCount;
-            _retryDelayInSeconds = Math.Max(10,options.RetryDelayInSeconds);
+            _retryDelayInSeconds = Math.Max(10, options.RetryDelayInSeconds);
             _maximumRunDelayInSeconds = new TimeSpan(0, 0, 0, options.MaximumRunDelayInSeconds <= 0 ? 15 : 0);
 
             StartDleRunnerTask();
@@ -142,7 +142,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         _stopTokenSource.Cancel();
                         faultCause = e;
                         _dleExceptions.Add(e);
-                        Logger.Log(LogLevel.Error,e,"DLE crashed during RunDleIfRequired");
+                        Logger.Log(LogLevel.Error, e, "DLE crashed during RunDleIfRequired");
                     }
                 }
 
@@ -213,7 +213,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
                 // We last ran now!
                 _lastRanDle = DateTime.Now;
-                
+
                 //reset the progress e.g. if we crashed later on in the load
                 datasetProvider.ResetProgress();
 
@@ -223,7 +223,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 }
                 catch (Exception e)
                 {
-                    Logger.Debug(e,"ParallelDLEHost threw exception of type " + e.GetType());
+                    Logger.Debug(e, "ParallelDLEHost threw exception of type " + e.GetType());
                     _dleExceptions.Add(e);
                     exitCode = ExitCodeType.Error;
 
@@ -260,7 +260,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 case ExitCodeType.OperationNotRequired:
                     {
                         foreach (QueuedImage corrupt in datasetProvider.CorruptMessages)
-                            ErrorAndNack(corrupt.Header, corrupt.Tag, "Nacking Corrupt image", null);
+                            ErrorAndNack(corrupt.Header, corrupt.Tag, "Nacking Corrupt image", new Exception());
 
                         QueuedImage[] successes = toProcess.Except(datasetProvider.CorruptMessages).ToArray();
 
@@ -279,7 +279,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 default:
                     {
                         _stopTokenSource.Cancel();
-                        Fatal("No case for DLE exit code " + exitCode, null);
+                        Fatal("No case for DLE exit code " + exitCode, new Exception());
                         break;
                     }
             }
@@ -302,7 +302,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         public void Dispose()
         {
             //make sure we stop the consume loop if it hasn't already stopped
-            if(_stopTokenSource != null && !_stopTokenSource.IsCancellationRequested)
+            if (_stopTokenSource != null && !_stopTokenSource.IsCancellationRequested)
                 _stopTokenSource.Cancel();
         }
     }

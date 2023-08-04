@@ -13,8 +13,8 @@ namespace Microservices.DicomAnonymiser
 
         public DicomAnonymiserHost(
             GlobalOptions options,
-            IDicomAnonymiser anonymiser = null,
-            IFileSystem fileSystem = null
+            IDicomAnonymiser? anonymiser = null,
+            IFileSystem? fileSystem = null
         )
             : base(options)
         {

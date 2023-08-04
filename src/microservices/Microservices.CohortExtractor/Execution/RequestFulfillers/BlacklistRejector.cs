@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FAnsi.Discovery;
 using Rdmp.Core.Curation.Data;
@@ -137,7 +138,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <param name="row"></param>
         /// <param name="reason"></param>
         /// <returns></returns>
-        public bool Reject(IDataRecord row, out string reason)
+        public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
         {
             //row is bad if the query matches any records (in the blacklist)
             var bad = DoLookup(

@@ -22,7 +22,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         // Simple cache of the last swap pair
         private string _lastKey;
-        private string _lastVal;
+        private string? _lastVal;
         
 
         public override void Setup(IMappingTableOptions options)
@@ -35,7 +35,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 throw new ArgumentException($"Swap table '{_swapTable.GetFullyQualifiedName()}' did not exist on server '{_server}'");
         }
 
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             reason = null;
 

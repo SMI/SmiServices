@@ -33,7 +33,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
         /// <param name="rootDatabaseName"></param>
         /// <param name="stage"></param>
         /// <returns></returns>
-        public override string GetDatabaseName(string rootDatabaseName, LoadBubble stage)
+        public override string GetDatabaseName(string? rootDatabaseName, LoadBubble stage)
         {
             var basic = base.GetDatabaseName(rootDatabaseName, stage);
 

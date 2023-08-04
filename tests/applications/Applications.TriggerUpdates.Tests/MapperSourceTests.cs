@@ -30,7 +30,7 @@ namespace Applications.TriggerUpdates.Tests
         /// <param name="guidTable"></param>
         /// <param name="mapperOptions"></param>
         /// <param name="guids">true to create a <see cref="TableLookupWithGuidFallbackSwapper"/> otherwise creates a  <see cref="TableLookupSwapper"/></param>
-        private void SetupMappers(DatabaseType dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions, bool guids=true)
+        private void SetupMappers(DatabaseType dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions, bool guids=true)
         {
             var db = GetCleanedServer(dbType);
 

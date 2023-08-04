@@ -187,19 +187,12 @@ namespace Applications.ExtractImages.Tests
             var fs = new MockFileSystem();
             fs.Directory.CreateDirectory(globals.FileSystemOptions.ExtractRoot);
 
-            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = null };
-            var exc = Assert.Throws<ArgumentNullException>(() =>
+            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "missing.csv" };
+            var exc = Assert.Throws<FileNotFoundException>(() =>
             {
                 var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
             });
-            Assert.AreEqual("Value cannot be null. (Parameter 'CohortCsvFile')", exc?.Message);
-
-            cliOptions.CohortCsvFile = "missing.csv";
-            var exc2 = Assert.Throws<FileNotFoundException>(() =>
-            {
-                var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
-            });
-            Assert.AreEqual("Could not find the cohort CSV file 'missing.csv'", exc2?.Message);
+            Assert.AreEqual("Could not find the cohort CSV file 'missing.csv'", exc?.Message);
         }
 
         [Test]

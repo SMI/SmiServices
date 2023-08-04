@@ -22,12 +22,12 @@ namespace Microservices.IsIdentifiable.Service
             IProducerModel producer,
             string extractionRoot,
             IClassifier classifier,
-            IFileSystem fileSystem = null
+            IFileSystem? fileSystem = null
         )
         {
-            _producer = producer ?? throw new ArgumentNullException(nameof(producer));
+            _producer = producer;
             _extractionRoot = string.IsNullOrWhiteSpace(extractionRoot) ? throw new ArgumentException($"Argument cannot be null or whitespace", nameof(extractionRoot)) : extractionRoot;
-            _classifier = classifier ?? throw new ArgumentNullException(nameof(classifier));
+            _classifier = classifier;
             _fileSystem = fileSystem ?? new FileSystem();
 
             if (!_fileSystem.Directory.Exists(_extractionRoot))

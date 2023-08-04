@@ -59,7 +59,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             public TestJobReporter(
                 IExtractJobStore jobStore,
                 ReportFormat reportFormat,
-                string reportNewLine
+                string? reportNewLine
             )
                 : base(
                     jobStore,
@@ -549,7 +549,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var missingFilesExpected = new List<Tuple<string, string>>
             {
-                new Tuple<string, string>("missing.dcm", null),
+                new Tuple<string, string>("missing.dcm", "missing"),
             };
 
             ReportEqualityHelpers.AssertReportsAreEqual(

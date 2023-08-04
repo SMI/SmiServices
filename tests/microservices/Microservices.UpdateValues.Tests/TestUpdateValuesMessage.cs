@@ -30,7 +30,7 @@ namespace Microservices.UpdateValues.Tests
         {
             var msg = new UpdateValuesMessage();
             msg.WhereFields = new string[]{"ff" };
-            msg.HaveValues = new string[] { null}; //where column ff has a null value
+            msg.HaveValues = new string?[] { null}; //where column ff has a null value
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
@@ -42,7 +42,7 @@ namespace Microservices.UpdateValues.Tests
         {
             var msg = new UpdateValuesMessage();
             msg.WhereFields = new string[]{"ff" };
-            msg.HaveValues = new string[] { null}; //where column ff has a null value
+            msg.HaveValues = new string?[] { null}; //where column ff has a null value
             msg.WriteIntoFields = new string[]{ "ff"};
 
             var ex = Assert.Throws<Exception>(msg.Validate);
@@ -69,7 +69,7 @@ namespace Microservices.UpdateValues.Tests
         {
             var msg = new UpdateValuesMessage();
             msg.WhereFields = new string[]{"ff" };
-            msg.HaveValues = new string[] { null}; //where column ff has a null value
+            msg.HaveValues = new string?[] { null}; //where column ff has a null value
             msg.WriteIntoFields = new string[]{ "ff"};
             msg.Values = new string[] { "ddd"}; //write the value ddd
 
@@ -95,8 +95,8 @@ namespace Microservices.UpdateValues.Tests
             Assert.AreEqual(m1,m2);
             Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
 
-            m1.WhereFields = null;
-            m2.WhereFields = null;
+            m1.WhereFields = new string[]{};
+            m2.WhereFields = new string[]{};
 
             Assert.AreEqual(m1,m2);
             Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());

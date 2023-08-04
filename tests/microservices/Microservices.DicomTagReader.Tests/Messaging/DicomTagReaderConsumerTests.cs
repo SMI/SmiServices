@@ -2,19 +2,13 @@
 using Microservices.DicomTagReader.Execution;
 using Microservices.DicomTagReader.Messaging;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Framing;
 using Smi.Common.Messages;
+using Smi.Common.Options;
 using Smi.Common.Tests;
-using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Text;
-using FellowOakDicom;
-
 
 namespace Microservices.DicomTagReader.Tests.Messaging
 {
@@ -50,7 +44,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
         public void TearDown() { }
 
 
-        private TagReaderBase GetMockTagReader(IFileSystem fileSystem = null)
+        private TagReaderBase GetMockTagReader(IFileSystem? fileSystem = null)
         {
             fileSystem ??= _helper.MockFileSystem;
 
@@ -87,7 +81,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
                 .Returns(new MessageHeader());
 
-            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(new FileSystem()),null), 1, 0);
+            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(new FileSystem()), Mock.Of<GlobalOptions>()), 1, 0);
         }
 
         /// <summary>
@@ -106,7 +100,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
                 .Returns(new MessageHeader());
 
-            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(),null), 0, 1);
+            CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(), Mock.Of<GlobalOptions>()), 0, 1);
         }
     }
 }

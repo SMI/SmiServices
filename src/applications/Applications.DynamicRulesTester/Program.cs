@@ -17,7 +17,7 @@ public static class Program
     private static ILogger _logger = LogManager.GetCurrentClassLogger();
     private static IFileSystem _fileSystem;
 
-    public static int Main(IEnumerable<string> args, IFileSystem fileSystem = null)
+    public static int Main(IEnumerable<string> args, IFileSystem? fileSystem = null)
     {
         _fileSystem = fileSystem ?? new FileSystem();
 

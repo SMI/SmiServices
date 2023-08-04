@@ -36,9 +36,9 @@ namespace Microservices.UpdateValues.Execution
         /// <summary>
         /// The table that is being updated
         /// </summary>
-        public DiscoveredTable Table { get; }
+        public DiscoveredTable? Table { get; }
 
-        public UpdateTableAudit(DiscoveredTable t)
+        public UpdateTableAudit(DiscoveredTable? t)
         {
             Table = t;
         }

@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics.CodeAnalysis;
 using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;
@@ -19,7 +20,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <param name="toSwap"></param>
         /// <param name="reason"></param>
         /// <returns></returns>
-        string GetSubstitutionFor(string toSwap, out string reason);
+        string? GetSubstitutionFor(string toSwap, out string? reason);
 
         /// <summary>
         /// Clear the mapping cache (if exists) and reload

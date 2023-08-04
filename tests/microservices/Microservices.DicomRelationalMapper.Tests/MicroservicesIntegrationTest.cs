@@ -417,7 +417,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             generator.GenerateImageFiles(40,r);
             RunTest(dir, 40);
         }
-        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions=null)
+        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions>? adjustFileSystemOptions=null)
         { 
             TestLogger.Setup();
             var logger = LogManager.GetLogger("MicroservicesIntegrationTest");
@@ -604,7 +604,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             public override void Setup(IMappingTableOptions mappingTableOptions) { }
 
-            public override string GetSubstitutionFor(string toSwap, out string reason)
+            public override string? GetSubstitutionFor(string toSwap, out string? reason)
             {
                 reason = null;
                 Success++;

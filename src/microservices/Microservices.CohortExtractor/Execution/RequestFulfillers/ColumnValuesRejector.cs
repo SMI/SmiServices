@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
@@ -17,7 +16,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             _rejectPatients = values;
         }
 
-        public bool Reject(IDataRecord row, out string reason)
+        public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
         {
             string patientId;
 

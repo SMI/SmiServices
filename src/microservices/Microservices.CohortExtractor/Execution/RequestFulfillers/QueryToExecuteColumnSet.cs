@@ -20,22 +20,22 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <summary>
         /// The column in the <see cref="Catalogue"/> that stores the location on disk of the image
         /// </summary>
-        public readonly ExtractionInformation FilePathColumn;
+        public readonly ExtractionInformation? FilePathColumn;
 
         /// <summary>
         /// The column in the <see cref="Catalogue"/> that stores the StudyInstanceUID
         /// </summary>
-        public readonly ExtractionInformation StudyTagColumn;
+        public readonly ExtractionInformation? StudyTagColumn;
         
         /// <summary>
         /// The column in the <see cref="Catalogue"/> that stores the SeriesInstanceUID
         /// </summary>
-        public readonly ExtractionInformation SeriesTagColumn;
+        public readonly ExtractionInformation? SeriesTagColumn;
 
         /// <summary>
         /// The column in the <see cref="Catalogue"/> that stores the SOPInstanceUID
         /// </summary>
-        public readonly ExtractionInformation InstanceTagColumn;
+        public readonly ExtractionInformation? InstanceTagColumn;
 
         /// <summary>
         /// All the extractable columns in the <see cref="Catalogue"/> (includes <see cref="SeriesTagColumn"/>, <see cref="StudyTagColumn"/> etc)
@@ -45,10 +45,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public bool HasAllUIDs => StudyTagColumn != null && SeriesTagColumn != null && InstanceTagColumn != null;
 
         public QueryToExecuteColumnSet(ICatalogue catalogue,
-            ExtractionInformation filePathColumn,
-            ExtractionInformation studyTagColumn,
-            ExtractionInformation seriesTagColumn,
-            ExtractionInformation instanceTagColumn,
+            ExtractionInformation? filePathColumn,
+            ExtractionInformation? studyTagColumn,
+            ExtractionInformation? seriesTagColumn,
+            ExtractionInformation? instanceTagColumn,
             bool requireFilePath = true)
         {
             Catalogue = catalogue ?? throw new ArgumentNullException(nameof(catalogue));

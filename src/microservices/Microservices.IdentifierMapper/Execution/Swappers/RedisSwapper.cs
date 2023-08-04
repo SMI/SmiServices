@@ -41,7 +41,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _hostedSwapper.Setup(mappingTableOptions);
         }
 
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             reason = null;
 

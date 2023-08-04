@@ -18,7 +18,14 @@ namespace Smi.Common.Tests
         /// <param name="relational"></param>
         /// <param name="catalogueConnectionString">Connection string to RDMP catalogue database e.g. TEST_Catalogue</param>
         /// <param name="dataExportConnectionStringBuilder">Connection string to RDMP data export database e.g. TEST_DataExport</param>
-        public static void UseTestValues(this GlobalOptions g, ConnectionFactory rabbit,MongoClientSettings mongo,RequiresRelationalDb.ConStrs relational, DbConnectionStringBuilder catalogueConnectionString, DbConnectionStringBuilder dataExportConnectionStringBuilder)
+        public static void UseTestValues(
+            this GlobalOptions g,
+            ConnectionFactory? rabbit,
+            MongoClientSettings? mongo,
+            RequiresRelationalDb.ConStrs? relational,
+            DbConnectionStringBuilder? catalogueConnectionString,
+            DbConnectionStringBuilder? dataExportConnectionStringBuilder
+        )
         {
             //Rabbit
             g.RabbitOptions.RabbitMqHostName = rabbit?.HostName;
@@ -30,7 +37,7 @@ namespace Smi.Common.Tests
             //RDMP
             g.RDMPOptions.CatalogueConnectionString = catalogueConnectionString?.ConnectionString;
             g.RDMPOptions.DataExportConnectionString = dataExportConnectionStringBuilder?.ConnectionString;
-            
+
             //Mongo Db
             g.MongoDatabases.DicomStoreOptions.HostName = mongo?.Server?.Host;
             g.MongoDatabases.ExtractionStoreOptions.HostName = mongo?.Server?.Host;

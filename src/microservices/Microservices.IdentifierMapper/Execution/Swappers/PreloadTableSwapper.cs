@@ -68,7 +68,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         }
 
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             lock (_oDictionaryLock)
             {

@@ -41,7 +41,7 @@ namespace Applications.ExtractImages.Tests
 
         private class TestConsoleInput : IConsoleInput
         {
-            private string _line;
+            private string? _line;
 
             public TestConsoleInput(string line)
             {
@@ -64,7 +64,7 @@ namespace Applications.ExtractImages.Tests
         [TestCase(false)]
         public void HappyPath_Interactive(bool confirm)
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
             mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
@@ -110,7 +110,7 @@ namespace Applications.ExtractImages.Tests
         [Test]
         public void HappyPath_NonInteractive()
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
             mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
@@ -247,7 +247,7 @@ namespace Applications.ExtractImages.Tests
         [Test]
         public void ListChunking_CorrectIds()
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var calledWith = new List<string>();
 
@@ -289,7 +289,7 @@ namespace Applications.ExtractImages.Tests
         [TestCase(2, 1, 2)] // nIds > maxPerMessage => 2 messages
         public void ListChunking_EdgeCases(int nIds, int maxPerMessage, int expectedMessages)
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
             mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);

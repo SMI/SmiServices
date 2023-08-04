@@ -47,7 +47,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 CreateTableIfNotExists();
         }
 
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             reason = null;
 

@@ -165,7 +165,7 @@ namespace Microservices.UpdateValues.Execution
         /// </summary>
         /// <param name="fields"></param>
         /// <returns></returns>
-        public virtual IEnumerable<TableInfo> GetAllTables(string[] fields)
+        public virtual IEnumerable<TableInfo> GetAllTables(string?[] fields)
         {
             //the tables we should consider
             var tables = TableInfosToUpdate != null && TableInfosToUpdate.Any() ? 

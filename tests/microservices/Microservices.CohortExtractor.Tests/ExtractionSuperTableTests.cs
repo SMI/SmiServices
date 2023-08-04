@@ -20,6 +20,7 @@ using Smi.Common.Tests;
 using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.CohortExtractor.Tests
 {
@@ -261,13 +262,13 @@ namespace Microservices.CohortExtractor.Tests
 
     internal class TestRejector : IRejector
     {
-        public bool Reject(IDataRecord row, out string reason)
+        public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
         {
             //if the image is not extractable
             if (!Convert.ToBoolean(row["IsExtractableToDisk"]))
             {
                 //tell them why and reject it
-                reason = row["IsExtractableToDisk_Reason"] as string;
+                reason = (row["IsExtractableToDisk_Reason"] as string)!;
                 return true;
             }
 
