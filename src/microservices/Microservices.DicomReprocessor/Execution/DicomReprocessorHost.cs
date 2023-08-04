@@ -28,7 +28,7 @@ namespace Microservices.DicomReprocessor.Execution
             // Set the initial sleep time
             Globals.DicomReprocessorOptions.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
-            IProducerModel reprocessingProducerModel = RabbitMqAdapter.SetupProducer(options.DicomReprocessorOptions.ReprocessingProducerOptions, true);
+            IProducerModel reprocessingProducerModel = RabbitMqAdapter.SetupProducer(options.DicomReprocessorOptions.ReprocessingProducerOptions!, true);
 
             Logger.Info("Documents will be reprocessed to " +
                         options.DicomReprocessorOptions.ReprocessingProducerOptions.ExchangeName + " on vhost " +
@@ -52,14 +52,14 @@ namespace Microservices.DicomReprocessor.Execution
                     throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode + " not supported");
             }
 
-            _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions, cliOptions, HostProcessName + "-" + HostProcessID);
+            _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions!, cliOptions, HostProcessName + "-" + HostProcessID);
 
             AddControlHandler(new DicomReprocessorControlMessageHandler(Globals.DicomReprocessorOptions));
         }
 
         public override void Start()
         {
-            _processorTask = _mongoReader.RunQuery(_queryString, _processor, Globals.DicomReprocessorOptions);
+            _processorTask = _mongoReader.RunQuery(_queryString, _processor, Globals.DicomReprocessorOptions!);
             TimeSpan queryTime = _processorTask.Result;
 
             if (_processor.TotalProcessed == 0)

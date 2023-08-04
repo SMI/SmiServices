@@ -99,7 +99,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             
             Assert.AreEqual(numberOfImages, allImages.Count);
 
-            using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
+            using (var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions))
             {
                 using var host = new DicomRelationalMapperHost(_globals);
                 tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);

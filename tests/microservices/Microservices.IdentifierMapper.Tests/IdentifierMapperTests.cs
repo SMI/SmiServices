@@ -177,9 +177,9 @@ namespace Microservices.IdentifierMapper.Tests
 
             options.IdentifierMapperOptions.AllowRegexMatching = true;
 
-            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IdentifierMapperOptions))
+            using (var tester = new MicroserviceTester(options.RabbitOptions!, options.IdentifierMapperOptions))
             {
-                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, null);
+                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName!, null);
 
                 Console.WriteLine("Pushing good messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, goodChis, true);
@@ -200,9 +200,9 @@ namespace Microservices.IdentifierMapper.Tests
 
             options.IdentifierMapperOptions.AllowRegexMatching = false;
 
-            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IdentifierMapperOptions))
+            using (var tester = new MicroserviceTester(options.RabbitOptions!, options.IdentifierMapperOptions))
             {
-                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, null);
+                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName!, null);
 
                 Console.WriteLine("Pushing bad messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, badChis, true);

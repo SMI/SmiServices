@@ -86,7 +86,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue;
 
             string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestSeriesDocumentFormat");
-            var testAdapter = new MongoDbAdapter("TestSeriesDocumentFormat", options.MongoDatabases.DicomStoreOptions, collectionName);
+            var testAdapter = new MongoDbAdapter("TestSeriesDocumentFormat", options.MongoDatabases.DicomStoreOptions!, collectionName);
 
             var callbackUsed = false;
             Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };

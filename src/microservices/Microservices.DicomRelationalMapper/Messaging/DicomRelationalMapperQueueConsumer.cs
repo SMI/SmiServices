@@ -89,7 +89,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         }
 
 
-        protected override void ProcessMessageImpl(IMessageHeader? header, DicomFileMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage message, ulong tag)
         {
             DicomDataset dataset;
 
@@ -278,7 +278,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 case ExitCodeType.Abort:
                     {
                         _stopTokenSource.Cancel();
-                        Fatal("DLE Crashed " + (_retryOnFailureCount + 1) + " time(s) on the same batch", firstException);
+                        Fatal("DLE Crashed " + (_retryOnFailureCount + 1) + " time(s) on the same batch", firstException!);
                         break;
                     }
                 default:

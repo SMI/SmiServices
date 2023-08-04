@@ -71,15 +71,15 @@ namespace Microservices.DicomRelationalMapper.Tests
             File.Move(fi2.FullName,fi.FullName);
             
             //creates the queues, exchanges and bindings
-            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
+            var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions!);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange!, null);
 
             using (var host = new DicomRelationalMapperHost(_globals))
             {
                 host.Start();
 
                 using var timeline = new TestTimeline(tester);
-                timeline.SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi));
+                timeline.SendMessage(_globals.DicomRelationalMapperOptions!, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot!, fi));
 
                 //start the timeline
                 timeline.StartTimeline();
@@ -118,8 +118,8 @@ namespace Microservices.DicomRelationalMapper.Tests
             }
 
             //creates the queues, exchanges and bindings
-            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
+            var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions!);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange!, null);
 
             using (var host = new DicomRelationalMapperHost(_globals))
             {
@@ -131,7 +131,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     for (int i = 0; i < numberOfMessagesToSend; i++)
                     {
                         timeline
-                            .SendMessage(_globals.DicomRelationalMapperOptions, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, fi))
+                            .SendMessage(_globals.DicomRelationalMapperOptions!, _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot!, fi))
                             .Wait(1000);
                     }
 
@@ -197,8 +197,8 @@ namespace Microservices.DicomRelationalMapper.Tests
             new TableInfoSynchronizer(_helper.ImageTableInfo).Synchronize(new AcceptAllCheckNotifier());
 
             //creates the queues, exchanges and bindings
-            var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
+            var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions!);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange!, null);
 
             using (var host = new DicomRelationalMapperHost(_globals))
             {
@@ -207,8 +207,8 @@ namespace Microservices.DicomRelationalMapper.Tests
                 using (var timeline = new TestTimeline(tester))
                 {
                     foreach (var f in files)
-                        timeline.SendMessage(_globals.DicomRelationalMapperOptions,
-                            _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot, f));
+                        timeline.SendMessage(_globals.DicomRelationalMapperOptions!,
+                            _helper.GetDicomFileMessage(_globals.FileSystemOptions.FileSystemRoot!, f));
 
                     //start the timeline
                     timeline.StartTimeline();
@@ -298,15 +298,15 @@ namespace Microservices.DicomRelationalMapper.Tests
             ds.AddOrUpdate(DicomTag.StudyInstanceUID, "123");
             ds.AddOrUpdate(DicomTag.PatientID, "123");
 
-            var msg1 = _helper.GetDicomFileMessage(ds, _globals.FileSystemOptions.FileSystemRoot, Path.Combine(_globals.FileSystemOptions.FileSystemRoot, "mydicom.dcm"));
-            var msg2 = _helper.GetDicomFileMessage(ds, _globals.FileSystemOptions.FileSystemRoot, Path.Combine(_globals.FileSystemOptions.FileSystemRoot, "mydicom.dcm"));
+            var msg1 = _helper.GetDicomFileMessage(ds, _globals.FileSystemOptions.FileSystemRoot!, Path.Combine(_globals.FileSystemOptions.FileSystemRoot!, "mydicom.dcm"));
+            var msg2 = _helper.GetDicomFileMessage(ds, _globals.FileSystemOptions.FileSystemRoot!, Path.Combine(_globals.FileSystemOptions.FileSystemRoot!, "mydicom.dcm"));
 
 
             //creates the queues, exchanges and bindings
-            using var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, null);
-            tester.SendMessage(_globals.DicomRelationalMapperOptions, msg1);
-            tester.SendMessage(_globals.DicomRelationalMapperOptions, msg2);
+            using var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions!);
+            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange!, null);
+            tester.SendMessage(_globals.DicomRelationalMapperOptions!, msg1);
+            tester.SendMessage(_globals.DicomRelationalMapperOptions!, msg2);
 
             _globals.DicomRelationalMapperOptions.RunChecks = true;
 

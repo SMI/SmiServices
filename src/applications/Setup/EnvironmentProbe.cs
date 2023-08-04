@@ -225,7 +225,7 @@ DicomTagReader {
 
             try
             {
-                var factory = ConnectionFactoryExtensions.CreateConnectionFactory(Options.RabbitOptions);
+                var factory = ConnectionFactoryExtensions.CreateConnectionFactory(Options.RabbitOptions!);
                 var adapter = new RabbitMqAdapter(factory, "setup");
 
                 return new CheckEventArgs("Connected to RabbitMq", CheckResult.Success);
@@ -247,8 +247,8 @@ DicomTagReader {
                     return null;
 
                 // this opens connection to the server and tests for collection existing                
-                new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
-                         Options.MongoDbPopulatorOptions.ImageCollection);
+                new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions!,
+                         Options.MongoDbPopulatorOptions.ImageCollection!);
 
 
                 MongoDbOptions mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions
@@ -256,7 +256,7 @@ DicomTagReader {
 
                 var jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, "Setup"),
-                    mongoDbOptions.DatabaseName, new Smi.Common.Helpers.DateTimeProvider()
+                    mongoDbOptions.DatabaseName!, new Smi.Common.Helpers.DateTimeProvider()
                 );
 
                 return new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);

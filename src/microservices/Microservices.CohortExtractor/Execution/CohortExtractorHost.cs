@@ -75,12 +75,12 @@ namespace Microservices.CohortExtractor.Execution
             foreach (CheckEventArgs args in toMemory.Messages.Where(m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions, isBatch: true);
-            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions, isBatch: false);
+            _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions!, isBatch: true);
+            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller!, _auditor!, _pathResolver!, _fileMessageProducer, fileMessageInfoProducer);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
@@ -121,7 +121,7 @@ namespace Microservices.CohortExtractor.Execution
             if (!_consumerOptions.AllCatalogues)
                 catalogues = catalogues.Where(c => _consumerOptions.OnlyCatalogues.Contains(c.ID)).ToArray();
 
-            _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType,
+            _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType!,
                 typeof(IExtractionRequestFulfiller).Assembly, new object[] { catalogues });
 
             if (_fulfiller == null)
@@ -131,11 +131,11 @@ namespace Microservices.CohortExtractor.Execution
                 _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
 
             if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
-                _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly));
+                _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly)!);
 
             foreach(var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? new ModalitySpecificRejectorOptions[0])
             {
-                var r = ObjectFactory.CreateInstance<IRejector>(modalitySpecific.RejectorType, typeof(IRejector).Assembly);
+                var r = ObjectFactory.CreateInstance<IRejector>(modalitySpecific.RejectorType!, typeof(IRejector).Assembly)!;
                 _fulfiller.ModalitySpecificRejectors.Add(modalitySpecific, r);
             }
 

@@ -48,7 +48,8 @@ public static class Program
 
         _logger.Debug($"Loaded test row JSON:\n{jsonString}");
 
-        var rowItems = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
+        var rowItems = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString)
+            ?? throw new Exception($"Deserialized JSON was null");
         var jsonFileRecord = new JsonFileRecord(rowItems);
 
         if (dynamicRejector.Reject(jsonFileRecord, out string? reason))

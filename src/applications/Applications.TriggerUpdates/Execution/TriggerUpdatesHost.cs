@@ -15,7 +15,7 @@ namespace Applications.TriggerUpdates.Execution
             : base(options, rabbitMqAdapter)
         {
             _source = source;
-            _producer =  RabbitMqAdapter.SetupProducer(options.TriggerUpdatesOptions, isBatch: false);
+            _producer =  RabbitMqAdapter.SetupProducer(options.TriggerUpdatesOptions!, isBatch: false);
         }
         
         public override void Start()

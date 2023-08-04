@@ -24,13 +24,13 @@ namespace Microservices.MongoDBPopulator.Messaging
         {
             if (typeof(T) == typeof(DicomFileMessage))
             {
-                var mongoImageAdapter = new MongoDbAdapter("ImageMessageProcessor", mongoDbOptions, populatorOptions.ImageCollection);
+                var mongoImageAdapter = new MongoDbAdapter("ImageMessageProcessor", mongoDbOptions, populatorOptions.ImageCollection!);
                 Processor = (IMessageProcessor<T>)new ImageMessageProcessor(populatorOptions, mongoImageAdapter, consumerOptions.QoSPrefetchCount, ExceptionCallback);
             }
 
             else if (typeof(T) == typeof(SeriesMessage))
             {
-                var mongoSeriesAdapter = new MongoDbAdapter("SeriesMessageProcessor", mongoDbOptions, populatorOptions.SeriesCollection);
+                var mongoSeriesAdapter = new MongoDbAdapter("SeriesMessageProcessor", mongoDbOptions, populatorOptions.SeriesCollection!);
                 Processor = (IMessageProcessor<T>)new SeriesMessageProcessor(populatorOptions, mongoSeriesAdapter, consumerOptions.QoSPrefetchCount, ExceptionCallback);
             }
 
@@ -53,7 +53,7 @@ namespace Microservices.MongoDBPopulator.Messaging
             Fatal("Processor threw an exception", e);
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader? header, T message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, T message, ulong tag)
         {
             // We are shutting down anyway
             if (Processor.IsStopping)

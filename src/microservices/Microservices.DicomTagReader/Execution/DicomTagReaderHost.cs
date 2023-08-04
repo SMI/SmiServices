@@ -60,7 +60,7 @@ namespace Microservices.DicomTagReader.Execution
         public override void Start()
         {
             // Start the consumer to await callbacks when messages arrive
-            RabbitMqAdapter.StartConsumer(Globals.DicomTagReaderOptions, AccessionDirectoryMessageConsumer, isSolo: false);
+            RabbitMqAdapter.StartConsumer(Globals.DicomTagReaderOptions!, AccessionDirectoryMessageConsumer, isSolo: false);
             Logger.Debug("Consumer started");
         }
 

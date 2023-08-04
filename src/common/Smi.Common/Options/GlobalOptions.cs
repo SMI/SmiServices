@@ -237,7 +237,7 @@ namespace Smi.Common.Options
         {
             try
             {
-                var opt = (FileReadOption)Enum.Parse(typeof(FileReadOption), FileReadOption);
+                var opt = (FileReadOption)Enum.Parse(typeof(FileReadOption), FileReadOption!);
 
                 if (opt == FellowOakDicom.FileReadOption.SkipLargeTags)
                     throw new ApplicationException("SkipLargeTags is disallowed here to ensure data consistency");
@@ -354,12 +354,14 @@ namespace Smi.Common.Options
         /// </summary>
         public string? ProjectPathResolverType { get; set; }
 
+        public const string DefaultModalityRoutingRegex = "^([A-Z]+)_.*$";
+
         /// <summary>
         /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which
         /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result
         /// in Modalities being routed based on the start of the table name e.g. CT => CT_MyTable and MR=> MR_MyTable
         /// </summary>
-        public string? ModalityRoutingRegex { get; set; } = "^([A-Z]+)_.*$";
+        public string? ModalityRoutingRegex { get; set; } = DefaultModalityRoutingRegex;
 
         /// <summary>
         /// The Type of a class implementing IRejector which is responsible for deciding individual records/images are not extractable (after fetching from database)

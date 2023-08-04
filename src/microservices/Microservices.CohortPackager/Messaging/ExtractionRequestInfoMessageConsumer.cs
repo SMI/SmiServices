@@ -20,7 +20,7 @@ namespace Microservices.CohortPackager.Messaging
             _store = store;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader? header, ExtractionRequestInfoMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestInfoMessage message, ulong tag)
         {
             try
             {

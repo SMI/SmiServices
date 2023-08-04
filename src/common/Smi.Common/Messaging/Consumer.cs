@@ -95,7 +95,10 @@ namespace Smi.Common.Messaging
                 if (deliverArgs.BasicProperties?.ContentEncoding != null)
                     enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
-                header = new MessageHeader(deliverArgs.BasicProperties?.Headers, enc);
+                var headers = deliverArgs.BasicProperties?.Headers
+                    ?? throw new ArgumentNullException("A part of deliverArgs.BasicProperties.Headers was null");
+
+                header = new MessageHeader(headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
             }
             catch (Exception e)
@@ -125,7 +128,7 @@ namespace Smi.Common.Messaging
         {
             try
             {
-                ProcessMessageImpl(null, msg, 1);
+                ProcessMessageImpl(null!, msg, 1);
             }
             catch (Exception e)
             {
@@ -134,7 +137,7 @@ namespace Smi.Common.Messaging
         }
 
 
-        protected abstract void ProcessMessageImpl(IMessageHeader? header, TMessage message, ulong tag);
+        protected abstract void ProcessMessageImpl(IMessageHeader header, TMessage message, ulong tag);
 
         /// <summary>
         /// Safely deserialize a <see cref="BasicDeliverEventArgs"/> to an <see cref="IMessage"/>. Returns true if the deserialization

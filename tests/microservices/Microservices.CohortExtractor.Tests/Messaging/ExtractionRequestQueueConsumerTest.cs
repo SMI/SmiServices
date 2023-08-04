@@ -99,7 +99,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             };
 
             var consumer = new ExtractionRequestQueueConsumer(
-                globals.CohortExtractorOptions,
+                globals.CohortExtractorOptions!,
                 fakeFulfiller,
                 new NullAuditExtractions(), new DefaultProjectPathResolver(),
                 mockFileMessageProducerModel.Object,

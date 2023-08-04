@@ -64,8 +64,8 @@ namespace Applications.ExtractImages
 
             if (extractionMessageSender == null)
             {
-                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestProducerOptions, isBatch: false);
-                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestInfoProducerOptions, isBatch: false);
+                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestProducerOptions!, isBatch: false);
+                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestInfoProducerOptions!, isBatch: false);
 
                 _extractionMessageSender = new ExtractionMessageSender(
                     options,

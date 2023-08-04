@@ -70,10 +70,13 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 {
                     foreach (QueryToExecuteResult result in query.Execute(valueToLookup, GetRejectorsFor(message,query).ToList()))
                     {
-                        if (!results.ContainsKey(result.SeriesTagValue))
-                            results.Add(result.SeriesTagValue, new HashSet<QueryToExecuteResult>());
+                        var seriesTagValue = result.SeriesTagValue
+                            ?? throw new ArgumentNullException(nameof(result.SeriesTagValue));
 
-                        results[result.SeriesTagValue].Add(result);
+                        if (!results.ContainsKey(seriesTagValue))
+                            results.Add(seriesTagValue, new HashSet<QueryToExecuteResult>());
+
+                        results[seriesTagValue].Add(result);
                     }
                 }
 

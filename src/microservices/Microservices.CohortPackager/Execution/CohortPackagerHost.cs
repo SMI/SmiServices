@@ -59,7 +59,7 @@ namespace Microservices.CohortPackager.Execution
                     ?? throw new ArgumentException("Some part of Globals.MongoDatabases.ExtractionStoreOptions is null");
                 jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
-                    mongoDbOptions.DatabaseName,
+                    mongoDbOptions.DatabaseName!,
                     dateTimeProvider
                 );
             }
@@ -73,12 +73,12 @@ namespace Microservices.CohortPackager.Execution
             if (reporter == null)
             {
                 reporter = JobReporterFactory.GetReporter(
-                    Globals.CohortPackagerOptions.ReporterType,
+                    Globals.CohortPackagerOptions.ReporterType!,
                     jobStore,
                     fileSystem ?? new FileSystem(),
-                    Globals.FileSystemOptions.ExtractRoot,
+                    Globals.FileSystemOptions.ExtractRoot!,
                     reportFormatStr,
-                    Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine)
+                    Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine!)
                 );
             }
             else
@@ -90,11 +90,11 @@ namespace Microservices.CohortPackager.Execution
             }
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
-                Globals.CohortPackagerOptions.NotifierType
+                Globals.CohortPackagerOptions.NotifierType!
             );
 
             _jobWatcher = new ExtractJobWatcher(
-                globals.CohortPackagerOptions,
+                globals.CohortPackagerOptions!,
                 jobStore,
                 ExceptionCallback,
                 notifier,
@@ -117,10 +117,10 @@ namespace Microservices.CohortPackager.Execution
             _jobWatcher.Start();
 
             // TODO(rkm 2020-03-02) Once this is transactional, we can have one "master" service which actually does the job checking
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.ExtractRequestInfoOptions, _requestInfoMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions, _fileCollectionMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions, _anonFailedMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions, _anonVerificationMessageConsumer, isSolo: true);
+            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.ExtractRequestInfoOptions!, _requestInfoMessageConsumer, isSolo: true);
+            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions!, _fileCollectionMessageConsumer, isSolo: true);
+            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions!, _anonFailedMessageConsumer, isSolo: true);
+            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions!, _anonVerificationMessageConsumer, isSolo: true);
         }
 
         public override void Stop(string reason)

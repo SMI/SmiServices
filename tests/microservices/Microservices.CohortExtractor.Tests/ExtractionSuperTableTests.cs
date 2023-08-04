@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BadMedicine;
@@ -196,8 +195,7 @@ namespace Microservices.CohortExtractor.Tests
             
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cataCT,cataMR})
             {
-                //Give it the default modality pattern (table prefix)
-                ModalityRoutingRegex = new Regex(new CohortExtractorOptions().ModalityRoutingRegex)
+                ModalityRoutingRegex = new Regex(CohortExtractorOptions.DefaultModalityRoutingRegex)
             };
             
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))

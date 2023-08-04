@@ -142,9 +142,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             //row is bad if the query matches any records (in the blacklist)
             var bad = DoLookup(
-                row[QueryToExecuteColumnSet.DefaultStudyIdColumnName].ToString(),
-                row[QueryToExecuteColumnSet.DefaultSeriesIdColumnName].ToString(),
-                row[QueryToExecuteColumnSet.DefaultInstanceIdColumnName].ToString()
+                row[QueryToExecuteColumnSet.DefaultStudyIdColumnName].ToString()!,
+                row[QueryToExecuteColumnSet.DefaultSeriesIdColumnName].ToString()!,
+                row[QueryToExecuteColumnSet.DefaultInstanceIdColumnName].ToString()!
             );
 
             reason = bad ? $"Blacklisted in {_catalogue.Name}" : null;

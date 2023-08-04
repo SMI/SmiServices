@@ -34,7 +34,7 @@ public class DicomLoaderTests
         DicomDataset[] testImages;
         Study study;
 
-        var database = MongoClientHelpers.GetMongoClient(_gOptions.MongoDatabases.DicomStoreOptions, nameof(DicomLoader)).GetDatabase(_gOptions.MongoDatabases.DicomStoreOptions.DatabaseName);
+        var database = MongoClientHelpers.GetMongoClient(_gOptions.MongoDatabases.DicomStoreOptions!, nameof(DicomLoader)).GetDatabase(_gOptions.MongoDatabases.DicomStoreOptions.DatabaseName);
         var imageStore = database.GetCollection<BsonDocument>(_gOptions.MongoDbPopulatorOptions.ImageCollection);
         var seriesStore = database.GetCollection<SeriesMessage>(_gOptions.MongoDbPopulatorOptions.SeriesCollection);
 

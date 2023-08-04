@@ -61,7 +61,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                     Stopwatch sw = Stopwatch.StartNew();
 
                     while (dataReader.Read())
-                        _mapping.Add(dataReader[_options.SwapColumnName].ToString(), dataReader[_options.ReplacementColumnName].ToString());
+                        _mapping.Add(dataReader[_options.SwapColumnName!].ToString()!, dataReader[_options.ReplacementColumnName!].ToString()!);
 
                     _logger.Debug("Mapping dictionary populated with " + _mapping.Count + " entries in " + sw.Elapsed.ToString("g"));
                 }

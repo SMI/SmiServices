@@ -44,7 +44,7 @@ namespace Applications.TriggerUpdates.Execution
             try
             {
                 var objectFactory = new MicroserviceObjectFactory();
-                _swapper = objectFactory.CreateInstance<ISwapIdentifiers>(globalOptions.IdentifierMapperOptions.SwapperType, typeof(ISwapIdentifiers).Assembly);
+                _swapper = objectFactory.CreateInstance<ISwapIdentifiers>(globalOptions.IdentifierMapperOptions.SwapperType!, typeof(ISwapIdentifiers).Assembly);
             }
             catch (System.Exception ex)
             {
@@ -75,8 +75,8 @@ namespace Applications.TriggerUpdates.Execution
                 if(!archiveTable.Exists())
                     throw new Exception($"No Archive table exists for mapping table {mappingTable.GetFullyQualifiedName()}");
 
-                var swapCol = _globalOptions.IdentifierMapperOptions.SwapColumnName;
-                var forCol = _globalOptions.IdentifierMapperOptions.ReplacementColumnName;
+                var swapCol = _globalOptions.IdentifierMapperOptions.SwapColumnName!;
+                var forCol = _globalOptions.IdentifierMapperOptions.ReplacementColumnName!;
 
                 // may be null!
                 var liveDatabaseFieldName = _cliOptions.LiveDatabaseFieldName;

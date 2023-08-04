@@ -40,9 +40,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 var rejection = false;
                 var rejectionReason = "";
                 var result = new QueryToExecuteResult(valueToLookup, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
-                if(!results.ContainsKey(result.SeriesTagValue))
-                    results.Add(result.SeriesTagValue,new HashSet<QueryToExecuteResult>());
-                results[result.SeriesTagValue].Add(result);
+                if(!results.ContainsKey(result.SeriesTagValue!))
+                    results.Add(result.SeriesTagValue!,new HashSet<QueryToExecuteResult>());
+                results[result.SeriesTagValue!].Add(result);
 
                 yield return results;
             }

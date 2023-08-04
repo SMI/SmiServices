@@ -15,7 +15,7 @@ namespace Smi.Common.MongoDB
 
         //TODO(RKM 05/07) Make Modality a required property of the query
         //TODO(Ruairidh): Refactor out the IMongoCollection object
-        public static async Task<IAsyncCursor<BsonDocument>> GetCursor(IMongoCollection<BsonDocument> coll, FindOptions<BsonDocument> findOptions, string jsonQuery)
+        public static async Task<IAsyncCursor<BsonDocument>> GetCursor(IMongoCollection<BsonDocument> coll, FindOptions<BsonDocument> findOptions, string? jsonQuery)
         {
             if (string.IsNullOrWhiteSpace(jsonQuery))
             {

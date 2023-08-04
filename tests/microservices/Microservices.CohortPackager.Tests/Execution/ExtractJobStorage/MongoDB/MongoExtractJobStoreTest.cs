@@ -168,7 +168,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 BsonDocument bsonDoc = document.ToBsonDocument();
                 if (!bsonDoc.Contains("_id"))
                     bsonDoc.Add("_id", Guid.NewGuid().ToString());
-                if (!Documents.TryAdd(GetKey(bsonDoc["_id"].ToString()), document))
+                if (!Documents.TryAdd(GetKey(bsonDoc["_id"].ToString()!), document))
                     throw new Exception("Document already exists");
             }
 
@@ -185,7 +185,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     return ReplaceOneResult.Unacknowledged.Instance;
 
                 BsonDocument bsonDoc = replacement.ToBsonDocument();
-                TKey key = GetKey(bsonDoc["_id"].ToString());
+                TKey key = GetKey(bsonDoc["_id"].ToString()!);
                 if (!Documents.ContainsKey(key))
                     return ReplaceOneResult.Unacknowledged.Instance;
 
@@ -202,7 +202,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 if (!filterDoc.Contains("_id") || filterDoc.Count() > 1)
                     throw new NotImplementedException("No support for deleting multiple docs");
 
-                return Documents.Remove(GetKey(filterDoc["_id"].ToString()))
+                return Documents.Remove(GetKey(filterDoc["_id"].ToString()!))
                     ? (DeleteResult)new DeleteResult.Acknowledged(1)
                     : DeleteResult.Unacknowledged.Instance;
             }

@@ -1,5 +1,4 @@
 using System;
-using JetBrains.Annotations;
 using System.IO;
 using Smi.Common.Execution;
 using Smi.Common.Helpers;
@@ -32,14 +31,14 @@ namespace Microservices.IsIdentifiable.Service
                 throw new ArgumentException("A DataDirectory must be set",nameof(globals));
 
             var objectFactory = new MicroserviceObjectFactory();
-            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions);
+            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions!);
 
             if(classifier == null)
                 throw new TypeLoadException($"Could not find IClassifier Type { classifierTypename }");
 
-            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions, isBatch: false);
+            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions!, isBatch: false);
 
-            Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions.ExtractRoot, classifier);
+            Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions.ExtractRoot!, classifier);
         }
 
         public override void Start()

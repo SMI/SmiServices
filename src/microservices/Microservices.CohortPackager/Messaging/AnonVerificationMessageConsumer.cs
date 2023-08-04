@@ -25,7 +25,7 @@ namespace Microservices.CohortPackager.Messaging
         }
 
 
-        protected override void ProcessMessageImpl(IMessageHeader? header, ExtractedFileVerificationMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileVerificationMessage message, ulong tag)
         {
             try
             {

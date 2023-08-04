@@ -48,7 +48,7 @@ namespace Microservices.Tests.RDMPTests
             if (DataExportRepository is ITableRepository dertr)
                 globals.RDMPOptions.DataExportConnectionString = dertr.DiscoveredServer.Builder.ConnectionString;
 
-            using (new MicroserviceTester(globals.RabbitOptions, globals.DicomRelationalMapperOptions))
+            using (new MicroserviceTester(globals.RabbitOptions!, globals.DicomRelationalMapperOptions!))
             {
                 using var host = new DicomRelationalMapperHost(globals);
                 host.Start();

@@ -154,7 +154,7 @@ namespace Smi.Common
             model.ModelShutdown += shutdown;
             ebc.Shutdown += shutdown;
 
-            var resources = new ConsumerResources(ebc, consumerOptions.QueueName, model);
+            var resources = new ConsumerResources(ebc, consumerOptions.QueueName!, model);
             Guid taskId = Guid.NewGuid();
 
             lock (_oResourceLock)
@@ -231,8 +231,8 @@ namespace Smi.Common
             try
             {
                 producerModel = isBatch ?
-                    new BatchProducerModel(producerOptions.ExchangeName, model, props, producerOptions.MaxConfirmAttempts) :
-                    new ProducerModel(producerOptions.ExchangeName, model, props, producerOptions.MaxConfirmAttempts);
+                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts) :
+                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts);
             }
             catch (Exception)
             {

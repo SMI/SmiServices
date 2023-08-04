@@ -24,7 +24,7 @@ namespace Smi.Common.Tests
 
             TestConsumer consumer;
 
-            using var tester = new MicroserviceTester(o.RabbitOptions, consumerOptions);
+            using var tester = new MicroserviceTester(o.RabbitOptions!, consumerOptions);
 
             var header = new MessageHeader {
                 MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76"),
@@ -47,7 +47,7 @@ namespace Smi.Common.Tests
             public bool Failed { get; private set; }
 
 
-            protected override void ProcessMessageImpl(IMessageHeader? header, TestMessage message, ulong tag)
+            protected override void ProcessMessageImpl(IMessageHeader header, TestMessage message, ulong tag)
             {
                 try
                 {

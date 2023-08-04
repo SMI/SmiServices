@@ -48,7 +48,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
         {
             fileSystem ??= _helper.MockFileSystem;
 
-            return new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, fileSystem);
+            return new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions!, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, fileSystem);
         }
 
         private void CheckAckNackCounts(DicomTagReaderConsumer consumer, int desiredAckCount, int desiredNackCount)

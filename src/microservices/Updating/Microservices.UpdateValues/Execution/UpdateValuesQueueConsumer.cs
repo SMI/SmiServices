@@ -21,7 +21,7 @@ namespace Microservices.UpdateValues.Execution
         DateTime lastPerformanceAudit = new(2001,1,1);
         TimeSpan auditEvery = TimeSpan.FromSeconds(60);
 
-        protected override void ProcessMessageImpl(IMessageHeader? header, UpdateValuesMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, UpdateValuesMessage message, ulong tag)
         {
             _updater.HandleUpdate(message);
 

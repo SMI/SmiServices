@@ -44,9 +44,9 @@ namespace Microservices.CohortPackager
                 ?? throw new ArgumentException($"Part of globalOptions.MongoDatabases.ExtractionStoreOptions was null");
 
             MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
-            var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
+            var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName!);
 
-            string newLine = Regex.Unescape(cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine);
+            string newLine = Regex.Unescape(cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions.ReportNewLine!);
 
             // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory
             IJobReporter reporter = JobReporterFactory.GetReporter(

@@ -76,7 +76,7 @@ namespace Microservices.IdentifierMapper.Messaging
             acker.Join();
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader? header, DicomFileMessage msg, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage msg, ulong tag)
         {
             string? errorReason = null;
             var success = false;
@@ -115,7 +115,7 @@ namespace Microservices.IdentifierMapper.Messaging
             if (!success)
             {
                 Logger.Info($"Could not swap identifiers for message {header.MessageGuid}. Reason was: {errorReason}");
-                ErrorAndNack(header, tag, errorReason, new Exception());
+                ErrorAndNack(header, tag, errorReason!, new Exception());
             }
             else
             {

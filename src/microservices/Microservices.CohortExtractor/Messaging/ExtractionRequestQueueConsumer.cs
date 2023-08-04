@@ -6,6 +6,7 @@ using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using System;
 using System.ComponentModel;
 
 namespace Microservices.CohortExtractor.Messaging
@@ -35,7 +36,7 @@ namespace Microservices.CohortExtractor.Messaging
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader? header, ExtractionRequestMessage request, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
         {
             Logger.Info($"Received message: {request}");
 
@@ -84,10 +85,13 @@ namespace Microservices.CohortExtractor.Messaging
                 // For all the rejected messages log why (in the info message)
                 foreach (QueryToExecuteResult rejectedResults in matchedFiles.Rejected)
                 {
-                    if (!infoMessage.RejectionReasons.ContainsKey(rejectedResults.RejectReason))
-                        infoMessage.RejectionReasons.Add(rejectedResults.RejectReason, 0);
+                    var rejectReason = rejectedResults.RejectReason
+                        ?? throw new ArgumentNullException(nameof(rejectedResults.RejectReason));
 
-                    infoMessage.RejectionReasons[rejectedResults.RejectReason]++;
+                    if (!infoMessage.RejectionReasons.ContainsKey(rejectReason))
+                        infoMessage.RejectionReasons.Add(rejectReason, 0);
+
+                    infoMessage.RejectionReasons[rejectReason]++;
                 }
 
                 _auditor.AuditExtractFiles(request, matchedFiles);

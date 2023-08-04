@@ -47,7 +47,7 @@ namespace Smi.Common.Tests
             };
 
             _mockConsumer = Mock.Of<Consumer<IMessage>>();
-            _tester = new MicroserviceTester(_testOptions.RabbitOptions, _testConsumerOptions);
+            _tester = new MicroserviceTester(_testOptions.RabbitOptions!, _testConsumerOptions);
         }
 
 
@@ -103,7 +103,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestShutdownThrowsOnTimeout()
         {
-            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
             testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
             Assert.Throws<ApplicationException>(() => testAdapter.Shutdown(TimeSpan.Zero));
         }
@@ -114,7 +114,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestNoNewConnectionsAfterShutdown()
         {
-            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
             Assert.False(testAdapter.ShutdownCalled);
 
             testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
@@ -195,7 +195,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestWaitAfterChannelClosed()
         {
-            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
             var model = testAdapter.GetModel("TestConnection");
             model.ConfirmSelect();
 
@@ -221,8 +221,8 @@ namespace Smi.Common.Tests
             var consumer = (IConsumer?)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
-            using var tester = new MicroserviceTester(o.RabbitOptions, new[] { _testConsumerOptions }) {CleanUpAfterTest = false};
-            tester.Adapter.StartConsumer(_testConsumerOptions, consumer, true);
+            using var tester = new MicroserviceTester(o.RabbitOptions!, new[] { _testConsumerOptions }) {CleanUpAfterTest = false};
+            tester.Adapter.StartConsumer(_testConsumerOptions, consumer!, true);
 
             //send a message to trigger consumer behaviour
             tester.SendMessage(_testConsumerOptions, new TestMessage());

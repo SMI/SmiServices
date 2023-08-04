@@ -63,7 +63,7 @@ namespace Microservices.DicomReprocessor.Execution
         }
 
 
-        public async Task<TimeSpan> RunQuery(string query, IDocumentProcessor processor, DicomReprocessorOptions options)
+        public async Task<TimeSpan> RunQuery(string? query, IDocumentProcessor processor, DicomReprocessorOptions options)
         {
             DateTime start;
 

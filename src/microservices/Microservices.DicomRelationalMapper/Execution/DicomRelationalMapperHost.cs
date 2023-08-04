@@ -55,9 +55,9 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             string liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
 
-            var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid);
+            var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid)
+                ?? throw new Exception("Could not create an INameDatabasesAndTablesDuringLoads");
 
-            
             Consumer = new DicomRelationalMapperQueueConsumer(repositoryLocator,
                                                               lmd,
                                                               instance,

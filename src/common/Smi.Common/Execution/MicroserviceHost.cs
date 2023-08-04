@@ -86,7 +86,9 @@ namespace Smi.Common.Execution
             {
                 ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
                 RabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
-                _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, globals.RabbitOptions.RabbitMqControlExchangeName, this.Stop);
+                var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName
+                    ?? throw new ArgumentNullException(nameof(globals.RabbitOptions.RabbitMqControlExchangeName));
+                _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, controlExchangeName, Stop);
             }
 
             ObjectFactory = new MicroserviceObjectFactory();
@@ -168,7 +170,7 @@ namespace Smi.Common.Execution
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="exception"></param>
-        public void Fatal(string msg, Exception exception)
+        public void Fatal(string msg, Exception? exception)
         {
             Logger.Fatal(exception, msg);
             if (_stopCalled)

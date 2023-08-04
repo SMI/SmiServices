@@ -10,7 +10,6 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
-
 namespace Microservices.FileCopier.Tests.Execution
 {
     [RequiresRabbit]
@@ -48,14 +47,14 @@ namespace Microservices.FileCopier.Tests.Execution
             globals.FileSystemOptions.FileSystemRoot = "root";
             globals.FileSystemOptions.ExtractRoot = "exroot";
 
-            using var tester = new MicroserviceTester(globals.RabbitOptions, globals.FileCopierOptions);
+            using var tester = new MicroserviceTester(globals.RabbitOptions!, globals.FileCopierOptions!);
 
             var outputQueueName = globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName.Replace("Exchange", "Queue");
             tester.CreateExchange(
                 globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName,
                 outputQueueName,
                 false,
-                globals.FileCopierOptions.NoVerifyRoutingKey);
+                globals.FileCopierOptions.NoVerifyRoutingKey!);
 
             var mockFileSystem = new MockFileSystem();
             mockFileSystem.AddDirectory(globals.FileSystemOptions.FileSystemRoot);

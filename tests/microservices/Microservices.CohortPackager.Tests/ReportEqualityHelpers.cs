@@ -33,7 +33,7 @@ namespace Microservices.CohortPackager.Tests
             if (isIdentifiableExtraction)
             {
                 Assert.NotNull(anonFailuresExpected);
-                IEnumerable<string> missingFiles = anonFailuresExpected.Select(x => x.Item1);
+                IEnumerable<string> missingFiles = anonFailuresExpected!.Select(x => x.Item1);
                 CheckIdentReport(header, missingFiles, newLine, actualReport);
                 return;
             }
@@ -138,7 +138,7 @@ namespace Microservices.CohortPackager.Tests
             Assert.AreEqual(expectedStr, actualReport);
         }
 
-        private static Tuple<string?, string?> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>> verificationFailuresExpected, string newLine)
+        private static Tuple<string?, string?> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>>? verificationFailuresExpected, string newLine)
         {
             if (verificationFailuresExpected == null)
                 return new Tuple<string?, string?>(null, null);
@@ -175,7 +175,7 @@ namespace Microservices.CohortPackager.Tests
             return new Tuple<string?, string?>(summarySb.ToString(), fullSb.ToString());
         }
 
-        private static string BlockedFiles(Dictionary<string, List<Tuple<int, string>>> blockedFilesExpected, string newLine)
+        private static string BlockedFiles(Dictionary<string, List<Tuple<int, string>>>? blockedFilesExpected, string newLine)
         {
             if (blockedFilesExpected == null)
                 return null;

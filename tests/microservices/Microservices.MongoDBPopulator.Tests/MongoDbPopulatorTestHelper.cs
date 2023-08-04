@@ -27,7 +27,7 @@ namespace Microservices.MongoDBPopulator.Tests
         {
             Globals = GetNewMongoDbPopulatorOptions();
 
-            _mongoTestClient = MongoClientHelpers.GetMongoClient(Globals.MongoDatabases.DicomStoreOptions, "MongoDbPopulatorTests");
+            _mongoTestClient = MongoClientHelpers.GetMongoClient(Globals.MongoDatabases.DicomStoreOptions!, "MongoDbPopulatorTests");
 
             _mongoTestClient.DropDatabase(TestDbName);
             TestDatabase = _mongoTestClient.GetDatabase(TestDbName);

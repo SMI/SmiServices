@@ -128,9 +128,9 @@ namespace Applications.TriggerUpdates.Execution
             globals.IdentifierMapperOptions.MappingTableName = map.GetFullyQualifiedName();
             globals.IdentifierMapperOptions.SwapperType = typeof(TableLookupWithGuidFallbackSwapper).FullName;
 
-            using (var tester = new MicroserviceTester(globals.RabbitOptions, globals.CohortExtractorOptions))
+            using (var tester = new MicroserviceTester(globals.RabbitOptions!, globals.CohortExtractorOptions!))
             {
-                tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName, globals.UpdateValuesOptions.QueueName);
+                tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName!, globals.UpdateValuesOptions.QueueName);
 
                 var sourceHost = new TriggerUpdatesHost(globals,new MapperSource(globals,cliOptions));
                 var destHost = new UpdateValuesHost(globals);

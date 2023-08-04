@@ -29,14 +29,15 @@ namespace Microservices.IdentifierMapper.Execution
         public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers? swapper = null)
             : base(options)
         {
-            _consumerOptions = options.IdentifierMapperOptions;
+            _consumerOptions = options.IdentifierMapperOptions!;
 
             FansiImplementations.Load();
 
             if (swapper == null)
             {
                 Logger.Info("Not passed a swapper, creating one of type " + options.IdentifierMapperOptions.SwapperType);
-                _swapper = ObjectFactory.CreateInstance<ISwapIdentifiers>(options.IdentifierMapperOptions.SwapperType, typeof(ISwapIdentifiers).Assembly);
+                _swapper = ObjectFactory.CreateInstance<ISwapIdentifiers>(options.IdentifierMapperOptions.SwapperType!, typeof(ISwapIdentifiers).Assembly)
+                    ?? throw new Exception("Could not create a swapper");
             }
             else
             {
@@ -61,7 +62,7 @@ namespace Microservices.IdentifierMapper.Execution
             Logger.Info($"Swapper of type {_swapper.GetType()} created");
 
             // Batching now handled implicitly as backlog demands
-            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: true);
+            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions!, isBatch: true);
 
             Consumer = new IdentifierMapperQueueConsumer(_producerModel, _swapper)
             {

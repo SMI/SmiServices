@@ -95,9 +95,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 yield return filter;
         }
 
-        private string GetSqlForKeyValue(string value)
+        private string? GetSqlForKeyValue(string value)
         {
-            return string.Format(_sql, value);
+            return string.Format(_sql!, value);
         }
         
         /// <summary>
@@ -126,7 +126,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             using DbConnection con = Server.GetConnection();
             con.Open();
 
-            string sqlString = GetSqlForKeyValue(valueToLookup);
+            string? sqlString = GetSqlForKeyValue(valueToLookup);
 
             DbDataReader reader;
             try

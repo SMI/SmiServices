@@ -19,9 +19,9 @@ namespace Microservices.UpdateValues.Execution
         {
 
             IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
-            Consumer = new UpdateValuesQueueConsumer(Globals.UpdateValuesOptions, repositoryLocator.CatalogueRepository);
+            Consumer = new UpdateValuesQueueConsumer(Globals.UpdateValuesOptions!, repositoryLocator.CatalogueRepository);
 
-            RabbitMqAdapter.StartConsumer(Globals.UpdateValuesOptions, Consumer, isSolo: false);
+            RabbitMqAdapter.StartConsumer(Globals.UpdateValuesOptions!, Consumer, isSolo: false);
         }
     }
 }

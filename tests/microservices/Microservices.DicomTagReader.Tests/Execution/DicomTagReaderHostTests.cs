@@ -54,7 +54,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
-            var tester = new MicroserviceTester(_helper.Options.RabbitOptions, _helper.AccessionConsumerOptions);
+            var tester = new MicroserviceTester(_helper.Options.RabbitOptions!, _helper.AccessionConsumerOptions);
 
             var host = new DicomTagReaderHost(_helper.Options);
             host.Start();
@@ -90,7 +90,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             _helper.Options.FileSystemOptions.FileSystemRoot = dirRoot.FullName;
 
-            new MicroserviceTester(_helper.Options.RabbitOptions, _helper.AccessionConsumerOptions);
+            new MicroserviceTester(_helper.Options.RabbitOptions!, _helper.AccessionConsumerOptions);
 
             var host = new DicomTagReaderHost(_helper.Options);
 

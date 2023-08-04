@@ -39,13 +39,13 @@ namespace Smi.Common.MessageSerialization
             Hydrate(_hydrateV1, _hydrateV2);
         }
 
-        private void Hydrate(TV[] value)
+        private void Hydrate(TV[]? value)
         {
             _hydrateV2 = value;
             Hydrate(_hydrateV1, _hydrateV2);
         }
 
-        private void Hydrate(TK[] hydrateV1, TV[] hydrateV2)
+        private void Hydrate(TK[]? hydrateV1, TV[]? hydrateV2)
         {
             if (hydrateV1 == null || hydrateV2 == null)
                 return;

@@ -121,12 +121,12 @@ namespace Microservices.CohortExtractor.Tests
             Assert.AreEqual(5,c.GetAllExtractionInformation(ExtractionCategory.Any).Length);
             
             var f = new MicroserviceObjectFactory();
-            var fulfiller = f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType,
+            var fulfiller = f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType!,
                 typeof(IExtractionRequestFulfiller).Assembly,
                 new object[] {new[] {c}});
             
             if(fulfiller != null)
-                fulfiller.Rejectors.Add(f.CreateInstance<IRejector>(opts.RejectorType,typeof(TestRejector).Assembly) ?? new RejectNone());
+                fulfiller.Rejectors.Add(f.CreateInstance<IRejector>(opts.RejectorType!,typeof(TestRejector).Assembly) ?? new RejectNone());
 
             return fulfiller;
 

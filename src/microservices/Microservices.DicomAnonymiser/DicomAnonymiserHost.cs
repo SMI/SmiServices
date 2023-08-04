@@ -18,14 +18,14 @@ namespace Microservices.DicomAnonymiser
         )
             : base(options)
         {
-            _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(Globals.DicomAnonymiserOptions);
+            _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(Globals.DicomAnonymiserOptions!);
 
-            var producerModel = RabbitMqAdapter.SetupProducer(options.DicomAnonymiserOptions.ExtractFileStatusProducerOptions, isBatch: false);
+            var producerModel = RabbitMqAdapter.SetupProducer(options.DicomAnonymiserOptions.ExtractFileStatusProducerOptions!, isBatch: false);
 
             _consumer = new DicomAnonymiserConsumer(
-                Globals.DicomAnonymiserOptions,
-                Globals.FileSystemOptions.FileSystemRoot,
-                Globals.FileSystemOptions.ExtractRoot,
+                Globals.DicomAnonymiserOptions!,
+                Globals.FileSystemOptions.FileSystemRoot!,
+                Globals.FileSystemOptions.ExtractRoot!,
                 _anonymiser,
                 producerModel,
                 fileSystem
@@ -34,7 +34,7 @@ namespace Microservices.DicomAnonymiser
 
         public override void Start()
         {
-            RabbitMqAdapter.StartConsumer(Globals.DicomAnonymiserOptions.AnonFileConsumerOptions, _consumer, isSolo: false);
+            RabbitMqAdapter.StartConsumer(Globals.DicomAnonymiserOptions.AnonFileConsumerOptions!, _consumer, isSolo: false);
         }
 
         public override void Stop(string reason)

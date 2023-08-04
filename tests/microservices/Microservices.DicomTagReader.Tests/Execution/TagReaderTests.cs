@@ -96,7 +96,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             _helper.Options.FileSystemOptions.FileSystemRoot = "C:\\Temp";
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
 
             Assert.Throws<ApplicationException>(() => tagReader.ReadTags(null, _helper.TestAccessionDirectoryMessage));
         }
@@ -115,7 +115,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
 
             Assert.Throws<ApplicationException>(() => tagReader.ReadTags(null, _helper.TestAccessionDirectoryMessage));
         }
@@ -143,7 +143,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
                 .Callback<IMessage, IMessageHeader, string>((m, h, s) => message = m)
                 .Returns(new MessageHeader());
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
             tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
 
             Assert.True(message != null);
@@ -194,7 +194,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
                 .Callback<IMessage, IMessageHeader, string>((m, h, s) => message = m)
                 .Returns(new MessageHeader());
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
             tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
 
             Assert.True(message != null);

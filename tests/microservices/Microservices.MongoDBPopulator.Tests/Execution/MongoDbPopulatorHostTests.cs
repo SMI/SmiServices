@@ -44,7 +44,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
             options.MongoDatabases.DicomStoreOptions.Port = 12345;
 
             // ReSharper disable once ObjectCreationAsStatement
-            Assert.Throws<ArgumentException>(() => new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, new ConsumerOptions()));
+            Assert.Throws<ArgumentException>(() => new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions!, new ConsumerOptions()));
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
 
             _helper.Globals.MongoDbPopulatorOptions.SeriesCollection = currentCollectionName;
 
-            var tester = new MicroserviceTester(_helper.Globals.RabbitOptions, _helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions);
+            var tester = new MicroserviceTester(_helper.Globals.RabbitOptions!, _helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions!, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions!);
             var host = new MongoDbPopulatorHost(_helper.Globals);
 
             host.Start();
@@ -87,7 +87,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
             // Act
 
             for (var i = 0; i < nMessages; i++)
-                timeline.SendMessage(_helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions, message);
+                timeline.SendMessage(_helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions!, message);
 
             timeline.StartTimeline();
 

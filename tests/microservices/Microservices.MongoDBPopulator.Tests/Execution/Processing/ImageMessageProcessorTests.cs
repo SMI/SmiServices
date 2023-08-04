@@ -42,8 +42,6 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
         private void Validate(DicomFileMessage message, MessageHeader header, BsonDocument document)
         {
-            Assert.False(message == null || document == null);
-
             Assert.True(document.TryGetElement("header", out var element));
 
             var docHeader = (BsonDocument)element.Value;
@@ -106,7 +104,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestImageDocumentFormat");
-            var testAdapter = new MongoDbAdapter("TestImageDocumentFormat", options.MongoDatabases.DicomStoreOptions, collectionName);
+            var testAdapter = new MongoDbAdapter("TestImageDocumentFormat", options.MongoDatabases.DicomStoreOptions!, collectionName);
 
             var callbackUsed = false;
             Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
@@ -139,7 +137,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
-            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions, "largeDocumentTest");
+            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions!, "largeDocumentTest");
             var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 1, (Exception _) => {});
             var mockModel = Mock.Of<IModel>();
             processor.Model = mockModel;
@@ -181,8 +179,8 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
             options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
-            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions, "largeDocumentTest");
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 2, (Exception e) => {});
+            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions!, "largeDocumentTest");
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions!, adapter, 2, (Exception e) => {});
             var mockModel = Mock.Of<IModel>();
             processor.Model = mockModel;
 

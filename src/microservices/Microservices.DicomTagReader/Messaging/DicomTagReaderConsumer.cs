@@ -34,7 +34,7 @@ namespace Microservices.DicomTagReader.Messaging
         /// <param name="header">The audit trail and origin of the IMessage contained in deliverArgs</param>
         /// <param name="message">The message and associated information</param>
         /// <param name="tag"></param>
-        protected override void ProcessMessageImpl(IMessageHeader? header, AccessionDirectoryMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader header, AccessionDirectoryMessage message, ulong tag)
         {
             lock (_reader.TagReaderProcessLock)
             {
@@ -65,7 +65,7 @@ namespace Microservices.DicomTagReader.Messaging
         {
             // tell reader only to consider our specific file
             _reader.IncludeFile = f=>new FileInfo(f).FullName.Equals(file.FullName,StringComparison.CurrentCultureIgnoreCase);
-            _reader.ReadTags(null, new AccessionDirectoryMessage(_opts.FileSystemOptions.FileSystemRoot,file.Directory));
+            _reader.ReadTags(null, new AccessionDirectoryMessage(_opts.FileSystemOptions.FileSystemRoot!, file.Directory!));
 
             // good practice to clear this afterwards
             _reader.IncludeFile = null;

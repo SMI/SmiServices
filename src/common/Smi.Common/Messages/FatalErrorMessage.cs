@@ -14,7 +14,7 @@ namespace Smi.Common.Messages
         [JsonProperty(Required = Required.DisallowNull)]
         public Exception? Exception { get; set; }
 
-        public FatalErrorMessage(string message, Exception exception)
+        public FatalErrorMessage(string message, Exception? exception)
         {
             Message = message;
             Exception = exception;
