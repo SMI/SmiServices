@@ -27,11 +27,11 @@ namespace Applications.DicomDirectoryProcessor.Execution
         {
             _cliOptions = cliOptions;
 
-            if (!cliOptions.DirectoryFormat.ToLower().Equals("list"))
+            if (!cliOptions.DirectoryFormat!.ToLower().Equals("list"))
             {
                 // TODO(rkm 2020-02-12) I think we want to check this regardless of the mode
                 // (bp 2020-02-13) By not doing this check on list means that the list of paths is not required to be in PACS and can be imported from anywhere
-                if (!Directory.Exists(globals.FileSystemOptions.FileSystemRoot))
+                if (!Directory.Exists(globals.FileSystemOptions!.FileSystemRoot))
                     throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + globals.FileSystemOptions.FileSystemRoot + ")");
 
                 if (!cliOptions.ToProcessDir.Exists)
@@ -54,26 +54,26 @@ namespace Applications.DicomDirectoryProcessor.Execution
                 case "pacs":
                     Logger.Info("Creating PACS directory finder");
 
-                    _ddf = new PacsDirectoryFinder(globals.FileSystemOptions.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions!, isBatch: false));
+                    _ddf = new PacsDirectoryFinder(globals.FileSystemOptions!.FileSystemRoot!,
+                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 case "list":
                     Logger.Info("Creating accession directory lister");
 
-                    _ddf = new AccessionDirectoryLister(globals.FileSystemOptions.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions!, isBatch: false));
+                    _ddf = new AccessionDirectoryLister(globals.FileSystemOptions!.FileSystemRoot!,
+                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 case "default":
                     Logger.Info("Creating basic directory finder");
 
-                    _ddf = new BasicDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions!, isBatch: false));
+                    _ddf = new BasicDicomDirectoryFinder(globals.FileSystemOptions!.FileSystemRoot!,
+                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 case "zips":
                     Logger.Info("Creating zip directory finder");
 
-                    _ddf = new ZipDicomDirectoryFinder(globals.FileSystemOptions.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions!, isBatch: false));
+                    _ddf = new ZipDicomDirectoryFinder(globals.FileSystemOptions!.FileSystemRoot!,
+                        globals.FileSystemOptions.DicomSearchPattern!, RabbitMqAdapter.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 default:
                     throw new ArgumentException(

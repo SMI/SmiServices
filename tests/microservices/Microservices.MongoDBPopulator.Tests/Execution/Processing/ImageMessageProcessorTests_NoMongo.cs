@@ -40,7 +40,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [Test]
         public void ImageProcessor_FailInModalityBatch_AcksWrittenDocuments()
         {
-            _testOptions.MongoDbPopulatorOptions.FailedWriteLimit = 1;
+            _testOptions.MongoDbPopulatorOptions!.FailedWriteLimit = 1;
             _testOptions.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             var testModalities = new[] { "MR", "MR", "MR", "SR", "SR" };

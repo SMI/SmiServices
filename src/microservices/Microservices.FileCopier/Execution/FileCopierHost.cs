@@ -20,9 +20,9 @@ namespace Microservices.FileCopier.Execution
             options
         )
         {
-            Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions.FileSystemRoot);
+            Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions!.FileSystemRoot);
 
-            IProducerModel copyStatusProducerModel = RabbitMqAdapter.SetupProducer(Globals.FileCopierOptions.CopyStatusProducerOptions!, isBatch: false);
+            IProducerModel copyStatusProducerModel = RabbitMqAdapter.SetupProducer(Globals.FileCopierOptions!.CopyStatusProducerOptions!, isBatch: false);
 
             var fileCopier = new ExtractionFileCopier(
                 Globals.FileCopierOptions,

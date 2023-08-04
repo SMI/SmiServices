@@ -32,22 +32,22 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         private void Initialize()
         {
             //Figure out which UID columns exist in the Catalogue, do not require file path to be in Catalogue
-            _columnSet = QueryToExecuteColumnSet.Create(_catalogue,false);
+            _columnSet = QueryToExecuteColumnSet.Create(_catalogue, false);
 
             //Tells us the DBMS type
             var syntax = _catalogue.GetQuerySyntaxHelper();
-            
+
             //For storing the OR container and filter(s)
             var memory = new MemoryCatalogueRepository();
-            
+
             //builds SQL we will run in lookup stage
-            _queryBuilder = new QueryBuilder(null,null);
-            
+            _queryBuilder = new QueryBuilder(null, null);
+
             //all we care about is if the uid appears if it does then we are rejecting it
             _queryBuilder.TopX = 1;
 
             //Filter is OR i.e. StudyInstanceUID = @StudyInstanceUID OR SeriesInstanceUID = @SeriesInstanceUID
-            var container = _queryBuilder.RootFilterContainer = new SpontaneouslyInventedFilterContainer(memory,null,null,FilterContainerOperation.OR);
+            var container = _queryBuilder.RootFilterContainer = new SpontaneouslyInventedFilterContainer(memory, null, null, FilterContainerOperation.OR);
 
             //Build SELECT and WHERE bits of the query
             if (_columnSet.StudyTagColumn != null)
@@ -56,36 +56,36 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 string whereSql =
                     $"{_columnSet.StudyTagColumn.SelectSQL} = {syntax.ParameterSymbol}{QueryToExecuteColumnSet.DefaultStudyIdColumnName}";
-                    
-                _studyFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Study UID Filter","",null);
+
+                _studyFilter = new SpontaneouslyInventedFilter(memory, container, whereSql, "Study UID Filter", "", null);
                 container.AddChild(_studyFilter);
             }
-                
 
-            if(_columnSet.SeriesTagColumn != null)
+
+            if (_columnSet.SeriesTagColumn != null)
             {
                 _queryBuilder.AddColumn(_columnSet.SeriesTagColumn);
 
                 string whereSql =
                     $"{_columnSet.SeriesTagColumn.SelectSQL} = {syntax.ParameterSymbol}{QueryToExecuteColumnSet.DefaultSeriesIdColumnName}";
-                    
-                _seriesFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Series UID Filter","",null);
+
+                _seriesFilter = new SpontaneouslyInventedFilter(memory, container, whereSql, "Series UID Filter", "", null);
                 container.AddChild(_seriesFilter);
             }
 
             if (_columnSet.InstanceTagColumn != null)
             {
                 _queryBuilder.AddColumn(_columnSet.InstanceTagColumn);
-                
+
                 string whereSql =
                     $"{_columnSet.InstanceTagColumn.SelectSQL} = {syntax.ParameterSymbol}{QueryToExecuteColumnSet.DefaultInstanceIdColumnName}";
-                    
-                _instanceFilter = new SpontaneouslyInventedFilter(memory,container,whereSql, "Instance UID Filter","",null);
+
+                _instanceFilter = new SpontaneouslyInventedFilter(memory, container, whereSql, "Instance UID Filter", "", null);
                 container.AddChild(_instanceFilter);
             }
 
             // Make sure the query builder looks valid
-            if(!_queryBuilder.SelectColumns.Any())
+            if (!_queryBuilder.SelectColumns.Any())
                 throw new NotSupportedException($"Blacklist Catalogue {_catalogue} (ID={_catalogue.ID}) did not have any Core ExtractionInformation columns corresponding to any of the image UID tags (e.g. StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID).");
 
             try
@@ -96,11 +96,11 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             }
             catch (Exception e)
             {
-                throw new Exception($"Failed to test connection for Catalogue {_catalogue}",e);
+                throw new Exception($"Failed to test connection for Catalogue {_catalogue}", e);
             }
 
             // run a test lookup query against the remote database
-            DoLookup("test1", "test2", "test3");            
+            DoLookup("test1", "test2", "test3");
         }
 
         /// <summary>
@@ -112,19 +112,19 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <returns></returns>
         public bool DoLookup(string studyuid, string seriesuid, string imageuid)
         {
-            string sql = _queryBuilder.SQL;
+            string sql = _queryBuilder!.SQL;
 
-            using var con = _server.GetConnection();
+            using var con = _server!.GetConnection();
             con.Open();
             using var cmd = _server.GetCommand(sql, con);
             //Add the current row UIDs to the parameters of the command
-            if(_studyFilter != null)
+            if (_studyFilter != null)
                 _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultStudyIdColumnName, cmd, studyuid);
 
-            if(_seriesFilter != null)
+            if (_seriesFilter != null)
                 _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultSeriesIdColumnName, cmd, seriesuid);
 
-            if(_instanceFilter != null)
+            if (_instanceFilter != null)
                 _server.AddParameterWithValueToCommand(QueryToExecuteColumnSet.DefaultInstanceIdColumnName, cmd, imageuid);
 
             using var r = cmd.ExecuteReader();

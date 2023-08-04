@@ -168,7 +168,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
-            Assert.AreEqual("DicomAnonymiserConsumer should not handle identifiable extraction messages", fatalArgs.Exception.Message);
+            Assert.AreEqual("DicomAnonymiserConsumer should not handle identifiable extraction messages", fatalArgs!.Exception!.Message);
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
@@ -262,7 +262,7 @@ namespace Microservices.DicomAnonymiser.Tests
             TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
 
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
-            Assert.AreEqual($"Expected extraction directory to exist: '{_extractDir}'", fatalArgs.Exception.Message);
+            Assert.AreEqual($"Expected extraction directory to exist: '{_extractDir}'", fatalArgs!.Exception!.Message);
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
@@ -281,7 +281,7 @@ namespace Microservices.DicomAnonymiser.Tests
                 x => x.SendMessage(
                     It.Is<ExtractedFileStatusMessage>(x =>
                         x.Status == ExtractedFileStatus.ErrorWontRetry &&
-                        x.StatusMessage.StartsWith($"Error anonymising '{_sourceDcmPathAbs}'. Exception message: IDicomAnonymiser") &&
+                        x.StatusMessage!.StartsWith($"Error anonymising '{_sourceDcmPathAbs}'. Exception message: IDicomAnonymiser") &&
                         x.OutputFilePath == null
                      ),
                     It.IsAny<IMessageHeader>(),

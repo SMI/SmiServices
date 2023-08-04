@@ -24,7 +24,7 @@ namespace Smi.Common.MongoDB.Tests
             TestLogger.Setup();
 
             GlobalOptions globalOptions = new GlobalOptionsFactory().Load(nameof(MongoQueryParserTests));
-            _mongoOptions = globalOptions.MongoDatabases.DicomStoreOptions;
+            _mongoOptions = globalOptions.MongoDatabases!.DicomStoreOptions;
         }
 
         [OneTimeTearDown]

@@ -42,7 +42,8 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
         private void Validate(SeriesMessage message, BsonDocument document)
         {
-            Assert.False(message == null || document == null);
+            Assert.NotNull(message);
+            Assert.NotNull(document);
 
             Assert.True(document.TryGetElement("header", out var element));
 
@@ -64,7 +65,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [Test]
         public void TestErrorHandling()
         {
-            _helper.Globals.MongoDbPopulatorOptions.FailedWriteLimit = 1;
+            _helper.Globals.MongoDbPopulatorOptions!.FailedWriteLimit = 1;
 
             var mockAdapter = new Mock<IMongoDbAdapter>();
             mockAdapter
@@ -83,10 +84,10 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         public void TestSeriesDocumentFormat()
         {
             GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
-            options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue;
+            options.MongoDbPopulatorOptions!.MongoDbFlushTime = int.MaxValue;
 
             string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestSeriesDocumentFormat");
-            var testAdapter = new MongoDbAdapter("TestSeriesDocumentFormat", options.MongoDatabases.DicomStoreOptions!, collectionName);
+            var testAdapter = new MongoDbAdapter("TestSeriesDocumentFormat", options.MongoDatabases!.DicomStoreOptions!, collectionName);
 
             var callbackUsed = false;
             Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };

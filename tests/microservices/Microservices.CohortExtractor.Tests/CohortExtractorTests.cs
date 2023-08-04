@@ -50,7 +50,7 @@ namespace Microservices.CohortExtractor.Tests
 
                     //no fulfiller is a problem!
                     var ex = Assert.Throws<Exception>(() => opts.Validate());
-                    StringAssert.Contains("No RequestFulfillerType set on CohortExtractorOptions", ex.Message);
+                    StringAssert.Contains("No RequestFulfillerType set on CohortExtractorOptions", ex!.Message);
 
                     break;
                 default:

@@ -43,7 +43,7 @@ namespace Microservices.MongoDBPopulator.Tests.Messaging
             mockDeliverArgs.DeliveryTag = 1;
             var header = new MessageHeader();
 
-            var consumer = new MongoDbPopulatorMessageConsumer<DicomFileMessage>(_helper.Globals.MongoDatabases.DicomStoreOptions!, _helper.Globals.MongoDbPopulatorOptions!, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions!);
+            var consumer = new MongoDbPopulatorMessageConsumer<DicomFileMessage>(_helper.Globals.MongoDatabases!.DicomStoreOptions!, _helper.Globals.MongoDbPopulatorOptions!, _helper.Globals.MongoDbPopulatorOptions!.ImageQueueConsumerOptions!);
 
             var nackCount = 0;
             var mockModel = new Mock<IModel>();

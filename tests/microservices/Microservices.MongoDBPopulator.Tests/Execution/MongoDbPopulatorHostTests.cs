@@ -41,7 +41,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
         public void TestMissingMongoConnectionOnStartup()
         {
             GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
-            options.MongoDatabases.DicomStoreOptions.Port = 12345;
+            options.MongoDatabases!.DicomStoreOptions!.Port = 12345;
 
             // ReSharper disable once ObjectCreationAsStatement
             Assert.Throws<ArgumentException>(() => new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions!, new ConsumerOptions()));
@@ -62,7 +62,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
             string currentCollectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest(
                 $"TestPopulatorBasic({nMessages})");
 
-            _helper.Globals.MongoDbPopulatorOptions.SeriesCollection = currentCollectionName;
+            _helper.Globals.MongoDbPopulatorOptions!.SeriesCollection = currentCollectionName;
 
             var tester = new MicroserviceTester(_helper.Globals.RabbitOptions!, _helper.Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions!, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions!);
             var host = new MongoDbPopulatorHost(_helper.Globals);

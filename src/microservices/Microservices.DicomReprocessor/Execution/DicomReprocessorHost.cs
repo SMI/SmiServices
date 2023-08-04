@@ -26,13 +26,13 @@ namespace Microservices.DicomReprocessor.Execution
                 throw new ArgumentException("ReprocessingRoutingKey");
 
             // Set the initial sleep time
-            Globals.DicomReprocessorOptions.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
+            Globals.DicomReprocessorOptions!.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
-            IProducerModel reprocessingProducerModel = RabbitMqAdapter.SetupProducer(options.DicomReprocessorOptions.ReprocessingProducerOptions!, true);
+            IProducerModel reprocessingProducerModel = RabbitMqAdapter.SetupProducer(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true);
 
             Logger.Info("Documents will be reprocessed to " +
-                        options.DicomReprocessorOptions.ReprocessingProducerOptions.ExchangeName + " on vhost " +
-                        options.RabbitOptions.RabbitMqVirtualHost + " with routing key \"" + key + "\"");
+                        options.DicomReprocessorOptions.ReprocessingProducerOptions!.ExchangeName + " on vhost " +
+                        options.RabbitOptions!.RabbitMqVirtualHost + " with routing key \"" + key + "\"");
 
             if (!string.IsNullOrWhiteSpace(cliOptions.QueryFile))
                 _queryString = File.ReadAllText(cliOptions.QueryFile);
@@ -52,7 +52,7 @@ namespace Microservices.DicomReprocessor.Execution
                     throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode + " not supported");
             }
 
-            _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions!, cliOptions, HostProcessName + "-" + HostProcessID);
+            _mongoReader = new MongoDbReader(options.MongoDatabases!.DicomStoreOptions!, cliOptions, HostProcessName + "-" + HostProcessID);
 
             AddControlHandler(new DicomReprocessorControlMessageHandler(Globals.DicomReprocessorOptions));
         }
@@ -67,7 +67,7 @@ namespace Microservices.DicomReprocessor.Execution
             else
                 _processor.LogProgress();
             
-            if (queryTime != default(TimeSpan))
+            if (queryTime != default)
                 Logger.Info("Average documents processed per second: " + Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds));
 
             // Only call stop if we exited normally
@@ -83,7 +83,7 @@ namespace Microservices.DicomReprocessor.Execution
 
             try
             {
-                _processorTask.Wait();
+                _processorTask!.Wait();
             }
             catch (AggregateException e)
             {

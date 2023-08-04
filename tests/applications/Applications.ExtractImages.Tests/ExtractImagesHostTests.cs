@@ -46,7 +46,7 @@ namespace Applications.ExtractImages.Tests
         public void HappyPath()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(HappyPath));
-            globals.ExtractImagesOptions.MaxIdentifiersPerMessage = 1;
+            globals.ExtractImagesOptions!.MaxIdentifiersPerMessage = 1;
 
             var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "foo.csv", ProjectId = "1234-5678", NonInteractive = true };
 
@@ -58,7 +58,7 @@ namespace Applications.ExtractImages.Tests
             );
             var extractRoot = fs.Path.Join(fs.Path.GetTempPath(), "extract-root");
             fs.Directory.CreateDirectory(extractRoot);
-            globals.FileSystemOptions.ExtractRoot = extractRoot;
+            globals.FileSystemOptions!.ExtractRoot = extractRoot;
 
             Expression<Action<IExtractionMessageSender>> expr = x => x.SendMessages(ExtractionKey.SeriesInstanceUID, new List<string> { "1.2.3.4" });
             var mockExtractionMessageSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
@@ -78,7 +78,7 @@ namespace Applications.ExtractImages.Tests
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(HappyPath_Integration));
 
             string extractRoot = Path.GetTempPath();
-            globals.FileSystemOptions.ExtractRoot = extractRoot;
+            globals.FileSystemOptions!.ExtractRoot = extractRoot;
 
             ExtractImagesOptions options = globals.ExtractImagesOptions!;
 
@@ -95,8 +95,8 @@ namespace Applications.ExtractImages.Tests
                 IsNoFiltersExtraction = true,
             };
 
-            var extReqExchName = options.ExtractionRequestProducerOptions.ExchangeName!;
-            var extReqInfoExchName = options.ExtractionRequestInfoProducerOptions.ExchangeName!;
+            var extReqExchName = options.ExtractionRequestProducerOptions!.ExchangeName!;
+            var extReqInfoExchName = options.ExtractionRequestInfoProducerOptions!.ExchangeName!;
 
             var consumedExtReqMsgs = new List<Tuple<IMessageHeader, ExtractionRequestMessage>>();
             var consumedExtReqInfoMsgs = new List<Tuple<IMessageHeader, ExtractionRequestInfoMessage>>();
@@ -165,7 +165,7 @@ namespace Applications.ExtractImages.Tests
         public void ExtractionRoot_VerifyPresent()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractionRoot_VerifyPresent));
-            globals.FileSystemOptions.ExtractRoot = "nope";
+            globals.FileSystemOptions!.ExtractRoot = "nope";
 
             using var _ = new MicroserviceTester(globals.RabbitOptions!);
 
@@ -180,7 +180,7 @@ namespace Applications.ExtractImages.Tests
         public void CsvFile_VerifyPresent()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(CsvFile_VerifyPresent));
-            globals.FileSystemOptions.ExtractRoot = "extract-root";
+            globals.FileSystemOptions!.ExtractRoot = "extract-root";
 
             using var _ = new MicroserviceTester(globals.RabbitOptions!);
 
@@ -199,7 +199,7 @@ namespace Applications.ExtractImages.Tests
         public void ExtractionDirectory_VerifyAbsent()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractionDirectory_VerifyAbsent));
-            globals.FileSystemOptions.ExtractRoot = "extract-root";
+            globals.FileSystemOptions!.ExtractRoot = "extract-root";
 
             using var _ = new MicroserviceTester(globals.RabbitOptions!);
 

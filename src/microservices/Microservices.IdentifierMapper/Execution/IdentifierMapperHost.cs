@@ -35,7 +35,7 @@ namespace Microservices.IdentifierMapper.Execution
 
             if (swapper == null)
             {
-                Logger.Info("Not passed a swapper, creating one of type " + options.IdentifierMapperOptions.SwapperType);
+                Logger.Info("Not passed a swapper, creating one of type " + options.IdentifierMapperOptions!.SwapperType);
                 _swapper = ObjectFactory.CreateInstance<ISwapIdentifiers>(options.IdentifierMapperOptions.SwapperType!, typeof(ISwapIdentifiers).Assembly)
                     ?? throw new Exception("Could not create a swapper");
             }
@@ -45,7 +45,7 @@ namespace Microservices.IdentifierMapper.Execution
             }
 
             // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
-            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisConnectionString))
+            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions!.RedisConnectionString))
                 try
                 {
                     _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisConnectionString, _swapper);

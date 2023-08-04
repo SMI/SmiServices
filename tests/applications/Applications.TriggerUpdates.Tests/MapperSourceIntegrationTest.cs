@@ -123,14 +123,14 @@ namespace Applications.TriggerUpdates.Execution
             
 
             //make sure the identifier mapper goes to the right table
-            globals.IdentifierMapperOptions.MappingConnectionString = db.Server.Builder.ConnectionString;
+            globals.IdentifierMapperOptions!.MappingConnectionString = db.Server.Builder.ConnectionString;
             globals.IdentifierMapperOptions.MappingDatabaseType = dbType;
             globals.IdentifierMapperOptions.MappingTableName = map.GetFullyQualifiedName();
             globals.IdentifierMapperOptions.SwapperType = typeof(TableLookupWithGuidFallbackSwapper).FullName;
 
             using (var tester = new MicroserviceTester(globals.RabbitOptions!, globals.CohortExtractorOptions!))
             {
-                tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName!, globals.UpdateValuesOptions.QueueName);
+                tester.CreateExchange(globals.TriggerUpdatesOptions!.ExchangeName!, globals.UpdateValuesOptions!.QueueName);
 
                 var sourceHost = new TriggerUpdatesHost(globals,new MapperSource(globals,cliOptions));
                 var destHost = new UpdateValuesHost(globals);
@@ -143,7 +143,7 @@ namespace Applications.TriggerUpdates.Execution
 
                 
                 //wait till updater is done updating the live table
-                TestTimelineAwaiter.Await(() => destHost.Consumer.AckCount == 1);
+                TestTimelineAwaiter.Await(() => destHost.Consumer!.AckCount == 1);
             }
 
             var liveDtAfter = liveTable.GetDataTable();

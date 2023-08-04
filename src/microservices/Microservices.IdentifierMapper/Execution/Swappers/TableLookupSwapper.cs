@@ -54,12 +54,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
             // Else fall through to the database lookup
             using(new TimeTracker(DatabaseStopwatch))
-                using (DbConnection con = _server.GetConnection())
+                using (DbConnection con = _server!.GetConnection())
                 {
                     con.Open();
 
                     string sql =
-                        $"SELECT {_options.ReplacementColumnName} FROM {_swapTable.GetFullyQualifiedName()} WHERE {_options.SwapColumnName}=@val";
+                        $"SELECT {_options!.ReplacementColumnName} FROM {_swapTable!.GetFullyQualifiedName()} WHERE {_options.SwapColumnName}=@val";
 
                     DbCommand cmd = _server.GetCommand(sql, con);
                     _server.AddParameterWithValueToCommand("@val", cmd, toSwap);

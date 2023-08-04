@@ -115,8 +115,8 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         protected void LogTime(TimeLabel tl)
         {
             long elapsed = Stopwatch.ElapsedMilliseconds;
-            StringBuilder.Append(tl + "=" + elapsed + "ms ");
-            Times[(int)tl].Add(elapsed);
+            StringBuilder!.Append(tl + "=" + elapsed + "ms ");
+            Times![(int)tl].Add(elapsed);
             Stopwatch.Restart();
         }
 
@@ -127,7 +127,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 
             foreach (TimeLabel label in (TimeLabel[])Enum.GetValues(typeof(TimeLabel)))
             {
-                int count = Times[(int)label].Count;
+                int count = Times![(int)label].Count;
                 long average = count == 0 ? 0 : Times[(int)label].Sum() / count;
 
                 sb.AppendLine(label + ":\t" + average + "ms");

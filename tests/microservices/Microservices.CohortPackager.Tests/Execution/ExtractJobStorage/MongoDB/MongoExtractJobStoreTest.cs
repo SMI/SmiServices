@@ -689,7 +689,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             MongoExtractJobDoc failedDoc = docs[jobId];
             Assert.AreEqual(ExtractJobStatus.Failed, failedDoc.JobStatus);
             Assert.NotNull(failedDoc.FailedJobInfoDoc);
-            Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc.ExceptionMessage);
+            Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc!.ExceptionMessage);
         }
 
         #endregion

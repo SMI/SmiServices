@@ -173,7 +173,7 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void DiscardSingleMessage(ulong tag)
         {
-            Model.BasicNack(tag, multiple: false, requeue: false);
+            Model!.BasicNack(tag, multiple: false, requeue: false);
             NackCount++;
         }
 
@@ -194,7 +194,7 @@ namespace Smi.Common.Messaging
         {
             header?.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(tag, false);
+            Model!.BasicAck(tag, false);
             AckCount++;
         }
 
@@ -209,7 +209,7 @@ namespace Smi.Common.Messaging
             foreach (IMessageHeader header in batchHeaders)
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(latestDeliveryTag, true);
+            Model!.BasicAck(latestDeliveryTag, true);
             AckCount += batchHeaders.Count;
         }
 

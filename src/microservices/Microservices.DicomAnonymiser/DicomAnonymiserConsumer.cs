@@ -84,7 +84,7 @@ namespace Microservices.DicomAnonymiser
 
             var destFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(extractionDirAbs, message.OutputPath));
 
-            destFileAbs.Directory.Create();
+            destFileAbs.Directory!.Create();
 
             _logger.Debug($"Anonymising '{sourceFileAbs}' to '{destFileAbs}'");
 

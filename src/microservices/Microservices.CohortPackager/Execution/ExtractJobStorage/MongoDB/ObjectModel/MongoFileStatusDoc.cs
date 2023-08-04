@@ -70,6 +70,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         // ^ISupportInitialize
         public void EndInit()
         {
+            if(ExtraElements == null)
+                return;
+
             // NOTE(rkm 2022-07-28) Removed after v1.11.1
             if (ExtraElements.ContainsKey("anonymisedFileName"))
             {

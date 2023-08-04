@@ -161,7 +161,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionDir", exc.Message);
+            Assert.AreEqual("extractionDir", exc!.Message);
 
             exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -177,7 +177,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionRoot", exc.Message);
+            Assert.AreEqual("extractionRoot", exc!.Message);
         }
 
         [TestCase(null)]
@@ -198,7 +198,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("ProjectId", exc.Message);
+            Assert.AreEqual("ProjectId", exc!.Message);
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.True(exc.Message.EndsWith("(Parameter 'MaxIdentifiersPerMessage')"));
+            Assert.True(exc!.Message.EndsWith("(Parameter 'MaxIdentifiersPerMessage')"));
         }
 
 
@@ -241,7 +241,7 @@ namespace Applications.ExtractImages.Tests
             {
                 sender.SendMessages(ExtractionKey.StudyInstanceUID, new List<string>());
             });
-            Assert.AreEqual("ID list is empty", exc.Message);
+            Assert.AreEqual("ID list is empty", exc!.Message);
         }
 
         [Test]

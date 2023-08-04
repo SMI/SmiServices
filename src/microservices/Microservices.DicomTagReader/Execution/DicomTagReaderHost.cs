@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.IO.Abstractions;
-using FellowOakDicom;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -19,12 +18,12 @@ namespace Microservices.DicomTagReader.Execution
         public DicomTagReaderHost(GlobalOptions options)
             : base(options)
         {
-            if (!Directory.Exists(options.FileSystemOptions.FileSystemRoot))
+            if (!Directory.Exists(options.FileSystemOptions!.FileSystemRoot))
                 throw new ArgumentException(
                     $"Cannot find the FileSystemRoot specified in the given MicroservicesOptions ({options.FileSystemOptions.FileSystemRoot})");
 
             Logger.Debug($"Creating DicomTagReaderHost with FileSystemRoot: {options.FileSystemOptions.FileSystemRoot}");
-            Logger.Debug($"NackIfAnyFileErrors option set to {options.DicomTagReaderOptions.NackIfAnyFileErrors}");
+            Logger.Debug($"NackIfAnyFileErrors option set to {options.DicomTagReaderOptions!.NackIfAnyFileErrors}");
 
             IProducerModel seriesProducerModel;
             IProducerModel imageProducerModel;
@@ -32,11 +31,11 @@ namespace Microservices.DicomTagReader.Execution
             try
             {
                 Logger.Debug(
-                    $"Creating seriesProducerModel with ExchangeName: {options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName}");
+                    $"Creating seriesProducerModel with ExchangeName: {options.DicomTagReaderOptions.SeriesProducerOptions!.ExchangeName}");
                 seriesProducerModel = RabbitMqAdapter.SetupProducer(options.DicomTagReaderOptions.SeriesProducerOptions, true);
 
                 Logger.Debug(
-                    $"Creating imageProducerModel with ExchangeName: {options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName}");
+                    $"Creating imageProducerModel with ExchangeName: {options.DicomTagReaderOptions.ImageProducerOptions!.ExchangeName}");
                 imageProducerModel = RabbitMqAdapter.SetupProducer(options.DicomTagReaderOptions.ImageProducerOptions, true);
             }
             catch (Exception e)

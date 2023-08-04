@@ -12,7 +12,7 @@ namespace Microservices.UpdateValues.Tests
             var msg = new UpdateValuesMessage();
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("There must be at least one search field for WHERE section.  Otherwise this would update entire tables",ex.Message);
+            Assert.AreEqual("There must be at least one search field for WHERE section.  Otherwise this would update entire tables",ex!.Message);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("WhereFields length must match HaveValues length",ex.Message);
+            Assert.AreEqual("WhereFields length must match HaveValues length",ex!.Message);
         }
         [Test]
         public void TestNoSet()
@@ -34,7 +34,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("There must be at least one value to write",ex.Message);
+            Assert.AreEqual("There must be at least one value to write",ex!.Message);
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("WriteIntoFields length must match Values length",ex.Message);
+            Assert.AreEqual("WriteIntoFields length must match Values length",ex!.Message);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("WhereFields length must match Operators length",ex.Message);
+            Assert.AreEqual("WhereFields length must match Operators length",ex!.Message);
         }
         [Test]
         public void Test_GoodMessage()

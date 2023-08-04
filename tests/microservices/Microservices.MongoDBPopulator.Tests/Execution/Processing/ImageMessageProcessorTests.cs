@@ -82,7 +82,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [Test]
         public void TestErrorHandling()
         {
-            _helper.Globals.MongoDbPopulatorOptions.FailedWriteLimit = 1;
+            _helper.Globals.MongoDbPopulatorOptions!.FailedWriteLimit = 1;
 
             var mockAdapter = new Mock<IMongoDbAdapter>();
             mockAdapter
@@ -101,10 +101,10 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         public void TestImageDocumentFormat()
         {
             GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
-            options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
+            options.MongoDbPopulatorOptions!.MongoDbFlushTime = int.MaxValue / 1000;
 
             string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestImageDocumentFormat");
-            var testAdapter = new MongoDbAdapter("TestImageDocumentFormat", options.MongoDatabases.DicomStoreOptions!, collectionName);
+            var testAdapter = new MongoDbAdapter("TestImageDocumentFormat", options.MongoDatabases!.DicomStoreOptions!, collectionName);
 
             var callbackUsed = false;
             Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
@@ -135,10 +135,10 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         public void TestLargeMessageNack()
         {
             GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
-            options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
+            options.MongoDbPopulatorOptions!.MongoDbFlushTime = int.MaxValue / 1000;
 
-            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions!, "largeDocumentTest");
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 1, (Exception _) => {});
+            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases!.ExtractionStoreOptions!, "largeDocumentTest");
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 1, (Exception _) => { });
             var mockModel = Mock.Of<IModel>();
             processor.Model = mockModel;
 
@@ -177,10 +177,10 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         public void TestLargeDocumentSplitOk()
         {
             GlobalOptions options = MongoDbPopulatorTestHelper.GetNewMongoDbPopulatorOptions();
-            options.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
+            options.MongoDbPopulatorOptions!.MongoDbFlushTime = int.MaxValue / 1000;
 
-            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases.ExtractionStoreOptions!, "largeDocumentTest");
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions!, adapter, 2, (Exception e) => {});
+            var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases!.ExtractionStoreOptions!, "largeDocumentTest");
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions!, adapter, 2, (Exception e) => { });
             var mockModel = Mock.Of<IModel>();
             processor.Model = mockModel;
 

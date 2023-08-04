@@ -39,7 +39,7 @@ namespace Microservices.FileCopier.Tests.Execution
             _mockFileSystem.Directory.CreateDirectory(ExtractRoot);
             _relativeSrc = _mockFileSystem.Path.Combine("input", "a.dcm");
             string src = _mockFileSystem.Path.Combine(FileSystemRoot, _relativeSrc);
-            _mockFileSystem.Directory.CreateDirectory(_mockFileSystem.Directory.GetParent(src).FullName);
+            _mockFileSystem.Directory.CreateDirectory(_mockFileSystem.Directory.GetParent(src)!.FullName);
             _mockFileSystem.File.WriteAllBytes(src, _expectedContents);
         }
 
@@ -154,7 +154,7 @@ namespace Microservices.FileCopier.Tests.Execution
 
             var requestHeader = new MessageHeader();
             string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
-            _mockFileSystem.Directory.GetParent(expectedDest).Create();
+            _mockFileSystem.Directory.GetParent(expectedDest)!.Create();
             _mockFileSystem.File.WriteAllBytes(expectedDest, new byte[] { 0b0 });
 
             var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);

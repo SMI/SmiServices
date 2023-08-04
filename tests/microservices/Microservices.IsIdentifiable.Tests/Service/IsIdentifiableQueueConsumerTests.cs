@@ -115,7 +115,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
                     new Mock<IClassifier>().Object
                 );
             });
-            Assert.AreEqual("Argument cannot be null or whitespace (Parameter 'extractionRoot')", exc.Message);
+            Assert.AreEqual("Argument cannot be null or whitespace (Parameter 'extractionRoot')", exc!.Message);
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
                    mockFs
                 );
             });
-            Assert.AreEqual("Could not find the extraction root 'foo' in the filesystem", exc.Message);
+            Assert.AreEqual("Could not find the extraction root 'foo' in the filesystem", exc!.Message);
         }
 
         [Test]
@@ -201,7 +201,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
-            Assert.AreEqual("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'", _fatalArgs.Exception.Message);
+            Assert.AreEqual("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'", _fatalArgs!.Exception!.Message);
             Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(0, consumer.AckCount);
         }
@@ -270,7 +270,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
-            Assert.AreEqual("whee", _fatalArgs.Exception.Message);
+            Assert.AreEqual("whee", _fatalArgs!.Exception!.Message);
             Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(0, consumer.AckCount);
         }

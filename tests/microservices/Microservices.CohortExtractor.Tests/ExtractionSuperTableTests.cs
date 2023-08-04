@@ -150,7 +150,7 @@ namespace Microservices.CohortExtractor.Tests
                 matches += msgOut.Accepted.Count;
                 rejections += msgOut.Rejected.Count;
 
-                Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason.Equals("We decided NO!")));
+                Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason!.Equals("We decided NO!")));
             }
 
             Assert.AreEqual(testrows-10, matches);
@@ -211,7 +211,7 @@ namespace Microservices.CohortExtractor.Tests
             // Ask for something that doesn't exist
             msgIn.Modalities = "Hello";
             var ex = Assert.Throws<Exception>(()=>fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            StringAssert.Contains("Modality=Hello",ex.Message);
+            StringAssert.Contains("Modality=Hello",ex!.Message);
 
             // Ask for all modalities at once by not specifying any
             msgIn.Modalities = null;
@@ -230,7 +230,7 @@ namespace Microservices.CohortExtractor.Tests
             msgIn.Modalities = "CT,MR";
 
             ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            StringAssert.Contains("IsOriginal",ex.Message);
+            StringAssert.Contains("IsOriginal",ex!.Message);
 
         }
 

@@ -97,12 +97,12 @@ namespace Microservices.Tests.RDMPTests
             StudyTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName().Equals(StudyTable.GetRuntimeName()));
 
             // Override the options with stuff coming from Core RDMP DatabaseTests (TestDatabases.txt)
-            globalOptions.FileSystemOptions.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
+            globalOptions.FileSystemOptions!.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
 
-            globalOptions.RDMPOptions.CatalogueConnectionString = (catalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
+            globalOptions.RDMPOptions!.CatalogueConnectionString = (catalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
             globalOptions.RDMPOptions.DataExportConnectionString = (dataExportRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
 
-            globalOptions.DicomRelationalMapperOptions.LoadMetadataId = LoadMetadata.ID;
+            globalOptions.DicomRelationalMapperOptions!.LoadMetadataId = LoadMetadata.ID;
             globalOptions.DicomRelationalMapperOptions.MinimumBatchSize = 1;
             globalOptions.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
 
@@ -121,7 +121,7 @@ namespace Microservices.Tests.RDMPTests
         public void TruncateTablesIfExists()
         {
             foreach (var t in new[] { ImageTable, SeriesTable, StudyTable })
-                if (t.Exists())
+                if (t != null && t.Exists())
                     t.Truncate();
         }
 

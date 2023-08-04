@@ -22,7 +22,7 @@ namespace Microservices.CohortExtractor.Tests
                 .Throws<IndexOutOfRangeException>();
 
             var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out string _));
-            Assert.True(exc.Message.Contains($"Expected a column called fff"));
+            Assert.True(exc!.Message.Contains($"Expected a column called fff"));
         }
 
         [Test]

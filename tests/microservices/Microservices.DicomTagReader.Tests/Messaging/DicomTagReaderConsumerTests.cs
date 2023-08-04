@@ -71,7 +71,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
         public void TestValidMessageAck()
         {
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
-            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
 
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))

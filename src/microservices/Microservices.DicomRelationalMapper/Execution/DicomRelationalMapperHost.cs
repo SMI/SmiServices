@@ -29,7 +29,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         //TODO Should most of this not be in the constructor?
         public override void Start()
         {
-            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
+            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions!.GetRepositoryProvider();
 
             Logger.Info("About to run Startup");
 
@@ -44,7 +44,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             Logger.Info("Startup Completed");
 
-            var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions.LoadMetadataId);
+            var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions!.LoadMetadataId);
 
             Type databaseNamerType = repositoryLocator.CatalogueRepository.MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType);
 

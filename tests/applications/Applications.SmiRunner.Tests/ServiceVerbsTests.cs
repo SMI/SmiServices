@@ -57,7 +57,7 @@ namespace Applications.SmiRunner.Tests
                 var verbAttribute = (VerbAttribute?)Attribute.GetCustomAttribute(t, typeof(VerbAttribute));
                 Assert.NotNull(verbAttribute);
 
-                Assert.AreEqual(expectedVerbName, verbAttribute.Name);
+                Assert.AreEqual(expectedVerbName, verbAttribute!.Name);
             }
         }
 

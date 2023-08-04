@@ -137,7 +137,7 @@ namespace Smi.Common.Tests
         {
             var testFactory = new ConnectionFactory
             {
-                HostName = _testOptions.RabbitOptions.RabbitMqHostName,
+                HostName = _testOptions.RabbitOptions!.RabbitMqHostName,
                 VirtualHost = _testOptions.RabbitOptions.RabbitMqVirtualHost,
                 Port = _testOptions.RabbitOptions.RabbitMqHostPort,
                 UserName = _testOptions.RabbitOptions.RabbitMqUserName,
@@ -167,7 +167,7 @@ namespace Smi.Common.Tests
         {
             var fact = new ConnectionFactory
             {
-                HostName = _testOptions.RabbitOptions.RabbitMqHostName,
+                HostName = _testOptions.RabbitOptions!.RabbitMqHostName,
                 VirtualHost = _testOptions.RabbitOptions.RabbitMqVirtualHost,
                 Port = _testOptions.RabbitOptions.RabbitMqHostPort,
                 UserName = _testOptions.RabbitOptions.RabbitMqUserName,

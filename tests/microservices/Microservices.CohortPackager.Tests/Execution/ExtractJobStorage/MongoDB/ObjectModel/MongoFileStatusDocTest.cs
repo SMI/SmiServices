@@ -70,7 +70,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     null
                 )
             );
-            Assert.AreEqual("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')", exc.Message);
+            Assert.AreEqual("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')", exc!.Message);
 
             exc = Assert.Throws<ArgumentException>(() =>
                 new MongoFileStatusDoc(
@@ -82,7 +82,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     "  "
                 )
             );
-            Assert.AreEqual("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')", exc.Message);
+            Assert.AreEqual("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')", exc!.Message);
 
             var _ = new MongoFileStatusDoc(
                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),

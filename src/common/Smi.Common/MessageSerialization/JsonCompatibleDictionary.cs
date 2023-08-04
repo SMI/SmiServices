@@ -50,13 +50,13 @@ namespace Smi.Common.MessageSerialization
             if (hydrateV1 == null || hydrateV2 == null)
                 return;
 
-            if (_hydrateV1.Length != hydrateV2.Length)
+            if (_hydrateV1!.Length != hydrateV2.Length)
                 return;
 
             Clear();
 
             for (int i = 0; i < _hydrateV1.Length; i++)
-                Add(_hydrateV1[i], _hydrateV2[i]);
+                Add(_hydrateV1[i], _hydrateV2![i]);
         }
     }
 }

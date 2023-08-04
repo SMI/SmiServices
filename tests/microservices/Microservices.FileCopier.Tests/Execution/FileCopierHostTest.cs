@@ -44,12 +44,12 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopierHost_HappyPath()
         {
             var globals = new GlobalOptionsFactory().Load(nameof(Test_FileCopierHost_HappyPath));
-            globals.FileSystemOptions.FileSystemRoot = "root";
+            globals.FileSystemOptions!.FileSystemRoot = "root";
             globals.FileSystemOptions.ExtractRoot = "exroot";
 
             using var tester = new MicroserviceTester(globals.RabbitOptions!, globals.FileCopierOptions!);
 
-            var outputQueueName = globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName.Replace("Exchange", "Queue");
+            var outputQueueName = globals.FileCopierOptions!.CopyStatusProducerOptions!.ExchangeName!.Replace("Exchange", "Queue");
             tester.CreateExchange(
                 globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName,
                 outputQueueName,
@@ -84,7 +84,7 @@ namespace Microservices.FileCopier.Tests.Execution
             model.BasicConsume(outputQueueName, true, "", consumer);
 
             TestTimelineAwaiter.Await(() => statusMessage != null);
-            Assert.AreEqual(ExtractedFileStatus.Copied, statusMessage.Status);
+            Assert.AreEqual(ExtractedFileStatus.Copied, statusMessage!.Status);
         }
 
         #endregion

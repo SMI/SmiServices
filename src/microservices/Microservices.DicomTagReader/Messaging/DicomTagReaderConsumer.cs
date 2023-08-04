@@ -65,7 +65,7 @@ namespace Microservices.DicomTagReader.Messaging
         {
             // tell reader only to consider our specific file
             _reader.IncludeFile = f=>new FileInfo(f).FullName.Equals(file.FullName,StringComparison.CurrentCultureIgnoreCase);
-            _reader.ReadTags(null, new AccessionDirectoryMessage(_opts.FileSystemOptions.FileSystemRoot!, file.Directory!));
+            _reader.ReadTags(null, new AccessionDirectoryMessage(_opts.FileSystemOptions!.FileSystemRoot!, file.Directory!));
 
             // good practice to clear this afterwards
             _reader.IncludeFile = null;

@@ -48,7 +48,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         public void Test_ExtractionRequestQueueConsumer_AnonExtraction_RoutingKey()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Test_ExtractionRequestQueueConsumer_AnonExtraction_RoutingKey));
-            globals.CohortExtractorOptions.ExtractAnonRoutingKey = "anon";
+            globals.CohortExtractorOptions!.ExtractAnonRoutingKey = "anon";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "";
             AssertMessagePublishedWithSpecifiedKey(globals, false, "anon");
         }
@@ -57,7 +57,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         public void Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKey()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKey));
-            globals.CohortExtractorOptions.ExtractAnonRoutingKey = "";
+            globals.CohortExtractorOptions!.ExtractAnonRoutingKey = "";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "ident";
             AssertMessagePublishedWithSpecifiedKey(globals, true, "ident");
         }

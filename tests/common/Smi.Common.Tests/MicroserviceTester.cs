@@ -46,7 +46,7 @@ namespace Smi.Common.Tests
             //setup a sender channel for each of the consumers you want to test sending messages to
             foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
             {
-                if (!consumer.QueueName.Contains("TEST."))
+                if (!consumer.QueueName!.Contains("TEST."))
                     consumer.QueueName = consumer.QueueName.Insert(0, "TEST.");
 
                 var exchangeName = consumer.QueueName.Replace("Queue", "Exchange");

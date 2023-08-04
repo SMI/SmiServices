@@ -64,7 +64,7 @@ namespace Microservices.DicomAnonymiser.Tests
             // Arrange
 
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Integration_HappyPath_MockAnonymiser));
-            globals.FileSystemOptions.FileSystemRoot = _dicomRoot.FullName;
+            globals.FileSystemOptions!.FileSystemRoot = _dicomRoot.FullName;
 
             var extractRoot = Directory.CreateDirectory(Path.Combine(_tempTestDir.FullName, "extractRoot"));
             globals.FileSystemOptions.ExtractRoot = extractRoot.FullName;
@@ -99,9 +99,9 @@ namespace Microservices.DicomAnonymiser.Tests
                 .Callback(() => File.Create(expectedAnonPathAbs).Dispose())
                 .Returns(ExtractedFileStatus.Anonymised);
 
-            var statusExchange = globals.DicomAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName!;
-            var successQueue = globals.IsIdentifiableServiceOptions.QueueName!;
-            var failureQueue = globals.CohortPackagerOptions.NoVerifyStatusOptions.QueueName!;
+            var statusExchange = globals.DicomAnonymiserOptions!.ExtractFileStatusProducerOptions!.ExchangeName!;
+            var successQueue = globals.IsIdentifiableServiceOptions!.QueueName!;
+            var failureQueue = globals.CohortPackagerOptions!.NoVerifyStatusOptions!.QueueName!;
 
             List<ExtractedFileStatusMessage> statusMessages = new();
 

@@ -110,7 +110,7 @@ namespace Applications.TriggerUpdates.Tests
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
             var ex = Assert.Throws<Exception>(()=>source.GetUpdates().ToArray());
 
-            StringAssert.StartsWith("No Archive table exists for mapping table",ex.Message);
+            StringAssert.StartsWith("No Archive table exists for mapping table",ex!.Message);
         }
         
         [TestCase(DatabaseType.MySql)]
@@ -245,7 +245,7 @@ namespace Applications.TriggerUpdates.Tests
                 {SpecialFieldNames.DataLoadRunID,55},
                 });
             
-            var oldTempGuid = guidTable.GetDataTable().Rows[0][TableLookupWithGuidFallbackSwapper.GuidColumnName];
+            var oldTempGuid = guidTable!.GetDataTable().Rows[0][TableLookupWithGuidFallbackSwapper.GuidColumnName];
             Assert.IsNotNull(oldTempGuid);
  
             Assert.AreEqual(2,map.GetRowCount(),"We should have a mapping table with 2 entries, the old existing one 0101010101 and a new one 0202020202");

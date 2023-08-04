@@ -94,13 +94,13 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         private void VerifyReports(GlobalOptions globals, PathFixtures pf, ReportFormat reportFormat, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
         {
-            globals.FileSystemOptions.ExtractRoot = pf.ExtractRootAbsolute;
-            globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
+            globals.FileSystemOptions!.ExtractRoot = pf.ExtractRootAbsolute;
+            globals.CohortPackagerOptions!.JobWatcherTimeoutInSeconds = 5;
             globals.CohortPackagerOptions.ReporterType = "FileReporter";
             globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
             
-            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions!, "test", true);
-            globals.MongoDatabases.ExtractionStoreOptions.DatabaseName += "-" + Guid.NewGuid().ToString().Split('-')[0];
+            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases!.ExtractionStoreOptions!, "test", true);
+            globals.MongoDatabases.ExtractionStoreOptions!.DatabaseName += "-" + Guid.NewGuid().ToString().Split('-')[0];
             client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
 
             using (var tester = new MicroserviceTester(
@@ -207,7 +207,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 reportFormat,
                 new[]
                 {
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!, testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage),
                 }
@@ -320,7 +320,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 reportFormat,
                 new[]
                 {
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,testExtractFileCollectionInfoMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,  testExtractFileCollectionInfoMessage2),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage),
@@ -398,7 +398,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ReportFormat.Combined,
                 new[]
                 {
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions!,  testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!,  testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,testExtractFileStatusMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage2),

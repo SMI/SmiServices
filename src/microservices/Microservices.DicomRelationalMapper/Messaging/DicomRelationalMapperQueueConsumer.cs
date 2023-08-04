@@ -123,7 +123,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
             // Cancel the DLE runner task and wait for it to exit. This will deadlock if the DLE task ever calls Stop directly
             _stopTokenSource.Cancel();
-            _dleTask.Wait();
+            _dleTask!.Wait();
 
             if (DatabaseNamer is ICreateAndDestroyStagingDuringLoads createAndDestroyStaging)
                 createAndDestroyStaging.DestroyStagingIfExists();

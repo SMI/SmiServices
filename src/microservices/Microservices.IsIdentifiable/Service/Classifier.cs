@@ -16,7 +16,7 @@ namespace Microservices.IsIdentifiable.Service
         {
             DataDirectory = dataDirectory;
 
-            if(!DataDirectory.Exists)
+            if (!DataDirectory.Exists)
                 throw new DirectoryNotFoundException($"Could not find directory {DataDirectory.FullName}");
         }
 
@@ -29,14 +29,14 @@ namespace Microservices.IsIdentifiable.Service
         /// <returns></returns>
         protected DirectoryInfo GetSubdirectory(string toFind)
         {
-            var stanfordNerDir = DataDirectory.GetDirectories(toFind).SingleOrDefault();
-            
-            if(stanfordNerDir == null)
+            var stanfordNerDir = DataDirectory!.GetDirectories(toFind).SingleOrDefault();
+
+            if (stanfordNerDir == null)
                 throw new DirectoryNotFoundException($"Expected sub-directory called '{toFind}' to exist in '{DataDirectory}'");
 
             return stanfordNerDir;
         }
-        
+
 
         /// <summary>
         /// Finds (including in subdirectories) files that match the <paramref name="searchPattern"/>.  If exactly 1 match is

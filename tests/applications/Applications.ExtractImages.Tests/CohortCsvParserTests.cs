@@ -104,7 +104,7 @@ namespace Applications.ExtractImages.Tests
             Assert.AreEqual(ExtractionKey.StudyInstanceUID, extractionKey);
             Assert.AreEqual(new List<string> { "1.2.3.4" }, ids);
         }
-        
+
         [Test]
         public void QuotedValues_AreAllowed()
         {
@@ -135,7 +135,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.AreEqual("CSV is empty", exc.Message);
+            Assert.AreEqual("CSV is empty", exc!.Message);
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.True(exc.Message.StartsWith("CSV header must be a valid ExtractionKey"));
+            Assert.True(exc!.Message.StartsWith("CSV header must be a valid ExtractionKey"));
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.AreEqual("CSV must have exactly 1 column", exc.Message);
+            Assert.AreEqual("CSV must have exactly 1 column", exc!.Message);
         }
 
         [Test]
@@ -183,7 +183,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.AreEqual("CSV must have exactly 1 column", exc.Message);
+            Assert.AreEqual("CSV must have exactly 1 column", exc!.Message);
         }
 
         [Test]
@@ -199,7 +199,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.AreEqual("No records in the cohort CSV", exc.Message);
+            Assert.AreEqual("No records in the cohort CSV", exc!.Message);
         }
 
         #endregion

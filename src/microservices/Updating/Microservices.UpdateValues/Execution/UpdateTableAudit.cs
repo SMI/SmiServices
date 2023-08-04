@@ -68,7 +68,7 @@ namespace Microservices.UpdateValues.Execution
 
         public override string ToString()
         {
-            return $"Table:{Table.GetFullyQualifiedName()} Queries:{Queries} Time:{Stopwatch.Elapsed:c} AffectedRows:{AffectedRows:N0} ExecutingQueries:{ExecutingQueries}";
+            return $"Table:{Table?.GetFullyQualifiedName()} Queries:{Queries} Time:{Stopwatch.Elapsed:c} AffectedRows:{AffectedRows:N0} ExecutingQueries:{ExecutingQueries}";
         }
     }
 }

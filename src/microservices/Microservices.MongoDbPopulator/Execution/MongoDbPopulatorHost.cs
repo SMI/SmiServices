@@ -20,7 +20,7 @@ namespace Microservices.MongoDBPopulator.Execution
         public MongoDbPopulatorHost(GlobalOptions options)
             : base(options)
         {
-            Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases.DicomStoreOptions!, options.MongoDbPopulatorOptions!, options.MongoDbPopulatorOptions.SeriesQueueConsumerOptions!));
+            Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases!.DicomStoreOptions!, options.MongoDbPopulatorOptions!, options.MongoDbPopulatorOptions!.SeriesQueueConsumerOptions!));
             Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions!, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions!));
 
             if (!Consumers.Any())

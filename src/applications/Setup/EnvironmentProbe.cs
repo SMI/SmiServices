@@ -248,7 +248,7 @@ DicomTagReader {
 
                 // this opens connection to the server and tests for collection existing                
                 new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions!,
-                         Options.MongoDbPopulatorOptions.ImageCollection!);
+                         Options.MongoDbPopulatorOptions!.ImageCollection!);
 
 
                 MongoDbOptions mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using Smi.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
 {
@@ -32,6 +33,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// Preloads the swap table into memory
         /// </summary>
         /// <param name="options"></param>
+        [MemberNotNull(nameof(_mapping))]
         public override void Setup(IMappingTableOptions options)
         {
             _logger.Info("Setting up mapping dictionary");
@@ -65,14 +67,13 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
                     _logger.Debug("Mapping dictionary populated with " + _mapping.Count + " entries in " + sw.Elapsed.ToString("g"));
                 }
-
         }
 
         public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             lock (_oDictionaryLock)
             {
-                if (!_mapping.ContainsKey(toSwap))
+                if (!_mapping!.ContainsKey(toSwap))
                 {
                     reason = "PatientID was not in mapping table";
                     Fail++;

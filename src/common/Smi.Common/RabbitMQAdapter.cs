@@ -165,7 +165,7 @@ namespace Smi.Common
             consumer.OnFatal += (s, e) =>
             {
                 resources.Dispose();
-                _hostFatalHandler(s, e);
+                _hostFatalHandler?.Invoke(s, e);
             };
 
             model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);

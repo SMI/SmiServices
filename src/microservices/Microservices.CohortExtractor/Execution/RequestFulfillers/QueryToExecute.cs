@@ -118,12 +118,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     }        
                 }
             
-            var path = Columns.FilePathColumn.GetRuntimeName();
+            var path = Columns.FilePathColumn!.GetRuntimeName();
             var study = Columns.StudyTagColumn?.GetRuntimeName();
             var series = Columns.SeriesTagColumn?.GetRuntimeName();
             var instance = Columns.InstanceTagColumn?.GetRuntimeName();
 
-            using DbConnection con = Server.GetConnection();
+            using DbConnection con = Server!.GetConnection();
             con.Open();
 
             string? sqlString = GetSqlForKeyValue(valueToLookup);

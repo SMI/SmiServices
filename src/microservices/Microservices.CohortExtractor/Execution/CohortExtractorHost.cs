@@ -51,7 +51,7 @@ namespace Microservices.CohortExtractor.Execution
         public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller)
             : base(options)
         {
-            _consumerOptions = options.CohortExtractorOptions;
+            _consumerOptions = options.CohortExtractorOptions!;
             _consumerOptions.Validate();
 
             _auditor = auditor;
@@ -65,7 +65,7 @@ namespace Microservices.CohortExtractor.Execution
         {
             FansiImplementations.Load();
 
-            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
+            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions!.GetRepositoryProvider();
 
             var startup = new Startup(new EnvironmentInfo(PluginFolders.Main), repositoryLocator);
 
@@ -75,7 +75,7 @@ namespace Microservices.CohortExtractor.Execution
             foreach (CheckEventArgs args in toMemory.Messages.Where(m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions!, isBatch: true);
+            _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions!.ExtractFilesProducerOptions!, isBatch: true);
             IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);

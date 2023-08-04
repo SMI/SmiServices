@@ -108,7 +108,7 @@ namespace Smi.Common.Options
         /// </summary>
         public string? ClassifierType { get; set; }
 
-        public ProducerOptions? IsIdentifiableProducerOptions {get; set;}
+        public ProducerOptions? IsIdentifiableProducerOptions { get; set; }
 
         public string? DataDirectory { get; set; }
     }
@@ -179,7 +179,7 @@ namespace Smi.Common.Options
         {
             var server = new DiscoveredServer(MappingConnectionString, MappingDatabaseType);
 
-            if(string.IsNullOrWhiteSpace(MappingTableName))
+            if (string.IsNullOrWhiteSpace(MappingTableName))
                 throw new ArgumentException($"MappingTableName must be set");
 
             var idx = MappingTableName.LastIndexOf('.');
@@ -348,7 +348,7 @@ namespace Smi.Common.Options
         /// The Type of a class implementing IExtractionRequestFulfiller which is responsible for mapping requested image identifiers to image file paths.  Mandatory
         /// </summary>
         public string? RequestFulfillerType { get; set; }
-        
+
         /// <summary>
         /// The Type of a class implementing IProjectPathResolver which is responsible for deciding the folder hierarchy to output into
         /// </summary>
@@ -386,7 +386,7 @@ namespace Smi.Common.Options
 
         public ProducerOptions? ExtractFilesProducerOptions { get; set; }
         public ProducerOptions? ExtractFilesInfoProducerOptions { get; set; }
-        
+
         /// <summary>
         /// ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
         /// </summary>
@@ -399,7 +399,7 @@ namespace Smi.Common.Options
 
         public void Validate()
         {
-            if(ModalitySpecificRejectors != null && ModalitySpecificRejectors.Any() && string.IsNullOrWhiteSpace(ModalityRoutingRegex))
+            if (ModalitySpecificRejectors != null && ModalitySpecificRejectors.Any() && string.IsNullOrWhiteSpace(ModalityRoutingRegex))
             {
                 throw new Exception("ModalitySpecificRejectors requires providing a ModalityRoutingRegex");
             }
@@ -409,9 +409,9 @@ namespace Smi.Common.Options
 
         }
     }
-    
+
     [UsedImplicitly]
-    public class UpdateValuesOptions: ConsumerOptions
+    public class UpdateValuesOptions : ConsumerOptions
     {
         /// <summary>
         /// Number of seconds the updater will wait when running a single value UPDATE on the live table e.g. ECHI A needs to be replaced with ECHI B
@@ -421,10 +421,10 @@ namespace Smi.Common.Options
         /// <summary>
         /// IDs of TableInfos that should be updated
         /// </summary>
-        public int[] TableInfosToUpdate {get;set;} = new int[0];
+        public int[] TableInfosToUpdate { get; set; } = new int[0];
 
     }
-    
+
     [UsedImplicitly]
     public class TriggerUpdatesOptions : ProducerOptions
     {
@@ -496,7 +496,7 @@ namespace Smi.Common.Options
         public string? RoutingKeySuccess { get; set; }
         public string? RoutingKeyFailure { get; set; }
         public bool FailIfSourceWriteable { get; set; } = true;
-        
+
 
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
@@ -524,7 +524,7 @@ namespace Smi.Common.Options
         /// </summary>
         public string? UserName { get; set; }
 
-        public string? Password {get;set;}
+        public string? Password { get; set; }
 
         public string? DatabaseName { get; set; }
 
@@ -550,19 +550,19 @@ namespace Smi.Common.Options
     {
         public string? CatalogueConnectionString { get; set; }
         public string? DataExportConnectionString { get; set; }
-        
+
         /// <summary>
         /// Alternative to connection strings for if you have RDMP running with a YAML file system backend.
         /// If specified then this will override the connection strings
         /// </summary>
-        public string? YamlDir {get;set;}
+        public string? YamlDir { get; set; }
 
         public IRDMPPlatformRepositoryServiceLocator GetRepositoryProvider()
         {
             CatalogueRepository.SuppressHelpLoading = true;
 
             // if using file system backend for RDMP create that repo instead
-            if(!string.IsNullOrWhiteSpace(YamlDir))
+            if (!string.IsNullOrWhiteSpace(YamlDir))
             {
                 return new RepositoryProvider(new YamlRepository(new System.IO.DirectoryInfo(YamlDir)));
             }
@@ -594,14 +594,14 @@ namespace Smi.Common.Options
         public string? FileSystemRoot
         {
             get => _fileSystemRoot;
-            set => _fileSystemRoot = value.Length > 1 ? value.TrimEnd('/', '\\') : value;
+            set => _fileSystemRoot = value != null ? value.TrimEnd('/', '\\') : value;
         }
 
         public string? ExtractRoot
         {
             get => _extractRoot;
             [UsedImplicitly]
-            set => _extractRoot = value.Length > 1 ? value.TrimEnd('/', '\\') : value;
+            set => _extractRoot = value != null ? value.TrimEnd('/', '\\') : value;
         }
 
         public override string ToString()

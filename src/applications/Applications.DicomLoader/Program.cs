@@ -33,9 +33,9 @@ public static class Program
     {
         Loader loader =
             new(
-                MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions!, nameof(DicomLoader))
-                    .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName),
-                go.MongoDbPopulatorOptions.ImageCollection!, go.MongoDbPopulatorOptions.SeriesCollection!,dicomLoaderOptions.ForceReload);
+                MongoClientHelpers.GetMongoClient(go.MongoDatabases!.DicomStoreOptions!, nameof(DicomLoader))
+                    .GetDatabase(go.MongoDatabases.DicomStoreOptions!.DatabaseName),
+                go.MongoDbPopulatorOptions!.ImageCollection!, go.MongoDbPopulatorOptions.SeriesCollection!,dicomLoaderOptions.ForceReload);
 
         LineReader.LineReader fileNames = new(fileList??Console.OpenStandardInput(), '\0');
         using CancellationTokenSource cts = new();
