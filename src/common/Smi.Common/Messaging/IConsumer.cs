@@ -25,7 +25,7 @@ namespace Smi.Common.Messaging
         /// <summary>
         /// 
         /// </summary>
-        event ConsumerFatalHandler OnFatal;
+        event ConsumerFatalHandler? OnFatal;
 
         /// <summary>
         /// Trigger a clean shutdown of worker threads etc

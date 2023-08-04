@@ -22,7 +22,7 @@ namespace Smi.Common.Messaging
         };
 
         public event StopEventHandler StopHost;
-        public event ControlEventHandler ControlEvent;
+        public event ControlEventHandler? ControlEvent;
 
 
         private readonly string _processName;

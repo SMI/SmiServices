@@ -12,9 +12,9 @@ namespace Smi.Common.MongoDB.Tests
     /// </summary>
     public abstract class StubMongoDatabase : IMongoDatabase
     {
-        public virtual IMongoClient Client { get; }
-        public virtual DatabaseNamespace DatabaseNamespace { get; }
-        public virtual MongoDatabaseSettings Settings { get; }
+        public virtual IMongoClient Client { get; } = null!;
+        public virtual DatabaseNamespace DatabaseNamespace { get; } = null!;
+        public virtual MongoDatabaseSettings Settings { get; } = null!;
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

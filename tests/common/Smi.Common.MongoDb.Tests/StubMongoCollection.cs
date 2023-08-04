@@ -14,11 +14,11 @@ namespace Smi.Common.MongoDB.Tests
     /// </summary>
     public abstract class StubMongoCollection<TKey, TVal> : IMongoCollection<TVal> where TKey : struct
     {
-        public virtual CollectionNamespace CollectionNamespace { get; }
-        public virtual IMongoDatabase Database { get; }
-        public virtual IBsonSerializer<TVal> DocumentSerializer { get; }
-        public virtual IMongoIndexManager<TVal> Indexes { get; }
-        public virtual MongoCollectionSettings Settings { get; }
+        public virtual CollectionNamespace CollectionNamespace { get; } = null!;
+        public virtual IMongoDatabase Database { get; } = null!;
+        public virtual IBsonSerializer<TVal> DocumentSerializer { get; } = null!;
+        public virtual IMongoIndexManager<TVal> Indexes { get; } = null!;
+        public virtual MongoCollectionSettings Settings { get; } = null!;
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TVal, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TVal, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TVal, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

@@ -48,8 +48,8 @@ namespace Microservices.DicomRelationalMapper.Tests
     {
         public const string ScratchDatabaseName = "RDMPTests_ScratchArea";
 
-        private DicomRelationalMapperTestHelper _helper;
-        private GlobalOptions _globals;
+        private DicomRelationalMapperTestHelper _helper = null!;
+        private GlobalOptions _globals = null!;
         private const string MongoTestDbName = "nUnitTestDb";
 
         public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)

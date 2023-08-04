@@ -28,7 +28,7 @@ namespace Applications.ExtractImages
         private readonly int _maxIdentifiersPerMessage;
 
         private readonly string _projectId;
-        private readonly string[] _modalities;
+        private readonly string[]? _modalities;
         private readonly bool _isIdentifiableExtraction;
         private readonly bool _isNoFiltersExtraction;
         private readonly bool _nonInteractive;

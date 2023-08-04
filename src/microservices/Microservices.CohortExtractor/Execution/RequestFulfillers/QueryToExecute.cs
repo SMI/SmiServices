@@ -24,7 +24,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public string KeyTag { get; }
 
         public DiscoveredServer? Server { get; set; }
-        private string _sql;
+        private string? _sql;
         
         /// <summary>
         /// Lock to ensure we don't build multiple <see cref="GetQueryBuilder"/> at once if someone decides to multi

@@ -15,8 +15,7 @@ namespace Smi.Common.Messaging
     /// </summary>
     public class ProducerModel : IProducerModel
     {
-        public event ProducerFatalHandler OnFatal;
-
+        public event ProducerFatalHandler? OnFatal;
 
         private readonly ILogger _logger;
 

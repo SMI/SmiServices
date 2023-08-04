@@ -134,7 +134,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [BsonElement("innerException")]
         public string? InnerException { get; set; }
 
-
         public MongoFailedJobInfoDoc(
             Exception exception,
             DateTimeProvider dateTimeProvider
@@ -144,7 +143,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             if (exception == null)
                 throw new ArgumentNullException(nameof(exception));
             ExceptionMessage = exception.Message;
-            StackTrace = exception.StackTrace;
+            StackTrace = exception.StackTrace!;
             InnerException = exception.InnerException?.ToString();
         }
     }

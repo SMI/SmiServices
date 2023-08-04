@@ -31,8 +31,8 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         protected readonly CancellationTokenSource TokenSource = new();
 
         protected readonly Stopwatch Stopwatch = new();
-        protected StringBuilder StringBuilder;
-        protected List<List<long>> Times;
+        protected StringBuilder? StringBuilder;
+        protected List<List<long>>? Times;
 
         /// <summary>
         /// The filenames to look for in directories.  Defaults to *.dcm
@@ -50,7 +50,12 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         }
 
 
-        protected DicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        protected DicomDirectoryFinder(
+            string fileSystemRoot,
+            IFileSystem fileSystem,
+            string dicomSearchPattern, 
+            IProducerModel directoriesProducerModel
+        )
         {
             FileSystemRoot = fileSystemRoot;
             FileSystem = fileSystem;

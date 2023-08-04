@@ -29,7 +29,7 @@ namespace Smi.Common.Messaging
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
-        public event ConsumerFatalHandler OnFatal;
+        public event ConsumerFatalHandler? OnFatal;
 
 
         protected readonly ILogger Logger;
@@ -37,7 +37,7 @@ namespace Smi.Common.Messaging
         private readonly object _oConsumeLock = new();
         private bool _exiting;
 
-        protected IModel Model;
+        protected IModel? Model;
 
         public virtual void Shutdown()
         {
@@ -227,7 +227,7 @@ namespace Smi.Common.Messaging
 
                 Logger.Fatal(exception, msg);
 
-                ConsumerFatalHandler onFatal = OnFatal;
+                ConsumerFatalHandler? onFatal = OnFatal;
 
                 if (onFatal != null)
                 {

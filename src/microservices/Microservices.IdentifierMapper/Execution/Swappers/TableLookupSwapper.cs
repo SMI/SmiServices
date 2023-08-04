@@ -16,12 +16,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private DiscoveredServer _server;
-        private IMappingTableOptions _options;
-        private DiscoveredTable _swapTable;
+        private DiscoveredServer? _server;
+        private IMappingTableOptions? _options;
+        private DiscoveredTable? _swapTable;
 
         // Simple cache of the last swap pair
-        private string _lastKey;
+        private string? _lastKey;
         private string? _lastVal;
         
 

@@ -13,14 +13,14 @@ namespace Microservices.FileCopier.Tests.Execution
 {
     public class FileCopierTest
     {
-        private FileCopierOptions _options;
+        private FileCopierOptions _options = null!;
 
-        private MockFileSystem _mockFileSystem;
+        private MockFileSystem _mockFileSystem = null!;
         private const string FileSystemRoot = "PACS";
         private const string ExtractRoot = "extract";
-        private string _relativeSrc;
+        private string _relativeSrc = null!;
         private readonly byte[] _expectedContents = { 0b00, 0b01, 0b10, 0b11 };
-        private ExtractFileMessage _requestMessage;
+        private ExtractFileMessage _requestMessage = null!;
 
         #region Fixture Methods 
 

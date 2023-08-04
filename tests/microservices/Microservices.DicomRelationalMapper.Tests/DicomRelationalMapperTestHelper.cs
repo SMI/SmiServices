@@ -23,16 +23,16 @@ namespace Microservices.Tests.RDMPTests
 {
     public class DicomRelationalMapperTestHelper
     {
-        public LoadMetadata LoadMetadata { get; private set; }
-        public DiscoveredTable ImageTable { get; private set; }
-        public DiscoveredTable SeriesTable { get; private set; }
-        public DiscoveredTable StudyTable { get; private set; }
+        public LoadMetadata? LoadMetadata { get; private set; }
+        public DiscoveredTable? ImageTable { get; private set; }
+        public DiscoveredTable? SeriesTable { get; private set; }
+        public DiscoveredTable? StudyTable { get; private set; }
 
-        public TableInfo ImageTableInfo { get; private set; }
-        public TableInfo SeriesTableInfo { get; private set; }
-        public TableInfo StudyTableInfo { get; private set; }
+        public TableInfo? ImageTableInfo { get; private set; }
+        public TableInfo? SeriesTableInfo { get; private set; }
+        public TableInfo? StudyTableInfo { get; private set; }
 
-        public PipelineComponent DicomSourcePipelineComponent { get; private set; }
+        public PipelineComponent? DicomSourcePipelineComponent { get; private set; }
 
         public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string? root = null, ImageTableTemplateCollection? template = null, bool persistentRaw = false, string? modalityPrefix = null)
         {

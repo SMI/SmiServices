@@ -13,8 +13,8 @@ namespace Smi.Common.MongoDb.Tests
     /// </summary>
     public abstract class StubMongoClient : IMongoClient
     {
-        public ICluster Cluster { get; }
-        public MongoClientSettings Settings { get; }
+        public ICluster Cluster { get; } = null!;
+        public MongoClientSettings Settings { get; } = null!;
         public virtual void DropDatabase(string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task DropDatabaseAsync(string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

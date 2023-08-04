@@ -30,8 +30,8 @@ namespace Smi.Common.MessageSerialization
             set { Hydrate(value); }
         }
 
-        private TK[] _hydrateV1;
-        private TV[] _hydrateV2;
+        private TK[]? _hydrateV1;
+        private TV[]? _hydrateV2;
 
         private void Hydrate(TK[] value)
         {

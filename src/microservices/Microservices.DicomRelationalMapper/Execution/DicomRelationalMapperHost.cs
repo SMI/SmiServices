@@ -18,7 +18,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 {
     public class DicomRelationalMapperHost : MicroserviceHost, IDisposable
     {
-        public DicomRelationalMapperQueueConsumer Consumer { get; private set; }
+        public DicomRelationalMapperQueueConsumer? Consumer { get; private set; }
 
         public DicomRelationalMapperHost(GlobalOptions globals)
             : base(globals)

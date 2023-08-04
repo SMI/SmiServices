@@ -14,7 +14,7 @@ namespace Smi.Common.MongoDB.Tests
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private MongoDbOptions _mongoOptions;
+        private MongoDbOptions _mongoOptions = null!;
 
         #region Fixture Methods 
 

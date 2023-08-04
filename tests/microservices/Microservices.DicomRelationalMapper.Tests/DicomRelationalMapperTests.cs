@@ -23,8 +23,8 @@ namespace Microservices.DicomRelationalMapper.Tests
     [RequiresRabbit, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class DicomRelationalMapperTests : DatabaseTests
     {
-        private DicomRelationalMapperTestHelper _helper;
-        private GlobalOptions _globals;
+        private DicomRelationalMapperTestHelper _helper = null!;
+        private GlobalOptions _globals = null!;
 
         [SetUp]
         public void Setup()

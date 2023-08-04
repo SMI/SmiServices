@@ -15,12 +15,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
     public class BlacklistRejector : IRejector
     {
         private readonly ICatalogue _catalogue;
-        private QueryToExecuteColumnSet _columnSet;
-        private SpontaneouslyInventedFilter _studyFilter;
-        private SpontaneouslyInventedFilter _seriesFilter;
-        private SpontaneouslyInventedFilter _instanceFilter;
-        private QueryBuilder _queryBuilder;
-        private DiscoveredServer _server;
+        private QueryToExecuteColumnSet? _columnSet;
+        private SpontaneouslyInventedFilter? _studyFilter;
+        private SpontaneouslyInventedFilter? _seriesFilter;
+        private SpontaneouslyInventedFilter? _instanceFilter;
+        private QueryBuilder? _queryBuilder;
+        private DiscoveredServer? _server;
 
         public BlacklistRejector(ICatalogue catalogue)
         {

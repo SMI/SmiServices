@@ -52,7 +52,7 @@ namespace Smi.Common.Tests
 
         class A : MongoClientSettings
         {
-            private string _host;
+            private string? _host;
             private int _port;
 
             public string Host

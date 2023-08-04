@@ -57,7 +57,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         /// </summary>
         private readonly TimeSpan _maximumRunDelayInSeconds;
 
-        private Task _dleTask;
+        private Task? _dleTask;
         private readonly CancellationTokenSource _stopTokenSource = new();
 
 
@@ -68,7 +68,12 @@ namespace Microservices.DicomRelationalMapper.Messaging
         public bool RunChecks { get; set; }
 
 
-        public DicomRelationalMapperQueueConsumer(IRDMPPlatformRepositoryServiceLocator repositoryLocator, LoadMetadata lmd, INameDatabasesAndTablesDuringLoads namer, DicomRelationalMapperOptions options)
+        public DicomRelationalMapperQueueConsumer(
+            IRDMPPlatformRepositoryServiceLocator repositoryLocator, 
+            LoadMetadata lmd,
+            INameDatabasesAndTablesDuringLoads namer, 
+            DicomRelationalMapperOptions options
+        )
         {
             _lmd = lmd;
             _repositoryLocator = repositoryLocator;

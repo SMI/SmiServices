@@ -10,7 +10,7 @@ namespace Smi.Common.Options
         /// <summary>
         /// Name of the queue to consume from.
         /// </summary>
-        public string QueueName { get; set; }
+        public string? QueueName { get; set; }
 
         /// <summary>
         /// Max number of messages the queue will send the consumer before receiving an acknowledgement.

@@ -11,7 +11,7 @@ namespace Microservices.DicomReprocessor.Options
 {
     public class DicomReprocessorCliOptions : CliOptions
     {
-        private string _sourceCollection;
+        private string _sourceCollection = null!;
         [Option(
             'c',
             "collection-name",

@@ -20,14 +20,13 @@ namespace Smi.Common.Tests
     [TestFixture, RequiresRabbit]
     public class RabbitMqAdapterTests
     {
-        private ProducerOptions _testProducerOptions;
-        private ConsumerOptions _testConsumerOptions;
+        private ProducerOptions _testProducerOptions = null!;
+        private ConsumerOptions _testConsumerOptions = null!;
 
-        private MicroserviceTester _tester;
+        private MicroserviceTester _tester = null!;
 
-        private Consumer<IMessage> _mockConsumer;
-        private GlobalOptions _testOptions;
-
+        private Consumer<IMessage> _mockConsumer = null!;
+        private GlobalOptions _testOptions = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

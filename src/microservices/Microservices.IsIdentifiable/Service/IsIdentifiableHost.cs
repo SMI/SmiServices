@@ -16,10 +16,12 @@ namespace Microservices.IsIdentifiable.Service
         private IProducerModel _producerModel;
 
         public IsIdentifiableHost(
-            GlobalOptions globals)
+            GlobalOptions globals
+        )
             : base(globals)
         {
-            _consumerOptions = globals.IsIdentifiableServiceOptions;
+            _consumerOptions = globals.IsIdentifiableServiceOptions
+                ?? throw new ArgumentNullException(nameof(globals.IsIdentifiableServiceOptions));
 
             string? classifierTypename =  globals.IsIdentifiableServiceOptions.ClassifierType;
             string? dataDirectory = globals.IsIdentifiableServiceOptions.DataDirectory;

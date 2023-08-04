@@ -21,7 +21,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     [TestFixture, RequiresMongoDb]
     public class SeriesMessageProcessorTests
     {
-        private MongoDbPopulatorTestHelper _helper;
+        private MongoDbPopulatorTestHelper _helper = null!;
 
         private readonly List<string> _seriesMessageProps = typeof(SeriesMessage).GetProperties().Select(x => x.Name).ToList();
 

@@ -19,9 +19,9 @@ namespace Microservices.DicomAnonymiser.Tests
     {
         #region Fixture Methods
 
-        private DirectoryInfo _tempTestDir;
-        private DirectoryInfo _dicomRoot;
-        private string _fakeDicom;
+        private DirectoryInfo _tempTestDir = null!;
+        private DirectoryInfo _dicomRoot = null!;
+        private string _fakeDicom = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

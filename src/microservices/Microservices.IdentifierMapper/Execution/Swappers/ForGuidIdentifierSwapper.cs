@@ -19,9 +19,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     {
         private readonly ILogger _logger;
 
-        private IMappingTableOptions _options;
+        private IMappingTableOptions? _options;
 
-        private DiscoveredTable _table;
+        private DiscoveredTable? _table;
 
         private readonly Dictionary<string, string> _cachedAnswers = new();
         private readonly object _oCacheLock = new();

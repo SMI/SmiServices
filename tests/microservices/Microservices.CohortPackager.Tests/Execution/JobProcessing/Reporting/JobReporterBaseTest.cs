@@ -53,7 +53,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             public bool Disposed { get; set; }
 
-            private string _currentReportName;
+            private string? _currentReportName;
             private bool _isCombinedReport;
 
             public TestJobReporter(

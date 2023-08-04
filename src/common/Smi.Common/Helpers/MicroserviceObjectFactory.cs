@@ -14,7 +14,7 @@ namespace Smi.Common.Helpers
         /// Method called when <see cref="CreateInstance{T}(System.Type,object[])"/> fails.  If not set then the Exception is simply
         /// thrown.
         /// </summary>
-        public HostFatalHandler FatalHandler;
+        public HostFatalHandler? FatalHandler;
 
         /// <summary>
         /// Constructs an instance of the specified <paramref name="toCreate"/> and casts it to Type T (e.g. an interface).  You can pass any 

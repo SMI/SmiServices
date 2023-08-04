@@ -27,7 +27,7 @@ namespace Smi.Common.Options
     {
         #region AllOptions
 
-        private string _hostProcessName;
+        private string? _hostProcessName;
 
         public string HostProcessName
         {
@@ -331,7 +331,7 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class CohortExtractorOptions : ConsumerOptions
     {
-        private string _auditorType;
+        private string? _auditorType;
 
         /// <summary>
         /// The Type of a class implementing IAuditExtractions which is responsible for auditing the extraction process.  If null then no auditing happens
@@ -372,7 +372,7 @@ namespace Smi.Common.Options
         public ModalitySpecificRejectorOptions[]? ModalitySpecificRejectors { get; set; }
 
         public bool AllCatalogues { get; private set; }
-        public List<int> OnlyCatalogues { get; private set; }
+        public List<int> OnlyCatalogues { get; private set; } = null!;
 
         /// <summary>
         /// Optional list of datasets which contain information about when NOT to extract an image.  This should be a manually curated blacklist - not just general rules (for those use <see cref="RejectorType"/>). Referenced datasets must include one or more of the UID columns (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID)

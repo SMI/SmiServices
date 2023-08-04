@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microservices.DicomReprocessor.Execution.Processors;
@@ -14,10 +13,9 @@ namespace Microservices.DicomReprocessor.Execution
     {
         private readonly MongoDbReader _mongoReader;
         private readonly IDocumentProcessor _processor;
-        private Task<TimeSpan> _processorTask;
+        private Task<TimeSpan>? _processorTask;
 
-        private readonly string _queryString;
-
+        private readonly string? _queryString;
 
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
             : base(options)

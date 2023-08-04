@@ -14,8 +14,8 @@ namespace Applications.DynamicRulesTester;
 
 public static class Program
 {
-    private static ILogger _logger = LogManager.GetCurrentClassLogger();
-    private static IFileSystem _fileSystem;
+    private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+    private static IFileSystem _fileSystem = null!;
 
     public static int Main(IEnumerable<string> args, IFileSystem? fileSystem = null)
     {

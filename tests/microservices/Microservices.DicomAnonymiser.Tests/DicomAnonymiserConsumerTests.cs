@@ -20,14 +20,14 @@ namespace Microservices.DicomAnonymiser.Tests
     {
         #region Fixture Methods
 
-        private MockFileSystem _mockFs;
-        private IDirectoryInfo _dicomRootDirInfo;
-        private IDirectoryInfo _extractRootDirInfo;
-        private string _extractDir;
-        private string _sourceDcmPathAbs;
-        private ExtractFileMessage _extractFileMessage;
-        private DicomAnonymiserOptions _options;
-        private Mock<IModel> _mockModel;
+        private MockFileSystem _mockFs = null!;
+        private IDirectoryInfo _dicomRootDirInfo = null!;
+        private IDirectoryInfo _extractRootDirInfo = null!;
+        private string _extractDir = null!;
+        private string _sourceDcmPathAbs = null!;
+        private ExtractFileMessage _extractFileMessage = null!;
+        private DicomAnonymiserOptions _options = null!;
+        private Mock<IModel> _mockModel = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

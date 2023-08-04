@@ -29,9 +29,9 @@ namespace Smi.Common.Execution
         private bool _auxConnectionsCreated;
 
         private readonly ProducerOptions _fatalLoggingProducerOptions;
-        private IProducerModel _fatalLoggingProducer;
+        private IProducerModel? _fatalLoggingProducer;
 
-        private readonly ControlMessageConsumer _controlMessageConsumer;
+        private readonly ControlMessageConsumer _controlMessageConsumer = null!;
 
         private bool _stopCalled;
 

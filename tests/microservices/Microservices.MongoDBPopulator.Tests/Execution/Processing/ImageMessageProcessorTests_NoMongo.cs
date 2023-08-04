@@ -20,7 +20,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     [TestFixture]
     public class ImageMessageProcessorTests_NoMongo
     {
-        private GlobalOptions _testOptions;
+        private GlobalOptions _testOptions = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

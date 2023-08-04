@@ -17,9 +17,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     {
         private readonly ILogger _logger;
 
-        private IMappingTableOptions _options;
+        private IMappingTableOptions? _options;
 
-        private Dictionary<string, string> _mapping;
+        private Dictionary<string, string>? _mapping;
         private readonly object _oDictionaryLock = new();
 
 

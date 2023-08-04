@@ -39,8 +39,8 @@ namespace Microservices.CohortExtractor.Execution
 
         private IAuditExtractions? _auditor;
         private IExtractionRequestFulfiller? _fulfiller;
-        private IProjectPathResolver _pathResolver;
-        private IProducerModel _fileMessageProducer;
+        private IProjectPathResolver? _pathResolver;
+        private IProducerModel? _fileMessageProducer;
 
         /// <summary>
         /// Creates a new instance of the host with the given 

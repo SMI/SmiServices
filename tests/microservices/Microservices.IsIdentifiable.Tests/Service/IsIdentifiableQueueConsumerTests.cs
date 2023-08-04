@@ -23,15 +23,15 @@ namespace Microservices.IsIdentifiable.Tests.Service
     {
         #region Fixture Methods
 
-        private MockFileSystem _mockFs;
-        private IDirectoryInfo _extractRootDirInfo;
-        private string _extractDir;
-        ExtractedFileStatusMessage _extractedFileStatusMessage;
-        private Mock<IModel> _mockModel;
+        private MockFileSystem _mockFs = null!;
+        private IDirectoryInfo _extractRootDirInfo = null!;
+        private string _extractDir = null!;
+        ExtractedFileStatusMessage _extractedFileStatusMessage = null!;
+        private Mock<IModel> _mockModel = null!;
         FatalErrorEventArgs? _fatalArgs;
-        Mock<IProducerModel> _mockProducerModel;
-        Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall;
-        ExtractedFileVerificationMessage _response;
+        Mock<IProducerModel> _mockProducerModel = null!;
+        Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall = null!;
+        ExtractedFileVerificationMessage _response = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

@@ -18,7 +18,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
     [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class MongoDbPopulatorHostTests
     {
-        private MongoDbPopulatorTestHelper _helper;
+        private MongoDbPopulatorTestHelper _helper = null!;
 
         [SetUp]
         public void SetUp()

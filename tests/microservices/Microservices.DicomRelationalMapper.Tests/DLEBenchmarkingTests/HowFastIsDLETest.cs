@@ -39,9 +39,9 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class HowFastIsDLETest : DatabaseTests
     {
-        private GlobalOptions _globals;
-        private DicomRelationalMapperTestHelper _helper;
-        private IDataLoadInfo _dli;
+        private GlobalOptions _globals = null!;
+        private DicomRelationalMapperTestHelper _helper = null!;
+        private IDataLoadInfo _dli = null!;
 
         string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"DLEBenchmarkingTests/CT.it"));
 

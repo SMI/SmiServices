@@ -15,7 +15,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     [TestFixture, RequiresMongoDb]
     public class MessageProcessorTests
     {
-        private MongoDbPopulatorTestHelper _helper;
+        private MongoDbPopulatorTestHelper _helper = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

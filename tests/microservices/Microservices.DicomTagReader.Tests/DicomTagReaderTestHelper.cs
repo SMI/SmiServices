@@ -20,21 +20,21 @@ namespace Microservices.DicomTagReader.Tests
 
         public readonly ILogger MockLogger = Mock.Of<ILogger>();
 
-        public ConsumerOptions AccessionConsumerOptions;
+        public ConsumerOptions AccessionConsumerOptions = null!;
 
-        public AccessionDirectoryMessage TestAccessionDirectoryMessage;
+        public AccessionDirectoryMessage TestAccessionDirectoryMessage = null!;
 
-        private IConnection _testConnection;
-        private IModel _testModel;
+        private IConnection _testConnection = null!;
+        private IModel _testModel = null!;
 
-        public Mock<IProducerModel> TestSeriesModel;
-        public Mock<IProducerModel> TestImageModel;
+        public Mock<IProducerModel> TestSeriesModel = null!;
+        public Mock<IProducerModel> TestImageModel = null!;
 
-        public MockFileSystem MockFileSystem;
-        public IMicroserviceHost MockHost;
+        public MockFileSystem MockFileSystem = null!;
+        public IMicroserviceHost MockHost = null!;
 
-        public DirectoryInfo TestDir;
-        public GlobalOptions Options;
+        public DirectoryInfo TestDir = null!;
+        public GlobalOptions Options = null!;
 
         /// <summary>
         /// Returns the number of image messages in <see cref="TestImageQueueName"/>

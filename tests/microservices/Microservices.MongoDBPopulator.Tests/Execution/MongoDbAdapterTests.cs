@@ -11,7 +11,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
     [TestFixture, RequiresMongoDb]
     public class MongoDbAdapterTests
     {
-        private MongoDbPopulatorTestHelper _helper;
+        private MongoDbPopulatorTestHelper _helper = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

@@ -19,7 +19,7 @@ namespace Microservices.DicomTagReader.Execution
 {
     public abstract class TagReaderBase
     {
-        private static string _filesystemRoot;
+        private readonly string _filesystemRoot;
         private readonly IFileSystem _fs;
 
         private readonly IProducerModel _seriesMessageProducerModel;
@@ -58,9 +58,9 @@ namespace Microservices.DicomTagReader.Execution
         {
             Logger = LogManager.GetLogger(GetType().Name);
 
-            _filesystemRoot = fileSystemOptions.FileSystemRoot;
+            _filesystemRoot = fileSystemOptions.FileSystemRoot ?? throw new ArgumentNullException(nameof(fileSystemOptions.FileSystemRoot));
             NackIfAnyFileErrors = options.NackIfAnyFileErrors;
-            _searchPattern = fileSystemOptions.DicomSearchPattern;
+            _searchPattern = fileSystemOptions.DicomSearchPattern ?? throw new ArgumentNullException(nameof(fileSystemOptions.DicomSearchPattern));
 
             _fileReadOption = options.GetReadOption();
 

@@ -14,14 +14,14 @@ namespace Microservices.MongoDBPopulator.Tests
     {
         private const string TestDbName = "nUnitTests";
 
-        private MongoClient _mongoTestClient;
+        private MongoClient _mongoTestClient = null!;
 
-        public IMongoDatabase TestDatabase;
+        public IMongoDatabase TestDatabase = null!;
 
-        public GlobalOptions Globals;
+        public GlobalOptions Globals = null!;
 
-        public DicomFileMessage TestImageMessage;
-        public SeriesMessage TestSeriesMessage;
+        public DicomFileMessage TestImageMessage = null!;
+        public SeriesMessage TestSeriesMessage = null!;
 
         public void SetupSuite()
         {

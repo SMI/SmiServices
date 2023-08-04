@@ -31,8 +31,8 @@ namespace Applications.TriggerUpdates.Execution
         /// </summary>
         public bool IsExecuting {get; private set; } = false;
 
-        private DbCommand _currentCommandMainTable;
-        private DbCommand _currentCommandOtherTables;
+        private DbCommand? _currentCommandMainTable;
+        private DbCommand? _currentCommandOtherTables;
 
         public MapperSource(GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
         {

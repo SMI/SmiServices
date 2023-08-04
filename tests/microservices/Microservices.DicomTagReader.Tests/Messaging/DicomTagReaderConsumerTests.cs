@@ -17,7 +17,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
     {
         private readonly DicomTagReaderTestHelper _helper = new();
 
-        private IModel _mockModel;
+        private IModel _mockModel = null!;
 
 
         [OneTimeSetUp]
