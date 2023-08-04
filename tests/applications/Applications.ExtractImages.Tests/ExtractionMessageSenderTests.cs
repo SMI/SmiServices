@@ -48,9 +48,9 @@ namespace Applications.ExtractImages.Tests
                 _line = line;
             }
 
-            public string GetNextLine()
+            public string? GetNextLine()
             {
-                string line = _line;
+                string? line = _line;
                 _line = null;
                 return line;
             }
@@ -67,10 +67,10 @@ namespace Applications.ExtractImages.Tests
             Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var fs = new MockFileSystem();
             const string extractRoot = "extractRoot";
@@ -113,10 +113,10 @@ namespace Applications.ExtractImages.Tests
             Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var fs = new MockFileSystem();
             const string extractRoot = "extractRoot";
@@ -254,14 +254,14 @@ namespace Applications.ExtractImages.Tests
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
             mockExtractionRequestProducer
                 .Setup(expr)
-                .Returns((IMessageHeader)null)
+                .Returns((IMessageHeader?)null)
                 .Callback((IMessage msg, IMessageHeader _, string __) =>
                 {
                     calledWith.AddRange(((ExtractionRequestMessage)msg).ExtractionIdentifiers);
                 });
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = 1 },
@@ -292,10 +292,10 @@ namespace Applications.ExtractImages.Tests
             Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = maxPerMessage },

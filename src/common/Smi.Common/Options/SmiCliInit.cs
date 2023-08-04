@@ -132,7 +132,7 @@ namespace Smi.Common.Options
 
         private static string GetHostProcessName(Type t)
         {
-            string hostProcessName = t.Namespace?.Split('.')[1];
+            string hostProcessName = t.Namespace?.Split('.')[1]!;
 
             if (string.IsNullOrWhiteSpace(hostProcessName))
                 throw new ArgumentException(nameof(hostProcessName));

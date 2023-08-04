@@ -72,7 +72,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings? settings = null)
             {
-                dynamic retCollection = null;
+                dynamic? retCollection = null;
                 switch (name)
                 {
                     case "inProgressJobs":

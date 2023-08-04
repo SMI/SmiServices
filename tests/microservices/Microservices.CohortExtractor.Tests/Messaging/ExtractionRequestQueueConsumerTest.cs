@@ -3,11 +3,8 @@ using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Framing;
 using Smi.Common.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -16,9 +13,7 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-
 
 namespace Microservices.CohortExtractor.Tests.Messaging
 {
@@ -111,7 +106,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
                 mockFileInfoMessageProducerModel.Object);
 
             var fatalCalled = false;
-            FatalErrorEventArgs fatalErrorEventArgs = null;
+            FatalErrorEventArgs? fatalErrorEventArgs = null;
             consumer.OnFatal += (sender, args) =>
             {
                 fatalCalled = true;

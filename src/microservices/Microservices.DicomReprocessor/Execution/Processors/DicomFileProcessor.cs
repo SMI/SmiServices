@@ -60,7 +60,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
 
         public void ProcessDocument(BsonDocument document)
         {
-            string documentId = document["_id"].ToString();
+            string documentId = document["_id"].ToString()!;
 
             var headerDoc = document["header"] as BsonDocument;
 

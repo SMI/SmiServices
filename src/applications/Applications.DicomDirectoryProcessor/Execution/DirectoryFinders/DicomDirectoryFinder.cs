@@ -103,7 +103,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                 DirectoryPath = dirPath,
             };
 
-            _directoriesProducerModel.SendMessage(message, null);
+            _directoriesProducerModel.SendMessage(message, isInResponseTo: null, routingKey: null);
             ++TotalSent;
         }
 

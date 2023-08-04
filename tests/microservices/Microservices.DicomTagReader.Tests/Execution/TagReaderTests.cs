@@ -132,7 +132,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             File.Copy($"{_helper.TestDir.FullName}/MyTestFile.dcm", $"{_helper.TestDir.FullName}/MyTestFile2.dcm");
             Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
 
-            IMessage message = null;
+            IMessage? message = null;
 
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
@@ -181,7 +181,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
             Assert.True(_helper.TestDir.EnumerateFiles("*.zip").Count() == 1);
 
-            IMessage message = null;
+            IMessage? message = null;
             List<IMessage> fileImages = new();
 
             _helper.TestImageModel

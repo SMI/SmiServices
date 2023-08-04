@@ -37,13 +37,13 @@ namespace Applications.ExtractImages
             threaded
         )
         {
-            ExtractImagesOptions options = Globals.ExtractImagesOptions;
+            ExtractImagesOptions? options = Globals.ExtractImagesOptions;
             if (options == null)
                 throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
 
             _fileSystem = fileSystem ?? new FileSystem();
 
-            string extractRoot = Globals.FileSystemOptions.ExtractRoot;
+            string extractRoot = Globals.FileSystemOptions?.ExtractRoot ?? throw new ArgumentException("Some part of Globals.FileSystemOptions.ExtractRoot was null");
             if (!_fileSystem.Directory.Exists(extractRoot))
                 throw new DirectoryNotFoundException($"Could not find the extraction root '{extractRoot}'");
 

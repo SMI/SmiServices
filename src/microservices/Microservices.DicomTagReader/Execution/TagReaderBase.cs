@@ -157,7 +157,7 @@ namespace Microservices.DicomTagReader.Execution
             long beginSend = _stopwatch.ElapsedTicks;
             var headers = new List<IMessageHeader>();
             foreach (DicomFileMessage fileMessage in fileMessages)
-                headers.Add(_fileMessageProducerModel.SendMessage(fileMessage, header));
+                headers.Add(_fileMessageProducerModel.SendMessage(fileMessage, header, routingKey: null));
 
             _fileMessageProducerModel.WaitForConfirms();
 
@@ -167,7 +167,7 @@ namespace Microservices.DicomTagReader.Execution
 
             headers.Clear();
             foreach (KeyValuePair<string, SeriesMessage> kvp in seriesMessages)
-                headers.Add(_seriesMessageProducerModel.SendMessage(kvp.Value, header));
+                headers.Add(_seriesMessageProducerModel.SendMessage(kvp.Value, header, routingKey: null));
 
             _seriesMessageProducerModel.WaitForConfirms();
             headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {x.MessageGuid}"));
@@ -200,7 +200,7 @@ namespace Microservices.DicomTagReader.Execution
                 foreach(var entry in archive.Entries)
                 {
                     if (!entry.FullName.EndsWith(".dcm", StringComparison.CurrentCultureIgnoreCase)) continue;
-                    byte[] buffer = null;
+                    byte[]? buffer = null;
                     
                     buffer = ReadFully(entry.Open());
 

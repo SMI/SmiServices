@@ -54,7 +54,7 @@ namespace Applications.SmiRunner.Tests
                 // Special-case 'DB'
                 expectedVerbName = expectedVerbName.Replace("-db-", "db-");
 
-                var verbAttribute = (VerbAttribute)Attribute.GetCustomAttribute(t, typeof(VerbAttribute));
+                var verbAttribute = (VerbAttribute?)Attribute.GetCustomAttribute(t, typeof(VerbAttribute));
                 Assert.NotNull(verbAttribute);
 
                 Assert.AreEqual(expectedVerbName, verbAttribute.Name);

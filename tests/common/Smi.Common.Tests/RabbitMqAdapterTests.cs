@@ -157,7 +157,7 @@ namespace Smi.Common.Tests
         {
             var pm = _tester.Adapter.SetupProducer(_testProducerOptions, true);
 
-            pm.SendMessage(new TestMessage(), null);
+            pm.SendMessage(new TestMessage(), isInResponseTo: null, routingKey: null);
 
             for (var i = 0; i < 10; ++i)
                 pm.WaitForConfirms();
@@ -219,7 +219,7 @@ namespace Smi.Common.Tests
 
             var o = new GlobalOptionsFactory().Load(nameof(Test_Shutdown));
 
-            var consumer = (IConsumer)Activator.CreateInstance(consumerType);
+            var consumer = (IConsumer?)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
             using var tester = new MicroserviceTester(o.RabbitOptions, new[] { _testConsumerOptions }) {CleanUpAfterTest = false};

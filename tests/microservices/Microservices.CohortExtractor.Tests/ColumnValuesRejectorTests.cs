@@ -34,7 +34,7 @@ namespace Microservices.CohortExtractor.Tests
             moqDave.Setup(x => x[PatColName])
                 .Returns("Dave");
 
-            Assert.IsFalse(rejector.Reject(moqDave.Object, out string reason));
+            Assert.IsFalse(rejector.Reject(moqDave.Object, out string? reason));
             Assert.IsNull(reason);
 
             var moqFrank = new Mock<DbDataReader>();

@@ -21,8 +21,8 @@ namespace Microservices.IsIdentifiable.Service
         {
             _consumerOptions = globals.IsIdentifiableServiceOptions;
 
-            string classifierTypename =  globals.IsIdentifiableServiceOptions.ClassifierType;
-            string dataDirectory = globals.IsIdentifiableServiceOptions.DataDirectory;
+            string? classifierTypename =  globals.IsIdentifiableServiceOptions.ClassifierType;
+            string? dataDirectory = globals.IsIdentifiableServiceOptions.DataDirectory;
 
             if(string.IsNullOrWhiteSpace(classifierTypename))
                 throw new ArgumentException("No IClassifier has been set in options.  Enter a value for ClassifierType",nameof(globals));

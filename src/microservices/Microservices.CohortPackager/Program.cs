@@ -40,7 +40,9 @@ namespace Microservices.CohortPackager
 
             logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
 
-            MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases.ExtractionStoreOptions;
+            MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases.ExtractionStoreOptions
+                ?? throw new ArgumentException($"Part of globalOptions.MongoDatabases.ExtractionStoreOptions was null");
+
             MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
             var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName);
 

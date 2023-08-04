@@ -26,7 +26,7 @@ namespace Smi.Common.Helpers
         /// <returns></returns>
         public T? CreateInstance<T>(Type toCreate, params object[] optionalConstructorParameters)
         {
-            T toReturn = default(T);
+            T? toReturn = default;
 
             try
             {
@@ -68,10 +68,10 @@ namespace Smi.Common.Helpers
             if (string.IsNullOrWhiteSpace(typeName))
             {
                 _logger.Warn("No Type name specified for T " + typeof(T).Name);
-                return default(T);
+                return default;
             }
 
-            Type toCreate = assembly.GetType(typeName, true);
+            Type toCreate = assembly.GetType(typeName, true) ?? throw new Exception($"Could not create type {typeName} from the given Assembly {assembly}");
             return CreateInstance<T>(toCreate, optionalConstructorParameters);
         }
     }

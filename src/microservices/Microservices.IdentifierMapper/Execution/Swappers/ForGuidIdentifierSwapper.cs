@@ -123,7 +123,7 @@ where not exists(select *
                         //not have allocated that one at the same time.
 
                         DbCommand cmd2 = _table.Database.Server.GetCommand($"SELECT {_options.ReplacementColumnName} FROM {_table.GetFullyQualifiedName()} WHERE {_options.SwapColumnName} = '{toSwap}'  ",con);
-                        var syncAnswer = (string)cmd2.ExecuteScalar();
+                        var syncAnswer = (string?)cmd2.ExecuteScalar() ?? throw new Exception("Replacement value was null");
 
                         _cachedAnswers.Add(toSwap, syncAnswer);
 

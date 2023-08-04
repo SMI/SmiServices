@@ -157,7 +157,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             var consumer = GetNewDicomAnonymiserConsumer();
 
-            FatalErrorEventArgs fatalArgs = null;
+            FatalErrorEventArgs? fatalArgs = null;
             consumer.OnFatal += (_, args) => fatalArgs = args;
 
             // Act
@@ -250,7 +250,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             var consumer = GetNewDicomAnonymiserConsumer();
 
-            FatalErrorEventArgs fatalArgs = null;
+            FatalErrorEventArgs? fatalArgs = null;
             consumer.OnFatal += (_, args) => fatalArgs = args;
 
             // Act

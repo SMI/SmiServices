@@ -176,7 +176,7 @@ namespace Smi.Common.Execution
 
             try
             {
-                _fatalLoggingProducer?.SendMessage(new FatalErrorMessage(msg, exception), null);
+                _fatalLoggingProducer?.SendMessage(new FatalErrorMessage(msg, exception), null, null);
             }
             catch (Exception e)
             {

@@ -55,7 +55,8 @@ namespace Microservices.CohortPackager.Execution
         {
             if (jobStore == null)
             {
-                MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
+                MongoDbOptions mongoDbOptions = Globals.MongoDatabases?.ExtractionStoreOptions 
+                    ?? throw new ArgumentException("Some part of Globals.MongoDatabases.ExtractionStoreOptions is null");
                 jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
                     mongoDbOptions.DatabaseName,
@@ -67,7 +68,8 @@ namespace Microservices.CohortPackager.Execution
 
             // If not passed a reporter or notifier, try and construct one from the given options
 
-            string reportFormatStr = Globals.CohortPackagerOptions.ReportFormat;
+            string reportFormatStr = Globals.CohortPackagerOptions?.ReportFormat
+                ?? throw new ArgumentException("Some part of Globals.CohortPackagerOptions.ReportFormat is null");
             if (reporter == null)
             {
                 reporter = JobReporterFactory.GetReporter(

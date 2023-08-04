@@ -59,7 +59,7 @@ namespace Smi.Common.Tests
 
             public DiscoveredServer GetServer(DatabaseType dbType)
             {
-                string str = dbType switch
+                string? str = dbType switch
                 {
                     DatabaseType.MicrosoftSQLServer => SqlServer,
                     DatabaseType.MySql => MySql,

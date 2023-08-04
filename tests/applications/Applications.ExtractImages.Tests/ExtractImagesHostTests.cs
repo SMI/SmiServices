@@ -80,7 +80,7 @@ namespace Applications.ExtractImages.Tests
             string extractRoot = Path.GetTempPath();
             globals.FileSystemOptions.ExtractRoot = extractRoot;
 
-            ExtractImagesOptions options = globals.ExtractImagesOptions;
+            ExtractImagesOptions options = globals.ExtractImagesOptions!;
 
             string tmpFile = Path.GetTempFileName();
             File.WriteAllText(tmpFile, "SeriesInstanceUID\n1.2.3.4");

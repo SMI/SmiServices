@@ -80,7 +80,7 @@ namespace Smi.Common.Tests
         /// <param name="msg"></param>
         public void SendMessage(ConsumerOptions toConsumer, IMessage msg)
         {
-            _sendToConsumers[toConsumer].SendMessage(msg, null);
+            _sendToConsumers[toConsumer].SendMessage(msg, isInResponseTo: null, routingKey: null);
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
 
@@ -94,7 +94,7 @@ namespace Smi.Common.Tests
         public void SendMessages(ConsumerOptions toConsumer, IEnumerable<IMessage> messages, bool generateIMessageHeaders)
         {
             foreach (IMessage msg in messages)
-                _sendToConsumers[toConsumer].SendMessage(msg, generateIMessageHeaders ? new MessageHeader() : null);
+                _sendToConsumers[toConsumer].SendMessage(msg, generateIMessageHeaders ? new MessageHeader() : null, routingKey: null);
 
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
@@ -108,7 +108,7 @@ namespace Smi.Common.Tests
         /// <param name="msg"></param>
         public void SendMessage(ConsumerOptions toConsumer, IMessageHeader header, IMessage msg)
         {
-            _sendToConsumers[toConsumer].SendMessage(msg, header);
+            _sendToConsumers[toConsumer].SendMessage(msg, header, routingKey: null);
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
 

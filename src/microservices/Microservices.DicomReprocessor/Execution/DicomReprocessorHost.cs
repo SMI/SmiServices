@@ -22,7 +22,7 @@ namespace Microservices.DicomReprocessor.Execution
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
             : base(options)
         {
-            string key = cliOptions.ReprocessingRoutingKey;
+            string? key = cliOptions.ReprocessingRoutingKey;
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");

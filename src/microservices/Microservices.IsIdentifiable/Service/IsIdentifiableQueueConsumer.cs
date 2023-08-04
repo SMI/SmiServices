@@ -89,7 +89,7 @@ namespace Microservices.IsIdentifiable.Service
                 Status = status,
                 Report = report,
             };
-            _producer.SendMessage(response, header);
+            _producer.SendMessage(response, header, routingKey: null);
 
             Ack(header, tag);
         }

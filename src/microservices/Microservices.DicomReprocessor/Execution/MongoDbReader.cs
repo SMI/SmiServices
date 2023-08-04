@@ -82,7 +82,7 @@ namespace Microservices.DicomReprocessor.Execution
                     Console.Write($"Confirm you want to reprocess documents using the above query in {_collNamespace} [y/N]: ");
 
                     // Anything other than y/Y cancels the operation
-                    string key = Console.ReadLine();
+                    string? key = Console.ReadLine();
                     if (key == null || !key.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");

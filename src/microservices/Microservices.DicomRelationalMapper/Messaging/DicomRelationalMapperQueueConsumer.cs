@@ -128,7 +128,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         {
             _dleTask = Task.Factory.StartNew(() =>
             {
-                Exception faultCause = null;
+                Exception? faultCause = null;
 
                 while (!_stopTokenSource.IsCancellationRequested)
                 {
@@ -201,7 +201,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 RunDleChecks();
 
             int remainingRetries = _retryOnFailureCount;
-            Exception firstException = null;
+            Exception? firstException = null;
 
             ExitCodeType exitCode;
 

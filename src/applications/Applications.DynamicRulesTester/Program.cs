@@ -51,7 +51,7 @@ public static class Program
         var rowItems = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
         var jsonFileRecord = new JsonFileRecord(rowItems);
 
-        if (dynamicRejector.Reject(jsonFileRecord, out string reason))
+        if (dynamicRejector.Reject(jsonFileRecord, out string? reason))
         {
             _logger.Warn($"Rejection reason was:'{reason}'");
             return 1;

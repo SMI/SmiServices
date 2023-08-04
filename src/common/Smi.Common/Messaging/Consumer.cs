@@ -111,7 +111,7 @@ namespace Smi.Common.Messaging
 
             try
             {
-                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage message))
+                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage? message))
                     return;
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
             }

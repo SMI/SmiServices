@@ -208,7 +208,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             Dictionary<string, Dictionary<string, List<string>>> groupedFailures = GetJobVerificationFailures(jobInfo.ExtractionJobIdentifier);
 
             // First deal with the pixel data
-            Dictionary<string, List<string>> pixelFailures = groupedFailures.GetValueOrDefault(PixelDataStr);
+            Dictionary<string, List<string>>? pixelFailures = groupedFailures.GetValueOrDefault(PixelDataStr);
             if (pixelFailures == null)
             {
                 Logger.Info($"No {PixelDataStr} failures found for the extraction job");
@@ -368,7 +368,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             var groupedFailures = new Dictionary<string, Dictionary<string, List<string>>>();
             foreach (FileVerificationFailureInfo fileVerificationFailureInfo in _jobStore.GetCompletedJobVerificationFailures(extractionJobIdentifier))
             {
-                IEnumerable<Failure> fileFailures;
+                IEnumerable<Failure>? fileFailures;
                 try
                 {
                     fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(fileVerificationFailureInfo.Data);
@@ -377,6 +377,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 {
                     throw new ApplicationException("Could not deserialize report to IEnumerable<Failure>", e);
                 }
+
+                if(fileFailures == null)
+                    throw new ApplicationException("Could not deserialize report to IEnumerable<Failure>");
 
                 foreach (Failure failure in fileFailures)
                 {
@@ -420,7 +423,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             }
 
             // Now list the pixel data, which we instead order by decreasing length
-            if (groupedFailures.TryGetValue(PixelDataStr, out Dictionary<string, List<string>> pixelFailures))
+            if (groupedFailures.TryGetValue(PixelDataStr, out Dictionary<string, List<string>>? pixelFailures))
             {
                 WriteVerificationValuesTag(PixelDataStr, pixelFailures, streamWriter, sb);
                 WriteVerificationValues(pixelFailures.OrderByDescending(x => x.Key.Length), streamWriter, sb);

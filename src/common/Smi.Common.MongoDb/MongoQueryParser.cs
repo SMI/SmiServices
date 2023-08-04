@@ -37,12 +37,12 @@ namespace Smi.Common.MongoDB
 
             // Required
 
-            if (!TryParseDocumentProperty(docQuery, "find", out BsonDocument find))
+            if (!TryParseDocumentProperty(docQuery, "find", out BsonDocument? find))
                 throw new ApplicationException("Parsed document did not contain a \"find\" node");
 
             // Optional
 
-            if (TryParseDocumentProperty(docQuery, "sort", out BsonDocument sort))
+            if (TryParseDocumentProperty(docQuery, "sort", out BsonDocument? sort))
                 findOptions.Sort = sort;
 
             if (TryParseIntProperty(docQuery, "limit", out int limit))

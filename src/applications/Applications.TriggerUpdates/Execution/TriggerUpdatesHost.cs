@@ -22,7 +22,7 @@ namespace Applications.TriggerUpdates.Execution
         {
             foreach(var upd in _source.GetUpdates())
             {
-                _producer.SendMessage(upd,null);
+                _producer.SendMessage(upd, isInResponseTo: null, routingKey: null);
             }
             
             Stop("Update detection process finished");

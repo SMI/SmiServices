@@ -594,7 +594,7 @@ namespace Microservices.IdentifierMapper.Tests
             var swapper = new TableLookupSwapper();
             swapper.Setup(options.IdentifierMapperOptions);
 
-            string swapped = swapper.GetSubstitutionFor("CHI-1", out var _);
+            string? swapped = swapper.GetSubstitutionFor("CHI-1", out var _);
             Assert.AreEqual("REP-1", swapped);
             swapped = swapper.GetSubstitutionFor("CHI-1", out _);
             Assert.AreEqual("REP-1", swapped);

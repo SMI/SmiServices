@@ -39,8 +39,8 @@ namespace Microservices.CohortPackager.Tests
             }
 
             (
-                string expectedVerificationFailuresSummary,
-                string expectedVerificationFailuresFull
+                string? expectedVerificationFailuresSummary,
+                string? expectedVerificationFailuresFull
             ) = ExpectedVerificationFailures(verificationFailuresExpected, newLine);
 
             var expected = new List<string>

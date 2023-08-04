@@ -82,7 +82,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_BrandNewMapping(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             //create a brand new mapping 
             map.Insert(new Dictionary<string, object>
@@ -102,7 +102,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_NoArchiveTable(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions);
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
             archive.Drop();
@@ -117,7 +117,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_UpdatedMapping(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())
@@ -151,7 +151,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_UpdatedMapping_WithExplicitDifferentColumnName(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())
@@ -191,7 +191,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_UpdatedMapping_Qualifier(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())
@@ -233,7 +233,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_GuidMappingNowExists(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that inserts the previously unknown value 0202020202 into the mapping as 0X0X0X0X0X
             // The value 0202020202 is in the guid mapping table! so we would expect a global system update to be issued for the temporary guid mapping to the new legit mapping
@@ -268,7 +268,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void Test_MapperSource_NoGuids(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions,false);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions,false);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())

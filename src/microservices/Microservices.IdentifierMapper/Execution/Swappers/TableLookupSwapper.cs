@@ -64,7 +64,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                     DbCommand cmd = _server.GetCommand(sql, con);
                     _server.AddParameterWithValueToCommand("@val", cmd, toSwap);
 
-                    object result = cmd.ExecuteScalar();
+                    object? result = cmd.ExecuteScalar();
 
                     if (result == DBNull.Value || result == null)
                     {

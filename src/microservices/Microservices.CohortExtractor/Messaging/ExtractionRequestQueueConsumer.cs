@@ -48,7 +48,7 @@ namespace Microservices.CohortExtractor.Messaging
             }
 
             string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
-            string extractFileRoutingKey = request.IsIdentifiableExtraction ? _options.ExtractIdentRoutingKey : _options.ExtractAnonRoutingKey;
+            string? extractFileRoutingKey = request.IsIdentifiableExtraction ? _options.ExtractIdentRoutingKey : _options.ExtractAnonRoutingKey;
 
             foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request, _auditor))
             {
@@ -93,7 +93,7 @@ namespace Microservices.CohortExtractor.Messaging
                 _auditor.AuditExtractFiles(request, matchedFiles);
 
                 infoMessage.KeyValue = matchedFiles.KeyValue;
-                _fileMessageInfoProducer.SendMessage(infoMessage, header);
+                _fileMessageInfoProducer.SendMessage(infoMessage, header, routingKey: null);
 
                 if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel))
                     _fileMessageInfoProducer.WaitForConfirms();

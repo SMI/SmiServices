@@ -42,10 +42,10 @@ namespace Setup
     }
 
     internal class EnvironmentProbe
-    {        
+    {
         public CheckEventArgs DeserializeYaml { get; }
         public GlobalOptions? Options { get; }
-        
+
         public const string CheckInfrastructureTaskName = "Checking Infrastructure";
         public const string CheckMicroservicesTaskName = "Checking Microservices";
 
@@ -57,25 +57,25 @@ namespace Setup
         internal int GetExitCode()
         {
             // get all things we can check
-            foreach(var prop in typeof(EnvironmentProbe).GetProperties())
+            foreach (var prop in typeof(EnvironmentProbe).GetProperties())
             {
                 var val = prop.GetValue(this);
-                
+
                 // did any checks run
-                if(val is CheckEventArgs cea)
+                if (val is CheckEventArgs cea)
                 {
                     // that failed
                     if (cea.Result == CheckResult.Fail)
                     {
                         // something failed so exit code is failure (non zero)
                         return 100;
-                    }   
+                    }
                 }
             }
 
             return 0;
         }
-        
+
         public EnvironmentProbe(string? yamlFile)
         {
             Probes = new();
@@ -83,9 +83,9 @@ namespace Setup
             Add(Infrastructure, "MongoDb", ProbeMongoDb);
             Add(Infrastructure, "Rdmp", ProbeRdmp);
 
-            Add(Microservices, "CohortExtractor", ()=> Probe(nameof(CohortExtractorHost), (o) => new CohortExtractorHost(o, null, null)));
+            Add(Microservices, "CohortExtractor", () => Probe(nameof(CohortExtractorHost), (o) => new CohortExtractorHost(o, null, null)));
             Add(Microservices, "DicomAnonymiser", () => Probe(nameof(DicomAnonymiserHost), (o) => new DicomAnonymiserHost(o)));
-            Add(Microservices, "IsIdentifiable", ()=> Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o)));
+            Add(Microservices, "IsIdentifiable", () => Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o)));
             Add(Microservices, "CohortPackager", () => Probe(nameof(CohortPackagerHost), (o) => new CohortPackagerHost(o)));
             Add(Microservices, "DicomRelationalMapper", () => Probe(nameof(DicomRelationalMapperHost), (o) => new DicomRelationalMapperHost(o)));
             Add(Microservices, "IdentifierMapper", () => Probe(nameof(IdentifierMapperHost), (o) => new IdentifierMapperHost(o)));
@@ -118,17 +118,17 @@ DicomTagReader {
                     throw new Exception("You have not yet entered a path for yaml file");
 
                 Options = new GlobalOptionsFactory().Load("Setup", yamlFile);
-                DeserializeYaml = new CheckEventArgs("Deserialized Yaml File",CheckResult.Success);
+                DeserializeYaml = new CheckEventArgs("Deserialized Yaml File", CheckResult.Success);
             }
             catch (Exception ex)
             {
-                DeserializeYaml = new CheckEventArgs("Failed to Deserialize Yaml File",CheckResult.Fail, ex);
+                DeserializeYaml = new CheckEventArgs("Failed to Deserialize Yaml File", CheckResult.Fail, ex);
             }
         }
 
         private void Add(string category, string name, Func<CheckEventArgs?> probeMethod)
         {
-            Probes.Add(name, new Probeable(name, probeMethod,category));
+            Probes.Add(name, new Probeable(name, probeMethod, category));
         }
 
         internal void CheckInfrastructure(IDataLoadEventListener? listener = null)
@@ -179,7 +179,7 @@ DicomTagReader {
                 if (Options == null)
                     return null;
 
-                if (Options.RDMPOptions == null || 
+                if (Options.RDMPOptions == null ||
 
                     // Must specify either SqlServer or file system backend for RDMP platform metadata
                     (string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString) &&
@@ -191,12 +191,13 @@ DicomTagReader {
                 var provider = Options.RDMPOptions.GetRepositoryProvider();
 
                 var startup = new Startup(new EnvironmentInfo(), provider);
-                
+
                 bool failed = false;
                 var sb = new StringBuilder();
                 var exceptions = new List<Exception>();
 
-                startup.DatabaseFound += (s, e) => {
+                startup.DatabaseFound += (s, e) =>
+                {
                     failed = !failed && e.Status != RDMPPlatformDatabaseStatus.Healthy || e.Exception != null;
                     sb.AppendLine(e.Patcher.Name + " " + e.Status);
 
@@ -207,7 +208,7 @@ DicomTagReader {
                     }
                 };
 
-                startup.DoStartup(new ThrowImmediatelyCheckNotifier() { WriteToConsole = false }) ;
+                startup.DoStartup(new ThrowImmediatelyCheckNotifier() { WriteToConsole = false });
 
                 return new CheckEventArgs(sb.ToString(), failed ? CheckResult.Fail : CheckResult.Success);
             }
@@ -250,10 +251,12 @@ DicomTagReader {
                          Options.MongoDbPopulatorOptions.ImageCollection);
 
 
-                MongoDbOptions mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions;
+                MongoDbOptions mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions
+                    ?? throw new ArgumentException($"ExtractionStoreOptions was null");
+
                 var jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, "Setup"),
-                    mongoDbOptions.DatabaseName,new Smi.Common.Helpers.DateTimeProvider()                    
+                    mongoDbOptions.DatabaseName, new Smi.Common.Helpers.DateTimeProvider()
                 );
 
                 return new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);
@@ -264,7 +267,7 @@ DicomTagReader {
             }
         }
 
-        private CheckEventArgs? Probe(string probeName, Func<GlobalOptions,MicroserviceHost> hostConstructor)
+        private CheckEventArgs? Probe(string probeName, Func<GlobalOptions, MicroserviceHost> hostConstructor)
         {
             if (Options == null)
                 return null;

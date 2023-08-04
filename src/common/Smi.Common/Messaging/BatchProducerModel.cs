@@ -23,7 +23,7 @@ namespace Smi.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public override IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string routingKey = "")
+        public override IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
         {
             return SendMessageImpl(message, inResponseTo, routingKey);
         }

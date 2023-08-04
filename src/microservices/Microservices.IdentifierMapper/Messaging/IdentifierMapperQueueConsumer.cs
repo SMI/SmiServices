@@ -42,7 +42,7 @@ namespace Microservices.IdentifierMapper.Messaging
                           {
                               _producer.SendMessage(t.Item1, t.Item2, "");
                               done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
-                              while (msgq.TryTake(out t))
+                              while (msgq.TryTake(out t!))
                               {
                                   _producer.SendMessage(t.Item1, t.Item2, "");
                                   done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
@@ -124,9 +124,9 @@ namespace Microservices.IdentifierMapper.Messaging
             }
         }
 
-        private bool SwapIdentifier(DicomFileMessage msg, string patientId, out string errorReason)
+        private bool SwapIdentifier(DicomFileMessage msg, string patientId, out string? errorReason)
         {
-            string to = _swapper.GetSubstitutionFor(patientId, out errorReason);
+            string? to = _swapper.GetSubstitutionFor(patientId, out errorReason);
 
             if (to == null)
             {
@@ -174,7 +174,7 @@ namespace Microservices.IdentifierMapper.Messaging
                 return false;
             }
 
-            string to = _swapper.GetSubstitutionFor(from, out reason);
+            string? to = _swapper.GetSubstitutionFor(from, out reason);
 
             if (to == null)
             {
