@@ -17,7 +17,7 @@ namespace Microservices.FileCopier.Messaging
         }
 
         protected override void ProcessMessageImpl(
-            IMessageHeader header,
+            IMessageHeader? header,
             ExtractFileMessage message,
             ulong tag)
         {
