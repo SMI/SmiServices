@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +13,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <summary>
         /// The ID of the key which this file was matched from
         /// </summary>
-        [NotNull] public readonly string ExtractionIdentifier;
+        public readonly string ExtractionIdentifier;
 
         // TODO(rkm 2020-10-28) This API is a bit odd -- might be more useful to get a list of file,reason from CohortExtractor instead?
         /// <summary>
         /// The list of unique reasons for files being blocked, and a count of each reason
         /// </summary>
-        [NotNull] public readonly Dictionary<string, int> RejectionItems;
+        public readonly Dictionary<string, int> RejectionItems;
 
 
         public ExtractionIdentifierRejectionInfo(
-            [NotNull] string keyValue,
-            [NotNull] Dictionary<string, int> rejectionItems
+            string keyValue,
+            Dictionary<string, int> rejectionItems
         )
         {
             ExtractionIdentifier = string.IsNullOrWhiteSpace(keyValue) ? throw new ArgumentException(nameof(keyValue)) : keyValue;

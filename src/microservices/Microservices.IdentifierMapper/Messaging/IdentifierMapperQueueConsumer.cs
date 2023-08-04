@@ -76,9 +76,9 @@ namespace Microservices.IdentifierMapper.Messaging
             acker.Join();
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage msg, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, DicomFileMessage msg, ulong tag)
         {
-            string errorReason = null;
+            string? errorReason = null;
             var success = false;
 
             try

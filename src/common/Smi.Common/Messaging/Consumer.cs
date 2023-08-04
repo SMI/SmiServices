@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -133,7 +134,7 @@ namespace Smi.Common.Messaging
         }
 
 
-        protected abstract void ProcessMessageImpl(IMessageHeader header, TMessage message, ulong tag);
+        protected abstract void ProcessMessageImpl(IMessageHeader? header, TMessage message, ulong tag);
 
         /// <summary>
         /// Safely deserialize a <see cref="BasicDeliverEventArgs"/> to an <see cref="IMessage"/>. Returns true if the deserialization
@@ -144,7 +145,7 @@ namespace Smi.Common.Messaging
         /// <param name="iMessage"></param>
         /// <returns></returns>
         /// </summary>
-        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, out T iMessage) where T : IMessage
+        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, [NotNullWhen(true)] out T? iMessage) where T : IMessage
         {
             try
             {

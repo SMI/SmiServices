@@ -53,7 +53,7 @@ namespace Microservices.MongoDBPopulator.Messaging
             Fatal("Processor threw an exception", e);
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, T message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, T message, ulong tag)
         {
             // We are shutting down anyway
             if (Processor.IsStopping)

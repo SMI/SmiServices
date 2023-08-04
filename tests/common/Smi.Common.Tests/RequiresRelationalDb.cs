@@ -54,8 +54,8 @@ namespace Smi.Common.Tests
                 get => _MySql;
                 set => _MySql = value.Replace("ssl-mode","sslmode",StringComparison.OrdinalIgnoreCase);
             }
-            public string SqlServer { get; set; }
-            public string Oracle { get; set; }
+            public string? SqlServer { get; set; }
+            public string? Oracle { get; set; }
 
             public DiscoveredServer GetServer(DatabaseType dbType)
             {

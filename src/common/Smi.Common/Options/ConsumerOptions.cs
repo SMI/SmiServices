@@ -15,7 +15,7 @@ namespace Smi.Common.Options
         /// <summary>
         /// Max number of messages the queue will send the consumer before receiving an acknowledgement.
         /// </summary>
-        public ushort QoSPrefetchCount { get; set; }
+        public ushort QoSPrefetchCount { get; set; } = 1;
 
         /// <summary>
         /// Automatically acknowledge any messages sent to the consumer.

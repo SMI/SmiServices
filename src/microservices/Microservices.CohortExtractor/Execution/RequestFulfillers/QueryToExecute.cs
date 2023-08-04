@@ -23,7 +23,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         public string KeyTag { get; }
 
-        public DiscoveredServer Server { get; set; }
+        public DiscoveredServer? Server { get; set; }
         private string _sql;
         
         /// <summary>
@@ -35,7 +35,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <summary>
         /// Modality (if known) for records that the query should return
         /// </summary>
-        public string Modality { get; set; }
+        public string? Modality { get; set; }
 
         public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag)
         {
@@ -147,7 +147,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     continue;
 
                 bool reject = false;
-                string rejectReason = null;
+                string? rejectReason = null;
 
                 //Ask the rejectors how good this record is
                 foreach (IRejector rejector in rejectors)

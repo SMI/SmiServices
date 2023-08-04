@@ -13,15 +13,15 @@ namespace Smi.Common.Messages
 {
     public class MessageHeader : MemberwiseEquatable<MessageHeader>, IMessageHeader
     {
-        public Guid MessageGuid { get; set; }
+        public Guid MessageGuid { get; init; }
 
-        public int ProducerProcessID { get; set; }
+        public int ProducerProcessID { get; init; }
 
-        public string ProducerExecutableName { get; set; }
+        public string ProducerExecutableName { get; init; }
 
-        public long OriginalPublishTimestamp { get; set; }
+        public long OriginalPublishTimestamp { get; init; }
 
-        public Guid[] Parents { get; set; }
+        public Guid[] Parents { get; init; }
         public const string Splitter = "->";
 
         private static readonly int _producerProcessID;
@@ -68,11 +68,11 @@ namespace Smi.Common.Messages
         /// <param name="enc"></param>
         public MessageHeader(IDictionary<string, object> encodedHeaders, Encoding enc)
         {
-            MessageGuid = GetGuidArrayFromEncodedHeader(encodedHeaders?["MessageGuid"], enc).Single();
-            ProducerProcessID = (int)encodedHeaders?["ProducerProcessID"];
-            ProducerExecutableName = enc.GetString((byte[])encodedHeaders?["ProducerExecutableName"]);
-            Parents = GetGuidArrayFromEncodedHeader(encodedHeaders?["Parents"], enc);
-            OriginalPublishTimestamp = Convert.ToInt64(encodedHeaders?["OriginalPublishTimestamp"]); // XXX error casting from Int32 to Int64 using (long)
+            MessageGuid = GetGuidArrayFromEncodedHeader(encodedHeaders["MessageGuid"], enc).Single();
+            ProducerProcessID = (int)encodedHeaders["ProducerProcessID"];
+            ProducerExecutableName = enc.GetString((byte[])encodedHeaders["ProducerExecutableName"]);
+            Parents = GetGuidArrayFromEncodedHeader(encodedHeaders["Parents"], enc);
+            OriginalPublishTimestamp = Convert.ToInt64(encodedHeaders["OriginalPublishTimestamp"]); // XXX error casting from Int32 to Int64 using (long)
         }
 
         /// <summary>

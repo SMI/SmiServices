@@ -84,7 +84,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         }
 
 
-        protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, DicomFileMessage message, ulong tag)
         {
             DicomDataset dataset;
 
@@ -191,7 +191,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             if (duplicates.Any())
             {
                 Logger.Log(LogLevel.Warn, "Acking " + duplicates.Count + " duplicate Datasets");
-                duplicates.ForEach(x => Ack(x.Header, x.tag));
+                duplicates.ForEach(x => Ack(x.Header, x.Tag));
             }
 
             var parallelDleHost = new ParallelDLEHost(_repositoryLocator, DatabaseNamer, _useInsertIntoForRawMigration);
@@ -260,12 +260,12 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 case ExitCodeType.OperationNotRequired:
                     {
                         foreach (QueuedImage corrupt in datasetProvider.CorruptMessages)
-                            ErrorAndNack(corrupt.Header, corrupt.tag, "Nacking Corrupt image", null);
+                            ErrorAndNack(corrupt.Header, corrupt.Tag, "Nacking Corrupt image", null);
 
                         QueuedImage[] successes = toProcess.Except(datasetProvider.CorruptMessages).ToArray();
 
                         Ack(successes.Select(x => x.Header).ToList(),
-                            successes.Select(x => x.tag).Max(x => x));
+                            successes.Select(x => x.Tag).Max(x => x));
 
                         break;
                     }

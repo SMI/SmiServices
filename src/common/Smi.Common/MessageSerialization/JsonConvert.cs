@@ -17,7 +17,7 @@ namespace Smi.Common.MessageSerialization
 
         private static readonly JsonSerializerSettings _serializerSettings = new()
         {
-            Error = delegate (object sender, ErrorEventArgs args)
+            Error = delegate (object? sender, ErrorEventArgs args)
             {
                 _errors.Add(args.ErrorContext.Error.Message);
                 args.ErrorContext.Handled = true;

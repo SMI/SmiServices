@@ -1,6 +1,4 @@
-
 using DicomTypeTranslation;
-using JetBrains.Annotations;
 using NLog;
 using RabbitMQ.Client;
 using Smi.Common.Events;
@@ -46,8 +44,8 @@ namespace Smi.Common.Execution
         /// <param name="rabbitMqAdapter"></param>
         /// <param name="threaded"></param>
         protected MicroserviceHost(
-            [NotNull] GlobalOptions globals,
-            IRabbitMqAdapter rabbitMqAdapter = null,
+            GlobalOptions globals,
+            IRabbitMqAdapter? rabbitMqAdapter = null,
             bool threaded = false)
         {
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)

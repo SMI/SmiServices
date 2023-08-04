@@ -74,7 +74,7 @@ namespace Smi.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public virtual IMessageHeader SendMessage(IMessage message, IMessageHeader inResponseTo = null, string routingKey = "")
+        public virtual IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string routingKey = "")
         {
             IMessageHeader header = SendMessageImpl(message, inResponseTo, routingKey);
             WaitForConfirms();
@@ -119,7 +119,7 @@ namespace Smi.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        protected IMessageHeader SendMessageImpl(IMessage message, IMessageHeader inResponseTo = null, string routingKey = "")
+        protected IMessageHeader SendMessageImpl(IMessage message, IMessageHeader? inResponseTo = null, string routingKey = "")
         {
             lock (_oSendLock)
             {

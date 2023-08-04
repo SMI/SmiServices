@@ -18,7 +18,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         public List<IRejector> Rejectors { get; set; } = new List<IRejector>();
         
-        public Regex ModalityRoutingRegex { get; set; }
+        public Regex? ModalityRoutingRegex { get; set; }
         public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
             = new Dictionary<ModalitySpecificRejectorOptions, IRejector>();
 

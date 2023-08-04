@@ -52,7 +52,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         private GlobalOptions _globals;
         private const string MongoTestDbName = "nUnitTestDb";
 
-        public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
+        public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)
         {
             TestLogger.Setup();
 

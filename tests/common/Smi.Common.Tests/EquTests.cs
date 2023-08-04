@@ -20,7 +20,7 @@ namespace Smi.Common.Tests.Messages
 
         private class FooMessage : MemberwiseEquatable<FooMessage>, IMessage
         {
-            public string FooString { get; set; }
+            public string? FooString { get; set; }
             public List<string> FooList { get; set; }
             public Dictionary<string, int> FooDict { get; set; }
         }

@@ -122,7 +122,7 @@ namespace Smi.Common.Tests
         /// queue and bind it to the exchange which is assumed to already exist (this allows you to set up exchange=>multiple queues).  If you are setting up multiple queues
         /// from a single exchange the first call should be isSecondaryBinding = false and all further calls after that for the same exchange should be isSecondaryBinding=true </param>
         /// <param name="routingKey"></param>
-        public void CreateExchange(string exchangeName, string queueName = null, bool isSecondaryBinding = false, string routingKey = "")
+        public void CreateExchange(string exchangeName, string? queueName = null, bool isSecondaryBinding = false, string routingKey = "")
         {
             if (!exchangeName.Contains("TEST."))
                 exchangeName = exchangeName.Insert(0, "TEST.");

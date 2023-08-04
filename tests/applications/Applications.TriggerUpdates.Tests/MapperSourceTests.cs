@@ -39,7 +39,7 @@ namespace Applications.TriggerUpdates.Tests
                 dt.Columns.Add("CHI");
                 dt.Columns.Add("ECHI");
 
-                dt.PrimaryKey = new []{ dt.Columns["CHI"]};
+                dt.PrimaryKey = new []{ dt.Columns["CHI"]!};
 
                 dt.Rows.Add("0101010101", "0A0A0A0A0A");
                 map = db.CreateTable("Map",dt);

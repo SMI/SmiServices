@@ -63,7 +63,7 @@ namespace Microservices.MongoDBPopulator.Execution
         /// <param name="toWrite"></param>
         /// <param name="collectionNamePostfix">Optional argument to write to a different collection with the specified tag</param>
         /// <returns></returns>
-        public WriteResult WriteMany(IList<BsonDocument> toWrite, string collectionNamePostfix = null)
+        public WriteResult WriteMany(IList<BsonDocument> toWrite, string? collectionNamePostfix = null)
         {
             if (!toWrite.Any())
                 return WriteResult.Success;

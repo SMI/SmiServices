@@ -34,7 +34,7 @@ namespace Smi.Common.Tests
 
     public class TestConsumer : Consumer<TestMessage>
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, TestMessage msg, ulong tag)
         {
             throw new Exception("Throwing to trigger Fatal");
         }
@@ -42,7 +42,7 @@ namespace Smi.Common.Tests
 
     public class DoNothingConsumer : Consumer<TestMessage>
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, TestMessage msg, ulong tag)
         {
 
         }
@@ -50,7 +50,7 @@ namespace Smi.Common.Tests
 
     public class SelfClosingConsumer : Consumer<TestMessage>
     {
-        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, TestMessage msg, ulong tag)
         {
             Model.Close();
         }

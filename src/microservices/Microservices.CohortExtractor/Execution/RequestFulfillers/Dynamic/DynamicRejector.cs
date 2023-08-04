@@ -41,7 +41,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
             }
 
             // ReSharper disable once InconsistentNaming (use this name because it should look like a local in the script).
-            public IDataRecord row { get; set; }
+            public IDataRecord? row { get; set; }
         }
 
         /// <inheritdoc/>

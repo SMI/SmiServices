@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
@@ -6,7 +6,6 @@ using System.Threading;
 using Applications.TriggerUpdates.Options;
 using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
-using JetBrains.Annotations;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
 using Rdmp.Core.DataLoad.Triggers;
@@ -35,7 +34,7 @@ namespace Applications.TriggerUpdates.Execution
         private DbCommand _currentCommandMainTable;
         private DbCommand _currentCommandOtherTables;
 
-        public MapperSource([NotNull] GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
+        public MapperSource(GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
         {
             _cliOptions = cliOptions;
             _globalOptions = globalOptions;

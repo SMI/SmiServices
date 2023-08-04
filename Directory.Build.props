@@ -8,6 +8,10 @@
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
     <LangVersion>10.0</LangVersion>
+    <!-- Nullable and disabled warnings -->
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);CS8625;CS8765;CS0738;CS8600;CS8618;CS8604;CS8602;CS8603;CS8601</NoWarn>    
+    <!-- -->
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <RuntimeIdentifiers>linux-x64;win-x64;osx-arm64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>

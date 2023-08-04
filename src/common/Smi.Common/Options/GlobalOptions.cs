@@ -45,29 +45,29 @@ namespace Smi.Common.Options
             }
         }
 
-        public LoggingOptions LoggingOptions { get; set; } = new LoggingOptions();
-        public RabbitOptions RabbitOptions { get; set; } = new RabbitOptions();
-        public FileSystemOptions FileSystemOptions { get; set; } = new FileSystemOptions();
-        public RDMPOptions RDMPOptions { get; set; } = new RDMPOptions();
-        public MongoDatabases MongoDatabases { get; set; } = new MongoDatabases();
-        public DicomRelationalMapperOptions DicomRelationalMapperOptions { get; set; } = new DicomRelationalMapperOptions();
-        public UpdateValuesOptions UpdateValuesOptions { get; set; } = new UpdateValuesOptions();
-        public CohortExtractorOptions CohortExtractorOptions { get; set; } = new CohortExtractorOptions();
-        public CohortPackagerOptions CohortPackagerOptions { get; set; } = new CohortPackagerOptions();
-        public DicomReprocessorOptions DicomReprocessorOptions { get; set; } = new DicomReprocessorOptions();
-        public DicomTagReaderOptions DicomTagReaderOptions { get; set; } = new DicomTagReaderOptions();
-        public FileCopierOptions FileCopierOptions { get; set; } = new FileCopierOptions();
-        public IdentifierMapperOptions IdentifierMapperOptions { get; set; } = new IdentifierMapperOptions();
-        public MongoDbPopulatorOptions MongoDbPopulatorOptions { get; set; } = new MongoDbPopulatorOptions();
-        public ProcessDirectoryOptions ProcessDirectoryOptions { get; set; } = new ProcessDirectoryOptions();
+        public LoggingOptions? LoggingOptions { get; set; } = new LoggingOptions();
+        public RabbitOptions? RabbitOptions { get; set; } = new RabbitOptions();
+        public FileSystemOptions? FileSystemOptions { get; set; } = new FileSystemOptions();
+        public RDMPOptions? RDMPOptions { get; set; } = new RDMPOptions();
+        public MongoDatabases? MongoDatabases { get; set; } = new MongoDatabases();
+        public DicomRelationalMapperOptions? DicomRelationalMapperOptions { get; set; } = new DicomRelationalMapperOptions();
+        public UpdateValuesOptions? UpdateValuesOptions { get; set; } = new UpdateValuesOptions();
+        public CohortExtractorOptions? CohortExtractorOptions { get; set; } = new CohortExtractorOptions();
+        public CohortPackagerOptions? CohortPackagerOptions { get; set; } = new CohortPackagerOptions();
+        public DicomReprocessorOptions? DicomReprocessorOptions { get; set; } = new DicomReprocessorOptions();
+        public DicomTagReaderOptions? DicomTagReaderOptions { get; set; } = new DicomTagReaderOptions();
+        public FileCopierOptions? FileCopierOptions { get; set; } = new FileCopierOptions();
+        public IdentifierMapperOptions? IdentifierMapperOptions { get; set; } = new IdentifierMapperOptions();
+        public MongoDbPopulatorOptions? MongoDbPopulatorOptions { get; set; } = new MongoDbPopulatorOptions();
+        public ProcessDirectoryOptions? ProcessDirectoryOptions { get; set; } = new ProcessDirectoryOptions();
 
-        public TriggerUpdatesOptions TriggerUpdatesOptions { get; set; } = new TriggerUpdatesOptions();
+        public TriggerUpdatesOptions? TriggerUpdatesOptions { get; set; } = new TriggerUpdatesOptions();
 
-        public IsIdentifiableServiceOptions IsIdentifiableServiceOptions { get; set; } = new IsIdentifiableServiceOptions();
-        public IsIdentifiableDicomFileOptions IsIdentifiableOptions { get; set; } = new IsIdentifiableDicomFileOptions();
+        public IsIdentifiableServiceOptions? IsIdentifiableServiceOptions { get; set; } = new IsIdentifiableServiceOptions();
+        public IsIdentifiableDicomFileOptions? IsIdentifiableOptions { get; set; } = new IsIdentifiableDicomFileOptions();
 
-        public ExtractImagesOptions ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
-        public DicomAnonymiserOptions DicomAnonymiserOptions { get; set; } = new DicomAnonymiserOptions();
+        public ExtractImagesOptions? ExtractImagesOptions { get; set; } = new ExtractImagesOptions();
+        public DicomAnonymiserOptions? DicomAnonymiserOptions { get; set; } = new DicomAnonymiserOptions();
 
         #endregion
 
@@ -93,8 +93,8 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class LoggingOptions
     {
-        public string LogConfigFile { get; set; }
-        public string LogsRoot { get; set; }
+        public string? LogConfigFile { get; set; }
+        public string? LogsRoot { get; set; }
         public bool TraceLogging { get; set; } = true;
 
         public override string ToString() => GlobalOptions.GenerateToString(this);
@@ -106,17 +106,17 @@ namespace Smi.Common.Options
         /// <summary>
         /// The full name of the classifier you want to run
         /// </summary>
-        public string ClassifierType { get; set; }
+        public string? ClassifierType { get; set; }
 
-        public ProducerOptions IsIdentifiableProducerOptions {get; set;}
+        public ProducerOptions? IsIdentifiableProducerOptions {get; set;}
 
-        public string DataDirectory { get; set; }
+        public string? DataDirectory { get; set; }
     }
 
     [UsedImplicitly]
     public class ProcessDirectoryOptions : IOptions
     {
-        public ProducerOptions AccessionDirectoryProducerOptions { get; set; }
+        public ProducerOptions? AccessionDirectoryProducerOptions { get; set; }
 
         public override string ToString()
         {
@@ -127,10 +127,10 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class MongoDbPopulatorOptions : IOptions
     {
-        public ConsumerOptions SeriesQueueConsumerOptions { get; set; }
-        public ConsumerOptions ImageQueueConsumerOptions { get; set; }
-        public string SeriesCollection { get; set; } = "series";
-        public string ImageCollection { get; set; } = "image";
+        public ConsumerOptions? SeriesQueueConsumerOptions { get; set; }
+        public ConsumerOptions? ImageQueueConsumerOptions { get; set; }
+        public string? SeriesCollection { get; set; } = "series";
+        public string? ImageCollection { get; set; } = "image";
 
         /// <summary>
         /// Seconds
@@ -147,14 +147,14 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class IdentifierMapperOptions : ConsumerOptions, IMappingTableOptions
     {
-        public ProducerOptions AnonImagesProducerOptions { get; set; }
-        public string MappingConnectionString { get; set; }
+        public ProducerOptions? AnonImagesProducerOptions { get; set; }
+        public string? MappingConnectionString { get; set; }
         public DatabaseType MappingDatabaseType { get; set; }
         public int TimeoutInSeconds { get; set; }
-        public string MappingTableName { get; set; }
-        public string SwapColumnName { get; set; }
-        public string ReplacementColumnName { get; set; }
-        public string SwapperType { get; set; }
+        public string? MappingTableName { get; set; }
+        public string? SwapColumnName { get; set; }
+        public string? ReplacementColumnName { get; set; }
+        public string? SwapperType { get; set; }
 
         /// <summary>
         /// True - Changes behaviour of swapper host to pick up the PatientID tag using regex from the JSON string directly
@@ -168,7 +168,7 @@ namespace Smi.Common.Options
         /// as a fallback.
         /// See https://stackexchange.github.io/StackExchange.Redis/Configuration.html#basic-configuration-strings for the format.
         /// </summary>
-        public string RedisConnectionString { get; set; }
+        public string? RedisConnectionString { get; set; }
 
         public override string ToString()
         {
@@ -178,6 +178,9 @@ namespace Smi.Common.Options
         public DiscoveredTable Discover()
         {
             var server = new DiscoveredServer(MappingConnectionString, MappingDatabaseType);
+
+            if(string.IsNullOrWhiteSpace(MappingTableName))
+                throw new ArgumentException($"MappingTableName must be set");
 
             var idx = MappingTableName.LastIndexOf('.');
             var tableNameUnqualified = MappingTableName.Substring(idx + 1);
@@ -201,10 +204,10 @@ namespace Smi.Common.Options
 
     public interface IMappingTableOptions : IOptions
     {
-        string MappingConnectionString { get; }
-        string MappingTableName { get; set; }
-        string SwapColumnName { get; set; }
-        string ReplacementColumnName { get; set; }
+        string? MappingConnectionString { get; }
+        string? MappingTableName { get; set; }
+        string? SwapColumnName { get; set; }
+        string? ReplacementColumnName { get; set; }
         DatabaseType MappingDatabaseType { get; }
         int TimeoutInSeconds { get; }
 
@@ -224,9 +227,9 @@ namespace Smi.Common.Options
         /// found will be processed as normal
         /// </summary>
         public bool NackIfAnyFileErrors { get; set; }
-        public ProducerOptions ImageProducerOptions { get; set; }
-        public ProducerOptions SeriesProducerOptions { get; set; }
-        public string FileReadOption { get; set; }
+        public ProducerOptions? ImageProducerOptions { get; set; }
+        public ProducerOptions? SeriesProducerOptions { get; set; }
+        public string? FileReadOption { get; set; }
         public TagProcessorMode TagProcessorMode { get; set; }
         public int MaxIoThreads { get; set; } = 1;
 
@@ -256,8 +259,8 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class FileCopierOptions : ConsumerOptions
     {
-        public ProducerOptions CopyStatusProducerOptions { get; set; }
-        public string NoVerifyRoutingKey { get; set; }
+        public ProducerOptions? CopyStatusProducerOptions { get; set; }
+        public string? NoVerifyRoutingKey { get; set; }
 
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
@@ -271,9 +274,9 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class DicomReprocessorOptions : IOptions
     {
-        public ProcessingMode ProcessingMode { get; set; }
+        public ProcessingMode? ProcessingMode { get; set; }
 
-        public ProducerOptions ReprocessingProducerOptions { get; set; }
+        public ProducerOptions? ReprocessingProducerOptions { get; set; }
 
         public TimeSpan SleepTime { get; set; }
 
@@ -304,20 +307,20 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class CohortPackagerOptions : IOptions
     {
-        public ConsumerOptions ExtractRequestInfoOptions { get; set; }
-        public ConsumerOptions FileCollectionInfoOptions { get; set; }
-        public ConsumerOptions NoVerifyStatusOptions { get; set; }
-        public ConsumerOptions VerificationStatusOptions { get; set; }
+        public ConsumerOptions? ExtractRequestInfoOptions { get; set; }
+        public ConsumerOptions? FileCollectionInfoOptions { get; set; }
+        public ConsumerOptions? NoVerifyStatusOptions { get; set; }
+        public ConsumerOptions? VerificationStatusOptions { get; set; }
         public uint JobWatcherTimeoutInSeconds { get; set; }
-        public string ReporterType { get; set; }
-        public string NotifierType { get; set; }
-        public string ReportFormat { get; set; }
+        public string? ReporterType { get; set; }
+        public string? NotifierType { get; set; }
+        public string? ReportFormat { get; set; }
 
         /// <summary>
         /// The newline to use when writing extraction report files. Note that a "\r\n" string
         /// in the YAML config will bee automatically escaped to "\\r\\n" in this string.
         /// </summary>
-        public string ReportNewLine { get; set; }
+        public string? ReportNewLine { get; set; }
 
         public override string ToString()
         {
@@ -344,29 +347,29 @@ namespace Smi.Common.Options
         /// <summary>
         /// The Type of a class implementing IExtractionRequestFulfiller which is responsible for mapping requested image identifiers to image file paths.  Mandatory
         /// </summary>
-        public string RequestFulfillerType { get; set; }
+        public string? RequestFulfillerType { get; set; }
         
         /// <summary>
         /// The Type of a class implementing IProjectPathResolver which is responsible for deciding the folder hierarchy to output into
         /// </summary>
-        public string ProjectPathResolverType { get; set; }
+        public string? ProjectPathResolverType { get; set; }
 
         /// <summary>
         /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which
         /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result
         /// in Modalities being routed based on the start of the table name e.g. CT => CT_MyTable and MR=> MR_MyTable
         /// </summary>
-        public string ModalityRoutingRegex { get; set; } = "^([A-Z]+)_.*$";
+        public string? ModalityRoutingRegex { get; set; } = "^([A-Z]+)_.*$";
 
         /// <summary>
         /// The Type of a class implementing IRejector which is responsible for deciding individual records/images are not extractable (after fetching from database)
         /// </summary>
-        public string RejectorType { get; set; }
+        public string? RejectorType { get; set; }
 
         /// <summary>
         /// Modality specific rejection rules that can either override the <see cref="RejectorType"/> for specific Modalities or be applied in addition
         /// </summary>
-        public ModalitySpecificRejectorOptions[] ModalitySpecificRejectors { get; set; }
+        public ModalitySpecificRejectorOptions[]? ModalitySpecificRejectors { get; set; }
 
         public bool AllCatalogues { get; private set; }
         public List<int> OnlyCatalogues { get; private set; }
@@ -374,18 +377,18 @@ namespace Smi.Common.Options
         /// <summary>
         /// Optional list of datasets which contain information about when NOT to extract an image.  This should be a manually curated blacklist - not just general rules (for those use <see cref="RejectorType"/>). Referenced datasets must include one or more of the UID columns (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID)
         /// </summary>
-        public List<int> Blacklists { get; set; }
+        public List<int>? Blacklists { get; set; }
 
-        public string ExtractAnonRoutingKey { get; set; }
-        public string ExtractIdentRoutingKey { get; set; }
+        public string? ExtractAnonRoutingKey { get; set; }
+        public string? ExtractIdentRoutingKey { get; set; }
 
-        public ProducerOptions ExtractFilesProducerOptions { get; set; }
-        public ProducerOptions ExtractFilesInfoProducerOptions { get; set; }
+        public ProducerOptions? ExtractFilesProducerOptions { get; set; }
+        public ProducerOptions? ExtractFilesInfoProducerOptions { get; set; }
         
         /// <summary>
         /// ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
         /// </summary>
-        public List<int> RejectColumnInfos { get; set; }
+        public List<int>? RejectColumnInfos { get; set; }
 
         public override string ToString()
         {
@@ -411,7 +414,7 @@ namespace Smi.Common.Options
         /// <summary>
         /// Number of seconds the updater will wait when running a single value UPDATE on the live table e.g. ECHI A needs to be replaced with ECHI B
         /// </summary>
-        public int UpdateTimeout {get;set;} = 5000;
+        public int UpdateTimeout { get; set; } = 5000;
 
         /// <summary>
         /// IDs of TableInfos that should be updated
@@ -439,7 +442,7 @@ namespace Smi.Common.Options
         /// </summary>
         public int LoadMetadataId { get; set; }
         public Guid Guid { get; set; }
-        public string DatabaseNamerType { get; set; }
+        public string? DatabaseNamerType { get; set; }
         public int MinimumBatchSize { get; set; }
         public bool UseInsertIntoForRAWMigration { get; set; }
         public int RetryOnFailureCount { get; set; }
@@ -472,12 +475,12 @@ namespace Smi.Common.Options
         /// <summary>
         /// Options for publishing <see cref="ExtractionRequestMessage"/>s
         /// </summary>
-        public ProducerOptions ExtractionRequestProducerOptions { get; set; }
+        public ProducerOptions? ExtractionRequestProducerOptions { get; set; }
 
         /// <summary>
         /// Options for publishing <see cref="ExtractionRequestInfoMessage"/>s
         /// </summary>
-        public ProducerOptions ExtractionRequestInfoProducerOptions { get; set; }
+        public ProducerOptions? ExtractionRequestInfoProducerOptions { get; set; }
 
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
@@ -485,11 +488,11 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class DicomAnonymiserOptions : IOptions
     {
-        public string AnonymiserType { get; set; }
-        public ConsumerOptions AnonFileConsumerOptions { get; set; }
-        public ProducerOptions ExtractFileStatusProducerOptions { get; set; }
-        public string RoutingKeySuccess { get; set; }
-        public string RoutingKeyFailure { get; set; }
+        public string? AnonymiserType { get; set; }
+        public ConsumerOptions? AnonFileConsumerOptions { get; set; }
+        public ProducerOptions? ExtractFileStatusProducerOptions { get; set; }
+        public string? RoutingKeySuccess { get; set; }
+        public string? RoutingKeyFailure { get; set; }
         public bool FailIfSourceWriteable { get; set; } = true;
         
 
@@ -499,9 +502,9 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class MongoDatabases : IOptions
     {
-        public MongoDbOptions DicomStoreOptions { get; set; }
+        public MongoDbOptions? DicomStoreOptions { get; set; }
 
-        public MongoDbOptions ExtractionStoreOptions { get; set; }
+        public MongoDbOptions? ExtractionStoreOptions { get; set; }
 
         public override string ToString()
         {
@@ -512,16 +515,16 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class MongoDbOptions : IOptions
     {
-        public string HostName { get; set; } = "localhost";
+        public string? HostName { get; set; } = "localhost";
         public int Port { get; set; } = 27017;
         /// <summary>
         /// UserName for authentication. If empty, authentication will be skipped.
         /// </summary>
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
 
-        public string Password {get;set;}
+        public string? Password {get;set;}
 
-        public string DatabaseName { get; set; }
+        public string? DatabaseName { get; set; }
 
         public bool AreValid(bool skipAuthentication)
         {
@@ -543,14 +546,14 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class RDMPOptions : IOptions
     {
-        public string CatalogueConnectionString { get; set; }
-        public string DataExportConnectionString { get; set; }
+        public string? CatalogueConnectionString { get; set; }
+        public string? DataExportConnectionString { get; set; }
         
         /// <summary>
         /// Alternative to connection strings for if you have RDMP running with a YAML file system backend.
         /// If specified then this will override the connection strings
         /// </summary>
-        public string YamlDir {get;set;}
+        public string? YamlDir {get;set;}
 
         public IRDMPPlatformRepositoryServiceLocator GetRepositoryProvider()
         {
@@ -581,22 +584,22 @@ namespace Smi.Common.Options
     [UsedImplicitly]
     public class FileSystemOptions : IOptions
     {
-        public string DicomSearchPattern { get; set; } = "*.dcm";
+        public string? DicomSearchPattern { get; set; } = "*.dcm";
 
-        private string _fileSystemRoot;
-        private string _extractRoot;
+        private string? _fileSystemRoot;
+        private string? _extractRoot;
 
-        public string FileSystemRoot
+        public string? FileSystemRoot
         {
             get => _fileSystemRoot;
-            set => _fileSystemRoot = value.Length>1?value.TrimEnd('/', '\\'):value;
+            set => _fileSystemRoot = value.Length > 1 ? value.TrimEnd('/', '\\') : value;
         }
 
-        public string ExtractRoot
+        public string? ExtractRoot
         {
             get => _extractRoot;
             [UsedImplicitly]
-            set => _extractRoot = value.Length>1?value.TrimEnd('/', '\\'):value;
+            set => _extractRoot = value.Length > 1 ? value.TrimEnd('/', '\\') : value;
         }
 
         public override string ToString()
@@ -610,13 +613,13 @@ namespace Smi.Common.Options
     /// </summary>
     public class RabbitOptions : IOptions
     {
-        public string RabbitMqHostName { get; set; }
-        public int RabbitMqHostPort { get; set; }
-        public string RabbitMqVirtualHost { get; set; }
-        public string RabbitMqUserName { get; set; }
-        public string RabbitMqPassword { get; set; }
-        public string FatalLoggingExchange { get; set; }
-        public string RabbitMqControlExchangeName { get; set; }
+        public string RabbitMqHostName { get; set; } = "localhost";
+        public int RabbitMqHostPort { get; set; } = 5672;
+        public string? RabbitMqVirtualHost { get; set; } = "/";
+        public string? RabbitMqUserName { get; set; }
+        public string? RabbitMqPassword { get; set; }
+        public string? FatalLoggingExchange { get; set; }
+        public string? RabbitMqControlExchangeName { get; set; }
         public bool ThreadReceivers { get; set; }
 
         public override string ToString()

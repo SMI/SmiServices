@@ -78,7 +78,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
     public class MongoTestAdapter : IMongoDbAdapter
     {
-        public WriteResult WriteMany(IList<BsonDocument> toWrite, string collectionNamePostfix = null)
+        public WriteResult WriteMany(IList<BsonDocument> toWrite, string? collectionNamePostfix = null)
         {
             Assert.NotZero(toWrite.Count);
 

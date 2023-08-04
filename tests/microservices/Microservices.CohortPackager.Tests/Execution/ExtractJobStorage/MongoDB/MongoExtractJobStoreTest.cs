@@ -117,15 +117,15 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TVal"></typeparam>
-        private sealed class MockExtractCollection<TKey, TVal> : StubMongoCollection<TKey, TVal>
+        private sealed class MockExtractCollection<TKey, TVal> : StubMongoCollection<TKey, TVal> where TKey : struct
         {
             public readonly Dictionary<TKey, TVal> Documents = new();
 
             public bool RejectChanges { get; set; }
 
-            public override long CountDocuments(FilterDefinition<TVal> filter, CountOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
+            public override long CountDocuments(FilterDefinition<TVal> filter, CountOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
 
-            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection>? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 var mockCursor = new Mock<IAsyncCursor<TProjection>>();
                 mockCursor
@@ -160,7 +160,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 return mockCursor.Object;
             }
 
-            public override void InsertOne(TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override void InsertOne(TVal document, InsertOneOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 if (RejectChanges)
                     throw new Exception("Rejecting changes");
@@ -172,14 +172,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     throw new Exception("Document already exists");
             }
 
-            public override void InsertMany(IEnumerable<TVal> documents, InsertManyOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override void InsertMany(IEnumerable<TVal> documents, InsertManyOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 foreach (TVal doc in documents)
                     InsertOne(doc, null, cancellationToken);
             }
 
             public override ReplaceOneResult ReplaceOne(FilterDefinition<TVal> filter, TVal replacement,
-                ReplaceOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+                ReplaceOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 if (RejectChanges)
                     return ReplaceOneResult.Unacknowledged.Instance;

@@ -72,7 +72,7 @@ public static class Program
             Required = true,
             HelpText = "The file to load dynamic rules from"
         )]
-        public string DynamicRulesFile { get; set; }
+        public string DynamicRulesFile { get; set; } = null!;
 
         [Option(
             'r',
@@ -80,7 +80,7 @@ public static class Program
             Required = true,
             HelpText = "The JSON file containing test data for the rules"
         )]
-        public string TestRowFile { get; set; }
+        public string TestRowFile { get; set; } = null!;
     }
 
     [ExcludeFromCodeCoverage]
@@ -99,9 +99,9 @@ public static class Program
         public int FieldCount => throw new NotImplementedException();
         public bool GetBoolean(int i) => throw new NotImplementedException();
         public byte GetByte(int i) => throw new NotImplementedException();
-        public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+        public long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length) => throw new NotImplementedException();
         public char GetChar(int i) => throw new NotImplementedException();
-        public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+        public long GetChars(int i, long fieldoffset, char[]? buffer, int bufferoffset, int length) => throw new NotImplementedException();
         public IDataReader GetData(int i) => throw new NotImplementedException();
         public string GetDataTypeName(int i) => throw new NotImplementedException();
         public DateTime GetDateTime(int i) => throw new NotImplementedException();

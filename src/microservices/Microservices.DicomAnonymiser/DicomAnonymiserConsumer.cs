@@ -44,7 +44,7 @@ namespace Microservices.DicomAnonymiser
                 throw new Exception($"Extract root does not exist: '{extractRoot}'");
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, ExtractFileMessage message, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, ExtractFileMessage message, ulong tag)
         {
             if (message.IsIdentifiableExtraction)
                 throw new Exception("DicomAnonymiserConsumer should not handle identifiable extraction messages");

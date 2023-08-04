@@ -28,7 +28,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private readonly IMongoCollection<MongoFileStatusDoc> _completedStatusCollection;
         private readonly IMongoCollection<MongoCompletedExtractJobDoc> _completedJobCollection;
 
-        [NotNull]
         private readonly DateTimeProvider _dateTimeProvider;
 
 

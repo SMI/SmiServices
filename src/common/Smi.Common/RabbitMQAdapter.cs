@@ -42,7 +42,7 @@ namespace Smi.Common
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly HostFatalHandler _hostFatalHandler;
+        private readonly HostFatalHandler? _hostFatalHandler;
         private readonly string _hostId;
 
         private readonly IConnection _connection;
@@ -249,7 +249,7 @@ namespace Smi.Common
             producerModel.OnFatal += (s, ra) =>
             {
                 resources.Dispose();
-                _hostFatalHandler.Invoke(s, new FatalErrorEventArgs(ra));
+                _hostFatalHandler?.Invoke(s, new FatalErrorEventArgs(ra));
             };
 
             return producerModel;
@@ -352,7 +352,7 @@ namespace Smi.Common
 
         private class ProducerResources : RabbitResources
         {
-            public IProducerModel ProducerModel { get; set; }
+            public IProducerModel? ProducerModel { get; set; }
 
             public ProducerResources(IModel model, IProducerModel ipm) : base(model)
             {

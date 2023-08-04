@@ -34,7 +34,7 @@ namespace Microservices.CohortExtractor.Execution
         /// <summary>
         /// RabbitMQ queue subscriber responsible for dequeuing messages and feeding them to the <see cref="IExtractionRequestFulfiller"/>
         /// </summary>
-        public ExtractionRequestQueueConsumer Consumer { get; set; }
+        public ExtractionRequestQueueConsumer? Consumer { get; set; }
         private readonly CohortExtractorOptions _consumerOptions;
 
         private IAuditExtractions _auditor;

@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
@@ -44,13 +43,13 @@ namespace Microservices.CohortPackager.Execution
         /// <param name="rabbitMqAdapter"></param>
         /// <param name="dateTimeProvider"></param>
         public CohortPackagerHost(
-            [NotNull] GlobalOptions globals,
-            [CanBeNull] ExtractJobStore jobStore = null,
-            [CanBeNull] IFileSystem fileSystem = null,
-            [CanBeNull] IJobReporter reporter = null,
-            [CanBeNull] IJobCompleteNotifier notifier = null,
-            [CanBeNull] IRabbitMqAdapter rabbitMqAdapter = null,
-            [CanBeNull] DateTimeProvider dateTimeProvider = null
+            GlobalOptions globals,
+            ExtractJobStore? jobStore = null,
+            IFileSystem? fileSystem = null,
+            IJobReporter? reporter = null,
+            IJobCompleteNotifier? notifier = null,
+            IRabbitMqAdapter? rabbitMqAdapter = null,
+            DateTimeProvider? dateTimeProvider = null
         )
             : base(globals, rabbitMqAdapter)
         {

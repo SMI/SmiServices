@@ -76,7 +76,7 @@ namespace Microservices.FileCopier.Tests.Execution
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>
@@ -110,7 +110,7 @@ namespace Microservices.FileCopier.Tests.Execution
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>
@@ -142,7 +142,7 @@ namespace Microservices.FileCopier.Tests.Execution
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>

@@ -34,7 +34,7 @@ namespace Microservices.Tests.RDMPTests
 
         public PipelineComponent DicomSourcePipelineComponent { get; private set; }
 
-        public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string root = null, ImageTableTemplateCollection template = null, bool persistentRaw = false, string modalityPrefix = null)
+        public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string? root = null, ImageTableTemplateCollection? template = null, bool persistentRaw = false, string? modalityPrefix = null)
         {
             ImageTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}ImageTable");
             SeriesTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}SeriesTable");

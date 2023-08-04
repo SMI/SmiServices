@@ -34,7 +34,7 @@ namespace Microservices.IsIdentifiable.Service
                 throw new DirectoryNotFoundException($"Could not find the extraction root '{_extractionRoot}' in the filesystem");
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileStatusMessage statusMessage, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, ExtractedFileStatusMessage statusMessage, ulong tag)
         {
             // We should only ever receive messages regarding anonymised images
             if (statusMessage.Status != ExtractedFileStatus.Anonymised)

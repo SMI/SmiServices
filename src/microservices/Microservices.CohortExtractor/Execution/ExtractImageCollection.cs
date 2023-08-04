@@ -14,7 +14,7 @@ namespace Microservices.CohortExtractor.Execution
         /// The value of a single <see cref="ExtractionRequestMessage.ExtractionIdentifiers"/> for which we have
         /// identified results
         /// </summary>
-        public string KeyValue { get; set; }
+        public string? KeyValue { get; set; }
 
         /// <summary>
         /// Unique SeriesInstanceUIDs amongst all results stored

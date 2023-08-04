@@ -9,7 +9,7 @@ namespace Microservices.IsIdentifiable.Service
 {
     public abstract class Classifier : IClassifier
     {
-        public DirectoryInfo DataDirectory { get; set; }
+        public DirectoryInfo? DataDirectory { get; set; }
 
 
         protected Classifier(DirectoryInfo dataDirectory)

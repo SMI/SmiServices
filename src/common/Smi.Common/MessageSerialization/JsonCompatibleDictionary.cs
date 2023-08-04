@@ -14,7 +14,7 @@ namespace Smi.Common.MessageSerialization
     /// <typeparam name="TK"></typeparam>
     /// <typeparam name="TV"></typeparam>
     [JsonObject(MemberSerialization.OptIn)]
-    public class JsonCompatibleDictionary<TK, TV> : Dictionary<TK, TV>
+    public class JsonCompatibleDictionary<TK, TV> : Dictionary<TK, TV> where TK : notnull
     {
         [JsonProperty]
         public TK[] SerializeableKeys

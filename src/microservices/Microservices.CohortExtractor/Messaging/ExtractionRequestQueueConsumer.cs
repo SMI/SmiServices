@@ -35,7 +35,7 @@ namespace Microservices.CohortExtractor.Messaging
             _fileMessageInfoProducer = fileMessageInfoProducer;
         }
 
-        protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
+        protected override void ProcessMessageImpl(IMessageHeader? header, ExtractionRequestMessage request, ulong tag)
         {
             Logger.Info($"Received message: {request}");
 

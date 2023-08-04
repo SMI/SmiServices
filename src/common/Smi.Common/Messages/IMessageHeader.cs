@@ -6,13 +6,13 @@ namespace Smi.Common.Messages
 {
     public interface IMessageHeader
     {
-        Guid MessageGuid { get; }
+        Guid MessageGuid { get; init; }
 
-        int ProducerProcessID { get; }
+        int ProducerProcessID { get; init; }
 
-        string ProducerExecutableName { get; }
+        string ProducerExecutableName { get; init; }
 
-        long OriginalPublishTimestamp { get; }
+        long OriginalPublishTimestamp { get; init; }
 
         /// <summary>
         /// The full message chain from origin to here

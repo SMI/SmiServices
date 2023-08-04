@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Helpers;
@@ -17,15 +17,15 @@ namespace Microservices.CohortPackager.Tests
         public static bool ShouldPrintReports { get; set; }
 
         public static void AssertReportsAreEqual(
-            [NotNull] CompletedExtractJobInfo jobInfo,
-            [NotNull] DateTimeProvider provider,
-            [CanBeNull] Dictionary<string, Dictionary<string, List<string>>> verificationFailuresExpected,
-            [CanBeNull] Dictionary<string, List<Tuple<int, string>>> blockedFilesExpected,
-            [CanBeNull] List<Tuple<string, string>> anonFailuresExpected,
+            CompletedExtractJobInfo jobInfo,
+            DateTimeProvider provider,
+            Dictionary<string, Dictionary<string, List<string>>>? verificationFailuresExpected,
+            Dictionary<string, List<Tuple<int, string>>>? blockedFilesExpected,
+            List<Tuple<string, string>>? anonFailuresExpected,
             bool isIdentifiableExtraction,
             bool isJoinedReport,
-            [NotNull] string newLine,
-            [NotNull] string actualReport
+            string newLine,
+            string actualReport
         )
         {
             string header = GetHeaderAndContents(jobInfo, provider, newLine);

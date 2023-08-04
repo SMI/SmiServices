@@ -24,7 +24,7 @@ namespace Smi.Common.Helpers
         /// <param name="toCreate"></param>
         /// <param name="optionalConstructorParameters"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(Type toCreate, params object[] optionalConstructorParameters)
+        public T? CreateInstance<T>(Type toCreate, params object[] optionalConstructorParameters)
         {
             T toReturn = default(T);
 
@@ -63,7 +63,7 @@ namespace Smi.Common.Helpers
         /// <param name="assembly"></param>
         /// <param name="optionalConstructorParameters"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(string typeName, Assembly assembly, params object[] optionalConstructorParameters)
+        public T? CreateInstance<T>(string typeName, Assembly assembly, params object[] optionalConstructorParameters)
         {
             if (string.IsNullOrWhiteSpace(typeName))
             {

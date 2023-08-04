@@ -49,7 +49,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
         private class TestJobReporter : JobReporterBase
         {
-            public string Report { get; set; } = "";
+            public string? Report { get; set; } = "";
 
             public bool Disposed { get; set; }
 

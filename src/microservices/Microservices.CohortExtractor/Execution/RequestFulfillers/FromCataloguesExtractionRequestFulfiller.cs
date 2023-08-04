@@ -19,7 +19,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public List<IRejector> Rejectors { get; set; } = new List<IRejector>();
         public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
             = new Dictionary<ModalitySpecificRejectorOptions, IRejector>();
-        public Regex ModalityRoutingRegex { get; set; }
+        public Regex? ModalityRoutingRegex { get; set; }
 
         public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
         {
