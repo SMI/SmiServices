@@ -38,7 +38,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         protected QueryToExecuteColumnSet[] FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
         {
-            return cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray();
+            return cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray()!;
         }
 
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
@@ -68,7 +68,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 foreach (QueryToExecute query in queries)
                 {
-                    foreach (QueryToExecuteResult result in query.Execute(valueToLookup, GetRejectorsFor(message,query).ToList()))
+                    foreach (QueryToExecuteResult result in query.Execute(valueToLookup, GetRejectorsFor(message, query).ToList()))
                     {
                         var seriesTagValue = result.SeriesTagValue
                             ?? throw new ArgumentNullException(nameof(result.SeriesTagValue));
@@ -91,14 +91,14 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 return Enumerable.Empty<IRejector>();
             }
 
-            if(ModalitySpecificRejectors.Any()  && string.IsNullOrWhiteSpace(query.Modality))
+            if (ModalitySpecificRejectors.Any() && string.IsNullOrWhiteSpace(query.Modality))
                 throw new Exception("Could not evaluate ModalitySpecificRejectors because query Modality was null");
 
-            var applicableRejectors = 
+            var applicableRejectors =
                 ModalitySpecificRejectors
                 .Where(
                     // Do the modalities covered by this rejector apply to the images returned by the query
-                    k => k.Key.GetModalities().Any(m => string.Equals(m, query.Modality,StringComparison.CurrentCultureIgnoreCase))
+                    k => k.Key.GetModalities().Any(m => string.Equals(m, query.Modality, StringComparison.CurrentCultureIgnoreCase))
                     )
                 .ToArray();
 
@@ -126,9 +126,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <param name="columnSet"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        protected virtual QueryToExecute GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
+        protected virtual QueryToExecute? GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
         {
-            string modality = GetModalityFor(columnSet.Catalogue);
+            string? modality = GetModalityFor(columnSet.Catalogue);
 
             // do they want only records from a specific modality
             if (!string.IsNullOrWhiteSpace(message.Modalities))
@@ -138,7 +138,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
                 // Use Modality routing regex to identify which modality 
                 var anyModality = message.Modalities.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                
+
                 // if we know the modality
                 if (modality != null)
                 {
@@ -163,10 +163,10 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         /// <param name="catalogue"></param>
         /// <returns></returns>
-        private string GetModalityFor(ICatalogue catalogue)
+        private string? GetModalityFor(ICatalogue catalogue)
         {
             // We don't know how to 
-            if(ModalityRoutingRegex == null)
+            if (ModalityRoutingRegex == null)
                 return null;
 
             var match = ModalityRoutingRegex.Match(catalogue.Name);

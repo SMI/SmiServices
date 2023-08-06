@@ -34,7 +34,7 @@ namespace Applications.DicomDirectoryProcessor.Execution
                 if (!Directory.Exists(globals.FileSystemOptions!.FileSystemRoot))
                     throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + globals.FileSystemOptions.FileSystemRoot + ")");
 
-                if (!cliOptions.ToProcessDir.Exists)
+                if (!cliOptions.ToProcessDir!.Exists)
                     throw new ArgumentException("Could not find directory " + cliOptions.ToProcessDir.FullName);
 
                 if (!cliOptions.ToProcessDir.FullName.StartsWith(globals.FileSystemOptions.FileSystemRoot, true, CultureInfo.CurrentCulture))
@@ -42,7 +42,7 @@ namespace Applications.DicomDirectoryProcessor.Execution
             }
             else
             {
-                if (!File.Exists(cliOptions.ToProcessDir.FullName))
+                if (!File.Exists(cliOptions.ToProcessDir!.FullName))
                     throw new ArgumentException("Could not find accession directory list file (" + cliOptions.ToProcessDir.FullName + ")");
 
                 if (!Path.GetExtension(cliOptions.ToProcessDir.FullName).Equals(".csv"))
@@ -88,7 +88,7 @@ namespace Applications.DicomDirectoryProcessor.Execution
         {
             try
             {
-                _ddf.SearchForDicomDirectories(_cliOptions.ToProcessDir.FullName);
+                _ddf.SearchForDicomDirectories(_cliOptions.ToProcessDir!.FullName);
             }
             catch (Exception e)
             {

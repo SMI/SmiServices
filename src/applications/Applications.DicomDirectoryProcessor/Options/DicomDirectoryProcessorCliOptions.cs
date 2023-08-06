@@ -19,7 +19,7 @@ namespace Applications.DicomDirectoryProcessor.Options
         public string? DirectoryFormat { get; set; }
 
 
-        public DirectoryInfo ToProcessDir
+        public DirectoryInfo? ToProcessDir
         {
             get
             {

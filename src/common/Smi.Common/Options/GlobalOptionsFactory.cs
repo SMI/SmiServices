@@ -81,9 +81,10 @@ namespace Smi.Common.Options
 
         private object GetGlobalOption(Type arg)
         {
-            return arg == typeof(GlobalOptions) ?
+            var opts = arg == typeof(GlobalOptions) ?
                 new GlobalOptions() :
                 Activator.CreateInstance(arg);
+            return opts ?? throw new ArgumentException(nameof(arg));
         }
     }
 }

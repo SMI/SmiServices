@@ -52,7 +52,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             var guidTable = swapper.GetGuidTableIfAny(options);
             
-            Assert.AreEqual("Map_guid",guidTable.GetRuntimeName());
+            Assert.AreEqual("Map_guid",guidTable!.GetRuntimeName());
 
             //The key column should match the SwapColumnName
             Assert.IsNotNull(guidTable.DiscoverColumn("CHI"));

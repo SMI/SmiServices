@@ -50,7 +50,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             var container = _queryBuilder.RootFilterContainer = new SpontaneouslyInventedFilterContainer(memory, null, null, FilterContainerOperation.OR);
 
             //Build SELECT and WHERE bits of the query
-            if (_columnSet.StudyTagColumn != null)
+            if (_columnSet?.StudyTagColumn != null)
             {
                 _queryBuilder.AddColumn(_columnSet.StudyTagColumn);
 
@@ -62,7 +62,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             }
 
 
-            if (_columnSet.SeriesTagColumn != null)
+            if (_columnSet?.SeriesTagColumn != null)
             {
                 _queryBuilder.AddColumn(_columnSet.SeriesTagColumn);
 
@@ -73,7 +73,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 container.AddChild(_seriesFilter);
             }
 
-            if (_columnSet.InstanceTagColumn != null)
+            if (_columnSet?.InstanceTagColumn != null)
             {
                 _queryBuilder.AddColumn(_columnSet.InstanceTagColumn);
 

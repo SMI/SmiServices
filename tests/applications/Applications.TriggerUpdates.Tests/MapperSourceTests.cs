@@ -61,14 +61,14 @@ namespace Applications.TriggerUpdates.Tests
                 swapper.Setup(mapperOptions);
 
                 guidTable = swapper.GetGuidTableIfAny(mapperOptions);
-                Assert.AreEqual(0,guidTable.GetRowCount(), "No temporary guids should exist yet");
+                Assert.AreEqual(0,guidTable?.GetRowCount(), "No temporary guids should exist yet");
                 Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
             
                 //lookup an as yet unknown value
                 swapper.GetSubstitutionFor("0202020202",out _);
 
                 Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
-                Assert.AreEqual(1,guidTable.GetRowCount(), "We should have a temporary guid for 0202020202");
+                Assert.AreEqual(1,guidTable?.GetRowCount(), "We should have a temporary guid for 0202020202");
             }
             else
                 guidTable = null;

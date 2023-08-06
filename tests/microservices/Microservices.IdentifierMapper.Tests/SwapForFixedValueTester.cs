@@ -26,8 +26,8 @@ namespace Microservices.IdentifierMapper.Tests
             reason = null;
             Success++;
             CacheHit++;
-            
-            using(new TimeTracker(DatabaseStopwatch))
+
+            using (new TimeTracker(DatabaseStopwatch))
                 Thread.Sleep(500);
 
             return _swapForString;
@@ -35,7 +35,7 @@ namespace Microservices.IdentifierMapper.Tests
 
         public override void ClearCache() { }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

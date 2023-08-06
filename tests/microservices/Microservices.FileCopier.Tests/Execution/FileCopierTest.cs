@@ -84,7 +84,7 @@ namespace Microservices.FileCopier.Tests.Execution
                     sentStatusMessage = (ExtractedFileStatusMessage)message;
                     sentRoutingKey = routingKey;
                 })
-                .Returns(() => null);
+                .Returns(() => null!);
 
             var requestHeader = new MessageHeader();
 
@@ -118,7 +118,7 @@ namespace Microservices.FileCopier.Tests.Execution
                     sentStatusMessage = (ExtractedFileStatusMessage)message;
                     sentRoutingKey = routingKey;
                 })
-                .Returns(() => null);
+                .Returns(() => null!);
 
             _requestMessage.DicomFilePath = "missing.dcm";
             var requestHeader = new MessageHeader();
@@ -150,7 +150,7 @@ namespace Microservices.FileCopier.Tests.Execution
                     sentStatusMessage = (ExtractedFileStatusMessage)message;
                     sentRoutingKey = routingKey;
                 })
-                .Returns(() => null);
+                .Returns(() => null!);
 
             var requestHeader = new MessageHeader();
             string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");

@@ -134,7 +134,5 @@ namespace Microservices.DicomReprocessor.Execution.Processors
             _logger.Error(e, "Error when processing document with _id " + documentId);
             Interlocked.Increment(ref _totalFailed);
         }
-
-        private static string AccNoOrNull(BsonValue bsonValue) => bsonValue.IsBsonNull ? null : bsonValue.AsString;
     }
 }

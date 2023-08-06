@@ -38,7 +38,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         {
             _logger.Info("Setting up mapping dictionary");
 
-            using(new TimeTracker(DatabaseStopwatch))
+            using (new TimeTracker(DatabaseStopwatch))
                 lock (_oDictionaryLock)
                 {
                     _options = options;
@@ -102,7 +102,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             Setup(_options);
         }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

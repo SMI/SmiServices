@@ -199,7 +199,7 @@ where not exists(select *
             }
         }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
         {
             return options.Discover();
         }

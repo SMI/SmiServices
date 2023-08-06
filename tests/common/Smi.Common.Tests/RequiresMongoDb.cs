@@ -16,7 +16,7 @@ namespace Smi.Common.Tests
         public void ApplyToContext(TestExecutionContext context)
         {
             MongoClientSettings address = GetMongoClientSettings();
-            
+
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
 
             var client = new MongoClient(address);
@@ -55,7 +55,7 @@ namespace Smi.Common.Tests
             private string? _host;
             private int _port;
 
-            public string Host
+            public string? Host
             {
                 get => _host;
                 set

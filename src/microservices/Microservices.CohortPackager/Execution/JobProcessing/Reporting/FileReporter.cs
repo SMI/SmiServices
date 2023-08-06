@@ -96,7 +96,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private Stream GetStream(ExtractJobInfo jobInfo, string fileName)
         {
             if (ShouldWriteCombinedReport(jobInfo))
-                return _currentFileStream;
+                return _currentFileStream!;
 
             string absReportPath = _fileSystem.Path.Combine(AbsolutePathToProjExtractionReportsDir(jobInfo), fileName);
             return _fileSystem.File.OpenWrite(absReportPath);

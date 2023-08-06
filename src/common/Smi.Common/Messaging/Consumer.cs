@@ -162,7 +162,7 @@ namespace Smi.Common.Messaging
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
                 ErrorAndNack(header, deliverArgs.DeliveryTag, DeserializationMessage<T>(), e);
 
-                iMessage = default(T);
+                iMessage = default;
                 return false;
             }
         }

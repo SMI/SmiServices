@@ -19,7 +19,7 @@ namespace Microservices.CohortExtractor.Execution
         /// <summary>
         /// Unique SeriesInstanceUIDs amongst all results stored
         /// </summary>
-        public string SeriesInstanceUID => Values.SelectMany(v => v.Select(e=>e.SeriesTagValue)).Distinct().Single(); //TODO: could be multiple series under a study
+        public string? SeriesInstanceUID => Values.SelectMany(v => v.Select(e=>e.SeriesTagValue)).Distinct().Single(); //TODO: could be multiple series under a study
 
         public IReadOnlyCollection<QueryToExecuteResult> Accepted => GetWhereRejected(false);
         public IReadOnlyCollection<QueryToExecuteResult> Rejected => GetWhereRejected(true);

@@ -191,9 +191,8 @@ namespace Applications.TriggerUpdates.Execution
             if (_cliOptions.Qualifier != '\0')
                 return _cliOptions.Qualifier + value.ToString() + _cliOptions.Qualifier;
 
-            return value.ToString();
+            return value.ToString() ?? throw new ArgumentException("Couldn't convert value to string");
         }
-
 
         /// <summary>
         /// Returns a query for fetching the latest entry in the archive that matches a given private identifier (query contains parameter @currentSwapColValue)

@@ -175,7 +175,7 @@ namespace Microservices.CohortPackager.Tests
             return new Tuple<string?, string?>(summarySb.ToString(), fullSb.ToString());
         }
 
-        private static string BlockedFiles(Dictionary<string, List<Tuple<int, string>>>? blockedFilesExpected, string newLine)
+        private static string? BlockedFiles(Dictionary<string, List<Tuple<int, string>>>? blockedFilesExpected, string newLine)
         {
             if (blockedFilesExpected == null)
                 return null;
@@ -190,7 +190,7 @@ namespace Microservices.CohortPackager.Tests
             return sb.ToString();
         }
 
-        private static string AnonymisationFailures(List<Tuple<string, string>>? anonFailuresExpected, string newLine)
+        private static string? AnonymisationFailures(List<Tuple<string, string>>? anonFailuresExpected, string newLine)
         {
             if (anonFailuresExpected == null)
                 return null;
