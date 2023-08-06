@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 
 namespace Smi.Common.Options
@@ -12,7 +12,7 @@ namespace Smi.Common.Options
             //for each property on branch
             foreach (PropertyInfo p in globals.GetType().GetProperties())
             {
-                var currentValue = p.GetValue(globals) ?? throw new Exception("Could not get property value");
+                var currentValue = p.GetValue(globals)!;
 
                 //if it's a T then call the action (note that we check the property Type because we are interested in the property even if it is null
                 if (p.PropertyType.IsAssignableFrom(typeof(T)))

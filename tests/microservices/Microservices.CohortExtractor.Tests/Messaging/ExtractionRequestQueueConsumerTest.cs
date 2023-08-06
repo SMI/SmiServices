@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Audit;
+using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
@@ -82,7 +82,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
 
             var mockFileInfoMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             mockFileInfoMessageProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
+                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), null))
                 .Returns(new MessageHeader());
             mockFileInfoMessageProducerModel.Setup(x => x.WaitForConfirms());
 

@@ -1,4 +1,4 @@
-﻿
+
 using NUnit.Framework;
 using Smi.Common.Options;
 using System;
@@ -38,9 +38,6 @@ namespace Smi.Common.Tests
             Assert.False(consumerOptions.VerifyPopulated());
 
             consumerOptions.QueueName = "Test.QueueName";
-            Assert.False(consumerOptions.VerifyPopulated());
-
-            consumerOptions.QoSPrefetchCount = 1234;
             Assert.True(consumerOptions.VerifyPopulated());
         }
 

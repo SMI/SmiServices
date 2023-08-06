@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Service;
 using Moq;
@@ -74,7 +74,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             _fatalArgs = null;
 
             _mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
+            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, null);
             _mockProducerModel
                 .Setup(_expectedSendMessageCall)
                 .Callback<IMessage, IMessageHeader, string>((x, _, _) => _response = (ExtractedFileVerificationMessage)x)

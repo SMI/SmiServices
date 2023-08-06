@@ -1,7 +1,9 @@
 
-using FellowOakDicom;
 using FAnsi.Discovery;
+using FellowOakDicom;
+using IsIdentifiable.Options;
 using JetBrains.Annotations;
+using Microsoft.Data.SqlClient;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
@@ -9,12 +11,10 @@ using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using DatabaseType = FAnsi.DatabaseType;
-using IsIdentifiable.Options;
 
 namespace Smi.Common.Options
 {
@@ -594,14 +594,14 @@ namespace Smi.Common.Options
         public string? FileSystemRoot
         {
             get => _fileSystemRoot;
-            set => _fileSystemRoot = value != null ? value.TrimEnd('/', '\\') : value;
+            set => _fileSystemRoot = value?.Length > 1 ? value.TrimEnd('/', '\\') : value;
         }
 
         public string? ExtractRoot
         {
             get => _extractRoot;
             [UsedImplicitly]
-            set => _extractRoot = value != null ? value.TrimEnd('/', '\\') : value;
+            set => _extractRoot = value?.Length > 1 ? value.TrimEnd('/', '\\') : value;
         }
 
         public override string ToString()

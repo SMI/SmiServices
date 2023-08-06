@@ -130,7 +130,7 @@ namespace Smi.Common.Messaging
                 IMessageHeader header = inResponseTo != null ? new MessageHeader(inResponseTo) : new MessageHeader();
                 header.Populate(_messageBasicProperties.Headers);
 
-                _model.BasicPublish(_exchangeName, routingKey, true, _messageBasicProperties, body);
+                _model.BasicPublish(_exchangeName, routingKey ?? "", true, _messageBasicProperties, body);
 
                 return header;
             }
