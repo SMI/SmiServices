@@ -84,7 +84,7 @@ namespace Microservices.DicomTagReader.Tests
         {
             Options = new GlobalOptionsFactory().Load(nameof(DicomTagReaderTestHelper));
 
-            AccessionConsumerOptions = Options.DicomTagReaderOptions;
+            AccessionConsumerOptions = Options.DicomTagReaderOptions!;
 
             new ProducerOptions
             {

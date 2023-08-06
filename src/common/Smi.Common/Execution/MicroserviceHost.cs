@@ -81,15 +81,15 @@ namespace Smi.Common.Execution
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
-            RabbitMqAdapter = rabbitMqAdapter;
-            if (RabbitMqAdapter == null)
+            if (rabbitMqAdapter == null)
             {
                 ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
-                RabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
+                rabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
                 var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName
                     ?? throw new ArgumentNullException(nameof(globals.RabbitOptions.RabbitMqControlExchangeName));
                 _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, controlExchangeName, Stop);
             }
+            RabbitMqAdapter = rabbitMqAdapter;
 
             ObjectFactory = new MicroserviceObjectFactory();
             ObjectFactory.FatalHandler = (s, e) => Fatal(e.Message, e.Exception);

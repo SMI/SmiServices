@@ -28,7 +28,7 @@ namespace Smi.Common.Tests
         )
         {
             //Rabbit
-            g.RabbitOptions!.RabbitMqHostName = rabbit?.HostName;
+            g.RabbitOptions!.RabbitMqHostName = rabbit?.HostName!;
             g.RabbitOptions.RabbitMqHostPort = rabbit?.Port ?? -1;
             g.RabbitOptions.RabbitMqVirtualHost = rabbit?.VirtualHost;
             g.RabbitOptions.RabbitMqUserName = rabbit?.UserName;

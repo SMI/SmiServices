@@ -32,7 +32,7 @@ namespace Microservices.CohortExtractor.Tests
             switch (testCase)
             {
                 case Test.Normal:
-                    opts.AuditorType = fullName ? typeof(NullAuditExtractions).FullName : typeof(NullAuditExtractions).Name;
+                    opts.AuditorType = (fullName ? typeof(NullAuditExtractions).FullName : typeof(NullAuditExtractions).Name)!;
                     opts.RequestFulfillerType = fullName ? typeof(FromCataloguesExtractionRequestFulfiller).FullName : typeof(FromCataloguesExtractionRequestFulfiller).Name;
                     opts.Validate();
                     break;
@@ -45,7 +45,7 @@ namespace Microservices.CohortExtractor.Tests
                     opts.Validate();
                     break;
                 case Test.NoFulfiller:
-                    opts.AuditorType = fullName ? typeof(NullAuditExtractions).FullName : typeof(NullAuditExtractions).Name;
+                    opts.AuditorType = (fullName ? typeof(NullAuditExtractions).FullName : typeof(NullAuditExtractions).Name)!;
                     opts.RequestFulfillerType = null; //lets use null here just to cover both "" and null
 
                     //no fulfiller is a problem!

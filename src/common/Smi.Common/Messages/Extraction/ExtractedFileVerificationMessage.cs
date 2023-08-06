@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 
 namespace Smi.Common.Messages.Extraction
@@ -29,7 +30,7 @@ namespace Smi.Common.Messages.Extraction
             : base(request)
         {
             DicomFilePath = request.DicomFilePath;
-            OutputFilePath = request.OutputFilePath;
+            OutputFilePath = request.OutputFilePath ?? throw new ArgumentNullException(nameof(request.OutputFilePath));
         }
     }
 }

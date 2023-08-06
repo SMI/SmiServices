@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.IdentifierMapper.Messaging
 {
@@ -148,7 +149,7 @@ namespace Microservices.IdentifierMapper.Messaging
         /// <param name="reason"></param>
         /// <returns></returns>
         /// <exception cref="BadPatientIDException">Thrown if PatientID tag is corrupt</exception>
-        public bool SwapIdentifier(DicomFileMessage msg, out string reason)
+        public bool SwapIdentifier(DicomFileMessage msg, [NotNullWhen(false)] out string? reason)
         {
             DicomDataset ds;
             try

@@ -41,19 +41,18 @@ namespace Applications.TriggerUpdates.Execution
 
             FansiImplementations.Load();
 
+            ISwapIdentifiers? swapper;
             try
             {
                 var objectFactory = new MicroserviceObjectFactory();
-                _swapper = objectFactory.CreateInstance<ISwapIdentifiers>(globalOptions.IdentifierMapperOptions!.SwapperType!, typeof(ISwapIdentifiers).Assembly);
+                swapper = objectFactory.CreateInstance<ISwapIdentifiers>(globalOptions.IdentifierMapperOptions!.SwapperType!, typeof(ISwapIdentifiers).Assembly);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                throw new System.Exception($"Could not create IdentifierMapper Swapper with SwapperType:{globalOptions.IdentifierMapperOptions?.SwapperType ?? "Null"}", ex);
+                throw new Exception($"Could not create IdentifierMapper Swapper with SwapperType:{globalOptions.IdentifierMapperOptions?.SwapperType ?? "Null"}", ex);
             }
 
-            if (_swapper == null)
-                throw new ArgumentException("No SwapperType has been specified in GlobalOptions.IdentifierMapperOptions");
-
+            _swapper = swapper ?? throw new ArgumentException("No SwapperType has been specified in GlobalOptions.IdentifierMapperOptions");
         }
 
         public IEnumerable<UpdateValuesMessage> GetUpdates()

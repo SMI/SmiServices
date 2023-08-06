@@ -3,6 +3,7 @@ using CommandLine;
 using CommandLine.Text;
 using ReusableLibraryCode.Annotations;
 using Smi.Common.Options;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -27,7 +28,7 @@ namespace Applications.DicomDirectoryProcessor.Options
                     ? null
                     : new DirectoryInfo(ToProcess);
             }
-            set => ToProcess = value?.FullName;
+            set => ToProcess = value?.FullName ?? throw new ArgumentNullException(nameof(value));
         }
 
         [Usage]
