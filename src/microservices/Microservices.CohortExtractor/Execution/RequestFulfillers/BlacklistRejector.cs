@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using FAnsi.Discovery;
@@ -136,7 +137,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <param name="row"></param>
         /// <param name="reason"></param>
         /// <returns></returns>
-        public bool Reject(DbDataReader row, out string reason)
+        public bool Reject(IDataRecord row, out string reason)
         {
             //row is bad if the query matches any records (in the blacklist)
             var bad = DoLookup(

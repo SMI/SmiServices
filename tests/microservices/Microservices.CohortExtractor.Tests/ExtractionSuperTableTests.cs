@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -117,7 +117,7 @@ namespace Microservices.CohortExtractor.Tests
             
             //The strategy pattern implementation that goes to the database but also considers reason
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cata});
-            fulfiller.Rejectors.Add(useDynamic? (IRejector) new DynamicRejector():new TestRejector());
+            fulfiller.Rejectors.Add(useDynamic? (IRejector) new DynamicRejector(null):new TestRejector());
             
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
@@ -261,7 +261,7 @@ namespace Microservices.CohortExtractor.Tests
 
     internal class TestRejector : IRejector
     {
-        public bool Reject(DbDataReader row, out string reason)
+        public bool Reject(IDataRecord row, out string reason)
         {
             //if the image is not extractable
             if (!Convert.ToBoolean(row["IsExtractableToDisk"]))
