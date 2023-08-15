@@ -3,6 +3,73 @@
 
 import re
 
+from html.parser import HTMLParser
+#from html.entities import name2codepoint
+
+class MyHTMLParser(HTMLParser):
+    """ A HTML parser which simply extracts text and throws away tags,
+    so you can get the text out.
+    Character entities will be replaced with the actual character.
+    No attempt to preserve original document length.
+    Not sure how robust it is to badly formatted HTML.
+    """
+    def __init__(self):
+        super().__init__()
+        self._style_active = False
+        self._script_active = False
+        self._extracted_text = ''
+
+    def extracted_text(self):
+        return self._extracted_text
+
+    def handle_starttag(self, tag, attrs):
+        #print("Start tag:", tag)
+        if tag == 'style':
+            self._style_active = True
+        if tag == 'script':
+            self._script_active = True
+        #for attr in attrs:
+        #    print("     attr:", attr)
+        return
+
+    def handle_endtag(self, tag):
+        #print("End tag  :", tag)
+        if tag == 'style':
+            self._style_active = False
+        if tag == 'script':
+            self._script_active = False
+        return
+
+    def handle_data(self, data):
+        if not self._style_active and not self._script_active:
+            data = data.strip()
+            if len(data) > 0:
+                #print("%s " % data)
+                self._extracted_text += ("%s " % data)
+
+    def handle_comment(self, data):
+        #print("Comment  :", data)
+        return
+
+    def handle_entityref(self, name):
+        # Never called since convert_charrefs=True
+        c = chr(name2codepoint[name])
+        #print("Named ent:", c)
+        return
+
+    def handle_charref(self, name):
+        # Never called since convert_charrefs=True
+        if name.startswith('x'):
+            c = chr(int(name[1:], 16))
+        else:
+            c = chr(int(name))
+        #print("Num ent  :", c)
+        return
+
+    def handle_decl(self, data):
+        #print("Decl     :", data)
+        return
+
 
 # ---------------------------------------------------------------------
 
@@ -75,4 +142,31 @@ def test_redact_html_tags_in_string():
     expected = '  text1 <1 monthtext2  text3      '
     assert(string_match_ignore_linebreak(dest, expected))
 
+
+def remove_html_tags_in_string(html_str):
+    """ Remove all HTML tags from the string and return the new string.
+    Does not try to preserve the original string length."""
+    parser = MyHTMLParser()
+    parser.feed(html_str)
+    text_str = parser.extracted_text()
+    return(text_str)
+
+def test_remove_html_tags_in_string():
+    dest = remove_html_tags_in_string('<!DOCTYPE fake> <style>stuff </style>hello <p>world')
+    expected = 'hello world '
+    assert(dest == expected)
+
+
 # ---------------------------------------------------------------------
+
+if __name__ == '__main__':
+    import sys
+    filename = sys.argv[1]
+    with open(filename,  encoding='latin') as fd:
+        doc = fd.read()
+    rc = redact_html_tags_in_string(doc)
+    print('REDACTED:')
+    print(rc)
+    rc = remove_html_tags_in_string(doc)
+    print('REMOVED:')
+    print(rc)
