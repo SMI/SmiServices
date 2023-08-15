@@ -28,7 +28,7 @@
     <PackageVersion Include="System.IO.Abstractions" Version="19.2.51"/>
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0"/>
     <PackageVersion Include="Terminal.Gui" Version="1.13.5"/>
-    <PackageVersion Include="YamlDotNet" Version="13.1.1"/>
+    <PackageVersion Include="YamlDotNet" Version="13.2.0"/>
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.15"/>
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.0.7"/>
