@@ -25,7 +25,7 @@
     <PackageVersion Include="SecurityCodeScan.VS2019" Version="5.6.7"/>
     <PackageVersion Include="Spectre.Console" Version="0.47.0"/>
     <PackageVersion Include="StackExchange.Redis" Version="2.6.122"/>
-    <PackageVersion Include="System.IO.Abstractions" Version="19.2.51"/>
+    <PackageVersion Include="System.IO.Abstractions" Version="19.2.61"/>
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0"/>
     <PackageVersion Include="Terminal.Gui" Version="1.13.5"/>
     <PackageVersion Include="YamlDotNet" Version="13.2.0"/>
