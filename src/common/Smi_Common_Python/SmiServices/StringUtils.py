@@ -4,71 +4,198 @@
 import re
 
 from html.parser import HTMLParser
-#from html.entities import name2codepoint
+from html.entities import name2codepoint
 
-class MyHTMLParser(HTMLParser):
-    """ A HTML parser which simply extracts text and throws away tags,
-    so you can get the text out.
-    Character entities will be replaced with the actual character.
-    No attempt to preserve original document length.
-    Not sure how robust it is to badly formatted HTML.
-    """
+# ---------------------------------------------------------------------
+
+class RedactingHTMLParser(HTMLParser):
     def __init__(self):
-        super().__init__()
-        self._style_active = False
-        self._script_active = False
-        self._extracted_text = ''
+        super().__init__(convert_charrefs = False)
+        self.style_active = False
+        self.script_active = False
+        self.data_active = False
+        self.newline_active = False
+        self.ref_char = 0
+        self.html_str = None
+        self.rc = []
+        self.curpos = (0,0)
 
-    def extracted_text(self):
-        return self._extracted_text
+    def feed(self, html_str):
+        # Build a list of line numbers and their character positions
+        idx = 0
+        eol_is_next = 0
+        linenum = 1               # first line is 1, not zero
+        self.linepos = [0]
+        self.linepos.insert(1, 0) # first line is 1, not zero
+        for ch in html_str:
+            if ch == '\n' or ch == '\r':
+                # If prev newline char was same then is a new line
+                # otherwise CR,LF is a single newline
+                if eol_is_next and (eol_is_next == ch):
+                    linenum += 1
+                    self.linepos.insert(linenum, idx)
+                eol_is_next = ch
+                idx += 1
+                continue
+            if eol_is_next:
+                linenum += 1
+                self.linepos.insert(linenum, idx)
+                eol_is_next = 0
+            idx += 1
+        # At EOF add a fake final line because getpos() will return it
+        self.linepos.insert(linenum+1, idx)
+        self.html_str = html_str
+        super().feed(html_str)
+
+    def result(self):
+        """ Return the redacted HTML string.
+        Could also return the array of character offsets to be redacted.
+        """
+        # Ensure the final item is processed
+        self.handle_prev()
+        return self.html_str
+
+    def handle_prev(self):
+        """ Output or redact the previous item which is between the
+        character offsets  self.curpos through to self.getpos().
+        """
+        add_lf = self.newline_active
+        self.newline_active = False
+        if self.getpos() == (1,0):
+            # Called at very start of document, no previous elements to redact
+            return
+        if not self.data_active or (self.style_active or self.script_active or self.ref_char):
+            startline = self.curpos[0]
+            startoffset = self.linepos[startline] + self.curpos[1]
+            endline, endchar = self.getpos()
+            endoffset = self.linepos[endline] + endchar
+            redact_char = ' '
+            redact_length = endoffset - startoffset
+            if add_lf:
+                redact_str = '\n'
+            else:
+                redact_str = redact_char
+            redact_str = redact_char.rjust(redact_length, redact_char) if redact_char else ''
+            if add_lf and redact_char:
+                redact_str = '\n' + redact_str[1:]
+                redact_str = redact_str[:-1] + '\n'
+            if self.ref_char:
+                redact_str = self.ref_char + redact_str[1:]
+            self.ref_char = 0
+            self.html_str = self.html_str[:startoffset] + redact_str + self.html_str[endoffset:]
+            self.rc.append( (startoffset, endoffset) )
+
+    def prepare_next(self, data_active):
+        self.data_active = data_active
+        self.curpos = self.getpos()
 
     def handle_starttag(self, tag, attrs):
-        #print("Start tag:", tag)
+        self.handle_prev()
+        # Ensure that any text is not output whilst in <style> or <script>
         if tag == 'style':
-            self._style_active = True
+            self.style_active = True
         if tag == 'script':
-            self._script_active = True
-        #for attr in attrs:
-        #    print("     attr:", attr)
+            self.script_active = True
+        # <p> and <br> cause a newline to be output
+        if tag == 'p' or tag == 'br':
+            self.newline_active = True
+        # Prepare for next item
+        self.prepare_next(False)
         return
 
     def handle_endtag(self, tag):
-        #print("End tag  :", tag)
+        self.handle_prev()
+        # Remember for the next tag
         if tag == 'style':
-            self._style_active = False
+            self.style_active = False
         if tag == 'script':
-            self._script_active = False
+            self.script_active = False
+        # Prepare for next item
+        self.prepare_next(False)
         return
 
+    def handle_startendtag(self, tag, attrs):
+        self.handle_prev()
+        # <p> and <br> cause a newline to be output
+        if tag == 'p' or tag == 'br':
+            self.newline_active = True
+        self.prepare_next(False)
+
     def handle_data(self, data):
-        if not self._style_active and not self._script_active:
-            data = data.strip()
-            if len(data) > 0:
-                #print("%s " % data)
-                self._extracted_text += ("%s " % data)
+        self.handle_prev()
+        # Mark as text to be kept if not inside <style> or <script>
+        if not self.style_active and not self.script_active:
+            self.data_active = True
+        self.prepare_next(self.data_active)
 
     def handle_comment(self, data):
-        #print("Comment  :", data)
+        self.handle_prev()
+        self.prepare_next(False)
         return
 
     def handle_entityref(self, name):
-        # Never called since convert_charrefs=True
-        c = chr(name2codepoint[name])
-        #print("Named ent:", c)
+        ch = chr(name2codepoint[name])
+        self.handle_prev()
+        # Prepare for next item
+        self.ref_char = ch
+        self.prepare_next(False)
         return
 
     def handle_charref(self, name):
-        # Never called since convert_charrefs=True
         if name.startswith('x'):
-            c = chr(int(name[1:], 16))
+            ch = chr(int(name[1:], 16))
         else:
-            c = chr(int(name))
-        #print("Num ent  :", c)
+            ch = chr(int(name))
+        self.handle_prev()
+        # Prepare for next item
+        self.ref_char = ch
+        self.prepare_next(False)
         return
 
     def handle_decl(self, data):
-        #print("Decl     :", data)
+        self.handle_prev()
+        self.prepare_next(False)
         return
+
+def test_RedactingHTMLParser():
+    parser = RedactingHTMLParser()
+    html_str = """<!DOCTYPE>
+<html>
+<p/>
+
+<!--<a href="">
+	comment
+-->
+<style>
+{
+	 stuff
+		 # comment
+}
+</style>
+<p style="things; more">Hello&nbsp;World&lt;&gt;
+<BR>new line
+</p>
+</html>"""
+    expected="""          
+      
+
+  
+
+
+                            
+                                         
+
+                      
+Hello      World<   >   
+
+  
+new line
+    
+       """
+    parser.feed(html_str)
+    result = parser.result()
+    assert(len(html_str) == len(result))
+    assert(result == expected)
 
 
 # ---------------------------------------------------------------------
@@ -86,6 +213,7 @@ def test_string_match_ignore_linebreak():
     assert(string_match_ignore_linebreak('hello\r\nworld', 'hello \nworld'))
     assert(string_match_ignore_linebreak('hello\r\nworld', 'hello  world'))
     assert(string_match_ignore_linebreak('hello\r\rworld', 'hello  world'))
+
 
 # ---------------------------------------------------------------------
 
@@ -143,17 +271,19 @@ def test_redact_html_tags_in_string():
     assert(string_match_ignore_linebreak(dest, expected))
 
 
+# ---------------------------------------------------------------------
+
 def remove_html_tags_in_string(html_str):
     """ Remove all HTML tags from the string and return the new string.
     Does not try to preserve the original string length."""
-    parser = MyHTMLParser()
+    parser = RedactingHTMLParser()
     parser.feed(html_str)
-    text_str = parser.extracted_text()
+    text_str = parser.result()
     return(text_str)
 
 def test_remove_html_tags_in_string():
     dest = remove_html_tags_in_string('<!DOCTYPE fake> <style>stuff </style>hello <p>world')
-    expected = 'hello world '
+    expected = '                                     hello \n \nworld'
     assert(dest == expected)
 
 
