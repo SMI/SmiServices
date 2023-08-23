@@ -9,16 +9,21 @@ from html.entities import name2codepoint
 # ---------------------------------------------------------------------
 
 class RedactingHTMLParser(HTMLParser):
-    def __init__(self):
+
+    def __init__(self, replace_char = ' '):
         super().__init__(convert_charrefs = False)
-        self.style_active = False
-        self.script_active = False
-        self.data_active = False
-        self.newline_active = False
-        self.ref_char = 0
-        self.html_str = None
-        self.rc = []
-        self.curpos = (0,0)
+        self.replace_char = replace_char # HTML tags replaced with
+        self.style_active = False    # is processing a <style>
+        self.script_active = False   # is processing a <script>
+        self.data_active = False     # is processing real text content
+        self.newline_active = False  # is processing newlines
+        self.ref_char = 0            # is an entity or character reference
+        self.html_str = None         # redacted document
+        self.rc = []                 # redaction offsets
+        self.curpos = (0,0)          # last HTML entity offset
+        # Change empty string to a nul character so it can be removed at the end
+        if not self.replace_char:
+            self.replace_char = '\0'
 
     def feed(self, html_str):
         # Build a list of line numbers and their character positions
@@ -53,6 +58,8 @@ class RedactingHTMLParser(HTMLParser):
         """
         # Ensure the final item is processed
         self.handle_prev()
+        # If user wants to remove HTML tags (not redact) do this now
+        self.html_str = self.html_str.replace('\0', '')
         return self.html_str
 
     def handle_prev(self):
@@ -69,20 +76,27 @@ class RedactingHTMLParser(HTMLParser):
             startoffset = self.linepos[startline] + self.curpos[1]
             endline, endchar = self.getpos()
             endoffset = self.linepos[endline] + endchar
-            redact_char = ' '
+            redact_char = self.replace_char
             redact_length = endoffset - startoffset
+            # First char needs to be replaced with newline?
             if add_lf:
                 redact_str = '\n'
             else:
                 redact_str = redact_char
-            redact_str = redact_char.rjust(redact_length, redact_char) if redact_char else ''
-            if add_lf and redact_char:
+            # Rest of replacement string is repeated chars
+            redact_str = redact_char.rjust(redact_length, redact_char)
+            # First char needs to be replaced with newline?
+            if add_lf:
                 redact_str = '\n' + redact_str[1:]
                 redact_str = redact_str[:-1] + '\n'
+            # Entity/char reference replaces first character in the replacement string
             if self.ref_char:
                 redact_str = self.ref_char + redact_str[1:]
+            # Reset flag for next time
             self.ref_char = 0
+            # Rebuild string by cutting out redacted section and replacing it
             self.html_str = self.html_str[:startoffset] + redact_str + self.html_str[endoffset:]
+            # Create array of offsets which might be returned
             self.rc.append( (startoffset, endoffset) )
 
     def prepare_next(self, data_active):
@@ -217,7 +231,7 @@ def test_string_match_ignore_linebreak():
 
 # ---------------------------------------------------------------------
 
-def redact_html_tags_in_string(html_str, replace_char='.', replace_newline='\n'):
+def redact_html_tags_in_string_simple(html_str, replace_char='.', replace_newline='\n'):
     """ Replace the HTML tags in a string with equal length of a
     repeating character (space or dot for example).
     The character (or string!) is given in replace_char, default dot.
@@ -251,38 +265,38 @@ def redact_html_tags_in_string(html_str, replace_char='.', replace_newline='\n')
     html_str = re.sub('</{0,1}(.DOCTYPE|a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|big|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|meta|meter|nav|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|source|span|strike|strong|style|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr)( [^<>]*){0,1}>', replfunc, html_str, flags=re.IGNORECASE)
     return(html_str)
 
-def test_redact_html_tags_in_string():
-    src = '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3&nbsp;</p>'
+def test_redact_html_tags_in_string_simple():
+    src =      '<script src="s.js"/> <SCRIPT lang="js"> script1\n </script> text1 <1 month\r\n<BR>text2 <script> script2 </script> text3&nbsp;</p>'
     # changing the \r to a space in the expected string also tests the string_match_ignore_linebreak function
-    dest = redact_html_tags_in_string(src)
+    dest = redact_html_tags_in_string_simple(src, replace_char='.')
     expected = '.................... ..................................... text1 <1 month \n....text2 .......................... text3      ....'
     assert(string_match_ignore_linebreak(dest, expected))
     # Test replacing HTML with spaces
-    dest = redact_html_tags_in_string(src, replace_char=' ')
+    dest = redact_html_tags_in_string_simple(src, replace_char=' ')
     expected = '                                                           text1 <1 month \n    text2                            text3          '
     assert(string_match_ignore_linebreak(dest, expected))
     # Test the newline replacement
-    dest = redact_html_tags_in_string(src, replace_char=' ', replace_newline=' ')
+    dest = redact_html_tags_in_string_simple(src, replace_char=' ', replace_newline=' ')
     expected = '                                                           text1 <1 month      text2                            text3          '
     assert(string_match_ignore_linebreak(dest, expected))
     # Test squashing HTML and newlines
-    dest = redact_html_tags_in_string(src, replace_char='', replace_newline='')
+    dest = redact_html_tags_in_string_simple(src, replace_char='', replace_newline='')
     expected = '  text1 <1 monthtext2  text3      '
     assert(string_match_ignore_linebreak(dest, expected))
 
 
 # ---------------------------------------------------------------------
 
-def remove_html_tags_in_string(html_str):
+def redact_html_tags_in_string(html_str, replace_char=' ', replace_newline='\n'):
     """ Remove all HTML tags from the string and return the new string.
     Does not try to preserve the original string length."""
-    parser = RedactingHTMLParser()
+    parser = RedactingHTMLParser(replace_char = replace_char)
     parser.feed(html_str)
     text_str = parser.result()
     return(text_str)
 
-def test_remove_html_tags_in_string():
-    dest = remove_html_tags_in_string('<!DOCTYPE fake> <style>stuff </style>hello <p>world')
+def test_redact_html_tags_in_string():
+    dest = redact_html_tags_in_string('<!DOCTYPE fake> <style>stuff </style>hello <p>world')
     expected = '                                     hello \n \nworld'
     assert(dest == expected)
 

@@ -23,6 +23,15 @@ class DicomText:
     dicomtext.write(redacted_dcmname)    # Writes out the redacted DICOM file
     OR
     write_redacted_text_into_dicom_file  # to rewrite a second file with redacted text
+    After parse() you call text() to get the extracted text without HTML tags
+    that can be fed into the anonymiser. That will output annotations,
+    typically in Knowtator XML format, indicating the character positions
+    of every word that needs to be redacted. To perform the redaction in
+    a DICOM file you need to parse() then redact(xml), then call redacted_text()
+    to see the text, or write*() to save a redacted DICOM file.
+    The redacted text will still include the HTML tags which is why it is
+    important to preserve exact character offsets between text(), anonymise
+    and redact() steps.
 
     Class variables determine whether unknown tags are included in the output
     (ideally this would be True but in practice we are only interested in known tags
@@ -348,7 +357,13 @@ MRI: Knee
 # Finding
 ......
 ..................................
-..........
+
+.
+
+..
+
+.
+
 There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
 # Finding
 There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
@@ -395,7 +410,13 @@ MRI: Knee
 # Finding
 ......
 ..................................
-..........
+
+.
+
+..
+
+.
+
 There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
 # Finding
 There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
