@@ -148,7 +148,11 @@ class RedactingHTMLParser(HTMLParser):
         return
 
     def handle_entityref(self, name):
-        ch = chr(name2codepoint[name])
+        try:
+            ch = chr(name2codepoint[name])
+        except:
+            # invalid reference is probably broken HTML, e.g. A&E
+            ch = 0
         self.handle_prev()
         # Prepare for next item
         self.ref_char = ch
@@ -156,10 +160,14 @@ class RedactingHTMLParser(HTMLParser):
         return
 
     def handle_charref(self, name):
-        if name.startswith('x'):
-            ch = chr(int(name[1:], 16))
-        else:
-            ch = chr(int(name))
+        try:
+            if name.startswith('x'):
+                ch = chr(int(name[1:], 16))
+            else:
+                ch = chr(int(name))
+        except:
+            # Probably broken HTML
+            ch = 0
         self.handle_prev()
         # Prepare for next item
         self.ref_char = ch
