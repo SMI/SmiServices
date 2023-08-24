@@ -386,7 +386,7 @@ class StructuredReport:
                         if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
                             if has_tag(cs_item, 'ConceptNameCodeSequence'):
                                 self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
-                            _SR_parse_key(cs_item, 'ContentSequence', fp)
+                            self._SR_parse_key(cs_item, 'ContentSequence', fp)
                     # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
                     # as they have no useful text to return
                     elif value_type == 'SCOORD' or value_type == ['SCOORD']:
