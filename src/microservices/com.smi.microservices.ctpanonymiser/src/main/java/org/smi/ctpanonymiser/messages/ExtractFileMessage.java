@@ -28,7 +28,6 @@ public class ExtractFileMessage extends ExtractMessage implements IMessage {
 	@FieldRequired
 	public String DicomFilePath;
 
-    @FieldRequired
     public String Modality;
 
 	/**
