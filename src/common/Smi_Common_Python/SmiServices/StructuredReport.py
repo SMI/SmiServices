@@ -358,7 +358,7 @@ class StructuredReport:
             self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
         elif tag_is(json_key, 'SourceImageSequence'):
             self._SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
-        elif tag_is(json_key, 'ContentSequence'):
+        elif tag_is(json_key, 'ContentSequence') or tag_is(json_key, 'Sequence'):
             for cs_item in tag_val(json_dict, json_key):
                 if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
                     value_type = tag_val(cs_item, 'ValueType')
