@@ -334,12 +334,11 @@ class StructuredReport:
             return
         # Replace CRs with LF
         valstr = re.sub('\r+', '\n', valstr)
-        # Replace HTML tags such as <br>
-        valstr = re.sub('<[Bb][Rr]>', '\n', valstr)
         # Replace all HTML
-        valstr = redact_html_tags_in_string(valstr,
-            replace_char = self._replace_HTML_char,
-            replace_newline = self._replace_newline_char)
+        if '<' in valstr and '>' in valstr:
+            valstr = redact_html_tags_in_string(valstr,
+                replace_char = self._replace_HTML_char,
+                replace_newline = self._replace_newline_char)
         # Remove superfluous LFs
         valstr = re.sub('\n+', '\n', valstr)
         # If there is no key then do not print a prefix
