@@ -138,7 +138,7 @@ class DicomText:
         else:
             rc = rc + ('%s' % (str(data_element.value)))
             # Replace HTML tags with spaces
-            if self._replace_HTML_entities:
+            if self._replace_HTML_entities and '<' in rc:
                 rc = redact_html_tags_in_string(rc,
                     replace_char = self._replace_HTML_char,
                     replace_newline = self._replace_newline_char)
@@ -180,7 +180,7 @@ class DicomText:
         if 'TextValue' in self._dicom_raw:
             textval = str(self._dicom_raw['TextValue'].value)
             self._p_text = self._p_text + '[[Text]]\n'
-            if self._replace_HTML_entities:
+            if self._replace_HTML_entities and '<' in textval:
                 self._p_text = self._p_text + redact_html_tags_in_string(textval,
                     replace_char = self._replace_HTML_char,
                     replace_newline = self._replace_newline_char)
