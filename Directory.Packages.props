@@ -27,7 +27,7 @@
     <PackageVersion Include="StackExchange.Redis" Version="2.6.122"/>
     <PackageVersion Include="System.IO.Abstractions" Version="19.2.67"/>
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0"/>
-    <PackageVersion Include="Terminal.Gui" Version="1.13.5"/>
+    <PackageVersion Include="Terminal.Gui" Version="1.14.0"/>
     <PackageVersion Include="YamlDotNet" Version="13.2.0"/>
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.15"/>
