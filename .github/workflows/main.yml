@@ -30,7 +30,7 @@ jobs:
       build_ref: ${{ steps.build_ref.outputs.build_ref }}
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: set matrix
         id: matrix
         run: |
@@ -56,7 +56,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "[windows] start MongoDB service"
         if: ${{ matrix.os == 'windows' }}
         shell: pwsh
@@ -144,7 +144,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Java JDK
         uses: actions/setup-java@v3.12.0
         with:
@@ -177,7 +177,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: setup Python
         uses: actions/setup-python@v4
         with:
@@ -209,7 +209,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: download artifacts
         uses: actions/download-artifact@v3
         with:
