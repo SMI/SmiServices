@@ -85,7 +85,7 @@ jobs:
           echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
       - name: "[windows] Install SQL LocalDB"
         if: ${{ matrix.os == 'windows' }}
-        uses: crazy-max/ghaction-chocolatey@v2
+        uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: install sqllocaldb
       - name: "[windows] Check SQL LocalDB and set rdmp_conn_str"
