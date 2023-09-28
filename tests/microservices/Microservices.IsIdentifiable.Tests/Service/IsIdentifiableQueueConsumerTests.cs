@@ -252,29 +252,6 @@ namespace Microservices.IsIdentifiable.Tests.Service
             Assert.True(_response.Report.StartsWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
         }
 
-        [Test]
-        public void ProcessMessage_ClassifierUnhandledException_CallsFatal()
-        {
-            // Arrange
-
-            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
-            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new Exception("whee"));
-
-            var consumer = GetNewIsIdentifiableQueueConsumer(null, mockClassifier.Object);
-
-            // Act
-
-            consumer.TestMessage(_extractedFileStatusMessage);
-
-            // Assert
-
-            TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
-            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
-            Assert.AreEqual("whee", _fatalArgs!.Exception!.Message);
-            Assert.AreEqual(0, consumer.NackCount);
-            Assert.AreEqual(0, consumer.AckCount);
-        }
-
         #endregion
     }
 }

@@ -334,12 +334,11 @@ class StructuredReport:
             return
         # Replace CRs with LF
         valstr = re.sub('\r+', '\n', valstr)
-        # Replace HTML tags such as <br>
-        valstr = re.sub('<[Bb][Rr]>', '\n', valstr)
         # Replace all HTML
-        valstr = redact_html_tags_in_string(valstr,
-            replace_char = self._replace_HTML_char,
-            replace_newline = self._replace_newline_char)
+        if '<' in valstr and '>' in valstr:
+            valstr = redact_html_tags_in_string(valstr,
+                replace_char = self._replace_HTML_char,
+                replace_newline = self._replace_newline_char)
         # Remove superfluous LFs
         valstr = re.sub('\n+', '\n', valstr)
         # If there is no key then do not print a prefix
@@ -359,7 +358,7 @@ class StructuredReport:
             self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
         elif tag_is(json_key, 'SourceImageSequence'):
             self._SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
-        elif tag_is(json_key, 'ContentSequence'):
+        elif tag_is(json_key, 'ContentSequence') or tag_is(json_key, 'Sequence'):
             for cs_item in tag_val(json_dict, json_key):
                 if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
                     value_type = tag_val(cs_item, 'ValueType')
@@ -386,7 +385,7 @@ class StructuredReport:
                         if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
                             if has_tag(cs_item, 'ConceptNameCodeSequence'):
                                 self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
-                            _SR_parse_key(cs_item, 'ContentSequence', fp)
+                            self._SR_parse_key(cs_item, 'ContentSequence', fp)
                     # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
                     # as they have no useful text to return
                     elif value_type == 'SCOORD' or value_type == ['SCOORD']:
