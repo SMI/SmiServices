@@ -10,9 +10,9 @@
     <PackageVersion Include="CsvHelper" Version="30.0.1"/>
     <PackageVersion Include="Equ" Version="2.3.0"/>
     <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.0.3"/>
-    <PackageVersion Include="HIC.FAnsiSql" Version="3.0.1"/>
+    <PackageVersion Include="HIC.FAnsiSql" Version="3.1.0"/>
     <PackageVersion Include="HIC.RDMP.Dicom" Version="7.0.1"/>
-    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.0.7"/>
+    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.0"/>
     <PackageVersion Include="IsIdentifiable" Version="0.1.0"/>
     <PackageVersion Include="JetBrains.Annotations" Version="2023.2.0"/>
     <PackageVersion Include="LibArchive.Net" Version="0.1.4"/>
@@ -31,7 +31,7 @@
     <PackageVersion Include="YamlDotNet" Version="13.4.0"/>
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.15"/>
-    <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.0.7"/>
+    <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.1.0"/>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2"/>
     <PackageVersion Include="Moq" Version="4.20.69"/>
     <PackageVersion Include="NUnit" Version="3.13.3"/>
