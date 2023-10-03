@@ -1,5 +1,3 @@
-
-using JetBrains.Annotations;
 using System;
 
 namespace Smi.Common.Messages.Extraction

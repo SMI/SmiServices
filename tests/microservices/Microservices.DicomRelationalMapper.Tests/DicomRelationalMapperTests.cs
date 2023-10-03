@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -10,9 +10,9 @@ using Microservices.DicomRelationalMapper.Execution;
 using Microservices.Tests.RDMPTests;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.TagPromotionSchema;
-using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using Tests.Common;
@@ -178,7 +178,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 try
                 {
-                    dataType = TagColumnAdder.GetDataTypeForTag(tag, new MicrosoftSQLTypeTranslater());
+                    dataType = TagColumnAdder.GetDataTypeForTag(tag,  MicrosoftSQLTypeTranslater.Instance);
 
                 }
                 catch (Exception)

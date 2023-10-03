@@ -1,4 +1,4 @@
-﻿using FAnsi.Discovery;
+using FAnsi.Discovery;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
@@ -13,8 +13,8 @@ namespace Microservices.UpdateValues.Execution
 {
     public class Updater : IUpdater
     {
-        private ICatalogueRepository _repository;
-        
+        private readonly ICatalogueRepository _repository;
+
         /// <summary>
         /// Number of seconds the updater will wait when running a single value UPDATE on the live table e.g. ECHI A needs to be replaced with ECHI B
         /// </summary>
@@ -23,7 +23,7 @@ namespace Microservices.UpdateValues.Execution
         /// <summary>
         /// List of IDs of <see cref="TableInfo"/> that should be examined for update potential.  If blank/empty then all tables will be considered.
         /// </summary>
-        public int[] TableInfosToUpdate { get; internal set; } = new int[0];
+        public int[] TableInfosToUpdate { get; internal set; } = Array.Empty<int>();
 
         ConcurrentDictionary<DiscoveredTable,UpdateTableAudit> _audits { get;} = new ConcurrentDictionary<DiscoveredTable, UpdateTableAudit>();
 
@@ -39,7 +39,7 @@ namespace Microservices.UpdateValues.Execution
             ITableInfo[] tables;
             int affectedRows = 0;
 
-            if(message.ExplicitTableInfo != null && message.ExplicitTableInfo.Length != 0)
+            if(message.ExplicitTableInfo.Length != 0)
             {
                 tables = _repository.GetAllObjectsInIDList(typeof(TableInfo),message.ExplicitTableInfo).Cast<ITableInfo>().ToArray();
 
@@ -51,30 +51,30 @@ namespace Microservices.UpdateValues.Execution
             else
             {
                 tables = GetAllTables(message.WhereFields.Union(message.WriteIntoFields).ToArray()).ToArray();
-                
+
                 if(tables.Length == 0)
                     throw new Exception($"Could not find any tables to update that matched the field set {message}");
             }
 
             //TODO: Expose IsView in ITableInfo in RDMP so we don't need this cast
             //don't try to update views
-            tables = tables.Where(t=>!((TableInfo)t).IsView).ToArray();
+            tables = tables.Where(static t=>!((TableInfo)t).IsView).ToArray();
 
             foreach (var t in tables)
             {
-                var tbl = t.Discover(ReusableLibraryCode.DataAccess.DataAccessContext.DataLoad);
+                var tbl = t.Discover(Rdmp.Core.ReusableLibraryCode.DataAccess.DataAccessContext.DataLoad);
 
                 if(!tbl.Exists())
                     throw new Exception($"Table {tbl} did not exist");
 
                 affectedRows += UpdateTable(tbl,message);
             }
-         
+
             return affectedRows;
         }
 
         /// <summary>
-        /// Generates and runs an SQL command on <paramref name="t"/> 
+        /// Generates and runs an SQL command on <paramref name="t"/>
         /// </summary>
         /// <param name="t"></param>
         /// <param name="message"></param>
@@ -100,7 +100,7 @@ namespace Microservices.UpdateValues.Execution
             }
 
             builder.AppendLine(" WHERE ");
-            
+
             for (int i = 0; i < message.WhereFields.Length; i++)
             {
                 var col = t.DiscoverColumn(message.WhereFields[i]);
@@ -136,7 +136,7 @@ namespace Microservices.UpdateValues.Execution
             finally
             {
                 audit.EndOne(affectedRows < 0 ? 0 : affectedRows);
-            }   
+            }
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace Microservices.UpdateValues.Execution
         public virtual IEnumerable<TableInfo> GetAllTables(string?[] fields)
         {
             //the tables we should consider
-            var tables = TableInfosToUpdate != null && TableInfosToUpdate.Any() ? 
+            var tables = TableInfosToUpdate != null && TableInfosToUpdate.Any() ?
                             _repository.GetAllObjectsInIDList<TableInfo>(TableInfosToUpdate):
                             _repository.GetAllObjects<TableInfo>();
 
@@ -176,7 +176,7 @@ namespace Microservices.UpdateValues.Execution
             return tables.Where(t=>fields.All(f=>t.ColumnInfos.Select(c=>c.GetRuntimeName()).Contains(f)));
         }
 
-        
+
         internal void LogProgress(ILogger logger, LogLevel level)
         {
             // ToArray prevents modification during enumeration possibility

@@ -1,4 +1,4 @@
-﻿
+
 using Equ;
 using Newtonsoft.Json;
 using NLog;
@@ -50,7 +50,7 @@ namespace Smi.Common.Messages
 
             if (parent == null)
             {
-                Parents = new Guid[0];
+                Parents = Array.Empty<Guid>();
                 OriginalPublishTimestamp = UnixTimeNow();
             }
             else

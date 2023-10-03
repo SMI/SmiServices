@@ -1,13 +1,11 @@
-﻿using FAnsi;
+using FAnsi;
 using FAnsi.Discovery;
 using FAnsi.Extensions;
-using MapsDirectlyToDatabaseTable;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
-using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
@@ -15,6 +13,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Applications.TriggerUpdates.Options;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
 
 
@@ -93,7 +93,7 @@ namespace Applications.TriggerUpdates.Execution
 
             // make a fake data load into this table (create trigger and insert/update)
             var triggerImplementer = new TriggerImplementerFactory(dbType).Create(map);
-            triggerImplementer.CreateTrigger(new ThrowImmediatelyCheckNotifier());
+            triggerImplementer.CreateTrigger(ThrowImmediatelyCheckNotifier.Quiet);
         
             //create a brand new mapping 
             map.Insert(new Dictionary<string, object>

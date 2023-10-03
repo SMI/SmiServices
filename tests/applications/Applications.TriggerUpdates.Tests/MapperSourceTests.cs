@@ -1,10 +1,9 @@
-﻿using FAnsi;
+using FAnsi;
 using FAnsi.Discovery;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
-using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Data;
 using System.Linq;
 using Applications.TriggerUpdates.Execution;
 using Applications.TriggerUpdates.Options;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
 
 
@@ -75,7 +75,7 @@ namespace Applications.TriggerUpdates.Tests
 
             // make a fake data load into this table (create trigger and insert/update)
             var triggerImplementer = new TriggerImplementerFactory(dbType).Create(map);
-            triggerImplementer.CreateTrigger(new ThrowImmediatelyCheckNotifier());
+            triggerImplementer.CreateTrigger(ThrowImmediatelyCheckNotifier.Quiet);
         }
 
         [TestCase(DatabaseType.MySql)]

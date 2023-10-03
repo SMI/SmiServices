@@ -1,4 +1,4 @@
-﻿using FAnsi;
+using FAnsi;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
 using NUnit.Framework;
@@ -8,7 +8,7 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Data;
-using MapsDirectlyToDatabaseTable;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Tests.Common;
 
 namespace Microservices.Tests.RDMPTests
@@ -43,17 +43,20 @@ namespace Microservices.Tests.RDMPTests
             consumerOptions.DatabaseNamerType = typeName;
             consumerOptions.Guid = Guid.Empty;
 
-            if (CatalogueRepository is ITableRepository crtr)
-                globals.RDMPOptions!.CatalogueConnectionString = crtr.DiscoveredServer.Builder.ConnectionString;
-            if (DataExportRepository is ITableRepository dertr)
-                globals.RDMPOptions!.DataExportConnectionString = dertr.DiscoveredServer.Builder.ConnectionString;
+            if (globals.RDMPOptions is null)
+                throw new ApplicationException("RDMPOptions null");
 
-            using (new MicroserviceTester(globals.RabbitOptions!, globals.DicomRelationalMapperOptions!))
+            if (CatalogueRepository is ITableRepository crtr)
+                globals.RDMPOptions.CatalogueConnectionString = crtr.DiscoveredServer.Builder.ConnectionString;
+            if (DataExportRepository is ITableRepository dertr)
+                globals.RDMPOptions.DataExportConnectionString = dertr.DiscoveredServer.Builder.ConnectionString;
+
+            using (new MicroserviceTester(globals.RabbitOptions ?? throw new InvalidOperationException(), globals.DicomRelationalMapperOptions!))
             {
                 using var host = new DicomRelationalMapperHost(globals);
                 host.Start();
 
-                Assert.AreEqual(expectedType, host.Consumer!.DatabaseNamer.GetType());
+                Assert.AreEqual(expectedType, host.Consumer?.DatabaseNamer.GetType());
                 Assert.IsNotNull(host);
 
                 host.Stop("Test finished");

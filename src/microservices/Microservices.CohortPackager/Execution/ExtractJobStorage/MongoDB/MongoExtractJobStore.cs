@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Driver;
 using Smi.Common.Helpers;

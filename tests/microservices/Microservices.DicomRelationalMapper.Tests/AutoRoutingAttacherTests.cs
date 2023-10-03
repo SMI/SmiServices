@@ -1,12 +1,12 @@
-﻿
+
 using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.DicomRelationalMapper.Execution;
 using NUnit.Framework;
 using Rdmp.Core.DataFlowPipeline;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
-using ReusableLibraryCode.Progress;
 using System.IO;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 
 namespace Microservices.Tests.RDMPTests
 {
@@ -34,10 +34,10 @@ namespace Microservices.Tests.RDMPTests
 
             var source = new DicomFileCollectionSource();
             source.FilenameField = "Path";
-            source.PreInitialize(new ExplicitListDicomFileWorklist(new[] { filename }), new ThrowImmediatelyDataLoadEventListener());
+            source.PreInitialize(new ExplicitListDicomFileWorklist(new[] { filename }), ThrowImmediatelyDataLoadEventListener.Quiet);
 
 
-            var chunk = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
+            var chunk = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
 
             Assert.AreEqual("009Y", chunk.Rows[0]["PatientAge"]);
         }

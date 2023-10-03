@@ -421,7 +421,7 @@ namespace Smi.Common.Options
         /// <summary>
         /// IDs of TableInfos that should be updated
         /// </summary>
-        public int[] TableInfosToUpdate { get; set; } = new int[0];
+        public int[] TableInfosToUpdate { get; set; } = Array.Empty<int>();
 
     }
 
