@@ -14,7 +14,7 @@ namespace Smi.Common.Helpers
         /// Method called when <see cref="CreateInstance{T}(System.Type,object[])"/> fails.  If not set then the Exception is simply
         /// thrown.
         /// </summary>
-        public HostFatalHandler FatalHandler;
+        public HostFatalHandler? FatalHandler;
 
         /// <summary>
         /// Constructs an instance of the specified <paramref name="toCreate"/> and casts it to Type T (e.g. an interface).  You can pass any 
@@ -24,9 +24,9 @@ namespace Smi.Common.Helpers
         /// <param name="toCreate"></param>
         /// <param name="optionalConstructorParameters"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(Type toCreate, params object[] optionalConstructorParameters)
+        public T? CreateInstance<T>(Type toCreate, params object[] optionalConstructorParameters)
         {
-            T toReturn = default(T);
+            T? toReturn = default;
 
             try
             {
@@ -63,15 +63,15 @@ namespace Smi.Common.Helpers
         /// <param name="assembly"></param>
         /// <param name="optionalConstructorParameters"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(string typeName, Assembly assembly, params object[] optionalConstructorParameters)
+        public T? CreateInstance<T>(string typeName, Assembly assembly, params object[] optionalConstructorParameters)
         {
             if (string.IsNullOrWhiteSpace(typeName))
             {
                 _logger.Warn("No Type name specified for T " + typeof(T).Name);
-                return default(T);
+                return default;
             }
 
-            Type toCreate = assembly.GetType(typeName, true);
+            Type toCreate = assembly.GetType(typeName, true) ?? throw new Exception($"Could not create type {typeName} from the given Assembly {assembly}");
             return CreateInstance<T>(toCreate, optionalConstructorParameters);
         }
     }

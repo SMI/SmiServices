@@ -40,7 +40,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 DbDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
-                    toReturn.Add(reader[0].ToString());
+                    toReturn.Add(reader[0].ToString()!);
             }
 
             logger.Info($"Found {toReturn.Count} identifiers in the reject list");

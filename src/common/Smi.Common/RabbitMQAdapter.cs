@@ -42,7 +42,7 @@ namespace Smi.Common
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly HostFatalHandler _hostFatalHandler;
+        private readonly HostFatalHandler? _hostFatalHandler;
         private readonly string _hostId;
 
         private readonly IConnection _connection;
@@ -65,7 +65,7 @@ namespace Smi.Common
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
         /// <param name="threaded"></param>
-        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler hostFatalHandler = null, bool threaded = false)
+        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
         {
             //_threaded = options.ThreadReceivers;
             _threaded = threaded;
@@ -154,7 +154,7 @@ namespace Smi.Common
             model.ModelShutdown += shutdown;
             ebc.Shutdown += shutdown;
 
-            var resources = new ConsumerResources(ebc, consumerOptions.QueueName, model);
+            var resources = new ConsumerResources(ebc, consumerOptions.QueueName!, model);
             Guid taskId = Guid.NewGuid();
 
             lock (_oResourceLock)
@@ -165,7 +165,7 @@ namespace Smi.Common
             consumer.OnFatal += (s, e) =>
             {
                 resources.Dispose();
-                _hostFatalHandler(s, e);
+                _hostFatalHandler?.Invoke(s, e);
             };
 
             model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
@@ -231,8 +231,8 @@ namespace Smi.Common
             try
             {
                 producerModel = isBatch ?
-                    new BatchProducerModel(producerOptions.ExchangeName, model, props, producerOptions.MaxConfirmAttempts) :
-                    new ProducerModel(producerOptions.ExchangeName, model, props, producerOptions.MaxConfirmAttempts);
+                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts) :
+                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts);
             }
             catch (Exception)
             {
@@ -249,7 +249,7 @@ namespace Smi.Common
             producerModel.OnFatal += (s, ra) =>
             {
                 resources.Dispose();
-                _hostFatalHandler.Invoke(s, new FatalErrorEventArgs(ra));
+                _hostFatalHandler?.Invoke(s, new FatalErrorEventArgs(ra));
             };
 
             return producerModel;
@@ -352,7 +352,7 @@ namespace Smi.Common
 
         private class ProducerResources : RabbitResources
         {
-            public IProducerModel ProducerModel { get; set; }
+            public IProducerModel? ProducerModel { get; set; }
 
             public ProducerResources(IModel model, IProducerModel ipm) : base(model)
             {

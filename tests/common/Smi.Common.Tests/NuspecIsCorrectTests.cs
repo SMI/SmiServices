@@ -72,7 +72,7 @@ namespace Smi.Common.Tests
                 new(@"<dependency\s+id=""(.*)""\s+version=""([^""]*)""", RegexOptions.IgnoreCase);
 
             //For each dependency listed in the csproj
-            foreach (Match p in rPackageRef.Matches(File.ReadAllText(csproj)))
+            foreach (Match p in rPackageRef.Matches(File.ReadAllText(csproj!)))
             {
                 string package = p.Groups[1].Value;
                 string version = p.Groups[2].Value;

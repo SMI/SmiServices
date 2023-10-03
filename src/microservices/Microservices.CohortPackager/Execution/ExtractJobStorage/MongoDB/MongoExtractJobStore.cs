@@ -28,11 +28,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private readonly IMongoCollection<MongoFileStatusDoc> _completedStatusCollection;
         private readonly IMongoCollection<MongoCompletedExtractJobDoc> _completedJobCollection;
 
-        [NotNull]
         private readonly DateTimeProvider _dateTimeProvider;
 
 
-        public MongoExtractJobStore(IMongoClient client, string extractionDatabaseName, DateTimeProvider dateTimeProvider = null)
+        public MongoExtractJobStore(IMongoClient client, string extractionDatabaseName, DateTimeProvider? dateTimeProvider = null)
         {
             _client = client;
             _database = _client.GetDatabase(extractionDatabaseName);
@@ -392,7 +391,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
             while (cursor.MoveNext())
                 foreach (MongoFileStatusDoc doc in cursor.Current)
-                    yield return new Tuple<string, string>(doc.OutputFileName, doc.StatusMessage);
+                    yield return new Tuple<string, string>(doc.OutputFileName!, doc.StatusMessage!);
         }
 
         #endregion

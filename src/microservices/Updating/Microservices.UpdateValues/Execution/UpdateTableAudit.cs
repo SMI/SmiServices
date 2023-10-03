@@ -36,9 +36,9 @@ namespace Microservices.UpdateValues.Execution
         /// <summary>
         /// The table that is being updated
         /// </summary>
-        public DiscoveredTable Table { get; }
+        public DiscoveredTable? Table { get; }
 
-        public UpdateTableAudit(DiscoveredTable t)
+        public UpdateTableAudit(DiscoveredTable? t)
         {
             Table = t;
         }
@@ -68,7 +68,7 @@ namespace Microservices.UpdateValues.Execution
 
         public override string ToString()
         {
-            return $"Table:{Table.GetFullyQualifiedName()} Queries:{Queries} Time:{Stopwatch.Elapsed:c} AffectedRows:{AffectedRows:N0} ExecutingQueries:{ExecutingQueries}";
+            return $"Table:{Table?.GetFullyQualifiedName()} Queries:{Queries} Time:{Stopwatch.Elapsed:c} AffectedRows:{AffectedRows:N0} ExecutingQueries:{ExecutingQueries}";
         }
     }
 }

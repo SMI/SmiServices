@@ -15,19 +15,19 @@ namespace Smi.Common.Messages
         /// Directory path relative to the root path.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DirectoryPath { get; set; }
+        public string DirectoryPath { get; set; } = null!;
 
         /// <summary>
         /// Dicom tag (0020,000D).
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string StudyInstanceUID { get; set; }
+        public string StudyInstanceUID { get; set; } = null!;
 
         /// <summary>
         /// Dicom tag (0020,000E).
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string SeriesInstanceUID { get; set; }
+        public string SeriesInstanceUID { get; set; } = null!;
 
         /// <summary>
         /// Number of images found in the series.
@@ -39,6 +39,6 @@ namespace Smi.Common.Messages
         /// Key-value pairs of Dicom tags and their values.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DicomDataset { get; set; }
+        public string DicomDataset { get; set; } = null!;
     }
 }

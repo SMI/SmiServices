@@ -10,7 +10,7 @@ namespace Microservices.IsIdentifiable.Service
         /// <summary>
         /// The location in which you can get your required data files
         /// </summary>
-        DirectoryInfo DataDirectory { get; set; }
+        DirectoryInfo? DataDirectory { get; set; }
 
         IEnumerable<Failure> Classify(IFileInfo dcm);
     }

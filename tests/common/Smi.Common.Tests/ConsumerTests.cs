@@ -52,7 +52,7 @@ namespace Smi.Common.Tests
     {
         protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
         {
-            Model.Close();
+            Model!.Close();
         }
     }
 

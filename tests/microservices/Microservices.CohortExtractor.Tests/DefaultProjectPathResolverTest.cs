@@ -12,7 +12,7 @@ namespace Microservices.CohortExtractor.Tests
     {
         #region Fixture Methods
 
-        private ExtractionRequestMessage _requestMessage;
+        private ExtractionRequestMessage _requestMessage = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

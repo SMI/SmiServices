@@ -34,6 +34,6 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result
         /// in Modalities being routed based on the start of the table name e.g. CT => CT_MyTable and MR=> MR_MyTable
         /// </summary>
-        Regex ModalityRoutingRegex { get; set; }
+        Regex? ModalityRoutingRegex { get; set; }
     }
 }

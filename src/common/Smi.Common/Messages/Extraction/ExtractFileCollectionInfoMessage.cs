@@ -16,14 +16,14 @@ namespace Smi.Common.Messages.Extraction
         /// Contains the value of the tag which is being extracted
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string KeyValue { get; set; }
+        public string KeyValue { get; set; } = null!;
 
         /// <summary>
         /// Collection of all the messages sent out as the result of an <see cref="ExtractionRequestMessage"/> (headers only) along with the file path extracted
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public JsonCompatibleDictionary<MessageHeader, string> ExtractFileMessagesDispatched { get; set; }
-        
+        public JsonCompatibleDictionary<MessageHeader, string> ExtractFileMessagesDispatched { get; set; } = null!;
+
         /// <summary>
         /// All the reasons for message rejection and count of occurrences
         /// </summary>

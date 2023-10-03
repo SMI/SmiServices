@@ -14,7 +14,7 @@ namespace Microservices.CohortExtractor.Tests
             var cata = WhenIHaveA<Catalogue>();
 
             var ex = Assert.Throws<ArgumentNullException>(()=>new QueryToExecuteColumnSet(cata, null,null,null,null));
-            StringAssert.IsMatch(@"Parameter.+filePathColumn", ex.Message);
+            StringAssert.IsMatch(@"Parameter.+filePathColumn", ex!.Message);
         }
     }
 }

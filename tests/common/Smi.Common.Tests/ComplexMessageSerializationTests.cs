@@ -26,7 +26,7 @@ namespace Smi.Common.Tests
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
-            Assert.AreEqual(msg2.ExtractFileMessagesDispatched.Count,1);
+            Assert.AreEqual(msg2!.ExtractFileMessagesDispatched.Count,1);
             Assert.IsTrue(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader);
         }
 
@@ -51,7 +51,7 @@ namespace Smi.Common.Tests
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
-            Assert.AreEqual(msg2.ExtractFileMessagesDispatched.Count, 1);
+            Assert.AreEqual(msg2!.ExtractFileMessagesDispatched.Count, 1);
             Assert.IsTrue(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader);
 
             Assert.AreEqual(child.MessageGuid,msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid);

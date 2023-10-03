@@ -11,7 +11,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
     [TestFixture, RequiresMongoDb]
     public class MongoDbAdapterTests
     {
-        private MongoDbPopulatorTestHelper _helper;
+        private MongoDbPopulatorTestHelper _helper = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -33,7 +33,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
         public void TestBasicWrite()
         {
             string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestBasicWrite");
-            var adapter = new MongoDbAdapter("TestApplication", _helper.Globals.MongoDatabases.DicomStoreOptions,
+            var adapter = new MongoDbAdapter("TestApplication", _helper.Globals.MongoDatabases!.DicomStoreOptions!,
                 collectionName);
 
             var testDoc = new BsonDocument

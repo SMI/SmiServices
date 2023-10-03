@@ -11,7 +11,7 @@ namespace Smi.Common.Messages.Extraction
         /// Original file path
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DicomFilePath { get; set; }
+        public string DicomFilePath { get; set; } = null!;
 
         /// <summary>
         /// The <see cref="ExtractedFileStatus"/> for this file
@@ -23,13 +23,13 @@ namespace Smi.Common.Messages.Extraction
         /// Output file path, relative to the extraction directory. Only required if an output file has been produced
         /// </summary>
         [JsonProperty(Required = Required.AllowNull)]
-        public string OutputFilePath { get; set; }
+        public string? OutputFilePath { get; set; }
 
         /// <summary>
         /// Message required if Status is not 0
         /// </summary>
         [JsonProperty(Required = Required.AllowNull)]
-        public string StatusMessage { get; set; }
+        public string? StatusMessage { get; set; }
 
 
         [JsonConstructor]

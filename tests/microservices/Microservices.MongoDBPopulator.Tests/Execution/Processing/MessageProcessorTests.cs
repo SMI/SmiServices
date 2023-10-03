@@ -15,7 +15,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     [TestFixture, RequiresMongoDb]
     public class MessageProcessorTests
     {
-        private MongoDbPopulatorTestHelper _helper;
+        private MongoDbPopulatorTestHelper _helper = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -43,7 +43,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             var callbackUsed = false;
             Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
 
-            _helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime = 1;
+            _helper.Globals.MongoDbPopulatorOptions!.MongoDbFlushTime = 1;
 
             var processor = new TestMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter, 1, exceptionCallback);
 

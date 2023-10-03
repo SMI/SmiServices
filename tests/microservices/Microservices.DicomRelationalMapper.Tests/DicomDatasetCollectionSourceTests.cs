@@ -116,7 +116,7 @@ namespace Microservices.Tests.RDMPTests
             source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
             source.FilenameField = "RelFileName";
 
-            DataTable dt = null;
+            DataTable? dt = null;
 
             switch (dataHandlingStrategy)
             {
@@ -175,7 +175,7 @@ namespace Microservices.Tests.RDMPTests
             source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
             source.FilenameField = "RelFileName";
 
-            DataTable dt = null;
+            DataTable? dt = null;
 
             switch (dataHandlingStrategy)
             {
@@ -257,7 +257,7 @@ namespace Microservices.Tests.RDMPTests
             source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
             source.FilenameField = "RelFileName";
 
-            DataTable dt = null;
+            DataTable? dt = null;
 
             switch (dataHandlingStrategy)
             {

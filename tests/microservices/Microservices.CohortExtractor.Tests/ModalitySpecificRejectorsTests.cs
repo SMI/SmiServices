@@ -31,7 +31,7 @@ CohortExtractorOptions:
 
             var opts = factory.Load("FF.DD", file);
 
-            Assert.AreEqual(1, opts.CohortExtractorOptions.ModalitySpecificRejectors.Length);
+            Assert.AreEqual(1, opts.CohortExtractorOptions!.ModalitySpecificRejectors!.Length);
             Assert.AreEqual("CT,MR", opts.CohortExtractorOptions.ModalitySpecificRejectors[0].Modalities);
             Assert.AreEqual("CT", opts.CohortExtractorOptions.ModalitySpecificRejectors[0].GetModalities()[0]);
             Assert.AreEqual("MR", opts.CohortExtractorOptions.ModalitySpecificRejectors[0].GetModalities()[1]);
@@ -64,8 +64,8 @@ CohortExtractorOptions:
 
             var opts = factory.Load("FF.DD", file);
             
-            var ex = Assert.Throws<Exception>(()=>opts.CohortExtractorOptions.Validate());
-            Assert.AreEqual("ModalitySpecificRejectors requires providing a ModalityRoutingRegex", ex.Message);
+            var ex = Assert.Throws<Exception>(()=>opts.CohortExtractorOptions!.Validate());
+            Assert.AreEqual("ModalitySpecificRejectors requires providing a ModalityRoutingRegex", ex!.Message);
         }
     }
 }

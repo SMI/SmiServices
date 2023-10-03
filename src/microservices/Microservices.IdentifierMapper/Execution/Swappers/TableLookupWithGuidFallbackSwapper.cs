@@ -39,7 +39,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             _tableSwapper.Setup(mappingTableOptions);
 
             var guidOptions = mappingTableOptions.Clone();
-            guidOptions.MappingTableName = GetGuidTableIfAny(guidOptions).GetFullyQualifiedName();
+            guidOptions.MappingTableName = GetGuidTableIfAny(guidOptions)?.GetFullyQualifiedName();
             guidOptions.ReplacementColumnName = GuidColumnName;
             _guidSwapper.Setup(guidOptions);
         }
@@ -59,7 +59,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
         {
             var mappingTable = options.Discover();
             var guidTableName = mappingTable.GetRuntimeName() + GuidTableSuffix;
@@ -74,7 +74,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <param name="toSwap"></param>
         /// <param name="reason"></param>
         /// <returns></returns>
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             //get answer from lookup table
             var answer = _tableSwapper.GetSubstitutionFor(toSwap, out reason);

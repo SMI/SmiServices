@@ -1,5 +1,4 @@
 using Equ;
-using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Helpers;
@@ -19,27 +18,23 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     public class MongoExpectedFilesDoc : MemberwiseEquatable<MongoExpectedFilesDoc>
     {
         [BsonElement("header")]
-        [NotNull]
         public MongoExtractionMessageHeaderDoc Header { get; set; }
 
         [BsonElement("key")]
-        [NotNull]
         public string Key { get; set; }
 
         [BsonElement("expectedFiles")]
-        [NotNull]
         public HashSet<MongoExpectedFileInfoDoc> ExpectedFiles { get; set; }
 
         [BsonElement("rejectedKeys")]
-        [NotNull]
         public MongoRejectedKeyInfoDoc RejectedKeys { get; set; }
 
 
         public MongoExpectedFilesDoc(
-            [NotNull] MongoExtractionMessageHeaderDoc header,
-            [NotNull] string key,
-            [NotNull] HashSet<MongoExpectedFileInfoDoc> expectedFiles,
-            [NotNull] MongoRejectedKeyInfoDoc rejectedKeys)
+            MongoExtractionMessageHeaderDoc header,
+            string key,
+            HashSet<MongoExpectedFileInfoDoc> expectedFiles,
+            MongoRejectedKeyInfoDoc rejectedKeys)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             Key = (!string.IsNullOrWhiteSpace(key)) ? key : throw new ArgumentNullException(nameof(key));
@@ -48,9 +43,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         }
 
         public static MongoExpectedFilesDoc FromMessage(
-            [NotNull] ExtractFileCollectionInfoMessage message,
-            [NotNull] IMessageHeader header,
-            [NotNull] DateTimeProvider dateTimeProvider)
+            ExtractFileCollectionInfoMessage message,
+            IMessageHeader header,
+            DateTimeProvider dateTimeProvider)
         {
             return new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, dateTimeProvider),
@@ -67,14 +62,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public Guid ExtractFileMessageGuid { get; set; }
 
         [BsonElement("anonymisedFilePath")]
-        [NotNull]
         public string AnonymisedFilePath { get; set; }
 
         public MongoExpectedFileInfoDoc(
             Guid extractFileMessageGuid,
-            [NotNull] string anonymisedFilePath)
+            string anonymisedFilePath)
         {
-            ExtractFileMessageGuid = (extractFileMessageGuid != default(Guid)) ? extractFileMessageGuid : throw new ArgumentException(nameof(extractFileMessageGuid));
+            ExtractFileMessageGuid = (extractFileMessageGuid != default) ? extractFileMessageGuid : throw new ArgumentException(nameof(extractFileMessageGuid));
             AnonymisedFilePath = (!string.IsNullOrWhiteSpace(anonymisedFilePath)) ? anonymisedFilePath : throw new ArgumentException(nameof(anonymisedFilePath));
         }
     }
@@ -85,25 +79,23 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     public class MongoRejectedKeyInfoDoc : MemberwiseEquatable<MongoRejectedKeyInfoDoc>
     {
         [BsonElement("header")]
-        [NotNull]
         public MongoExtractionMessageHeaderDoc Header { get; set; }
 
         [BsonElement("rejectionInfo")]
-        [NotNull]
         public Dictionary<string, int> RejectionInfo { get; set; }
 
         public MongoRejectedKeyInfoDoc(
-            [NotNull] MongoExtractionMessageHeaderDoc header,
-            [NotNull] Dictionary<string, int> rejectionInfo)
+            MongoExtractionMessageHeaderDoc header,
+            Dictionary<string, int> rejectionInfo)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             RejectionInfo = rejectionInfo ?? throw new ArgumentNullException(nameof(rejectionInfo));
         }
 
         public static MongoRejectedKeyInfoDoc FromMessage(
-            [NotNull] ExtractFileCollectionInfoMessage message,
-            [NotNull] IMessageHeader header,
-            [NotNull] DateTimeProvider dateTimeProvider)
+            ExtractFileCollectionInfoMessage message,
+            IMessageHeader header,
+            DateTimeProvider dateTimeProvider)
         {
             return new MongoRejectedKeyInfoDoc(
                  MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, dateTimeProvider),

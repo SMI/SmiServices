@@ -61,7 +61,10 @@ namespace Smi.Common.Options
                         GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, parsed);
 
                         if (InitSmiLogging)
+                        {
+                            ArgumentNullException.ThrowIfNull(globals.LoggingOptions);
                             SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
+                        }
 
                         return onParse(globals, parsed);
                     },
@@ -94,7 +97,10 @@ namespace Smi.Common.Options
                         GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, cliOptions);
 
                         if (InitSmiLogging)
+                        {
+                            ArgumentNullException.ThrowIfNull(globals.LoggingOptions);
                             SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
+                        }
 
                         return onParse(globals, parsed);
                     },
@@ -132,7 +138,7 @@ namespace Smi.Common.Options
 
         private static string GetHostProcessName(Type t)
         {
-            string hostProcessName = t.Namespace?.Split('.')[1];
+            string hostProcessName = t.Namespace?.Split('.')[1]!;
 
             if (string.IsNullOrWhiteSpace(hostProcessName))
                 throw new ArgumentException(nameof(hostProcessName));

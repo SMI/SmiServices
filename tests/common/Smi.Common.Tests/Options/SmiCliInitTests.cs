@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Smi.Common.Options;
@@ -38,7 +38,7 @@ namespace Smi.Common.Tests.Options
                 Required = false
             )]
             [UsedImplicitly]
-            public string Foo { get; set; }
+            public string? Foo { get; set; }
         }
 
         [Verb("fake")]
@@ -49,7 +49,7 @@ namespace Smi.Common.Tests.Options
                 Required = false
             )]
             [UsedImplicitly]
-            public string Foo { get; set; }
+            public string? Foo { get; set; }
         }
 
         #endregion

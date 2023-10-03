@@ -1,4 +1,5 @@
-﻿
+﻿#nullable disable
+
 using Equ;
 using RabbitMQ.Client;
 using System;

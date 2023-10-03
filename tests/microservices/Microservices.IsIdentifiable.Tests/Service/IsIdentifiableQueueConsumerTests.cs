@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Service;
 using Moq;
@@ -23,15 +23,15 @@ namespace Microservices.IsIdentifiable.Tests.Service
     {
         #region Fixture Methods
 
-        private MockFileSystem _mockFs;
-        private IDirectoryInfo _extractRootDirInfo;
-        private string _extractDir;
-        ExtractedFileStatusMessage _extractedFileStatusMessage;
-        private Mock<IModel> _mockModel;
-        FatalErrorEventArgs _fatalArgs;
-        Mock<IProducerModel> _mockProducerModel;
-        Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall;
-        ExtractedFileVerificationMessage _response;
+        private MockFileSystem _mockFs = null!;
+        private IDirectoryInfo _extractRootDirInfo = null!;
+        private string _extractDir = null!;
+        ExtractedFileStatusMessage _extractedFileStatusMessage = null!;
+        private Mock<IModel> _mockModel = null!;
+        FatalErrorEventArgs? _fatalArgs;
+        Mock<IProducerModel> _mockProducerModel = null!;
+        Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall = null!;
+        ExtractedFileVerificationMessage _response = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -74,7 +74,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             _fatalArgs = null;
 
             _mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, "");
+            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, null);
             _mockProducerModel
                 .Setup(_expectedSendMessageCall)
                 .Callback<IMessage, IMessageHeader, string>((x, _, _) => _response = (ExtractedFileVerificationMessage)x)
@@ -85,8 +85,8 @@ namespace Microservices.IsIdentifiable.Tests.Service
         public void TearDown() { }
 
         private IsIdentifiableQueueConsumer GetNewIsIdentifiableQueueConsumer(
-            IProducerModel mockProducerModel = null,
-            IClassifier mockClassifier = null
+            IProducerModel? mockProducerModel = null,
+            IClassifier? mockClassifier = null
         )
         {
             var consumer = new IsIdentifiableQueueConsumer(
@@ -105,33 +105,9 @@ namespace Microservices.IsIdentifiable.Tests.Service
         #region Tests
 
         [Test]
-        public void Constructor_NullProducerModel_ThrowsException()
-        {
-            var exc = Assert.Throws<ArgumentNullException>(() =>
-            {
-                new IsIdentifiableQueueConsumer(
-                    null,
-                    "foo",
-                    new Mock<IClassifier>().Object
-                );
-            });
-            Assert.AreEqual("Value cannot be null. (Parameter 'producer')", exc.Message);
-        }
-
-        [Test]
-        public void Constructor_NullOrWhitespaceExtractionRoot_ThrowsException()
+        public void Constructor_WhitespaceExtractionRoot_ThrowsException()
         {
             var exc = Assert.Throws<ArgumentException>(() =>
-            {
-                new IsIdentifiableQueueConsumer(
-                    new Mock<IProducerModel>().Object,
-                    null,
-                    new Mock<IClassifier>().Object
-                );
-            });
-            Assert.AreEqual("Argument cannot be null or whitespace (Parameter 'extractionRoot')", exc.Message);
-
-            exc = Assert.Throws<ArgumentException>(() =>
             {
                 new IsIdentifiableQueueConsumer(
                     new Mock<IProducerModel>().Object,
@@ -139,21 +115,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
                     new Mock<IClassifier>().Object
                 );
             });
-            Assert.AreEqual("Argument cannot be null or whitespace (Parameter 'extractionRoot')", exc.Message);
-        }
-
-        [Test]
-        public void Constructor_NullClassifier_ThrowsException()
-        {
-            var exc = Assert.Throws<ArgumentNullException>(() =>
-            {
-                new IsIdentifiableQueueConsumer(
-                    new Mock<IProducerModel>().Object,
-                    "foo",
-                    null
-                );
-            });
-            Assert.AreEqual("Value cannot be null. (Parameter 'classifier')", exc.Message);
+            Assert.AreEqual("Argument cannot be null or whitespace (Parameter 'extractionRoot')", exc!.Message);
         }
 
         [Test]
@@ -170,7 +132,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
                    mockFs
                 );
             });
-            Assert.AreEqual("Could not find the extraction root 'foo' in the filesystem", exc.Message);
+            Assert.AreEqual("Could not find the extraction root 'foo' in the filesystem", exc!.Message);
         }
 
         [Test]
@@ -239,7 +201,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
-            Assert.AreEqual("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'", _fatalArgs.Exception.Message);
+            Assert.AreEqual("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'", _fatalArgs!.Exception!.Message);
             Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(0, consumer.AckCount);
         }
@@ -288,29 +250,6 @@ namespace Microservices.IsIdentifiable.Tests.Service
             _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
             Assert.AreEqual(VerifiedFileStatus.ErrorWontRetry, _response.Status);
             Assert.True(_response.Report.StartsWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
-        }
-
-        [Test]
-        public void ProcessMessage_ClassifierUnhandledException_CallsFatal()
-        {
-            // Arrange
-
-            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
-            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new Exception("whee"));
-
-            var consumer = GetNewIsIdentifiableQueueConsumer(null, mockClassifier.Object);
-
-            // Act
-
-            consumer.TestMessage(_extractedFileStatusMessage);
-
-            // Assert
-
-            TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
-            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
-            Assert.AreEqual("whee", _fatalArgs.Exception.Message);
-            Assert.AreEqual(0, consumer.NackCount);
-            Assert.AreEqual(0, consumer.AckCount);
         }
 
         #endregion

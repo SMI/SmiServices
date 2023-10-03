@@ -39,21 +39,21 @@ namespace Microservices.Tests.RDMPTests
             cata.LoadMetadata_ID = lmd.ID;
             cata.SaveToDatabase();
 
-            consumerOptions.LoadMetadataId = lmd.ID;
+            consumerOptions!.LoadMetadataId = lmd.ID;
             consumerOptions.DatabaseNamerType = typeName;
             consumerOptions.Guid = Guid.Empty;
 
             if (CatalogueRepository is ITableRepository crtr)
-                globals.RDMPOptions.CatalogueConnectionString = crtr.DiscoveredServer.Builder.ConnectionString;
+                globals.RDMPOptions!.CatalogueConnectionString = crtr.DiscoveredServer.Builder.ConnectionString;
             if (DataExportRepository is ITableRepository dertr)
-                globals.RDMPOptions.DataExportConnectionString = dertr.DiscoveredServer.Builder.ConnectionString;
+                globals.RDMPOptions!.DataExportConnectionString = dertr.DiscoveredServer.Builder.ConnectionString;
 
-            using (new MicroserviceTester(globals.RabbitOptions, globals.DicomRelationalMapperOptions))
+            using (new MicroserviceTester(globals.RabbitOptions!, globals.DicomRelationalMapperOptions!))
             {
                 using var host = new DicomRelationalMapperHost(globals);
                 host.Start();
 
-                Assert.AreEqual(expectedType, host.Consumer.DatabaseNamer.GetType());
+                Assert.AreEqual(expectedType, host.Consumer!.DatabaseNamer.GetType());
                 Assert.IsNotNull(host);
 
                 host.Stop("Test finished");

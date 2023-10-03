@@ -39,9 +39,9 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class HowFastIsDLETest : DatabaseTests
     {
-        private GlobalOptions _globals;
-        private DicomRelationalMapperTestHelper _helper;
-        private IDataLoadInfo _dli;
+        private GlobalOptions _globals = null!;
+        private DicomRelationalMapperTestHelper _helper = null!;
+        private IDataLoadInfo _dli = null!;
 
         string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"DLEBenchmarkingTests/CT.it"));
 
@@ -78,7 +78,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             _globals = new GlobalOptionsFactory().Load(nameof(TestLargeImageDatasets));
 
-            _globals.DicomRelationalMapperOptions.DatabaseNamerType = typeof(MyFixedStagingDatabaseNamer).FullName;
+            _globals.DicomRelationalMapperOptions!.DatabaseNamerType = typeof(MyFixedStagingDatabaseNamer).FullName;
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = ushort.MaxValue;
             _globals.DicomRelationalMapperOptions.MinimumBatchSize = numberOfImages;
             _globals.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
@@ -99,7 +99,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             
             Assert.AreEqual(numberOfImages, allImages.Count);
 
-            using (var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.DicomRelationalMapperOptions))
+            using (var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions))
             {
                 using var host = new DicomRelationalMapperHost(_globals);
                 tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
@@ -108,7 +108,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
                 host.Start();
 
                 Stopwatch sw = Stopwatch.StartNew();
-                TestTimelineAwaiter.Await(() => host.Consumer.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
+                TestTimelineAwaiter.Await(() => host.Consumer!.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
 
                 Console.Write($"Time For DLE:{sw.Elapsed.TotalSeconds}s");
                 host.Stop("Test finished");
@@ -159,7 +159,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
 
             _globals = new GlobalOptionsFactory().Load(nameof(TestBulkInsertOnly));
 
-            _globals.DicomRelationalMapperOptions.DatabaseNamerType = typeof(MyFixedStagingDatabaseNamer).FullName;
+            _globals.DicomRelationalMapperOptions!.DatabaseNamerType = typeof(MyFixedStagingDatabaseNamer).FullName;
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = ushort.MaxValue;
             _globals.DicomRelationalMapperOptions.MinimumBatchSize = numberOfImages;
             _globals.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
@@ -188,7 +188,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             Assert.AreEqual(numberOfImages, allImages.Count);
             Assert.AreEqual(numberOfImages, dt.Rows.Count);
 
-            var tables = _helper.LoadMetadata.GetDistinctTableInfoList(false);
+            var tables = _helper.LoadMetadata!.GetDistinctTableInfoList(false);
 
             var config = new HICDatabaseConfiguration(_helper.LoadMetadata, new SuffixBasedNamer());
 

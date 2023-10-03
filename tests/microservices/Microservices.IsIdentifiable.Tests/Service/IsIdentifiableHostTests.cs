@@ -27,20 +27,20 @@ namespace Microservices.IsIdentifiable.Tests.Service
         {
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_NoClassifier));
 
-            options.IsIdentifiableServiceOptions.ClassifierType = "";
+            options.IsIdentifiableServiceOptions!.ClassifierType = "";
             var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options));
-            StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableServiceOptions.ClassifierType), ex.Message);
+            StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableServiceOptions.ClassifierType), ex!.Message);
         }
 
         [Test]
         public void TestClassifierName_NotRecognized()
         {
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_NotRecognized));
-            options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.WorkDirectory;
+            options.IsIdentifiableServiceOptions!.DataDirectory = TestContext.CurrentContext.WorkDirectory;
 
             options.IsIdentifiableServiceOptions.ClassifierType = "HappyFunTimes";
             var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options));
-            StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex.Message);
+            StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex!.Message);
         }
 
         [Test]
@@ -51,15 +51,15 @@ namespace Microservices.IsIdentifiable.Tests.Service
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
-            using var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions);
-            tester.CreateExchange(options.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions.ExchangeName, null);
+            using var tester = new MicroserviceTester(options.RabbitOptions!, options.IsIdentifiableServiceOptions!);
+            tester.CreateExchange(options.IsIdentifiableServiceOptions!.IsIdentifiableProducerOptions!.ExchangeName!, null);
 
             options.IsIdentifiableServiceOptions.ClassifierType = typeof(RejectAllClassifier).FullName;
             options.IsIdentifiableServiceOptions.DataDirectory = TestContext.CurrentContext.TestDirectory;
 
             var extractRoot = Path.Join(Path.GetTempPath(), "extractRoot");
             Directory.CreateDirectory(extractRoot);
-            options.FileSystemOptions.ExtractRoot = extractRoot;
+            options.FileSystemOptions!.ExtractRoot = extractRoot;
 
             var host = new IsIdentifiableHost(options);
             Assert.IsNotNull(host);
@@ -88,7 +88,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             // TODO(rkm 2020-04-14) This is a stop-gap solution until the tests are properly refactored
             var testRulesDir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "data", "IsIdentifiableRules"));
             testRulesDir.Create();
-            options.IsIdentifiableServiceOptions.DataDirectory = testRulesDir.Parent.FullName;
+            options.IsIdentifiableServiceOptions!.DataDirectory = testRulesDir.Parent!.FullName;
             var tessDir = new DirectoryInfo(Path.Combine(testRulesDir.Parent.FullName, "tessdata"));
             tessDir.Create();
             var dest = Path.Combine(tessDir.FullName, "eng.traineddata");
@@ -100,7 +100,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
             TestData.Create(testDcm);
 
-            using var tester = new MicroserviceTester(options.RabbitOptions, options.IsIdentifiableServiceOptions);
+            using var tester = new MicroserviceTester(options.RabbitOptions!, options.IsIdentifiableServiceOptions);
             options.IsIdentifiableServiceOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;
 
             var host = new IsIdentifiableHost(options);

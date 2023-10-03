@@ -14,10 +14,10 @@ namespace Applications.DynamicRulesTester;
 
 public static class Program
 {
-    private static ILogger _logger = LogManager.GetCurrentClassLogger();
-    private static IFileSystem _fileSystem;
+    private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+    private static IFileSystem _fileSystem = null!;
 
-    public static int Main(IEnumerable<string> args, IFileSystem fileSystem = null)
+    public static int Main(IEnumerable<string> args, IFileSystem? fileSystem = null)
     {
         _fileSystem = fileSystem ?? new FileSystem();
 
@@ -48,10 +48,11 @@ public static class Program
 
         _logger.Debug($"Loaded test row JSON:\n{jsonString}");
 
-        var rowItems = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
+        var rowItems = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString)
+            ?? throw new Exception($"Deserialized JSON was null");
         var jsonFileRecord = new JsonFileRecord(rowItems);
 
-        if (dynamicRejector.Reject(jsonFileRecord, out string reason))
+        if (dynamicRejector.Reject(jsonFileRecord, out string? reason))
         {
             _logger.Warn($"Rejection reason was:'{reason}'");
             return 1;
@@ -72,7 +73,7 @@ public static class Program
             Required = true,
             HelpText = "The file to load dynamic rules from"
         )]
-        public string DynamicRulesFile { get; set; }
+        public string DynamicRulesFile { get; set; } = null!;
 
         [Option(
             'r',
@@ -80,7 +81,7 @@ public static class Program
             Required = true,
             HelpText = "The JSON file containing test data for the rules"
         )]
-        public string TestRowFile { get; set; }
+        public string TestRowFile { get; set; } = null!;
     }
 
     [ExcludeFromCodeCoverage]
@@ -99,9 +100,9 @@ public static class Program
         public int FieldCount => throw new NotImplementedException();
         public bool GetBoolean(int i) => throw new NotImplementedException();
         public byte GetByte(int i) => throw new NotImplementedException();
-        public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+        public long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length) => throw new NotImplementedException();
         public char GetChar(int i) => throw new NotImplementedException();
-        public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+        public long GetChars(int i, long fieldoffset, char[]? buffer, int bufferoffset, int length) => throw new NotImplementedException();
         public IDataReader GetData(int i) => throw new NotImplementedException();
         public string GetDataTypeName(int i) => throw new NotImplementedException();
         public DateTime GetDateTime(int i) => throw new NotImplementedException();

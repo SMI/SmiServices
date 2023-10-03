@@ -15,7 +15,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             _filesAndOrDirectories = filesAndOrDirectories;
         }
 
-        public bool GetNextFileOrDirectoryToProcess(out DirectoryInfo directory, out AmbiguousFilePath file)
+        public bool GetNextFileOrDirectoryToProcess(out DirectoryInfo? directory, out AmbiguousFilePath? file)
         {
             directory = null;
             file = null;

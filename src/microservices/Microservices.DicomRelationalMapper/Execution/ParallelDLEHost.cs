@@ -29,7 +29,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         private readonly IRDMPPlatformRepositoryServiceLocator _repositoryLocator;
         private readonly INameDatabasesAndTablesDuringLoads _namer;
         private readonly bool _useInsertIntoForRawMigration;
-        private HICDatabaseConfiguration _configuration;
+        private HICDatabaseConfiguration? _configuration;
 
         public ParallelDLEHost(IRDMPPlatformRepositoryServiceLocator repositoryLocator, INameDatabasesAndTablesDuringLoads namer, bool useInsertIntoForRawMigration)
         {
