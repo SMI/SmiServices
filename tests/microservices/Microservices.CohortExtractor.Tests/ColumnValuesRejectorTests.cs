@@ -21,7 +21,7 @@ namespace Microservices.CohortExtractor.Tests
                 .Setup(x => x["fff"])
                 .Throws<IndexOutOfRangeException>();
 
-            var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out string _));
+            var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out var _));
             Assert.True(exc!.Message.Contains($"Expected a column called fff"));
         }
 
