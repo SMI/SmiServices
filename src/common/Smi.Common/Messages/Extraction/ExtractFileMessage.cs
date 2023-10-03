@@ -25,7 +25,7 @@ namespace Smi.Common.Messages.Extraction
         /// The modality of the specified file
         /// </summary>
         [JsonProperty(Required = Required.AllowNull)]
-        public string Modality { get; set; }
+        public string Modality { get; set; } = null!;
 
 
         [JsonConstructor]
