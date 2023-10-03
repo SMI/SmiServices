@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics.CodeAnalysis;
 using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;
@@ -19,7 +20,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <param name="toSwap"></param>
         /// <param name="reason"></param>
         /// <returns></returns>
-        string GetSubstitutionFor(string toSwap, out string reason);
+        string? GetSubstitutionFor(string toSwap, out string? reason);
 
         /// <summary>
         /// Clear the mapping cache (if exists) and reload
@@ -32,11 +33,11 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// <param name="logger"></param>
         /// <param name="level"></param>
         void LogProgress(ILogger logger, LogLevel level);
-        
+
         /// <summary>
         /// If there is a map table based on <see cref="ForGuidIdentifierSwapper"/> schema then this should return the <see cref="DiscoveredTable"/> pointer to that table.  Otherwise should return null
         /// </summary>
         /// <returns></returns>
-        DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options);
+        DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options);
     }
 }

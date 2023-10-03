@@ -1,5 +1,4 @@
 using System;
-using JetBrains.Annotations;
 using System.IO;
 using Smi.Common.Execution;
 using Smi.Common.Helpers;
@@ -16,28 +15,27 @@ namespace Microservices.IsIdentifiable.Service
         private IProducerModel _producerModel;
 
         public IsIdentifiableHost(
-            [NotNull] GlobalOptions globals)
+            GlobalOptions globals
+        )
             : base(globals)
         {
-            _consumerOptions = globals.IsIdentifiableServiceOptions;
+            _consumerOptions = globals.IsIdentifiableServiceOptions
+                ?? throw new ArgumentNullException(nameof(globals.IsIdentifiableServiceOptions));
 
-            string classifierTypename =  globals.IsIdentifiableServiceOptions.ClassifierType;
-            string dataDirectory = globals.IsIdentifiableServiceOptions.DataDirectory;
+            string? classifierTypename = globals.IsIdentifiableServiceOptions.ClassifierType;
+            string? dataDirectory = globals.IsIdentifiableServiceOptions.DataDirectory;
 
-            if(string.IsNullOrWhiteSpace(classifierTypename))
-                throw new ArgumentException("No IClassifier has been set in options.  Enter a value for ClassifierType",nameof(globals));
-            if(string.IsNullOrWhiteSpace(dataDirectory))
-                throw new ArgumentException("A DataDirectory must be set",nameof(globals));
+            if (string.IsNullOrWhiteSpace(classifierTypename))
+                throw new ArgumentException("No IClassifier has been set in options.  Enter a value for ClassifierType", nameof(globals));
+            if (string.IsNullOrWhiteSpace(dataDirectory))
+                throw new ArgumentException("A DataDirectory must be set", nameof(globals));
 
             var objectFactory = new MicroserviceObjectFactory();
-            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions);
+            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions!)
+                ?? throw new TypeLoadException($"Could not find IClassifier Type {classifierTypename}");
+            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions!, isBatch: false);
 
-            if(classifier == null)
-                throw new TypeLoadException($"Could not find IClassifier Type { classifierTypename }");
-
-            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions, isBatch: false);
-
-            Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions.ExtractRoot, classifier);
+            Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions!.ExtractRoot!, classifier);
         }
 
         public override void Start()

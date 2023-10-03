@@ -13,14 +13,14 @@ namespace Microservices.FileCopier.Tests.Execution
 {
     public class FileCopierTest
     {
-        private FileCopierOptions _options;
+        private FileCopierOptions _options = null!;
 
-        private MockFileSystem _mockFileSystem;
+        private MockFileSystem _mockFileSystem = null!;
         private const string FileSystemRoot = "PACS";
         private const string ExtractRoot = "extract";
-        private string _relativeSrc;
+        private string _relativeSrc = null!;
         private readonly byte[] _expectedContents = { 0b00, 0b01, 0b10, 0b11 };
-        private ExtractFileMessage _requestMessage;
+        private ExtractFileMessage _requestMessage = null!;
 
         #region Fixture Methods 
 
@@ -39,7 +39,7 @@ namespace Microservices.FileCopier.Tests.Execution
             _mockFileSystem.Directory.CreateDirectory(ExtractRoot);
             _relativeSrc = _mockFileSystem.Path.Combine("input", "a.dcm");
             string src = _mockFileSystem.Path.Combine(FileSystemRoot, _relativeSrc);
-            _mockFileSystem.Directory.CreateDirectory(_mockFileSystem.Directory.GetParent(src).FullName);
+            _mockFileSystem.Directory.CreateDirectory(_mockFileSystem.Directory.GetParent(src)!.FullName);
             _mockFileSystem.File.WriteAllBytes(src, _expectedContents);
         }
 
@@ -75,8 +75,8 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopier_HappyPath()
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            ExtractedFileStatusMessage? sentStatusMessage = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>
@@ -84,7 +84,7 @@ namespace Microservices.FileCopier.Tests.Execution
                     sentStatusMessage = (ExtractedFileStatusMessage)message;
                     sentRoutingKey = routingKey;
                 })
-                .Returns(() => null);
+                .Returns(() => null!);
 
             var requestHeader = new MessageHeader();
 
@@ -109,8 +109,8 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopier_MissingFile_SendsMessage()
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            ExtractedFileStatusMessage? sentStatusMessage = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>
@@ -118,7 +118,7 @@ namespace Microservices.FileCopier.Tests.Execution
                     sentStatusMessage = (ExtractedFileStatusMessage)message;
                     sentRoutingKey = routingKey;
                 })
-                .Returns(() => null);
+                .Returns(() => null!);
 
             _requestMessage.DicomFilePath = "missing.dcm";
             var requestHeader = new MessageHeader();
@@ -141,8 +141,8 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopier_ExistingOutputFile_IsOverwritten()
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            ExtractedFileStatusMessage? sentStatusMessage = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>
@@ -150,11 +150,11 @@ namespace Microservices.FileCopier.Tests.Execution
                     sentStatusMessage = (ExtractedFileStatusMessage)message;
                     sentRoutingKey = routingKey;
                 })
-                .Returns(() => null);
+                .Returns(() => null!);
 
             var requestHeader = new MessageHeader();
             string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
-            _mockFileSystem.Directory.GetParent(expectedDest).Create();
+            _mockFileSystem.Directory.GetParent(expectedDest)!.Create();
             _mockFileSystem.File.WriteAllBytes(expectedDest, new byte[] { 0b0 });
 
             var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);

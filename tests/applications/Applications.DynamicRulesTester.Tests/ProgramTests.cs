@@ -8,11 +8,11 @@ namespace Applications.DynamicRulesTester.Tests;
 
 public class ProgramTests
 {
-    private MockFileSystem _fileSystem;
-    private string _dynamicRulesFileName;
-    private string _testRowFileName;
+    private MockFileSystem _fileSystem = null!;
+    private string _dynamicRulesFileName = null!;
+    private string _testRowFileName = null!;
 
-    private IEnumerable<string> _args;
+    private IEnumerable<string> _args = null!;
 
     #region Fixture Methods
 

@@ -19,9 +19,9 @@ namespace Microservices.DicomAnonymiser.Tests
     {
         #region Fixture Methods
 
-        private DirectoryInfo _tempTestDir;
-        private DirectoryInfo _dicomRoot;
-        private string _fakeDicom;
+        private DirectoryInfo _tempTestDir = null!;
+        private DirectoryInfo _dicomRoot = null!;
+        private string _fakeDicom = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -64,7 +64,7 @@ namespace Microservices.DicomAnonymiser.Tests
             // Arrange
 
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Integration_HappyPath_MockAnonymiser));
-            globals.FileSystemOptions.FileSystemRoot = _dicomRoot.FullName;
+            globals.FileSystemOptions!.FileSystemRoot = _dicomRoot.FullName;
 
             var extractRoot = Directory.CreateDirectory(Path.Combine(_tempTestDir.FullName, "extractRoot"));
             globals.FileSystemOptions.ExtractRoot = extractRoot.FullName;
@@ -99,23 +99,23 @@ namespace Microservices.DicomAnonymiser.Tests
                 .Callback(() => File.Create(expectedAnonPathAbs).Dispose())
                 .Returns(ExtractedFileStatus.Anonymised);
 
-            var statusExchange = globals.DicomAnonymiserOptions.ExtractFileStatusProducerOptions.ExchangeName;
-            var successQueue = globals.IsIdentifiableServiceOptions.QueueName;
-            var failureQueue = globals.CohortPackagerOptions.NoVerifyStatusOptions.QueueName;
+            var statusExchange = globals.DicomAnonymiserOptions!.ExtractFileStatusProducerOptions!.ExchangeName!;
+            var successQueue = globals.IsIdentifiableServiceOptions!.QueueName!;
+            var failureQueue = globals.CohortPackagerOptions!.NoVerifyStatusOptions!.QueueName!;
 
             List<ExtractedFileStatusMessage> statusMessages = new();
 
             using (
                 var tester = new MicroserviceTester(
-                    globals.RabbitOptions,
-                    globals.DicomAnonymiserOptions.AnonFileConsumerOptions
+                    globals.RabbitOptions!,
+                    globals.DicomAnonymiserOptions.AnonFileConsumerOptions!
                 )
             )
             {
                 tester.CreateExchange(statusExchange, successQueue, isSecondaryBinding: false, routingKey: "verify");
                 tester.CreateExchange(statusExchange, failureQueue, isSecondaryBinding: true, routingKey: "noverify");
 
-                tester.SendMessage(globals.DicomAnonymiserOptions.AnonFileConsumerOptions, new MessageHeader(), testExtractFileMessage);
+                tester.SendMessage(globals.DicomAnonymiserOptions.AnonFileConsumerOptions!, new MessageHeader(), testExtractFileMessage);
 
                 var host = new DicomAnonymiserHost(globals, mockAnonymiser.Object);
 

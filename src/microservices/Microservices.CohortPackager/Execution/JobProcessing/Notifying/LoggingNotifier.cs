@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NLog;
 

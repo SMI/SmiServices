@@ -22,12 +22,12 @@ namespace Microservices.IsIdentifiable.Service
             IProducerModel producer,
             string extractionRoot,
             IClassifier classifier,
-            IFileSystem fileSystem = null
+            IFileSystem? fileSystem = null
         )
         {
-            _producer = producer ?? throw new ArgumentNullException(nameof(producer));
+            _producer = producer;
             _extractionRoot = string.IsNullOrWhiteSpace(extractionRoot) ? throw new ArgumentException($"Argument cannot be null or whitespace", nameof(extractionRoot)) : extractionRoot;
-            _classifier = classifier ?? throw new ArgumentNullException(nameof(classifier));
+            _classifier = classifier;
             _fileSystem = fileSystem ?? new FileSystem();
 
             if (!_fileSystem.Directory.Exists(_extractionRoot))
@@ -39,6 +39,9 @@ namespace Microservices.IsIdentifiable.Service
             // We should only ever receive messages regarding anonymised images
             if (statusMessage.Status != ExtractedFileStatus.Anonymised)
                 throw new ApplicationException($"Received an {statusMessage.GetType().Name} message with Status '{statusMessage.Status}' and StatusMessage '{statusMessage.StatusMessage}'");
+
+            if(statusMessage.OutputFilePath == null)
+                throw new ApplicationException($"Received an {statusMessage.GetType().Name} message with a null OutputPath");
 
             IFileInfo toProcess = _fileSystem.FileInfo.New(
                 _fileSystem.Path.Combine(
@@ -89,7 +92,7 @@ namespace Microservices.IsIdentifiable.Service
                 Status = status,
                 Report = report,
             };
-            _producer.SendMessage(response, header);
+            _producer.SendMessage(response, header, routingKey: null);
 
             Ack(header, tag);
         }

@@ -18,7 +18,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 {
     public class DicomRelationalMapperHost : MicroserviceHost, IDisposable
     {
-        public DicomRelationalMapperQueueConsumer Consumer { get; private set; }
+        public DicomRelationalMapperQueueConsumer? Consumer { get; private set; }
 
         public DicomRelationalMapperHost(GlobalOptions globals)
             : base(globals)
@@ -29,7 +29,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         //TODO Should most of this not be in the constructor?
         public override void Start()
         {
-            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
+            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions!.GetRepositoryProvider();
 
             Logger.Info("About to run Startup");
 
@@ -44,7 +44,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             Logger.Info("Startup Completed");
 
-            var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions.LoadMetadataId);
+            var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions!.LoadMetadataId);
 
             Type databaseNamerType = repositoryLocator.CatalogueRepository.MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType);
 
@@ -55,9 +55,9 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             string liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
 
-            var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid);
+            var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid)
+                ?? throw new Exception("Could not create an INameDatabasesAndTablesDuringLoads");
 
-            
             Consumer = new DicomRelationalMapperQueueConsumer(repositoryLocator,
                                                               lmd,
                                                               instance,

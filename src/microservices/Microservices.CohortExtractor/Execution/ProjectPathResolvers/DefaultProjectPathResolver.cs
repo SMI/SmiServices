@@ -41,8 +41,8 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
                 fileName += extToUse;
 
             // Remove any leading periods from the UIDs
-            string studyUID = result.StudyTagValue?.TrimStart('.');
-            string seriesUID = result.SeriesTagValue?.TrimStart('.');
+            string? studyUID = result.StudyTagValue?.TrimStart('.');
+            string? seriesUID = result.SeriesTagValue?.TrimStart('.');
 
             return Path.Combine(
                 studyUID ?? "unknown",

@@ -6,6 +6,7 @@ using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using System;
 using System.ComponentModel;
 
 namespace Microservices.CohortExtractor.Messaging
@@ -48,7 +49,7 @@ namespace Microservices.CohortExtractor.Messaging
             }
 
             string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
-            string extractFileRoutingKey = request.IsIdentifiableExtraction ? _options.ExtractIdentRoutingKey : _options.ExtractAnonRoutingKey;
+            string? extractFileRoutingKey = request.IsIdentifiableExtraction ? _options.ExtractIdentRoutingKey : _options.ExtractAnonRoutingKey;
 
             foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request, _auditor))
             {
@@ -84,16 +85,19 @@ namespace Microservices.CohortExtractor.Messaging
                 // For all the rejected messages log why (in the info message)
                 foreach (QueryToExecuteResult rejectedResults in matchedFiles.Rejected)
                 {
-                    if (!infoMessage.RejectionReasons.ContainsKey(rejectedResults.RejectReason))
-                        infoMessage.RejectionReasons.Add(rejectedResults.RejectReason, 0);
+                    var rejectReason = rejectedResults.RejectReason
+                        ?? throw new ArgumentNullException(nameof(rejectedResults.RejectReason));
 
-                    infoMessage.RejectionReasons[rejectedResults.RejectReason]++;
+                    if (!infoMessage.RejectionReasons.ContainsKey(rejectReason))
+                        infoMessage.RejectionReasons.Add(rejectReason, 0);
+
+                    infoMessage.RejectionReasons[rejectReason]++;
                 }
 
                 _auditor.AuditExtractFiles(request, matchedFiles);
 
                 infoMessage.KeyValue = matchedFiles.KeyValue;
-                _fileMessageInfoProducer.SendMessage(infoMessage, header);
+                _fileMessageInfoProducer.SendMessage(infoMessage, header, routingKey: null);
 
                 if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel))
                     _fileMessageInfoProducer.WaitForConfirms();

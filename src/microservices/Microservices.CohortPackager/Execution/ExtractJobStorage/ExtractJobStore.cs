@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -21,8 +20,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         }
 
         public void PersistMessageToStore(
-            [NotNull] ExtractionRequestInfoMessage message,
-            [NotNull] IMessageHeader header)
+            ExtractionRequestInfoMessage message,
+            IMessageHeader header)
         {
             Logger.Info($"Received new job info {message}");
             PersistMessageToStoreImpl(message, header);
@@ -35,8 +34,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         }
 
         public void PersistMessageToStore(
-            [NotNull] ExtractedFileStatusMessage message,
-            [NotNull] IMessageHeader header)
+            ExtractedFileStatusMessage message,
+            IMessageHeader header)
         {
             switch (message.Status)
             {
@@ -51,8 +50,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         }
 
         public void PersistMessageToStore(
-            [NotNull] ExtractedFileVerificationMessage message,
-            [NotNull] IMessageHeader header)
+            ExtractedFileVerificationMessage message,
+            IMessageHeader header)
         {
             if (string.IsNullOrWhiteSpace(message.OutputFilePath))
                 throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
@@ -81,12 +80,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public void MarkJobFailed(
             Guid jobId,
-            [NotNull] Exception cause)
+            Exception cause)
         {
-            if (jobId == default(Guid))
+            if (jobId == default)
                 throw new ArgumentNullException(nameof(jobId));
-            if (cause == null)
-                throw new ArgumentNullException(nameof(cause));
 
             MarkJobFailedImpl(jobId, cause);
             Logger.Debug($"Marked job {jobId} as failed");

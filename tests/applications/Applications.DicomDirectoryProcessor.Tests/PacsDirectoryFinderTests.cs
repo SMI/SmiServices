@@ -1,4 +1,4 @@
-﻿using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
+using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -25,26 +25,26 @@ namespace Applications.DicomDirectoryProcessor.Tests
         {
             string rootDir = Path.GetFullPath("/PACS");
             var mockFs = new MockFileSystem();
-            
-	    string testFile = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/testDicom.dcm"));
+
+            string testFile = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/testDicom.dcm"));
             mockFs.AddFile(testFile, null);
 
-	    string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2016/01/01/E-12345/testDicom.dcm"));
+            string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2016/01/01/E-12345/testDicom.dcm"));
             mockFs.AddFile(specialCase1, null);
-	    
-	    string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2017/01/01/01.01.2017/testDicom.dcm"));
+
+            string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2017/01/01/01.01.2017/testDicom.dcm"));
             mockFs.AddFile(specialCase2, null);
-	    
-	    string multiLayer1 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/E-12345/testDicom.dcm"));
+
+            string multiLayer1 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/E-12345/testDicom.dcm"));
             mockFs.AddFile(multiLayer1, null);
-	    
-	    string multiLayer2 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/AAA/testDicom.dcm"));
+
+            string multiLayer2 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/AAA/testDicom.dcm"));
             mockFs.AddFile(multiLayer2, null);
-	    
-	    string multiLayer3 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/BBB/testDicom.dcm"));
+
+            string multiLayer3 = Path.GetFullPath(Path.Combine(rootDir, "2015/01/01/BBB/testDicom.dcm"));
             mockFs.AddFile(multiLayer3, null);
-            
-	    // Test case, expected messages
+
+            // Test case, expected messages
             var testCases = new Dictionary<string, int>
             {
                 { "2018",                   1 },
@@ -66,7 +66,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
                                             null,
-                                            ""))
+                                            null))
                 .Callback(() => ++totalSent);
 
             var pacsFinder = new PacsDirectoryFinder(rootDir, mockFs, "*.dcm", mockProducerModel.Object);

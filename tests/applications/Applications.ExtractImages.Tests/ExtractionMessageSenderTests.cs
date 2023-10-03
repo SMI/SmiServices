@@ -41,16 +41,16 @@ namespace Applications.ExtractImages.Tests
 
         private class TestConsoleInput : IConsoleInput
         {
-            private string _line;
+            private string? _line;
 
             public TestConsoleInput(string line)
             {
                 _line = line;
             }
 
-            public string GetNextLine()
+            public string? GetNextLine()
             {
-                string line = _line;
+                string? line = _line;
                 _line = null;
                 return line;
             }
@@ -64,13 +64,13 @@ namespace Applications.ExtractImages.Tests
         [TestCase(false)]
         public void HappyPath_Interactive(bool confirm)
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var fs = new MockFileSystem();
             const string extractRoot = "extractRoot";
@@ -110,13 +110,13 @@ namespace Applications.ExtractImages.Tests
         [Test]
         public void HappyPath_NonInteractive()
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var fs = new MockFileSystem();
             const string extractRoot = "extractRoot";
@@ -161,7 +161,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionDir", exc.Message);
+            Assert.AreEqual("extractionDir", exc!.Message);
 
             exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -177,7 +177,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionRoot", exc.Message);
+            Assert.AreEqual("extractionRoot", exc!.Message);
         }
 
         [TestCase(null)]
@@ -198,7 +198,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("ProjectId", exc.Message);
+            Assert.AreEqual("ProjectId", exc!.Message);
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.True(exc.Message.EndsWith("(Parameter 'MaxIdentifiersPerMessage')"));
+            Assert.True(exc!.Message.EndsWith("(Parameter 'MaxIdentifiersPerMessage')"));
         }
 
 
@@ -241,27 +241,27 @@ namespace Applications.ExtractImages.Tests
             {
                 sender.SendMessages(ExtractionKey.StudyInstanceUID, new List<string>());
             });
-            Assert.AreEqual("ID list is empty", exc.Message);
+            Assert.AreEqual("ID list is empty", exc!.Message);
         }
 
         [Test]
         public void ListChunking_CorrectIds()
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var calledWith = new List<string>();
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
             mockExtractionRequestProducer
                 .Setup(expr)
-                .Returns((IMessageHeader)null)
+                .Returns((IMessageHeader?)null)
                 .Callback((IMessage msg, IMessageHeader _, string __) =>
                 {
                     calledWith.AddRange(((ExtractionRequestMessage)msg).ExtractionIdentifiers);
                 });
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = 1 },
@@ -289,13 +289,13 @@ namespace Applications.ExtractImages.Tests
         [TestCase(2, 1, 2)] // nIds > maxPerMessage => 2 messages
         public void ListChunking_EdgeCases(int nIds, int maxPerMessage, int expectedMessages)
         {
-            Expression<Func<IProducerModel, IMessageHeader>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
+            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
 
             var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader)null);
+            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = maxPerMessage },

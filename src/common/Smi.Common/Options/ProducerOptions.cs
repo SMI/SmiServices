@@ -10,13 +10,12 @@ namespace Smi.Common.Options
         /// <summary>
         /// Name of the RabbitMQ exchange to send messages to
         /// </summary>
-        public string ExchangeName { get; set; }
+        public string? ExchangeName { get; set; }
 
         /// <summary>
         /// Maximum number of times to retry the publish confirmations
         /// </summary>
-        public int MaxConfirmAttempts { get; set; }
-
+        public int MaxConfirmAttempts { get; set; } = 1;
 
         /// <summary>
         /// Verifies that the individual options have been populated

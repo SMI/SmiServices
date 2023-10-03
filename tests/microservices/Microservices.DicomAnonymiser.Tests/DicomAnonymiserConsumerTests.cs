@@ -20,14 +20,14 @@ namespace Microservices.DicomAnonymiser.Tests
     {
         #region Fixture Methods
 
-        private MockFileSystem _mockFs;
-        private IDirectoryInfo _dicomRootDirInfo;
-        private IDirectoryInfo _extractRootDirInfo;
-        private string _extractDir;
-        private string _sourceDcmPathAbs;
-        private ExtractFileMessage _extractFileMessage;
-        private DicomAnonymiserOptions _options;
-        private Mock<IModel> _mockModel;
+        private MockFileSystem _mockFs = null!;
+        private IDirectoryInfo _dicomRootDirInfo = null!;
+        private IDirectoryInfo _extractRootDirInfo = null!;
+        private string _extractDir = null!;
+        private string _sourceDcmPathAbs = null!;
+        private ExtractFileMessage _extractFileMessage = null!;
+        private DicomAnonymiserOptions _options = null!;
+        private Mock<IModel> _mockModel = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -82,8 +82,8 @@ namespace Microservices.DicomAnonymiser.Tests
         }
 
         private DicomAnonymiserConsumer GetNewDicomAnonymiserConsumer(
-            IDicomAnonymiser mockDicomAnonymiser = null,
-            IProducerModel mockProducerModel = null
+            IDicomAnonymiser? mockDicomAnonymiser = null,
+            IProducerModel? mockProducerModel = null
         )
         {
             var consumer = new DicomAnonymiserConsumer(
@@ -104,34 +104,6 @@ namespace Microservices.DicomAnonymiser.Tests
         #endregion
 
         #region Tests
-
-        [Test]
-        public void Constructor_MissingFileSystemRoots_ThrowsException()
-        {
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                new DicomAnonymiserConsumer(
-                    _options,
-                    fileSystemRoot: null,
-                    _extractRootDirInfo.FullName,
-                    new Mock<IDicomAnonymiser>(MockBehavior.Strict).Object,
-                    new Mock<IProducerModel>(MockBehavior.Strict).Object,
-                    _mockFs
-                );
-            });
-
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                new DicomAnonymiserConsumer(
-                    new DicomAnonymiserOptions(),
-                    _dicomRootDirInfo.FullName,
-                    extractRoot: null,
-                    new Mock<IDicomAnonymiser>(MockBehavior.Strict).Object,
-                    new Mock<IProducerModel>(MockBehavior.Strict).Object,
-                    _mockFs
-                );
-            });
-        }
 
         [Test]
         public void ProcessMessageImpl_HappyPath()
@@ -185,7 +157,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             var consumer = GetNewDicomAnonymiserConsumer();
 
-            FatalErrorEventArgs fatalArgs = null;
+            FatalErrorEventArgs? fatalArgs = null;
             consumer.OnFatal += (_, args) => fatalArgs = args;
 
             // Act
@@ -196,7 +168,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
-            Assert.AreEqual("DicomAnonymiserConsumer should not handle identifiable extraction messages", fatalArgs.Exception.Message);
+            Assert.AreEqual("DicomAnonymiserConsumer should not handle identifiable extraction messages", fatalArgs!.Exception!.Message);
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
@@ -278,7 +250,7 @@ namespace Microservices.DicomAnonymiser.Tests
 
             var consumer = GetNewDicomAnonymiserConsumer();
 
-            FatalErrorEventArgs fatalArgs = null;
+            FatalErrorEventArgs? fatalArgs = null;
             consumer.OnFatal += (_, args) => fatalArgs = args;
 
             // Act
@@ -290,7 +262,7 @@ namespace Microservices.DicomAnonymiser.Tests
             TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
 
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
-            Assert.AreEqual($"Expected extraction directory to exist: '{_extractDir}'", fatalArgs.Exception.Message);
+            Assert.AreEqual($"Expected extraction directory to exist: '{_extractDir}'", fatalArgs!.Exception!.Message);
             Assert.AreEqual(0, consumer.AckCount);
             Assert.AreEqual(0, consumer.NackCount);
         }
@@ -309,7 +281,7 @@ namespace Microservices.DicomAnonymiser.Tests
                 x => x.SendMessage(
                     It.Is<ExtractedFileStatusMessage>(x =>
                         x.Status == ExtractedFileStatus.ErrorWontRetry &&
-                        x.StatusMessage.StartsWith($"Error anonymising '{_sourceDcmPathAbs}'. Exception message: IDicomAnonymiser") &&
+                        x.StatusMessage!.StartsWith($"Error anonymising '{_sourceDcmPathAbs}'. Exception message: IDicomAnonymiser") &&
                         x.OutputFilePath == null
                      ),
                     It.IsAny<IMessageHeader>(),

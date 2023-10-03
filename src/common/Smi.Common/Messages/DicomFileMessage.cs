@@ -18,7 +18,7 @@ namespace Smi.Common.Messages
         /// File path relative to the root path.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DicomFilePath { get; set; }
+        public string DicomFilePath { get; set; } = null!;
 
         public long DicomFileSize { get; set; } = -1;
 
@@ -26,25 +26,25 @@ namespace Smi.Common.Messages
         /// Dicom tag (0020,000D).
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string StudyInstanceUID { get; set; }
+        public string StudyInstanceUID { get; set; } = null!;
 
         /// <summary>
         /// Dicom tag (0020,000E).
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string SeriesInstanceUID { get; set; }
+        public string SeriesInstanceUID { get; set; } = null!;
 
         /// <summary>
         /// Dicom tag (0008,0018)
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string SOPInstanceUID { get; set; }
+        public string SOPInstanceUID { get; set; } = null!;
 
         /// <summary>
         /// Key-value pairs of Dicom tags and their values.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DicomDataset { get; set; }
+        public string DicomDataset { get; set; } = null!;
 
 
         public DicomFileMessage() { }

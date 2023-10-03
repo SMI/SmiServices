@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Smi.Common.Options
 {
@@ -16,10 +16,10 @@ namespace Smi.Common.Options
         private MongoDbOptions SetMongoPassword(MongoDbOptions opt)
         {
             //get the environment variables current value
-            string envVar = Environment.GetEnvironmentVariable("MONGO_SERVICE_PASSWORD");
+            string? envVar = Environment.GetEnvironmentVariable("MONGO_SERVICE_PASSWORD");
 
             //if there's an env var for it and there are mongodb options being used
-            if (!string.IsNullOrWhiteSpace(envVar) && opt != null)
+            if (!string.IsNullOrWhiteSpace(envVar))
                 opt.Password = envVar;
 
             return opt;

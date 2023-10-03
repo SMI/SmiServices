@@ -1,4 +1,4 @@
-﻿using Equ;
+using Equ;
 using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -14,16 +14,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     public class MongoFileStatusDoc : MemberwiseEquatable<MongoFileStatusDoc>, ISupportInitialize
     {
         [BsonElement("header")]
-        [NotNull]
         public MongoExtractionMessageHeaderDoc Header { get; set; }
 
         [BsonElement("dicomFilePath")]
-        [NotNull]
         public string DicomFilePath { get; set; }
 
         [BsonElement("outputFileName")]
-        [CanBeNull]
-        public string OutputFileName { get; set; }
+        public string? OutputFileName { get; set; }
 
         [BsonElement("extractedFileStatus")]
         [BsonRepresentation(BsonType.String)]
@@ -37,24 +34,23 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         /// Should only be null for identifiable extractions where the file was successfully copied. Otherwise will be the failure reason from CTP or the report content from the IsIdentifiable verification
         /// </summary>
         [BsonElement("statusMessage")]
-        [CanBeNull]
-        public string StatusMessage { get; set; }
+        public string? StatusMessage { get; set; }
 
         /// <summary>
         /// Used only to handle old-format documents when deserializing
         /// </summary>
         [BsonExtraElements]
         [UsedImplicitly]
-        public IDictionary<string, object> ExtraElements { get; set; }
+        public IDictionary<string, object>? ExtraElements { get; set; }
 
 
         public MongoFileStatusDoc(
-            [NotNull] MongoExtractionMessageHeaderDoc header,
-            [NotNull] string dicomFilePath,
-            [CanBeNull] string outputFileName,
+            MongoExtractionMessageHeaderDoc header,
+            string dicomFilePath,
+            string? outputFileName,
             ExtractedFileStatus extractedFileStatus,
             VerifiedFileStatus verifiedFileStatus,
-            [CanBeNull] string statusMessage
+            string? statusMessage
         )
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
@@ -74,6 +70,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         // ^ISupportInitialize
         public void EndInit()
         {
+            if(ExtraElements == null)
+                return;
+
             // NOTE(rkm 2022-07-28) Removed after v1.11.1
             if (ExtraElements.ContainsKey("anonymisedFileName"))
             {

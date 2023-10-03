@@ -10,7 +10,6 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
-
 namespace Microservices.FileCopier.Tests.Execution
 {
     [RequiresRabbit]
@@ -45,17 +44,17 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopierHost_HappyPath()
         {
             var globals = new GlobalOptionsFactory().Load(nameof(Test_FileCopierHost_HappyPath));
-            globals.FileSystemOptions.FileSystemRoot = "root";
+            globals.FileSystemOptions!.FileSystemRoot = "root";
             globals.FileSystemOptions.ExtractRoot = "exroot";
 
-            using var tester = new MicroserviceTester(globals.RabbitOptions, globals.FileCopierOptions);
+            using var tester = new MicroserviceTester(globals.RabbitOptions!, globals.FileCopierOptions!);
 
-            var outputQueueName = globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName.Replace("Exchange", "Queue");
+            var outputQueueName = globals.FileCopierOptions!.CopyStatusProducerOptions!.ExchangeName!.Replace("Exchange", "Queue");
             tester.CreateExchange(
                 globals.FileCopierOptions.CopyStatusProducerOptions.ExchangeName,
                 outputQueueName,
                 false,
-                globals.FileCopierOptions.NoVerifyRoutingKey);
+                globals.FileCopierOptions.NoVerifyRoutingKey!);
 
             var mockFileSystem = new MockFileSystem();
             mockFileSystem.AddDirectory(globals.FileSystemOptions.FileSystemRoot);
@@ -80,12 +79,12 @@ namespace Microservices.FileCopier.Tests.Execution
 
             using var model = tester.Adapter.GetModel(nameof(FileCopierHostTest));
             var consumer = new EventingBasicConsumer(model);
-            ExtractedFileStatusMessage statusMessage = null;
+            ExtractedFileStatusMessage? statusMessage = null;
             consumer.Received += (_, ea) => statusMessage = JsonConvert.DeserializeObject<ExtractedFileStatusMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
             model.BasicConsume(outputQueueName, true, "", consumer);
 
             TestTimelineAwaiter.Await(() => statusMessage != null);
-            Assert.AreEqual(ExtractedFileStatus.Copied, statusMessage.Status);
+            Assert.AreEqual(ExtractedFileStatus.Copied, statusMessage!.Status);
         }
 
         #endregion

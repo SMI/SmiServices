@@ -31,7 +31,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
             : base(options, mongoDbAdapter, maxQueueSize, exceptionCallback) { }
 
 
-        public override void AddToWriteQueue(DicomFileMessage message, IMessageHeader header, ulong deliveryTag)
+        public override void AddToWriteQueue(DicomFileMessage message, IMessageHeader? header, ulong deliveryTag)
         {
             // Only time we are not processing is if we are shutting down anyway
             if (IsStopping)

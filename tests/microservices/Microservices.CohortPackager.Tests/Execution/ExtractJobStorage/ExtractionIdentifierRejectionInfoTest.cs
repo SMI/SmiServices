@@ -38,11 +38,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         public void Constructor_ThrowsArgumentException_OnInvalidArgs()
         {
             // Check keyValue arg
-            Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo(null, new Dictionary<string, int> { { "bar", 1 } }); });
             Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo("  ", new Dictionary<string, int> { { "bar", 1 } }); });
 
             // Check rejectionItems arg
-            Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo("foo", null); });
             Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo("foo", new Dictionary<string, int>()); });
 
             // Check empty dict key
@@ -60,7 +58,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                     }
                 );
             });
-            Assert.AreEqual("Dict contains key(s) with a zero count: bar,baz", exc.Message);
+            Assert.AreEqual("Dict contains key(s) with a zero count: bar,baz", exc!.Message);
         }
 
         #endregion

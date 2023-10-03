@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
@@ -10,6 +11,6 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <param name="row"></param>
         /// <param name="reason">The reason for rejection, if any</param>
         /// <returns>True if the record was rejected, else false</returns>
-        bool Reject(IDataRecord row, out string reason);
+        bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason);
     }
 }

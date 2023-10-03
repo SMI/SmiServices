@@ -1,5 +1,4 @@
 using Equ;
-using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Helpers;
@@ -17,11 +16,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public Guid ExtractionJobIdentifier { get; set; }
 
         [BsonElement("header")]
-        [NotNull]
         public MongoExtractionMessageHeaderDoc Header { get; set; }
 
         [BsonElement("projectNumber")]
-        [NotNull]
         public string ProjectNumber { get; set; }
 
         [BsonElement("jobStatus")]
@@ -29,22 +26,19 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public ExtractJobStatus JobStatus { get; set; }
 
         [BsonElement("extractionDirectory")]
-        [NotNull]
         public string ExtractionDirectory { get; set; }
 
         [BsonElement("jobSubmittedAt")]
         public DateTime JobSubmittedAt { get; set; }
 
         [BsonElement("keyTag")]
-        [NotNull]
         public string KeyTag { get; set; }
 
         [BsonElement("keyCount")]
         public uint KeyCount { get; set; }
 
         [BsonElement("extractionModality")]
-        [CanBeNull]
-        public string ExtractionModality { get; set; }
+        public string? ExtractionModality { get; set; }
 
         [BsonElement("isIdentifiableExtraction")]
         public bool IsIdentifiableExtraction { get; set; }
@@ -53,23 +47,22 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public bool IsNoFilterExtraction { get; set; }
 
         [BsonElement("failedJobInfo")]
-        [CanBeNull]
-        public MongoFailedJobInfoDoc FailedJobInfoDoc { get; set; }
+        public MongoFailedJobInfoDoc? FailedJobInfoDoc { get; set; }
 
 
         public MongoExtractJobDoc(
             Guid extractionJobIdentifier,
-            [NotNull] MongoExtractionMessageHeaderDoc header,
-            [NotNull] string projectNumber,
+            MongoExtractionMessageHeaderDoc header,
+            string projectNumber,
             ExtractJobStatus jobStatus,
-            [NotNull] string extractionDirectory,
+            string extractionDirectory,
             DateTime jobSubmittedAt,
-            [NotNull] string keyTag,
+            string keyTag,
             uint keyCount,
-            [CanBeNull] string extractionModality,
+            string? extractionModality,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction,
-            [CanBeNull] MongoFailedJobInfoDoc failedJobInfoDoc)
+            MongoFailedJobInfoDoc? failedJobInfoDoc)
         {
             ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentException(nameof(extractionJobIdentifier));
             Header = header ?? throw new ArgumentNullException(nameof(header));
@@ -106,9 +99,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         }
 
         public static MongoExtractJobDoc FromMessage(
-            [NotNull] ExtractionRequestInfoMessage message,
-            [NotNull] IMessageHeader header,
-            [NotNull] DateTimeProvider dateTimeProvider)
+            ExtractionRequestInfoMessage message,
+            IMessageHeader header,
+            DateTimeProvider dateTimeProvider)
         {
             return new MongoExtractJobDoc(
                 message.ExtractionJobIdentifier,
@@ -127,33 +120,30 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         }
     }
 
-    public class MongoFailedJobInfoDoc : MemberwiseEquatable<MongoFailedJobInfoDoc>, IEquatable<MongoFailedJobInfoDoc>
+    public class MongoFailedJobInfoDoc : MemberwiseEquatable<MongoFailedJobInfoDoc?>, IEquatable<MongoFailedJobInfoDoc>
     {
         [BsonElement("failedAt")]
         public DateTime FailedAt { get; set; }
 
         [BsonElement("exceptionMessage")]
-        [NotNull]
         public string ExceptionMessage { get; set; }
 
         [BsonElement("stackTrace")]
-        [NotNull]
         public string StackTrace { get; set; }
 
         [BsonElement("innerException")]
-        [CanBeNull]
-        public string InnerException { get; set; }
-
+        public string? InnerException { get; set; }
 
         public MongoFailedJobInfoDoc(
-            [NotNull] Exception exception,
-            [NotNull] DateTimeProvider dateTimeProvider)
+            Exception exception,
+            DateTimeProvider dateTimeProvider
+        )
         {
             FailedAt = dateTimeProvider.UtcNow();
             if (exception == null)
                 throw new ArgumentNullException(nameof(exception));
             ExceptionMessage = exception.Message;
-            StackTrace = exception.StackTrace;
+            StackTrace = exception.StackTrace!;
             InnerException = exception.InnerException?.ToString();
         }
     }

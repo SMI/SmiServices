@@ -19,7 +19,7 @@ namespace Microservices.DicomTagReader.Execution
 {
     public abstract class TagReaderBase
     {
-        private static string _filesystemRoot;
+        private readonly string _filesystemRoot;
         private readonly IFileSystem _fs;
 
         private readonly IProducerModel _seriesMessageProducerModel;
@@ -44,7 +44,7 @@ namespace Microservices.DicomTagReader.Execution
         /// <summary>
         /// Optional function for last minute filtering of which files in an <see cref="AccessionDirectoryMessage"/> folder get processed
         /// </summary>
-        public Func<string,bool> IncludeFile {get;set;}
+        public Func<string,bool>? IncludeFile {get;set;}
 
         /// <summary>
         /// Interrogates directory tree for dicom files and produces series info and individual file info
@@ -58,9 +58,9 @@ namespace Microservices.DicomTagReader.Execution
         {
             Logger = LogManager.GetLogger(GetType().Name);
 
-            _filesystemRoot = fileSystemOptions.FileSystemRoot;
+            _filesystemRoot = fileSystemOptions.FileSystemRoot ?? throw new ArgumentNullException(nameof(fileSystemOptions.FileSystemRoot));
             NackIfAnyFileErrors = options.NackIfAnyFileErrors;
-            _searchPattern = fileSystemOptions.DicomSearchPattern;
+            _searchPattern = fileSystemOptions.DicomSearchPattern ?? throw new ArgumentNullException(nameof(fileSystemOptions.DicomSearchPattern));
 
             _fileReadOption = options.GetReadOption();
 
@@ -78,7 +78,7 @@ namespace Microservices.DicomTagReader.Execution
         /// </summary>
         /// <param name="header"></param>
         /// <param name="message"></param>
-        public void ReadTags(IMessageHeader header, AccessionDirectoryMessage message)
+        public void ReadTags(IMessageHeader? header, AccessionDirectoryMessage message)
         {
             _stopwatch.Restart();
 
@@ -157,7 +157,7 @@ namespace Microservices.DicomTagReader.Execution
             long beginSend = _stopwatch.ElapsedTicks;
             var headers = new List<IMessageHeader>();
             foreach (DicomFileMessage fileMessage in fileMessages)
-                headers.Add(_fileMessageProducerModel.SendMessage(fileMessage, header));
+                headers.Add(_fileMessageProducerModel.SendMessage(fileMessage, header, routingKey: null));
 
             _fileMessageProducerModel.WaitForConfirms();
 
@@ -167,7 +167,7 @@ namespace Microservices.DicomTagReader.Execution
 
             headers.Clear();
             foreach (KeyValuePair<string, SeriesMessage> kvp in seriesMessages)
-                headers.Add(_seriesMessageProducerModel.SendMessage(kvp.Value, header));
+                headers.Add(_seriesMessageProducerModel.SendMessage(kvp.Value, header, routingKey: null));
 
             _seriesMessageProducerModel.WaitForConfirms();
             headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {x.MessageGuid}"));
@@ -200,7 +200,7 @@ namespace Microservices.DicomTagReader.Execution
                 foreach(var entry in archive.Entries)
                 {
                     if (!entry.FullName.EndsWith(".dcm", StringComparison.CurrentCultureIgnoreCase)) continue;
-                    byte[] buffer = null;
+                    byte[]? buffer = null;
                     
                     buffer = ReadFully(entry.Open());
 

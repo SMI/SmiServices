@@ -29,7 +29,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         /// <summary>
         /// Model to acknowledge messages on
         /// </summary>
-        IModel Model { get; set; }
+        IModel? Model { get; set; }
 
         /// <summary>
         /// Count of the total number of acknowledged messages during this processors lifetime

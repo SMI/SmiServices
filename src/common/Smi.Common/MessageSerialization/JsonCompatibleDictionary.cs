@@ -14,7 +14,7 @@ namespace Smi.Common.MessageSerialization
     /// <typeparam name="TK"></typeparam>
     /// <typeparam name="TV"></typeparam>
     [JsonObject(MemberSerialization.OptIn)]
-    public class JsonCompatibleDictionary<TK, TV> : Dictionary<TK, TV>
+    public class JsonCompatibleDictionary<TK, TV> : Dictionary<TK, TV> where TK : notnull
     {
         [JsonProperty]
         public TK[] SerializeableKeys
@@ -30,8 +30,8 @@ namespace Smi.Common.MessageSerialization
             set { Hydrate(value); }
         }
 
-        private TK[] _hydrateV1;
-        private TV[] _hydrateV2;
+        private TK[]? _hydrateV1;
+        private TV[]? _hydrateV2;
 
         private void Hydrate(TK[] value)
         {
@@ -39,24 +39,24 @@ namespace Smi.Common.MessageSerialization
             Hydrate(_hydrateV1, _hydrateV2);
         }
 
-        private void Hydrate(TV[] value)
+        private void Hydrate(TV[]? value)
         {
             _hydrateV2 = value;
             Hydrate(_hydrateV1, _hydrateV2);
         }
 
-        private void Hydrate(TK[] hydrateV1, TV[] hydrateV2)
+        private void Hydrate(TK[]? hydrateV1, TV[]? hydrateV2)
         {
             if (hydrateV1 == null || hydrateV2 == null)
                 return;
 
-            if (_hydrateV1.Length != hydrateV2.Length)
+            if (_hydrateV1!.Length != hydrateV2.Length)
                 return;
 
             Clear();
 
             for (int i = 0; i < _hydrateV1.Length; i++)
-                Add(_hydrateV1[i], _hydrateV2[i]);
+                Add(_hydrateV1[i], _hydrateV2![i]);
         }
     }
 }

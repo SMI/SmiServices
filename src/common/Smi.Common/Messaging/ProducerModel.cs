@@ -15,8 +15,7 @@ namespace Smi.Common.Messaging
     /// </summary>
     public class ProducerModel : IProducerModel
     {
-        public event ProducerFatalHandler OnFatal;
-
+        public event ProducerFatalHandler? OnFatal;
 
         private readonly ILogger _logger;
 
@@ -74,7 +73,7 @@ namespace Smi.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public virtual IMessageHeader SendMessage(IMessage message, IMessageHeader inResponseTo = null, string routingKey = "")
+        public virtual IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
         {
             IMessageHeader header = SendMessageImpl(message, inResponseTo, routingKey);
             WaitForConfirms();
@@ -119,7 +118,7 @@ namespace Smi.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        protected IMessageHeader SendMessageImpl(IMessage message, IMessageHeader inResponseTo = null, string routingKey = "")
+        protected IMessageHeader SendMessageImpl(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
         {
             lock (_oSendLock)
             {
@@ -131,7 +130,7 @@ namespace Smi.Common.Messaging
                 IMessageHeader header = inResponseTo != null ? new MessageHeader(inResponseTo) : new MessageHeader();
                 header.Populate(_messageBasicProperties.Headers);
 
-                _model.BasicPublish(_exchangeName, routingKey, true, _messageBasicProperties, body);
+                _model.BasicPublish(_exchangeName, routingKey ?? "", true, _messageBasicProperties, body);
 
                 return header;
             }
