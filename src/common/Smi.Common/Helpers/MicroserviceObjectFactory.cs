@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Smi.Common.Events;
 using NLog;
@@ -30,23 +30,22 @@ namespace Smi.Common.Helpers
 
             try
             {
-                var constructor = new ObjectConstructor();
-                toReturn = (T)constructor.ConstructIfPossible(toCreate, optionalConstructorParameters);
+                toReturn = (T)ObjectConstructor.ConstructIfPossible(toCreate, optionalConstructorParameters);
 
                 if (optionalConstructorParameters.Length > 0 && toReturn == null)
-                    toReturn = (T)constructor.Construct(toCreate); // Try blank constructor
+                    toReturn = (T)ObjectConstructor.Construct(toCreate); // Try blank constructor
 
                 if (toReturn == null)
                     throw new Exception("ConstructIfPossible returned null");
 
-                _logger.Info("Successfully constructed Type '" + toReturn.GetType() + "'");
+                _logger.Info($"Successfully constructed Type '{toReturn.GetType()}'");
             }
             catch (Exception e)
             {
                 _logger.Error(e,$"Failed to construct Type '{typeof(T)}'");
 
                 if(FatalHandler != null)
-                    FatalHandler(this,new FatalErrorEventArgs("Error constructing Type " + toCreate, e));
+                    FatalHandler(this,new FatalErrorEventArgs($"Error constructing Type {toCreate}", e));
                 else
                     throw;
             }
@@ -67,7 +66,7 @@ namespace Smi.Common.Helpers
         {
             if (string.IsNullOrWhiteSpace(typeName))
             {
-                _logger.Warn("No Type name specified for T " + typeof(T).Name);
+                _logger.Warn($"No Type name specified for T {typeof(T).Name}");
                 return default;
             }
 

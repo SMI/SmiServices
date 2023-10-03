@@ -1,13 +1,13 @@
 using System;
 using NLog;
-using ReusableLibraryCode.Progress;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 
 namespace Microservices.DicomRelationalMapper.Execution
 {
-    internal class NLogThrowerDataLoadEventListener:IDataLoadEventListener
+    internal sealed class NLogThrowerDataLoadEventListener:IDataLoadEventListener
     {
-        private Logger _logger;
-        private ThrowImmediatelyDataLoadEventListener _thrower = new();
+        private readonly Logger _logger;
+        private static readonly ThrowImmediatelyDataLoadEventListener _thrower = ThrowImmediatelyDataLoadEventListener.Quiet;
 
         public NLogThrowerDataLoadEventListener(Logger logger)
         {
@@ -20,24 +20,16 @@ namespace Microservices.DicomRelationalMapper.Execution
             _thrower.OnNotify(sender,e);
         }
 
-        private LogLevel ToLogLevel(ProgressEventType t)
-        {
-            switch (t)
+        private static LogLevel ToLogLevel(ProgressEventType t) =>
+            t switch
             {
-                case ProgressEventType.Trace:
-                    return LogLevel.Trace;
-                case ProgressEventType.Debug:
-                    return LogLevel.Debug;
-                case ProgressEventType.Information:
-                    return LogLevel.Info;
-                case ProgressEventType.Warning:
-                    return LogLevel.Warn;
-                case ProgressEventType.Error:
-                    return LogLevel.Error;
-                default:
-                    throw new ArgumentOutOfRangeException("t");
-            }
-        }
+                ProgressEventType.Trace => LogLevel.Trace,
+                ProgressEventType.Debug => LogLevel.Debug,
+                ProgressEventType.Information => LogLevel.Info,
+                ProgressEventType.Warning => LogLevel.Warn,
+                ProgressEventType.Error => LogLevel.Error,
+                _ => throw new ArgumentOutOfRangeException(nameof(t))
+            };
 
         public void OnProgress(object sender, ProgressEventArgs e)
         {

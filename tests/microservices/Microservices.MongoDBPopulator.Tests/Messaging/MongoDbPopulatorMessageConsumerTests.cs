@@ -5,10 +5,8 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Framing;
 using Smi.Common.Messages;
 using Smi.Common.Tests;
-using System.Collections.Generic;
 using System.Text;
 
 

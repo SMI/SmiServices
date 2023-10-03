@@ -1,11 +1,11 @@
-﻿
+
 using CommandLine;
 using CommandLine.Text;
-using ReusableLibraryCode.Annotations;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Rdmp.Core.ReusableLibraryCode.Annotations;
 
 namespace Applications.DicomDirectoryProcessor.Options
 {

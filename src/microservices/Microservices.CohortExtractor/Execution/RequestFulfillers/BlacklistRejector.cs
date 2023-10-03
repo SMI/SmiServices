@@ -1,6 +1,5 @@
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FAnsi.Discovery;
@@ -8,7 +7,7 @@ using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
 using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.Repositories;
-using ReusableLibraryCode.DataAccess;
+using Rdmp.Core.ReusableLibraryCode.DataAccess;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {

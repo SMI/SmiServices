@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -12,9 +12,9 @@ using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.DataFlowPipeline;
 using Rdmp.Core.Repositories;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
-using ReusableLibraryCode.Progress;
 
 namespace Microservices.Tests.RDMPTests
 {
@@ -33,16 +33,16 @@ namespace Microservices.Tests.RDMPTests
         public void SourceReadSimpleTagToTable()
         {
             var source = new DicomDatasetCollectionSource();
-           
+
             var ds = new DicomDataset();
             ds.Add(DicomTag.PatientAge, "123Y");
 
             var worklist = new ExplicitListDicomDatasetWorklist(new []{ds},"fish.dcm");
-            
-            source.PreInitialize(worklist,new ThrowImmediatelyDataLoadEventListener());
+
+            source.PreInitialize(worklist,ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
 
-            var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
+            var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
             Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
         }
@@ -68,9 +68,9 @@ namespace Microservices.Tests.RDMPTests
             var worklist = new ExplicitListDicomDatasetWorklist(new[] {ds}, "fish.dcm", new Dictionary<string, string>());
             source.DataTooLongHandlingStrategy = strategy;
             source.FilenameField = "abc";
-            source.PreInitialize(worklist,new ThrowImmediatelyDataLoadEventListener());
-            
-            var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
+            source.PreInitialize(worklist,ThrowImmediatelyDataLoadEventListener.Quiet);
+
+            var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
 
             switch (strategy)
             {
@@ -110,10 +110,10 @@ namespace Microservices.Tests.RDMPTests
             var ds = new DicomDataset();
             ds.Add(DicomTag.PatientAge, "123Y");
             ds.Add(DicomTag.WedgeAngleFloat, "3.40282347e+038");
-            
+
             var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm",new Dictionary<string, string> { {"MessageGuid", "123x321" } });
 
-            source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
+            source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
 
             DataTable? dt = null;
@@ -121,17 +121,17 @@ namespace Microservices.Tests.RDMPTests
             switch (dataHandlingStrategy)
             {
                 case InvalidDataHandling.ThrowException:
-                    Assert.Throws<ArgumentException>(()=>source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
+                    Assert.Throws<ArgumentException>(()=>source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken()));
                     return;
 
                 case InvalidDataHandling.ConvertToNullAndWarn:
-                    var tomem = new ToMemoryDataLoadEventListener(true);
-                    dt = source.GetChunk(tomem, new GracefulCancellationToken());
-                    
+                    var toMem = new ToMemoryDataLoadEventListener(true);
+                    dt = source.GetChunk(toMem, new GracefulCancellationToken());
+
                     Assert.AreEqual(DBNull.Value, dt.Rows[0]["WedgeAngleFloat"]);
 
                     //should be a warning about WedgeAngleFloat logged
-                    var warning = tomem.EventsReceivedBySender.SelectMany(e => e.Value).Single(v => v.ProgressEventType == ProgressEventType.Warning);
+                    var warning = toMem.EventsReceivedBySender.SelectMany(static e => e.Value).Single(v => v.ProgressEventType == ProgressEventType.Warning);
                     Assert.IsTrue(warning.Message.Contains("WedgeAngleFloat"));
                     Assert.IsTrue(warning.Message.Contains("MessageGuid"));
                     Assert.IsTrue(warning.Message.Contains("123x321"));
@@ -140,9 +140,9 @@ namespace Microservices.Tests.RDMPTests
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException("dataHandlingStrategy");
+                    throw new ArgumentOutOfRangeException(nameof(dataHandlingStrategy));
             }
-            
+
             Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
         }
@@ -152,7 +152,7 @@ namespace Microservices.Tests.RDMPTests
         [TestCase(InvalidDataHandling.MarkCorrupt)]
         public void SourceRead_InvalidFloatInSequence_ToTable(InvalidDataHandling dataHandlingStrategy)
         {
-            
+
             var source = new DicomDatasetCollectionSource
             {
                 InvalidDataHandlingStrategy = dataHandlingStrategy
@@ -172,7 +172,7 @@ namespace Microservices.Tests.RDMPTests
 
             var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm");
 
-            source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
+            source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
 
             DataTable? dt = null;
@@ -181,24 +181,24 @@ namespace Microservices.Tests.RDMPTests
             {
 
                 case InvalidDataHandling.MarkCorrupt:
-                    dt =source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
+                    dt =source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
 
                     //row was not processed (which leaves data table with 0 rows and hence component returns null)
                     Assert.IsNull(dt);
-                    
+
                     //corrupt message should appear in the worklist
                     Assert.AreEqual(1,worklist.CorruptMessages.Count);
                     return;
                 case InvalidDataHandling.ConvertToNullAndWarn:
-                    dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
-                    
+                    dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
+
                     Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
                     Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
                     Assert.AreEqual(DBNull.Value,dt.Rows[0]["AcquisitionContextSequence"]);
                     Assert.AreEqual(0,worklist.CorruptMessages.Count);
                     break;
                 case InvalidDataHandling.ThrowException:
-                    Assert.Throws<ArgumentException>(() => source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
+                    Assert.Throws<ArgumentException>(() => source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken()));
                     return;
 
                 default:
@@ -207,7 +207,7 @@ namespace Microservices.Tests.RDMPTests
 
         }
 
-        [TestCase(InvalidDataHandling.ConvertToNullAndWarn)] 
+        [TestCase(InvalidDataHandling.ConvertToNullAndWarn)]
         [TestCase(InvalidDataHandling.ThrowException)]
         public void SourceRead_InvalidFloatInSequence_WithElevation_ToTable(InvalidDataHandling dataHandlingStrategy)
         {
@@ -236,14 +236,14 @@ namespace Microservices.Tests.RDMPTests
             var source = new DicomDatasetCollectionSource();
             source.InvalidDataHandlingStrategy = dataHandlingStrategy;
             source.TagElevationConfigurationFile = elevationRules;
-            
+
             //don't load the sequence, just the elevation
             source.TagBlacklist = new Regex("AcquisitionContextSequence");
-             
+
             //The dataset we are trying to load
             var ds = new DicomDataset();
             ds.Add(DicomTag.PatientAge, "123Y");
-            
+
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset
                 {
@@ -254,7 +254,7 @@ namespace Microservices.Tests.RDMPTests
 
             var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm", new Dictionary<string, string> { { "MessageGuid", "123x321" } });
 
-            source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
+            source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
 
             DataTable? dt = null;
@@ -262,7 +262,7 @@ namespace Microservices.Tests.RDMPTests
             switch (dataHandlingStrategy)
             {
                 case InvalidDataHandling.ThrowException:
-                    Assert.Throws<ArgumentException>(() => source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken()));
+                    Assert.Throws<ArgumentException>(() => source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken()));
                     return;
 
                 case InvalidDataHandling.ConvertToNullAndWarn:
@@ -312,11 +312,11 @@ namespace Microservices.Tests.RDMPTests
 
             var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm");
 
-            source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
+            source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
             source.FieldMapTableIfAny = ti;
 
-            var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
+            var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
             Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
             Assert.AreEqual(2,dt.Columns.Count);
@@ -328,7 +328,7 @@ namespace Microservices.Tests.RDMPTests
             var repo = new MemoryCatalogueRepository();
 
             var lmd = new LoadMetadata(repo, "MyLoad");
-            
+
             var cata1 = new Catalogue(repo, "PatientCatalogue");
             var ci1 = new CatalogueItem(repo, cata1, "PatientAge");
             var ti1 = new TableInfo(repo, "PatientTableInfo");
@@ -363,11 +363,11 @@ namespace Microservices.Tests.RDMPTests
 
             var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm");
 
-            source.PreInitialize(worklist, new ThrowImmediatelyDataLoadEventListener());
+            source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
             source.UseAllTableInfoInLoadAsFieldMap = lmd;
 
-            var dt = source.GetChunk(new ThrowImmediatelyDataLoadEventListener(), new GracefulCancellationToken());
+            var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
             Assert.AreEqual("123Y", dt.Rows[0]["PatientAge"]);
             Assert.AreEqual("fish.dcm", dt.Rows[0]["RelFileName"]);
             Assert.AreEqual(2, dt.Columns.Count);

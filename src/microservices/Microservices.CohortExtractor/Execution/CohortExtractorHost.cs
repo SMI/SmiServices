@@ -11,8 +11,8 @@ using RabbitMQ.Client.Exceptions;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.Repositories;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.Startup;
-using ReusableLibraryCode.Checks;
 using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.Messages.Extraction;
@@ -65,18 +65,18 @@ namespace Microservices.CohortExtractor.Execution
         {
             FansiImplementations.Load();
 
-            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions!.GetRepositoryProvider();
+            var repositoryLocator = Globals.RDMPOptions?.GetRepositoryProvider() ?? throw new ApplicationException("RDMPOptions missing");
 
-            var startup = new Startup(new EnvironmentInfo(PluginFolders.Main), repositoryLocator);
+            var startup = new Startup(repositoryLocator);
 
             var toMemory = new ToMemoryCheckNotifier();
             startup.DoStartup(toMemory);
 
-            foreach (CheckEventArgs args in toMemory.Messages.Where(m => m.Result == CheckResult.Fail))
+            foreach (var args in toMemory.Messages.Where(static m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
             _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions!.ExtractFilesProducerOptions!, isBatch: true);
-            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
+            var fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 
@@ -105,7 +105,7 @@ namespace Microservices.CohortExtractor.Execution
         private void InitializeExtractionSources(IRDMPPlatformRepositoryServiceLocator repositoryLocator)
         {
             // Get all extractable catalogues
-            ICatalogue[] catalogues = repositoryLocator
+            var catalogues = repositoryLocator
                 .DataExportRepository
                 .GetAllObjects<ExtractableDataSet>()
                 .Select(eds => eds.Catalogue)
@@ -133,7 +133,7 @@ namespace Microservices.CohortExtractor.Execution
             if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
                 _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly)!);
 
-            foreach(var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? new ModalitySpecificRejectorOptions[0])
+            foreach(var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? Array.Empty<ModalitySpecificRejectorOptions>())
             {
                 var r = ObjectFactory.CreateInstance<IRejector>(modalitySpecific.RejectorType!, typeof(IRejector).Assembly)!;
                 _fulfiller.ModalitySpecificRejectors.Add(modalitySpecific, r);
@@ -144,7 +144,7 @@ namespace Microservices.CohortExtractor.Execution
                     _fulfiller.Rejectors.Add(new ColumnInfoValuesRejector(repositoryLocator.CatalogueRepository.GetObjectByID<ColumnInfo>(id)));
 
             if(_consumerOptions.Blacklists != null)
-                foreach (int id in _consumerOptions.Blacklists)
+                foreach (var id in _consumerOptions.Blacklists)
                 {
                     var cata = repositoryLocator.CatalogueRepository.GetObjectByID<Catalogue>(id);
                     var rejector = new BlacklistRejector(cata);

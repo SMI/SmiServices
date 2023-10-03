@@ -1,9 +1,8 @@
-﻿
+
 using FellowOakDicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using FAnsi.Discovery;
-using MapsDirectlyToDatabaseTable;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
@@ -16,8 +15,9 @@ using Smi.Common.Options;
 using System;
 using System.IO;
 using System.Linq;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.TagPromotionSchema;
-using ReusableLibraryCode.Checks;
 
 namespace Microservices.Tests.RDMPTests
 {
@@ -50,12 +50,6 @@ namespace Microservices.Tests.RDMPTests
             {
                 //never mind, it's probably locked
             }
-
-
-            //The Rdmp.Dicom assembly should be loaded as a plugin, this simulates it.
-            foreach (var type in typeof(InvalidDataHandling).Assembly.GetTypes())
-                repositoryLocator.CatalogueRepository.MEF.AddTypeToCatalogForTesting(type);
-
 
             var catalogueRepository = repositoryLocator.CatalogueRepository;
             var dataExportRepository = repositoryLocator.DataExportRepository;

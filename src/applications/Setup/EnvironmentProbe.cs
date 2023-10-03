@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution;
+using Microservices.CohortExtractor.Execution;
 using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.DicomAnonymiser;
@@ -9,9 +9,6 @@ using Microservices.IsIdentifiable.Service;
 using Microservices.MongoDBPopulator.Execution;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
-using ReusableLibraryCode;
-using ReusableLibraryCode.Checks;
-using ReusableLibraryCode.Progress;
 using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
@@ -21,6 +18,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Rdmp.Core.ReusableLibraryCode;
+using Rdmp.Core.ReusableLibraryCode.Checks;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 
 namespace Setup
 {
@@ -136,8 +136,8 @@ DicomTagReader {
             var probes = Probes.Where(p => p.Value.Category == Infrastructure).ToArray();
 
             var sw = Stopwatch.StartNew();
-            int max = probes.Length;
-            int current = 0;
+            var max = probes.Length;
+            var current = 0;
             var task = CheckInfrastructureTaskName;
 
             listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
@@ -156,8 +156,8 @@ DicomTagReader {
             var probes = Probes.Where(p => p.Value.Category == Microservices).ToArray();
 
             var sw = Stopwatch.StartNew();
-            int max = probes.Length;
-            int current = 0;
+            var max = probes.Length;
+            var current = 0;
             var task = CheckMicroservicesTaskName;
 
             listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
@@ -190,16 +190,16 @@ DicomTagReader {
 
                 var provider = Options.RDMPOptions.GetRepositoryProvider();
 
-                var startup = new Startup(new EnvironmentInfo(), provider);
+                var startup = new Startup(provider);
 
-                bool failed = false;
+                var failed = false;
                 var sb = new StringBuilder();
                 var exceptions = new List<Exception>();
 
                 startup.DatabaseFound += (s, e) =>
                 {
                     failed = !failed && e.Status != RDMPPlatformDatabaseStatus.Healthy || e.Exception != null;
-                    sb.AppendLine(e.Patcher.Name + " " + e.Status);
+                    sb.AppendLine($"{e.Patcher.Name} {e.Status}");
 
                     if (e.Exception != null)
                     {
@@ -208,7 +208,7 @@ DicomTagReader {
                     }
                 };
 
-                startup.DoStartup(new ThrowImmediatelyCheckNotifier() { WriteToConsole = false });
+                startup.DoStartup(ThrowImmediatelyCheckNotifier.Quiet);
 
                 return new CheckEventArgs(sb.ToString(), failed ? CheckResult.Fail : CheckResult.Success);
             }
@@ -220,12 +220,12 @@ DicomTagReader {
 
         public CheckEventArgs? ProbeRabbitMq()
         {
-            if (Options == null)
+            if (Options?.RabbitOptions == null)
                 return null;
 
             try
             {
-                var factory = ConnectionFactoryExtensions.CreateConnectionFactory(Options.RabbitOptions!);
+                var factory = Options.RabbitOptions.CreateConnectionFactory();
                 var adapter = new RabbitMqAdapter(factory, "setup");
 
                 return new CheckEventArgs("Connected to RabbitMq", CheckResult.Success);
@@ -238,25 +238,22 @@ DicomTagReader {
 
         public CheckEventArgs? ProbeMongoDb()
         {
-            if (Options == null)
+            if (Options?.MongoDatabases?.DicomStoreOptions == null)
                 return null;
 
             try
             {
-                if (Options.MongoDatabases == null)
-                    return null;
-
-                // this opens connection to the server and tests for collection existing                
-                new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions!,
-                         Options.MongoDbPopulatorOptions!.ImageCollection!);
+                // this opens connection to the server and tests for collection existing
+                _=new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
+                         Options.MongoDbPopulatorOptions?.ImageCollection ?? throw new InvalidOperationException());
 
 
-                MongoDbOptions mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions
-                    ?? throw new ArgumentException($"ExtractionStoreOptions was null");
+                var mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions
+                                     ?? throw new ArgumentException($"ExtractionStoreOptions was null");
 
-                var jobStore = new MongoExtractJobStore(
+                _ = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, "Setup"),
-                    mongoDbOptions.DatabaseName!, new Smi.Common.Helpers.DateTimeProvider()
+                    mongoDbOptions.DatabaseName ?? throw new InvalidOperationException(), new Smi.Common.Helpers.DateTimeProvider()
                 );
 
                 return new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);

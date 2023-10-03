@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -9,7 +9,6 @@ using Applications.DicomDirectoryProcessor.Options;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using FAnsi.Discovery;
-using MapsDirectlyToDatabaseTable;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.DicomRelationalMapper.Execution;
@@ -29,10 +28,10 @@ using Rdmp.Core.Curation.Data.Defaults;
 using Rdmp.Core.Curation.Data.Pipelines;
 using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
-using Rdmp.Core.Logging.PastEvents;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.PipelineComponents;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
-using ReusableLibraryCode.Checks;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -77,21 +76,19 @@ namespace Microservices.DicomRelationalMapper.Tests
         }
 
         [TearDown]
-        public void TearDown()
+        public new void TearDown()
         {
             //delete all joins
-            foreach (JoinInfo j in CatalogueRepository.GetAllObjects<JoinInfo>())
+            foreach (var j in CatalogueRepository.GetAllObjects<JoinInfo>())
                 j.DeleteInDatabase();
 
             //delete everything from data export
-            foreach (var t in new Type[] { typeof(ExtractionConfiguration), typeof(ExternalCohortTable), typeof(ExtractableDataSet) })
-                foreach (IDeleteable o in DataExportRepository.GetAllObjects(t))
-                    o.DeleteInDatabase();
+            foreach (var o in new Type[] { typeof(ExtractionConfiguration), typeof(ExternalCohortTable), typeof(ExtractableDataSet) }.SelectMany(t => DataExportRepository.GetAllObjects(t)))
+                o.DeleteInDatabase();
 
             //delete everything from catalogue
-            foreach (var t in new Type[] { typeof(Catalogue), typeof(TableInfo), typeof(LoadMetadata), typeof(Pipeline) })
-                foreach (IDeleteable o in CatalogueRepository.GetAllObjects(t))
-                    o.DeleteInDatabase();
+            foreach (var o in new Type[] { typeof(Catalogue), typeof(TableInfo), typeof(LoadMetadata), typeof(Pipeline) }.SelectMany(t => CatalogueRepository.GetAllObjects(t)))
+                o.DeleteInDatabase();
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer, typeof(GuidDatabaseNamer))]
@@ -123,7 +120,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             arg.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
@@ -160,7 +157,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             arg.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
@@ -207,7 +204,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             arg.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
@@ -286,7 +283,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.StudyTableInfo.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
@@ -376,7 +373,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             dir.Create();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
@@ -527,7 +524,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                     //if error was reported during the dicom relational mapper run
                     foreach (var dli in rdmpLogging.GetArchivalDataLoadInfos(_helper.LoadMetadata.GetDistinctLoggingTask(), null, null))
                         if (dli.StartTime > start)
-                            foreach (ArchivalFatalError e in dli.Errors)
+                            foreach (var e in dli.Errors)
                                 logger.Error($"{e.Date.TimeOfDay}:{e.Source}:{e.Description}");
                 }
 

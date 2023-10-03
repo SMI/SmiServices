@@ -5,12 +5,6 @@
 // You should have received a copy of the GNU General Public License along with RDMP. If not, see <https://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using FAnsi.Discovery;
-using Plugin.Settings.Abstractions;
-using ReusableLibraryCode.Checks;
-using static ReusableLibraryCode.Checks.CheckEventArgs;
 
 namespace Setup
 {
@@ -21,13 +15,13 @@ namespace Setup
     /// </summary>
     public static class SetupSettings
     {
-        static Lazy<ISettings> implementation = new Lazy<ISettings>(() => CreateSettings(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        static readonly Lazy<SetupIsolatedStorage> _implementation = new Lazy<SetupIsolatedStorage>(static () => CreateSettings(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
-        private static ISettings AppSettings
+        private static SetupIsolatedStorage AppSettings
         {
             get
             {
-                ISettings ret = implementation.Value;
+                SetupIsolatedStorage ret = _implementation.Value;
                 if (ret == null)
                 {
                     throw new NotImplementedException("Isolated Storage does not work in this environment...");
@@ -39,14 +33,14 @@ namespace Setup
         /// <summary>
         /// Last loaded/selected .yaml file
         /// </summary>
-        public static string YamlFile
+        internal static string YamlFile
         {
-            get { return AppSettings.GetValueOrDefault("YamlFile", ""); }
-            set { AppSettings.AddOrUpdateValue("YamlFile", value); }
+            get => AppSettings?.GetValueOrDefault("YamlFile", "") ?? throw new InvalidOperationException("AppSettings not yet initialised") ;
+            set => AppSettings.AddOrUpdateValue("YamlFile", value);
         }
 
 
-        static ISettings CreateSettings()
+        private static SetupIsolatedStorage CreateSettings()
         {
             return new SetupIsolatedStorage();
         }

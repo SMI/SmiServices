@@ -1,4 +1,4 @@
-﻿using FellowOakDicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -12,13 +12,13 @@ using Rdmp.Core.DataLoad;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
 using Rdmp.Core.Repositories;
-using ReusableLibraryCode.Checks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 
 namespace Microservices.DicomRelationalMapper.Messaging
 {

@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDB.Driver.Search;
 
 
 namespace Smi.Common.MongoDB.Tests
@@ -14,11 +15,15 @@ namespace Smi.Common.MongoDB.Tests
     /// </summary>
     public abstract class StubMongoCollection<TKey, TVal> : IMongoCollection<TVal> where TKey : struct
     {
-        public virtual CollectionNamespace CollectionNamespace { get; } = null!;
-        public virtual IMongoDatabase Database { get; } = null!;
-        public virtual IBsonSerializer<TVal> DocumentSerializer { get; } = null!;
-        public virtual IMongoIndexManager<TVal> Indexes { get; } = null!;
-        public virtual MongoCollectionSettings Settings { get; } = null!;
+        public virtual CollectionNamespace CollectionNamespace => throw new NotImplementedException();
+        public virtual IMongoDatabase Database => throw new NotImplementedException();
+        public virtual IBsonSerializer<TVal> DocumentSerializer => throw new NotImplementedException();
+        public virtual IMongoIndexManager<TVal> Indexes => throw new NotImplementedException();
+
+        /// <inheritdoc />
+        public IMongoSearchIndexManager SearchIndexes => throw new NotImplementedException();
+
+        public virtual MongoCollectionSettings Settings => throw new NotImplementedException();
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TVal, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TVal, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TVal, TResult> pipeline, AggregateOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();

@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microservices.FileCopier.Messaging;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
