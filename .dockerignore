@@ -1,0 +1,17 @@
+# Git
+.git/
+
+# dotnet
+bin/
+obj/
+
+# Java
+*.jar
+
+# Misc.
+docs/
+lib/
+tests/
+.meta/
+*.md
+*.png
