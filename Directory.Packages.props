@@ -30,7 +30,7 @@
     <PackageVersion Include="Terminal.Gui" Version="1.14.0" />
     <PackageVersion Include="YamlDotNet" Version="13.4.0" />
     <!-- Test Packages -->
-    <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.16-rc1" />
+    <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.16" />
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.1.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageVersion Include="Moq" Version="4.20.69" />
