@@ -32,7 +32,7 @@ namespace Smi.Common.Tests
             var p = new PersonCollection();
             p.GeneratePeople(5000,r);
 
-            if(g.OutputDir.Exists)
+            if(g.OutputDir?.Exists==true)
                 g.OutputDir.Delete(true);
 
             var inventory = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv"));Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv");
