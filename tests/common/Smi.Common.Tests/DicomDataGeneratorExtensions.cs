@@ -35,7 +35,7 @@ namespace Smi.Common.Tests
             if(g.OutputDir?.Exists==true)
                 g.OutputDir.Delete(true);
 
-            var inventory = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv"));Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv");
+            var inventory = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv"));
 
             g.MaximumImages = numberOfImages;
             g.GenerateTestDataFile(p,inventory,numberOfImages);
