@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Smi.Common.Tests
         {
             var toReturn = new List<DicomDataset>();
             g.MaximumImages = numberOfImages;
-            
+
             while (toReturn.Count <=  numberOfImages)
                 toReturn.AddRange(g.GenerateStudyImages(new Person(r), out _));
 
@@ -39,8 +39,8 @@ namespace Smi.Common.Tests
 
             g.MaximumImages = numberOfImages;
             g.GenerateTestDataFile(p,inventory,numberOfImages);
-            
-            return g.OutputDir.GetFiles("*.dcm",SearchOption.AllDirectories);
+
+            return g.OutputDir?.GetFiles("*.dcm",SearchOption.AllDirectories)??Enumerable.Empty<FileInfo>();
         }
     }
 }
