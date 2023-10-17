@@ -42,6 +42,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         [BsonElement("keyCount")]
         public uint KeyCount { get; set; }
 
+        [BsonElement("userName")]
+        [NotNull]
+        public string UserName { get; set; }
+
         [BsonElement("extractionModality")]
         [CanBeNull]
         public string ExtractionModality { get; set; }
@@ -66,6 +70,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             DateTime jobSubmittedAt,
             [NotNull] string keyTag,
             uint keyCount,
+            [NotNull] string userName,
             [CanBeNull] string extractionModality,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction,
@@ -79,6 +84,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             JobSubmittedAt = (jobSubmittedAt != default(DateTime)) ? jobSubmittedAt : throw new ArgumentException(nameof(jobSubmittedAt));
             KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentNullException(nameof(keyTag));
             KeyCount = (keyCount > 0) ? keyCount : throw new ArgumentNullException(nameof(keyCount));
+            UserName = (!string.IsNullOrWhiteSpace(userName)) ? userName : throw new ArgumentNullException(nameof(userName));
             if (extractionModality != null)
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
             IsIdentifiableExtraction = isIdentifiableExtraction;
@@ -99,6 +105,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             JobSubmittedAt = existing.JobSubmittedAt;
             KeyTag = existing.KeyTag;
             KeyCount = existing.KeyCount;
+            UserName = existing.UserName;
             ExtractionModality = existing.ExtractionModality;
             IsIdentifiableExtraction = existing.IsIdentifiableExtraction;
             FailedJobInfoDoc = existing.FailedJobInfoDoc;
@@ -119,6 +126,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 message.JobSubmittedAt,
                 message.KeyTag,
                 (uint)message.KeyValueCount,
+                message.UserName,
                 message.ExtractionModality,
                 message.IsIdentifiableExtraction,
                 message.IsNoFilterExtraction,

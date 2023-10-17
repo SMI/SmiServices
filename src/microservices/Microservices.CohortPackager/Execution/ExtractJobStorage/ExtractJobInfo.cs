@@ -44,6 +44,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public uint KeyValueCount { get; }
 
         /// <summary>
+        /// Username of the person who submitted the job
+        /// </summary>
+        [NotNull]
+        public string UserName { get; }
+
+        /// <summary>
         /// The modality being extracted
         /// </summary>
         [CanBeNull]
@@ -66,6 +72,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             [NotNull] string extractionDirectory,
             [NotNull] string keyTag,
             uint keyValueCount,
+            [NotNull] string userName,
             [CanBeNull] string extractionModality,
             ExtractJobStatus jobStatus,
             bool isIdentifiableExtraction,
@@ -78,6 +85,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             ExtractionDirectory = (!string.IsNullOrWhiteSpace(extractionDirectory)) ? extractionDirectory : throw new ArgumentNullException(nameof(extractionDirectory));
             KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentNullException(nameof(keyTag));
             KeyValueCount = (keyValueCount > 0) ? keyValueCount : throw new ArgumentNullException(nameof(keyValueCount));
+            UserName = (!string.IsNullOrWhiteSpace(userName)) ? userName : throw new ArgumentNullException(nameof(userName));
             if (extractionModality != null)
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
             JobStatus = (jobStatus != default(ExtractJobStatus)) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
@@ -113,6 +121,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             sb.AppendLine("ExtractionDirectory: " + ExtractionDirectory);
             sb.AppendLine("KeyTag: " + KeyTag);
             sb.AppendLine("KeyCount: " + KeyValueCount);
+            sb.AppendLine("UserName: " + UserName);
             sb.AppendLine("ExtractionModality: " + ExtractionModality);
             sb.AppendLine("IsIdentifiableExtraction: " + IsIdentifiableExtraction);
             sb.AppendLine("IsNoFilterExtraction: " + IsNoFilterExtraction);

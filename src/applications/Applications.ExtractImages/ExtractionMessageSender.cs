@@ -76,6 +76,7 @@ namespace Applications.ExtractImages
 
             // TODO(rkm 2021-04-01) Change this to a string[] in both messages below
             string modalitiesString = _modalities == null ? null : string.Join(',', _modalities);
+            string userName = Environment.UserName;
 
             var erm = new ExtractionRequestMessage
             {
@@ -116,6 +117,7 @@ namespace Applications.ExtractImages
 
                 KeyTag = extractionKey.ToString(),
                 KeyValueCount = idList.Count,
+                UserName = userName,
                 ExtractionModality = modalitiesString,
             };
 
@@ -134,6 +136,7 @@ namespace Applications.ExtractImages
                 sb.AppendLine($"IsIdentifiableExtraction:       {_isIdentifiableExtraction}");
                 sb.AppendLine($"IsNoFilterExtraction:           {_isNoFiltersExtraction}");
                 sb.AppendLine($"ExtractionModality:             {modalitiesString ?? "<unspecified>"}");
+                sb.AppendLine($"UserName:                       {userName}");
                 sb.AppendLine($"KeyValueCount:                  {idList.Count}");
                 sb.AppendLine($"ExtractionRequestMessage count: {ermList.Count}");
                 _logger.Info(sb.ToString());
