@@ -130,6 +130,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 "extractions/test",
                 "keyTag",
                 123,
+                "testUser",
                 null,
                 isIdentifiableExtraction,
                 isNoFilterExtraction

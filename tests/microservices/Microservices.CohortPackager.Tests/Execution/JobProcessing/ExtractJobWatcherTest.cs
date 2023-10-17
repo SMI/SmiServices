@@ -69,6 +69,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
                 "test/dir",
                 "KeyTag",
                 123,
+                "testUser",
                 null,
                 ExtractJobStatus.ReadyForChecks,
                 isIdentifiableExtraction: true,

@@ -90,6 +90,7 @@ namespace Microservices.CohortPackager.Tests
                 $"-   Extraction tag:               {jobInfo.KeyTag}",
                 $"-   Extraction modality:          {jobInfo.ExtractionModality ?? "Unspecified"}",
                 $"-   Requested identifier count:   {jobInfo.KeyValueCount}",
+                $"-   User name:                    {jobInfo.UserName}",
                 $"-   Identifiable extraction:      {identExtraction}",
                 $"-   Filtered extraction:          {filteredExtraction}",
                 $"",
