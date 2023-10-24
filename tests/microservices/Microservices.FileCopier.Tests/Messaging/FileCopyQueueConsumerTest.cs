@@ -15,9 +15,9 @@ namespace Microservices.FileCopier.Tests.Messaging
     {
         #region Fixture Methods 
 
-        private ExtractFileMessage _message;
-        private Mock<IModel> _mockModel;
-        private Mock<IFileCopier> _mockFileCopier;
+        private ExtractFileMessage _message = null!;
+        private Mock<IModel> _mockModel = null!;
+        private Mock<IFileCopier> _mockFileCopier = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()

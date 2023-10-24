@@ -9,6 +9,7 @@
 # allow us to test the text extraction, redaction and DICOM recreation all work.
 
 import argparse
+import logging
 import os
 from os.path import join, abspath, dirname
 import pydicom
@@ -40,6 +41,7 @@ if args.pattern:
 	fake_pattern = args.pattern
 if args.yaml:
 	yaml1 = args.yaml
+logging.basicConfig(level = logging.INFO)
 
 # Intermediate files:
 anon_dcm_file = 'report10html.anon.dcm'
@@ -57,16 +59,20 @@ with open(source_dcm, 'rb') as fdin:
 		fdout.write(fdin.read())
 
 # Extract the text which would be input to SemEHR
+logging.info('Extracting text from %s using CTP_DicomToText.py' % source_dcm)
 os.system(f"{binpath}/CTP_DicomToText.py -y {yaml1} -i {source_dcm}  -o {source_txt_file}")
 
 # Fake the output from SemEHR, both txt and xml.
+logging.info('Running a fake anonymiser to get XML %s' % xml_file)
 os.system(join(abspath(dirname(__file__)), f"clinical_doc_wrapper.py -s {semehr_dir}"))
 
 # Now convert the txt,xml back into a redacted DICOM file:
+logging.info('Redacting using XML into %s' % anon_dcm_file)
 os.system(f"{binpath}/CTP_XMLToDicom.py -y {yaml1} -i {source_dcm} -x {xml_file} -o {anon_dcm_file}")
 
 # Extract the text from the DICOM file to the screen if possible
 if shutil.which('jq') and shutil.which('dcm2json'):
+	logging.info('Text in new DICOM file:')
 	os.system("dcm2json %s | jq '..|select(.vr==\"UT\")?|.Value[0]'" % anon_dcm_file)
 
 # Finally compare the two text strings
@@ -87,7 +93,7 @@ after_text = after.text()
 manually_redacted = re.sub(fake_pattern, 'X'.rjust(len(fake_pattern), 'X'), before_text)
 with open(test_before, 'w') as fd: fd.write(manually_redacted)
 with open(test_after, 'w') as fd: fd.write(after_text)
-rc = os.system('diff -wB %s %s' % (test_before, test_after))
+rc = os.system('diff -wB --ignore-matching="\\[\\[" %s %s' % (test_before, test_after))
 if rc == 0:
 	print('SUCCESS')
 	rc = 0
@@ -96,14 +102,15 @@ else:
 	rc = 1
 
 # Tidy up (ignore errors)
-try:
-    os.remove(source_txt_file)
-    os.remove(txt_file)
-    os.remove(xml_file)
-    os.remove(anon_dcm_file)
-    os.remove(test_before)
-    os.remove(test_after)
-except:
-	pass
+if rc == 0:
+	try:
+	    os.remove(source_txt_file)
+	    os.remove(txt_file)
+	    os.remove(xml_file)
+	    os.remove(anon_dcm_file)
+	    os.remove(test_before)
+	    os.remove(test_after)
+	except:
+		pass
 
 exit(rc)

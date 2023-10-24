@@ -1,10 +1,11 @@
-﻿
+
 using CommandLine;
 using CommandLine.Text;
-using ReusableLibraryCode.Annotations;
 using Smi.Common.Options;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using Rdmp.Core.ReusableLibraryCode.Annotations;
 
 namespace Applications.DicomDirectoryProcessor.Options
 {
@@ -12,14 +13,14 @@ namespace Applications.DicomDirectoryProcessor.Options
     {
         [UsedImplicitly]
         [Option('d', "to-process", Required = true, HelpText = "The directory to process")]
-        public string ToProcess { get; set; }
+        public string ToProcess { get; set; } = null!;
 
         [UsedImplicitly]
         [Option('f', "directory-format", Required = false, HelpText = "The specific directory search format to use (case insensitive).  Options include PACS,LIST,ZIPS and DEFAULT", Default = "Default")]
-        public string DirectoryFormat { get; set; }
+        public string? DirectoryFormat { get; set; }
 
 
-        public DirectoryInfo ToProcessDir
+        public DirectoryInfo? ToProcessDir
         {
             get
             {
@@ -27,13 +28,7 @@ namespace Applications.DicomDirectoryProcessor.Options
                     ? null
                     : new DirectoryInfo(ToProcess);
             }
-
-            set
-            {
-                ToProcess = value != null
-                    ? value.FullName
-                    : null;
-            }
+            set => ToProcess = value?.FullName ?? throw new ArgumentNullException(nameof(value));
         }
 
         [Usage]

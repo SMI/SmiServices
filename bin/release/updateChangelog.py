@@ -157,7 +157,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     cmd = (
         "npx",
         "prettier",
-        "--config", ".meta/prettierrc.yml",
         "--write", "CHANGELOG.md",
     )
     _run(cmd)

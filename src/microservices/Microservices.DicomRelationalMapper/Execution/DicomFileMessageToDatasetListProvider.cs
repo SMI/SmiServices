@@ -27,7 +27,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             _progress = 0;
         }
 
-        public FellowOakDicom.DicomDataset GetNextDatasetToProcess(out string filename, out Dictionary<string, string> otherValuesToStoreInRow)
+        public DicomDataset? GetNextDatasetToProcess(out string? filename, out Dictionary<string, string> otherValuesToStoreInRow)
         {
             otherValuesToStoreInRow = new Dictionary<string, string>();
 
@@ -41,7 +41,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             filename = toReturn.DicomFileMessage.DicomFilePath;
 
             otherValuesToStoreInRow.Add("MessageGuid", _messages[_progress].Header.MessageGuid.ToString());
-            otherValuesToStoreInRow.Add("DicomFileSize",toReturn.DicomFileMessage.DicomFileSize.ToString()); //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
+            otherValuesToStoreInRow.Add("DicomFileSize", toReturn.DicomFileMessage.DicomFileSize.ToString()); //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
 
             _progress++;
 
@@ -50,7 +50,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
         public void MarkCorrupt(DicomDataset ds)
         {
-            CorruptMessages.Add(_messages.Single(m=>m.DicomDataset == ds));
+            CorruptMessages.Add(_messages.Single(m => m.DicomDataset == ds));
         }
     }
 }

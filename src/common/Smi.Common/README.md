@@ -70,7 +70,7 @@ public class GlobalOptions
     #region AllOptions
 
     // ... other stuff above
-    public MyHostOptions MyHostOptions { get; set; }
+    public MyHostOptions? MyHostOptions { get; set; }
 
     #endregion
 }
@@ -143,7 +143,7 @@ public class MyConsumer : Consumer
         // Your constructor setup
     }
 
-    protected override void ProcessMessageImpl(IMessageHeader header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
+    protected override void ProcessMessageImpl(IMessageHeader? header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
     {
         // Deserialize the message from the delivery arguments
 
@@ -191,7 +191,7 @@ messages should therefore be `Debug`. Trace logging will be disabled unless the 
 In addition to using the `Log` methods to log routine events, you can log message specific events via `IMessageHeader`:
 
 ```csharp
-protected override void ProcessMessageImpl(IMessageHeader header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
+protected override void ProcessMessageImpl(IMessageHeader? header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
 {
     var logger = LogManager.GetCurrentClassLogger();
     header.Log(logger,LogLevel.Warn, "Message was all caps, had to call .Lower on it");
@@ -210,7 +210,7 @@ Logging through the header is recommended whenever the audited fact relates spec
 The first rule of Microservice Club is that `LogLevel.Fatal` means game over. Do not log to this level, instead you should call the `Fatal` method:
 
 ```csharp
-protected override void ProcessMessageImpl(IMessageHeader header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
+protected override void ProcessMessageImpl(IMessageHeader? header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
 {
     var logger = LogManager.GetCurrentClassLogger();
     header.Log(logger,LogLevel.Warn, "Message was all caps, had to call .Lower on it");
@@ -233,7 +233,7 @@ The second rule of Microservice Club is you don't nack messages without giving a
 This will log an error to NLog and Nack the message for you.
 
 ```csharp
-protected override void ProcessMessageImpl(IMessageHeader header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
+protected override void ProcessMessageImpl(IMessageHeader? header, IModel model, BasicDeliverEventArgs basicDeliverEventArgs)
 {
     ErrorAndNack(header,model,basicDeliverEventArgs,"Something went wrong", new Exception("What went wrong"));
 }

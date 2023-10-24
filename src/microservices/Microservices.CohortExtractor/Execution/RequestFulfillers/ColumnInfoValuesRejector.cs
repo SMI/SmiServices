@@ -1,12 +1,10 @@
-﻿using FAnsi.Discovery;
-using MapsDirectlyToDatabaseTable;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.QueryBuilding;
-using ReusableLibraryCode.DataAccess;
+using Rdmp.Core.ReusableLibraryCode.DataAccess;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
@@ -17,7 +15,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         public ColumnInfoValuesRejector(ColumnInfo columnInfo) : base(columnInfo.GetRuntimeName(),FetchTable(columnInfo))
         {
-            
+
         }
 
         private static HashSet<string> FetchTable(ColumnInfo columnInfo)
@@ -28,19 +26,19 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             var qb = new QueryBuilder(limitationSQL: null, hashingAlgorithm: null);
             qb.AddColumn(new ColumnInfoToIColumn(new MemoryRepository(), columnInfo));
 
-            string sql = qb.SQL;
-            logger.Info("Running rejection-id fetch SQL:" + sql);
+            var sql = qb.SQL;
+            logger.Info($"Running rejection-id fetch SQL:{sql}");
 
-            DiscoveredTable server = columnInfo.TableInfo.Discover(DataAccessContext.DataExport);
+            var server = columnInfo.TableInfo.Discover(DataAccessContext.DataExport);
 
-            using (DbConnection con = server.Database.Server.GetConnection())
+            using (var con = server.Database.Server.GetConnection())
             {
                 con.Open();
-                DbCommand cmd = server.GetCommand(sql, con);
-                DbDataReader reader = cmd.ExecuteReader();
+                var cmd = server.GetCommand(sql, con);
+                var reader = cmd.ExecuteReader();
 
                 while (reader.Read())
-                    toReturn.Add(reader[0].ToString());
+                    toReturn.Add(reader[0].ToString()!);
             }
 
             logger.Info($"Found {toReturn.Count} identifiers in the reject list");

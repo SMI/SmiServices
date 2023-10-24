@@ -46,7 +46,7 @@ namespace Applications.ExtractImages.Tests
         public void HappyPath()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(HappyPath));
-            globals.ExtractImagesOptions.MaxIdentifiersPerMessage = 1;
+            globals.ExtractImagesOptions!.MaxIdentifiersPerMessage = 1;
 
             var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "foo.csv", ProjectId = "1234-5678", NonInteractive = true };
 
@@ -58,13 +58,13 @@ namespace Applications.ExtractImages.Tests
             );
             var extractRoot = fs.Path.Join(fs.Path.GetTempPath(), "extract-root");
             fs.Directory.CreateDirectory(extractRoot);
-            globals.FileSystemOptions.ExtractRoot = extractRoot;
+            globals.FileSystemOptions!.ExtractRoot = extractRoot;
 
             Expression<Action<IExtractionMessageSender>> expr = x => x.SendMessages(ExtractionKey.SeriesInstanceUID, new List<string> { "1.2.3.4" });
             var mockExtractionMessageSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
             mockExtractionMessageSender.Setup(expr);
 
-            using var _ = new MicroserviceTester(globals.RabbitOptions);
+            using var _ = new MicroserviceTester(globals.RabbitOptions!);
 
             var host = new ExtractImagesHost(globals, cliOptions, mockExtractionMessageSender.Object, fileSystem: fs);
             host.Start();
@@ -78,9 +78,9 @@ namespace Applications.ExtractImages.Tests
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(HappyPath_Integration));
 
             string extractRoot = Path.GetTempPath();
-            globals.FileSystemOptions.ExtractRoot = extractRoot;
+            globals.FileSystemOptions!.ExtractRoot = extractRoot;
 
-            ExtractImagesOptions options = globals.ExtractImagesOptions;
+            ExtractImagesOptions options = globals.ExtractImagesOptions!;
 
             string tmpFile = Path.GetTempFileName();
             File.WriteAllText(tmpFile, "SeriesInstanceUID\n1.2.3.4");
@@ -95,13 +95,13 @@ namespace Applications.ExtractImages.Tests
                 IsNoFiltersExtraction = true,
             };
 
-            var extReqExchName = options.ExtractionRequestProducerOptions.ExchangeName;
-            var extReqInfoExchName = options.ExtractionRequestInfoProducerOptions.ExchangeName;
+            var extReqExchName = options.ExtractionRequestProducerOptions!.ExchangeName!;
+            var extReqInfoExchName = options.ExtractionRequestInfoProducerOptions!.ExchangeName!;
 
             var consumedExtReqMsgs = new List<Tuple<IMessageHeader, ExtractionRequestMessage>>();
             var consumedExtReqInfoMsgs = new List<Tuple<IMessageHeader, ExtractionRequestInfoMessage>>();
 
-            using (var tester = new MicroserviceTester(globals.RabbitOptions))
+            using (var tester = new MicroserviceTester(globals.RabbitOptions!))
             {
                 tester.CreateExchange(extReqExchName);
                 tester.CreateExchange(extReqInfoExchName);
@@ -152,7 +152,7 @@ namespace Applications.ExtractImages.Tests
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractImagesOptions_AreValid));
             globals.ExtractImagesOptions = null;
 
-            using var _ = new MicroserviceTester(globals.RabbitOptions);
+            using var _ = new MicroserviceTester(globals.RabbitOptions!);
 
             var exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -165,9 +165,9 @@ namespace Applications.ExtractImages.Tests
         public void ExtractionRoot_VerifyPresent()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractionRoot_VerifyPresent));
-            globals.FileSystemOptions.ExtractRoot = "nope";
+            globals.FileSystemOptions!.ExtractRoot = "nope";
 
-            using var _ = new MicroserviceTester(globals.RabbitOptions);
+            using var _ = new MicroserviceTester(globals.RabbitOptions!);
 
             var exc = Assert.Throws<DirectoryNotFoundException>(() =>
             {
@@ -180,35 +180,28 @@ namespace Applications.ExtractImages.Tests
         public void CsvFile_VerifyPresent()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(CsvFile_VerifyPresent));
-            globals.FileSystemOptions.ExtractRoot = "extract-root";
+            globals.FileSystemOptions!.ExtractRoot = "extract-root";
 
-            using var _ = new MicroserviceTester(globals.RabbitOptions);
+            using var _ = new MicroserviceTester(globals.RabbitOptions!);
 
             var fs = new MockFileSystem();
             fs.Directory.CreateDirectory(globals.FileSystemOptions.ExtractRoot);
 
-            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = null };
-            var exc = Assert.Throws<ArgumentNullException>(() =>
+            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "missing.csv" };
+            var exc = Assert.Throws<FileNotFoundException>(() =>
             {
                 var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
             });
-            Assert.AreEqual("Value cannot be null. (Parameter 'CohortCsvFile')", exc?.Message);
-
-            cliOptions.CohortCsvFile = "missing.csv";
-            var exc2 = Assert.Throws<FileNotFoundException>(() =>
-            {
-                var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
-            });
-            Assert.AreEqual("Could not find the cohort CSV file 'missing.csv'", exc2?.Message);
+            Assert.AreEqual("Could not find the cohort CSV file 'missing.csv'", exc?.Message);
         }
 
         [Test]
         public void ExtractionDirectory_VerifyAbsent()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ExtractionDirectory_VerifyAbsent));
-            globals.FileSystemOptions.ExtractRoot = "extract-root";
+            globals.FileSystemOptions!.ExtractRoot = "extract-root";
 
-            using var _ = new MicroserviceTester(globals.RabbitOptions);
+            using var _ = new MicroserviceTester(globals.RabbitOptions!);
 
             var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "test.csv", ProjectId = "foo" };
 

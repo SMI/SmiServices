@@ -6,8 +6,8 @@ namespace Smi.Common.Events
 {
     public class FatalErrorEventArgs : EventArgs
     {
-        public string Message { get; }
-        public Exception Exception { get; }
+        public string Message { get; init; }
+        public Exception? Exception { get; init; }
 
 
         public FatalErrorEventArgs(string msg, Exception exception)
@@ -18,8 +18,7 @@ namespace Smi.Common.Events
 
         public FatalErrorEventArgs(BasicReturnEventArgs ra)
         {
-            Message =
-                $"BasicReturnEventArgs: {ra.ReplyCode} - {ra.ReplyText}. (Exchange: {ra.Exchange}, RoutingKey: {ra.RoutingKey})";
+            Message = $"BasicReturnEventArgs: {ra.ReplyCode} - {ra.ReplyText}. (Exchange: {ra.Exchange}, RoutingKey: {ra.RoutingKey})";
         }
 
         public override string ToString()

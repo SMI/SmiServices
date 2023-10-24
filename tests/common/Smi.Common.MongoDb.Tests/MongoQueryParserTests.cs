@@ -14,7 +14,7 @@ namespace Smi.Common.MongoDB.Tests
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private MongoDbOptions _mongoOptions;
+        private MongoDbOptions _mongoOptions = null!;
 
         #region Fixture Methods 
 
@@ -24,7 +24,7 @@ namespace Smi.Common.MongoDB.Tests
             TestLogger.Setup();
 
             GlobalOptions globalOptions = new GlobalOptionsFactory().Load(nameof(MongoQueryParserTests));
-            _mongoOptions = globalOptions.MongoDatabases.DicomStoreOptions;
+            _mongoOptions = globalOptions.MongoDatabases!.DicomStoreOptions!;
         }
 
         [OneTimeTearDown]

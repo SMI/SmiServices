@@ -39,7 +39,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
         /// <summary>
         /// Model to use when sending ACK for messages
         /// </summary>
-        public IModel Model { get; set; }
+        public IModel? Model { get; set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -97,7 +97,7 @@ namespace Microservices.MongoDBPopulator.Execution.Processing
             IsStopping = false;
         }
 
-        private void TimerElapsedEvent(object source, SysTimers.ElapsedEventArgs e)
+        private void TimerElapsedEvent(object? source, SysTimers.ElapsedEventArgs e)
         {
             try
             {

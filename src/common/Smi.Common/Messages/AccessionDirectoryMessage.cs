@@ -15,8 +15,7 @@ namespace Smi.Common.Messages
         /// Directory path relative to the root path.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DirectoryPath { get; set; }
-
+        public string DirectoryPath { get; set; } = null!;
 
         public AccessionDirectoryMessage() { }
 

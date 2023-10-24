@@ -8,11 +8,10 @@ using System;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
-using Plugin.Settings.Abstractions;
 
 namespace Setup
 {
-    internal class SetupIsolatedStorage : ISettings
+    internal class SetupIsolatedStorage
     {
         private readonly IsolatedStorageFile store;
         private readonly object locker = new object();

@@ -1,15 +1,14 @@
-﻿using CommandLine;
+using CommandLine;
 using NLog;
-using ReusableLibraryCode;
-using ReusableLibraryCode.Checks;
-using ReusableLibraryCode.Progress;
 using Smi.Common;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Rdmp.Core.ReusableLibraryCode;
+using Rdmp.Core.ReusableLibraryCode.Checks;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 using Terminal.Gui;
 
 namespace Setup;

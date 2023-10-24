@@ -14,25 +14,25 @@ namespace Microservices.MongoDBPopulator.Tests
     {
         private const string TestDbName = "nUnitTests";
 
-        private MongoClient _mongoTestClient;
+        private MongoClient _mongoTestClient = null!;
 
-        public IMongoDatabase TestDatabase;
+        public IMongoDatabase TestDatabase = null!;
 
-        public GlobalOptions Globals;
+        public GlobalOptions Globals = null!;
 
-        public DicomFileMessage TestImageMessage;
-        public SeriesMessage TestSeriesMessage;
+        public DicomFileMessage TestImageMessage = null!;
+        public SeriesMessage TestSeriesMessage = null!;
 
         public void SetupSuite()
         {
             Globals = GetNewMongoDbPopulatorOptions();
 
-            _mongoTestClient = MongoClientHelpers.GetMongoClient(Globals.MongoDatabases.DicomStoreOptions, "MongoDbPopulatorTests");
+            _mongoTestClient = MongoClientHelpers.GetMongoClient(Globals.MongoDatabases!.DicomStoreOptions!, "MongoDbPopulatorTests");
 
             _mongoTestClient.DropDatabase(TestDbName);
             TestDatabase = _mongoTestClient.GetDatabase(TestDbName);
 
-            Globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions = new ConsumerOptions
+            Globals.MongoDbPopulatorOptions!.SeriesQueueConsumerOptions = new ConsumerOptions
             {
                 QueueName = "TEST.SeriesQueue",
                 QoSPrefetchCount = 5,
@@ -77,8 +77,8 @@ namespace Microservices.MongoDBPopulator.Tests
         {
             GlobalOptions options = new GlobalOptionsFactory().Load(nameof(GetNewMongoDbPopulatorOptions));
 
-            options.MongoDatabases.DicomStoreOptions.DatabaseName = TestDbName;
-            options.MongoDbPopulatorOptions.MongoDbFlushTime = 1; //1 second
+            options.MongoDatabases!.DicomStoreOptions!.DatabaseName = TestDbName;
+            options.MongoDbPopulatorOptions!.MongoDbFlushTime = 1; //1 second
 
             return options;
         }

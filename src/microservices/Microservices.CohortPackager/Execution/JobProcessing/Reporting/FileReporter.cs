@@ -10,22 +10,22 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
     [UsedImplicitly]
     public class FileReporter : JobReporterBase
     {
-        [NotNull] private readonly string _extractRoot;
+        private readonly string _extractRoot;
 
-        [NotNull] private readonly IFileSystem _fileSystem;
+        private readonly IFileSystem _fileSystem;
 
         /// <summary>
         /// Used to ensure any open streams are tidied-up on crashes
         /// </summary>
-        [CanBeNull] private Stream _currentFileStream;
+        private Stream? _currentFileStream;
 
 
         public FileReporter(
-            [NotNull] IExtractJobStore jobStore,
-            [NotNull] IFileSystem fileSystem,
-            [NotNull] string extractRoot,
+            IExtractJobStore jobStore,
+            IFileSystem fileSystem,
+            string extractRoot,
             ReportFormat reportFormat,
-            [CanBeNull] string reportNewLine
+            string? reportNewLine
         )
             : base(
                 jobStore,
@@ -96,7 +96,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         private Stream GetStream(ExtractJobInfo jobInfo, string fileName)
         {
             if (ShouldWriteCombinedReport(jobInfo))
-                return _currentFileStream;
+                return _currentFileStream!;
 
             string absReportPath = _fileSystem.Path.Combine(AbsolutePathToProjExtractionReportsDir(jobInfo), fileName);
             return _fileSystem.File.OpenWrite(absReportPath);

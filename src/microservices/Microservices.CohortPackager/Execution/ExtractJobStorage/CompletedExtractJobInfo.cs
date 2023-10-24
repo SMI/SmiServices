@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -16,11 +15,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             Guid extractionJobIdentifier,
             DateTime jobSubmittedAt,
             DateTime completedAt,
-            [NotNull] string projectNumber,
-            [NotNull] string extractionDirectory,
-            [NotNull] string keyTag,
+            string projectNumber,
+            string extractionDirectory,
+            string keyTag,
             uint keyCount,
-            [NotNull] string extractionModality,
+            string? extractionModality,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction
         )

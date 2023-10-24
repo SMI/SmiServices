@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using CommandLine.Text;
 using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
@@ -37,7 +37,7 @@ namespace Microservices.CohortPackager.Options
             HelpText = "[Optional] The newline string to use when creating the validation reports. Can be specified to create reports for a different platform. Defaults to Environment.NewLine if not set, and overrides any value in the YAML config."
         )]
         [UsedImplicitly]
-        public string OutputNewLine { get; set; }
+        public string? OutputNewLine { get; set; }
 
         [Usage]
         [UsedImplicitly]

@@ -30,7 +30,7 @@ jobs:
       build_ref: ${{ steps.build_ref.outputs.build_ref }}
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: set matrix
         id: matrix
         run: |
@@ -56,7 +56,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "[windows] start MongoDB service"
         if: ${{ matrix.os == 'windows' }}
         shell: pwsh
@@ -66,7 +66,7 @@ jobs:
           sc.exe start MongoDB
       - name: setup .NET
         # NOTE(rkm 2022-02-20) Uses global.json
-        uses: actions/setup-dotnet@v3.0.3
+        uses: actions/setup-dotnet@v3.2.0
       - name: download tessdata
         run: ./bin/smi/downloadTessdata.py
       - name: "[linux] start services"
@@ -85,7 +85,7 @@ jobs:
           echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
       - name: "[windows] Install SQL LocalDB"
         if: ${{ matrix.os == 'windows' }}
-        uses: crazy-max/ghaction-chocolatey@v2
+        uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: install sqllocaldb
       - name: "[windows] Check SQL LocalDB and set rdmp_conn_str"
@@ -122,7 +122,7 @@ jobs:
               "$cov"
       - name: upload coverage
         if: ${{ matrix.os == 'linux' }}
-        uses: codecov/codecov-action@v3.1.2
+        uses: codecov/codecov-action@v3.1.4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage.cobertura.xml
@@ -144,9 +144,9 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Java JDK
-        uses: actions/setup-java@v3.11.0
+        uses: actions/setup-java@v3.13.0
         with:
           java-version: ${{ env.java-version }}
           distribution: ${{ env.java-distribution }}
@@ -177,7 +177,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: setup Python
         uses: actions/setup-python@v4
         with:
@@ -209,7 +209,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: download artifacts
         uses: actions/download-artifact@v3
         with:

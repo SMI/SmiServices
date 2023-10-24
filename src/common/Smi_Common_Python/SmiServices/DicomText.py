@@ -24,6 +24,15 @@ class DicomText:
     dicomtext.write(redacted_dcmname)    # Writes out the redacted DICOM file
     OR
     write_redacted_text_into_dicom_file  # to rewrite a second file with redacted text
+    After parse() you call text() to get the extracted text without HTML tags
+    that can be fed into the anonymiser. That will output annotations,
+    typically in Knowtator XML format, indicating the character positions
+    of every word that needs to be redacted. To perform the redaction in
+    a DICOM file you need to parse() then redact(xml), then call redacted_text()
+    to see the text, or write*() to save a redacted DICOM file.
+    The redacted text will still include the HTML tags which is why it is
+    important to preserve exact character offsets between text(), anonymise
+    and redact() steps.
 
     Class variables determine whether unknown tags are included in the output
     (ideally this would be True but in practice we are only interested in known tags
@@ -139,7 +148,7 @@ class DicomText:
         else:
             rc = rc + ('%s' % (str(data_element.value)))
             # Replace HTML tags with spaces
-            if self._replace_HTML_entities:
+            if self._replace_HTML_entities and '<' in rc:
                 rc = redact_html_tags_in_string(rc,
                     replace_char = self._replace_HTML_char,
                     replace_newline = self._replace_newline_char)
@@ -187,7 +196,7 @@ class DicomText:
         if 'TextValue' in self._dicom_raw:
             textval = str(self._dicom_raw['TextValue'].value)
             self._p_text = self._p_text + '[[Text]]\n'
-            if self._replace_HTML_entities:
+            if self._replace_HTML_entities and '<' in textval:
                 self._p_text = self._p_text + redact_html_tags_in_string(textval,
                     replace_char = self._replace_HTML_char,
                     replace_newline = self._replace_newline_char)
@@ -273,7 +282,7 @@ class DicomText:
                 #if not replaced:
                 #    print('WARNING: offsets slipped:')
                 #    print('  expected to find %s but found %s' % (repr(annot['text']), repr(rc[annot_at:annot_end])))
-        if data_element.VR == 'PN' or data_element.VR == 'DA':
+        if data_element.VR == 'PN' or data_element.VR == 'DA' or data_element.VR == 'DT':
             # Always fully redact the content of PersonName and Date tags
             replacement = self.redact_string(rc, 0, len(rc), data_element.VR)
             replacedAny = True
@@ -316,6 +325,8 @@ class DicomText:
             data_element.value = DicomText._redact_char.rjust(len(data_element.value), DicomText._redact_char)
         if data_element.VR == "DA":
             data_element.value = "19000101"
+        if data_element.VR == "DT":
+            data_element.value = "19000101000000"
 
     def text(self):
         """ Returns the text after parse() has been called.
@@ -362,7 +373,13 @@ MRI: Knee
 # Finding
 ......
 ..................................
-..........
+
+.
+
+..
+
+.
+
 There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
 # Finding
 There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.
@@ -410,7 +427,13 @@ MRI: Knee
 # Finding
 ......
 ..................................
-..........
+
+.
+
+..
+
+.
+
 There is bruising of the medial femoral condyle with some intrasubstance injury to the medial collateral ligament. The lateral collateral ligament in intact. The Baker's  cruciate ligament is irregular and slightly lax suggesting a partial tear. It does not appear to be completely torn. The posterior cruciate ligament is intact. The suprapatellar tendons are normal.
 # Finding
 There is a tear of the posterior limb of the medial meniscus which communicates with the superior articular surface. The lateral meniscus is intact. There is a Baker's cyst and moderate joint effusion.

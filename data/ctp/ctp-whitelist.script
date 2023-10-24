@@ -743,6 +743,7 @@
  <e en="T" t="00281351" n="PartialViewDescription">@remove()</e>
  <e en="T" t="00282110" n="LossyImageCompression">@keep()</e>
  <e en="T" t="00282112" n="LossyImageCompressionRatio">@keep()</e>
+ <e en="T" t="00282114" n="LossyImageCompressionMethod">@keep()</e>
  <e en="T" t="00283000" n="ModalityLUTSeq">@remove()</e>
  <e en="T" t="00283002" n="LUTDescriptor">@keep()</e>
  <e en="T" t="00283003" n="LUTExplanation">@remove()</e>

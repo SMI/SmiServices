@@ -60,8 +60,8 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             Assert.AreEqual(2,_helper.TestDir.EnumerateFiles("*.dcm").Count());
 
-            _helper.Options.DicomTagReaderOptions.NackIfAnyFileErrors = nackIfAnyFileErrors;
-            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.Options.DicomTagReaderOptions!.NackIfAnyFileErrors = nackIfAnyFileErrors;
+            _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
             _helper.TestImageModel
@@ -93,10 +93,10 @@ namespace Microservices.DicomTagReader.Tests.Execution
         [Test]
         public void TestPathNotBelowRootThrowsException()
         {
-            _helper.Options.FileSystemOptions.FileSystemRoot = "C:\\Temp";
+            _helper.Options.FileSystemOptions!.FileSystemRoot = "C:\\Temp";
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
 
             Assert.Throws<ApplicationException>(() => tagReader.ReadTags(null, _helper.TestAccessionDirectoryMessage));
         }
@@ -112,10 +112,10 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             Assert.True(!_helper.TestDir.EnumerateFiles("*.dcm").Any());
 
-            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
 
             Assert.Throws<ApplicationException>(() => tagReader.ReadTags(null, _helper.TestAccessionDirectoryMessage));
         }
@@ -126,13 +126,13 @@ namespace Microservices.DicomTagReader.Tests.Execution
         [Test]
         public void TestSeriesMessageImagesInSeriesCorrect()
         {
-            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
             File.Copy($"{_helper.TestDir.FullName}/MyTestFile.dcm", $"{_helper.TestDir.FullName}/MyTestFile2.dcm");
             Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
 
-            IMessage message = null;
+            IMessage? message = null;
 
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
@@ -143,14 +143,14 @@ namespace Microservices.DicomTagReader.Tests.Execution
                 .Callback<IMessage, IMessageHeader, string>((m, h, s) => message = m)
                 .Returns(new MessageHeader());
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
             tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
 
             Assert.True(message != null);
 
             var seriesMessage = message as SeriesMessage;
             Assert.True(seriesMessage != null);
-            Assert.True(seriesMessage.ImagesInSeries == 2);
+            Assert.True(seriesMessage!.ImagesInSeries == 2);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
         [Test]
         public void TestSeriesMessageImagesInSeriesCorrect_WhenUsingZips()
         {
-            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
             File.Copy($"{_helper.TestDir.FullName}/MyTestFile.dcm", $"{_helper.TestDir.FullName}/MyTestFile2.dcm");
@@ -169,7 +169,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var zipFilePath = Path.Combine(_helper.TestDir.FullName,"my.zip");
 
             //create the zip file in a temporary directory outside of the working directory to avoid file access errors
-            var tempDir = _helper.TestDir.Parent.CreateSubdirectory("temppp");
+            var tempDir = _helper.TestDir.Parent!.CreateSubdirectory("temppp");
             var tempPath = Path.Combine(tempDir.FullName,"my.zip");
                         
             //zip everything in the working dir to the temp path zip file
@@ -181,7 +181,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             Assert.True(_helper.TestDir.EnumerateFiles("*.dcm").Count() == 2);
             Assert.True(_helper.TestDir.EnumerateFiles("*.zip").Count() == 1);
 
-            IMessage message = null;
+            IMessage? message = null;
             List<IMessage> fileImages = new();
 
             _helper.TestImageModel
@@ -194,7 +194,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
                 .Callback<IMessage, IMessageHeader, string>((m, h, s) => message = m)
                 .Returns(new MessageHeader());
 
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
             tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
 
             Assert.True(message != null);
@@ -202,7 +202,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var seriesMessage = message as SeriesMessage;
             Assert.True(seriesMessage != null);
             
-            Assert.True(seriesMessage.ImagesInSeries == 4, "Expected 4, 2 in the zip archive and 2 in the root");
+            Assert.True(seriesMessage!.ImagesInSeries == 4, "Expected 4, 2 in the zip archive and 2 in the root");
 
             Assert.AreEqual(4,fileImages.Count,"Expected 4 file messages to be sent and recorded by TestImageModel Callback");
 
@@ -218,8 +218,8 @@ namespace Microservices.DicomTagReader.Tests.Execution
         [Test]
         public void TestInvalidFileThrowsApplicationException()
         {
-            _helper.Options.DicomTagReaderOptions.NackIfAnyFileErrors = true;
-            _helper.Options.FileSystemOptions.FileSystemRoot = _helper.TestDir.FullName;
+            _helper.Options.DicomTagReaderOptions!.NackIfAnyFileErrors = true;
+            _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
             var fi = new FileInfo(Path.Combine(_helper.TestDir.FullName, "InvalidFile.dcm"));

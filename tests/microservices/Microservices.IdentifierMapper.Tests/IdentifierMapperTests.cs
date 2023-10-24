@@ -127,7 +127,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             var db = GetCleanedServer(type);
 
-            options.IdentifierMapperOptions.MappingConnectionString = db.Server.Builder.ConnectionString;
+            options.IdentifierMapperOptions!.MappingConnectionString = db.Server.Builder.ConnectionString;
             options.IdentifierMapperOptions.MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName();
             options.IdentifierMapperOptions.SwapColumnName = "priv";
             options.IdentifierMapperOptions.ReplacementColumnName = "pub";
@@ -177,9 +177,9 @@ namespace Microservices.IdentifierMapper.Tests
 
             options.IdentifierMapperOptions.AllowRegexMatching = true;
 
-            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IdentifierMapperOptions))
+            using (var tester = new MicroserviceTester(options.RabbitOptions!, options.IdentifierMapperOptions))
             {
-                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, null);
+                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions!.ExchangeName!, null);
 
                 Console.WriteLine("Pushing good messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, goodChis, true);
@@ -200,9 +200,9 @@ namespace Microservices.IdentifierMapper.Tests
 
             options.IdentifierMapperOptions.AllowRegexMatching = false;
 
-            using (var tester = new MicroserviceTester(options.RabbitOptions, options.IdentifierMapperOptions))
+            using (var tester = new MicroserviceTester(options.RabbitOptions!, options.IdentifierMapperOptions))
             {
-                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, null);
+                tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName!, null);
 
                 Console.WriteLine("Pushing bad messages to Rabbit...");
                 tester.SendMessages(options.IdentifierMapperOptions, badChis, true);
@@ -281,7 +281,7 @@ namespace Microservices.IdentifierMapper.Tests
             sw.Reset();
 
             Assert.IsNotNull(answer);
-            Assert.IsTrue(answer.Length > 20);
+            Assert.IsTrue(answer!.Length > 20);
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -341,8 +341,8 @@ namespace Microservices.IdentifierMapper.Tests
             var swapper = new ForGuidIdentifierSwapper();
             swapper.Setup(options);
 
-            Assert.AreEqual(36, swapper.GetSubstitutionFor("01010101", out var reason).Length);
-            Assert.AreEqual(36, swapper.GetSubstitutionFor("02020202", out reason).Length);
+            Assert.AreEqual(36, swapper.GetSubstitutionFor("01010101", out var reason)!.Length);
+            Assert.AreEqual(36, swapper.GetSubstitutionFor("02020202", out reason)!.Length);
 
             var answer1 = swapper.GetSubstitutionFor("03030303", out reason);
 
@@ -594,7 +594,7 @@ namespace Microservices.IdentifierMapper.Tests
             var swapper = new TableLookupSwapper();
             swapper.Setup(options.IdentifierMapperOptions);
 
-            string swapped = swapper.GetSubstitutionFor("CHI-1", out var _);
+            string? swapped = swapper.GetSubstitutionFor("CHI-1", out var _);
             Assert.AreEqual("REP-1", swapped);
             swapped = swapper.GetSubstitutionFor("CHI-1", out _);
             Assert.AreEqual("REP-1", swapped);

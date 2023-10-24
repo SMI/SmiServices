@@ -1,13 +1,10 @@
-﻿using Microservices.CohortExtractor.Audit;
+using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.CohortExtractor.Messaging;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Framing;
 using Smi.Common.Events;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -16,9 +13,7 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-
 
 namespace Microservices.CohortExtractor.Tests.Messaging
 {
@@ -53,7 +48,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         public void Test_ExtractionRequestQueueConsumer_AnonExtraction_RoutingKey()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Test_ExtractionRequestQueueConsumer_AnonExtraction_RoutingKey));
-            globals.CohortExtractorOptions.ExtractAnonRoutingKey = "anon";
+            globals.CohortExtractorOptions!.ExtractAnonRoutingKey = "anon";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "";
             AssertMessagePublishedWithSpecifiedKey(globals, false, "anon");
         }
@@ -62,7 +57,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
         public void Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKey()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Test_ExtractionRequestQueueConsumer_IdentExtraction_RoutingKey));
-            globals.CohortExtractorOptions.ExtractAnonRoutingKey = "";
+            globals.CohortExtractorOptions!.ExtractAnonRoutingKey = "";
             globals.CohortExtractorOptions.ExtractIdentRoutingKey = "ident";
             AssertMessagePublishedWithSpecifiedKey(globals, true, "ident");
         }
@@ -78,7 +73,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             var fakeFulfiller = new FakeFulfiller();
 
             var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            string fileMessageRoutingKey = null;
+            string? fileMessageRoutingKey = null;
             mockFileMessageProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
                 .Callback((IMessage _, IMessageHeader __, string routingKey) => { fileMessageRoutingKey = routingKey; })
@@ -87,7 +82,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
 
             var mockFileInfoMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             mockFileInfoMessageProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
+                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), null))
                 .Returns(new MessageHeader());
             mockFileInfoMessageProducerModel.Setup(x => x.WaitForConfirms());
 
@@ -104,14 +99,14 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             };
 
             var consumer = new ExtractionRequestQueueConsumer(
-                globals.CohortExtractorOptions,
+                globals.CohortExtractorOptions!,
                 fakeFulfiller,
                 new NullAuditExtractions(), new DefaultProjectPathResolver(),
                 mockFileMessageProducerModel.Object,
                 mockFileInfoMessageProducerModel.Object);
 
             var fatalCalled = false;
-            FatalErrorEventArgs fatalErrorEventArgs = null;
+            FatalErrorEventArgs? fatalErrorEventArgs = null;
             consumer.OnFatal += (sender, args) =>
             {
                 fatalCalled = true;

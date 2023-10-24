@@ -1,4 +1,3 @@
-﻿using JetBrains.Annotations;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -12,23 +11,23 @@ namespace Microservices.FileCopier.Execution
 {
     public class ExtractionFileCopier : IFileCopier
     {
-        [NotNull] private readonly FileCopierOptions _options;
+        private readonly FileCopierOptions _options;
 
-        [NotNull] private readonly IProducerModel _copyStatusProducerModel;
+        private readonly IProducerModel _copyStatusProducerModel;
 
-        [NotNull] private readonly string _fileSystemRoot;
-        [NotNull] private readonly string _extractionRoot;
-        [NotNull] private readonly IFileSystem _fileSystem;
+        private readonly string _fileSystemRoot;
+        private readonly string _extractionRoot;
+        private readonly IFileSystem _fileSystem;
 
-        [NotNull] private readonly ILogger _logger;
+        private readonly ILogger _logger;
 
 
         public ExtractionFileCopier(
-            [NotNull] FileCopierOptions options,
-            [NotNull] IProducerModel copyStatusCopyStatusProducerModel,
-            [NotNull] string fileSystemRoot,
-            [NotNull] string extractionRoot,
-            [CanBeNull] IFileSystem fileSystem = null)
+            FileCopierOptions options,
+            IProducerModel copyStatusCopyStatusProducerModel,
+            string fileSystemRoot,
+            string extractionRoot,
+            IFileSystem? fileSystem = null)
         {
             _options = options;
             _copyStatusProducerModel = copyStatusCopyStatusProducerModel;
@@ -46,8 +45,8 @@ namespace Microservices.FileCopier.Execution
         }
 
         public void ProcessMessage(
-            [NotNull] ExtractFileMessage message,
-            [NotNull] IMessageHeader header)
+            ExtractFileMessage message,
+            IMessageHeader header)
         {
             string fullSrc = _fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath);
 
@@ -70,7 +69,9 @@ namespace Microservices.FileCopier.Execution
             if (_fileSystem.File.Exists(fullDest))
                 _logger.Warn($"Output file '{fullDest}' already exists. Will overwrite.");
 
-            IDirectoryInfo parent = _fileSystem.Directory.GetParent(fullDest);
+            IDirectoryInfo parent = _fileSystem.Directory.GetParent(fullDest) 
+                ?? throw new ArgumentException($"Parameter {fullDest} is the filesystem root");
+
             if (!parent.Exists)
             {
                 _logger.Debug($"Creating directory '{parent}'");

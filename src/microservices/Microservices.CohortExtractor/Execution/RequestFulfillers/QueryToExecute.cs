@@ -5,10 +5,10 @@ using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
 using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.Repositories;
-using ReusableLibraryCode.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Rdmp.Core.ReusableLibraryCode.DataAccess;
 
 namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 {
@@ -23,8 +23,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// </summary>
         public string KeyTag { get; }
 
-        public DiscoveredServer Server { get; set; }
-        private string _sql;
+        public DiscoveredServer? Server { get; set; }
+        private string? _sql;
         
         /// <summary>
         /// Lock to ensure we don't build multiple <see cref="GetQueryBuilder"/> at once if someone decides to multi
@@ -35,7 +35,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <summary>
         /// Modality (if known) for records that the query should return
         /// </summary>
-        public string Modality { get; set; }
+        public string? Modality { get; set; }
 
         public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag)
         {
@@ -95,9 +95,9 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 yield return filter;
         }
 
-        private string GetSqlForKeyValue(string value)
+        private string? GetSqlForKeyValue(string value)
         {
-            return string.Format(_sql, value);
+            return string.Format(_sql!, value);
         }
         
         /// <summary>
@@ -118,15 +118,15 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     }        
                 }
             
-            var path = Columns.FilePathColumn.GetRuntimeName();
+            var path = Columns.FilePathColumn!.GetRuntimeName();
             var study = Columns.StudyTagColumn?.GetRuntimeName();
             var series = Columns.SeriesTagColumn?.GetRuntimeName();
             var instance = Columns.InstanceTagColumn?.GetRuntimeName();
 
-            using DbConnection con = Server.GetConnection();
+            using DbConnection con = Server!.GetConnection();
             con.Open();
 
-            string sqlString = GetSqlForKeyValue(valueToLookup);
+            string? sqlString = GetSqlForKeyValue(valueToLookup);
 
             DbDataReader reader;
             try
@@ -147,7 +147,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                     continue;
 
                 bool reject = false;
-                string rejectReason = null;
+                string? rejectReason = null;
 
                 //Ask the rejectors how good this record is
                 foreach (IRejector rejector in rejectors)

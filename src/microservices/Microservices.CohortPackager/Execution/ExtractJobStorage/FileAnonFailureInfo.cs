@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using System;
 
 
@@ -13,16 +12,16 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <summary>
         /// The path of the output DICOM file which could not be extracted
         /// </summary>
-        [NotNull] public readonly string ExpectedAnonFile;
+        public readonly string ExpectedAnonFile;
 
         /// <summary>
         /// The reason for the file not being extracted
         /// </summary>
-        [NotNull] public readonly string Reason;
+        public readonly string Reason;
 
         public FileAnonFailureInfo(
-            [NotNull] string expectedAnonFile,
-            [NotNull] string reason
+            string expectedAnonFile,
+            string reason
         )
         {
             ExpectedAnonFile = string.IsNullOrWhiteSpace(expectedAnonFile) ? throw new ArgumentException(nameof(expectedAnonFile)) : expectedAnonFile;

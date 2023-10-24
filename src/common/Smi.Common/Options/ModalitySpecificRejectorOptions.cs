@@ -10,7 +10,7 @@ namespace Smi.Common.Options
         /// <summary>
         /// Comma separated list of modalities that this class applies to
         /// </summary>
-        public string Modalities { get; set; }
+        public string? Modalities { get; set; }
 
         /// <summary>
         /// True to override base modalities.  False to make both apply (i.e. this rejector should be used in addition to basic rejectors)
@@ -20,7 +20,7 @@ namespace Smi.Common.Options
         /// <summary>
         /// The Type of IRejector to use when evaluating the releaseability of dicom files of given <see cref="Modalities"/>
         /// </summary>
-        public string RejectorType { get; set; }
+        public string? RejectorType { get; set; }
 
         public string[] GetModalities()
         {
