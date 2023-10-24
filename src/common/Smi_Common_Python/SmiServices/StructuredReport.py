@@ -455,7 +455,7 @@ class StructuredReport:
         # Now output [[Other Names]] for all the elements having vr of PN
         names_list = []
         self.find_PersonNames(json_dict, names_list)
-        print(names_list)
+        #print(names_list)
         for name in names_list:
             self._SR_output_string('Other Names', name, fp)
 
