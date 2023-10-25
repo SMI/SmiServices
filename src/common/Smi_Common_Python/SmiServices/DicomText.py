@@ -226,6 +226,10 @@ class DicomText:
             redact_char = DicomText._redact_char_digit
         if DicomText._redact_random_length:
             redact_length = random.randint(-int(rlen/2), int(rlen/2))
+        # Replace all dates with 11111111 to that they validate ok
+        if VR in ['DA', 'DT']:
+            redact_length = 8
+            redact_char = '1'
         redacted_part = redact_char.rjust(redact_length, redact_char) if redact_char else ''
         rc = plaintext[0:offset] + redacted_part + plaintext[offset+rlen:]
         return rc
