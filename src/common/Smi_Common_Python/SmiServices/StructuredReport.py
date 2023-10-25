@@ -376,9 +376,17 @@ class StructuredReport:
             for item in json_dict:
                 self.find_PersonNames(item, names_list)
         elif isinstance(json_dict, dict):
-            if 'PersonName' in json_dict:
-                return names_list.append(Dicom.sr_decode_PNAME(tag_val(json_dict, 'PersonName', atomic=True)))
             for item in json_dict.keys():
+                # Ignore the MongoDB message metadata dict
+                if item == 'MessageHeader':
+                    return
+                # We don't have the datatype to check for "PN" so assume
+                # anything ending with Name contains a PersonName
+                # This will also catch Institution Name and Observer Name
+                if item.endswith('Name'):
+                    tagval = tag_val(json_dict, item, atomic=True)
+                    names_list.append(Dicom.sr_decode_PNAME(tagval))
+                # Check if the value of this item is a list or dict
                 self.find_PersonNames(json_dict[item], names_list)
 
     # ---------------------------------------------------------------------
@@ -516,3 +524,14 @@ def test_SR_parse_key():
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
         assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
+
+def test_find_PersonNames():
+    sr = StructuredReport()
+    jd = {
+        'InstitutionName': 'Ninewells Hospital',
+        'Sequence': [ { 'PersonName': 'Klugman^^^Dr.' } ],
+        'Something Else': 'Other'
+    }
+    names_list = []
+    sr.find_PersonNames(jd, names_list)
+    assert (names_list == ['Ninewells Hospital', 'Dr. Klugman'])
