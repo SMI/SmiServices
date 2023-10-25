@@ -141,7 +141,7 @@ CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 #  Reads  $input_doc
 #  Writes $anon_doc, and $anon_xml via the --xml option
 #
-semehr_anon.py -i "${input_doc}" -o "${anon_doc}" --xml || tidy_exit 5 "Error running SemEHR-anon given ${input_doc} from ${input_dcm}"
+semehr_anon.py -s "${semehr_dir}" -i "${input_doc}" -o "${anon_doc}" --xml || tidy_exit 5 "Error running SemEHR-anon given ${input_doc} from ${input_dcm}"
 # If there's still no XML file then exit
 if [ ! -f "$anon_xml" ]; then
 	tidy_exit 6 "ERROR: SemEHR-anon failed to convert $input_doc to $anon_xml"
