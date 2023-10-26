@@ -134,11 +134,15 @@ class DicomText:
                 names.add(str(elem.value))
         return list(names)
 
-    def _dataset_read_callback(self, dataset, data_element):
-        """ Internal function called during a walk of the dataset.
-        Builds a class-member string _p_text as it goes.
+    def _data_element_parser(self, data_element):
+        """ Internal function called by the parse and redact callbacks
+        to consistently convert the data_element into the string which
+        will be returned, in both raw and html-redacted versions.
+        Returns the tuple (rc, rc_parsed).
+        If html redaction is disabled then rc_parsed == rc.
         """
         rc = ''
+        rc_parsed = ''
         if data_element.VR in ['SH', 'CS', 'SQ', 'UI']:
             # "SH" Short String, "CS" Code String, "SQ" Sequence, "UI" UID ignored
             pass
@@ -147,16 +151,28 @@ class DicomText:
             rc = rc + ('# %s' % str(data_element.value)) + '\n'
         else:
             rc = rc + ('%s' % (str(data_element.value)))
+            rc += '\n'
             # Replace HTML tags with spaces
             if self._replace_HTML_entities and '<' in rc:
-                rc = redact_html_tags_in_string(rc,
+                rc_parsed = redact_html_tags_in_string(rc,
                     replace_char = self._replace_HTML_char,
                     replace_newline = self._replace_newline_char)
-            rc += '\n'
-        if rc == '':
+            else:
+                rc_parsed = rc
+        return (rc, rc_parsed)
+
+    def _dataset_read_callback(self, dataset, data_element):
+        """ Internal function called during a walk of the dataset.
+        Builds a class-member string _p_text as it goes.
+        """
+        rc, rc_parsed = self._data_element_parser(data_element)
+        if rc_parsed == '':
             return
-        self._offset_list.append( { 'offset':len(self._p_text), 'string': rc} )
-        self._p_text = self._p_text + rc
+        self._offset_list.append( {
+            'offset':len(self._p_text),
+            'string': rc_parsed
+            } )
+        self._p_text = self._p_text + rc_parsed
 
     def parse(self):
         """ Walk the dataset to extract the text which can then be
@@ -239,22 +255,17 @@ class DicomText:
         Builds a class-member string _r_text as it goes.
         Uses the annotation list in self._annotations to redact text.
         """
-
-        rc = ''
-        if data_element.VR in ['SH', 'CS', 'SQ', 'UI']:
-            pass
-        elif data_element.VR == 'LO':
-            rc = rc + ('# %s' % str(data_element.value)) + '\n'
-        else:
-            rc = rc + ('%s' % (str(data_element.value))) + '\n'
-        if rc == '':
+        rc, rc_parsed = self._data_element_parser(data_element)
+        if rc_parsed == '':
             return
+        rc_without_html = rc_parsed
         # The current string is now len(self._r_text) ..to.. +len(rc)
         current_start = len(self._r_text)
         current_end   = current_start + len(rc)
         replacement = rc
         replacedAny = False
         #print('At %d = %s' % (current_start, str(data_element.value)))
+        # Check every annotation to see, if not already done, if it appears in this rc
         for annot in self._annotations:
             # Sometimes it reports text:None so ignore
             if not annot['text'] or (annot['start_char'] == annot['end_char']):
@@ -272,9 +283,6 @@ class DicomText:
                 # SemEHR may have an extra line at the start so start_char offset need adjusting
                 for offset in [self._redact_offset] + list(range(-32, 32)):
                     # Do the comparison using text without html but replace inside text with html
-                    rc_without_html = redact_html_tags_in_string(rc,
-                        replace_char = self._replace_HTML_char,
-                        replace_newline = self._replace_newline_char) if self._replace_HTML_entities else rc
                     if string_match_ignore_linebreak(rc_without_html[annot_at+offset : annot_end+offset], annot['text']):
                         replacement = self.redact_string(replacement, annot_at+offset, annot_end-annot_at, data_element.VR)
                         replaced = replacedAny = True
@@ -290,8 +298,10 @@ class DicomText:
             # Always fully redact the content of PersonName and Date tags
             replacement = self.redact_string(rc, 0, len(rc), data_element.VR)
             replacedAny = True
+        # Put this replacement value back into the DICOM
         if replacedAny:
             data_element.value = replacement
+        # _r_text is the original, _redacted_text has been redacted
         self._r_text = self._r_text + rc
         self._redacted_text = self._redacted_text + replacement
         return replacement if replacedAny else None
