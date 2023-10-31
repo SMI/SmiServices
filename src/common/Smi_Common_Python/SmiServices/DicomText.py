@@ -148,7 +148,7 @@ class DicomText:
             pass
         elif data_element.VR == 'LO':
             # "LO" Long String typically used for headings
-            rc = rc + ('# %s' % str(data_element.value)) + '\n'
+            rc = rc_parsed = rc + ('# %s' % str(data_element.value)) + '\n'
         else:
             rc = rc + ('%s' % (str(data_element.value)))
             rc += '\n'
