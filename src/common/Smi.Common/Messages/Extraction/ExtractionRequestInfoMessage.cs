@@ -11,7 +11,7 @@ namespace Smi.Common.Messages.Extraction
         public int KeyValueCount { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public string UserName { get; set; }
+        public string UserName { get; set; } = null!;
 
         [JsonProperty(Required = Required.Default)]
         public string? ExtractionModality { get; set; }
