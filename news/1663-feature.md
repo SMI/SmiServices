@@ -1,0 +1,1 @@
+Added field UserName to ExtractionRequestInfoMessage
