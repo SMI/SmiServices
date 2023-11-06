@@ -1,8 +1,12 @@
+# Parse a DICOM Structured Report in JSON format as output by the MongoDB database.
+
 import os
 import re
 import sys
+from tempfile import TemporaryFile
 from SmiServices import Dicom
 from SmiServices.Dicom import tag_is, tag_val, has_tag
+from SmiServices.StringUtils import redact_html_tags_in_string
 import pydicom
 
 
@@ -268,113 +272,154 @@ def sr_key_can_be_ignored(keystr):
 
 
 # ---------------------------------------------------------------------
-# Output the string given in valstr, if not empty.
-# Prepends a section title given in keystr if not empty.
-# eg.  [[keystr]] valstr
-# Replaces HTML tags <BR> with newlines.
-# Removes multiple line endings for clarity.
 
-def _SR_output_string(keystr, valstr, fp):
-    # If it's a list then print each element (but only expecting a single one line ['Findings'])
-    if isinstance(valstr, list):
-        return [_SR_output_string(keystr,X,fp) for X in valstr]
-    # The Key may also be a list but only take first element
-    if isinstance(keystr, list):
-        keystr = keystr[0]
-    # If there is no value the do not print anything at all
-    if valstr == None or valstr == '':
-        return
-    # Replace CRs with LF
-    valstr = re.sub('\r+', '\n', valstr)
-    # Replace HTML tags such as <br>
-    valstr = re.sub('<[Bb][Rr]>', '\n', valstr)
-    # Remove superfluous LFs
-    valstr = re.sub('\n+', '\n', valstr)
-    # If there is no key then do not print a prefix
-    if keystr == None or keystr == '':
-        fp.write('%s\n' % (valstr))
-    else:
-        fp.write('[[%s]] %s\n' % (keystr, valstr))
+class StructuredReport:
+    _replace_HTML_entities = True    # replace HTML tags with same length of space chars
+    _replace_HTML_char = '.'         # replace HTML tags with same length of space chars
+    _replace_newline_char = '\n'     # replace CR and LF with spaces
+    _redact_char = 'X'               # character used to redact text
+    _redact_char_digit = '9'         # character used to redact digits in text
 
+    def __init__(self,
+        replace_HTML_entities = _replace_HTML_entities, \
+        replace_HTML_char = _replace_HTML_char, \
+        replace_newline_char = _replace_newline_char):
+        """ Constructor
+        """
+        self._replace_HTML_entities = replace_HTML_entities
+        self._replace_HTML_char = replace_HTML_char
+        self._replace_newline_char = replace_newline_char
 
-# ---------------------------------------------------------------------
-# Internal function to parse a DICOM tag which calls itself recursively
-# when it finds a sequence
-# Uses str_output_string to format the output.
+    def setRedactChar(self, rchar):
+        """ Change the character used to anonymise/redact text.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        Only used for text not digits (see redact_char_digit).
+        See also redact_random_length.
+        This is a static class member not an instance member
+        so it applies to all instances of this class.
+        """
+        StructuredReport._redact_char = rchar
 
-def _SR_parse_key(json_dict, json_key, fp):
-    if tag_is(json_key, 'ConceptNameCodeSequence'):
-        _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
-    elif tag_is(json_key, 'SourceImageSequence'):
-        _SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
-    elif tag_is(json_key, 'ContentSequence'):
-        for cs_item in tag_val(json_dict, json_key):
-            if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
-                value_type = tag_val(cs_item, 'ValueType')
-                if value_type == 'PNAME' or value_type == ['PNAME']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
-                elif value_type == 'DATETIME' or value_type == ['DATETIME']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
-                elif value_type == 'DATE' or value_type == ['DATE']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
-                elif value_type == 'TEXT' or value_type == ['TEXT']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
-                elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
-                elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
-                elif value_type == 'CODE' or value_type == ['CODE']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
-                elif value_type == 'UIDREF' or value_type == ['UIDREF']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
-                elif value_type == 'IMAGE' or value_type == ['IMAGE']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
-                elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
-                    # Sometimes it has no ContentSequence or is 'null'
-                    if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
-                        if has_tag(cs_item, 'ConceptNameCodeSequence'):
-                            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
-                        _SR_parse_key(cs_item, 'ContentSequence', fp)
-                # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
-                # as they have no useful text to return
-                elif value_type == 'SCOORD' or value_type == ['SCOORD']:
-                    pass
-                elif value_type == 'TCOORD' or value_type == ['TCOORD']:
-                    pass
-                elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
-                    pass
-                elif value_type == 'TIME' or value_type == ['TIME']:
-                    pass
-                elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
-                    pass
-                else:
-                    print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
-            #print('ITEM %s' % cs_item)
-    else:
-        if not sr_key_can_be_ignored(json_key):
-            print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
+    def setReplaceHTMLChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_HTML_char = rchar
+
+    def setReplaceNewlineChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_newline_char = rchar
+
+    # ---------------------------------------------------------------------
+    # Output the string given in valstr, if not empty.
+    # Prepends a section title given in keystr if not empty.
+    # eg.  [[keystr]] valstr
+    # Replaces HTML tags <BR> with newlines.
+    # Removes multiple line endings for clarity.
+
+    def _SR_output_string(self, keystr, valstr, fp):
+        # If it's a list then print each element (but only expecting a single one line ['Findings'])
+        if isinstance(valstr, list):
+            return [self._SR_output_string(keystr,X,fp) for X in valstr]
+        # The Key may also be a list but only take first element
+        if isinstance(keystr, list):
+            keystr = keystr[0]
+        # If there is no value the do not print anything at all
+        if valstr == None or valstr == '':
+            return
+        # Replace CRs with LF
+        valstr = re.sub('\r+', '\n', valstr)
+        # Replace all HTML
+        if '<' in valstr and '>' in valstr:
+            valstr = redact_html_tags_in_string(valstr,
+                replace_char = self._replace_HTML_char,
+                replace_newline = self._replace_newline_char)
+        # Remove superfluous LFs
+        valstr = re.sub('\n+', '\n', valstr)
+        # If there is no key then do not print a prefix
+        if keystr == None or keystr == '':
+            fp.write('%s\n' % (valstr))
+        else:
+            fp.write('[[%s]] %s\n' % (keystr, valstr))
 
 
-# ---------------------------------------------------------------------
-# Main function to parse a DICOM Structured Report in JSON format as
-# output by the MongoDB database.
+    # ---------------------------------------------------------------------
+    # Internal function to parse a DICOM tag which calls itself recursively
+    # when it finds a sequence
+    # Uses str_output_string to format the output.
 
-def SR_parse(json_dict, doc_name, fp = sys.stdout):
+    def _SR_parse_key(self, json_dict, json_key, fp):
+        if tag_is(json_key, 'ConceptNameCodeSequence'):
+            self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
+        elif tag_is(json_key, 'SourceImageSequence'):
+            self._SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
+        elif tag_is(json_key, 'ContentSequence') or tag_is(json_key, 'Sequence'):
+            for cs_item in tag_val(json_dict, json_key):
+                if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
+                    value_type = tag_val(cs_item, 'ValueType')
+                    if value_type == 'PNAME' or value_type == ['PNAME']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
+                    elif value_type == 'DATETIME' or value_type == ['DATETIME']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
+                    elif value_type == 'DATE' or value_type == ['DATE']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
+                    elif value_type == 'TEXT' or value_type == ['TEXT']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
+                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
+                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
+                    elif value_type == 'CODE' or value_type == ['CODE']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
+                    elif value_type == 'UIDREF' or value_type == ['UIDREF']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
+                    elif value_type == 'IMAGE' or value_type == ['IMAGE']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
+                    elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
+                        # Sometimes it has no ContentSequence or is 'null'
+                        if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
+                            if has_tag(cs_item, 'ConceptNameCodeSequence'):
+                                self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
+                            self._SR_parse_key(cs_item, 'ContentSequence', fp)
+                    # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
+                    # as they have no useful text to return
+                    elif value_type == 'SCOORD' or value_type == ['SCOORD']:
+                        pass
+                    elif value_type == 'TCOORD' or value_type == ['TCOORD']:
+                        pass
+                    elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
+                        pass
+                    elif value_type == 'TIME' or value_type == ['TIME']:
+                        pass
+                    elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
+                        pass
+                    else:
+                        print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
+                #print('ITEM %s' % cs_item)
+        else:
+            if not sr_key_can_be_ignored(json_key):
+                print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
 
-    _SR_output_string('Document name', doc_name, fp)
+    def SR_parse(self, json_dict, doc_name, fp = sys.stdout):
 
-    # Output a set of known tags from the root of the document
-    # This loop does the equivalent of
-    # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
-    for sr_extract_dict in sr_keys_to_extract:
-        _SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+        self._SR_output_string('Document name', doc_name, fp)
 
-    # Now output all the remaining tags which are not ignored
-    for json_key in json_dict:
-        _SR_parse_key(json_dict, json_key, fp)
+        # Output a set of known tags from the root of the document
+        # This loop does the equivalent of
+        # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
+        for sr_extract_dict in sr_keys_to_extract:
+            self._SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+
+        # Now output all the remaining tags which are not ignored
+        for json_key in json_dict:
+            self._SR_parse_key(json_dict, json_key, fp)
 
 
-#
 def test_SR_parse_key():
     # Extract a small fragment using: dcm2json report10.dcm | dicom_tag_lookup.py
     SR_dict = {
@@ -399,10 +444,26 @@ def test_SR_parse_key():
             ]
         }
     }
-    tmpfile = 'tmp_pytest_output.txt'
-    with open(tmpfile, 'w') as fd:
-        _SR_parse_key(SR_dict, 'ContentSequence', fd)
-    with open(tmpfile, 'r') as fd:
-        result = fd.read()
-    os.remove(tmpfile)
-    assert(result == '[[Request]] MRI: Knee\n')
+
+    # Create a SR object
+    sr = StructuredReport(replace_HTML_char = '.')
+
+    # Test with the above piece of JSON
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] MRI: Knee\n')
+
+    # Add some HTML into the string and check it's redacted
+    SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] ..........................MRI: Knee\n')
+
+    # Check that the HTML redaction can also squash (remove) characters
+    sr.setReplaceHTMLChar('')
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] MRI: Knee\n')

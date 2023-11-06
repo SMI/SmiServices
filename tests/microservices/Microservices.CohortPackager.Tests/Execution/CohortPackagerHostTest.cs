@@ -94,21 +94,21 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         private void VerifyReports(GlobalOptions globals, PathFixtures pf, ReportFormat reportFormat, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
         {
-            globals.FileSystemOptions.ExtractRoot = pf.ExtractRootAbsolute;
-            globals.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 5;
+            globals.FileSystemOptions!.ExtractRoot = pf.ExtractRootAbsolute;
+            globals.CohortPackagerOptions!.JobWatcherTimeoutInSeconds = 5;
             globals.CohortPackagerOptions.ReporterType = "FileReporter";
             globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
             
-            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases.ExtractionStoreOptions, "test", true);
-            globals.MongoDatabases.ExtractionStoreOptions.DatabaseName += "-" + Guid.NewGuid().ToString().Split('-')[0];
+            MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases!.ExtractionStoreOptions!, "test", true);
+            globals.MongoDatabases.ExtractionStoreOptions!.DatabaseName += "-" + Guid.NewGuid().ToString().Split('-')[0];
             client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);
 
             using (var tester = new MicroserviceTester(
-                globals.RabbitOptions,
-                globals.CohortPackagerOptions.ExtractRequestInfoOptions,
-                globals.CohortPackagerOptions.FileCollectionInfoOptions,
-                globals.CohortPackagerOptions.NoVerifyStatusOptions,
-                globals.CohortPackagerOptions.VerificationStatusOptions))
+                globals.RabbitOptions!,
+                globals.CohortPackagerOptions.ExtractRequestInfoOptions!,
+                globals.CohortPackagerOptions.FileCollectionInfoOptions!,
+                globals.CohortPackagerOptions.NoVerifyStatusOptions!,
+                globals.CohortPackagerOptions.VerificationStatusOptions!))
             {
                 foreach ((ConsumerOptions consumerOptions, IMessage message) in toSend)
                     tester.SendMessage(consumerOptions, new MessageHeader(), message);
@@ -208,9 +208,9 @@ namespace Microservices.CohortPackager.Tests.Execution
                 reportFormat,
                 new[]
                 {
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions, testExtractionRequestInfoMessage),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions, testExtractFileCollectionInfoMessage),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!, testExtractFileCollectionInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage),
                 }
             );
         }
@@ -322,12 +322,12 @@ namespace Microservices.CohortPackager.Tests.Execution
                 reportFormat,
                 new[]
                 {
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions, testExtractionRequestInfoMessage),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions,testExtractFileCollectionInfoMessage1),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions,  testExtractFileCollectionInfoMessage2),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,  testExtractFileStatusMessage),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage1),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions, testIsIdentifiableMessage2),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,testExtractFileCollectionInfoMessage1),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,  testExtractFileCollectionInfoMessage2),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage1),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage2),
                 }
             );
         }
@@ -401,10 +401,10 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ReportFormat.Combined,
                 new[]
                 {
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.ExtractRequestInfoOptions,  testExtractionRequestInfoMessage),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions,testExtractFileCollectionInfoMessage),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,testExtractFileStatusMessage1),
-                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions,  testExtractFileStatusMessage2),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!,  testExtractionRequestInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,testExtractFileCollectionInfoMessage),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,testExtractFileStatusMessage1),
+                    new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage2),
                 }
             );
         }

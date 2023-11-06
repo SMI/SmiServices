@@ -1,11 +1,13 @@
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 
 namespace Applications.SmiRunner
 {
+    [ExcludeFromCodeCoverage]
     public static class Program
     {
         public static readonly Type[] AllApplications =
@@ -15,6 +17,7 @@ namespace Applications.SmiRunner
             typeof(ExtractImagesVerb),
             typeof(TriggerUpdatesVerb),
             typeof(SetupVerb),
+            typeof(DynamicRulesTesterVerb),
         };
 
         public static readonly Type[] AllServices =
@@ -53,6 +56,7 @@ namespace Applications.SmiRunner
                         {
                             // Applications
                             DicomLoaderVerb _   => Applications.DicomLoader.Program.Main(rest),
+                            DynamicRulesTesterVerb _ => Applications.DynamicRulesTester.Program.Main(rest),
                             TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
                             ExtractImagesVerb _ => ExtractImages.Program.Main(rest),

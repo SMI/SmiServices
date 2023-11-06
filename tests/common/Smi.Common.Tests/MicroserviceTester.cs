@@ -46,7 +46,7 @@ namespace Smi.Common.Tests
             //setup a sender channel for each of the consumers you want to test sending messages to
             foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
             {
-                if (!consumer.QueueName.Contains("TEST."))
+                if (!consumer.QueueName!.Contains("TEST."))
                     consumer.QueueName = consumer.QueueName.Insert(0, "TEST.");
 
                 var exchangeName = consumer.QueueName.Replace("Queue", "Exchange");
@@ -80,7 +80,7 @@ namespace Smi.Common.Tests
         /// <param name="msg"></param>
         public void SendMessage(ConsumerOptions toConsumer, IMessage msg)
         {
-            _sendToConsumers[toConsumer].SendMessage(msg, null);
+            _sendToConsumers[toConsumer].SendMessage(msg, isInResponseTo: null, routingKey: null);
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
 
@@ -94,7 +94,7 @@ namespace Smi.Common.Tests
         public void SendMessages(ConsumerOptions toConsumer, IEnumerable<IMessage> messages, bool generateIMessageHeaders)
         {
             foreach (IMessage msg in messages)
-                _sendToConsumers[toConsumer].SendMessage(msg, generateIMessageHeaders ? new MessageHeader() : null);
+                _sendToConsumers[toConsumer].SendMessage(msg, generateIMessageHeaders ? new MessageHeader() : null, routingKey: null);
 
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
@@ -108,7 +108,7 @@ namespace Smi.Common.Tests
         /// <param name="msg"></param>
         public void SendMessage(ConsumerOptions toConsumer, IMessageHeader header, IMessage msg)
         {
-            _sendToConsumers[toConsumer].SendMessage(msg, header);
+            _sendToConsumers[toConsumer].SendMessage(msg, header, routingKey: null);
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
 
@@ -122,7 +122,7 @@ namespace Smi.Common.Tests
         /// queue and bind it to the exchange which is assumed to already exist (this allows you to set up exchange=>multiple queues).  If you are setting up multiple queues
         /// from a single exchange the first call should be isSecondaryBinding = false and all further calls after that for the same exchange should be isSecondaryBinding=true </param>
         /// <param name="routingKey"></param>
-        public void CreateExchange(string exchangeName, string queueName = null, bool isSecondaryBinding = false, string routingKey = "")
+        public void CreateExchange(string exchangeName, string? queueName = null, bool isSecondaryBinding = false, string routingKey = "")
         {
             if (!exchangeName.Contains("TEST."))
                 exchangeName = exchangeName.Insert(0, "TEST.");

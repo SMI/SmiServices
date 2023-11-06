@@ -14,7 +14,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
     public class GuidDatabaseNamer : FixedStagingDatabaseNamer, ICreateAndDestroyStagingDuringLoads
     {
         private readonly string _guid;
-        private DiscoveredDatabase _stagingDatabase;
+        private DiscoveredDatabase? _stagingDatabase;
 
         /// <summary>
         /// Defines how to name Staging databases by appending a Guid.  You can pass a specific guid if you want or pass Guid.Empty to 
@@ -22,7 +22,8 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
         /// </summary>
         /// <param name="databaseName"></param>
         /// <param name="explicitGuid"></param>
-        public GuidDatabaseNamer(string databaseName, Guid explicitGuid) : base(databaseName)
+        public GuidDatabaseNamer(string databaseName, Guid explicitGuid) 
+            : base(databaseName)
         {
             _guid = explicitGuid == Guid.Empty ? Guid.NewGuid().ToString("N") : explicitGuid.ToString();
         }
@@ -33,7 +34,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
         /// <param name="rootDatabaseName"></param>
         /// <param name="stage"></param>
         /// <returns></returns>
-        public override string GetDatabaseName(string rootDatabaseName, LoadBubble stage)
+        public override string GetDatabaseName(string? rootDatabaseName, LoadBubble stage)
         {
             var basic = base.GetDatabaseName(rootDatabaseName, stage);
 

@@ -1,4 +1,3 @@
-﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +14,7 @@ namespace Smi.Common.Options
         /// </summary>
         /// <param name="decorators"></param>
         public GlobalOptionsFactory(
-            [CanBeNull] ICollection<IOptionsDecorator> decorators = null
+            ICollection<IOptionsDecorator>? decorators = null
         )
         {
             if (decorators != null)
@@ -82,9 +81,10 @@ namespace Smi.Common.Options
 
         private object GetGlobalOption(Type arg)
         {
-            return arg == typeof(GlobalOptions) ?
+            var opts = arg == typeof(GlobalOptions) ?
                 new GlobalOptions() :
                 Activator.CreateInstance(arg);
+            return opts ?? throw new ArgumentException(nameof(arg));
         }
     }
 }

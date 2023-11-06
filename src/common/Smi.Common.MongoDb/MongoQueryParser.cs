@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NLog;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Smi.Common.MongoDB
@@ -14,7 +15,7 @@ namespace Smi.Common.MongoDB
 
         //TODO(RKM 05/07) Make Modality a required property of the query
         //TODO(Ruairidh): Refactor out the IMongoCollection object
-        public static async Task<IAsyncCursor<BsonDocument>> GetCursor(IMongoCollection<BsonDocument> coll, FindOptions<BsonDocument> findOptions, string jsonQuery)
+        public static async Task<IAsyncCursor<BsonDocument>> GetCursor(IMongoCollection<BsonDocument> coll, FindOptions<BsonDocument> findOptions, string? jsonQuery)
         {
             if (string.IsNullOrWhiteSpace(jsonQuery))
             {
@@ -36,12 +37,12 @@ namespace Smi.Common.MongoDB
 
             // Required
 
-            if (!TryParseDocumentProperty(docQuery, "find", out BsonDocument find))
+            if (!TryParseDocumentProperty(docQuery, "find", out BsonDocument? find))
                 throw new ApplicationException("Parsed document did not contain a \"find\" node");
 
             // Optional
 
-            if (TryParseDocumentProperty(docQuery, "sort", out BsonDocument sort))
+            if (TryParseDocumentProperty(docQuery, "sort", out BsonDocument? sort))
                 findOptions.Sort = sort;
 
             if (TryParseIntProperty(docQuery, "limit", out int limit))
@@ -54,7 +55,7 @@ namespace Smi.Common.MongoDB
             return await coll.FindAsync(find, findOptions);
         }
 
-        private static bool TryParseDocumentProperty(BsonDocument docQuery, string propertyName, out BsonDocument propertyDocument)
+        private static bool TryParseDocumentProperty(BsonDocument docQuery, string propertyName, [NotNullWhen(true)] out BsonDocument? propertyDocument)
         {
             if (docQuery.TryGetValue(propertyName, out BsonValue value))
                 try
@@ -71,7 +72,6 @@ namespace Smi.Common.MongoDB
 
             _logger.Info("No document found for property " + propertyName);
             propertyDocument = null;
-
             return false;
         }
 

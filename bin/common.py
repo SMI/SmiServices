@@ -16,15 +16,19 @@ DIST_DIR = PROJ_ROOT / "dist"
 STR_LIKE = Union[str, Path]
 
 
-def get_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("tag", help="The git tag for the release")
+def add_clean_arg(parser: argparse.ArgumentParser) -> None:    
     parser.add_argument(
         "--clean",
         action="store_true",
         help="Cleanup any existing files",
     )
-    return parser
+
+
+def add_tag_arg(parser: argparse.ArgumentParser) -> None:    
+    parser.add_argument(
+        "tag",
+        help="The git tag for the release",
+    )
 
 
 def run(

@@ -15,12 +15,12 @@ namespace Applications.ExtractImages
 
         [UsedImplicitly]
         [Option(shortName: 'p', longName: "project-id", Required = true, HelpText = "The project identifier")]
-        public string ProjectId { get; set; }
+        public string ProjectId { get; set; } = null!;
 
         [UsedImplicitly]
         [Option(shortName: 'c', longName: "cohort-csv-file", Required = true,
             HelpText = "The CSV file containing IDs of the cohort for extraction")]
-        public string CohortCsvFile { get; set; }
+        public string CohortCsvFile { get; set; } = null!;
 
         // Optional
 
@@ -28,7 +28,7 @@ namespace Applications.ExtractImages
         [Option(shortName: 'm', longName: "modalities", Required = false,
             HelpText =
                 "[Optional] List of modalities to extract. Any non-matching IDs from the input list are ignored")]
-        public string Modalities { get; set; }
+        public string? Modalities { get; set; }
 
         [UsedImplicitly]
         [Option(shortName: 'i', longName: "identifiable-extraction", Required = false,

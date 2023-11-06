@@ -20,7 +20,7 @@ namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
         public void RabbitAvailable()
         {
             var options = new GlobalOptionsFactory().Load(nameof(RabbitAvailable));
-            var rabbitOptions = options.RabbitOptions;
+            var rabbitOptions = options.RabbitOptions!;
 
             Assert.DoesNotThrow(()=> _=new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(),nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
         }

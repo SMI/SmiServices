@@ -34,8 +34,8 @@ public class DicomLoaderTests
         DicomDataset[] testImages;
         Study study;
 
-        var database = MongoClientHelpers.GetMongoClient(_gOptions.MongoDatabases.DicomStoreOptions, nameof(DicomLoader)).GetDatabase(_gOptions.MongoDatabases.DicomStoreOptions.DatabaseName);
-        var imageStore = database.GetCollection<BsonDocument>(_gOptions.MongoDbPopulatorOptions.ImageCollection);
+        var database = MongoClientHelpers.GetMongoClient(_gOptions.MongoDatabases!.DicomStoreOptions!, nameof(DicomLoader)).GetDatabase(_gOptions.MongoDatabases.DicomStoreOptions!.DatabaseName);
+        var imageStore = database.GetCollection<BsonDocument>(_gOptions.MongoDbPopulatorOptions!.ImageCollection);
         var seriesStore = database.GetCollection<SeriesMessage>(_gOptions.MongoDbPopulatorOptions.SeriesCollection);
 
         imageStore.DeleteMany(new BsonDocument());
@@ -45,7 +45,7 @@ public class DicomLoaderTests
 
         // Create a bunch of (pixel-free) DICOM files
         Random r = new(321);
-        var di = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory,nameof(DicomLoader)));
+        var di = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, nameof(DicomLoader)));
         if (di.Exists)
             di.Delete(true);
         using (var generator = new DicomDataGenerator(r, di.FullName, "CT") { NoPixels = true })
@@ -57,12 +57,12 @@ public class DicomLoaderTests
         // Move 10 of the DICOM files into a ZIP archive to test that function too
         var archiveName = Path.Combine(di.FullName, "arctest.zip");
         var zipFiles = di.GetFiles("*.dcm", new EnumerationOptions() { RecurseSubdirectories = true })[..10];
-        using (var archiveStream=File.OpenWrite(archiveName))
+        using (var archiveStream = File.OpenWrite(archiveName))
         using (var archiver = ZipArchive.Create())
         {
             foreach (var entry in zipFiles)
                 archiver.AddEntry(entry.Name, entry.FullName);
-            archiver.SaveTo(archiveStream,new ZipWriterOptions(CompressionType.Deflate) {LeaveStreamOpen = true,DeflateCompressionLevel = CompressionLevel.BestSpeed});
+            archiver.SaveTo(archiveStream, new ZipWriterOptions(CompressionType.Deflate) { LeaveStreamOpen = true, DeflateCompressionLevel = CompressionLevel.BestSpeed });
         }
         // Need to delete source files _after_ the archive writer is .Disposed
         foreach (var entry in zipFiles)
@@ -71,10 +71,10 @@ public class DicomLoaderTests
         // Make a list of the files we have, and move some into a 7z file for testing
         var fileNames = di.GetFiles("*", new EnumerationOptions { RecurseSubdirectories = true }).Select(x => x.FullName);
         var files = string.Join('\0', fileNames);
-        using var fileList=new MemoryStream(Encoding.UTF8.GetBytes(files));
+        using var fileList = new MemoryStream(Encoding.UTF8.GetBytes(files));
         typeof(Program).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static,
                 new[] { typeof(GlobalOptions), typeof(DicomLoaderOptions), typeof(Stream) })!
-            .Invoke(null, new object[]{_gOptions, new DicomLoaderOptions(), fileList});
+            .Invoke(null, new object[] { _gOptions, new DicomLoaderOptions(), fileList });
         //Program.OnParse(_gOptions,_dOptions,fileList);
 
         Assert.That(imageStore.CountDocuments(new BsonDocument()), Is.EqualTo(testImages.Length));

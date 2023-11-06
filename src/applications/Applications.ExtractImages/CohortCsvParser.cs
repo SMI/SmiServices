@@ -33,10 +33,7 @@ namespace Applications.ExtractImages
             using var reader = new CsvReader(streamReader, _csvConfiguration);
 
             reader.Read();
-            var headerRecord = reader.Parser.Record;
-
-            if (headerRecord == null)
-                throw new ApplicationException(message: "CSV is empty");
+            var headerRecord = reader.Parser.Record ?? throw new ApplicationException(message: "CSV is empty");
 
             if (headerRecord.Length != 1)
                 throw new ApplicationException(message: "CSV must have exactly 1 column");

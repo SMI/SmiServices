@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace Smi.Common.Messaging
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
-        public event ConsumerFatalHandler OnFatal;
+        public event ConsumerFatalHandler? OnFatal;
 
 
         protected readonly ILogger Logger;
@@ -36,7 +37,7 @@ namespace Smi.Common.Messaging
         private readonly object _oConsumeLock = new();
         private bool _exiting;
 
-        protected IModel Model;
+        protected IModel? Model;
 
         public virtual void Shutdown()
         {
@@ -94,7 +95,10 @@ namespace Smi.Common.Messaging
                 if (deliverArgs.BasicProperties?.ContentEncoding != null)
                     enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
-                header = new MessageHeader(deliverArgs.BasicProperties?.Headers, enc);
+                var headers = deliverArgs.BasicProperties?.Headers
+                    ?? throw new ArgumentNullException("A part of deliverArgs.BasicProperties.Headers was null");
+
+                header = new MessageHeader(headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
             }
             catch (Exception e)
@@ -110,7 +114,7 @@ namespace Smi.Common.Messaging
 
             try
             {
-                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage message))
+                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage? message))
                     return;
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
             }
@@ -124,7 +128,7 @@ namespace Smi.Common.Messaging
         {
             try
             {
-                ProcessMessageImpl(null, msg, 1);
+                ProcessMessageImpl(null!, msg, 1);
             }
             catch (Exception e)
             {
@@ -144,7 +148,7 @@ namespace Smi.Common.Messaging
         /// <param name="iMessage"></param>
         /// <returns></returns>
         /// </summary>
-        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, out T iMessage) where T : IMessage
+        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, [NotNullWhen(true)] out T? iMessage) where T : IMessage
         {
             try
             {
@@ -158,7 +162,7 @@ namespace Smi.Common.Messaging
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
                 ErrorAndNack(header, deliverArgs.DeliveryTag, DeserializationMessage<T>(), e);
 
-                iMessage = default(T);
+                iMessage = default;
                 return false;
             }
         }
@@ -169,7 +173,7 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void DiscardSingleMessage(ulong tag)
         {
-            Model.BasicNack(tag, multiple: false, requeue: false);
+            Model!.BasicNack(tag, multiple: false, requeue: false);
             NackCount++;
         }
 
@@ -190,7 +194,7 @@ namespace Smi.Common.Messaging
         {
             header?.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(tag, false);
+            Model!.BasicAck(tag, false);
             AckCount++;
         }
 
@@ -205,7 +209,7 @@ namespace Smi.Common.Messaging
             foreach (IMessageHeader header in batchHeaders)
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(latestDeliveryTag, true);
+            Model!.BasicAck(latestDeliveryTag, true);
             AckCount += batchHeaders.Count;
         }
 
@@ -226,7 +230,7 @@ namespace Smi.Common.Messaging
 
                 Logger.Fatal(exception, msg);
 
-                ConsumerFatalHandler onFatal = OnFatal;
+                ConsumerFatalHandler? onFatal = OnFatal;
 
                 if (onFatal != null)
                 {

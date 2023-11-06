@@ -119,7 +119,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             var store = new TestExtractJobStore();
 
             Assert.Throws<ArgumentNullException>(() => store.MarkJobFailed(Guid.Empty, new Exception()));
-            Assert.Throws<ArgumentNullException>(() => store.MarkJobFailed(Guid.NewGuid(), null));
 
             store.MarkJobFailed(Guid.NewGuid(), new Exception());
         }

@@ -1,9 +1,8 @@
-﻿
+
 using FellowOakDicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using FAnsi.Discovery;
-using MapsDirectlyToDatabaseTable;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
@@ -16,25 +15,26 @@ using Smi.Common.Options;
 using System;
 using System.IO;
 using System.Linq;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.TagPromotionSchema;
-using ReusableLibraryCode.Checks;
 
 namespace Microservices.Tests.RDMPTests
 {
     public class DicomRelationalMapperTestHelper
     {
-        public LoadMetadata LoadMetadata { get; private set; }
-        public DiscoveredTable ImageTable { get; private set; }
-        public DiscoveredTable SeriesTable { get; private set; }
-        public DiscoveredTable StudyTable { get; private set; }
+        public LoadMetadata? LoadMetadata { get; private set; }
+        public DiscoveredTable? ImageTable { get; private set; }
+        public DiscoveredTable? SeriesTable { get; private set; }
+        public DiscoveredTable? StudyTable { get; private set; }
 
-        public TableInfo ImageTableInfo { get; private set; }
-        public TableInfo SeriesTableInfo { get; private set; }
-        public TableInfo StudyTableInfo { get; private set; }
+        public TableInfo? ImageTableInfo { get; private set; }
+        public TableInfo? SeriesTableInfo { get; private set; }
+        public TableInfo? StudyTableInfo { get; private set; }
 
-        public PipelineComponent DicomSourcePipelineComponent { get; private set; }
+        public PipelineComponent? DicomSourcePipelineComponent { get; private set; }
 
-        public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string root = null, ImageTableTemplateCollection template = null, bool persistentRaw = false, string modalityPrefix = null)
+        public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string? root = null, ImageTableTemplateCollection? template = null, bool persistentRaw = false, string? modalityPrefix = null)
         {
             ImageTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}ImageTable");
             SeriesTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}SeriesTable");
@@ -50,12 +50,6 @@ namespace Microservices.Tests.RDMPTests
             {
                 //never mind, it's probably locked
             }
-
-
-            //The Rdmp.Dicom assembly should be loaded as a plugin, this simulates it.
-            foreach (var type in typeof(InvalidDataHandling).Assembly.GetTypes())
-                repositoryLocator.CatalogueRepository.MEF.AddTypeToCatalogForTesting(type);
-
 
             var catalogueRepository = repositoryLocator.CatalogueRepository;
             var dataExportRepository = repositoryLocator.DataExportRepository;
@@ -97,12 +91,12 @@ namespace Microservices.Tests.RDMPTests
             StudyTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName().Equals(StudyTable.GetRuntimeName()));
 
             // Override the options with stuff coming from Core RDMP DatabaseTests (TestDatabases.txt)
-            globalOptions.FileSystemOptions.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
+            globalOptions.FileSystemOptions!.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
 
-            globalOptions.RDMPOptions.CatalogueConnectionString = (catalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
+            globalOptions.RDMPOptions!.CatalogueConnectionString = (catalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
             globalOptions.RDMPOptions.DataExportConnectionString = (dataExportRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
 
-            globalOptions.DicomRelationalMapperOptions.LoadMetadataId = LoadMetadata.ID;
+            globalOptions.DicomRelationalMapperOptions!.LoadMetadataId = LoadMetadata.ID;
             globalOptions.DicomRelationalMapperOptions.MinimumBatchSize = 1;
             globalOptions.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
 
@@ -121,7 +115,7 @@ namespace Microservices.Tests.RDMPTests
         public void TruncateTablesIfExists()
         {
             foreach (var t in new[] { ImageTable, SeriesTable, StudyTable })
-                if (t.Exists())
+                if (t != null && t.Exists())
                     t.Truncate();
         }
 

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
- <PropertyGroup>
+  <PropertyGroup>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
+    <Nullable>enable</Nullable>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <RuntimeIdentifiers>linux-x64;win-x64;osx-arm64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
-    <TargetFramework>net6</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- Many build warnings for missing docstrings when enabling this - we may want to fix and enable per-project where needed instead? -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <!---->
- </PropertyGroup>
+  </PropertyGroup>
 </Project>

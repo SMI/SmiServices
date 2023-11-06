@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using Smi.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.IdentifierMapper.Execution.Swappers
 {
@@ -17,9 +18,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     {
         private readonly ILogger _logger;
 
-        private IMappingTableOptions _options;
+        private IMappingTableOptions? _options;
 
-        private Dictionary<string, string> _mapping;
+        private Dictionary<string, string>? _mapping;
         private readonly object _oDictionaryLock = new();
 
 
@@ -32,11 +33,12 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// Preloads the swap table into memory
         /// </summary>
         /// <param name="options"></param>
+        [MemberNotNull(nameof(_mapping))]
         public override void Setup(IMappingTableOptions options)
         {
             _logger.Info("Setting up mapping dictionary");
 
-            using(new TimeTracker(DatabaseStopwatch))
+            using (new TimeTracker(DatabaseStopwatch))
                 lock (_oDictionaryLock)
                 {
                     _options = options;
@@ -61,18 +63,17 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                     Stopwatch sw = Stopwatch.StartNew();
 
                     while (dataReader.Read())
-                        _mapping.Add(dataReader[_options.SwapColumnName].ToString(), dataReader[_options.ReplacementColumnName].ToString());
+                        _mapping.Add(dataReader[_options.SwapColumnName!].ToString()!, dataReader[_options.ReplacementColumnName!].ToString()!);
 
                     _logger.Debug("Mapping dictionary populated with " + _mapping.Count + " entries in " + sw.Elapsed.ToString("g"));
                 }
-
         }
 
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             lock (_oDictionaryLock)
             {
-                if (!_mapping.ContainsKey(toSwap))
+                if (!_mapping!.ContainsKey(toSwap))
                 {
                     reason = "PatientID was not in mapping table";
                     Fail++;
@@ -101,7 +102,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             Setup(_options);
         }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

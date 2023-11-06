@@ -1,4 +1,4 @@
-﻿using Equ;
+using Equ;
 using System;
 
 namespace Smi.Common.Messages.Updating
@@ -11,32 +11,32 @@ namespace Smi.Common.Messages.Updating
         /// <summary>
         /// Optional Sql operators e.g. "=", "&lt;" etc to use in WHERE Sql when looking for <see cref="HaveValues"/> in <see cref="WhereFields"/>.  If null or empty "=" is assumed for all WHERE comparisons
         /// </summary>
-        public string[] Operators {get;set;} = null;
+        public string[]? Operators {get;set;} = null;
 
         /// <summary>
         /// The field(s) to search the database for (this should be the human readable name without qualifiers as it may match multiple tables e.g. ECHI)
         /// </summary>
-        public string[] WhereFields {get;set;} = new string[0];
+        public string?[] WhereFields {get;set;} = Array.Empty<string>();
 
         /// <summary>
         /// The values to search for when deciding which records to update
         /// </summary>
-        public string[] HaveValues {get;set;} = new string[0];
+        public string?[] HaveValues {get;set;} = Array.Empty<string>();
 
         /// <summary>
         /// The field(s) which should be updated, may be the same as the <see cref="WhereFields"/>
         /// </summary>
-        public string[] WriteIntoFields {get;set;} = new string[0];
+        public string[] WriteIntoFields {get;set;} = Array.Empty<string>();
 
         /// <summary>
         /// The values to write into matching records (see <see cref="WriteIntoFields"/>).  Null elements in this array should be treated as <see cref="DBNull.Value"/>
         /// </summary>
-        public string[] Values {get;set;} = new string[0];
+        public string[] Values {get;set;} = Array.Empty<string>();
 
         /// <summary>
         /// Optional.  Where present indicates the tables which should be updated.  If empty then all tables matching the fields should be updated
         /// </summary>
-        public int[] ExplicitTableInfo {get;set; }  = new int[0];
+        public int[] ExplicitTableInfo {get;set; }  = Array.Empty<int>();
 
         public void Validate()
         {

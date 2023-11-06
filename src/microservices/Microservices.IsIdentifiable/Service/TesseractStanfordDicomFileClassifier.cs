@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -25,7 +25,7 @@ namespace Microservices.IsIdentifiable.Service
             foreach (DirectoryInfo subDir in subDirs)
                 fileOptions.RulesDirectory = subDir.FullName;
 
-            _runner = new DicomFileRunner(fileOptions);
+            _runner = new DicomFileRunner(fileOptions,new FileSystem());
         }
 
         

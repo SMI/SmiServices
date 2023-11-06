@@ -49,17 +49,18 @@ namespace Smi.Common.Tests
 
         public class ConStrs
         {
-            private string _MySql;
-            public string MySql {
+            private string? _MySql;
+            public string? MySql {
                 get => _MySql;
-                set => _MySql = value.Replace("ssl-mode","sslmode",StringComparison.OrdinalIgnoreCase);
+                set => _MySql = value?.Replace("ssl-mode","sslmode",StringComparison.OrdinalIgnoreCase);
             }
-            public string SqlServer { get; set; }
-            public string Oracle { get; set; }
+
+            public string? SqlServer { get; set; }
+            public string? Oracle { get; set; }
 
             public DiscoveredServer GetServer(DatabaseType dbType)
             {
-                string str = dbType switch
+                string? str = dbType switch
                 {
                     DatabaseType.MicrosoftSQLServer => SqlServer,
                     DatabaseType.MySql => MySql,

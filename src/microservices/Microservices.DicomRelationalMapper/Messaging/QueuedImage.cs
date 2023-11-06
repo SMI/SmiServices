@@ -9,19 +9,18 @@ namespace Microservices.DicomRelationalMapper.Messaging
     /// </summary>
     public class QueuedImage
     {
-        public IMessageHeader Header { get; set; }
+        public IMessageHeader Header { get; init; }
 
-        public ulong tag { get; set; }
+        public ulong Tag { get; init; }
 
-        public DicomFileMessage DicomFileMessage { get; set; }
+        public DicomFileMessage DicomFileMessage { get; init; }
 
-        public DicomDataset DicomDataset { get; set; }
+        public DicomDataset DicomDataset { get; init; }
 
-
-        public QueuedImage(IMessageHeader header, ulong _tag, DicomFileMessage dicomFileMessage, DicomDataset dataset)
+        public QueuedImage(IMessageHeader header, ulong tag, DicomFileMessage dicomFileMessage, DicomDataset dataset)
         {
             Header = header;
-            tag = _tag;
+            Tag = tag;
             DicomFileMessage = dicomFileMessage;
             DicomDataset = dataset;
         }

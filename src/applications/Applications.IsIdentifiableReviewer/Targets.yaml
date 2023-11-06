@@ -1,6 +1,0 @@
-﻿- Name: My Server
-  ConnectionString: Server=localhost;Username=root;Password=zombie
-  DatabaseType: MySql
-- Name: My Other Server
-  ConnectionString: Server=localhost;Username=root;Password=zombie
-  DatabaseType: MySql

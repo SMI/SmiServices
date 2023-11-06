@@ -31,8 +31,8 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         protected readonly CancellationTokenSource TokenSource = new();
 
         protected readonly Stopwatch Stopwatch = new();
-        protected StringBuilder StringBuilder;
-        protected List<List<long>> Times;
+        protected StringBuilder? StringBuilder;
+        protected List<List<long>>? Times;
 
         /// <summary>
         /// The filenames to look for in directories.  Defaults to *.dcm
@@ -50,7 +50,12 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         }
 
 
-        protected DicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        protected DicomDirectoryFinder(
+            string fileSystemRoot,
+            IFileSystem fileSystem,
+            string dicomSearchPattern, 
+            IProducerModel directoriesProducerModel
+        )
         {
             FileSystemRoot = fileSystemRoot;
             FileSystem = fileSystem;
@@ -103,15 +108,15 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                 DirectoryPath = dirPath,
             };
 
-            _directoriesProducerModel.SendMessage(message, null);
+            _directoriesProducerModel.SendMessage(message, isInResponseTo: null, routingKey: null);
             ++TotalSent;
         }
 
         protected void LogTime(TimeLabel tl)
         {
             long elapsed = Stopwatch.ElapsedMilliseconds;
-            StringBuilder.Append(tl + "=" + elapsed + "ms ");
-            Times[(int)tl].Add(elapsed);
+            StringBuilder!.Append(tl + "=" + elapsed + "ms ");
+            Times![(int)tl].Add(elapsed);
             Stopwatch.Restart();
         }
 
@@ -122,7 +127,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
 
             foreach (TimeLabel label in (TimeLabel[])Enum.GetValues(typeof(TimeLabel)))
             {
-                int count = Times[(int)label].Count;
+                int count = Times![(int)label].Count;
                 long average = count == 0 ? 0 : Times[(int)label].Sum() / count;
 
                 sb.AppendLine(label + ":\t" + average + "ms");

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Smi.Common.Tests
         {
             var toReturn = new List<DicomDataset>();
             g.MaximumImages = numberOfImages;
-            
+
             while (toReturn.Count <=  numberOfImages)
                 toReturn.AddRange(g.GenerateStudyImages(new Person(r), out _));
 
@@ -32,15 +32,15 @@ namespace Smi.Common.Tests
             var p = new PersonCollection();
             p.GeneratePeople(5000,r);
 
-            if(g.OutputDir.Exists)
+            if(g.OutputDir?.Exists==true)
                 g.OutputDir.Delete(true);
 
-            var inventory = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv"));Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv");
+            var inventory = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "inventory.csv"));
 
             g.MaximumImages = numberOfImages;
             g.GenerateTestDataFile(p,inventory,numberOfImages);
-            
-            return g.OutputDir.GetFiles("*.dcm",SearchOption.AllDirectories);
+
+            return g.OutputDir?.GetFiles("*.dcm",SearchOption.AllDirectories)??Enumerable.Empty<FileInfo>();
         }
     }
 }

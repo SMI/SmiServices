@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Helpers;
@@ -17,15 +17,15 @@ namespace Microservices.CohortPackager.Tests
         public static bool ShouldPrintReports { get; set; }
 
         public static void AssertReportsAreEqual(
-            [NotNull] CompletedExtractJobInfo jobInfo,
-            [NotNull] DateTimeProvider provider,
-            [CanBeNull] Dictionary<string, Dictionary<string, List<string>>> verificationFailuresExpected,
-            [CanBeNull] Dictionary<string, List<Tuple<int, string>>> blockedFilesExpected,
-            [CanBeNull] List<Tuple<string, string>> anonFailuresExpected,
+            CompletedExtractJobInfo jobInfo,
+            DateTimeProvider provider,
+            Dictionary<string, Dictionary<string, List<string>>>? verificationFailuresExpected,
+            Dictionary<string, List<Tuple<int, string>>>? blockedFilesExpected,
+            List<Tuple<string, string>>? anonFailuresExpected,
             bool isIdentifiableExtraction,
             bool isJoinedReport,
-            [NotNull] string newLine,
-            [NotNull] string actualReport
+            string newLine,
+            string actualReport
         )
         {
             string header = GetHeaderAndContents(jobInfo, provider, newLine);
@@ -33,14 +33,14 @@ namespace Microservices.CohortPackager.Tests
             if (isIdentifiableExtraction)
             {
                 Assert.NotNull(anonFailuresExpected);
-                IEnumerable<string> missingFiles = anonFailuresExpected.Select(x => x.Item1);
+                IEnumerable<string> missingFiles = anonFailuresExpected!.Select(x => x.Item1);
                 CheckIdentReport(header, missingFiles, newLine, actualReport);
                 return;
             }
 
             (
-                string expectedVerificationFailuresSummary,
-                string expectedVerificationFailuresFull
+                string? expectedVerificationFailuresSummary,
+                string? expectedVerificationFailuresFull
             ) = ExpectedVerificationFailures(verificationFailuresExpected, newLine);
 
             var expected = new List<string>
@@ -120,7 +120,7 @@ namespace Microservices.CohortPackager.Tests
             return string.Join(newLine, headerLines);
         }
 
-        private static void CheckIdentReport(string headerLines, IEnumerable<string> missingFiles, string newLine, string actualReport)
+        private static void CheckIdentReport(string headerLines, IEnumerable<string?> missingFiles, string newLine, string actualReport)
         {
             var expected = new List<string>
             {
@@ -139,10 +139,10 @@ namespace Microservices.CohortPackager.Tests
             Assert.AreEqual(expectedStr, actualReport);
         }
 
-        private static Tuple<string, string> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>> verificationFailuresExpected, string newLine)
+        private static Tuple<string?, string?> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>>? verificationFailuresExpected, string newLine)
         {
             if (verificationFailuresExpected == null)
-                return new Tuple<string, string>(null, null);
+                return new Tuple<string?, string?>(null, null);
 
             var summarySb = new StringBuilder();
             var fullSb = new StringBuilder();
@@ -173,10 +173,10 @@ namespace Microservices.CohortPackager.Tests
                 summarySb.Append($"{newLine}");
                 fullSb.Append($"{newLine}");
             }
-            return new Tuple<string, string>(summarySb.ToString(), fullSb.ToString());
+            return new Tuple<string?, string?>(summarySb.ToString(), fullSb.ToString());
         }
 
-        private static string BlockedFiles(Dictionary<string, List<Tuple<int, string>>> blockedFilesExpected, string newLine)
+        private static string? BlockedFiles(Dictionary<string, List<Tuple<int, string>>>? blockedFilesExpected, string newLine)
         {
             if (blockedFilesExpected == null)
                 return null;
@@ -191,7 +191,7 @@ namespace Microservices.CohortPackager.Tests
             return sb.ToString();
         }
 
-        private static string AnonymisationFailures(List<Tuple<string, string>> anonFailuresExpected, string newLine)
+        private static string? AnonymisationFailures(List<Tuple<string, string>>? anonFailuresExpected, string newLine)
         {
             if (anonFailuresExpected == null)
                 return null;

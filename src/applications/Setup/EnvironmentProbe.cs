@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution;
+using Microservices.CohortExtractor.Execution;
 using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.DicomAnonymiser;
@@ -9,9 +9,6 @@ using Microservices.IsIdentifiable.Service;
 using Microservices.MongoDBPopulator.Execution;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
-using ReusableLibraryCode;
-using ReusableLibraryCode.Checks;
-using ReusableLibraryCode.Progress;
 using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
@@ -21,6 +18,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Rdmp.Core.ReusableLibraryCode;
+using Rdmp.Core.ReusableLibraryCode.Checks;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 
 namespace Setup
 {
@@ -42,10 +42,10 @@ namespace Setup
     }
 
     internal class EnvironmentProbe
-    {        
+    {
         public CheckEventArgs DeserializeYaml { get; }
         public GlobalOptions? Options { get; }
-        
+
         public const string CheckInfrastructureTaskName = "Checking Infrastructure";
         public const string CheckMicroservicesTaskName = "Checking Microservices";
 
@@ -57,25 +57,25 @@ namespace Setup
         internal int GetExitCode()
         {
             // get all things we can check
-            foreach(var prop in typeof(EnvironmentProbe).GetProperties())
+            foreach (var prop in typeof(EnvironmentProbe).GetProperties())
             {
                 var val = prop.GetValue(this);
-                
+
                 // did any checks run
-                if(val is CheckEventArgs cea)
+                if (val is CheckEventArgs cea)
                 {
                     // that failed
                     if (cea.Result == CheckResult.Fail)
                     {
                         // something failed so exit code is failure (non zero)
                         return 100;
-                    }   
+                    }
                 }
             }
 
             return 0;
         }
-        
+
         public EnvironmentProbe(string? yamlFile)
         {
             Probes = new();
@@ -83,9 +83,9 @@ namespace Setup
             Add(Infrastructure, "MongoDb", ProbeMongoDb);
             Add(Infrastructure, "Rdmp", ProbeRdmp);
 
-            Add(Microservices, "CohortExtractor", ()=> Probe(nameof(CohortExtractorHost), (o) => new CohortExtractorHost(o, null, null)));
+            Add(Microservices, "CohortExtractor", () => Probe(nameof(CohortExtractorHost), (o) => new CohortExtractorHost(o, null, null)));
             Add(Microservices, "DicomAnonymiser", () => Probe(nameof(DicomAnonymiserHost), (o) => new DicomAnonymiserHost(o)));
-            Add(Microservices, "IsIdentifiable", ()=> Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o)));
+            Add(Microservices, "IsIdentifiable", () => Probe(nameof(IsIdentifiableHost), (o) => new IsIdentifiableHost(o)));
             Add(Microservices, "CohortPackager", () => Probe(nameof(CohortPackagerHost), (o) => new CohortPackagerHost(o)));
             Add(Microservices, "DicomRelationalMapper", () => Probe(nameof(DicomRelationalMapperHost), (o) => new DicomRelationalMapperHost(o)));
             Add(Microservices, "IdentifierMapper", () => Probe(nameof(IdentifierMapperHost), (o) => new IdentifierMapperHost(o)));
@@ -118,17 +118,17 @@ DicomTagReader {
                     throw new Exception("You have not yet entered a path for yaml file");
 
                 Options = new GlobalOptionsFactory().Load("Setup", yamlFile);
-                DeserializeYaml = new CheckEventArgs("Deserialized Yaml File",CheckResult.Success);
+                DeserializeYaml = new CheckEventArgs("Deserialized Yaml File", CheckResult.Success);
             }
             catch (Exception ex)
             {
-                DeserializeYaml = new CheckEventArgs("Failed to Deserialize Yaml File",CheckResult.Fail, ex);
+                DeserializeYaml = new CheckEventArgs("Failed to Deserialize Yaml File", CheckResult.Fail, ex);
             }
         }
 
         private void Add(string category, string name, Func<CheckEventArgs?> probeMethod)
         {
-            Probes.Add(name, new Probeable(name, probeMethod,category));
+            Probes.Add(name, new Probeable(name, probeMethod, category));
         }
 
         internal void CheckInfrastructure(IDataLoadEventListener? listener = null)
@@ -136,8 +136,8 @@ DicomTagReader {
             var probes = Probes.Where(p => p.Value.Category == Infrastructure).ToArray();
 
             var sw = Stopwatch.StartNew();
-            int max = probes.Length;
-            int current = 0;
+            var max = probes.Length;
+            var current = 0;
             var task = CheckInfrastructureTaskName;
 
             listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
@@ -156,8 +156,8 @@ DicomTagReader {
             var probes = Probes.Where(p => p.Value.Category == Microservices).ToArray();
 
             var sw = Stopwatch.StartNew();
-            int max = probes.Length;
-            int current = 0;
+            var max = probes.Length;
+            var current = 0;
             var task = CheckMicroservicesTaskName;
 
             listener?.OnProgress(this, new ProgressEventArgs(task, new ProgressMeasurement(current, ProgressType.Records, max), sw.Elapsed));
@@ -179,7 +179,7 @@ DicomTagReader {
                 if (Options == null)
                     return null;
 
-                if (Options.RDMPOptions == null || 
+                if (Options.RDMPOptions == null ||
 
                     // Must specify either SqlServer or file system backend for RDMP platform metadata
                     (string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString) &&
@@ -190,15 +190,16 @@ DicomTagReader {
 
                 var provider = Options.RDMPOptions.GetRepositoryProvider();
 
-                var startup = new Startup(new EnvironmentInfo(), provider);
-                
-                bool failed = false;
+                var startup = new Startup(provider);
+
+                var failed = false;
                 var sb = new StringBuilder();
                 var exceptions = new List<Exception>();
 
-                startup.DatabaseFound += (s, e) => {
+                startup.DatabaseFound += (s, e) =>
+                {
                     failed = !failed && e.Status != RDMPPlatformDatabaseStatus.Healthy || e.Exception != null;
-                    sb.AppendLine(e.Patcher.Name + " " + e.Status);
+                    sb.AppendLine($"{e.Patcher.Name} {e.Status}");
 
                     if (e.Exception != null)
                     {
@@ -207,7 +208,7 @@ DicomTagReader {
                     }
                 };
 
-                startup.DoStartup(new ThrowImmediatelyCheckNotifier() { WriteToConsole = false }) ;
+                startup.DoStartup(ThrowImmediatelyCheckNotifier.Quiet);
 
                 return new CheckEventArgs(sb.ToString(), failed ? CheckResult.Fail : CheckResult.Success);
             }
@@ -219,12 +220,12 @@ DicomTagReader {
 
         public CheckEventArgs? ProbeRabbitMq()
         {
-            if (Options == null)
+            if (Options?.RabbitOptions == null)
                 return null;
 
             try
             {
-                var factory = ConnectionFactoryExtensions.CreateConnectionFactory(Options.RabbitOptions);
+                var factory = Options.RabbitOptions.CreateConnectionFactory();
                 var adapter = new RabbitMqAdapter(factory, "setup");
 
                 return new CheckEventArgs("Connected to RabbitMq", CheckResult.Success);
@@ -237,23 +238,22 @@ DicomTagReader {
 
         public CheckEventArgs? ProbeMongoDb()
         {
-            if (Options == null)
+            if (Options?.MongoDatabases?.DicomStoreOptions == null)
                 return null;
 
             try
             {
-                if (Options.MongoDatabases == null)
-                    return null;
-
-                // this opens connection to the server and tests for collection existing                
-                new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
-                         Options.MongoDbPopulatorOptions.ImageCollection);
+                // this opens connection to the server and tests for collection existing
+                _=new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
+                         Options.MongoDbPopulatorOptions?.ImageCollection ?? throw new InvalidOperationException());
 
 
-                MongoDbOptions mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions;
-                var jobStore = new MongoExtractJobStore(
+                var mongoDbOptions = Options.MongoDatabases.ExtractionStoreOptions
+                                     ?? throw new ArgumentException($"ExtractionStoreOptions was null");
+
+                _ = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, "Setup"),
-                    mongoDbOptions.DatabaseName,new Smi.Common.Helpers.DateTimeProvider()                    
+                    mongoDbOptions.DatabaseName ?? throw new InvalidOperationException(), new Smi.Common.Helpers.DateTimeProvider()
                 );
 
                 return new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);
@@ -264,7 +264,7 @@ DicomTagReader {
             }
         }
 
-        private CheckEventArgs? Probe(string probeName, Func<GlobalOptions,MicroserviceHost> hostConstructor)
+        private CheckEventArgs? Probe(string probeName, Func<GlobalOptions, MicroserviceHost> hostConstructor)
         {
             if (Options == null)
                 return null;

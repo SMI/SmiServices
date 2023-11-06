@@ -1,10 +1,9 @@
-﻿using FAnsi;
+using FAnsi;
 using FAnsi.Discovery;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
-using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Data;
 using System.Linq;
 using Applications.TriggerUpdates.Execution;
 using Applications.TriggerUpdates.Options;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
 
 
@@ -30,7 +30,7 @@ namespace Applications.TriggerUpdates.Tests
         /// <param name="guidTable"></param>
         /// <param name="mapperOptions"></param>
         /// <param name="guids">true to create a <see cref="TableLookupWithGuidFallbackSwapper"/> otherwise creates a  <see cref="TableLookupSwapper"/></param>
-        private void SetupMappers(DatabaseType dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions, bool guids=true)
+        private void SetupMappers(DatabaseType dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions, bool guids=true)
         {
             var db = GetCleanedServer(dbType);
 
@@ -39,7 +39,7 @@ namespace Applications.TriggerUpdates.Tests
                 dt.Columns.Add("CHI");
                 dt.Columns.Add("ECHI");
 
-                dt.PrimaryKey = new []{ dt.Columns["CHI"]};
+                dt.PrimaryKey = new []{ dt.Columns["CHI"]!};
 
                 dt.Rows.Add("0101010101", "0A0A0A0A0A");
                 map = db.CreateTable("Map",dt);
@@ -61,28 +61,28 @@ namespace Applications.TriggerUpdates.Tests
                 swapper.Setup(mapperOptions);
 
                 guidTable = swapper.GetGuidTableIfAny(mapperOptions);
-                Assert.AreEqual(0,guidTable.GetRowCount(), "No temporary guids should exist yet");
+                Assert.AreEqual(0,guidTable?.GetRowCount(), "No temporary guids should exist yet");
                 Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
             
                 //lookup an as yet unknown value
                 swapper.GetSubstitutionFor("0202020202",out _);
 
                 Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
-                Assert.AreEqual(1,guidTable.GetRowCount(), "We should have a temporary guid for 0202020202");
+                Assert.AreEqual(1,guidTable?.GetRowCount(), "We should have a temporary guid for 0202020202");
             }
             else
                 guidTable = null;
 
             // make a fake data load into this table (create trigger and insert/update)
             var triggerImplementer = new TriggerImplementerFactory(dbType).Create(map);
-            triggerImplementer.CreateTrigger(new ThrowImmediatelyCheckNotifier());
+            triggerImplementer.CreateTrigger(ThrowImmediatelyCheckNotifier.Quiet);
         }
 
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_BrandNewMapping(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             //create a brand new mapping 
             map.Insert(new Dictionary<string, object>
@@ -102,7 +102,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_NoArchiveTable(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions);
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
             archive.Drop();
@@ -110,14 +110,14 @@ namespace Applications.TriggerUpdates.Tests
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
             var ex = Assert.Throws<Exception>(()=>source.GetUpdates().ToArray());
 
-            StringAssert.StartsWith("No Archive table exists for mapping table",ex.Message);
+            StringAssert.StartsWith("No Archive table exists for mapping table",ex!.Message);
         }
         
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_UpdatedMapping(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())
@@ -151,7 +151,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_UpdatedMapping_WithExplicitDifferentColumnName(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())
@@ -191,7 +191,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_UpdatedMapping_Qualifier(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())
@@ -233,7 +233,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void TestMapperSource_GuidMappingNowExists(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions);
 
             // Simulate a data load that inserts the previously unknown value 0202020202 into the mapping as 0X0X0X0X0X
             // The value 0202020202 is in the guid mapping table! so we would expect a global system update to be issued for the temporary guid mapping to the new legit mapping
@@ -245,7 +245,7 @@ namespace Applications.TriggerUpdates.Tests
                 {SpecialFieldNames.DataLoadRunID,55},
                 });
             
-            var oldTempGuid = guidTable.GetDataTable().Rows[0][TableLookupWithGuidFallbackSwapper.GuidColumnName];
+            var oldTempGuid = guidTable!.GetDataTable().Rows[0][TableLookupWithGuidFallbackSwapper.GuidColumnName];
             Assert.IsNotNull(oldTempGuid);
  
             Assert.AreEqual(2,map.GetRowCount(),"We should have a mapping table with 2 entries, the old existing one 0101010101 and a new one 0202020202");
@@ -268,7 +268,7 @@ namespace Applications.TriggerUpdates.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void Test_MapperSource_NoGuids(DatabaseType dbType)
         {
-            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable guidTable, out IdentifierMapperOptions mapperOptions,false);
+            SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions,false);
 
             // Simulate a data load that changes the mapping of CHI 0101010101 from 0A0A0A0A0A to 0Z0Z0Z0Z0Z
             using(var con = map.Database.Server.GetConnection())

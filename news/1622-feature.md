@@ -1,0 +1,1 @@
+Add LossyImageCompressionMethod to CTP allowlist

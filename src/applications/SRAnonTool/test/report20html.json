@@ -1,0 +1,127 @@
+{
+  "InstanceCreationDate": "20160309",
+  "InstanceCreationTime": "123456",
+  "SOPClassUID": "1.2.840.10008.5.1.4.1.1.88.33",
+  "SOPInstanceUID": "1.2.840.113704.7.1.0.9.1.513",
+  "StudyDate": "20010517",
+  "SeriesDate": "20070309",
+  "ContentDate": "20070309",
+  "StudyTime": "132200",
+  "ContentTime": "124421",
+  "AccessionNumber": "D10500004522",
+  "Modality": "SR",
+  "ModalitiesInStudy": "SR",
+  "Manufacturer": "Caring Health",
+  "ReferringPhysicianName": "063^BOBBY",
+  "StudyDescription": "XR Leg Length Measurement Lt",
+  "SeriesDescription": "Reports",
+  "ReferencedPerformedProcedureStepSequence": null,
+  "PatientName": "LING^ROSE",
+  "PatientID": "0123456789",
+  "IssuerOfPatientID": "CHI_D1",
+  "PatientBirthDate": "19000209",
+  "PatientBirthTime": "000000",
+  "PatientSex": "F",
+  "SeriesNumber": "1",
+  "InstanceNumber": "1",
+  "NumberOfStudyRelatedInstances": "1",
+  "RelationshipType": "Y",
+  "ValueType": "CONTAINER",
+  "ConceptNameCodeSequence": [
+    {
+      "CodeValue": "11528-7",
+      "CodingSchemeDesignator": "LN",
+      "CodeMeaning": "Radiology Report"
+    }
+  ],
+  "ContinuityOfContent": "SEPARATE",
+  "TextValue": "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\"><span style='font-size:12.0pt;font-family:Arial'><style type=\"text/css\">@media screen {div.printonly {display: none;}}@media print {div.screenonly {display: none;}}.rowSpace {height:20px;font-size:0px;}.boxTitleContainer,.tltStudy {width:90%;color:#fff;text-align:left;background-color:#40a3d7;margin-left: 6px;}.boxTitleContainer td {font-size:16px;background-color:#40a3d7;width:100%;height:27px;padding-left:10px;width:100%;}.tltStudy {width:99%;background-color:#ee7e15;}.tltStudy td {font-size:18px;font-weight:bold;background-color:#ee7e15;height:37px;width:100%;padding-left:10px;} .dtilsTbl {text-align:left;width:90%;margin-left:6px;}.dtilsTbl tr {height:20px;}.dtilsTbl td {vertical-align: top;}.dtilsTbl td span {font-size: 13px;margin-left:6px;}.headerRow {background-color:#c0d1f2;border-left:10px solid #c0d1f2;}.headerRow th {background-color: #c7c8c9;text-align:left;}.Row {background-color:#f8f8f8;padding-left:20px;padding-top:5px;height:34px;}.altRow {background-color: #eaebec;padding-left:20px;padding-top:5px;height:34px;}.titleRow {background-color: #bbddff;padding-left:5px;padding-top:5px;height:34px;}.altRow td {background-color:#f0f1f2;}.cellType4 table{background-color: #f8f8f8;width:99%;border-left:1px solid #d6d6d6;border-right:1px solid #d6d6d6;border-bottom: 1px solid #d6d6d6;}</style><table class=\"rowSpace\"><tr><td></td></tr></table><div><table class=\"tltStudy\"cellspacing=\"0\"cellpadding=\"0\"><tr><td style=\"font-size:16px;\">Ling Rose  - Order Information</td></tr></table></div><div class=\"cellType4\"><table class=\"dtilsTbl\"cellpadding=\"0\"cellspacing=\"0\"style=\"border-bottom:1px solid #d6d6d6;\"><tr><td colspan=\"2\"class=\"TitleRow\">Summary</td></tr><tr><td class=\"Row\"width=\"20%\"><b>Special Remarks</b></td> <td class=\"Row\">D10500004522</td></tr><tr><td class=\"altRow\"><b>Referring Physician</b></td><td class=\"altRow\">063 063 Bobby </td></tr><tr><td class=\"row\"><b>Accession Number</b></td><td class=\"row\">D10500004522</td></tr><tr><td colspan=\"2\"class=\"TitleRow\">Patient Details</td></tr><tr><td class=\"altrow\"><b>Patient ID</b></td><td class=\"altrow\">0123456789</td></tr><tr><td class=\"Row\"><b>Birth Date</b></td><td class=\"Row\">09-Feb-1900</td></tr><tr><td colspan=\"2\"class=\"TitleRow\">Procedure</td></tr><tr><td class=\"Row\"><b>Procedure Code</b></td><td class=\"Row\">XLEML</td></tr><tr><td class=\"altrow\"><b>Description</b> </td><td class=\"altrow\">XR Leg Length Measurement Lt</td></tr><tr><td class=\"Row\"><b>Scheduled Date</b></td><td class=\"Row\">17-May-2011</td></tr><tr><td colspan=\"2\"class=\"TitleRow\">Clinical Info</td></tr><tr><tr><td colspan=\"2\"class=\"altrow\"><div style=\"width:1100px;word-wrap:break-word;\"><PRE class=\"altrow\" style='font-size:12.0pt;font-family:Arial'> </PRE></div></td></tr></table></div></span>",
+  "CompletionFlag": "PARTIAL",
+  "VerificationFlag": "UNVERIFIED",
+  "ContentTemplateSequence": [
+    {
+      "MappingResource": "DCM",
+      "TemplateIdentifier": "2000"
+    }
+  ],
+  "ContentSequence": [
+    {
+      "RelationshipType": "HAS CONCEPT MOD",
+      "ValueType": "CODE",
+      "ConceptNameCodeSequence": [
+        {
+          "CodeValue": "121049",
+          "CodingSchemeDesignator": "DCM",
+          "CodeMeaning": "Language of Content Item and Descendants"
+        }
+      ],
+      "ConceptCodeSequence": [
+        {
+          "CodeValue": "en",
+          "CodingSchemeDesignator": "RFC3066",
+          "CodeMeaning": "English"
+        }
+      ]
+    },
+    {
+      "RelationshipType": "HAS OBS CONTEXT",
+      "ValueType": "CODE",
+      "ConceptNameCodeSequence": [
+        {
+          "CodeValue": "121005",
+          "CodingSchemeDesignator": "DCM",
+          "CodeMeaning": "Observer Type"
+        }
+      ],
+      "ConceptCodeSequence": [
+        {
+          "CodeValue": "121006",
+          "CodingSchemeDesignator": "DCM",
+          "CodeMeaning": "Person"
+        }
+      ]
+    },
+    {
+      "RelationshipType": "HAS OBS CONTEXT",
+      "ValueType": "PNAME",
+      "ConceptNameCodeSequence": [
+        {
+          "CodeValue": "121008",
+          "CodingSchemeDesignator": "DCM",
+          "CodeMeaning": "Person Observer Name"
+        }
+      ],
+      "PersonName": null
+    },
+    {
+      "RelationshipType": "CONTAINS",
+      "ValueType": "CONTAINER",
+      "ConceptNameCodeSequence": [
+        {
+          "CodeValue": "121070",
+          "CodingSchemeDesignator": "DCM",
+          "CodeMeaning": "Findings"
+        }
+      ],
+      "ContinuityOfContent": "SEPARATE",
+      "ContentSequence": null
+    },
+    {
+      "RelationshipType": "CONTAINS",
+      "ValueType": "CONTAINER",
+      "ConceptNameCodeSequence": [
+        {
+          "CodeValue": "121070",
+          "CodingSchemeDesignator": "DCM",
+          "CodeMeaning": "Findings"
+        }
+      ],
+      "ContinuityOfContent": "SEPARATE",
+      "ContentSequence": null
+    }
+  ],
+  "(07a3,104a:ELSCINT1)-Unknown": {
+    "vr": "LT",
+    "val": "XR Leg Length Measurement Lt"
+  }
+}

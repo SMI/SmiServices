@@ -1,4 +1,4 @@
-﻿using FellowOakDicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -12,13 +12,13 @@ using Rdmp.Core.DataLoad;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
 using Rdmp.Core.Repositories;
-using ReusableLibraryCode.Checks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 
 namespace Microservices.DicomRelationalMapper.Messaging
 {
@@ -28,12 +28,12 @@ namespace Microservices.DicomRelationalMapper.Messaging
         public INameDatabasesAndTablesDuringLoads DatabaseNamer { get; private set; }
 
         public int MessagesProcessed { get { return NackCount + AckCount; } }
-        
+
         /// <summary>
         /// Collection of all DLE crash messages (including those where successful restart runs were performed).
         /// </summary>
         public IReadOnlyCollection<Exception> DleErrors => new ReadOnlyCollection<Exception>(_dleExceptions);
-        
+
         private List<Exception> _dleExceptions = new();
 
         private readonly LoadMetadata _lmd;
@@ -57,7 +57,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         /// </summary>
         private readonly TimeSpan _maximumRunDelayInSeconds;
 
-        private Task _dleTask;
+        private Task? _dleTask;
         private readonly CancellationTokenSource _stopTokenSource = new();
 
 
@@ -68,7 +68,12 @@ namespace Microservices.DicomRelationalMapper.Messaging
         public bool RunChecks { get; set; }
 
 
-        public DicomRelationalMapperQueueConsumer(IRDMPPlatformRepositoryServiceLocator repositoryLocator, LoadMetadata lmd, INameDatabasesAndTablesDuringLoads namer, DicomRelationalMapperOptions options)
+        public DicomRelationalMapperQueueConsumer(
+            IRDMPPlatformRepositoryServiceLocator repositoryLocator, 
+            LoadMetadata lmd,
+            INameDatabasesAndTablesDuringLoads namer, 
+            DicomRelationalMapperOptions options
+        )
         {
             _lmd = lmd;
             _repositoryLocator = repositoryLocator;
@@ -77,7 +82,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             _minimumBatchSize = options.MinimumBatchSize;
             _useInsertIntoForRawMigration = options.UseInsertIntoForRAWMigration;
             _retryOnFailureCount = options.RetryOnFailureCount;
-            _retryDelayInSeconds = Math.Max(10,options.RetryDelayInSeconds);
+            _retryDelayInSeconds = Math.Max(10, options.RetryDelayInSeconds);
             _maximumRunDelayInSeconds = new TimeSpan(0, 0, 0, options.MaximumRunDelayInSeconds <= 0 ? 15 : 0);
 
             StartDleRunnerTask();
@@ -118,7 +123,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
             // Cancel the DLE runner task and wait for it to exit. This will deadlock if the DLE task ever calls Stop directly
             _stopTokenSource.Cancel();
-            _dleTask.Wait();
+            _dleTask!.Wait();
 
             if (DatabaseNamer is ICreateAndDestroyStagingDuringLoads createAndDestroyStaging)
                 createAndDestroyStaging.DestroyStagingIfExists();
@@ -128,7 +133,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         {
             _dleTask = Task.Factory.StartNew(() =>
             {
-                Exception faultCause = null;
+                Exception? faultCause = null;
 
                 while (!_stopTokenSource.IsCancellationRequested)
                 {
@@ -142,7 +147,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         _stopTokenSource.Cancel();
                         faultCause = e;
                         _dleExceptions.Add(e);
-                        Logger.Log(LogLevel.Error,e,"DLE crashed during RunDleIfRequired");
+                        Logger.Log(LogLevel.Error, e, "DLE crashed during RunDleIfRequired");
                     }
                 }
 
@@ -191,7 +196,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
             if (duplicates.Any())
             {
                 Logger.Log(LogLevel.Warn, "Acking " + duplicates.Count + " duplicate Datasets");
-                duplicates.ForEach(x => Ack(x.Header, x.tag));
+                duplicates.ForEach(x => Ack(x.Header, x.Tag));
             }
 
             var parallelDleHost = new ParallelDLEHost(_repositoryLocator, DatabaseNamer, _useInsertIntoForRawMigration);
@@ -201,7 +206,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 RunDleChecks();
 
             int remainingRetries = _retryOnFailureCount;
-            Exception firstException = null;
+            Exception? firstException = null;
 
             ExitCodeType exitCode;
 
@@ -213,7 +218,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
                 // We last ran now!
                 _lastRanDle = DateTime.Now;
-                
+
                 //reset the progress e.g. if we crashed later on in the load
                 datasetProvider.ResetProgress();
 
@@ -223,7 +228,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 }
                 catch (Exception e)
                 {
-                    Logger.Debug(e,"ParallelDLEHost threw exception of type " + e.GetType());
+                    Logger.Debug(e, "ParallelDLEHost threw exception of type " + e.GetType());
                     _dleExceptions.Add(e);
                     exitCode = ExitCodeType.Error;
 
@@ -232,8 +237,11 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         //wait a random length of time averaging the _retryDelayInSeconds to avoid retrying at the same time as other processes
                         //where there is resource contention that results in simultaneous failures.
                         var r = new Random();
+
+#pragma warning disable SCS0005 // Weak random number generator
                         var wait = r.Next(_retryDelayInSeconds * 2);
-                        
+#pragma warning restore SCS0005
+
                         Logger.Info("Sleeping " + wait + "s after failure");
                         Task.Delay(new TimeSpan(0, 0, 0, wait)).Wait();
 
@@ -257,12 +265,12 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 case ExitCodeType.OperationNotRequired:
                     {
                         foreach (QueuedImage corrupt in datasetProvider.CorruptMessages)
-                            ErrorAndNack(corrupt.Header, corrupt.tag, "Nacking Corrupt image", null);
+                            ErrorAndNack(corrupt.Header, corrupt.Tag, "Nacking Corrupt image", new Exception());
 
                         QueuedImage[] successes = toProcess.Except(datasetProvider.CorruptMessages).ToArray();
 
                         Ack(successes.Select(x => x.Header).ToList(),
-                            successes.Select(x => x.tag).Max(x => x));
+                            successes.Select(x => x.Tag).Max(x => x));
 
                         break;
                     }
@@ -270,13 +278,13 @@ namespace Microservices.DicomRelationalMapper.Messaging
                 case ExitCodeType.Abort:
                     {
                         _stopTokenSource.Cancel();
-                        Fatal("DLE Crashed " + (_retryOnFailureCount + 1) + " time(s) on the same batch", firstException);
+                        Fatal("DLE Crashed " + (_retryOnFailureCount + 1) + " time(s) on the same batch", firstException!);
                         break;
                     }
                 default:
                     {
                         _stopTokenSource.Cancel();
-                        Fatal("No case for DLE exit code " + exitCode, null);
+                        Fatal("No case for DLE exit code " + exitCode, new Exception());
                         break;
                     }
             }
@@ -299,7 +307,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
         public void Dispose()
         {
             //make sure we stop the consume loop if it hasn't already stopped
-            if(_stopTokenSource != null && !_stopTokenSource.IsCancellationRequested)
+            if (_stopTokenSource != null && !_stopTokenSource.IsCancellationRequested)
                 _stopTokenSource.Cancel();
         }
     }

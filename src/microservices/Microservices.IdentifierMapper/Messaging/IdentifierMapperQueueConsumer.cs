@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.IdentifierMapper.Messaging
 {
@@ -21,7 +22,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
         private readonly Regex _patientIdRegex = new("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
-        private readonly BlockingCollection<Tuple<DicomFileMessage,IMessageHeader,ulong>> msgq=new();
+        private readonly BlockingCollection<Tuple<DicomFileMessage, IMessageHeader, ulong>> msgq = new();
         private Thread acker;
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
@@ -42,7 +43,7 @@ namespace Microservices.IdentifierMapper.Messaging
                           {
                               _producer.SendMessage(t.Item1, t.Item2, "");
                               done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
-                              while (msgq.TryTake(out t))
+                              while (msgq.TryTake(out t!))
                               {
                                   _producer.SendMessage(t.Item1, t.Item2, "");
                                   done.Add(new Tuple<IMessageHeader, ulong>(t.Item2, t.Item3));
@@ -57,8 +58,8 @@ namespace Microservices.IdentifierMapper.Messaging
                   }
                   catch (InvalidOperationException)
                   {
-                    // The BlockingCollection will throw this exception when closed by Shutdown()
-                    return;
+                      // The BlockingCollection will throw this exception when closed by Shutdown()
+                      return;
                   }
               })
             {
@@ -78,7 +79,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
         protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage msg, ulong tag)
         {
-            string errorReason = null;
+            string? errorReason = null;
             var success = false;
 
             try
@@ -99,7 +100,7 @@ namespace Microservices.IdentifierMapper.Messaging
                 if (!success)
                     success = SwapIdentifier(msg, out errorReason);
             }
-            catch(BadPatientIDException e)
+            catch (BadPatientIDException e)
             {
                 ErrorAndNack(header, tag, "Error while processing DicomFileMessage", e);
                 return;
@@ -115,7 +116,7 @@ namespace Microservices.IdentifierMapper.Messaging
             if (!success)
             {
                 Logger.Info($"Could not swap identifiers for message {header.MessageGuid}. Reason was: {errorReason}");
-                ErrorAndNack(header, tag, errorReason, null);
+                ErrorAndNack(header, tag, errorReason!, new Exception());
             }
             else
             {
@@ -124,9 +125,9 @@ namespace Microservices.IdentifierMapper.Messaging
             }
         }
 
-        private bool SwapIdentifier(DicomFileMessage msg, string patientId, out string errorReason)
+        private bool SwapIdentifier(DicomFileMessage msg, string patientId, out string? errorReason)
         {
-            string to = _swapper.GetSubstitutionFor(patientId, out errorReason);
+            string? to = _swapper.GetSubstitutionFor(patientId, out errorReason);
 
             if (to == null)
             {
@@ -148,7 +149,7 @@ namespace Microservices.IdentifierMapper.Messaging
         /// <param name="reason"></param>
         /// <returns></returns>
         /// <exception cref="BadPatientIDException">Thrown if PatientID tag is corrupt</exception>
-        public bool SwapIdentifier(DicomFileMessage msg, out string reason)
+        public bool SwapIdentifier(DicomFileMessage msg, [NotNullWhen(false)] out string? reason)
         {
             DicomDataset ds;
             try
@@ -174,7 +175,7 @@ namespace Microservices.IdentifierMapper.Messaging
                 return false;
             }
 
-            string to = _swapper.GetSubstitutionFor(from, out reason);
+            string? to = _swapper.GetSubstitutionFor(from, out reason);
 
             if (to == null)
             {
@@ -210,7 +211,7 @@ namespace Microservices.IdentifierMapper.Messaging
             return true;
         }
 
-        private string GetPatientID(DicomDataset ds)
+        private string? GetPatientID(DicomDataset ds)
         {
             var val = DicomTypeTranslaterReader.GetCSharpValue(ds, DicomTag.PatientID);
 
@@ -221,17 +222,17 @@ namespace Microservices.IdentifierMapper.Messaging
                 case string s:
                     return s;
                 case string[] arr:
-                {
-                    var unique = arr.Where(a => !string.IsNullOrWhiteSpace(a)).Distinct().ToArray();
-
-                    return unique.Length switch
                     {
-                        0 => null,
-                        1 => unique[0],
-                        _ => throw new BadPatientIDException(
-                            $"DicomDataset had multiple values for PatientID:{string.Join("\\", arr)}")
-                    };
-                }
+                        var unique = arr.Where(a => !string.IsNullOrWhiteSpace(a)).Distinct().ToArray();
+
+                        return unique.Length switch
+                        {
+                            0 => null,
+                            1 => unique[0],
+                            _ => throw new BadPatientIDException(
+                                $"DicomDataset had multiple values for PatientID:{string.Join("\\", arr)}")
+                        };
+                    }
                 default:
                     throw new BadPatientIDException($"DicomDataset had bad Type for PatientID:{val.GetType()}");
             }

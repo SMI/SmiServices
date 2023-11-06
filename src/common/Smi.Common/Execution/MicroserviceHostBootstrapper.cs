@@ -47,7 +47,7 @@ namespace Smi.Common.Execution
 
             Console.WriteLine("Bootstrapper -> Host constructed, starting aux connections");
 
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            Console.CancelKeyPress += delegate (object? _, ConsoleCancelEventArgs e)
             {
                 e.Cancel = true;
                 host.Stop("Ctrl+C pressed");

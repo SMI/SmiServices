@@ -10,10 +10,10 @@ namespace Microservices.IdentifierMapper.Tests
 {
     internal class SwapForFixedValueTester : SwapIdentifiers
     {
-        private readonly string _swapForString;
+        private readonly string? _swapForString;
 
 
-        public SwapForFixedValueTester(string swapForString)
+        public SwapForFixedValueTester(string? swapForString)
         {
             _swapForString = swapForString;
         }
@@ -21,13 +21,13 @@ namespace Microservices.IdentifierMapper.Tests
 
         public override void Setup(IMappingTableOptions mappingTableOptions) { }
 
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             reason = null;
             Success++;
             CacheHit++;
-            
-            using(new TimeTracker(DatabaseStopwatch))
+
+            using (new TimeTracker(DatabaseStopwatch))
                 Thread.Sleep(500);
 
             return _swapForString;
@@ -35,7 +35,7 @@ namespace Microservices.IdentifierMapper.Tests
 
         public override void ClearCache() { }
 
-        public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+        public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
         {
             return null;
         }

@@ -1,8 +1,7 @@
-﻿
+
 using System.Text.RegularExpressions;
 using Microservices.DicomRelationalMapper.Execution.Namers;
 using FAnsi.Discovery;
-using ReusableLibraryCode.Progress;
 using System.Collections.Generic;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
@@ -17,6 +16,7 @@ using Rdmp.Core.Curation.Data.Defaults;
 using Rdmp.Core.DataLoad.Engine.LoadExecution.Components;
 using Rdmp.Core.DataFlowPipeline;
 using Rdmp.Core.DataLoad.Engine.LoadExecution.Components.Standard;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 
 namespace Microservices.DicomRelationalMapper.Execution
 {
@@ -29,7 +29,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         private readonly IRDMPPlatformRepositoryServiceLocator _repositoryLocator;
         private readonly INameDatabasesAndTablesDuringLoads _namer;
         private readonly bool _useInsertIntoForRawMigration;
-        private HICDatabaseConfiguration _configuration;
+        private HICDatabaseConfiguration? _configuration;
 
         public ParallelDLEHost(IRDMPPlatformRepositoryServiceLocator repositoryLocator, INameDatabasesAndTablesDuringLoads namer, bool useInsertIntoForRawMigration)
         {

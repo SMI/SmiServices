@@ -21,8 +21,8 @@ namespace Microservices.CohortExtractor.Tests
                 .Setup(x => x["fff"])
                 .Throws<IndexOutOfRangeException>();
 
-            var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out string _));
-            Assert.True(exc.Message.Contains($"Expected a column called fff"));
+            var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out var _));
+            Assert.True(exc!.Message.Contains($"Expected a column called fff"));
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace Microservices.CohortExtractor.Tests
             moqDave.Setup(x => x[PatColName])
                 .Returns("Dave");
 
-            Assert.IsFalse(rejector.Reject(moqDave.Object, out string reason));
+            Assert.IsFalse(rejector.Reject(moqDave.Object, out string? reason));
             Assert.IsNull(reason);
 
             var moqFrank = new Mock<DbDataReader>();

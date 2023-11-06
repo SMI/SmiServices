@@ -1,9 +1,6 @@
-
 using Equ;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
-
 
 namespace Smi.Common.Messages.Extraction
 {
@@ -16,10 +13,10 @@ namespace Smi.Common.Messages.Extraction
         public Guid ExtractionJobIdentifier { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public string ProjectNumber { get; set; }
+        public string ProjectNumber { get; set; } = null!;
 
         [JsonProperty(Required = Required.Always)]
-        public string ExtractionDirectory { get; set; }
+        public string ExtractionDirectory { get; set; } = null!;
 
         [JsonProperty(Required = Required.Always)]
         public DateTime JobSubmittedAt { get; set; }
@@ -36,8 +33,8 @@ namespace Smi.Common.Messages.Extraction
 
         protected ExtractMessage(
             Guid extractionJobIdentifier,
-            [NotNull] string projectNumber,
-            [NotNull] string extractionDirectory,
+            string projectNumber,
+            string extractionDirectory,
             DateTime jobSubmittedAt,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction)

@@ -7,6 +7,6 @@ namespace Smi.Common.Helpers
     /// </summary>
     public class RealConsoleInput : IConsoleInput
     {
-        public string GetNextLine() => Console.ReadLine()?.Trim();
+        public string? GetNextLine() => Console.ReadLine()?.Trim();
     }
 }
