@@ -1,5 +1,7 @@
 ﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
@@ -110,6 +112,38 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 null);
 
             Assert.AreEqual(expected, doc);
+        }
+
+        [Test]
+        public void TestMongoExtractJobDoc_Parse_v5_4_0()
+        {
+            const string jsonDoc = @"
+{
+    _id: '898a207b-cc2a-4014-97f0-f881c07a3d65',
+    header: {
+      extractionJobIdentifier: '898a207b-cc2a-4014-97f0-f881c07a3d65',
+      messageGuid: '613aefff-1714-4913-9b8a-ebe2d09bb590',
+      producerExecutableName: 'smi',
+      producerProcessID: 15443,
+      originalPublishTimestamp: ISODate('2023-11-08T13:14:08.000Z'),
+      parents: '',
+      receivedAt: ISODate('2023-11-08T13:14:09.019Z')
+    },
+    projectNumber: '1337',
+    jobStatus: 'WaitingForCollectionInfo',
+    extractionDirectory: '1337/extractions/DicomFiles',
+    jobSubmittedAt: ISODate('2023-11-08T13:14:06.881Z'),
+    keyTag: 'StudyInstanceUID',
+    keyCount: 10,
+    extractionModality: null,
+    isIdentifiableExtraction: false,
+    IsNoFilterExtraction: false,
+    failedJobInfo: null
+}";
+            var mongoExtractJobDoc = BsonSerializer.Deserialize<MongoExtractJobDoc>(BsonDocument.Parse(jsonDoc));
+            Console.WriteLine(mongoExtractJobDoc.ToJson());
+            // Look up ISupportInitialize.
+            Assert.Null(mongoExtractJobDoc.UserName);
         }
 
         [Test]
