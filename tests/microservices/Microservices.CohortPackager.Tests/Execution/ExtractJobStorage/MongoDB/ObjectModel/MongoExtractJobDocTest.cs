@@ -141,8 +141,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     failedJobInfo: null
 }";
             var mongoExtractJobDoc = BsonSerializer.Deserialize<MongoExtractJobDoc>(BsonDocument.Parse(jsonDoc));
-            Console.WriteLine(mongoExtractJobDoc.ToJson());
-            // Look up ISupportInitialize.
             Assert.Null(mongoExtractJobDoc.UserName);
         }
 
