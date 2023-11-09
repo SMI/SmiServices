@@ -332,6 +332,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"-   Extraction tag:               {jobInfo.KeyTag}",
                 $"-   Extraction modality:          {jobInfo.ExtractionModality ?? "Unspecified"}",
                 $"-   Requested identifier count:   {jobInfo.KeyValueCount}",
+                $"-   User name:                    {jobInfo.UserName}",
                 $"-   Identifiable extraction:      {identExtraction}",
                 $"-   Filtered extraction:          {filteredExtraction}",
             };

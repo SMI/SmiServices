@@ -170,6 +170,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ExtractionDirectory = pf.ProjExtractDirRelative,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 1,
+                UserName = "testUser",
             };
             var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
             {
@@ -237,6 +238,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ExtractionDirectory = pf.ProjExtractDirRelative,
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 2,
+                UserName = "testUser",
             };
             var testExtractFileCollectionInfoMessage1 = new ExtractFileCollectionInfoMessage
             {
@@ -345,6 +347,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ExtractionDirectory = pf.ProjExtractDirRelative,
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
+                UserName = "testUser",
                 IsIdentifiableExtraction = true,
             };
             var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage

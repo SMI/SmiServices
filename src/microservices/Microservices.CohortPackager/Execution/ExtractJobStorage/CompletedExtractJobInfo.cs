@@ -19,6 +19,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             string extractionDirectory,
             string keyTag,
             uint keyCount,
+            string userName,
             string? extractionModality,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction
@@ -30,6 +31,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
                 extractionDirectory,
                 keyTag,
                 keyCount,
+                userName,
                 extractionModality,
                 ExtractJobStatus.Completed,
                 isIdentifiableExtraction,

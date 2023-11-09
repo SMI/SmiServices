@@ -12,6 +12,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 mongoExtractJobDoc.ExtractionDirectory,
                 mongoExtractJobDoc.KeyTag,
                 mongoExtractJobDoc.KeyCount,
+                mongoExtractJobDoc.UserName,
                 mongoExtractJobDoc.ExtractionModality,
                 mongoExtractJobDoc.JobStatus,
                 mongoExtractJobDoc.IsIdentifiableExtraction,
@@ -27,6 +28,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 mongoCompletedExtractJobDoc.ExtractionDirectory,
                 mongoCompletedExtractJobDoc.KeyTag,
                 mongoCompletedExtractJobDoc.KeyCount,
+                mongoCompletedExtractJobDoc.UserName,
                 mongoCompletedExtractJobDoc.ExtractionModality,
                 mongoCompletedExtractJobDoc.IsIdentifiableExtraction,
                 mongoCompletedExtractJobDoc.IsNoFilterExtraction

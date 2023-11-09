@@ -25,6 +25,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             DateTime.UtcNow,
             "test",
             1,
+            "testUser",
             null,
             isIdentifiableExtraction: true,
             isNoFilterExtraction: true,

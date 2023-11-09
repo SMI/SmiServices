@@ -46,6 +46,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "test/directory",
                 "KeyTag",
                 123,
+                "testUser",
                 "MR",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true
@@ -58,6 +59,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "test/directory",
                 "KeyTag",
                 123,
+                "testUser",
                 "MR",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true
@@ -78,6 +80,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "test/directory",
                 "KeyTag",
                 123,
+                "testUser",
                 "MR",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true
@@ -90,6 +93,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 "test/directory",
                 "KeyTag",
                 123,
+                "testUser",
                 "MR",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true

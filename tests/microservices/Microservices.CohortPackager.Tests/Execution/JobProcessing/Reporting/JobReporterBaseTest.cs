@@ -130,6 +130,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 "extractions/test",
                 "keyTag",
                 123,
+                "testUser",
                 null,
                 isIdentifiableExtraction,
                 isNoFilterExtraction
@@ -665,6 +666,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"-   Extraction tag:               keyTag",
                 $"-   Extraction modality:          Unspecified",
                 $"-   Requested identifier count:   123",
+                $"-   User name:                    {jobInfo.UserName}",
                 $"-   Identifiable extraction:      No",
                 $"-   Filtered extraction:          Yes",
                 $"",
