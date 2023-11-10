@@ -36,12 +36,12 @@ namespace Microservices.UpdateValues.Execution
         {
             message.Validate();
 
-            ITableInfo[] tables;
-            int affectedRows = 0;
+            TableInfo[] tables;
+            var affectedRows = 0;
 
             if(message.ExplicitTableInfo.Length != 0)
             {
-                tables = _repository.GetAllObjectsInIDList(typeof(TableInfo),message.ExplicitTableInfo).Cast<ITableInfo>().ToArray();
+                tables = _repository.GetAllObjectsInIDList<TableInfo>(message.ExplicitTableInfo).ToArray();
 
                 if(tables.Length != message.ExplicitTableInfo.Length)
                 {
@@ -56,14 +56,10 @@ namespace Microservices.UpdateValues.Execution
                     throw new Exception($"Could not find any tables to update that matched the field set {message}");
             }
 
-            //TODO: Expose IsView in ITableInfo in RDMP so we don't need this cast
             //don't try to update views
-            tables = tables.Where(static t=>!((TableInfo)t).IsView).ToArray();
-
-            foreach (var t in tables)
+            foreach (var tbl in tables.Where(static t => !t.IsView).Select(static t =>
+                         t.Discover(Rdmp.Core.ReusableLibraryCode.DataAccess.DataAccessContext.DataLoad)))
             {
-                var tbl = t.Discover(Rdmp.Core.ReusableLibraryCode.DataAccess.DataAccessContext.DataLoad);
-
                 if(!tbl.Exists())
                     throw new Exception($"Table {tbl} did not exist");
 
@@ -80,7 +76,7 @@ namespace Microservices.UpdateValues.Execution
         /// <param name="message"></param>
         protected virtual int UpdateTable(DiscoveredTable t, UpdateValuesMessage message)
         {
-            var audit = _audits.GetOrAdd(t,(k)=>new UpdateTableAudit(k));
+            var audit = _audits.GetOrAdd(t, static k=>new UpdateTableAudit(k));
 
             StringBuilder builder = new();
 
@@ -88,11 +84,9 @@ namespace Microservices.UpdateValues.Execution
             builder.AppendLine(t.GetFullyQualifiedName());
             builder.AppendLine(" SET ");
 
-            for (int i = 0; i < message.WriteIntoFields.Length; i++)
+            for (var i = 0; i < message.WriteIntoFields.Length; i++)
             {
-                var col = t.DiscoverColumn(message.WriteIntoFields[i]);
-
-                builder.Append(GetFieldEqualsValueExpression(col,message.Values[i],"="));
+                builder.Append(GetFieldEqualsValueExpression(t.DiscoverColumn(message.WriteIntoFields[i]),message.Values[i],"="));
 
                 //if there are more SET fields to come
                 if(i < message.WriteIntoFields.Length -1)
@@ -101,7 +95,7 @@ namespace Microservices.UpdateValues.Execution
 
             builder.AppendLine(" WHERE ");
 
-            for (int i = 0; i < message.WhereFields.Length; i++)
+            for (var i = 0; i < message.WhereFields.Length; i++)
             {
                 var col = t.DiscoverColumn(message.WhereFields[i]);
 
@@ -113,7 +107,7 @@ namespace Microservices.UpdateValues.Execution
             }
 
             var sql = builder.ToString();
-            int affectedRows = 0;
+            var affectedRows = 0;
 
             audit.StartOne();
             try
@@ -121,7 +115,7 @@ namespace Microservices.UpdateValues.Execution
                 using var con = t.Database.Server.GetConnection();
                 con.Open();
 
-                var cmd = t.Database.Server.GetCommand(sql,con);
+                using var cmd = t.Database.Server.GetCommand(sql,con);
                 cmd.CommandTimeout = UpdateTimeout;
 
                 try
@@ -146,7 +140,7 @@ namespace Microservices.UpdateValues.Execution
         /// <param name="value">RHS argument, if null then string literal "null" is used</param>
         /// <param name="op">The SQL operator to use, if null "=" is used</param>
         /// <returns></returns>
-        protected string GetFieldEqualsValueExpression(DiscoveredColumn col, string value, string op)
+        protected string GetFieldEqualsValueExpression(DiscoveredColumn col, string value, string? op)
         {
             StringBuilder builder = new();
 
@@ -165,15 +159,15 @@ namespace Microservices.UpdateValues.Execution
         /// </summary>
         /// <param name="fields"></param>
         /// <returns></returns>
-        public virtual IEnumerable<TableInfo> GetAllTables(string?[] fields)
+        protected virtual IEnumerable<TableInfo> GetAllTables(string?[] fields)
         {
             //the tables we should consider
-            var tables = TableInfosToUpdate != null && TableInfosToUpdate.Any() ?
+            var tables = TableInfosToUpdate.Any() ?
                             _repository.GetAllObjectsInIDList<TableInfo>(TableInfosToUpdate):
                             _repository.GetAllObjects<TableInfo>();
 
             // get only those that have all the WHERE/SET columns in them
-            return tables.Where(t=>fields.All(f=>t.ColumnInfos.Select(c=>c.GetRuntimeName()).Contains(f)));
+            return tables.Where(t=>fields.All(f=>t.ColumnInfos.Select(static c=>c.GetRuntimeName()).Contains(f)));
         }
 
 
