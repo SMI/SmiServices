@@ -100,18 +100,15 @@ public final class SmiLogging {
             logdir.mkdirs();
         }
 
-        // Turn off log4j warnings from library code
         Logger l = Logger.getRootLogger();
-        //l.setLevel(Level.OFF);
+        l.setLevel(testing ? Level.ALL : Level.INFO);
 
-        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C{1}| %m%n");
+        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C| %m%n");
 
         ConsoleAppender ca = new ConsoleAppender();
-        ca.setThreshold(testing?Level.ALL:Level.ERROR);
         l.addAppender(ca);
 
         WriterAppender fa = new WriterAppender(pl,new FileWriter(logfile.getAbsolutePath(),true));
-        fa.setThreshold(Level.ALL);
         fa.setImmediateFlush(true);
         fa.setLayout(pl);
         fa.activateOptions();
