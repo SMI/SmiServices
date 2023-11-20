@@ -35,6 +35,8 @@ if __name__ == "__main__":
     parser.add_argument('-i', dest='input_dcm', action="store", help='Path to raw DICOM file')
     parser.add_argument('-x', dest='input_xml', action="store", help='Path to annotation XML file')
     parser.add_argument('-o', dest='output_dcm', action="store", help='Path to anonymised DICOM file to have redacted text inserted')
+    parser.add_argument('--replace-html', action="store", help='replace HTML with a character, default is dot (.), or "squash" to eliminate')
+    parser.add_argument('--replace-newlines', action="store", help='replace carriage returns and newlines with a character (e.g. a space) or "squash" to eliminate')
     args = parser.parse_args()
     if not args.input_dcm or not args.input_xml or not args.output_dcm:
         parser.print_help()
@@ -72,8 +74,26 @@ if __name__ == "__main__":
         exit(1)
 
     # ---------------------------------------------------------------------
+    # If the file is a DICOM then DicomText has options to change the output format.
+    # These are passed to the DicomText and StructuredReport constructors.
+    DicomTextArgs = {
+        #'include_header' : True,
+        #'replace_HTML_entities' : True,
+        'replace_HTML_char' : '.',
+        'replace_newline_char' : '\n'
+    }
+    if args.replace_html:
+        DicomTextArgs['replace_HTML_char'] = args.replace_html
+        if args.replace_html == "squash":
+            DicomTextArgs['replace_HTML_char'] = ''
+    if args.replace_newlines:
+        DicomTextArgs['replace_newline_char'] = args.replace_newlines
+        if args.replace_newlines == "squash":
+            DicomTextArgs['replace_newline_char'] = ''
+
+    # ---------------------------------------------------------------------
     # Read the original DICOM file and parse the original text
-    dicomtext = DicomText.DicomText(args.input_dcm)
+    dicomtext = DicomText.DicomText(args.input_dcm, **DicomTextArgs)
     dicomtext.parse()
 
     # Read the annotated XML file

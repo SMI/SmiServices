@@ -14,6 +14,29 @@ import pydicom
 # List of known keys which we either parse or can safely ignore
 # (all the others will be reported during testing to ensure no content is missed).
 sr_keys_to_extract = [
+    # These are all of type PN:
+    { 'label':'Consulting Physician Name', 'tag':'ConsultingPhysicianName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Performing Physician Name', 'tag':'PerformingPhysicianName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Name Of Physicians Reading Study', 'tag':'NameOfPhysiciansReadingStudy', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Operators Name', 'tag':'OperatorsName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Other Patient Names', 'tag':'OtherPatientNames', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Patient Birth Name', 'tag':'PatientBirthName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Patient Mother Birth Name', 'tag':'PatientMotherBirthName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Secondary Reviewer Name', 'tag':'SecondaryReviewerName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Evaluator Name', 'tag':'EvaluatorName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Scheduled Performing Physician Name', 'tag':'ScheduledPerformingPhysicianName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Names Of Intended Recipients Of Results', 'tag':'NamesOfIntendedRecipientsOfResults', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Human Performer Name', 'tag':'HumanPerformerName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Verifying Observer Name', 'tag':'VerifyingObserverName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Person Name', 'tag':'PersonName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Content Creator Name', 'tag':'ContentCreatorName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Reviewer Name', 'tag':'ReviewerName', 'decode_func':Dicom.sr_decode_PNAME },
+    # Plain text:
+    { 'label':'Institution Name', 'tag':'InstitutionName', 'decode_func':Dicom.sr_decode_plaintext },
+    { 'label':'Institution Address', 'tag':'InstitutionAddress', 'decode_func':Dicom.sr_decode_plaintext },
+    { 'label':'Institutional Department Name', 'tag':'InstitutionalDepartmentName', 'decode_func':Dicom.sr_decode_plaintext },
+    { 'label':'Patient Address', 'tag':'PatientAddress', 'decode_func':Dicom.sr_decode_plaintext },
+    # First version:
     { 'label':'Study Description', 'tag':'StudyDescription', 'decode_func':Dicom.sr_decode_plaintext },
     { 'label':'Study Date', 'tag':'StudyDate', 'decode_func':Dicom.sr_decode_date },
     { 'label':'Series Description', 'tag':'SeriesDescription', 'decode_func':Dicom.sr_decode_plaintext },
@@ -49,7 +72,6 @@ sr_keys_to_ignore = [
     'Modality',
     'ModalitiesInStudy',
     'Manufacturer',
-    'InstitutionName',
     'ReferencedPerformedProcedureStepSequence',
     'TypeOfPatientID',
     'IssuerOfPatientID',
@@ -71,9 +93,7 @@ sr_keys_to_ignore = [
     'CodingSchemeIdentificationSequence',
     'ImageType',
     'SeriesTime',
-    'InstitutionAddress',
     'StationName',
-    'InstitutionalDepartmentName',
     'PhysiciansOfRecord',
     'ManufacturerModelName',
     'SoftwareVersions',
@@ -116,21 +136,14 @@ sr_keys_to_ignore = [
     'LastMenstrualDate',
     'MedicalRecordLocator',
     'MilitaryRank',
-    'NameOfPhysiciansReadingStudy',
     'ObservationDateTime',
     'Occupation',
-    'OperatorsName',
-    'OtherPatientNames',
-    'PatientAddress',
-    'PatientBirthName',
     'PatientBirthTime',
     'PatientComments', # XXX do we want this?
     'PatientInsurancePlanCodeSequence',
-    'PatientMotherBirthName',
     'PatientReligiousPreference',
     'PatientState',
     'PatientTelephoneNumbers',
-    'PerformingPhysicianName',
     'PredecessorDocumentsSequence',
     'PregnancyStatus',
     'QualityControlImage',
@@ -329,9 +342,13 @@ class StructuredReport:
         # The Key may also be a list but only take first element
         if isinstance(keystr, list):
             keystr = keystr[0]
+        # Handle a value like { "Alphabetic": "my name" }
+        if isinstance(valstr, dict) and 'Alphabetic' in valstr:
+            valstr = valstr['Alphabetic']
         # If there is no value the do not print anything at all
         if valstr == None or valstr == '':
             return
+        # XXX should we be using Dicom.sr_decode_PNAME if it's a PN/PNAME ???
         # Replace CRs with LF
         valstr = re.sub('\r+', '\n', valstr)
         # Replace all HTML
@@ -347,6 +364,30 @@ class StructuredReport:
         else:
             fp.write('[[%s]] %s\n' % (keystr, valstr))
 
+
+    # ---------------------------------------------------------------------
+    def find_PersonNames(self, json_dict, names_list):
+        """ Return a list of names (decoded from PN format having ^ separators)
+        from all of the 'PersonName' tags (which probably does not include any
+        top-level tags with a vr of PN). This is a recursive function.
+        Returns the names in the names_list list which must already exist.
+        """
+        if isinstance(json_dict, list):
+            for item in json_dict:
+                self.find_PersonNames(item, names_list)
+        elif isinstance(json_dict, dict):
+            for item in json_dict.keys():
+                # Ignore the MongoDB message metadata dict
+                if item == 'MessageHeader':
+                    return
+                # We don't have the datatype to check for "PN" so assume
+                # anything ending with Name contains a PersonName
+                # This will also catch Institution Name and Observer Name
+                if item.endswith('Name'):
+                    tagval = tag_val(json_dict, item, atomic=True)
+                    names_list.append(Dicom.sr_decode_PNAME(tagval))
+                # Check if the value of this item is a list or dict
+                self.find_PersonNames(json_dict[item], names_list)
 
     # ---------------------------------------------------------------------
     # Internal function to parse a DICOM tag which calls itself recursively
@@ -406,6 +447,10 @@ class StructuredReport:
                 print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
 
     def SR_parse(self, json_dict, doc_name, fp = sys.stdout):
+        """ Parse a Structured Report held in a python dictionary
+        which has come from MongoDB or from dcm2json
+        Output to the file pointer fp (default is stdout).
+        """
 
         self._SR_output_string('Document name', doc_name, fp)
 
@@ -414,6 +459,12 @@ class StructuredReport:
         # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
         for sr_extract_dict in sr_keys_to_extract:
             self._SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+        # Now output [[Other Names]] for all the elements having vr of PN
+        names_list = []
+        self.find_PersonNames(json_dict, names_list)
+        #print(names_list)
+        for name in names_list:
+            self._SR_output_string('Other Names', name, fp)
 
         # Now output all the remaining tags which are not ignored
         for json_key in json_dict:
@@ -440,6 +491,12 @@ def test_SR_parse_key():
                         ]
                     },
                     "TextValue": { "vr": "UT", "Value": [ "MRI: Knee" ] }
+                },
+                {
+                  "RelationshipType": { "vr": "CS", "Value": [ "CONTAINS" ] },
+                  "ValueType": { "vr": "CS", "Value": [ "PNAME" ] },
+                  "ConceptNameCodeSequence": { "vr": "SQ", "Value": [ { "CodeMeaning": { "vr": "LO", "Value": [ "Physician" ] } } ] },
+                  "PersonName": { "vr": "PN", "Value": [ { "Alphabetic": "Klugman^^^Dr." } ] }
                 }
             ]
         }
@@ -452,18 +509,29 @@ def test_SR_parse_key():
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] MRI: Knee\n')
+        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
 
     # Add some HTML into the string and check it's redacted
     SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] ..........................MRI: Knee\n')
+        assert(fd.read() == '[[Request]] ..........................MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
 
     # Check that the HTML redaction can also squash (remove) characters
     sr.setReplaceHTMLChar('')
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
         sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] MRI: Knee\n')
+        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
+
+def test_find_PersonNames():
+    sr = StructuredReport()
+    jd = {
+        'InstitutionName': 'Ninewells Hospital',
+        'Sequence': [ { 'PersonName': 'Klugman^^^Dr.' } ],
+        'Something Else': 'Other'
+    }
+    names_list = []
+    sr.find_PersonNames(jd, names_list)
+    assert (names_list == ['Ninewells Hospital', 'Dr. Klugman'])
