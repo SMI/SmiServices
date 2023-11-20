@@ -12,12 +12,15 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.Random;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.WriterAppender;
 
 /**
@@ -100,8 +103,13 @@ public final class SmiLogging {
             logdir.mkdirs();
         }
 
+        Properties props = new Properties();
+        props.put("log4j.logger.org.dcm4cheri", "INFO");
+        props.put("log4j.logger.org.rsna", "INFO");
+        PropertyConfigurator.configure(props);
+
         Logger l = Logger.getRootLogger();
-        l.setLevel(testing ? Level.ALL : Level.INFO);
+        l.setLevel(testing ? Level.ALL : Level.DEBUG);
 
         PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C| %m%n");
 
