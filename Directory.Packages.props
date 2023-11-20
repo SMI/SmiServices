@@ -18,7 +18,7 @@
     <PackageVersion Include="LibArchive.Net" Version="0.1.4" />
     <PackageVersion Include="LineReader" Version="0.1.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.7.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageVersion Include="NLog" Version="5.2.5" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="RabbitMQ.Client" Version="6.6.0" />
