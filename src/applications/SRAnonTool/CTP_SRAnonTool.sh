@@ -83,6 +83,7 @@ fi
 if [ ! -f "$output_dcm" ]; then
 	#tidy_exit 3 "ERROR: cannot write to ${output_dcm} because it must already exist"
 	cp "$input_dcm" "$output_dcm"
+	chmod +w "$output_dcm"
 fi
 
 # Activate the virtual environment
