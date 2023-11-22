@@ -90,7 +90,7 @@ namespace Microservices.DicomAnonymiser
 
             try
             {
-                _anonymiser.Anonymise(sourceFileAbs, destFileAbs);                
+                _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs);                
             }
             catch (Exception e)
             {
