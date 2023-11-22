@@ -1,6 +1,6 @@
 {
-    "virtualEnvPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/venv",
-    "shellScriptPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/dicompixelanon/src/applications/dicom_pixel_anon.sh",
-    "dicomPixelAnonPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/dicompixelanon",
-    "smiServicesPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/SmiServices"
+  "virtualEnvPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/venv",
+  "shellScriptPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/dicompixelanon/src/applications/dicom_pixel_anon.sh",
+  "dicomPixelAnonPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/dicompixelanon",
+  "smiServicesPath": "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/SmiServices"
 }
