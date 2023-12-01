@@ -77,9 +77,7 @@ CREATE TABLE `smi`.`IO_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_IO_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_IO_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`IO_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -95,9 +93,7 @@ CREATE TABLE `smi`.`IO_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_IO_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_IO_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`MG_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -179,9 +175,7 @@ CREATE TABLE `smi`.`MG_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_MG_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_MG_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`MG_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -197,9 +191,7 @@ CREATE TABLE `smi`.`MG_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_MG_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_MG_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`RF_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -278,9 +270,7 @@ CREATE TABLE `smi`.`RF_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_RF_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_RF_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`RF_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -296,9 +286,7 @@ CREATE TABLE `smi`.`RF_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_RF_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_RF_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`SR_ImageTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -427,9 +415,7 @@ CREATE TABLE `smi`.`US_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_US_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_US_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`US_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -445,9 +431,7 @@ CREATE TABLE `smi`.`US_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_US_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_US_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`XA_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -546,9 +530,7 @@ CREATE TABLE `smi`.`XA_SeriesTable`(
 `SeriesTime` time    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_XA_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_XA_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`XA_StudyTable`( 
 `StudyInstanceUID` varchar(64)    NOT NULL , 
@@ -564,9 +546,7 @@ CREATE TABLE `smi`.`XA_StudyTable`(
 `StudyTime` time    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_XA_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_XA_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`CR_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -648,9 +628,7 @@ CREATE TABLE `smi`.`CR_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_CR_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_CR_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`CR_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -666,9 +644,7 @@ CREATE TABLE `smi`.`CR_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_CR_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_CR_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`CT_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -729,9 +705,7 @@ CREATE TABLE `smi`.`CT_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NOT NULL , 
-CONSTRAINT PK_CT_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_CT_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`CT_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -747,9 +721,7 @@ CREATE TABLE `smi`.`CT_StudyTable`(
 `NumberOfStudyRelatedInstances` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NOT NULL , 
-CONSTRAINT PK_CT_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_CT_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`DX_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -831,9 +803,7 @@ CREATE TABLE `smi`.`DX_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_DX_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_DX_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`DX_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -849,9 +819,7 @@ CREATE TABLE `smi`.`DX_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_DX_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_DX_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`MR_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -922,9 +890,7 @@ CREATE TABLE `smi`.`MR_SeriesTable`(
 `PatientPosition` varchar(16)    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NOT NULL , 
-CONSTRAINT PK_MR_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_MR_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`MR_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -940,9 +906,7 @@ CREATE TABLE `smi`.`MR_StudyTable`(
 `NumberOfStudyRelatedInstances` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NOT NULL , 
-CONSTRAINT PK_MR_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_MR_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`NM_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -1023,9 +987,7 @@ CREATE TABLE `smi`.`NM_SeriesTable`(
 `TimeOfLastCalibration` text    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_NM_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_NM_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`NM_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -1041,9 +1003,7 @@ CREATE TABLE `smi`.`NM_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_NM_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_NM_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`PT_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -1113,9 +1073,7 @@ CREATE TABLE `smi`.`PT_SeriesTable`(
 `TimeOfLastCalibration` text    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_PT_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_PT_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`PT_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -1131,9 +1089,7 @@ CREATE TABLE `smi`.`PT_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_PT_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_PT_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`PX_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -1215,9 +1171,7 @@ CREATE TABLE `smi`.`PX_SeriesTable`(
 `SeriesNumber` int    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_PX_SeriesTable PRIMARY KEY (`SeriesInstanceUID`)) 
-  
-  
+CONSTRAINT PK_PX_SeriesTable PRIMARY KEY (`SeriesInstanceUID`));
 
 CREATE TABLE `smi`.`PX_StudyTable`( 
 `PatientID` varchar(64)    NOT NULL , 
@@ -1233,9 +1187,7 @@ CREATE TABLE `smi`.`PX_StudyTable`(
 `PatientBirthDate` datetime    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_PX_StudyTable PRIMARY KEY (`StudyInstanceUID`)) 
-  
-  
+CONSTRAINT PK_PX_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
 CREATE TABLE `smi`.`SOME_StudyTable`( 
 `PatientID` varchar(64)    NULL , 
