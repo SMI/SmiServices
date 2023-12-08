@@ -26,6 +26,9 @@ namespace Smi.Common.Messaging
         /// </summary>
         public int NackCount { get; private set; }
 
+        /// <inheritdoc/>
+        public bool HoldUnprocessableMessages { get; set; } = false;
+
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
@@ -120,7 +123,15 @@ namespace Smi.Common.Messaging
             }
             catch (Exception e)
             {
-                Fatal("ProcessMessageImpl threw unhandled exception", e);
+                if (HoldUnprocessableMessages)
+                {
+                    var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
+                    Logger.Warn($"Holding an unprocessable message: {messageBody}");
+                }
+                else
+                {
+                    Fatal("ProcessMessageImpl threw unhandled exception", e);
+                }
             }
         }
 
