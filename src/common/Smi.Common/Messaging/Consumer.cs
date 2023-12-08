@@ -29,6 +29,10 @@ namespace Smi.Common.Messaging
         /// <inheritdoc/>
         public bool HoldUnprocessableMessages { get; set; } = false;
 
+        private int _heldMessages = 0;
+
+        public int QoSPrefetchCount { get; set; }
+
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
@@ -125,8 +129,12 @@ namespace Smi.Common.Messaging
             {
                 if (HoldUnprocessableMessages)
                 {
+                    ++_heldMessages;
                     var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
-                    Logger.Warn($"Holding an unprocessable message: {messageBody}");
+                    Logger.Warn($"Holding an unprocessable message ({_heldMessages} total). Message body: {messageBody}");
+
+                    if (_heldMessages >= QoSPrefetchCount)
+                        Logger.Warn($"Now holding {_heldMessages} message, exceeding the configured BasicQos value of {QoSPrefetchCount}. No further messages will be delivered to this consumer!");
                 }
                 else
                 {

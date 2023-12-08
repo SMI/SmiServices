@@ -117,6 +117,7 @@ namespace Smi.Common
 
             var model = _connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
+            consumer.QoSPrefetchCount = consumerOptions.QoSPrefetchCount;
 
             // Check queue exists
             try

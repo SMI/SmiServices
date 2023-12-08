@@ -37,5 +37,10 @@ namespace Smi.Common.Messaging
         /// If set, consumer will not call Fatal when an unhandled exception occurs when processing a message. Requires <see cref="ConsumerOptions.AutoAck"/> to be false
         /// </summary>
         bool HoldUnprocessableMessages { get; set; }
+
+        /// <summary>
+        /// The BasicQos value configured on the <see cref="IModel"/>
+        /// </summary>
+        int QoSPrefetchCount { get; set; }
     }
 }
