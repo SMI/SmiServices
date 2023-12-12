@@ -31,6 +31,7 @@ namespace Smi.Common.Messaging
 
         private int _heldMessages = 0;
 
+        /// <inheritdoc/>
         public int QoSPrefetchCount { get; set; }
 
         /// <summary>
