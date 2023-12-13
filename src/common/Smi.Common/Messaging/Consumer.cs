@@ -118,8 +118,6 @@ namespace Smi.Common.Messaging
                 return;
             }
 
-            // Now pass the message on to the implementation, catching and calling Fatal on any unhandled exception
-
             try
             {
                 if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage? message))
@@ -130,12 +128,14 @@ namespace Smi.Common.Messaging
             {
                 if (HoldUnprocessableMessages)
                 {
-                    ++_heldMessages;
                     var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
-                    Logger.Warn($"Holding an unprocessable message ({_heldMessages} total). Message body: {messageBody}");
+                    Logger.Error(e, $"Holding an unprocessable message due to this exception. Encountered when processing message {header.MessageGuid} with body: {messageBody}");
 
+                    ++_heldMessages;
+                    string msg = $"Holding {_heldMessages} unprocessable message(s) total";
                     if (_heldMessages >= QoSPrefetchCount)
-                        Logger.Warn($"Now holding {_heldMessages} message, exceeding the configured BasicQos value of {QoSPrefetchCount}. No further messages will be delivered to this consumer!");
+                        msg += $". Have now exceeded the configured BasicQos value of {QoSPrefetchCount}. No further messages will be delivered to this consumer!";
+                    Logger.Warn(msg);
                 }
                 else
                 {
