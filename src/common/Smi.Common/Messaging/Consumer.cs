@@ -29,7 +29,7 @@ namespace Smi.Common.Messaging
         /// <inheritdoc/>
         public bool HoldUnprocessableMessages { get; set; } = false;
 
-        private int _heldMessages = 0;
+        protected int _heldMessages = 0;
 
         /// <inheritdoc/>
         public int QoSPrefetchCount { get; set; }
