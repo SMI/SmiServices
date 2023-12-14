@@ -148,7 +148,7 @@ namespace Smi.Common.Messaging
         {
             try
             {
-                ProcessMessageImpl(null!, msg, 1);
+                ProcessMessageImpl(new MessageHeader(), msg, 1);
             }
             catch (Exception e)
             {
