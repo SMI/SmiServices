@@ -126,13 +126,13 @@ namespace Smi.Common.Messaging
             }
             catch (Exception e)
             {
+                var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
+                Logger.Error(e, $"Unhandled exception when processing message {header.MessageGuid} with body: {messageBody}");
+
                 if (HoldUnprocessableMessages)
                 {
-                    var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
-                    Logger.Error(e, $"Holding an unprocessable message due to this exception. Encountered when processing message {header.MessageGuid} with body: {messageBody}");
-
                     ++_heldMessages;
-                    string msg = $"Holding {_heldMessages} unprocessable message(s) total";
+                    string msg = $"Holding an unprocessable message ({_heldMessages} total message(s) currently held";
                     if (_heldMessages >= QoSPrefetchCount)
                         msg += $". Have now exceeded the configured BasicQos value of {QoSPrefetchCount}. No further messages will be delivered to this consumer!";
                     Logger.Warn(msg);
