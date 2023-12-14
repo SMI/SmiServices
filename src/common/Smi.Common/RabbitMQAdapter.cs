@@ -117,6 +117,7 @@ namespace Smi.Common
 
             var model = _connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
+            consumer.QoSPrefetchCount = consumerOptions.QoSPrefetchCount;
 
             // Check queue exists
             try
@@ -168,11 +169,14 @@ namespace Smi.Common
                 _hostFatalHandler?.Invoke(s, e);
             };
 
+            if (consumerOptions.HoldUnprocessableMessages && !consumerOptions.AutoAck)
+                consumer.HoldUnprocessableMessages = true;
+
             model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
             _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
             return taskId;
         }
-        
+
         /// <summary>
         ///
         /// </summary>

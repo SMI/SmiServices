@@ -243,6 +243,38 @@ namespace Smi.Common.Tests
             Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
+        [Test]
+        public void MessageHolds()
+        {
+            var consumerOptions = new ConsumerOptions
+            {
+                QueueName = "TEST.TestQueue",
+                QoSPrefetchCount = 1,
+                AutoAck = false,
+                HoldUnprocessableMessages = true,
+            };
+            var consumer = new ThrowingConsumer();
+
+            using var tester = new MicroserviceTester(_testOptions.RabbitOptions!, new[] { consumerOptions });
+            tester.Adapter.StartConsumer(consumerOptions, consumer!, true);
+
+            tester.SendMessage(consumerOptions, new TestMessage());
+            Thread.Sleep(500);
+
+            Assert.AreEqual(1, consumer.HeldMessages);
+            Assert.AreEqual(0, consumer.AckCount);
+        }
+
+        private class ThrowingConsumer : Consumer<TestMessage>
+        {
+            public int HeldMessages { get => _heldMessages; }
+
+            protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
+            {
+                throw new Exception("Throwing!");
+            }
+        }
+
         private class TestMessage : IMessage { }
 
 

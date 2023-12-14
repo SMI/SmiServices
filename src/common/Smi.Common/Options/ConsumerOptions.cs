@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace Smi.Common.Options
 {
@@ -22,6 +22,11 @@ namespace Smi.Common.Options
         /// </summary>
         public bool AutoAck { get; set; }
 
+        /// <summary>
+        /// If set, consumer will not call Fatal when an unhandled exception occurs when processing a message, up to the <see cref="QoSPrefetchCount"/> limit. Requires <see cref="AutoAck"/> to be false
+        /// </summary>
+        public bool HoldUnprocessableMessages { get; set; }
+
 
         /// <summary>
         /// Verifies that the individual options have been populated
@@ -38,6 +43,7 @@ namespace Smi.Common.Options
             sb.Append("QueueName: " + QueueName);
             sb.Append(", AutoAck: " + AutoAck);
             sb.Append(", QoSPrefetchCount: " + QoSPrefetchCount);
+            sb.Append(", HoldUnprocessableMessages: " + HoldUnprocessableMessages);
             return sb.ToString();
         }
     }
