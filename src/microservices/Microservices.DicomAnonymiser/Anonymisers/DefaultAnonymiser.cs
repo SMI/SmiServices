@@ -7,14 +7,14 @@ using Newtonsoft.Json;
 
 namespace Microservices.DicomAnonymiser.Anonymisers
 {
-    public class DicomAnonymiser : IDicomAnonymiser
+    public class DefaultAnonymiser : IDicomAnonymiser
     {
         private string _virtualEnvPath;
         private string _shellScriptPath;
         private string _dicomPixelAnonPath;
         private string _smiServicesPath;
 
-        public DicomAnonymiser()
+        public DefaultAnonymiser()
         {
             _virtualEnvPath = "";
             _shellScriptPath = "";
