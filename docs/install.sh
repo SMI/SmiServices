@@ -8,14 +8,14 @@ wget https://raw.githubusercontent.com/HicServices/DicomTypeTranslation/main/Tem
 /imaging/bin/rdmp/rdmp cmd CreateNewImagingDatasetSuite "DatabaseType:MySQL:Name:smi:Server=127.0.0.1;Uid=smi;Pwd=SmiSqlPassword;Database=smi_images" ./data DicomFileCollectionSource CT_ CT.it false true --dir /imaging/conf/rdmp 
 for modality in CR CT DX IO MG MR NM OTHER PT PX RF SR US XA 
 do 
-sed –e "s/MR_/${modality}_/g" <<'EOC' | /imaging/bin/rdmp/rdmp -f /dev/stdin --dir /imaging/conf/rdmp
+cat -- -f /dev/stdin --dir /imaging/conf/rdmp <<EOC
 Commands: 
-        - newobject joininfo columninfo:*MR_*ImageTable`*Series*UID* columninfo:*MR_*SeriesTable`*Series*UID* inner null 
-        - newobject joininfo columninfo:*MR_*SeriesTable`*Study*UID* columninfo:*MR_*StudyTable`*Study*UID* inner null 
-        - set tableinfo:*MR_*StudyTable`* IsPrimaryExtractionTable true 
+        - newobject joininfo columninfo:*${modality}_*ImageTable\`*Series*UID* columninfo:*${modality}_*SeriesTable\`*Series*UID* inner null 
+        - newobject joininfo columninfo:*${modality}_*SeriesTable\`*Study*UID* columninfo:*${modality}_*StudyTable\`*Study*UID* inner null 
+        - set tableinfo:*${modality}_*StudyTable\`* IsPrimaryExtractionTable true 
         - createnewclassbasedprocesstask lmd AdjustRaw PrimaryKeyCollisionIsolationMutilation 
-        - rename processtask MR_Isolate 
-        - setargument processtask TablesToIsolate tableinfo:*MR_*Table`* 
+        - rename processtask ${modality}_Isolate 
+        - setargument processtask TablesToIsolate tableinfo:*${modality}_*Table\`* 
         - setargument processtask IsolationDatabase eds:*iso* 
 EOC
 done
