@@ -128,7 +128,7 @@ jobs:
           files: ./coverage/coverage.cobertura.xml
           fail_ci_if_error: true
       - name: upload dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -161,7 +161,7 @@ jobs:
         run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
       - name: "[linux] upload packages"
         if: ${{ matrix.os == 'linux' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
@@ -195,7 +195,7 @@ jobs:
         run: ./bin/smi-py/testPackage.py ${{ needs.init.outputs.build_ref }} ${{ env.venv_bin }}/python
       - name: "[linux] upload packages"
         if: ${{ matrix.os == 'linux' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
