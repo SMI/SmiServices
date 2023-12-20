@@ -1,4 +1,10 @@
+CREATE USER 'smi'@'localhost' IDENTIFIED BY 'SmiSqlPassword';
+
 CREATE DATABASE IF NOT EXISTS smi; 
+GRANT ALL ON smi.* TO 'smi'@'localhost';
+
+CREATE DATABASE IF NOT EXISTS smi_isolation; 
+GRANT ALL ON smi_isolation.* TO 'smi'@'localhost'; 
 
 CREATE TABLE `smi`.`IO_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -1210,7 +1216,3 @@ CREATE TABLE `smi`.`SOME_StudyTable`(
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
 CONSTRAINT PK_SOME_StudyTable PRIMARY KEY (`SOPInstanceUID`));  
-GRANT ALL ON smi.* TO 'smi'@'localhost' IDENTIFIED BY 'SmiSqlPassword';
-
-CREATE DATABASE IF NOT EXISTS smi_isolation; 
-GRANT ALL ON smi_isolation.* TO 'smi'@'localhost' IDENTIFIED BY 'SmiSqlPassword'; 
