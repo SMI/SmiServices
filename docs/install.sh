@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 mkdir -p /imaging/{bin/rdmp,bin/smi,conf/rdmp,data} /imaging/db/{mongo,sql} 
 curl -sL https://github.com/HicServices/RDMP/releases/download/v8.1.1/rdmp-8.1.1-cli-linux-x64.tar.xz | tar x --strip-components=1 -JC /imaging/bin/rdmp -f - 
 curl -sL https://github.com/SMI/SmiServices/releases/download/v5.4.0/smi-services-v5.4.0-linux-x64.tgz | tar x --strip-components=1 -zC /imaging/bin/smi -f - 
