@@ -100,10 +100,10 @@ jobs:
       - name: "[windows] re-write database strings"
         if: ${{ matrix.os == 'windows' }}
         run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
-      - name: download rdmp-cli
+      - name: "[windows] download rdmp-cli"
         if: ${{ matrix.os == 'windows' }}
         run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
-      - name: download rdmp-cli
+      - name: "[linux] download rdmp-cli"
         if: ${{ matrix.os == 'linux' }}
         run: |
           curl -L https://github.com/HicServices/RDMP/releases/download/v${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
@@ -128,9 +128,9 @@ jobs:
           files: ./coverage/coverage.cobertura.xml
           fail_ci_if_error: true
       - name: upload dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+          name: SmiServices-${{ needs.init.outputs.build_ref }}-smi-${{ matrix.os }}.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
           if-no-files-found: error
   ctp:
@@ -161,9 +161,9 @@ jobs:
         run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
       - name: "[linux] upload packages"
         if: ${{ matrix.os == 'linux' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+          name: SmiServices-${{ needs.init.outputs.build_ref }}-ctp.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
           if-no-files-found: error
   smi-py:
@@ -195,9 +195,9 @@ jobs:
         run: ./bin/smi-py/testPackage.py ${{ needs.init.outputs.build_ref }} ${{ env.venv_bin }}/python
       - name: "[linux] upload packages"
         if: ${{ matrix.os == 'linux' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: SmiServices-${{ needs.init.outputs.build_ref }}.zip
+          name: SmiServices-${{ needs.init.outputs.build_ref }}-py.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
           if-no-files-found: error
   upload-to-release:
@@ -206,7 +206,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: "[linux] enable disk caching"
-        if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
         uses: actions/checkout@v4
@@ -217,14 +216,14 @@ jobs:
       - name: prepare artifacts for release
         run: |
           set -euxo pipefail
-          dist_dir=./dist/SmiServices-${{ needs.init.outputs.build_ref }}.zip
-          [ ! -d "$dist_dir" ] && { echo "No dist found"; exit 1; }
-          ls -l $dist_dir
+          dist_dir=./dist
+          [ ! -d "$dist_dir" ] && { echo "No artifacts downloaded"; exit 1; }
           mkdir ./release
-          cat $dist_dir/MD5SUM* >> ./release/MD5SUMS.txt
-          rm $dist_dir/MD5SUM*
-          cp $dist_dir/* ./release/
-          ls -l ./release
+          cat $dist_dir/*/MD5SUM* >> ./release/MD5SUMS.txt
+          rm $dist_dir/*/MD5SUM*
+          cp $dist_dir/*/* ./release/
+          cd ./release
+          md5sum -c MD5SUMS.txt
           ./bin/release/createReleaseChangelog.py ${{ needs.init.outputs.build_ref }}
       - name: upload release
         uses: softprops/action-gh-release@v1
