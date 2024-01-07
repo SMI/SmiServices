@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
-using IsIdentifiable.Runners;
 using IsIdentifiable.Reporting;
+using IsIdentifiable.Runners;
 
 namespace Microservices.IsIdentifiable.Service
 {

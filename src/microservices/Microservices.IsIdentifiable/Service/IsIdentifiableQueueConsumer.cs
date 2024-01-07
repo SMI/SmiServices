@@ -1,4 +1,3 @@
-using IsIdentifiable.Reporting;
 using Newtonsoft.Json;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Service
 {
