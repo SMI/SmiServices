@@ -1187,7 +1187,7 @@ CREATE TABLE `smi`.`PX_StudyTable`(
 `hic_validFrom` datetime    NULL , 
 CONSTRAINT PK_PX_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
-CREATE TABLE `smi`.`SOME_StudyTable`( 
+CREATE TABLE `smi`.`OTHER_StudyTable`( 
 `PatientID` varchar(64)    NULL , 
 `SOPInstanceUID` varchar(64)    NOT NULL , 
 `RelativeFileArchiveURI` varchar(512)    NOT NULL , 
