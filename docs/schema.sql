@@ -1187,7 +1187,7 @@ CREATE TABLE `smi`.`PX_StudyTable`(
 `hic_validFrom` datetime    NULL , 
 CONSTRAINT PK_PX_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
-CREATE TABLE `smi`.`OTHER_StudyTable`( 
+CREATE TABLE `smi`.`OTHER_ImageTable`( 
 `PatientID` varchar(64)    NULL , 
 `SOPInstanceUID` varchar(64)    NOT NULL , 
 `RelativeFileArchiveURI` varchar(512)    NOT NULL , 
@@ -1207,4 +1207,4 @@ CREATE TABLE `smi`.`OTHER_StudyTable`(
 `SeriesInstanceUID` varchar(64)    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_SOME_StudyTable PRIMARY KEY (`SOPInstanceUID`));  
+CONSTRAINT PK_OTHER_StudyTable PRIMARY KEY (`SOPInstanceUID`));  

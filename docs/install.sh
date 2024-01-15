@@ -25,11 +25,13 @@ wget https://raw.githubusercontent.com/HicServices/DicomTypeTranslation/main/Tem
 mysql --user=root --password=mysqlrootpassword < schema.sql
 for modality in CR CT DX IO MG MR NM OTHER PT PX RF SR US XA 
 do 
-/imaging/bin/rdmp/rdmp -- -f /dev/stdin --dir /imaging/conf/rdmp <<EOC
+egrep -v '(OTHER|SR)_\*(Series|Study)Table' <<EOC | /imaging/bin/rdmp/rdmp -- -f /dev/stdin --dir /imaging/conf/rdmp
 Commands: 
         - newobject joininfo columninfo:*${modality}_*ImageTable\`*Series*UID* columninfo:*${modality}_*SeriesTable\`*Series*UID* right null 
         - newobject joininfo columninfo:*${modality}_*SeriesTable\`*Study*UID* columninfo:*${modality}_*StudyTable\`*Study*UID* right null 
         - set tableinfo:*${modality}_*StudyTable\`* IsPrimaryExtractionTable true 
+        - set tableinfo:*SR_*ImageTable\`* IsPrimaryExtractionTable true 
+        - set tableinfo:*OTHER_*ImageTable\`* IsPrimaryExtractionTable true 
         - createnewclassbasedprocesstask lmd AdjustRaw PrimaryKeyCollisionIsolationMutilation 
         - rename processtask ${modality}_Isolate 
         - setargument processtask TablesToIsolate tableinfo:*${modality}_*Table\`* 
