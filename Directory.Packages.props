@@ -12,7 +12,7 @@
     <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.0.3" />
     <PackageVersion Include="HIC.FAnsiSql" Version="3.1.1" />
     <PackageVersion Include="HIC.RDMP.Dicom" Version="7.0.1" />
-    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.0" />
+    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.2" />
     <PackageVersion Include="IsIdentifiable" Version="0.2.1" />
     <PackageVersion Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageVersion Include="LibArchive.Net" Version="0.1.4" />
