@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS  `smi`.`CT_ImageTable`;
+DROP TABLE IF EXISTS  `smi`.`CT_SeriesTable`;
+DROP TABLE IF EXISTS  `smi`.`CT_StudyTable`;
+
+
 CREATE TABLE `smi`.`IO_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
 `SOPInstanceUID` varchar(64)    NOT NULL , 
