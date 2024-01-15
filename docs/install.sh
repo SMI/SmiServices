@@ -27,6 +27,9 @@ for modality in CR CT DX IO MG MR NM OTHER PT PX RF SR US XA
 do 
 egrep -v '(OTHER|SR)_\*(Series|Study)Table' <<EOC | /imaging/bin/rdmp/rdmp -- -f /dev/stdin --dir /imaging/conf/rdmp
 Commands: 
+        - synctableinfo *${modality}_*ImageTable
+        - synctableinfo *${modality}_*SeriesTable
+        - synctableinfo *${modality}_*StudyTable
         - newobject joininfo columninfo:*${modality}_*ImageTable\`*Series*UID* columninfo:*${modality}_*SeriesTable\`*Series*UID* right null 
         - newobject joininfo columninfo:*${modality}_*SeriesTable\`*Study*UID* columninfo:*${modality}_*StudyTable\`*Study*UID* right null 
         - set tableinfo:*${modality}_*StudyTable\`* IsPrimaryExtractionTable true 
