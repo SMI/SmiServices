@@ -225,6 +225,7 @@ jobs:
           cp $dist_dir/*/* ./release/
           cd ./release
           md5sum -c MD5SUMS.txt
+          cd ..
           ./bin/release/createReleaseChangelog.py ${{ needs.init.outputs.build_ref }}
       - name: upload release
         uses: softprops/action-gh-release@v1
