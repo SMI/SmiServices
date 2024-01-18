@@ -1,1 +1,0 @@
-Add DynamicRulesTester application
