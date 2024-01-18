@@ -23,7 +23,7 @@ Here is an example of a typical Feature Branch Workflow whilst working on the SM
     git clone git@github.com:SMI/SmiServices.git
     ```
 
-2. **Create Branch**: For each new feature or bug fix, create a new branch from the main branch (usually called “master”) which will allow you to work on your own version of the code without affecting the main codebase.
+2. **Create Branch**: For each new feature or bug fix, create a new branch from the main branch (usually called “main”) which will allow you to work on your own version of the code without affecting the main codebase.
 
     To keep the codebase organised, it is a good idea to use a descriptive name and consistent format for branch names. One common format is to use a prefix to indicate the type of branch, such as "feature/" for new features, "bug/" for bug fixes, or "hotfix/" for critical fixes e.g., feature/add-user-authentication or bug/fix-duplicate-messages.
 
@@ -52,7 +52,7 @@ Here is an example of a typical Feature Branch Workflow whilst working on the SM
 
     This pushes the "new-feature" branch to the central repository.
 
-5. **Open Pull Request**: In your Git hosting service (e.g. GitHub/GitLab), open a pull request to merge the "new-feature" branch into the main "master" branch.
+5. **Open Pull Request**: In your Git hosting service (e.g. GitHub/GitLab), open a pull request to merge the "new-feature" branch into the main "main" branch.
 
 6. **Request Review**: Other team members will review the code and provide feedback. If any issues are found, you can fix them and push the updated changes to the branch.
 

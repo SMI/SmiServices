@@ -2,18 +2,18 @@
 
 The steps to cut a new release of SmiServices are as follows.
 
-All development is done via a simple branching workflow, which are merged into `master` via a reviewed PR. `master` therefore contains all the latest reviewed changes since the previous release, and the CI checks should always be passing. It is not possible to push to `master` directly.
+All development is done via a simple branching workflow, which are merged into `main` via a reviewed PR. `main` therefore contains all the latest reviewed changes since the previous release, and the CI checks should always be passing. It is not possible to push to `main` directly.
 
-The release workflow is to checkout a new `release/` branch from master, update the `CHANGELOG` etc. as per below, then open a release PR with just those updates. Once this is merged, a tag is pushed to `master`. This triggers a pipeline in Azure DevOps which creates a GitHub release. The other pipelines will then push artefacts to this release when they pass.
+The release workflow is to checkout a new `release/` branch from main, update the `CHANGELOG` etc. as per below, then open a release PR with just those updates. Once this is merged, a tag is pushed to `main`. This triggers a pipeline in Azure DevOps which creates a GitHub release. The other pipelines will then push artefacts to this release when they pass.
 
 ## Creating A Normal Release
 
 -   Review all open PRs and check if any have been approved and can be merged to be included in the release.
 
--   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `master` commit and list all the merged PRs since the last release, e.g.:
+-   Check that a [news file][news_files] is present for each merged PR since the previous release. To do this, checkout the latest `main` commit and list all the merged PRs since the last release, e.g.:
 
     ```console
-    $ git checkout master && git pull && ./bin/release/missing-news.sh
+    $ git checkout main && git pull && ./bin/release/missing-news.sh
     Missing news file for PR #1151:Explicitly initialise LocalDB on Windows
     Missing news file for PR #1042:Is ident package use
     Missing news file for PR #1079:bump all HIC libraries to latest, and fo-dicom to 4.0.8
@@ -24,13 +24,13 @@ The release workflow is to checkout a new `release/` branch from master, update 
 
 -   Identify the next release version. This can be determined by looking at the previous release and deciding if the new code to be released is a major, minor, or patch change as per [semver](https://semver.org). E.g. if the previous release was `v1.2.3` and only new non-breaking features are in the news files directory, then the next release should be`v1.3.0`. The definition of "breaking" can often be subjective though, so ask other members of the project if you're unsure.
 
--   Ensure you are on the latest commit on the `master` branch , and create a new release branch:
+-   Ensure you are on the latest commit on the `main` branch , and create a new release branch:
 
     ```console
     $ git fetch
     $ git status
-    On branch master
-    Your branch is up to date with 'origin/master'.
+    On branch main
+    Your branch is up to date with 'origin/main'.
 
     nothing to commit, working tree clean
 
@@ -47,9 +47,9 @@ The release workflow is to checkout a new `release/` branch from master, update 
 
 -   Commit these changes and push the new branch
 -   Open a PR for this branch with the title `Release <version>`. Request a review from `@tznind` and `@rkm`
--   If there are any further changes which need to be included in the release PR, then these can be merged into the release branch from `master`
+-   If there are any further changes which need to be included in the release PR, then these can be merged into the release branch from `main`
 -   Wait for the PR to be reviewed and merged
--   Checkout `master` and pull the merge commit
+-   Checkout `main` and pull the merge commit
 -   Tag the release, e.g.:
     ```console
     $ git tag v1.2.3

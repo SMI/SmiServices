@@ -90,7 +90,7 @@ namespace Applications.SmiRunner
             if(args.Any(a=>a.Equals("--help")))
             {
                 Console.WriteLine("Read more at:");
-                Console.WriteLine("https://github.com/SMI/SmiServices/tree/master/");
+                Console.WriteLine("https://github.com/SMI/SmiServices/tree/main/");
             }
                
             return res;

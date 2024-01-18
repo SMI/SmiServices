@@ -29,7 +29,7 @@ Runs an RDMP data load configuration (`LoadMetadata`) with a batch of `DicomFile
 
 #### 2.2 Tests setup
 
--   In order to run database tests (and after each RDMP platform API schema change) you will need to [create TEST\_ platform databases](https://github.com/HicServices/RDMP/blob/master/Documentation/CodeTutorials/Tests.md). DatabaseCreation.exe will be in the bin directory of any Test project referencing HIC.RDMP.Plugin.Test.
+-   In order to run database tests (and after each RDMP platform API schema change) you will need to [create TEST\_ platform databases](https://github.com/HicServices/RDMP/blob/main/Documentation/CodeTutorials/Tests.md). DatabaseCreation.exe will be in the bin directory of any Test project referencing HIC.RDMP.Plugin.Test.
 
 ### 3. Queue Settings
 

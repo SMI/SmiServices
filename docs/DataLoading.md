@@ -610,9 +610,9 @@ This confirms that both [RDMP] and the [Rdmp.Dicom] plugin are correctly install
 
 The [RelationalDb] can have any schema you want and of any [DBMS] supported by [RDMP]. `DicomRelationalMapper` will load all tables configured and populate any columns which are named after dicom tags (e.g. [PatientID], StudyDate, SeriesDate etc). You can define a single large table or tables at different levels of granularity (e.g. Study / Series / Image). Only unique records will be loaded (i.e. a study table would contain 1 entry per study not 1 per image with rampant duplication).
 
-Schemas are defined in yaml. There are a number of [existing templates](https://github.com/HicServices/DicomTypeTranslation/tree/master/Templates) you can pick from. Alternatively you can build your own using the [Dicom Template Builder].
+Schemas are defined in yaml. There are a number of [existing templates](https://github.com/HicServices/DicomTypeTranslation/tree/main/Templates) you can pick from. Alternatively you can build your own using the [Dicom Template Builder].
 
-Download the [CT.it](https://raw.githubusercontent.com/HicServices/DicomTypeTranslation/master/Templates/CT.it) template. Copy the contents into a [yaml validator](http://www.yamllint.com/) to ensure there were no problems with leading/trailing whitespace etc when you downloaded it.
+Download the [CT.it](https://raw.githubusercontent.com/HicServices/DicomTypeTranslation/main/Templates/CT.it) template. Copy the contents into a [yaml validator](http://www.yamllint.com/) to ensure there were no problems with leading/trailing whitespace etc when you downloaded it.
 
 #### Building the load
 
@@ -742,4 +742,4 @@ testdicoms/1987/12/6/2.25.176347174691273338913144606255096043339.dcm
 [rdmp.dicom]: https://github.com/HicServices/RdmpDicom
 [rdmp user manual]: https://github.com/HicServices/RDMP#research-data-management-platform
 [dbms]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#dbms
-[dicom template builder]: https://github.com/HicServices/DicomTemplateBuilder
+[dicom template builder]: https://github.com/SMI/DicomTemplateBuilder
