@@ -219,6 +219,7 @@ jobs:
           dist_dir=./dist
           [ ! -d "$dist_dir" ] && { echo "No artifacts downloaded"; exit 1; }
           mkdir ./release
+          sed -i 's/\r$//' $dist_dir/*/MD5SUM*
           cat $dist_dir/*/MD5SUM* >> ./release/MD5SUMS.txt
           rm $dist_dir/*/MD5SUM*
           cp $dist_dir/*/* ./release/
