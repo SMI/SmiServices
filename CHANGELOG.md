@@ -11,6 +11,41 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.5.0] 2024-01-18
+
+## Feature
+
+-   [#1583](https://github.com/SMI/SmiServices/pull/1583) by rkm. Add DynamicRulesTester application
+-   [#1599](https://github.com/SMI/SmiServices/pull/1599) by rkm. Enable the C# `nullable` feature and fix all warnings.
+-   [#1619](https://github.com/SMI/SmiServices/pull/1619) by rkm. Add Modality to ExtractFileMessage classes
+-   [#1622](https://github.com/SMI/SmiServices/pull/1622) by rkm. Add LossyImageCompressionMethod to CTP allowlist
+-   [#1637](https://github.com/SMI/SmiServices/pull/1637) by rkm. upgrade to NET7 and C# 11
+-   [#1663](https://github.com/SMI/SmiServices/pull/1663) by karacolada. Add field UserName to ExtractionRequestInfoMessage
+-   [#1701](https://github.com/SMI/SmiServices/pull/1701) by rkm. Adds the ability for consumers to optionally "hold" unprocessable messages so they are not returned to the queue.
+
+## Bugfix
+
+-   [#1524](https://github.com/SMI/SmiServices/pull/1524) by howff. StructuredReport improvements - collect names from anywhere in text body not just in header
+-   [#1562](https://github.com/SMI/SmiServices/pull/1562) by howff. DicomText - Redact all tags which have a data type (VR) of 'DT' (DateTime). It was already doing dates and names.
+-   [#1611](https://github.com/SMI/SmiServices/pull/1611) by howff. CTP_SRAnonTool - implement a full HTML parser (with other sanity checks) for HTML in TextValue in SRs
+-   [#1639](https://github.com/SMI/SmiServices/pull/1639) by rkm. catch any exception raised during file classification. Fixes #1638
+-   [#1671](https://github.com/SMI/SmiServices/pull/1671) by rkm. disable debug logging spam from external CTP libraries
+-   [#1684](https://github.com/SMI/SmiServices/pull/1684) by jas88. Fix SQL in documentation area - missing semicolons causing syntax error
+-   [#1704](https://github.com/SMI/SmiServices/pull/1704) by rkm. Improve quality of log output
+-   [#1717](https://github.com/SMI/SmiServices/pull/1717) by rkm. update CI release script for upload-artifact@v4
+
+## Docs
+
+-   [#1572](https://github.com/SMI/SmiServices/pull/1572) by jas88. Document installation steps for new users
+
+## Removal
+
+-   [#1540](https://github.com/SMI/SmiServices/pull/1540) by rkm. Remove old IsIdentifiableReviewer project, moved to https://github.com/SMI/IsIdentifiable
+
+## Update
+
+-   [#1664](https://github.com/SMI/SmiServices/pull/1664) by jas88. Update RDMP API to reduce casting
+
 ## [5.4.0] 2023-04-25
 
 ## Feature
