@@ -23,6 +23,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.CohortExtractor.Tests
 {
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+    [RequiresRelationalDb(DatabaseType.MySql)]
     class ExtractionSuperTableTests : DatabaseTests
     {
 
@@ -84,10 +86,10 @@ namespace Microservices.CohortExtractor.Tests
         }
 
 
-        [TestCase(DatabaseType.MicrosoftSQLServer,true), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql,true), RequiresRelationalDb(DatabaseType.MySql)]
-        [TestCase(DatabaseType.MicrosoftSQLServer,false), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql,false), RequiresRelationalDb(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer,true)]
+        [TestCase(DatabaseType.MySql,true)]
+        [TestCase(DatabaseType.MicrosoftSQLServer,false)]
+        [TestCase(DatabaseType.MySql,false)]
         public void Test_OnlyExtractableImages(DatabaseType dbType,bool useDynamic)
         {
             var db = GetCleanedServer(dbType);
@@ -159,8 +161,8 @@ namespace Microservices.CohortExtractor.Tests
         }
 
 
-        [TestCase(DatabaseType.MicrosoftSQLServer), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql), RequiresRelationalDb(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql)]
         public void Test_OnlyListedModalities(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
