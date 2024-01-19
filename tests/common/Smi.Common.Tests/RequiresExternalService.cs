@@ -1,12 +1,15 @@
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 using System;
 using System.Runtime.InteropServices;
 
 namespace Smi.Common.Tests
 {
-    public class RequiresExternalService : CategoryAttribute
+    public class RequiresExternalService : CategoryAttribute, IApplyToContext
     {
         protected readonly bool FailIfUnavailable;
+        private readonly bool IgnoreIfWinCiSkip;
 
         public RequiresExternalService()
         {
@@ -15,11 +18,20 @@ namespace Smi.Common.Tests
                 FailIfUnavailable = true;
 
             if (
-                Environment.GetEnvironmentVariable("CI_SKIP_WIN_SERVICES") == "1" &&
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Assert.Ignore("Requires external service");
-            }
+                Environment.GetEnvironmentVariable("CI_SKIP_WIN_SERVICES") == "1"
+                && RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
+            )
+                IgnoreIfWinCiSkip = true;
         }
+
+        public void ApplyToContext(TestExecutionContext context)
+        {
+            if (IgnoreIfWinCiSkip)
+                Assert.Ignore("CI_SKIP_WIN_SERVICES");
+
+            ApplyToContextImpl(context);
+        }
+
+        protected virtual void ApplyToContextImpl(TestExecutionContext context) { }
     }
 }
