@@ -15,6 +15,7 @@ using SharpCompress.Writers.Zip;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
+using Smi.Common.Tests;
 
 namespace Applications.DicomLoader.Tests;
 
@@ -29,6 +30,7 @@ public class DicomLoaderTests
     }
 
     [Test]
+    [RequiresExternalService]
     public void BatchLoadTest()
     {
         DicomDataset[] testImages;

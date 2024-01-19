@@ -1,4 +1,4 @@
-﻿
+
 using FAnsi;
 using FAnsi.Discovery;
 using FAnsi.Extensions;
@@ -21,6 +21,8 @@ namespace Microservices.CohortExtractor.Tests
     /// (described in a <see cref="Catalogue"/>) and fetch matching image urls out of the database (creating
     /// ExtractImageCollection results).
     /// </summary>
+    [RequiresRelationalDb(DatabaseType.MySql)]
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class FromCataloguesExtractionRequestFulfillerTests : DatabaseTests
     {
         [SetUp]
@@ -31,8 +33,8 @@ namespace Microservices.CohortExtractor.Tests
             TestLogger.Setup();
         }
 
-        [TestCase(DatabaseType.MicrosoftSQLServer), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql), RequiresRelationalDb(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql)]
         public void FromCataloguesExtractionRequestFulfiller_NormalMatching_SeriesInstanceUIDOnly(DatabaseType databaseType)
         {
             var db = GetCleanedServer(databaseType);
@@ -106,8 +108,8 @@ namespace Microservices.CohortExtractor.Tests
         }
 
 
-        [TestCase(DatabaseType.MicrosoftSQLServer), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql), RequiresRelationalDb(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql)]
         public void FromCataloguesExtractionRequestFulfiller_NormalMatching(DatabaseType databaseType)
         {
             var db = GetCleanedServer(databaseType);

@@ -13,6 +13,8 @@ defaults:
     shell: bash
 
 env:
+  # Misc.
+  CI_SKIP_WIN_SERVICES: 1
   # dotnet
   rdmp-cli-dir: "./rdmp-cli"
   db-password: "YourStrongPassw0rd"
@@ -57,13 +59,6 @@ jobs:
         run: sudo apt-get install -y libeatmydata1
       - name: checkout
         uses: actions/checkout@v4
-      - name: "[windows] start MongoDB service"
-        if: ${{ matrix.os == 'windows' }}
-        shell: pwsh
-        run: |
-          reg.exe add HKLM\System\CurrentControlSet\Control /v ServicesPipeTimeout /t REG_DWORD /d 300000 /f
-          sc.exe config MongoDB start= auto
-          sc.exe start MongoDB
       - name: setup .NET
         # NOTE(rkm 2022-02-20) Uses global.json
         uses: actions/setup-dotnet@v4.0.0
@@ -78,37 +73,19 @@ jobs:
           set -euxo pipefail
           echo "rdmp_conn_str=localhost -u sa -p ${{ env.db-password }}" >> $GITHUB_ENV
           ./bin/smi/writeDatabaseStrings.py localhost "${{ env.db-password }}"
-      - name: set RDMP version
+      - name: "[linux] set RDMP version"
+        if: ${{ matrix.os == 'linux' }}
         run: |
           set -euxo pipefail
           rdmp_cli_ver=$(grep -F -m1 HIC.RDMP.Plugin Directory.Packages.props | sed -n 's/.*Version="\([0-9.]*\)".*/\1/p')
           echo "rdmp_cli_ver=$rdmp_cli_ver" >> $GITHUB_ENV
-      - name: "[windows] Install SQL LocalDB"
-        if: ${{ matrix.os == 'windows' }}
-        uses: crazy-max/ghaction-chocolatey@v3
-        with:
-          args: install sqllocaldb
-      - name: "[windows] Check SQL LocalDB and set rdmp_conn_str"
-        if: ${{ matrix.os == 'windows' }}
-        shell: pwsh
-        run: |
-          Write-Host "Checking"
-          $db = "(localdb)\MSSQLLocalDB"
-          SqlLocalDB.exe create MSSQLLocalDB -s
-          sqlcmd -l 180 -S "$db" -Q "SELECT @@VERSION;"
-          echo "rdmp_conn_str='$db'" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-      - name: "[windows] re-write database strings"
-        if: ${{ matrix.os == 'windows' }}
-        run: ./bin/smi/writeDatabaseStrings.py "(localdb)\MSSQLLocalDB" "${{ env.db-password }}"
-      - name: "[windows] download rdmp-cli"
-        if: ${{ matrix.os == 'windows' }}
-        run: ./bin/smi/downloadRdmpCli.py ${{ env.rdmp_cli_ver }}
       - name: "[linux] download rdmp-cli"
         if: ${{ matrix.os == 'linux' }}
         run: |
           curl -L https://github.com/HicServices/RDMP/releases/download/v${{ env.rdmp_cli_ver }}/rdmp-${{ env.rdmp_cli_ver }}-cli-linux-x64.tar.xz | tar xJf -
           mv rdmp-${{ env.rdmp_cli_ver }}-cli-linux rdmp-cli
-      - name: install RDMP databases
+      - name: "[linux] install RDMP databases"
+        if: ${{ matrix.os == 'linux' }}
         run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
       - name: show dotnet info
         run: dotnet --info
