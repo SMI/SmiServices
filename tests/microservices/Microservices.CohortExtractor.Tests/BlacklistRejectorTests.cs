@@ -3,6 +3,7 @@ using FAnsi;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Tests.Common;
+using Smi.Common.Tests;
 
 namespace Microservices.CohortExtractor.Tests
 {

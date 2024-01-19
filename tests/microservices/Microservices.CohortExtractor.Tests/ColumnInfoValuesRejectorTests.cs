@@ -8,6 +8,7 @@ using Rdmp.Core.Curation.Data;
 using System.Collections.Generic;
 using System.Data.Common;
 using Tests.Common;
+using Smi.Common.Tests;
 
 namespace Microservices.CohortExtractor.Tests
 {
