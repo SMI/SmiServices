@@ -6,6 +6,8 @@ using Tests.Common;
 
 namespace Microservices.CohortExtractor.Tests
 {
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+    [RequiresRelationalDb(DatabaseType.MySql)]
     class BlacklistRejectorTests : DatabaseTests
     {
         [TestCase(DatabaseType.MicrosoftSQLServer)]

@@ -12,6 +12,8 @@ using Tests.Common;
 namespace Microservices.CohortExtractor.Tests
 {
 
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+    [RequiresRelationalDb(DatabaseType.MySql)]
     public class ColumnInfoValuesRejectorTests : DatabaseTests
     {
         private const string PatColName = "PatientID";
