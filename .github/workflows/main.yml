@@ -13,6 +13,8 @@ defaults:
     shell: bash
 
 env:
+  # Misc.
+  CI_SKIP_WIN_SERVICES: 1
   # dotnet
   rdmp-cli-dir: "./rdmp-cli"
   db-password: "YourStrongPassw0rd"
