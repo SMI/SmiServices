@@ -1,8 +1,9 @@
-﻿using FAnsi;
+using FAnsi;
 using FAnsi.Discovery;
 using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using Smi.Common.Messages.Updating;
+using Smi.Common.Tests;
 using System;
 using System.Data;
 using System.Linq;
@@ -10,6 +11,8 @@ using Tests.Common;
 
 namespace Microservices.UpdateValues.Tests
 {
+    [RequiresRelationalDb(DatabaseType.MySql)]
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class TestUpdateDatabase : DatabaseTests
     {
         protected DiscoveredTable SetupTestTable(DatabaseType dbType)

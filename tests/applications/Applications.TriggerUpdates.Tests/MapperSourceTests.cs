@@ -13,11 +13,12 @@ using Applications.TriggerUpdates.Execution;
 using Applications.TriggerUpdates.Options;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
-
+using Smi.Common.Tests;
 
 namespace Applications.TriggerUpdates.Tests
 {
-
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+    [RequiresRelationalDb(DatabaseType.MySql)]
     class MapperSourceTests : DatabaseTests
     {
         /// <summary>
