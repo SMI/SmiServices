@@ -88,7 +88,7 @@ def _print_links(last_tag: str, next_tag: str) -> None:
     unreleased_str = (
         "[Unreleased]: "
         f"https://github.com/{_ORG}/{_REPO}/compare/{next_tag}"
-        "...master"
+        "...main"
     )
     print(unreleased_str)
 
