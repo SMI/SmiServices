@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Failures;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Newtonsoft.Json;
 using Smi.Common.Messages;
@@ -28,8 +28,8 @@ namespace Microservices.CohortPackager.Messaging
         {
             try
             {
-                // Check the report contents are valid, but don't do anything else with it for now
-                JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report);
+                // Check the report contents are valid here, since we just treat it as a JSON string from now on
+                _ = JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report);
             }
             catch (JsonException e)
             {
