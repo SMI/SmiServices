@@ -13,16 +13,19 @@ namespace Microservices.CohortPackager.Messaging
     /// <summary>
     /// Consumer for <see cref="ExtractedFileVerificationMessage"/>(s)
     /// </summary>
-    public class AnonVerificationMessageConsumer : Consumer<ExtractedFileVerificationMessage>
+    public sealed class AnonVerificationMessageConsumer : Consumer<ExtractedFileVerificationMessage>, IDisposable
     {
         private readonly IExtractJobStore _store;
 
+        private readonly int _maxUnacknowledgedMessages;
+        private int _unacknowledgedMessages = 0;
 
-        public AnonVerificationMessageConsumer(IExtractJobStore store)
+
+        public AnonVerificationMessageConsumer(IExtractJobStore store, int maxUnacknowledgedMessages)
         {
             _store = store;
+            _maxUnacknowledgedMessages = maxUnacknowledgedMessages;
         }
-
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileVerificationMessage message, ulong tag)
         {
@@ -39,7 +42,7 @@ namespace Microservices.CohortPackager.Messaging
 
             try
             {
-                _store.PersistMessageToStore(message, header);
+                _store.AddToWriteQueue(message, header, tag);
             }
             catch (ApplicationException e)
             {
@@ -48,8 +51,31 @@ namespace Microservices.CohortPackager.Messaging
                 return;
             }
 
-            // TODO(rkm 2020-07-23) Forgetting the "return" in either case above could mean that the message gets ackd - can we rearrange the logic to avoid this?
-            Ack(header, tag);
+            if (++_unacknowledgedMessages >= _maxUnacknowledgedMessages)
+                _store.ProcessVerificationMessageQueue();
+
+            AckAvailableMessages();
+        }
+
+        private void AckAvailableMessages()
+        {
+            while (_store.ProcessedVerificationMessages.TryDequeue(out var processed))
+            {
+                Ack(processed.Item1, processed.Item2);
+                _unacknowledgedMessages--;
+            }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                AckAvailableMessages();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Error when calling {nameof(AckAvailableMessages)} on Dispose. Some processed messages may unacknowledged");
+            }
         }
     }
 }

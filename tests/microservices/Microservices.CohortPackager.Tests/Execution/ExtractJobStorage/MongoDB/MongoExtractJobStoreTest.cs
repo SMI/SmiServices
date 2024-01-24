@@ -249,7 +249,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             };
 
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             store.PersistMessageToStore(testExtractionRequestInfoMessage, testHeader);
 
@@ -309,7 +309,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             };
 
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header);
 
@@ -364,7 +364,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             };
 
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             Assert.DoesNotThrow(() => store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header));
         }
@@ -373,7 +373,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestPersistMessageToStoreImpl_ExtractFileStatusMessage()
         {
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
             var testExtractFileStatusMessage = new ExtractedFileStatusMessage
@@ -410,7 +410,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestPersistMessageToStoreImpl_IsIdentifiableMessage()
         {
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
             var testIsIdentifiableMessage = new ExtractedFileVerificationMessage
@@ -481,7 +481,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "Verified");
 
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             // Assert that jobs marked as failed are not returned
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
@@ -490,7 +490,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Assert that an in progress job is not returned
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
@@ -498,7 +498,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check we handle a bad ReplaceOneResult
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
@@ -508,7 +508,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check happy path
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
@@ -560,7 +560,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "Verified");
 
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             // Assert that an exception is thrown for a non-existent job
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(Guid.NewGuid()));
@@ -569,7 +569,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Assert that an exception is thrown for a job which is marked as failed
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.MockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(Guid.NewGuid()));
@@ -578,7 +578,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check that we handle a failed insertion
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.Completed;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.CompletedJobCollection.RejectChanges = true;
@@ -589,7 +589,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check we handle a bad DeleteResult
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
             client.MockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(jobId));
@@ -598,7 +598,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check we handle missing expectedFiles collection
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.MockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(jobId));
@@ -607,7 +607,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check we handle missing statuses collection
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
@@ -618,7 +618,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check happy path
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
@@ -652,7 +652,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 null);
 
             var client = new TestMongoClient();
-            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
 
             // Assert that an exception is thrown for a non-existent job
             Assert.Throws<ApplicationException>(() => store.MarkJobFailed(Guid.NewGuid(), new Exception()));
@@ -661,7 +661,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Assert that a job can't be failed twice
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.MockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobFailed(jobId, new Exception()));
@@ -670,7 +670,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check we handle a bad ReplaceOneResult
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
@@ -681,7 +681,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check happy path
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             testJob.FailedJobInfoDoc = null;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
@@ -695,6 +695,114 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Assert.AreEqual(ExtractJobStatus.Failed, failedDoc.JobStatus);
             Assert.NotNull(failedDoc.FailedJobInfoDoc);
             Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc!.ExceptionMessage);
+        }
+
+        [Test]
+        public void AddToWriteQueue_ProcessVerificationMessageQueue()
+        {
+            // Arrange
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
+
+            Guid jobId = Guid.NewGuid();
+            var message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = "anon.dcm",
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                ProjectNumber = "1234",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "1234/test",
+                DicomFilePath = "original.dcm",
+                Status = VerifiedFileStatus.NotIdentifiable,
+                Report = "[]",
+            };
+            var header = new MessageHeader();
+
+            var nMessages = 10;
+
+            // Act
+
+            for (int i = 0; i < nMessages; ++i)
+                store.AddToWriteQueue(message, header, (ulong)i);
+
+            store.ProcessVerificationMessageQueue();
+
+            // Assert
+
+            Assert.AreEqual(
+                nMessages,
+                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents.Count
+            );
+        }
+
+        [Test]
+        public void ProcessVerificationMessageQueue_Empty()
+        {
+            // Arrange
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: false, verificationMessageQueueFlushTime: TimeSpan.MaxValue, _dateTimeProvider);
+
+            // Act
+            store.ProcessVerificationMessageQueue();
+
+            // Assert
+            // No exception
+        }
+
+        [Test]
+        public void AddToWriteQueue_Timer()
+        {
+            // Arrange
+
+            var queueTime = TimeSpan.FromSeconds(1);
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, verificationMessageQueueProcessBatches: true, verificationMessageQueueFlushTime: queueTime, _dateTimeProvider);
+
+            Guid jobId = Guid.NewGuid();
+            var message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = "anon.dcm",
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                ProjectNumber = "1234",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "1234/test",
+                DicomFilePath = "original.dcm",
+                Status = VerifiedFileStatus.NotIdentifiable,
+                Report = "[]",
+            };
+            var header = new MessageHeader();
+
+            var nMessages = 10;
+
+            // Act
+
+            for (var i = 0; i < nMessages; ++i)
+                store.AddToWriteQueue(message, header, (ulong)i);
+
+            // Wait for the timer to elapse, with a bit of wiggle room
+            var t = 0;
+            var checkInterval = 10;
+            while (t < queueTime.TotalMilliseconds + 500)
+            {
+                if (
+                    client.ExtractionDatabase.StatusCollections.TryGetValue($"statuses_{jobId}", out var collection)
+                    && collection.Documents.Count == nMessages
+                )
+                    break;
+
+                t += checkInterval;
+                Thread.Sleep(checkInterval);
+            }
+
+            // Assert
+
+            Assert.AreEqual(
+                nMessages,
+                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents.Count
+            );
         }
 
         #endregion

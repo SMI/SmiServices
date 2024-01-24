@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution;
+using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Options;
@@ -36,6 +36,10 @@ namespace Microservices.CohortPackager
 
         private static int RecreateReport(GlobalOptions globalOptions, CohortPackagerCliOptions cliOptions)
         {
+            var cohortPackagerOptions = globalOptions.CohortPackagerOptions ??
+                throw new ArgumentNullException(nameof(globalOptions), "CohortPackagerOptions cannot be null");
+
+
             Logger logger = LogManager.GetCurrentClassLogger();
 
             logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
@@ -43,10 +47,20 @@ namespace Microservices.CohortPackager
             MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases!.ExtractionStoreOptions
                 ?? throw new ArgumentException($"Part of globalOptions.MongoDatabases.ExtractionStoreOptions was null");
 
-            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
-            var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName!);
+            var verificationMessageQueueFlushTime =
+                (cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds != null)
+                ? TimeSpan.FromSeconds((double)cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds)
+                : CohortPackagerOptions.DefaultVerificationMessageQueueFlushTime;
 
-            string newLine = Regex.Unescape(cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions!.ReportNewLine!);
+            MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
+            var jobStore = new MongoExtractJobStore(
+                client,
+                mongoDbOptions.DatabaseName!,
+                cohortPackagerOptions.VerificationMessageQueueProcessBatches,
+                verificationMessageQueueFlushTime
+            );
+
+            string newLine = Regex.Unescape(cliOptions.OutputNewLine ?? cohortPackagerOptions.ReportNewLine!);
 
             // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory
             IJobReporter reporter = JobReporterFactory.GetReporter(

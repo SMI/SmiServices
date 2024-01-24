@@ -4,14 +4,16 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 {
     // ReSharper disable InconsistentlySynchronizedField
-    public class MongoExtractJobStore : ExtractJobStore
+    public sealed class MongoExtractJobStore : ExtractJobStore, IDisposable
     {
         private const string ExtractJobCollectionName = "inProgressJobs";
         private const string ExpectedFilesCollectionPrefix = "expectedFiles";
@@ -29,8 +31,20 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         private readonly DateTimeProvider _dateTimeProvider;
 
+        private readonly object _writeQueueLock = new();
+        private readonly Dictionary<string, List<VerificationMessageProcessItem>> _verificationStatusWriteQueue = new();
+        private readonly Timer _verificationStatusQueueTimer;
+        private bool _ignoreNewMessages = false;
+        private readonly ConcurrentQueue<Tuple<IMessageHeader, ulong>> _processedVerificationMessages = new();
+        public override ConcurrentQueue<Tuple<IMessageHeader, ulong>> ProcessedVerificationMessages => _processedVerificationMessages;
 
-        public MongoExtractJobStore(IMongoClient client, string extractionDatabaseName, DateTimeProvider? dateTimeProvider = null)
+
+        public MongoExtractJobStore(
+            IMongoClient client, string extractionDatabaseName,
+            bool verificationMessageQueueProcessBatches,
+            TimeSpan verificationMessageQueueFlushTime,
+            DateTimeProvider? dateTimeProvider = null
+        )
         {
             _client = client;
             _database = _client.GetDatabase(extractionDatabaseName);
@@ -44,6 +58,66 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
             long count = _inProgressJobCollection.CountDocuments(FilterDefinition<MongoExtractJobDoc>.Empty);
             Logger.Info(count > 0 ? $"Connected to job store with {count} existing jobs" : "Empty job store created successfully");
+
+            if (verificationMessageQueueFlushTime.TotalMilliseconds >= int.MaxValue)
+                verificationMessageQueueFlushTime = TimeSpan.FromMilliseconds(int.MaxValue);
+
+            _verificationStatusQueueTimer = new Timer(verificationMessageQueueFlushTime);
+            _verificationStatusQueueTimer.Elapsed += (sender, args) =>
+            {
+                try
+                {
+                    ProcessVerificationMessageQueue();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e);
+                    _ignoreNewMessages = true;
+                    _verificationStatusQueueTimer.Stop();
+                }
+            };
+
+            if (verificationMessageQueueProcessBatches)
+            {
+                Logger.Debug($"Starting {nameof(_verificationStatusQueueTimer)}");
+                _verificationStatusQueueTimer.Start();
+            }
+        }
+
+        public override void ProcessVerificationMessageQueue()
+        {
+            lock (_writeQueueLock)
+            {
+                foreach (var (collectionName, processItemList) in _verificationStatusWriteQueue)
+                {
+                    if (!processItemList.Any())
+                        continue;
+
+                    Logger.Debug($"InsertMany for {collectionName} with {processItemList.Count} item(s)");
+                    _database
+                        .GetCollection<MongoFileStatusDoc>(collectionName)
+                        .InsertMany(processItemList.Select(x => x.StatusDoc));
+
+                    foreach (var processItem in processItemList)
+                        _processedVerificationMessages.Enqueue(new Tuple<IMessageHeader, ulong>(processItem.Header, processItem.Tag));
+
+                    processItemList.Clear();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            _ignoreNewMessages = true;
+            _verificationStatusQueueTimer.Stop();
+            try
+            {
+                ProcessVerificationMessageQueue();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
 
         protected override void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header)
@@ -89,21 +163,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void PersistMessageToStoreImpl(ExtractedFileVerificationMessage message, IMessageHeader header)
         {
-            if (InCompletedJobCollection(message.ExtractionJobIdentifier))
-                throw new ApplicationException("Received an ExtractedFileVerificationMessage for a job that is already completed");
-
-            var newStatus = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
-                message.DicomFilePath,
-                message.OutputFilePath,
-                ExtractedFileStatus.Anonymised,
-                message.Status,
-                statusMessage: message.Report
-            );
-
+            var statusDoc = MongoFileStatusDocFor(message, header);
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
-                .InsertOne(newStatus);
+                .InsertOne(statusDoc);
         }
 
         //TODO(rkm 2020-03-09) Test this with a large volume of messages
@@ -360,6 +423,23 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     yield return doc.DicomFilePath;
         }
 
+        protected override void AddToWriteQueueImpl(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag)
+        {
+            if (_ignoreNewMessages)
+                return;
+
+            var statusCollName = StatusCollectionName(message.ExtractionJobIdentifier);
+            var statusDoc = MongoFileStatusDocFor(message, header);
+
+            lock (_writeQueueLock)
+            {
+                if (!_verificationStatusWriteQueue.ContainsKey(statusCollName))
+                    _verificationStatusWriteQueue.Add(statusCollName, new());
+
+                _verificationStatusWriteQueue[statusCollName].Add(new(statusDoc, header, tag));
+            }
+        }
+
         #region Helper Methods
 
         private static string StatusCollectionName(string name) => $"{StatusCollectionPrefix}_{name}";
@@ -392,6 +472,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 foreach (MongoFileStatusDoc doc in cursor.Current)
                     yield return new Tuple<string, string>(doc.OutputFileName!, doc.StatusMessage!);
         }
+
+        private MongoFileStatusDoc MongoFileStatusDocFor(ExtractedFileVerificationMessage message, IMessageHeader header) =>
+            new(
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
+                message.DicomFilePath,
+                message.OutputFilePath,
+                ExtractedFileStatus.Anonymised,
+                message.Status,
+                statusMessage: message.Report
+            );
+
+        private record struct VerificationMessageProcessItem(MongoFileStatusDoc StatusDoc, IMessageHeader Header, ulong Tag);
 
         #endregion
     }

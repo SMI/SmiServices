@@ -2,6 +2,7 @@
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -93,5 +94,24 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <param name="jobId"></param>
         /// <returns></returns>
         IEnumerable<string> GetCompletedJobMissingFileList(Guid jobId);
+
+        /// <summary>
+        /// Add a <see cref="ExtractedFileVerificationMessage"/> to the write queue. The message should not be acknowledged
+        /// until the corresponding tag is reutrned by <see cref="ProcessedVerificationMessages"/>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="header"></param>
+        /// <param name="tag"></param>
+        void AddToWriteQueue(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag);
+
+        /// <summary>
+        /// Process all queued <see cref="ExtractedFileVerificationMessage"/>s into the store
+        /// </summary>
+        void ProcessVerificationMessageQueue();
+
+        /// <summary>
+        /// All processed status messages which can be acknowledged
+        /// </summary>
+        ConcurrentQueue<Tuple<IMessageHeader, ulong>> ProcessedVerificationMessages { get; }
     }
 }

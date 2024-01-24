@@ -53,13 +53,24 @@ namespace Microservices.CohortPackager.Execution
         )
             : base(globals, rabbitMqAdapter)
         {
+            var cohortPackagerOptions = globals.CohortPackagerOptions ??
+                throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions cannot be null");
+
             if (jobStore == null)
             {
-                MongoDbOptions mongoDbOptions = Globals.MongoDatabases?.ExtractionStoreOptions 
+                MongoDbOptions mongoDbOptions = Globals.MongoDatabases?.ExtractionStoreOptions
                     ?? throw new ArgumentException("Some part of Globals.MongoDatabases.ExtractionStoreOptions is null");
+
+                var verificationMessageQueueFlushTime =
+                    (cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds != null)
+                    ? TimeSpan.FromSeconds((double)cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds)
+                    : CohortPackagerOptions.DefaultVerificationMessageQueueFlushTime;
+
                 jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
                     mongoDbOptions.DatabaseName!,
+                    cohortPackagerOptions.VerificationMessageQueueProcessBatches,
+                    verificationMessageQueueFlushTime,
                     dateTimeProvider
                 );
             }
@@ -68,17 +79,17 @@ namespace Microservices.CohortPackager.Execution
 
             // If not passed a reporter or notifier, try and construct one from the given options
 
-            string reportFormatStr = Globals.CohortPackagerOptions?.ReportFormat
+            string reportFormatStr = cohortPackagerOptions.ReportFormat
                 ?? throw new ArgumentException("Some part of Globals.CohortPackagerOptions.ReportFormat is null");
             if (reporter == null)
             {
                 reporter = JobReporterFactory.GetReporter(
-                    Globals.CohortPackagerOptions.ReporterType!,
+                    cohortPackagerOptions.ReporterType!,
                     jobStore,
                     fileSystem ?? new FileSystem(),
                     Globals.FileSystemOptions!.ExtractRoot!,
                     reportFormatStr,
-                    Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine!)
+                    Regex.Unescape(cohortPackagerOptions.ReportNewLine!)
                 );
             }
             else
@@ -90,11 +101,11 @@ namespace Microservices.CohortPackager.Execution
             }
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
-                Globals.CohortPackagerOptions.NotifierType!
+                cohortPackagerOptions.NotifierType!
             );
 
             _jobWatcher = new ExtractJobWatcher(
-                globals.CohortPackagerOptions!,
+                cohortPackagerOptions,
                 jobStore,
                 ExceptionCallback,
                 notifier,
@@ -103,11 +114,14 @@ namespace Microservices.CohortPackager.Execution
 
             AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 
+            var maxUnacknowledgedMessages = cohortPackagerOptions.VerificationStatusOptions?.QoSPrefetchCount ??
+                throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions.VerificationStatusOptions cannot be null");
+
             // Setup our consumers
             _requestInfoMessageConsumer = new ExtractionRequestInfoMessageConsumer(jobStore);
             _fileCollectionMessageConsumer = new ExtractFileCollectionMessageConsumer(jobStore);
             _anonFailedMessageConsumer = new AnonFailedMessageConsumer(jobStore);
-            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore);
+            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore, maxUnacknowledgedMessages);
         }
 
         public override void Start()
