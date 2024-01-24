@@ -212,7 +212,7 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void Ack(IMessageHeader header, ulong tag)
         {
-            header?.Log(Logger, LogLevel.Trace, "Acknowledged");
+            header?.Log(Logger, LogLevel.Trace, $"Acknowledged {header.MessageGuid}");
 
             Model!.BasicAck(tag, false);
             AckCount++;
