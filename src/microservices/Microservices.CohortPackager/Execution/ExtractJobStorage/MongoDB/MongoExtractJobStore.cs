@@ -59,6 +59,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             long count = _inProgressJobCollection.CountDocuments(FilterDefinition<MongoExtractJobDoc>.Empty);
             Logger.Info(count > 0 ? $"Connected to job store with {count} existing jobs" : "Empty job store created successfully");
 
+            // NOTE: Timer rejects values larger than int.MaxValue
             if (verificationMessageQueueFlushTime.TotalMilliseconds >= int.MaxValue)
                 verificationMessageQueueFlushTime = TimeSpan.FromMilliseconds(int.MaxValue);
 
@@ -473,8 +474,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                     yield return new Tuple<string, string>(doc.OutputFileName!, doc.StatusMessage!);
         }
 
-        private MongoFileStatusDoc MongoFileStatusDocFor(ExtractedFileVerificationMessage message, IMessageHeader header) =>
-            new(
+        private MongoFileStatusDoc MongoFileStatusDocFor(ExtractedFileVerificationMessage message, IMessageHeader header)
+        {
+            if (InCompletedJobCollection(message.ExtractionJobIdentifier))
+                throw new ApplicationException($"Received an {nameof(ExtractedFileVerificationMessage)} for a job that is already completed");
+
+            return new(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(message.ExtractionJobIdentifier, header, _dateTimeProvider),
                 message.DicomFilePath,
                 message.OutputFilePath,
@@ -482,6 +487,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 message.Status,
                 statusMessage: message.Report
             );
+        }
 
         private record struct VerificationMessageProcessItem(MongoFileStatusDoc StatusDoc, IMessageHeader Header, ulong Tag);
 
