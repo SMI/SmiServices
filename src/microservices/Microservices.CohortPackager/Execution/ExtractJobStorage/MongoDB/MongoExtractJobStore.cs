@@ -12,7 +12,7 @@ using System.Linq;
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 {
     // ReSharper disable InconsistentlySynchronizedField
-    public sealed class MongoExtractJobStore : ExtractJobStore
+    public class MongoExtractJobStore : ExtractJobStore
     {
         private const string ExtractJobCollectionName = "inProgressJobs";
         private const string ExpectedFilesCollectionPrefix = "expectedFiles";

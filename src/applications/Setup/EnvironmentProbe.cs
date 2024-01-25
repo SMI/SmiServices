@@ -253,8 +253,7 @@ DicomTagReader {
 
                 _ = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, "Setup"),
-                    mongoDbOptions.DatabaseName ?? throw new InvalidOperationException(),
-                    new Smi.Common.Helpers.DateTimeProvider()
+                    mongoDbOptions.DatabaseName ?? throw new InvalidOperationException(), new Smi.Common.Helpers.DateTimeProvider()
                 );
 
                 return new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);
