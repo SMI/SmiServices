@@ -61,16 +61,9 @@ namespace Microservices.CohortPackager.Execution
                 MongoDbOptions mongoDbOptions = Globals.MongoDatabases?.ExtractionStoreOptions
                     ?? throw new ArgumentException("Some part of Globals.MongoDatabases.ExtractionStoreOptions is null");
 
-                var verificationMessageQueueFlushTime =
-                    (cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds != null)
-                    ? TimeSpan.FromSeconds((double)cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds)
-                    : CohortPackagerOptions.DefaultVerificationMessageQueueFlushTime;
-
                 jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
                     mongoDbOptions.DatabaseName!,
-                    cohortPackagerOptions.VerificationMessageQueueProcessBatches,
-                    verificationMessageQueueFlushTime,
                     dateTimeProvider
                 );
             }
@@ -118,10 +111,22 @@ namespace Microservices.CohortPackager.Execution
                 throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions.VerificationStatusOptions cannot be null");
 
             // Setup our consumers
+
             _requestInfoMessageConsumer = new ExtractionRequestInfoMessageConsumer(jobStore);
             _fileCollectionMessageConsumer = new ExtractFileCollectionMessageConsumer(jobStore);
             _anonFailedMessageConsumer = new AnonFailedMessageConsumer(jobStore);
-            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore, cohortPackagerOptions.VerificationMessageQueueProcessBatches, maxUnacknowledgedMessages);
+
+            var verificationMessageQueueFlushTime =
+                (cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds != null)
+                ? TimeSpan.FromSeconds((double)cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds)
+                : CohortPackagerOptions.DefaultVerificationMessageQueueFlushTime;
+
+            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(
+                jobStore,
+                cohortPackagerOptions.VerificationMessageQueueProcessBatches,
+                maxUnacknowledgedMessages,
+                verificationMessageQueueFlushTime
+            );
         }
 
         public override void Start()
@@ -140,6 +145,8 @@ namespace Microservices.CohortPackager.Execution
         public override void Stop(string reason)
         {
             _jobWatcher.StopProcessing("Host - " + reason);
+
+            _anonVerificationMessageConsumer.Dispose();
 
             base.Stop(reason);
         }

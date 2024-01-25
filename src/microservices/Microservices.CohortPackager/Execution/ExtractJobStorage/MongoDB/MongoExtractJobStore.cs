@@ -7,13 +7,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 {
     // ReSharper disable InconsistentlySynchronizedField
-    public sealed class MongoExtractJobStore : ExtractJobStore, IDisposable
+    public sealed class MongoExtractJobStore : ExtractJobStore
     {
         private const string ExtractJobCollectionName = "inProgressJobs";
         private const string ExpectedFilesCollectionPrefix = "expectedFiles";
@@ -33,18 +32,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         private readonly object _writeQueueLock = new();
         private readonly Dictionary<string, List<VerificationMessageProcessItem>> _verificationStatusWriteQueue = new();
-        private readonly Timer _verificationStatusQueueTimer;
-        private bool _ignoreNewMessages = false;
         private readonly ConcurrentQueue<Tuple<IMessageHeader, ulong>> _processedVerificationMessages = new();
-        private readonly bool _verificationMessageQueueProcessBatches;
-
         public override ConcurrentQueue<Tuple<IMessageHeader, ulong>> ProcessedVerificationMessages => _processedVerificationMessages;
 
 
         public MongoExtractJobStore(
             IMongoClient client, string extractionDatabaseName,
-            bool verificationMessageQueueProcessBatches,
-            TimeSpan verificationMessageQueueFlushTime,
             DateTimeProvider? dateTimeProvider = null
         )
         {
@@ -60,32 +53,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
             long count = _inProgressJobCollection.CountDocuments(FilterDefinition<MongoExtractJobDoc>.Empty);
             Logger.Info(count > 0 ? $"Connected to job store with {count} existing jobs" : "Empty job store created successfully");
-
-            // NOTE: Timer rejects values larger than int.MaxValue
-            if (verificationMessageQueueFlushTime.TotalMilliseconds >= int.MaxValue)
-                verificationMessageQueueFlushTime = TimeSpan.FromMilliseconds(int.MaxValue);
-
-            _verificationStatusQueueTimer = new Timer(verificationMessageQueueFlushTime);
-            _verificationStatusQueueTimer.Elapsed += (sender, args) =>
-            {
-                try
-                {
-                    ProcessVerificationMessageQueue();
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e);
-                    _ignoreNewMessages = true;
-                    _verificationStatusQueueTimer.Stop();
-                }
-            };
-
-            _verificationMessageQueueProcessBatches = verificationMessageQueueProcessBatches;
-            if (verificationMessageQueueProcessBatches)
-            {
-                Logger.Debug($"Starting {nameof(_verificationStatusQueueTimer)}");
-                _verificationStatusQueueTimer.Start();
-            }
         }
 
         public override void ProcessVerificationMessageQueue()
@@ -107,20 +74,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
                     processItemList.Clear();
                 }
-            }
-        }
-
-        public void Dispose()
-        {
-            _ignoreNewMessages = true;
-            _verificationStatusQueueTimer.Stop();
-            try
-            {
-                ProcessVerificationMessageQueue();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
             }
         }
 
@@ -167,9 +120,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void PersistMessageToStoreImpl(ExtractedFileVerificationMessage message, IMessageHeader header)
         {
-            if (_verificationMessageQueueProcessBatches)
-                throw new InvalidOperationException($"{nameof(PersistMessageToStore)} should not be used when batch processing mode is enabled. Use {nameof(AddToWriteQueue)} instead");
-
             var statusDoc = MongoFileStatusDocFor(message, header);
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
@@ -432,12 +382,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void AddToWriteQueueImpl(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag)
         {
-            if (!_verificationMessageQueueProcessBatches)
-                throw new InvalidOperationException($"{nameof(AddToWriteQueue)} should not be used when batch processing mode is enabled. Use {nameof(PersistMessageToStore)} instead");
-
-            if (_ignoreNewMessages)
-                return;
-
             var statusCollName = StatusCollectionName(message.ExtractionJobIdentifier);
             var statusDoc = MongoFileStatusDocFor(message, header);
 

@@ -6,6 +6,7 @@ using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using System;
 using System.Collections.Generic;
+using System.Timers;
 
 
 namespace Microservices.CohortPackager.Messaging
@@ -16,21 +17,51 @@ namespace Microservices.CohortPackager.Messaging
     public sealed class AnonVerificationMessageConsumer : Consumer<ExtractedFileVerificationMessage>, IDisposable
     {
         private readonly IExtractJobStore _store;
-
         private readonly bool _processBatches;
         private readonly int _maxUnacknowledgedMessages;
         private int _unacknowledgedMessages = 0;
+        private readonly Timer _verificationStatusQueueTimer;
+        private bool _ignoreNewMessages = false;
 
 
-        public AnonVerificationMessageConsumer(IExtractJobStore store, bool processBatches, int maxUnacknowledgedMessages)
+        public AnonVerificationMessageConsumer(IExtractJobStore store, bool processBatches, int maxUnacknowledgedMessages, TimeSpan verificationMessageQueueFlushTime)
         {
             _store = store;
             _maxUnacknowledgedMessages = maxUnacknowledgedMessages;
             _processBatches = processBatches;
+
+            // NOTE: Timer rejects values larger than int.MaxValue
+            if (verificationMessageQueueFlushTime.TotalMilliseconds >= int.MaxValue)
+                verificationMessageQueueFlushTime = TimeSpan.FromMilliseconds(int.MaxValue);
+
+            _verificationStatusQueueTimer = new Timer(verificationMessageQueueFlushTime);
+            _verificationStatusQueueTimer.Elapsed += (sender, args) =>
+            {
+                try
+                {
+                    _store.ProcessVerificationMessageQueue();
+                    AckAvailableMessages();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e);
+                    _ignoreNewMessages = true;
+                    _verificationStatusQueueTimer.Stop();
+                }
+            };
+
+            if (_processBatches)
+            {
+                Logger.Debug($"Starting {nameof(_verificationStatusQueueTimer)}");
+                _verificationStatusQueueTimer.Start();
+            }
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileVerificationMessage message, ulong tag)
         {
+            if (_ignoreNewMessages)
+                return;
+
             try
             {
                 // Check the report contents are valid here, since we just treat it as a JSON string from now on
@@ -79,13 +110,17 @@ namespace Microservices.CohortPackager.Messaging
 
         public void Dispose()
         {
+            _ignoreNewMessages = true;
+            _verificationStatusQueueTimer.Stop();
+
             try
             {
+                _store.ProcessVerificationMessageQueue();
                 AckAvailableMessages();
             }
             catch (Exception e)
             {
-                Logger.Error(e, $"Error when calling {nameof(AckAvailableMessages)} on Dispose. Some processed messages may unacknowledged");
+                Logger.Error(e, $"Error when processing outstanding messages on Dispose. Some messages in the store may unacknowledged");
             }
         }
     }
