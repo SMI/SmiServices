@@ -36,6 +36,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private readonly Timer _verificationStatusQueueTimer;
         private bool _ignoreNewMessages = false;
         private readonly ConcurrentQueue<Tuple<IMessageHeader, ulong>> _processedVerificationMessages = new();
+        private readonly bool _verificationMessageQueueProcessBatches;
+
         public override ConcurrentQueue<Tuple<IMessageHeader, ulong>> ProcessedVerificationMessages => _processedVerificationMessages;
 
 
@@ -78,6 +80,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
                 }
             };
 
+            _verificationMessageQueueProcessBatches = verificationMessageQueueProcessBatches;
             if (verificationMessageQueueProcessBatches)
             {
                 Logger.Debug($"Starting {nameof(_verificationStatusQueueTimer)}");
@@ -164,6 +167,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void PersistMessageToStoreImpl(ExtractedFileVerificationMessage message, IMessageHeader header)
         {
+            if (_verificationMessageQueueProcessBatches)
+                throw new InvalidOperationException($"{nameof(PersistMessageToStore)} should not be used when batch processing mode is enabled. Use {nameof(AddToWriteQueue)} instead");
+
             var statusDoc = MongoFileStatusDocFor(message, header);
             _database
                 .GetCollection<MongoFileStatusDoc>(StatusCollectionName(message.ExtractionJobIdentifier))
@@ -426,6 +432,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 
         protected override void AddToWriteQueueImpl(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag)
         {
+            if (!_verificationMessageQueueProcessBatches)
+                throw new InvalidOperationException($"{nameof(AddToWriteQueue)} should not be used when batch processing mode is enabled. Use {nameof(PersistMessageToStore)} instead");
+
             if (_ignoreNewMessages)
                 return;
 

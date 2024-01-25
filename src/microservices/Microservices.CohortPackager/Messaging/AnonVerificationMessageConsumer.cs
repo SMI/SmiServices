@@ -17,14 +17,16 @@ namespace Microservices.CohortPackager.Messaging
     {
         private readonly IExtractJobStore _store;
 
+        private readonly bool _processBatches;
         private readonly int _maxUnacknowledgedMessages;
         private int _unacknowledgedMessages = 0;
 
 
-        public AnonVerificationMessageConsumer(IExtractJobStore store, int maxUnacknowledgedMessages)
+        public AnonVerificationMessageConsumer(IExtractJobStore store, bool processBatches, int maxUnacknowledgedMessages)
         {
             _store = store;
             _maxUnacknowledgedMessages = maxUnacknowledgedMessages;
+            _processBatches = processBatches;
         }
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractedFileVerificationMessage message, ulong tag)
@@ -42,7 +44,10 @@ namespace Microservices.CohortPackager.Messaging
 
             try
             {
-                _store.AddToWriteQueue(message, header, tag);
+                if (_processBatches)
+                    _store.AddToWriteQueue(message, header, tag);
+                else
+                    _store.PersistMessageToStore(message, header);
             }
             catch (ApplicationException e)
             {
@@ -51,10 +56,16 @@ namespace Microservices.CohortPackager.Messaging
                 return;
             }
 
-            if (++_unacknowledgedMessages >= _maxUnacknowledgedMessages)
-                _store.ProcessVerificationMessageQueue();
-
-            AckAvailableMessages();
+            if (_processBatches)
+            {
+                if (++_unacknowledgedMessages >= _maxUnacknowledgedMessages)
+                    _store.ProcessVerificationMessageQueue();
+                AckAvailableMessages();
+            }
+            else
+            {
+                Ack(header, tag);
+            }
         }
 
         private void AckAvailableMessages()

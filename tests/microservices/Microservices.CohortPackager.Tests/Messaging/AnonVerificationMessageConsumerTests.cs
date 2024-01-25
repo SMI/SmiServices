@@ -65,7 +65,7 @@ internal class AnonVerificationMessageConsumerTests
                 }
             });
 
-        var consumer = new AnonVerificationMessageConsumer(mockJobStore.Object, queueLimit);
+        var consumer = new AnonVerificationMessageConsumer(mockJobStore.Object, processBatches: true, queueLimit);
         consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
 
         var message = new ExtractedFileVerificationMessage

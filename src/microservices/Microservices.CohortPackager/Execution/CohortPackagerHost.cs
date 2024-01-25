@@ -121,7 +121,7 @@ namespace Microservices.CohortPackager.Execution
             _requestInfoMessageConsumer = new ExtractionRequestInfoMessageConsumer(jobStore);
             _fileCollectionMessageConsumer = new ExtractFileCollectionMessageConsumer(jobStore);
             _anonFailedMessageConsumer = new AnonFailedMessageConsumer(jobStore);
-            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore, maxUnacknowledgedMessages);
+            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore, cohortPackagerOptions.VerificationMessageQueueProcessBatches, maxUnacknowledgedMessages);
         }
 
         public override void Start()
