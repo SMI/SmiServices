@@ -22,7 +22,7 @@ namespace Microservices.CohortPackager.Messaging
         private int _unacknowledgedMessages = 0;
         private readonly Timer _verificationStatusQueueTimer;
         private bool _ignoreNewMessages = false;
-
+        private bool _queueIsProcessing = false;
 
         public AnonVerificationMessageConsumer(IExtractJobStore store, bool processBatches, int maxUnacknowledgedMessages, TimeSpan verificationMessageQueueFlushTime)
         {
@@ -35,25 +35,37 @@ namespace Microservices.CohortPackager.Messaging
                 verificationMessageQueueFlushTime = TimeSpan.FromMilliseconds(int.MaxValue);
 
             _verificationStatusQueueTimer = new Timer(verificationMessageQueueFlushTime);
-            _verificationStatusQueueTimer.Elapsed += (sender, args) =>
-            {
-                try
-                {
-                    _store.ProcessVerificationMessageQueue();
-                    AckAvailableMessages();
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e);
-                    _ignoreNewMessages = true;
-                    _verificationStatusQueueTimer.Stop();
-                }
-            };
+
+            _verificationStatusQueueTimer.Elapsed += TimerHandler;
 
             if (_processBatches)
             {
                 Logger.Debug($"Starting {nameof(_verificationStatusQueueTimer)}");
                 _verificationStatusQueueTimer.Start();
+            }
+        }
+
+        private void TimerHandler(object? sender, ElapsedEventArgs args)
+        {
+            if (_queueIsProcessing)
+                return;
+
+            _queueIsProcessing = true;
+
+            try
+            {
+                _store.ProcessVerificationMessageQueue();
+                AckAvailableMessages();
+            }
+            catch (Exception e)
+            {
+                _ignoreNewMessages = true;
+                _verificationStatusQueueTimer.Stop();
+                Logger.Error(e);
+            }
+            finally
+            {
+                _queueIsProcessing = false;
             }
         }
 
