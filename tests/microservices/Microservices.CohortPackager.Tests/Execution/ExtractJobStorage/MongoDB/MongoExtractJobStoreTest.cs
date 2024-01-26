@@ -276,6 +276,56 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         }
 
         [Test]
+        public void PersistMessageToStoreImpl_ExtractionRequestInfoMessage_CompletedJob()
+        {
+            // Arrange
+
+            var jobId = Guid.NewGuid();
+            var job = new MongoExtractJobDoc(
+              jobId,
+              MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+              "1234",
+              ExtractJobStatus.Failed,
+              "test/dir",
+              _dateTimeProvider.UtcNow(),
+              "SeriesInstanceUID",
+              1,
+              "testUser",
+              "MR",
+              isIdentifiableExtraction: true,
+              isNoFilterExtraction: true,
+              null);
+
+            var client = new TestMongoClient();
+            client.ExtractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
+
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
+            {
+                ExtractionJobIdentifier = jobId,
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = "1234-5678/testExtract",
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                KeyTag = "StudyInstanceUID",
+                KeyValueCount = 1,
+                UserName = "testUser",
+                ExtractionModality = "CT",
+                IsIdentifiableExtraction = true,
+                IsNoFilterExtraction = true,
+            };
+
+            // Act
+
+            var call = () => store.PersistMessageToStore(testExtractionRequestInfoMessage, new MessageHeader());
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(() => call());
+            Assert.AreEqual("Received an ExtractionRequestInfoMessage for a job that is already completed", exc?.Message);
+        }
+
+        [Test]
         public void TestPersistMessageToStoreImpl_ExtractFileCollectionInfoMessage()
         {
             Guid jobId = Guid.NewGuid();
