@@ -64,6 +64,34 @@ internal class AnonVerificationMessageConsumerTests
     }
 
     [Test]
+    public void ProcessMessage_HandlesApplicationException()
+    {
+        // Arrange
+
+        var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+        mockJobStore
+            .Setup(x => x.AddToWriteQueue(It.IsAny<ExtractedFileVerificationMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<ulong>()))
+            .Throws(new ApplicationException("Oh no"));
+
+        var consumer = new AnonVerificationMessageConsumer(mockJobStore.Object, processBatches: false, maxUnacknowledgedMessages: 1, TimeSpan.MaxValue);
+        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+
+        var message = new ExtractedFileVerificationMessage
+        {
+            Report = "<invalid>",
+        };
+
+        // Act
+
+        consumer.TestMessage(message);
+
+        // Assert
+
+        Assert.AreEqual(0, consumer.AckCount);
+        Assert.AreEqual(1, consumer.NackCount);
+    }
+
+    [Test]
     public void ProcessMessage_HandlesQueueLimit()
     {
         // Arrange
@@ -223,13 +251,13 @@ internal class AnonVerificationMessageConsumerTests
         }
 
         Thread.Sleep(100); // Allow time for exception handler to run and exit
+
         consumer.TestMessage(message);
 
         // Assert
 
-        // No exception should be thrown, and the second message should not be in the write queue
+        Assert.True(hasThrown);
         Assert.AreEqual(1, writeQueueCount);
-
     }
 
     [Test]
@@ -242,9 +270,6 @@ internal class AnonVerificationMessageConsumerTests
         var timesCalled = 0;
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
-        mockJobStore
-            .Setup(x => x.ProcessedVerificationMessages)
-            .Returns(new ConcurrentQueue<Tuple<IMessageHeader, ulong>>());
         mockJobStore
              .Setup(x => x.ProcessVerificationMessageQueue())
              .Callback(() => { Thread.Sleep(200); ++timesCalled; })
@@ -266,46 +291,22 @@ internal class AnonVerificationMessageConsumerTests
     {
         // Arrange
 
-        var writeQueueCount = 0;
-        var processedList = new ConcurrentQueue<Tuple<IMessageHeader, ulong>>();
         var queueLimit = 2;
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
         mockJobStore
-            .Setup(x => x.AddToWriteQueue(It.IsAny<ExtractedFileVerificationMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<ulong>()))
-            .Callback(() => ++writeQueueCount);
-        mockJobStore
-            .Setup(x => x.ProcessedVerificationMessages)
-            .Returns(processedList);
-        mockJobStore
             .Setup(x => x.ProcessVerificationMessageQueue())
-            .Callback(() =>
-            {
-                while (writeQueueCount > 0)
-                {
-                    processedList.Enqueue(new Tuple<IMessageHeader, ulong>(null!, 0));
-                    --writeQueueCount;
-                }
-            });
+            .Throws(new Exception("Some error"));
 
         var consumer = new AnonVerificationMessageConsumer(mockJobStore.Object, processBatches: true, queueLimit, TimeSpan.MaxValue);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
-
-        var message = new ExtractedFileVerificationMessage
-        {
-            Report = "[]",
-        };
 
         // Act
-
-        consumer.TestMessage(message);
 
         consumer.Dispose();
 
         // Assert
 
-        Assert.AreEqual(0, writeQueueCount);
-        Assert.AreEqual(1, consumer.AckCount);
+        // No exception thrown
     }
 
     #endregion
