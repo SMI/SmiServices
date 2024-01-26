@@ -6,6 +6,7 @@ using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 
@@ -51,7 +52,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             _completedStatusCollection = _database.GetCollection<MongoFileStatusDoc>(StatusCollectionName("completed"));
             _completedJobCollection = _database.GetCollection<MongoCompletedExtractJobDoc>(CompletedCollectionName);
 
-            long count = _inProgressJobCollection.CountDocuments(FilterDefinition<MongoExtractJobDoc>.Empty);
+            long count = CountExistingJobs();
             Logger.Info(count > 0 ? $"Connected to job store with {count} existing jobs" : "Empty job store created successfully");
         }
 
@@ -443,6 +444,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         }
 
         private record struct VerificationMessageProcessItem(MongoFileStatusDoc StatusDoc, IMessageHeader Header, ulong Tag);
+
+        [ExcludeFromCodeCoverage]
+        private long CountExistingJobs() => _inProgressJobCollection.CountDocuments(FilterDefinition<MongoExtractJobDoc>.Empty);
 
         #endregion
     }
