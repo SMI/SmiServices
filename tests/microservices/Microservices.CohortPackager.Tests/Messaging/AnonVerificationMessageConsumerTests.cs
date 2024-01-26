@@ -233,6 +233,35 @@ internal class AnonVerificationMessageConsumerTests
     }
 
     [Test]
+    public void QueueTimer_DoesNotOverlap()
+    {
+        // Arrange
+
+        var queueLimit = 2;
+        var queueTime = TimeSpan.FromSeconds(0.1);
+        var timesCalled = 0;
+
+        var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+        mockJobStore
+            .Setup(x => x.ProcessedVerificationMessages)
+            .Returns(new ConcurrentQueue<Tuple<IMessageHeader, ulong>>());
+        mockJobStore
+             .Setup(x => x.ProcessVerificationMessageQueue())
+             .Callback(() => { Thread.Sleep(200); ++timesCalled; })
+             .Throws(new Exception("Some error"));
+
+        var consumer = new AnonVerificationMessageConsumer(mockJobStore.Object, processBatches: true, queueLimit, queueTime);
+
+        // Act
+
+        Thread.Sleep(10 * queueTime);
+
+        // Assert
+
+        Assert.AreEqual(1, timesCalled);
+    }
+
+    [Test]
     public void Dispose_HandlesException()
     {
         // Arrange
