@@ -98,7 +98,8 @@ namespace Microservices.CohortPackager.Tests.Execution
             globals.CohortPackagerOptions!.JobWatcherTimeoutInSeconds = 5;
             globals.CohortPackagerOptions.ReporterType = "FileReporter";
             globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
-            
+            globals.CohortPackagerOptions.VerificationMessageQueueProcessBatches = false;
+
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases!.ExtractionStoreOptions!, "test", true);
             globals.MongoDatabases.ExtractionStoreOptions!.DatabaseName += "-" + Guid.NewGuid().ToString().Split('-')[0];
             client.DropDatabase(globals.MongoDatabases.ExtractionStoreOptions.DatabaseName);

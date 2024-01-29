@@ -276,6 +276,56 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         }
 
         [Test]
+        public void PersistMessageToStoreImpl_ExtractionRequestInfoMessage_CompletedJob()
+        {
+            // Arrange
+
+            var jobId = Guid.NewGuid();
+            var job = new MongoExtractJobDoc(
+              jobId,
+              MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+              "1234",
+              ExtractJobStatus.Failed,
+              "test/dir",
+              _dateTimeProvider.UtcNow(),
+              "SeriesInstanceUID",
+              1,
+              "testUser",
+              "MR",
+              isIdentifiableExtraction: true,
+              isNoFilterExtraction: true,
+              null);
+
+            var client = new TestMongoClient();
+            client.ExtractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
+
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
+            {
+                ExtractionJobIdentifier = jobId,
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = "1234-5678/testExtract",
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                KeyTag = "StudyInstanceUID",
+                KeyValueCount = 1,
+                UserName = "testUser",
+                ExtractionModality = "CT",
+                IsIdentifiableExtraction = true,
+                IsNoFilterExtraction = true,
+            };
+
+            // Act
+
+            var call = () => store.PersistMessageToStore(testExtractionRequestInfoMessage, new MessageHeader());
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(() => call());
+            Assert.AreEqual("Received an ExtractionRequestInfoMessage for a job that is already completed", exc?.Message);
+        }
+
+        [Test]
         public void TestPersistMessageToStoreImpl_ExtractFileCollectionInfoMessage()
         {
             Guid jobId = Guid.NewGuid();
@@ -407,6 +457,50 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         }
 
         [Test]
+        public void PersistMessageToStoreImpl_ExtractedFileVerificationMessage_CompletedJob()
+        {
+            // Arrange
+
+            var jobId = Guid.NewGuid();
+            var job = new MongoExtractJobDoc(
+              jobId,
+              MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+              "1234",
+              ExtractJobStatus.Failed,
+              "test/dir",
+              _dateTimeProvider.UtcNow(),
+              "SeriesInstanceUID",
+              1,
+              "testUser",
+              "MR",
+              isIdentifiableExtraction: true,
+              isNoFilterExtraction: true,
+              null);
+
+            var client = new TestMongoClient();
+            client.ExtractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
+
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            var extractedFileStatusMessage = new ExtractedFileVerificationMessage()
+            {
+                ExtractionJobIdentifier = jobId,
+                OutputFilePath = "foo-an.dcm",
+                Report  = "[]",
+            };
+
+            // Act
+
+            var call = () => store.PersistMessageToStore(extractedFileStatusMessage, new MessageHeader());
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(() => call());
+            Assert.AreEqual($"Received an {nameof(ExtractedFileVerificationMessage)} for a job that is already completed", exc?.Message);
+        }
+
+
+        [Test]
         public void TestPersistMessageToStoreImpl_IsIdentifiableMessage()
         {
             var client = new TestMongoClient();
@@ -498,7 +592,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check we handle a bad ReplaceOneResult
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName,  _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
@@ -508,7 +602,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check happy path
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName,  _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
@@ -695,6 +789,60 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Assert.AreEqual(ExtractJobStatus.Failed, failedDoc.JobStatus);
             Assert.NotNull(failedDoc.FailedJobInfoDoc);
             Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc!.ExceptionMessage);
+        }
+
+        [Test]
+        public void AddToWriteQueue_ProcessVerificationMessageQueue()
+        {
+            // Arrange
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            Guid jobId = Guid.NewGuid();
+            var message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = "anon.dcm",
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                ProjectNumber = "1234",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "1234/test",
+                DicomFilePath = "original.dcm",
+                Status = VerifiedFileStatus.NotIdentifiable,
+                Report = "[]",
+            };
+            var header = new MessageHeader();
+
+            var nMessages = 10;
+
+            // Act
+
+            for (int i = 0; i < nMessages; ++i)
+                store.AddToWriteQueue(message, header, (ulong)i);
+
+            store.ProcessVerificationMessageQueue();
+
+            // Assert
+
+            Assert.AreEqual(
+                nMessages,
+                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents.Count
+            );
+        }
+
+        [Test]
+        public void ProcessVerificationMessageQueue_Empty()
+        {
+            // Arrange
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            // Act
+            store.ProcessVerificationMessageQueue();
+
+            // Assert
+            // No exception
         }
 
         #endregion
