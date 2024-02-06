@@ -13,6 +13,11 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         private string _shellScriptPath;
         private string _dicomPixelAnonPath;
         private string _smiServicesPath;
+        private string _ctpJarPath;
+        private string _ctpWhiteListScriptPath;
+        private string _srAnonToolPath;
+        private string _smiLogsPath;
+
 
         public DefaultAnonymiser()
         {
@@ -20,6 +25,10 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             _shellScriptPath = "";
             _dicomPixelAnonPath = "";
             _smiServicesPath = "";
+            _ctpJarPath = "";
+            _ctpWhiteListScriptPath = "";
+            _srAnonToolPath = "";
+            _smiLogsPath = "";
 
             LoadConfiguration();
         }
@@ -44,6 +53,10 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                     _shellScriptPath = config.shellScriptPath;
                     _dicomPixelAnonPath = config.dicomPixelAnonPath;
                     _smiServicesPath = config.smiServicesPath;
+                    _ctpJarPath = config.ctpJarPath;
+                    _ctpWhiteListScriptPath = config.ctpWhiteListScriptPath;
+                    _srAnonToolPath = config.srAnonToolPath;
+                    _smiLogsPath = config.smiLogsPath;
                     }
                 else
                 {
@@ -82,6 +95,21 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
+        private Process CreateCTPProcess(IFileInfo sourceFile, IFileInfo destFile)
+        {
+            Process process = new Process();
+
+            process.StartInfo.FileName = "java";
+            process.StartInfo.Arguments = $"-jar {_ctpJarPath} -a {_ctpWhiteListScriptPath} -s {_srAnonToolPath} {sourceFile} {destFile}";
+            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_smiServicesPath}";
+            process.StartInfo.EnvironmentVariables["SMI_LOGS_ROOT"] = $"{_smiLogsPath}"; 
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+
+            return process;
+        }
+
         // TODO (da-231122) - Update Anonymise logic based on image modality
         /// <summary>
         ///  Anonymises a DICOM file using the dicom pixel anonymiser
@@ -94,7 +122,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         {
             Console.WriteLine($"INFO: Anonymising {sourceFile} to {destFile}");
 
-            Process process = CreateProcess(sourceFile, destFile);
+            Process process = CreateCTPProcess(sourceFile, destFile);
             process.Start();
 
             string output = process.StandardOutput.ReadToEnd();
