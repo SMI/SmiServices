@@ -100,7 +100,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             Process process = new Process();
 
             process.StartInfo.FileName = "java";
-            process.StartInfo.Arguments = $"-jar {_ctpJarPath} -a {_ctpWhiteListScriptPath} -s {_srAnonToolPath} {sourceFile} {destFile}";
+            process.StartInfo.Arguments = $"-jar {_ctpJarPath} -a {_ctpWhiteListScriptPath} -s false {sourceFile} {destFile}";
             process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_smiServicesPath}";
             process.StartInfo.EnvironmentVariables["SMI_LOGS_ROOT"] = $"{_smiLogsPath}"; 
             process.StartInfo.UseShellExecute = false;
@@ -122,7 +122,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         {
             Console.WriteLine($"INFO: Anonymising {sourceFile} to {destFile}");
 
-            Process process = CreateDICOMProcess(sourceFile, destFile);
+            Process process = CreateCTPProcess(sourceFile, destFile);
             process.Start();
 
             string output = process.StandardOutput.ReadToEnd();
