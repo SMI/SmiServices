@@ -78,7 +78,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         /// <param name="sourceFile"></param>
         /// <param name="destFile"></param>
         /// <returns></returns>
-        private Process CreateProcess(IFileInfo sourceFile, IFileInfo destFile)
+        private Process CreateDICOMProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string activateCommand = $"source {_virtualEnvPath}/bin/activate";
 
@@ -122,7 +122,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         {
             Console.WriteLine($"INFO: Anonymising {sourceFile} to {destFile}");
 
-            Process process = CreateCTPProcess(sourceFile, destFile);
+            Process process = CreateDICOMProcess(sourceFile, destFile);
             process.Start();
 
             string output = process.StandardOutput.ReadToEnd();
