@@ -57,7 +57,8 @@ class DicomText:
         include_header = _include_header, \
         replace_HTML_entities = _replace_HTML_entities, \
         replace_HTML_char = _replace_HTML_char, \
-        replace_newline_char = _replace_newline_char):
+        replace_newline_char = _replace_newline_char,
+        include_unexpected_tags = _include_unexpected_tags):
         """ The DICOM file is read during construction.
         If include_header is True some DICOM header fields are output (default True).
         If replace_HTML_entities is True then all HTML is replaced by dots (default True).
@@ -77,6 +78,7 @@ class DicomText:
         self._replace_HTML_entities = replace_HTML_entities
         self._replace_HTML_char = replace_HTML_char
         self._replace_newline_char = replace_newline_char
+        self._include_unexpected_tags = include_unexpected_tags
         # XXX do we need to decode the text?
         self._dicom_raw.decode()
 
