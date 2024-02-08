@@ -475,6 +475,7 @@ class StructuredReport:
         # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
         for sr_extract_dict in sr_keys_to_extract:
             self._SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+
         # Now output [[Other Names]] for all the elements having vr of PN
         names_list = []
         self.find_PersonNames(json_dict, names_list)
@@ -483,8 +484,15 @@ class StructuredReport:
             self._SR_output_string('Other Names', name, fp)
 
         # Now output all the remaining tags which are not ignored
+        # except for a ConceptSequence which will be done below.
+        has_conceptseq_at_root_level = has_tag(json_dict, 'ValueType')
         for json_key in json_dict:
-            self._SR_parse_key(json_dict, json_key, fp)
+            if has_conceptseq_at_root_level and not (tag_is(json_key, 'ConceptCodeSequence') or tag_is(json_key, 'ConceptNameCodeSequence')):
+                self._SR_parse_key(json_dict, json_key, fp)
+
+        # If it has elements which should be inside a ContentSequence but aren't:
+        if has_tag(json_dict, 'ValueType'):
+            self._SR_parse_content_sequence_item(json_dict, fp)
 
 
 def test_SR_parse_key():
