@@ -15,10 +15,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 
-namespace Smi.Common.Tests
+namespace Smi.Common.Tests.Messaging
 {
     [TestFixture, RequiresRabbit]
-    public class MessageBrokerTests
+    public class RabbitMQBrokerTests
     {
         private ProducerOptions _testProducerOptions = null!;
         private ConsumerOptions _testConsumerOptions = null!;
@@ -32,7 +32,7 @@ namespace Smi.Common.Tests
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-            _testOptions = new GlobalOptionsFactory().Load(nameof(MessageBrokerTests));
+            _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMQBrokerTests));
 
             _testProducerOptions = new ProducerOptions
             {
@@ -103,7 +103,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestShutdownThrowsOnTimeout()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "MessageBrokerTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMQBrokerTests");
             testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
             Assert.Throws<ApplicationException>(() => testAdapter.Shutdown(TimeSpan.Zero));
         }
@@ -114,7 +114,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestNoNewConnectionsAfterShutdown()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "MessageBrokerTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMQBrokerTests");
             Assert.False(testAdapter.ShutdownCalled);
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
@@ -221,7 +221,7 @@ namespace Smi.Common.Tests
             var consumer = (IConsumer?)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
-            using var tester = new MicroserviceTester(o.RabbitOptions!, new[] { _testConsumerOptions }) {CleanUpAfterTest = false};
+            using var tester = new MicroserviceTester(o.RabbitOptions!, new[] { _testConsumerOptions }) { CleanUpAfterTest = false };
             tester.Broker.StartConsumer(_testConsumerOptions, consumer!, true);
 
             //send a message to trigger consumer behaviour
