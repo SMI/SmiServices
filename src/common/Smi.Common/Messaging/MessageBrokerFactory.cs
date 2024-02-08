@@ -1,10 +1,12 @@
-using System;
 using Smi.Common.Options;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Smi.Common.Messaging;
 
 public static class MessageBrokerFactory
 {
+    [ExcludeFromCodeCoverage] // NOTE(rkm 2024-02-08) This can be removed after we use the class
     public static IMessageBroker Create(GlobalOptions globals, string connectionIdentifier)
     {
         switch (globals.MessageBrokerType)
