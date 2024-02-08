@@ -27,7 +27,7 @@ namespace Applications.ExtractImages
             GlobalOptions globals,
             ExtractImagesCliOptions cliOptions,
             IExtractionMessageSender? extractionMessageSender = null,
-            IRabbitMqAdapter? rabbitMqAdapter = null,
+            IMessageBroker? rabbitMqAdapter = null,
             IFileSystem? fileSystem = null,
             bool threaded = false
         )

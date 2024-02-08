@@ -48,7 +48,7 @@ namespace Microservices.CohortPackager.Execution
             IFileSystem? fileSystem = null,
             IJobReporter? reporter = null,
             IJobCompleteNotifier? notifier = null,
-            IRabbitMqAdapter? rabbitMqAdapter = null,
+            IMessageBroker? rabbitMqAdapter = null,
             DateTimeProvider? dateTimeProvider = null
         )
             : base(globals, rabbitMqAdapter)

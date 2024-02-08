@@ -17,7 +17,7 @@ namespace Smi.Common
     /// <summary>
     /// Adapter for the RabbitMQ API.
     /// </summary>
-    public class RabbitMqAdapter : IRabbitMqAdapter
+    public class RabbitMqAdapter : IMessageBroker
     {
         /// <summary>
         /// Used to ensure we can't create any new connections after we have called Shutdown()

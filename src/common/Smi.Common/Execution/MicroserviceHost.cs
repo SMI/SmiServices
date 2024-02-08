@@ -22,7 +22,7 @@ namespace Smi.Common.Execution
         protected readonly GlobalOptions Globals;
         protected readonly ILogger Logger;
 
-        protected readonly IRabbitMqAdapter RabbitMqAdapter;
+        protected readonly IMessageBroker RabbitMqAdapter;
 
 
         private readonly object _oAdapterLock = new();
@@ -45,7 +45,7 @@ namespace Smi.Common.Execution
         /// <param name="threaded"></param>
         protected MicroserviceHost(
             GlobalOptions globals,
-            IRabbitMqAdapter? rabbitMqAdapter = null,
+            IMessageBroker? rabbitMqAdapter = null,
             bool threaded = false)
         {
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)
