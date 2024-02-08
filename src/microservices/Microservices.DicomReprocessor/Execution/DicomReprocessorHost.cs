@@ -28,7 +28,7 @@ namespace Microservices.DicomReprocessor.Execution
             // Set the initial sleep time
             Globals.DicomReprocessorOptions!.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
-            IProducerModel reprocessingProducerModel = RabbitMqAdapter.SetupProducer(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true);
+            IProducerModel reprocessingProducerModel = MessageBroker.SetupProducer(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true);
 
             Logger.Info("Documents will be reprocessed to " +
                         options.DicomReprocessorOptions.ReprocessingProducerOptions!.ExchangeName + " on vhost " +

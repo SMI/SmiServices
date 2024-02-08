@@ -9,8 +9,8 @@ namespace Microservices.UpdateValues.Execution
     {
         public UpdateValuesQueueConsumer? Consumer { get; set; }
 
-        public UpdateValuesHost(GlobalOptions globals, IMessageBroker? rabbitMqAdapter = null, bool threaded = false) 
-        : base(globals, rabbitMqAdapter, threaded)
+        public UpdateValuesHost(GlobalOptions globals, IMessageBroker? messageBroker = null, bool threaded = false) 
+        : base(globals, messageBroker, threaded)
         {
             FansiImplementations.Load();
         }
@@ -21,7 +21,7 @@ namespace Microservices.UpdateValues.Execution
             IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions!.GetRepositoryProvider();
             Consumer = new UpdateValuesQueueConsumer(Globals.UpdateValuesOptions!, repositoryLocator.CatalogueRepository);
 
-            RabbitMqAdapter.StartConsumer(Globals.UpdateValuesOptions!, Consumer, isSolo: false);
+            MessageBroker.StartConsumer(Globals.UpdateValuesOptions!, Consumer, isSolo: false);
         }
     }
 }

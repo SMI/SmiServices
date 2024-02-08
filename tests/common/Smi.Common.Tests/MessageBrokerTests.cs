@@ -18,7 +18,7 @@ using System.Threading.Channels;
 namespace Smi.Common.Tests
 {
     [TestFixture, RequiresRabbit]
-    public class RabbitMqAdapterTests
+    public class MessageBrokerTests
     {
         private ProducerOptions _testProducerOptions = null!;
         private ConsumerOptions _testConsumerOptions = null!;
@@ -32,7 +32,7 @@ namespace Smi.Common.Tests
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-            _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMqAdapterTests));
+            _testOptions = new GlobalOptionsFactory().Load(nameof(MessageBrokerTests));
 
             _testProducerOptions = new ProducerOptions
             {
@@ -103,7 +103,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestShutdownThrowsOnTimeout()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "MessageBrokerTests");
             testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
             Assert.Throws<ApplicationException>(() => testAdapter.Shutdown(TimeSpan.Zero));
         }
@@ -114,7 +114,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestNoNewConnectionsAfterShutdown()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "MessageBrokerTests");
             Assert.False(testAdapter.ShutdownCalled);
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);

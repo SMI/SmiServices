@@ -40,7 +40,7 @@ namespace Microservices.CohortPackager.Execution
         /// Globals.CohortPackagerOptions.ReportFormat. That value should not be set if a reporter is passed.
         /// </param>
         /// <param name="notifier"></param>
-        /// <param name="rabbitMqAdapter"></param>
+        /// <param name="messageBroker"></param>
         /// <param name="dateTimeProvider"></param>
         public CohortPackagerHost(
             GlobalOptions globals,
@@ -48,10 +48,10 @@ namespace Microservices.CohortPackager.Execution
             IFileSystem? fileSystem = null,
             IJobReporter? reporter = null,
             IJobCompleteNotifier? notifier = null,
-            IMessageBroker? rabbitMqAdapter = null,
+            IMessageBroker? messageBroker = null,
             DateTimeProvider? dateTimeProvider = null
         )
-            : base(globals, rabbitMqAdapter)
+            : base(globals, messageBroker)
         {
             var cohortPackagerOptions = globals.CohortPackagerOptions ??
                 throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions cannot be null");
@@ -136,10 +136,10 @@ namespace Microservices.CohortPackager.Execution
             _jobWatcher.Start();
 
             // TODO(rkm 2020-03-02) Once this is transactional, we can have one "master" service which actually does the job checking
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, _requestInfoMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions!, _fileCollectionMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions!, _anonFailedMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions!, _anonVerificationMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, _requestInfoMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions!, _fileCollectionMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions!, _anonFailedMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions!, _anonVerificationMessageConsumer, isSolo: true);
         }
 
         public override void Stop(string reason)

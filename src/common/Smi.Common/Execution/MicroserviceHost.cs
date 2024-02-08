@@ -21,7 +21,7 @@ namespace Smi.Common.Execution
         protected readonly GlobalOptions Globals;
         protected readonly ILogger Logger;
 
-        protected readonly IMessageBroker RabbitMqAdapter;
+        protected readonly IMessageBroker MessageBroker;
 
 
         private readonly object _oAdapterLock = new();
@@ -40,11 +40,11 @@ namespace Smi.Common.Execution
         /// Loads logging, sets up fatal behaviour, subscribes rabbit etc.
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
-        /// <param name="rabbitMqAdapter"></param>
+        /// <param name="messageBroker"></param>
         /// <param name="threaded"></param>
         protected MicroserviceHost(
             GlobalOptions globals,
-            IMessageBroker? rabbitMqAdapter = null,
+            IMessageBroker? messageBroker = null,
             bool threaded = false)
         {
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)
@@ -80,14 +80,14 @@ namespace Smi.Common.Execution
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
-            if (rabbitMqAdapter == null)
+            if (messageBroker == null)
             {
-                rabbitMqAdapter = new RabbitMQBroker(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
+                messageBroker = new RabbitMQBroker(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
                 var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName
                     ?? throw new ArgumentNullException(nameof(globals.RabbitOptions.RabbitMqControlExchangeName));
                 _controlMessageConsumer = new ControlMessageConsumer(globals.RabbitOptions, HostProcessName, HostProcessID, controlExchangeName, Stop);
             }
-            RabbitMqAdapter = rabbitMqAdapter;
+            MessageBroker = messageBroker;
 
             ObjectFactory = new MicroserviceObjectFactory();
             ObjectFactory.FatalHandler = (s, e) => Fatal(e.Message, e.Exception);
@@ -116,11 +116,11 @@ namespace Smi.Common.Execution
                 _auxConnectionsCreated = true;
 
                 // Ensures no consumers have been started until we explicitly call Start()
-                if (RabbitMqAdapter.HasConsumers)
+                if (MessageBroker.HasConsumers)
                     throw new ApplicationException("Rabbit adapter has consumers before aux. connections created");
 
-                _fatalLoggingProducer = RabbitMqAdapter.SetupProducer(_fatalLoggingProducerOptions, isBatch: false);
-                RabbitMqAdapter.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer, isSolo: false);
+                _fatalLoggingProducer = MessageBroker.SetupProducer(_fatalLoggingProducerOptions, isBatch: false);
+                MessageBroker.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer, isSolo: false);
             }
         }
 
@@ -154,7 +154,7 @@ namespace Smi.Common.Execution
 
             lock (_oAdapterLock)
             {
-                RabbitMqAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
+                MessageBroker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
             }
 
             Logger.Info("Host stop completed");
@@ -188,7 +188,7 @@ namespace Smi.Common.Execution
 
         public void Wait()
         {
-            RabbitMqAdapter.Wait();
+            MessageBroker.Wait();
         }
     }
 }

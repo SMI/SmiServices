@@ -32,11 +32,11 @@ namespace Microservices.DicomTagReader.Execution
             {
                 Logger.Debug(
                     $"Creating seriesProducerModel with ExchangeName: {options.DicomTagReaderOptions.SeriesProducerOptions!.ExchangeName}");
-                seriesProducerModel = RabbitMqAdapter.SetupProducer(options.DicomTagReaderOptions.SeriesProducerOptions, true);
+                seriesProducerModel = MessageBroker.SetupProducer(options.DicomTagReaderOptions.SeriesProducerOptions, true);
 
                 Logger.Debug(
                     $"Creating imageProducerModel with ExchangeName: {options.DicomTagReaderOptions.ImageProducerOptions!.ExchangeName}");
-                imageProducerModel = RabbitMqAdapter.SetupProducer(options.DicomTagReaderOptions.ImageProducerOptions, true);
+                imageProducerModel = MessageBroker.SetupProducer(options.DicomTagReaderOptions.ImageProducerOptions, true);
             }
             catch (Exception e)
             {
@@ -59,7 +59,7 @@ namespace Microservices.DicomTagReader.Execution
         public override void Start()
         {
             // Start the consumer to await callbacks when messages arrive
-            RabbitMqAdapter.StartConsumer(Globals.DicomTagReaderOptions!, AccessionDirectoryMessageConsumer, isSolo: false);
+            MessageBroker.StartConsumer(Globals.DicomTagReaderOptions!, AccessionDirectoryMessageConsumer, isSolo: false);
             Logger.Debug("Consumer started");
         }
 

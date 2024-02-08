@@ -21,7 +21,7 @@ namespace Microservices.FileCopier.Execution
         {
             Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions!.FileSystemRoot);
 
-            IProducerModel copyStatusProducerModel = RabbitMqAdapter.SetupProducer(Globals.FileCopierOptions!.CopyStatusProducerOptions!, isBatch: false);
+            IProducerModel copyStatusProducerModel = MessageBroker.SetupProducer(Globals.FileCopierOptions!.CopyStatusProducerOptions!, isBatch: false);
 
             var fileCopier = new ExtractionFileCopier(
                 Globals.FileCopierOptions,
@@ -35,7 +35,7 @@ namespace Microservices.FileCopier.Execution
 
         public override void Start()
         {
-            RabbitMqAdapter.StartConsumer(Globals.FileCopierOptions!, _consumer, isSolo: false);
+            MessageBroker.StartConsumer(Globals.FileCopierOptions!, _consumer, isSolo: false);
         }
     }
 }

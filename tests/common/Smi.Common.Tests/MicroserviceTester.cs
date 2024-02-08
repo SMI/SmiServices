@@ -57,7 +57,7 @@ namespace Smi.Common.Tests
                 _declaredExchanges.Add(exchangeName);
 
                 //Create a binding between the exchange and the queue
-                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
+                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because MessageBroker wants it?
                 model.QueueDeclare(consumer.QueueName, true, false, false);//shared with other users
                 model.QueueBind(consumer.QueueName, exchangeName, "");
                 _declaredQueues.Add(consumer.QueueName);
@@ -74,7 +74,7 @@ namespace Smi.Common.Tests
 
         /// <summary>
         /// Sends the given message to your consumer, you must have passed the consumer into the MicroserviceTester constructor since all adapter setup happens via option
-        /// at RabbitMQAdapter construction time
+        /// at MessageBroker construction time
         /// </summary>
         /// <param name="toConsumer"></param>
         /// <param name="msg"></param>
@@ -86,7 +86,7 @@ namespace Smi.Common.Tests
 
         /// <summary>
         /// Sends the given message to your consumer, you must have passed the consumer into the MicroserviceTester constructor since all adapter setup happens via option
-        /// at RabbitMQAdapter construction time
+        /// at MessageBroker construction time
         /// </summary>
         /// <param name="toConsumer"></param>
         /// <param name="messages"></param>
@@ -101,7 +101,7 @@ namespace Smi.Common.Tests
 
         /// <summary>
         /// Sends the given message to your consumer, you must have passed the consumer into the MicroserviceTester constructor since all adapter setup happens via option
-        /// at RabbitMQAdapter construction time
+        /// at MessageBroker construction time
         /// </summary>
         /// <param name="toConsumer"></param>
         /// <param name="header"></param>
@@ -140,7 +140,7 @@ namespace Smi.Common.Tests
 
             //Create a binding between the exchange and the queue
             if (!isSecondaryBinding)
-                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
+                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because MessageBroker wants it?
 
             model.QueueDeclare(queueNameToUse, true, false, false); //shared with other users
             model.QueueBind(queueNameToUse, exchangeName, routingKey);

@@ -27,13 +27,13 @@ namespace Applications.ExtractImages
             GlobalOptions globals,
             ExtractImagesCliOptions cliOptions,
             IExtractionMessageSender? extractionMessageSender = null,
-            IMessageBroker? rabbitMqAdapter = null,
+            IMessageBroker? messageBroker = null,
             IFileSystem? fileSystem = null,
             bool threaded = false
         )
         : base(
             globals,
-            rabbitMqAdapter,
+            messageBroker,
             threaded
         )
         {
@@ -64,8 +64,8 @@ namespace Applications.ExtractImages
 
             if (extractionMessageSender == null)
             {
-                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestProducerOptions!, isBatch: false);
-                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestInfoProducerOptions!, isBatch: false);
+                IProducerModel extractionRequestProducer = MessageBroker.SetupProducer(options.ExtractionRequestProducerOptions!, isBatch: false);
+                IProducerModel extractionRequestInfoProducer = MessageBroker.SetupProducer(options.ExtractionRequestInfoProducerOptions!, isBatch: false);
 
                 _extractionMessageSender = new ExtractionMessageSender(
                     options,

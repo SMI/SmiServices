@@ -62,7 +62,7 @@ namespace Microservices.IdentifierMapper.Execution
             Logger.Info($"Swapper of type {_swapper.GetType()} created");
 
             // Batching now handled implicitly as backlog demands
-            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions!, isBatch: true);
+            _producerModel = MessageBroker.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions!, isBatch: true);
 
             Consumer = new IdentifierMapperQueueConsumer(_producerModel, _swapper)
             {
@@ -75,13 +75,13 @@ namespace Microservices.IdentifierMapper.Execution
 
         public override void Start()
         {
-            _consumerId = RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
+            _consumerId = MessageBroker.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)
         {
             if (_consumerId != Guid.Empty)
-                RabbitMqAdapter.StopConsumer(_consumerId, RabbitMQBroker.DefaultOperationTimeout);
+                MessageBroker.StopConsumer(_consumerId, RabbitMQBroker.DefaultOperationTimeout);
             try
             {
                 // Wait for any unconfirmed messages before calling stop

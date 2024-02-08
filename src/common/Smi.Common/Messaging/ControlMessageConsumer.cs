@@ -167,7 +167,7 @@ namespace Smi.Common.Messaging
 
         /// <summary>
         /// Creates a one-time connection to set up the required control queue and bindings on the RabbitMQ server.
-        /// The connection is disposed and StartConsumer(...) can then be called on the parent RabbitMQAdapter with ControlConsumerOptions
+        /// The connection is disposed and StartConsumer(...) can then be called on the parent MessageBroker with ControlConsumerOptions
         /// </summary>
         /// <param name="controlExchangeName"></param>
         private void SetupControlQueueForHost(string controlExchangeName)
