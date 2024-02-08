@@ -122,32 +122,50 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         {
             Console.WriteLine($"INFO: Anonymising {sourceFile} to {destFile}");
 
-            Process process = CreateCTPProcess(sourceFile, destFile);
-            process.Start();
+            // CTP Anonymiser
+            Process CTPProcess = CreateCTPProcess(sourceFile, destFile);
+            CTPProcess.Start();
+            CTPProcess.WaitForExit();
 
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-
-            if (error != "")
+            string CTPReturnCode = CTPProcess.ExitCode.ToString();
+            if (CTPReturnCode != "0")
             {
-                Console.WriteLine($"ERROR: {error}");
-                return ExtractedFileStatus.ErrorWontRetry;
-            } else
-            {
-                Console.WriteLine($"INFO: Output: {output}");
-            }
-
-            process.WaitForExit();
-
-            string returnCode = process.ExitCode.ToString();
-            Console.WriteLine($"INFO: Return Code: {returnCode}");
-
-            if (returnCode != "0")
-            {
+                Console.WriteLine($"ERROR [CTP]: Return Code {CTPReturnCode}");
+                System.Console.WriteLine(CTPProcess.StandardError.ReadToEnd());
                 return ExtractedFileStatus.ErrorWontRetry;
             }
+            else
+            {
+                Console.WriteLine($"SUCCESS [CTP]: Return Code {CTPReturnCode}");
+                System.Console.WriteLine(CTPProcess.StandardOutput.ReadToEnd());
 
-            return ExtractedFileStatus.Anonymised;
+                if(message.Modality != "SR")
+                {
+                    // DICOM Pixel Anonymiser
+                    Process DICOMProcess = CreateDICOMProcess(sourceFile, destFile);
+                    DICOMProcess.Start();
+                    DICOMProcess.WaitForExit();
+
+                    string DICOMReturnCode = DICOMProcess.ExitCode.ToString();
+                    if (DICOMReturnCode != "0")
+                    {
+                        Console.WriteLine($"ERROR [DICOM]: Return Code {DICOMReturnCode}");
+                        System.Console.WriteLine(DICOMProcess.StandardError.ReadToEnd());
+                        return ExtractedFileStatus.ErrorWontRetry;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"SUCCESS [DICOM]: Return Code {DICOMReturnCode}");
+                        System.Console.WriteLine(DICOMProcess.StandardOutput.ReadToEnd());
+                        return ExtractedFileStatus.Anonymised;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("INFO: SR file detected, skipping DICOM Pixel Anonymiser");
+                    return ExtractedFileStatus.Anonymised;
+                }
+            }
         }
     }
 }
