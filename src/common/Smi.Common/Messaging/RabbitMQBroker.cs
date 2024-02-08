@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +8,9 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using Smi.Common.Events;
-using Smi.Common.Messaging;
 using Smi.Common.Options;
 
-namespace Smi.Common
+namespace Smi.Common.Messaging
 {
     /// <summary>
     /// Adapter for the RabbitMQ API.

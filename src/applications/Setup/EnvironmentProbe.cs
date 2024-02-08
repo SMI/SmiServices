@@ -21,6 +21,7 @@ using System.Text;
 using Rdmp.Core.ReusableLibraryCode;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
+using Smi.Common.Messaging;
 
 namespace Setup
 {

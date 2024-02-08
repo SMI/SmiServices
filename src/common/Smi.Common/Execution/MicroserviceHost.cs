@@ -1,6 +1,5 @@
 using DicomTypeTranslation;
 using NLog;
-using RabbitMQ.Client;
 using Smi.Common.Events;
 using Smi.Common.Helpers;
 using Smi.Common.Messages;
@@ -155,7 +154,7 @@ namespace Smi.Common.Execution
 
             lock (_oAdapterLock)
             {
-                RabbitMqAdapter.Shutdown(Common.RabbitMQBroker.DefaultOperationTimeout);
+                RabbitMqAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
             }
 
             Logger.Info("Host stop completed");

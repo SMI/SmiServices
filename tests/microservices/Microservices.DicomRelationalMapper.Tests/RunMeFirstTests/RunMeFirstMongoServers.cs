@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using Smi.Common;
+using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
