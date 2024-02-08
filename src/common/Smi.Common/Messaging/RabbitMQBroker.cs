@@ -17,7 +17,7 @@ namespace Smi.Common
     /// <summary>
     /// Adapter for the RabbitMQ API.
     /// </summary>
-    public class RabbitMqAdapter : IMessageBroker
+    public class RabbitMQBroker : IMessageBroker
     {
         /// <summary>
         /// Used to ensure we can't create any new connections after we have called Shutdown()
@@ -65,7 +65,7 @@ namespace Smi.Common
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
         /// <param name="threaded"></param>
-        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
+        public RabbitMQBroker(IConnectionFactory connectionFactory, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
         {
             //_threaded = options.ThreadReceivers;
             _threaded = threaded;

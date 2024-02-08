@@ -81,7 +81,7 @@ namespace Microservices.IdentifierMapper.Execution
         public override void Stop(string reason)
         {
             if (_consumerId != Guid.Empty)
-                RabbitMqAdapter.StopConsumer(_consumerId, Smi.Common.RabbitMqAdapter.DefaultOperationTimeout);
+                RabbitMqAdapter.StopConsumer(_consumerId, Smi.Common.RabbitMQBroker.DefaultOperationTimeout);
             try
             {
                 // Wait for any unconfirmed messages before calling stop

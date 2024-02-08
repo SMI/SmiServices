@@ -84,7 +84,7 @@ namespace Smi.Common.Execution
             if (rabbitMqAdapter == null)
             {
                 ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
-                rabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
+                rabbitMqAdapter = new RabbitMQBroker(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
                 var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName
                     ?? throw new ArgumentNullException(nameof(globals.RabbitOptions.RabbitMqControlExchangeName));
                 _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, controlExchangeName, Stop);
@@ -156,7 +156,7 @@ namespace Smi.Common.Execution
 
             lock (_oAdapterLock)
             {
-                RabbitMqAdapter.Shutdown(Common.RabbitMqAdapter.DefaultOperationTimeout);
+                RabbitMqAdapter.Shutdown(Common.RabbitMQBroker.DefaultOperationTimeout);
             }
 
             Logger.Info("Host stop completed");

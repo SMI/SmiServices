@@ -68,10 +68,10 @@ namespace Smi.Common.Tests
                 ExchangeName = null
             };
 
-            Assert.Throws<ArgumentException>(() => _tester.Adapter.SetupProducer(producerOptions));
+            Assert.Throws<ArgumentException>(() => _tester.Broker.SetupProducer(producerOptions));
 
             producerOptions.ExchangeName = "TEST.DoesNotExistExchange";
-            Assert.Throws<ApplicationException>(() => _tester.Adapter.SetupProducer(producerOptions));
+            Assert.Throws<ApplicationException>(() => _tester.Broker.SetupProducer(producerOptions));
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Smi.Common.Tests
         {
             var oldq = _testConsumerOptions.QueueName;
             _testConsumerOptions.QueueName = $"TEST.WrongQueue{new Random().NextInt64()}";
-            Assert.Throws<ApplicationException>(() => _tester.Adapter.StartConsumer(_testConsumerOptions, _mockConsumer));
+            Assert.Throws<ApplicationException>(() => _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer));
             _testConsumerOptions.QueueName = oldq;
         }
 
@@ -93,8 +93,8 @@ namespace Smi.Common.Tests
         public void TestShutdownExitsProperly()
         {
             // Setup some consumers/producers so some channels are created
-            _tester.Adapter.SetupProducer(_testProducerOptions);
-            _tester.Adapter.StartConsumer(_testConsumerOptions, _mockConsumer);
+            _tester.Broker.SetupProducer(_testProducerOptions);
+            _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestShutdownThrowsOnTimeout()
         {
-            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
             testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
             Assert.Throws<ApplicationException>(() => testAdapter.Shutdown(TimeSpan.Zero));
         }
@@ -114,10 +114,10 @@ namespace Smi.Common.Tests
         [Test]
         public void TestNoNewConnectionsAfterShutdown()
         {
-            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
             Assert.False(testAdapter.ShutdownCalled);
 
-            testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
             Assert.True(testAdapter.ShutdownCalled);
             Assert.Throws<ApplicationException>(() => testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
@@ -127,9 +127,9 @@ namespace Smi.Common.Tests
         [Test]
         public void TestStopConsumer()
         {
-            var consumerId = _tester.Adapter.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.DoesNotThrow(() => _tester.Adapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
-            Assert.Throws<ApplicationException>(() => _tester.Adapter.StopConsumer(consumerId, RabbitMqAdapter.DefaultOperationTimeout));
+            var consumerId = _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
+            Assert.DoesNotThrow(() => _tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
+            Assert.Throws<ApplicationException>(() => _tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestMultipleConfirmsOk()
         {
-            var pm = _tester.Adapter.SetupProducer(_testProducerOptions, true);
+            var pm = _tester.Broker.SetupProducer(_testProducerOptions, true);
 
             pm.SendMessage(new TestMessage(), isInResponseTo: null, routingKey: null);
 
@@ -195,11 +195,11 @@ namespace Smi.Common.Tests
         [Test]
         public void TestWaitAfterChannelClosed()
         {
-            var testAdapter = new RabbitMqAdapter(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
             var model = testAdapter.GetModel("TestConnection");
             model.ConfirmSelect();
 
-            testAdapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
             Assert.True(model.IsClosed);
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
@@ -222,7 +222,7 @@ namespace Smi.Common.Tests
 
             //connect to rabbit with a new consumer
             using var tester = new MicroserviceTester(o.RabbitOptions!, new[] { _testConsumerOptions }) {CleanUpAfterTest = false};
-            tester.Adapter.StartConsumer(_testConsumerOptions, consumer!, true);
+            tester.Broker.StartConsumer(_testConsumerOptions, consumer!, true);
 
             //send a message to trigger consumer behaviour
             tester.SendMessage(_testConsumerOptions, new TestMessage());
@@ -231,7 +231,7 @@ namespace Smi.Common.Tests
             Thread.Sleep(3000);
 
             //now attempt to shut down adapter
-            tester.Adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            tester.Broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
             var expectedErrorMessage = consumer switch
             {
@@ -256,7 +256,7 @@ namespace Smi.Common.Tests
             var consumer = new ThrowingConsumer();
 
             using var tester = new MicroserviceTester(_testOptions.RabbitOptions!, new[] { consumerOptions });
-            tester.Adapter.StartConsumer(consumerOptions, consumer!, true);
+            tester.Broker.StartConsumer(consumerOptions, consumer!, true);
 
             tester.SendMessage(consumerOptions, new TestMessage());
             Thread.Sleep(500);

@@ -14,7 +14,7 @@ namespace Smi.Common.Tests
 {
     public class MicroserviceTester : IDisposable
     {
-        public readonly RabbitMqAdapter Adapter;
+        public readonly RabbitMQBroker Broker;
 
         private readonly Dictionary<ConsumerOptions, IProducerModel> _sendToConsumers = new();
 
@@ -40,9 +40,9 @@ namespace Smi.Common.Tests
         {
             CleanUpAfterTest = true;
 
-            Adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
+            Broker = new RabbitMQBroker(rabbitOptions.CreateConnectionFactory(), "TestHost");
 
-            using var model = Adapter.GetModel(nameof(MicroserviceTester));
+            using var model = Broker.GetModel(nameof(MicroserviceTester));
             //setup a sender channel for each of the consumers you want to test sending messages to
             foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
             {
@@ -68,7 +68,7 @@ namespace Smi.Common.Tests
                     ExchangeName = exchangeName
                 };
 
-                _sendToConsumers.Add(consumer, Adapter.SetupProducer(producerOptions, true));
+                _sendToConsumers.Add(consumer, Broker.SetupProducer(producerOptions, true));
             }
         }
 
@@ -129,7 +129,7 @@ namespace Smi.Common.Tests
 
             string queueNameToUse = queueName ?? exchangeName.Replace("Exchange", "Queue");
 
-            using var model = Adapter.GetModel(nameof(CreateExchange));
+            using var model = Broker.GetModel(nameof(CreateExchange));
             //setup a sender channel for each of the consumers you want to test sending messages to
 
             //terminate any old queues / exchanges
@@ -156,7 +156,7 @@ namespace Smi.Common.Tests
         /// <returns></returns>
         public IEnumerable<Tuple<IMessageHeader, T>> ConsumeMessages<T>(string queueName) where T : IMessage
         {
-            IModel model = Adapter.GetModel($"ConsumeMessages-{queueName}");
+            IModel model = Broker.GetModel($"ConsumeMessages-{queueName}");
 
             while (true)
             {
@@ -187,12 +187,12 @@ namespace Smi.Common.Tests
 
             if (CleanUpAfterTest)
             {
-                using IModel model = Adapter.GetModel(nameof(MicroserviceTester.Dispose));
+                using IModel model = Broker.GetModel(nameof(MicroserviceTester.Dispose));
                 _declaredExchanges.ForEach(x => model.ExchangeDelete(x));
                 _declaredQueues.ForEach(x => model.QueueDelete(x));
             }
 
-            Adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            Broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
         }
     }
 }
