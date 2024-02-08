@@ -61,11 +61,11 @@ namespace Smi.Common
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="connectionFactory"></param>
+        /// <param name="rabbitOptions"></param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
         /// <param name="threaded"></param>
-        public RabbitMQBroker(IConnectionFactory connectionFactory, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
+        public RabbitMQBroker(RabbitOptions rabbitOptions, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
         {
             //_threaded = options.ThreadReceivers;
             _threaded = threaded;
@@ -84,6 +84,14 @@ namespace Smi.Common
                 throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
             _hostId = hostId;
 
+            var connectionFactory = new ConnectionFactory()
+            {
+                HostName = rabbitOptions.RabbitMqHostName,
+                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
+                Port = rabbitOptions.RabbitMqHostPort,
+                UserName = rabbitOptions.RabbitMqUserName,
+                Password = rabbitOptions.RabbitMqPassword
+            };
             _connection = connectionFactory.CreateConnection(hostId);
             _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason.ToString()})");
             _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");

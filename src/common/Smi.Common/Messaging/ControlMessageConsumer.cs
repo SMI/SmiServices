@@ -34,7 +34,7 @@ namespace Smi.Common.Messaging
 
 
         public ControlMessageConsumer(
-            IConnectionFactory connectionFactory,
+            RabbitOptions rabbitOptions,
             string processName,
             int processId,
             string controlExchangeName,
@@ -47,7 +47,14 @@ namespace Smi.Common.Messaging
 
             ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            _factory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _factory = new ConnectionFactory()
+            {
+                HostName = rabbitOptions.RabbitMqHostName,
+                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
+                Port = rabbitOptions.RabbitMqHostPort,
+                UserName = rabbitOptions.RabbitMqUserName,
+                Password = rabbitOptions.RabbitMqPassword
+            };
 
             if (controlExchangeName == null)
                 throw new ArgumentNullException(nameof(controlExchangeName));

@@ -225,8 +225,7 @@ DicomTagReader {
 
             try
             {
-                var factory = Options.RabbitOptions.CreateConnectionFactory();
-                var adapter = new RabbitMQBroker(factory, "setup");
+                var adapter = new RabbitMQBroker(Options.RabbitOptions, "setup");
 
                 return new CheckEventArgs("Connected to RabbitMq", CheckResult.Success);
             }

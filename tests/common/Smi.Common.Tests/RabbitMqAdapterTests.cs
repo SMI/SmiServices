@@ -103,7 +103,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestShutdownThrowsOnTimeout()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
             testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
             Assert.Throws<ApplicationException>(() => testAdapter.Shutdown(TimeSpan.Zero));
         }
@@ -114,7 +114,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestNoNewConnectionsAfterShutdown()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
             Assert.False(testAdapter.ShutdownCalled);
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
@@ -195,7 +195,7 @@ namespace Smi.Common.Tests
         [Test]
         public void TestWaitAfterChannelClosed()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!.CreateConnectionFactory(), "RabbitMqAdapterTests");
+            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
             var model = testAdapter.GetModel("TestConnection");
             model.ConfirmSelect();
 

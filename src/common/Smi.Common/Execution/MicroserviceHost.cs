@@ -83,11 +83,10 @@ namespace Smi.Common.Execution
 
             if (rabbitMqAdapter == null)
             {
-                ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
-                rabbitMqAdapter = new RabbitMQBroker(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
+                rabbitMqAdapter = new RabbitMQBroker(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
                 var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName
                     ?? throw new ArgumentNullException(nameof(globals.RabbitOptions.RabbitMqControlExchangeName));
-                _controlMessageConsumer = new ControlMessageConsumer(connectionFactory, HostProcessName, HostProcessID, controlExchangeName, Stop);
+                _controlMessageConsumer = new ControlMessageConsumer(globals.RabbitOptions, HostProcessName, HostProcessID, controlExchangeName, Stop);
             }
             RabbitMqAdapter = rabbitMqAdapter;
 

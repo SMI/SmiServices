@@ -40,7 +40,7 @@ namespace Smi.Common.Tests
         {
             CleanUpAfterTest = true;
 
-            Broker = new RabbitMQBroker(rabbitOptions.CreateConnectionFactory(), "TestHost");
+            Broker = new RabbitMQBroker(rabbitOptions, "TestHost");
 
             using var model = Broker.GetModel(nameof(MicroserviceTester));
             //setup a sender channel for each of the consumers you want to test sending messages to

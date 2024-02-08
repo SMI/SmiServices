@@ -14,8 +14,7 @@ public static class MessageBrokerFactory
                     if (globals.RabbitOptions == null)
                         throw new ArgumentNullException(nameof(globals), $"{nameof(globals.RabbitOptions)} must not be null");
 
-                    var connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
-                    return new RabbitMQBroker(connectionFactory, connectionIdentifier);
+                    return new RabbitMQBroker(globals.RabbitOptions, connectionIdentifier);
                 }
             case MessageBrokerType.None:
                 throw new ArgumentOutOfRangeException(nameof(globals.MessageBrokerType), $"A valid {nameof(MessageBrokerType)} must be chosen");
