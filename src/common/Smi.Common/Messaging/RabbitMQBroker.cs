@@ -36,12 +36,11 @@ namespace Smi.Common.Messaging
         public const string RabbitMqRoutingKey_MatchAnything = "#";
         public const string RabbitMqRoutingKey_MatchOneWord = "*";
 
-        public static TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
+        public static readonly TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly HostFatalHandler? _hostFatalHandler;
-        private readonly string _hostId;
 
         private readonly IConnection _connection;
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new();
@@ -52,10 +51,6 @@ namespace Smi.Common.Messaging
         private const int MinRabbitServerVersionMinor = 7;
         private const int MinRabbitServerVersionPatch = 0;
 
-        private const int MaxSubscriptionAttempts = 5;
-
-        private readonly bool _threaded;
-
         /// <summary>
         /// 
         /// </summary>
@@ -65,10 +60,7 @@ namespace Smi.Common.Messaging
         /// <param name="threaded"></param>
         public RabbitMQBroker(RabbitOptions rabbitOptions, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
         {
-            //_threaded = options.ThreadReceivers;
-            _threaded = threaded;
-
-            if (_threaded)
+            if (threaded)
             {
                 ThreadPool.GetMinThreads(out var minWorker, out var minIOC);
                 var workers = Math.Max(50, minWorker);
@@ -80,7 +72,6 @@ namespace Smi.Common.Messaging
 
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
-            _hostId = hostId;
 
             var connectionFactory = new ConnectionFactory()
             {
@@ -91,7 +82,7 @@ namespace Smi.Common.Messaging
                 Password = rabbitOptions.RabbitMqPassword
             };
             _connection = connectionFactory.CreateConnection(hostId);
-            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason.ToString()})");
+            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
             _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");
 
             if (hostFatalHandler == null)
@@ -308,7 +299,7 @@ namespace Smi.Common.Messaging
                 }
                 _rabbitResources.Clear();
             }
-            lock(_exitLock)
+            lock (_exitLock)
                 Monitor.PulseAll(_exitLock);
         }
 
