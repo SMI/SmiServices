@@ -87,6 +87,9 @@ namespace Microservices.DicomAnonymiser
             destFileAbs.Directory!.Create();
 
             _logger.Debug($"Anonymising '{sourceFileAbs}' to '{destFileAbs}'");
+            Console.WriteLine("IMAGE MODALITY: "+message.Modality);
+            Console.WriteLine("SOURCE FILE: "+message.DicomFilePath);
+            Console.WriteLine("DEST FILE: "+message.OutputPath);
 
             try
             {
