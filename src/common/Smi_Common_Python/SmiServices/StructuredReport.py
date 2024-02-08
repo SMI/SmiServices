@@ -348,6 +348,9 @@ class StructuredReport:
         # If there is no value the do not print anything at all
         if valstr == None or valstr == '':
             return
+        # If we end up with an integer convert to string
+        if not isinstance(valstr, str):
+            valstr = str(valstr)
         # XXX should we be using Dicom.sr_decode_PNAME if it's a PN/PNAME ???
         # Replace CRs with LF
         valstr = re.sub('\r+', '\n', valstr)
