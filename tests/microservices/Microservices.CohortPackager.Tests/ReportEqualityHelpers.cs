@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Helpers;
@@ -13,7 +12,7 @@ namespace Microservices.CohortPackager.Tests
 {
     public static class ReportEqualityHelpers
     {
-        [UsedImplicitly] // Can be set to help debug test output
+        // Can be set to help debug test output
         public static bool ShouldPrintReports { get; set; }
 
         public static void AssertReportsAreEqual(

@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using JetBrains.Annotations;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 
@@ -69,7 +68,7 @@ public class DicomLoaderOptions : CliOptions
         Required = false,
         HelpText = "Rebuild the Mongo SeriesCollection data and image counts based on the ImageCollection contents (TODO)"
     )]
-    public bool ForceRecount { get; [UsedImplicitly] set; }
+    public bool ForceRecount { get; set; }
 
     [Option(
         'r',
@@ -78,5 +77,5 @@ public class DicomLoaderOptions : CliOptions
         Required = false,
         HelpText = "Re-load and overwrite existing data instead of skipping previously seen files (TODO)"
     )]
-    public bool ForceReload { get; [UsedImplicitly] set; }
+    public bool ForceReload { get; set; }
 }

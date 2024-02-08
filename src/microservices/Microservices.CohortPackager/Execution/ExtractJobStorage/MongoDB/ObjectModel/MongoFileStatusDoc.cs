@@ -1,5 +1,4 @@
 using Equ;
-using JetBrains.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Messages.Extraction;
@@ -40,7 +39,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         /// Used only to handle old-format documents when deserializing
         /// </summary>
         [BsonExtraElements]
-        [UsedImplicitly]
         public IDictionary<string, object>? ExtraElements { get; set; }
 
 
