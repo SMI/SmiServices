@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using System;
 using System.IO;
@@ -7,7 +6,6 @@ using System.IO.Abstractions;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
-    [UsedImplicitly]
     public class FileReporter : JobReporterBase
     {
         private readonly string _extractRoot;

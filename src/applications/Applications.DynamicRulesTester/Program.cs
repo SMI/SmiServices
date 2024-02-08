@@ -1,5 +1,4 @@
 using CommandLine;
-using JetBrains.Annotations;
 using Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic;
 using Newtonsoft.Json;
 using NLog;
@@ -64,7 +63,6 @@ public static class Program
         }
     }
 
-    [UsedImplicitly]
     internal class DynamicRulesTesterCliOptions : CliOptions
     {
         [Option(

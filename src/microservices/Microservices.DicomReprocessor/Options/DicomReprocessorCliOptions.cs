@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Text;
 using CommandLine;
 using CommandLine.Text;
-using JetBrains.Annotations;
 using Smi.Common.Options;
 
 namespace Microservices.DicomReprocessor.Options
@@ -76,7 +75,6 @@ namespace Microservices.DicomReprocessor.Options
 
 
         [Usage]
-        [UsedImplicitly]
         public static IEnumerable<Example> Examples
         {
             get
