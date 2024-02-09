@@ -148,7 +148,7 @@ internal class JobReporterTests
 
         var jobRejections = new List<ExtractionIdentifierRejectionInfo>
         {
-            new ExtractionIdentifierRejectionInfo("1.2.3.4", new Dictionary<string, int>
+            new("1.2.3.4", new Dictionary<string, int>
             {
                 {"Some error", 123 },
             })
@@ -156,7 +156,7 @@ internal class JobReporterTests
 
         var anonFailures = new List<FileAnonFailureInfo>
         {
-            new FileAnonFailureInfo("1/2/3.dcm", "Corrupt file"),
+            new("1/2/3.dcm", "Corrupt file"),
         };
 
         var missingFiles = new List<string>
@@ -166,7 +166,7 @@ internal class JobReporterTests
 
         var verificationFailures = new List<FileVerificationFailureInfo>
         {
-            new FileVerificationFailureInfo("1/2/3-an.dcm", "[{'Parts': [{'Classification': 3, 'Offset': 0, 'Word': 'FOO'}], 'Resource': '/foo1.dcm', 'ResourcePrimaryKey': '1.2.3.4', 'ProblemField': 'ScanOptions', 'ProblemValue': 'FOO'}]"),
+            new("1/2/3-an.dcm", "[{'Parts': [{'Classification': 3, 'Offset': 0, 'Word': 'FOO'}], 'Resource': '/foo1.dcm', 'ResourcePrimaryKey': '1.2.3.4', 'ProblemField': 'ScanOptions', 'ProblemValue': 'FOO'}]"),
         };
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
@@ -323,7 +323,7 @@ internal class JobReporterTests
 
         var jobRejections = new List<ExtractionIdentifierRejectionInfo>
         {
-            new ExtractionIdentifierRejectionInfo("1.2.3.4", new Dictionary<string, int>
+            new("1.2.3.4", new Dictionary<string, int>
             {
                 {"Some error", 123 },
             })
@@ -435,11 +435,11 @@ internal class JobReporterTests
 
         // Act
 
-        var call = () => new JobReporter(new Mock<IExtractJobStore>().Object, _mockFileSystem, _extractionRoot, newLine);
+        JobReporter constructor() => new(new Mock<IExtractJobStore>().Object, _mockFileSystem, _extractionRoot, newLine);
 
         // Assert
 
-        var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+        var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
         Assert.AreEqual("Must be a Unix or Windows newline (Parameter 'reportNewLine')", exc!.Message);
     }
 }
