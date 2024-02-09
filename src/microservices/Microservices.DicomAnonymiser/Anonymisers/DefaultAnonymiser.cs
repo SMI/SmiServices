@@ -78,7 +78,6 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             }
         }
 
-        // TODO (da-231122) - Update CreateProcess logic based on image modality
         /// <summary>
         /// Creates a process to run the dicom pixel anonymiser
         /// </summary>
@@ -102,6 +101,9 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
+        /// <summary>
+        /// Creates a process to run the CTP Anonymiser
+        /// </summary>
         private Process CreateCTPProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             Process process = new Process();
@@ -117,6 +119,9 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
+        /// <summary>
+        /// Creates a process to run the DICOM to Text conversion
+        /// </summary>
         private Process CreateDICOMToTextProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string pythonExe = System.IO.Path.Combine(_virtualEnvPath, "bin/python3");
@@ -133,6 +138,9 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
+        /// <summary>
+        /// Creates a process to run the SR Anonymiser
+        /// </summary>
         private Process CreateSRProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string pythonExe = System.IO.Path.Combine(_virtualEnvPath, "bin/python3");
@@ -149,10 +157,8 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
-
-        // TODO (da-231122) - Update Anonymise logic based on image modality
         /// <summary>
-        ///  Anonymises a DICOM file using the dicom pixel anonymiser
+        ///  Anonymises a DICOM file based on the modality
         /// </summary>
         /// <param name="message"></param>
         /// <param name="sourceFile"></param>
