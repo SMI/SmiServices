@@ -1,7 +1,11 @@
 using Microservices.CohortPackager.Execution;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using MongoDB.Driver;
+using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
+using Smi.Common;
+using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.MessageSerialization;
@@ -389,6 +393,41 @@ namespace Microservices.CohortPackager.Tests.Execution
                 },
                 isIdentifiableExtraction: true
             );
+        }
+
+        [Test]
+        public void Constructor_JobStoreDateProvider_ThrowsException()
+        {
+            // Arrange
+
+            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_JobStoreDateProvider_ThrowsException));
+
+            // Act
+
+            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IRabbitMqAdapter>().Object, new DateTimeProvider());
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentException>(() => constructor());
+            Assert.AreEqual("jobStore and dateTimeProvider are mutually exclusive arguments", exc!.Message);
+        }
+
+        [Test]
+        public void Constructor_InvalidExtractRoot_ThrowsException()
+        {
+            // Arrange
+
+            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_InvalidExtractRoot_ThrowsException));
+            globals.FileSystemOptions!.ExtractRoot = "  ";
+
+            // Act
+
+            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IRabbitMqAdapter>().Object,null);
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
+            Assert.AreEqual("Specified argument was out of the range of valid values. (Parameter 'ExtractRoot')", exc!.Message);
         }
 
         #endregion

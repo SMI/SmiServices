@@ -65,7 +65,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         public void CreateReports(Guid jobId)
         {
             if (jobId == default)
-                throw new ArgumentOutOfRangeException(nameof(jobId), "Must provide a valid jobId");
+                throw new ArgumentOutOfRangeException(nameof(jobId), "Must provide a non-zero jobId");
 
             _logger.Info($"Creating reports for {jobId}");
 
@@ -196,15 +196,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 IEnumerable<Failure>? fileFailures;
                 try
                 {
-                    fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(fileVerificationFailureInfo.Data);
+                    // NOTE(rkm 2024-02-09) fileVerificationFailureInfo.Data can never be null, so neither can fileFailures
+                    fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(fileVerificationFailureInfo.Data)!;
                 }
                 catch (JsonException e)
                 {
-                    throw new ApplicationException("Could not deserialize report content to IEnumerable<Failure>", e);
+                    throw new ApplicationException($"Could not deserialize report content for {fileVerificationFailureInfo.AnonFilePath}", e);
                 }
-
-                if (fileFailures == null)
-                    throw new ApplicationException($"{nameof(fileVerificationFailureInfo.Data)} was deserialised to null");
 
                 foreach (Failure failure in fileFailures)
                 {

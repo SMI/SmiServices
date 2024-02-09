@@ -50,7 +50,7 @@ internal class JobReporterTests
             _dateTimeProvider.UtcNow(),
             _dateTimeProvider.UtcNow() + TimeSpan.FromHours(1),
             "1234-5678",
-            "1234-5678/extractions/test-1",
+            _mockFileSystem.Path.Combine("1234-5678", "extractions", "test-1"),
             "SeriesInstanceUID",
             123,
             "testUser",
@@ -441,5 +441,97 @@ internal class JobReporterTests
 
         var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
         Assert.AreEqual("Must be a Unix or Windows newline (Parameter 'reportNewLine')", exc!.Message);
+    }
+
+    [Test]
+
+    public void Constructor_NonRootedExtractionRoot_ThrowsException()
+    {
+        // Arrange
+
+        var extractionRoot = "foo/bar";
+
+        // Act
+
+        JobReporter constructor() => new(new Mock<IExtractJobStore>().Object, _mockFileSystem, extractionRoot, "\n");
+
+        // Assert
+
+        var exc = Assert.Throws<ArgumentException>(() => constructor());
+        Assert.AreEqual("Path must be rooted (Parameter 'extractionRoot')", exc!.Message);
+    }
+
+    [Test]
+    public void CreateReports_DefaultJobId_ThrowsException()
+    {
+        // Arrange
+
+        var jobId = Guid.Empty;
+        var reporter = new JobReporter(new Mock<IExtractJobStore>().Object, _mockFileSystem, _extractionRoot, "\n");
+
+        // Act
+
+        void call() => reporter.CreateReports(jobId);
+
+        // Assert
+
+        var exc = Assert.Throws<ArgumentOutOfRangeException>(call);
+        Assert.AreEqual("Must provide a non-zero jobId (Parameter 'jobId')", exc!.Message);
+    }
+
+    [Test]
+    public void CreateReports_ExistingReportsDir_ThrowsException()
+    {
+        // Arrange
+
+        CompletedExtractJobInfo jobInfo = TestJobInfo();
+
+        var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+        mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+
+        var reporter = new JobReporter(mockJobStore.Object, _mockFileSystem, _extractionRoot, "\n");
+
+        var reportsDir = _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1");
+        var directoryInfo = _mockFileSystem.Directory.CreateDirectory(reportsDir);
+
+        // Act
+
+        void call() => reporter.CreateReports(jobInfo.ExtractionJobIdentifier);
+
+        // Assert
+
+        var exc = Assert.Throws<ApplicationException>(call);
+        Assert.AreEqual($"Job reports directory already exists: {directoryInfo.FullName}", exc!.Message);
+    }
+
+    [Test]
+    public void CreateReports_DeserializeInvalidFailure_ThrowsException()
+    {
+        // Arrange
+
+        CompletedExtractJobInfo jobInfo = TestJobInfo();
+
+        var verificationFailures = new List<FileVerificationFailureInfo>
+        {
+            new("1/2/3-an.dcm", "not a failure"),
+        };
+
+        var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+        mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(new List<string>());
+        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+        var reporter = new JobReporter(mockJobStore.Object, _mockFileSystem, _extractionRoot, _newLine);
+
+        // Act
+
+        void call() => reporter.CreateReports(jobInfo.ExtractionJobIdentifier);
+
+        // Assert
+
+        var exc = Assert.Throws<ApplicationException>(call);
+        Assert.AreEqual("Could not deserialize report content for 1/2/3-an.dcm", exc!.Message);
     }
 }

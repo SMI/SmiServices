@@ -43,7 +43,7 @@ namespace Microservices.CohortPackager.Execution
         /// <param name="dateTimeProvider"></param>
         public CohortPackagerHost(
             GlobalOptions globals,
-            ExtractJobStore? jobStore = null,
+            IExtractJobStore? jobStore = null,
             IFileSystem? fileSystem = null,
             IJobReporter? reporter = null,
             IJobCompleteNotifier? notifier = null,
@@ -73,7 +73,7 @@ namespace Microservices.CohortPackager.Execution
             {
                 var extractRoot = Globals.FileSystemOptions?.ExtractRoot;
                 if (string.IsNullOrWhiteSpace(extractRoot))
-                    throw new ArgumentOutOfRangeException(nameof(Globals.FileSystemOptions.ExtractRoot), "");
+                    throw new ArgumentOutOfRangeException(nameof(Globals.FileSystemOptions.ExtractRoot));
 
                 reporter = new JobReporter(
                     jobStore,
