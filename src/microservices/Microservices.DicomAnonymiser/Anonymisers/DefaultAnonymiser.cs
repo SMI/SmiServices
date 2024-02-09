@@ -4,78 +4,17 @@ using System.IO.Abstractions;
 using System.Diagnostics;
 using Smi.Common.Messages.Extraction;
 using Newtonsoft.Json;
+using Smi.Common.Options;
 
 namespace Microservices.DicomAnonymiser.Anonymisers
 {
     public class DefaultAnonymiser : IDicomAnonymiser
     {
-        private string _virtualEnvPath;
-        private string _shellScriptPath;
-        private string _dicomPixelAnonPath;
-        private string _smiServicesPath;
-        private string _ctpJarPath;
-        private string _ctpWhiteListScriptPath;
-        private string _srAnonToolPath;
-        private string _smiLogsPath;
-        private string _dicomToTextScriptPath;
-        private string _anonymiseSRScriptPath;
+        private readonly DicomAnonymiserOptions _options;
 
-
-
-        public DefaultAnonymiser()
+        public DefaultAnonymiser(DicomAnonymiserOptions dicomAnonymiserOptions)
         {
-            _virtualEnvPath = "";
-            _shellScriptPath = "";
-            _dicomPixelAnonPath = "";
-            _smiServicesPath = "";
-            _ctpJarPath = "";
-            _ctpWhiteListScriptPath = "";
-            _srAnonToolPath = "";
-            _smiLogsPath = "";
-            _dicomToTextScriptPath = "";
-            _anonymiseSRScriptPath = "";
-
-            LoadConfiguration();
-        }
-
-        /// <summary>
-        /// Loads configuration from DicomAnonymiserConfigs.json
-        /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="FileNotFoundException"></exception>
-        private void LoadConfiguration()
-        {
-            // TODO (da-231122) - Load dicomAnonymiserConfigPath from default.yaml
-            string dicomAnonymiserConfigPath  = "/Users/daniyalarshad/EPCC/github/SmiServices/src/microservices/Microservices.DicomAnonymiser/Anonymisers/DicomAnonymiserConfigs.json";
-
-            if (File.Exists(dicomAnonymiserConfigPath))
-            {
-                string json = File.ReadAllText(dicomAnonymiserConfigPath);
-                dynamic? config = JsonConvert.DeserializeObject<dynamic>(json);
-
-                if (config != null){
-                    _virtualEnvPath = config.virtualEnvPath;
-                    _shellScriptPath = config.shellScriptPath;
-                    _dicomPixelAnonPath = config.dicomPixelAnonPath;
-                    _smiServicesPath = config.smiServicesPath;
-                    _ctpJarPath = config.ctpJarPath;
-                    _ctpWhiteListScriptPath = config.ctpWhiteListScriptPath;
-                    _srAnonToolPath = config.srAnonToolPath;
-                    _smiLogsPath = config.smiLogsPath;
-                    _dicomToTextScriptPath = config.dicomToTextScriptPath;
-                    _anonymiseSRScriptPath = config.anonymiseSRScriptPath;
-                    }
-                else
-                {
-                    Console.WriteLine("ERROR: Unable to deserialize configuration file 'DicomAnonymiserConfigs.json'");
-                    throw new InvalidOperationException("Unable to deserialize configuration file 'DicomAnonymiserConfigs.json'");
-                }
-            }
-            else
-            {
-                Console.WriteLine("ERROR: Configuration file 'DicomAnonymiserConfigs.json' not found");
-                throw new FileNotFoundException("Configuration file 'DicomAnonymiserConfigs.json' not found");
-            }
+            _options = dicomAnonymiserOptions;
         }
 
         /// <summary>
@@ -86,14 +25,14 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         /// <returns></returns>
         private Process CreateDICOMProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
-            string activateCommand = $"source {_virtualEnvPath}/bin/activate";
+            string activateCommand = $"source {_options.VirtualEnvPath}/bin/activate";
 
             Process process = new Process();
 
             process.StartInfo.FileName = "/bin/bash";
-            process.StartInfo.Arguments = $"-c \"{activateCommand} && {_shellScriptPath} -o {destFile} {sourceFile}\"";
-            process.StartInfo.WorkingDirectory = $"{_dicomPixelAnonPath}/src/applications/";
-            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_smiServicesPath}";
+            process.StartInfo.Arguments = $"-c \"{activateCommand} && {_options.ShellScriptPath} -o {destFile} {sourceFile}\"";
+            process.StartInfo.WorkingDirectory = $"{_options.DicomPixelAnonPath}/src/applications/";
+            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_options.SmiServicesPath}";
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
@@ -109,9 +48,9 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             Process process = new Process();
 
             process.StartInfo.FileName = "java";
-            process.StartInfo.Arguments = $"-jar {_ctpJarPath} -a {_ctpWhiteListScriptPath} -s false {sourceFile} {destFile}";
-            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_smiServicesPath}";
-            process.StartInfo.EnvironmentVariables["SMI_LOGS_ROOT"] = $"{_smiLogsPath}"; 
+            process.StartInfo.Arguments = $"-jar {_options.CtpJarPath} -a {_options.CtpWhiteListScriptPath} -s false {sourceFile} {destFile}";
+            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_options.SmiServicesPath}";
+            process.StartInfo.EnvironmentVariables["SMI_LOGS_ROOT"] = $"{_options.SmiLogsPath}"; 
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
@@ -124,13 +63,13 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         /// </summary>
         private Process CreateDICOMToTextProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
-            string pythonExe = System.IO.Path.Combine(_virtualEnvPath, "bin/python3");
+            string pythonExe = System.IO.Path.Combine(_options.VirtualEnvPath!, "bin/python3");
 
             Process process = new Process();
 
             process.StartInfo.FileName = pythonExe;
-            process.StartInfo.Arguments = $"{_dicomToTextScriptPath} -i {sourceFile} -o /Users/daniyalarshad/EPCC/github/NationalSafeHaven/CogStack-SemEHR/anonymisation/test_data/output.txt -y /Users/daniyalarshad/EPCC/github/NationalSafeHaven/SmiServices/data/microserviceConfigs/default.yaml";
-            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_smiServicesPath}";
+            process.StartInfo.Arguments = $"{_options.DicomToTextScriptPath} -i {sourceFile} -o /Users/daniyalarshad/EPCC/github/NationalSafeHaven/CogStack-SemEHR/anonymisation/test_data/output.txt -y /Users/daniyalarshad/EPCC/github/NationalSafeHaven/SmiServices/data/microserviceConfigs/default.yaml";
+            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_options.SmiServicesPath}";
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
@@ -143,12 +82,12 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         /// </summary>
         private Process CreateSRProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
-            string pythonExe = System.IO.Path.Combine(_virtualEnvPath, "bin/python3");
+            string pythonExe = System.IO.Path.Combine(_options.VirtualEnvPath!, "bin/python3");
 
             Process process = new Process();
 
             process.StartInfo.FileName = pythonExe;
-            process.StartInfo.Arguments = $"{_anonymiseSRScriptPath} conf/anonymisation_task.json";
+            process.StartInfo.Arguments = $"{_options.AnonymiseSRScriptPath} conf/anonymisation_task.json";
             process.StartInfo.WorkingDirectory = "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/CogStack-SemEHR/anonymisation/";
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;

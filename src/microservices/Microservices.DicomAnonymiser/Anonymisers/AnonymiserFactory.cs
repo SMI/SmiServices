@@ -13,7 +13,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 
             return anonymiserType switch
             {
-                AnonymiserType.DefaultAnonymiser => new DefaultAnonymiser(),
+                AnonymiserType.DefaultAnonymiser => new DefaultAnonymiser(dicomAnonymiserOptions),
                 // TODO(rkm 2021-12-07) Can remove the LGTM ignore once an AnonymiserType is implemented
                 _ => throw new NotImplementedException($"No case for AnonymiserType '{anonymiserType}'"), // lgtm[cs/constant-condition]
             };
