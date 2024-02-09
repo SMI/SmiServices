@@ -54,6 +54,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CHANGELOG.md = CHANGELOG.md
 		docs\DataLoading.md = docs\DataLoading.md
 		data\microserviceConfigs\default.yaml = data\microserviceConfigs\default.yaml
+		Directory.Build.props = Directory.Build.props
 		global.json = global.json
 		Glossary.md = Glossary.md
 		PACKAGES.md = PACKAGES.md

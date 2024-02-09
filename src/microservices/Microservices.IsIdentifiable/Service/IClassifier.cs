@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using Failure = IsIdentifiable.Reporting.Failure;
+using IsIdentifiable.Failures;
 
 namespace Microservices.IsIdentifiable.Service
 {

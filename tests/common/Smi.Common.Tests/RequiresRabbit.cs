@@ -1,21 +1,20 @@
 
-using System;
-using System.IO;
-using System.Text;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
+using System;
+using System.IO;
+using System.Text;
 using YamlDotNet.Serialization;
 
 namespace Smi.Common.Tests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
                     AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresRabbit : RequiresExternalService, IApplyToContext
+    public class RequiresRabbit : RequiresExternalService
     {
-        public void ApplyToContext(TestExecutionContext context)
+        protected override void ApplyToContextImpl(TestExecutionContext context)
         {
 
             var factory = GetConnectionFactory();

@@ -5,7 +5,7 @@ namespace Applications.SmiRunner
 {
     public abstract class VerbBase
     {
-        protected const string BaseHelpText = "See here at your release version: https://github.com/SMI/SmiServices/tree/master/";
+        protected const string BaseHelpText = "See here at your release version: https://github.com/SMI/SmiServices/tree/main/";
     }
 
     #region Applications

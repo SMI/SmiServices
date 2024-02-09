@@ -2,7 +2,6 @@
 using FAnsi.Discovery;
 using FellowOakDicom;
 using IsIdentifiable.Options;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
@@ -90,7 +89,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class LoggingOptions
     {
         public string? LogConfigFile { get; set; }
@@ -100,7 +98,6 @@ namespace Smi.Common.Options
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
-    [UsedImplicitly]
     public class IsIdentifiableServiceOptions : ConsumerOptions
     {
         /// <summary>
@@ -113,7 +110,6 @@ namespace Smi.Common.Options
         public string? DataDirectory { get; set; }
     }
 
-    [UsedImplicitly]
     public class ProcessDirectoryOptions : IOptions
     {
         public ProducerOptions? AccessionDirectoryProducerOptions { get; set; }
@@ -124,7 +120,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class MongoDbPopulatorOptions : IOptions
     {
         public ConsumerOptions? SeriesQueueConsumerOptions { get; set; }
@@ -144,7 +139,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class IdentifierMapperOptions : ConsumerOptions, IMappingTableOptions
     {
         public ProducerOptions? AnonImagesProducerOptions { get; set; }
@@ -218,7 +212,6 @@ namespace Smi.Common.Options
     /// <summary>
     /// Contains names of the series and image exchanges that serialized image tag data will be written to
     /// </summary>
-    [UsedImplicitly]
     public class DicomTagReaderOptions : ConsumerOptions
     {
         /// <summary>
@@ -256,7 +249,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class FileCopierOptions : ConsumerOptions
     {
         public ProducerOptions? CopyStatusProducerOptions { get; set; }
@@ -271,7 +263,6 @@ namespace Smi.Common.Options
         Parallel
     }
 
-    [UsedImplicitly]
     public class DicomReprocessorOptions : IOptions
     {
         public ProcessingMode? ProcessingMode { get; set; }
@@ -304,7 +295,6 @@ namespace Smi.Common.Options
         TagPromotion
     }
 
-    [UsedImplicitly]
     public class CohortPackagerOptions : IOptions
     {
         public ConsumerOptions? ExtractRequestInfoOptions { get; set; }
@@ -315,6 +305,12 @@ namespace Smi.Common.Options
         public string? ReporterType { get; set; }
         public string? NotifierType { get; set; }
         public string? ReportFormat { get; set; }
+
+        public bool VerificationMessageQueueProcessBatches { get; set; }
+        public int? VerificationMessageQueueFlushTimeSeconds { get; set; }
+
+        public static readonly TimeSpan DefaultVerificationMessageQueueFlushTime = TimeSpan.FromSeconds(5);
+
 
         /// <summary>
         /// The newline to use when writing extraction report files. Note that a "\r\n" string
@@ -328,7 +324,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class CohortExtractorOptions : ConsumerOptions
     {
         private string? _auditorType;
@@ -410,7 +405,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class UpdateValuesOptions : ConsumerOptions
     {
         /// <summary>
@@ -425,7 +419,6 @@ namespace Smi.Common.Options
 
     }
 
-    [UsedImplicitly]
     public class TriggerUpdatesOptions : ProducerOptions
     {
         /// <summary>
@@ -434,7 +427,6 @@ namespace Smi.Common.Options
         public int CommandTimeoutInSeconds = 500;
     }
 
-    [UsedImplicitly]
     public class DicomRelationalMapperOptions : ConsumerOptions
     {
         /// <summary>
@@ -464,7 +456,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class ExtractImagesOptions : IOptions
     {
         public const int MaxIdentifiersPerMessageDefault = 1000;
@@ -487,7 +478,6 @@ namespace Smi.Common.Options
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
-    [UsedImplicitly]
     public class DicomAnonymiserOptions : IOptions
     {
         public string? AnonymiserType { get; set; }
@@ -501,7 +491,6 @@ namespace Smi.Common.Options
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
-    [UsedImplicitly]
     public class MongoDatabases : IOptions
     {
         public MongoDbOptions? DicomStoreOptions { get; set; }
@@ -514,7 +503,6 @@ namespace Smi.Common.Options
         }
     }
 
-    [UsedImplicitly]
     public class MongoDbOptions : IOptions
     {
         public string? HostName { get; set; } = "localhost";
@@ -545,7 +533,6 @@ namespace Smi.Common.Options
     /// <summary>
     /// Describes the location of the Microsoft Sql Server RDMP platform databases which keep track of load configurations, available datasets (tables) etc
     /// </summary>
-    [UsedImplicitly]
     public class RDMPOptions : IOptions
     {
         public string? CatalogueConnectionString { get; set; }
@@ -583,7 +570,6 @@ namespace Smi.Common.Options
     /// <summary>
     /// Describes the root location of all images, file names should be expressed as relative paths (relative to this root).
     /// </summary>
-    [UsedImplicitly]
     public class FileSystemOptions : IOptions
     {
         public string? DicomSearchPattern { get; set; } = "*.dcm";
@@ -600,7 +586,6 @@ namespace Smi.Common.Options
         public string? ExtractRoot
         {
             get => _extractRoot;
-            [UsedImplicitly]
             set => _extractRoot = value?.Length > 1 ? value.TrimEnd('/', '\\') : value;
         }
 

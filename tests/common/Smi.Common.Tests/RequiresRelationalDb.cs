@@ -1,17 +1,16 @@
-﻿using System;
-using System.IO;
 using FAnsi;
 using FAnsi.Discovery;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
+using System;
+using System.IO;
 using YamlDotNet.Serialization;
 
 namespace Smi.Common.Tests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
                     AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresRelationalDb : RequiresExternalService, IApplyToContext
+    public class RequiresRelationalDb : RequiresExternalService
     {
         private readonly DatabaseType _type;
         private const string Filename = "RelationalDatabases.yaml";
@@ -21,10 +20,10 @@ namespace Smi.Common.Tests
             _type = type;
         }
 
-        public void ApplyToContext(TestExecutionContext context)
+        protected override void ApplyToContextImpl(TestExecutionContext context)
         {
             FansiImplementations.Load();
-            
+
             var connectionStrings = GetRelationalDatabaseConnectionStrings();
             var server = connectionStrings.GetServer(_type);
 

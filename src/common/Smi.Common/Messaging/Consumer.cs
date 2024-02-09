@@ -26,6 +26,14 @@ namespace Smi.Common.Messaging
         /// </summary>
         public int NackCount { get; private set; }
 
+        /// <inheritdoc/>
+        public bool HoldUnprocessableMessages { get; set; } = false;
+
+        protected int _heldMessages = 0;
+
+        /// <inheritdoc/>
+        public int QoSPrefetchCount { get; set; }
+
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
@@ -110,8 +118,6 @@ namespace Smi.Common.Messaging
                 return;
             }
 
-            // Now pass the message on to the implementation, catching and calling Fatal on any unhandled exception
-
             try
             {
                 if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage? message))
@@ -120,7 +126,21 @@ namespace Smi.Common.Messaging
             }
             catch (Exception e)
             {
-                Fatal("ProcessMessageImpl threw unhandled exception", e);
+                var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
+                Logger.Error(e, $"Unhandled exception when processing message {header.MessageGuid} with body: {messageBody}");
+
+                if (HoldUnprocessableMessages)
+                {
+                    ++_heldMessages;
+                    string msg = $"Holding an unprocessable message ({_heldMessages} total message(s) currently held";
+                    if (_heldMessages >= QoSPrefetchCount)
+                        msg += $". Have now exceeded the configured BasicQos value of {QoSPrefetchCount}. No further messages will be delivered to this consumer!";
+                    Logger.Warn(msg);
+                }
+                else
+                {
+                    Fatal("ProcessMessageImpl threw unhandled exception", e);
+                }
             }
         }
 
@@ -128,7 +148,7 @@ namespace Smi.Common.Messaging
         {
             try
             {
-                ProcessMessageImpl(null!, msg, 1);
+                ProcessMessageImpl(new MessageHeader(), msg, 1);
             }
             catch (Exception e)
             {
@@ -192,7 +212,7 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void Ack(IMessageHeader header, ulong tag)
         {
-            header?.Log(Logger, LogLevel.Trace, "Acknowledged");
+            header?.Log(Logger, LogLevel.Trace, $"Acknowledged {header.MessageGuid}");
 
             Model!.BasicAck(tag, false);
             AckCount++;

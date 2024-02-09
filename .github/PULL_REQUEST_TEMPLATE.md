@@ -16,13 +16,13 @@ What types of changes does your code introduce? Tick all that apply.
 
 By opening this PR, I confirm that I have:
 
--   [ ] Reviewed the [contributing](https://github.com/SMI/SmiServices/blob/master/CONTRIBUTING.md) guidelines for this repository
+-   [ ] Reviewed the [contributing](https://github.com/SMI/SmiServices/blob/main/CONTRIBUTING.md) guidelines for this repository
 -   [ ] Ensured that the PR branch is in sync with the target branch (i.e. it is automatically merge-able)
 -   [ ] Updated any relevant API documentation
 -   [ ] Created or updated any tests if relevant
--   [ ] Created a [news](https://github.com/SMI/SmiServices/blob/master/news/README.md) file
+-   [ ] Created a [news](https://github.com/SMI/SmiServices/blob/main/news/README.md) file
     -   NOTE: This **_must_** include any changes to any of the following files: default.yaml, any of the RabbitMQ server configurations, GlobalOptions.cs
--   [ ] Listed myself in the [CONTRIBUTORS](https://github.com/SMI/SmiServices/blob/master/CONTRIBUTORS.md) file 🚀
+-   [ ] Listed myself in the [CONTRIBUTORS](https://github.com/SMI/SmiServices/blob/main/CONTRIBUTORS.md) file 🚀
 -   [ ] Requested a review by one of the repository maintainers
 
 ## Issues

@@ -1,6 +1,6 @@
 using CsvHelper;
 using CsvHelper.Configuration;
-using IsIdentifiable.Reporting;
+using IsIdentifiable.Failures;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
 using Newtonsoft.Json;

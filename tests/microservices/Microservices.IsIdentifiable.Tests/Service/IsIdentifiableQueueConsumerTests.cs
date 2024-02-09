@@ -74,7 +74,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             _fatalArgs = null;
 
             _mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), null, null);
+            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), It.IsAny<MessageHeader>(), null);
             _mockProducerModel
                 .Setup(_expectedSendMessageCall)
                 .Callback<IMessage, IMessageHeader, string>((x, _, _) => _response = (ExtractedFileVerificationMessage)x)

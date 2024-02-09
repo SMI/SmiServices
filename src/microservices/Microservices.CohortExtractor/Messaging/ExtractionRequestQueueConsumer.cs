@@ -38,7 +38,7 @@ namespace Microservices.CohortExtractor.Messaging
 
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
         {
-            Logger.Info($"Received message: {request}");
+            Logger.Info($"Received message {header.MessageGuid}: {request}");
 
             _auditor.AuditExtractionRequest(request);
 
@@ -79,7 +79,7 @@ namespace Microservices.CohortExtractor.Messaging
                 }
 
                 // Wait for confirms from the batched messages
-                Logger.Debug($"All file messages sent for {request.ExtractionJobIdentifier}, calling WaitForConfirms");
+                Logger.Debug($"All ExtractFileMessage(s) sent for {matchedFiles.KeyValue}, calling WaitForConfirms");
                 _fileMessageProducer.WaitForConfirms();
 
                 // For all the rejected messages log why (in the info message)
@@ -102,10 +102,11 @@ namespace Microservices.CohortExtractor.Messaging
                 if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel))
                     _fileMessageInfoProducer.WaitForConfirms();
 
-                Logger.Info($"All messages sent and acknowledged for {matchedFiles.KeyValue}");
+                Logger.Info($"All ExtractFileCollectionInfoMessage(s) sent for {matchedFiles.KeyValue}");
             }
 
-            Logger.Info("Finished processing message");
+            Logger.Info($"Finished processing message {header.MessageGuid}");
+
             Ack(header, tag);
         }
     }

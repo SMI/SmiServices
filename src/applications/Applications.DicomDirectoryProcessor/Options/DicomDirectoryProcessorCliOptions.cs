@@ -11,11 +11,9 @@ namespace Applications.DicomDirectoryProcessor.Options
 {
     public class DicomDirectoryProcessorCliOptions : CliOptions
     {
-        [UsedImplicitly]
         [Option('d', "to-process", Required = true, HelpText = "The directory to process")]
         public string ToProcess { get; set; } = null!;
 
-        [UsedImplicitly]
         [Option('f', "directory-format", Required = false, HelpText = "The specific directory search format to use (case insensitive).  Options include PACS,LIST,ZIPS and DEFAULT", Default = "Default")]
         public string? DirectoryFormat { get; set; }
 
@@ -32,7 +30,6 @@ namespace Applications.DicomDirectoryProcessor.Options
         }
 
         [Usage]
-        [UsedImplicitly]
         public static IEnumerable<Example> Examples
         {
             get

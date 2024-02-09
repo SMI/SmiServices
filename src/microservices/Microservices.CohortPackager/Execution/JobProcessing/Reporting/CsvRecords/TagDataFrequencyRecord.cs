@@ -1,6 +1,5 @@
 using CsvHelper.Configuration.Attributes;
 using Equ;
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +9,10 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
 {
     public class TagDataFrequencyRecord : MemberwiseEquatable<TagDataFrequencyRecord>, IExtractionReportCsvRecord
     {
-        [UsedImplicitly]
         public uint WordLength { get; }
 
-        [UsedImplicitly]
         public uint Count { get; }
 
-        [UsedImplicitly]
         [Format("0.#########")]
         public double RelativeFrequencyInReport { get; }
 

@@ -13,30 +13,29 @@
     <PackageVersion Include="HIC.FAnsiSql" Version="3.1.1" />
     <PackageVersion Include="HIC.RDMP.Dicom" Version="7.0.1" />
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.0" />
-    <PackageVersion Include="IsIdentifiable" Version="0.1.0" />
-    <PackageVersion Include="JetBrains.Annotations" Version="2023.3.0" />
+    <PackageVersion Include="IsIdentifiable" Version="0.3.0" />
     <PackageVersion Include="LibArchive.Net" Version="0.1.4" />
     <PackageVersion Include="LineReader" Version="0.1.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.7.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
-    <PackageVersion Include="NLog" Version="5.2.5" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageVersion Include="NLog" Version="5.2.8" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="RabbitMQ.Client" Version="6.6.0" />
+    <PackageVersion Include="RabbitMQ.Client" Version="6.8.1" />
     <PackageVersion Include="SecurityCodeScan.VS2019" Version="5.6.7" />
-    <PackageVersion Include="Spectre.Console" Version="0.47.0" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.7.4" />
-    <PackageVersion Include="System.IO.Abstractions" Version="19.2.69" />
+    <PackageVersion Include="Spectre.Console" Version="0.48.0" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.7.17" />
+    <PackageVersion Include="System.IO.Abstractions" Version="20.0.15" />
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageVersion Include="Terminal.Gui" Version="1.14.1" />
-    <PackageVersion Include="YamlDotNet" Version="13.7.1" />
+    <PackageVersion Include="Terminal.Gui" Version="1.15.1" />
+    <PackageVersion Include="YamlDotNet" Version="15.1.1" />
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.16" />
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.1.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageVersion Include="Moq" Version="4.20.69" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="NUnit" Version="3.14.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="NunitXml.TestLogger" Version="3.1.15" />
-    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="19.2.69" />
+    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="20.0.15" />
   </ItemGroup>
 </Project>

@@ -10,8 +10,9 @@
 
 prog=$(basename "$0")
 progdir=$(dirname "$0")
-usage="usage: ${prog} [-d] [-v] [-e virtualenv] [-s semehr_root] -i read_from.dcm  -o write_into.dcm"
-options="dve:s:i:o:"
+
+usage="usage: ${prog} [-d] [-v] [-e virtualenv] [-s semehr_root] [-y yaml] -i read_from.dcm  -o write_into.dcm"
+options="dve:s:y:i:o:"
 # Default values for production
 # semehr_dir="/opt/semehr"
 # virtenv=""
@@ -64,7 +65,9 @@ tidy_exit()
 
 # Default executable PATHs and Python libraries
 export PATH=${PATH}:${SMI_ROOT}/bin:${SMI_ROOT}/scripts:${progdir}
-export PYTHONPATH=${SMI_ROOT}/lib/python3:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib/python3.6/site-packages:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib64/python3.6/site-packages
+if [ "$PYTHONPATH" == "" ]; then
+	export PYTHONPATH=${SMI_ROOT}/lib/python3:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib/python3.6/site-packages:${SMI_ROOT}/lib/python3/virtualenvs/semehr/$(hostname -s)/lib64/python3.6/site-packages
+fi
 
 # Command line arguments
 while getopts ${options} var; do
@@ -72,6 +75,7 @@ case $var in
 	d) debug=1;;
 	v) verbose=1;;
 	e) virtenv="$OPTARG";;
+	y) default_yaml0="$OPTARG";;
 	i) input_dcm="$OPTARG";;
 	o) output_dcm="$OPTARG";;
 	s) semehr_dir="$OPTARG";;
@@ -84,7 +88,9 @@ if [ ! -f "$input_dcm" ]; then
 	tidy_exit 2 "ERROR: cannot read input file '${input_dcm}'"
 fi
 if [ ! -f "$output_dcm" ]; then
-	tidy_exit 3 "ERROR: cannot write to ${output_dcm} because it must already exist"
+	#tidy_exit 3 "ERROR: cannot write to ${output_dcm} because it must already exist"
+	cp "$input_dcm" "$output_dcm"
+	chmod +w "$output_dcm"
 fi
 
 # Activate the virtual environment
@@ -97,14 +103,19 @@ if [ "$virtenv" != "" ]; then
 	fi
 fi
 
-# Find the config files
-if [ -d $SMI_ROOT/configs ]; then
-	default_yaml0="$SMI_ROOT/configs/smi_dataLoad_mysql.yaml"
-	default_yaml1="$SMI_ROOT/configs/smi_dataExtract.yaml"
-else
-	default_yaml0="${progdir}/../../../data/microserviceConfigs/default.yaml"
+# Find the config files, if not specified try SMI defaults otherwise in the repo
+if [ "$default_yaml0" == "" ]; then
+	if [ -f "$SMI_ROOT/configs/smi_dataExtract.yaml" ]; then
+		default_yaml0="$SMI_ROOT/configs/smi_dataLoad_mysql.yaml"
+		default_yaml1="$SMI_ROOT/configs/smi_dataExtract.yaml"
+	else
+		default_yaml0="${progdir}/../../../data/microserviceConfigs/default.yaml"
+	fi
+fi
+if [ "$default_yaml1" == "" ]; then
 	default_yaml1="$default_yaml0"
 fi
+
 
 # ---------------------------------------------------------------------
 # Determine the SemEHR filenames - create per-process directories
@@ -138,7 +149,7 @@ CTP_DicomToText.py  -y $default_yaml0 -y $default_yaml1 \
 #  Reads  $input_doc
 #  Writes $anon_doc, and $anon_xml via the --xml option
 #
-semehr_anon.py -i "${input_doc}" -o "${anon_doc}" --xml || tidy_exit 5 "Error running SemEHR-anon given ${input_doc} from ${input_dcm}"
+semehr_anon.py -s "${semehr_dir}" -i "${input_doc}" -o "${anon_doc}" --xml || tidy_exit 5 "Error running SemEHR-anon given ${input_doc} from ${input_dcm}"
 # If there's still no XML file then exit
 if [ ! -f "$anon_xml" ]; then
 	tidy_exit 6 "ERROR: SemEHR-anon failed to convert $input_doc to $anon_xml"

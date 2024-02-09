@@ -35,7 +35,7 @@ def tag_alt(tag):
     alt = '{:0>8X}'.format(pydicom.datadict.tag_for_keyword(tag))
     return(alt)
 
-def tag_val(dicomdict, tagname):
+def tag_val(dicomdict, tagname, atomic = False):
     """ Look up dicomdict['tagname']
       where tagname can be a hex string or a name string
       and the dicomdict can hold either the hex string or the name
@@ -48,7 +48,7 @@ def tag_val(dicomdict, tagname):
         retval = dicomdict[tagname]
     elif alt_tagname in dicomdict:
         retval = dicomdict[alt_tagname]
-    # The dcm2jsom or pydicom style has 'vr' and 'Value' keys
+    # The dcm2json or pydicom style has 'vr' and 'Value' keys
     # so extract the Value (also sometimes has vr but no Value).
     if isinstance(retval, Mapping):
         if 'vr' in retval:
@@ -57,9 +57,9 @@ def tag_val(dicomdict, tagname):
                 val = retval.get('val', '') # but I've also seen val
             retval = val
     # Single element list reduced to just the first element
-    # but doing this breaks the assertions below.
-    #if isinstance(retval, list) and len(retval)==1:
-    #	retval = retval[0]
+    # only if you explicitly request this with atomic=True.
+    if isinstance(retval, list) and len(retval)==1 and atomic:
+    	retval = retval[0]
     return(retval)
 
 def tag_is(tagA, tagB):

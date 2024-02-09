@@ -130,6 +130,7 @@ namespace Applications.ExtractImages
                 var sb = new StringBuilder();
                 sb.AppendLine();
                 sb.AppendLine($"ExtractionJobIdentifier:        {jobId}");
+                sb.AppendLine($"Submitted:                      {now:u}");
                 sb.AppendLine($"ProjectNumber:                  {_projectId}");
                 sb.AppendLine($"ExtractionDirectory:            {_extractionDir}");
                 sb.AppendLine($"ExtractionKey:                  {extractionKey}");

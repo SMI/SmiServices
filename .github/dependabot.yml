@@ -5,7 +5,6 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 99
-    target-branch: master
     reviewers:
       - SMI/reviewers
   - package-ecosystem: maven
@@ -13,7 +12,6 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 99
-    target-branch: master
     reviewers:
       - SMI/reviewers
   - package-ecosystem: "github-actions"

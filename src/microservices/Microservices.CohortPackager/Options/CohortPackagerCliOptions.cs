@@ -1,6 +1,5 @@
 using CommandLine;
 using CommandLine.Text;
-using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Smi.Common.Options;
 using System;
@@ -17,7 +16,6 @@ namespace Microservices.CohortPackager.Options
             Required = false,
             HelpText = "[Optional] Recreate the report for the specified extraction ID, and exit. The extraction root will be set to the current directory."
         )]
-        [UsedImplicitly]
         public Guid ExtractionId { get; set; }
 
         [Option(
@@ -27,7 +25,6 @@ namespace Microservices.CohortPackager.Options
             Default = ReportFormat.Combined,
             HelpText = "[Optional] The report format to use when --recreate-report is specified. This value (even when the default is used) overrides any value set in the YAML config"
         )]
-        [UsedImplicitly]
         public ReportFormat ReportFormat { get; set; }
 
         [Option(
@@ -36,11 +33,9 @@ namespace Microservices.CohortPackager.Options
             Required = false,
             HelpText = "[Optional] The newline string to use when creating the validation reports. Can be specified to create reports for a different platform. Defaults to Environment.NewLine if not set, and overrides any value in the YAML config."
         )]
-        [UsedImplicitly]
         public string? OutputNewLine { get; set; }
 
         [Usage]
-        [UsedImplicitly]
         public static IEnumerable<Example> Examples
         {
             get
