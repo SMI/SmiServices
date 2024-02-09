@@ -498,6 +498,7 @@ class StructuredReport:
 def test_SR_parse_key():
     # Extract a small fragment using: dcm2json report10.dcm | dicom_tag_lookup.py
     SR_dict = {
+        # Structured Reports often have the main body in a sequence
         "ContentSequence": {
             "vr": "SQ",
             "Value": [
@@ -523,6 +524,61 @@ def test_SR_parse_key():
                   "PersonName": { "vr": "PN", "Value": [ { "Alphabetic": "Klugman^^^Dr." } ] }
                 }
             ]
+        },
+        # Structured Reports often have the main body in a TextValue instead
+        "TextValue": { "vr": "UT", "Value": [ "Hello World" ] },
+        # Add a sequence where you expect ConceptName=ConceptCode output
+        "AcquisitionContextSequence": {
+          "vr": "SQ",
+          "Value": [
+            {
+              "ValueType": {"vr": "CS", "Value": ["CODE" ] },
+              "ConceptNameCodeSequence": {
+                "vr": "SQ",
+                "Value": [
+                  {
+                    "CodingSchemeDesignator": {"vr": "SH", "Value": ["DCM" ] },
+                    "CodeMeaning": {"vr": "LO", "Value": ["Fitzpatrick Skin Type" ] },
+                    "ContextUID": {"vr": "UI", "Value": ["1.2.840.10008.6.1.1346" ] }
+                  }
+                ]
+              },
+              "ConceptCodeSequence": {
+                "vr": "SQ",
+                "Value": [
+                  {
+                    "CodeValue": {"vr": "SH", "Value": ["C74571" ] },
+                    "CodingSchemeDesignator": {"vr": "SH", "Value": ["LN" ] },
+                    "CodeMeaning": {"vr": "LO", "Value": ["Fitzpatrick Skin Type III" ] }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        # Now add a ValueType and ConceptNameCodeSequence at the root level
+        # in the document, very unusual, only seen in Dermatology SRs,
+        # normally these are inside a proper Sequence.
+        "ValueType": {"vr": "CS", "Value": ["CODE" ] },
+        "ConceptNameCodeSequence": {
+          "vr": "SQ",
+          "Value": [
+            {
+              "CodeValue": {"vr": "SH", "Value": ["2F23" ] },
+              "CodingSchemeDesignator": {"vr": "SH", "Value": ["I11" ] },
+              "CodeMeaning": {"vr": "LO", "Value": ["Benign dermal fibrous or fibrohistiocytic neoplasms" ] }
+            }
+          ]
+        },
+        "ConceptCodeSequence": {
+          "vr": "SQ",
+          "Value": [
+            {
+              "CodeValue": {"vr": "SH", "Value": ["2F23.0" ] },
+              "CodingSchemeDesignator": {"vr": "SH", "Value": ["I11" ] },
+              "CodeMeaning": {"vr": "LO", "Value": ["Dermatofibroma" ] }
+            }
+          ]
         }
     }
 
@@ -531,9 +587,15 @@ def test_SR_parse_key():
 
     # Test with the above piece of JSON
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
-        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        sr.SR_parse(SR_dict, 'Test', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
+        assert(fd.read() == '[[Document name]] Test\n'
+            '[[Text]] Hello World\n'
+            '[[Other Names]] Dr. Klugman\n'
+            '[[Request]] MRI: Knee\n'
+            '[[Physician]] Klugman^^^Dr.\n'
+            '[[Fitzpatrick Skin Type]] Fitzpatrick Skin Type III\n'
+            '[[Benign dermal fibrous or fibrohistiocytic neoplasms]] Dermatofibroma\n')
 
     # Add some HTML into the string and check it's redacted
     SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
