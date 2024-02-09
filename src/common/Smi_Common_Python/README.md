@@ -16,9 +16,9 @@ mysql-connector-python (which requires six, protobuf, dnspython) for IdentifierM
 
 ## Installation
 
-Run `python3 setup.py bdist_wheel` to create `Smi_Services_Python-0.0.0-py3-none-any.whl`
+Run `python3 ./setup.py bdist_wheel` to create `Smi_Services_Python-0.0.0-py3-none-any.whl`
 
-Run `python3 setup.py install` to install (including dependencies) into your python site-packages
+Run `python3 ./setup.py install` to install (including dependencies) into your python site-packages
 (whether that be global or inside a current virtualenv).
 
 Note that the version number is read from AssemblyInfo.cs in a parent directory.
