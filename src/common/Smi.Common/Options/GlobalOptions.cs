@@ -8,6 +8,7 @@ using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using Smi.Common.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,8 @@ namespace Smi.Common.Options
                 _hostProcessName = value;
             }
         }
+
+        public MessageBrokerType? MessageBrokerType { get; set; } = Messaging.MessageBrokerType.RabbitMQ;
 
         public LoggingOptions? LoggingOptions { get; set; } = new LoggingOptions();
         public RabbitOptions? RabbitOptions { get; set; } = new RabbitOptions();
@@ -603,11 +606,10 @@ namespace Smi.Common.Options
         public string RabbitMqHostName { get; set; } = "localhost";
         public int RabbitMqHostPort { get; set; } = 5672;
         public string? RabbitMqVirtualHost { get; set; } = "/";
-        public string? RabbitMqUserName { get; set; }
-        public string? RabbitMqPassword { get; set; }
+        public string? RabbitMqUserName { get; set; } = "guest";
+        public string? RabbitMqPassword { get; set; } = "guest";
         public string? FatalLoggingExchange { get; set; }
         public string? RabbitMqControlExchangeName { get; set; }
-        public bool ThreadReceivers { get; set; }
 
         public override string ToString()
         {

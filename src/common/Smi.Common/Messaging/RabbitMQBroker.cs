@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +8,14 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using Smi.Common.Events;
-using Smi.Common.Messaging;
 using Smi.Common.Options;
 
-namespace Smi.Common
+namespace Smi.Common.Messaging
 {
     /// <summary>
     /// Adapter for the RabbitMQ API.
     /// </summary>
-    public class RabbitMqAdapter : IRabbitMqAdapter
+    public class RabbitMQBroker : IMessageBroker
     {
         /// <summary>
         /// Used to ensure we can't create any new connections after we have called Shutdown()
@@ -38,12 +36,11 @@ namespace Smi.Common
         public const string RabbitMqRoutingKey_MatchAnything = "#";
         public const string RabbitMqRoutingKey_MatchOneWord = "*";
 
-        public static TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
+        public static readonly TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly HostFatalHandler? _hostFatalHandler;
-        private readonly string _hostId;
 
         private readonly IConnection _connection;
         private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new();
@@ -54,23 +51,16 @@ namespace Smi.Common
         private const int MinRabbitServerVersionMinor = 7;
         private const int MinRabbitServerVersionPatch = 0;
 
-        private const int MaxSubscriptionAttempts = 5;
-
-        private readonly bool _threaded;
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="connectionFactory"></param>
+        /// <param name="rabbitOptions"></param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
         /// <param name="threaded"></param>
-        public RabbitMqAdapter(IConnectionFactory connectionFactory, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
+        public RabbitMQBroker(RabbitOptions rabbitOptions, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
         {
-            //_threaded = options.ThreadReceivers;
-            _threaded = threaded;
-
-            if (_threaded)
+            if (threaded)
             {
                 ThreadPool.GetMinThreads(out var minWorker, out var minIOC);
                 var workers = Math.Max(50, minWorker);
@@ -82,10 +72,17 @@ namespace Smi.Common
 
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
-            _hostId = hostId;
 
+            var connectionFactory = new ConnectionFactory()
+            {
+                HostName = rabbitOptions.RabbitMqHostName,
+                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
+                Port = rabbitOptions.RabbitMqHostPort,
+                UserName = rabbitOptions.RabbitMqUserName,
+                Password = rabbitOptions.RabbitMqPassword
+            };
             _connection = connectionFactory.CreateConnection(hostId);
-            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason.ToString()})");
+            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
             _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");
 
             if (hostFatalHandler == null)
@@ -302,7 +299,7 @@ namespace Smi.Common
                 }
                 _rabbitResources.Clear();
             }
-            lock(_exitLock)
+            lock (_exitLock)
                 Monitor.PulseAll(_exitLock);
         }
 

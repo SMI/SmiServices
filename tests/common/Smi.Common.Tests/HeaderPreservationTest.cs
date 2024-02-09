@@ -34,7 +34,7 @@ namespace Smi.Common.Tests
             tester.SendMessage(consumerOptions, header, new TestMessage { Message = "hi" });
 
             consumer = new TestConsumer();
-            tester.Adapter.StartConsumer(consumerOptions, consumer);
+            tester.Broker.StartConsumer(consumerOptions, consumer);
 
             TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
 

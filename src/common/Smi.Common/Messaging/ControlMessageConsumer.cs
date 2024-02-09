@@ -34,7 +34,7 @@ namespace Smi.Common.Messaging
 
 
         public ControlMessageConsumer(
-            IConnectionFactory connectionFactory,
+            RabbitOptions rabbitOptions,
             string processName,
             int processId,
             string controlExchangeName,
@@ -47,7 +47,14 @@ namespace Smi.Common.Messaging
 
             ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            _factory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _factory = new ConnectionFactory()
+            {
+                HostName = rabbitOptions.RabbitMqHostName,
+                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
+                Port = rabbitOptions.RabbitMqHostPort,
+                UserName = rabbitOptions.RabbitMqUserName,
+                Password = rabbitOptions.RabbitMqPassword
+            };
 
             if (controlExchangeName == null)
                 throw new ArgumentNullException(nameof(controlExchangeName));
@@ -160,7 +167,7 @@ namespace Smi.Common.Messaging
 
         /// <summary>
         /// Creates a one-time connection to set up the required control queue and bindings on the RabbitMQ server.
-        /// The connection is disposed and StartConsumer(...) can then be called on the parent RabbitMQAdapter with ControlConsumerOptions
+        /// The connection is disposed and StartConsumer(...) can then be called on the parent MessageBroker with ControlConsumerOptions
         /// </summary>
         /// <param name="controlExchangeName"></param>
         private void SetupControlQueueForHost(string controlExchangeName)

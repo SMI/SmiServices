@@ -35,7 +35,7 @@ namespace Microservices.MongoDBPopulator.Execution
             Logger.Info("Starting consumers");
 
             foreach (IMongoDbPopulatorMessageConsumer consumer in Consumers)
-                RabbitMqAdapter.StartConsumer(consumer.ConsumerOptions, consumer, isSolo: false);
+                MessageBroker.StartConsumer(consumer.ConsumerOptions, consumer, isSolo: false);
 
             Logger.Info("Consumers successfully started");
         }

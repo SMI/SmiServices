@@ -5,7 +5,7 @@ using Smi.Common.Options;
 
 namespace Smi.Common
 {
-    public interface IRabbitMqAdapter
+    public interface IMessageBroker
     {
         bool HasConsumers { get; }
 

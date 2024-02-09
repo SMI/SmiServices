@@ -234,7 +234,7 @@ namespace Smi.Common.Messaging
         }
 
         /// <summary>
-        /// Logs a Fatal in the Logger and triggers the FatalError event which should shutdown the RabbitMQAdapter
+        /// Logs a Fatal in the Logger and triggers the FatalError event which should shutdown the MessageBroker
         /// <para>Do not do any further processing after triggering this method</para>
         /// </summary>
         /// <param name="msg"></param>

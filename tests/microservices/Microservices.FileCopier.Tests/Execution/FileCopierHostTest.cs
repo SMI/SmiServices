@@ -77,7 +77,7 @@ namespace Microservices.FileCopier.Tests.Execution
             };
             tester.SendMessage(globals.FileCopierOptions, message);
 
-            using var model = tester.Adapter.GetModel(nameof(FileCopierHostTest));
+            using var model = tester.Broker.GetModel(nameof(FileCopierHostTest));
             var consumer = new EventingBasicConsumer(model);
             ExtractedFileStatusMessage? statusMessage = null;
             consumer.Received += (_, ea) => statusMessage = JsonConvert.DeserializeObject<ExtractedFileStatusMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));

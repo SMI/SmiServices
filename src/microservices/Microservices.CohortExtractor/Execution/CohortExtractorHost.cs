@@ -75,14 +75,14 @@ namespace Microservices.CohortExtractor.Execution
             foreach (var args in toMemory.Messages.Where(static m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions!.ExtractFilesProducerOptions!, isBatch: true);
-            var fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
+            _fileMessageProducer = MessageBroker.SetupProducer(Globals.CohortExtractorOptions!.ExtractFilesProducerOptions!, isBatch: true);
+            var fileMessageInfoProducer = MessageBroker.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 
             Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller!, _auditor!, _pathResolver!, _fileMessageProducer, fileMessageInfoProducer);
 
-            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
+            MessageBroker.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)

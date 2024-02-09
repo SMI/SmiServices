@@ -14,7 +14,7 @@ namespace Smi.Common.Tests
 {
     public class MicroserviceTester : IDisposable
     {
-        public readonly RabbitMqAdapter Adapter;
+        public readonly RabbitMQBroker Broker;
 
         private readonly Dictionary<ConsumerOptions, IProducerModel> _sendToConsumers = new();
 
@@ -40,9 +40,9 @@ namespace Smi.Common.Tests
         {
             CleanUpAfterTest = true;
 
-            Adapter = new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(), "TestHost");
+            Broker = new RabbitMQBroker(rabbitOptions, "TestHost");
 
-            using var model = Adapter.GetModel(nameof(MicroserviceTester));
+            using var model = Broker.GetModel(nameof(MicroserviceTester));
             //setup a sender channel for each of the consumers you want to test sending messages to
             foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
             {
@@ -57,7 +57,7 @@ namespace Smi.Common.Tests
                 _declaredExchanges.Add(exchangeName);
 
                 //Create a binding between the exchange and the queue
-                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
+                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because MessageBroker wants it?
                 model.QueueDeclare(consumer.QueueName, true, false, false);//shared with other users
                 model.QueueBind(consumer.QueueName, exchangeName, "");
                 _declaredQueues.Add(consumer.QueueName);
@@ -68,13 +68,13 @@ namespace Smi.Common.Tests
                     ExchangeName = exchangeName
                 };
 
-                _sendToConsumers.Add(consumer, Adapter.SetupProducer(producerOptions, true));
+                _sendToConsumers.Add(consumer, Broker.SetupProducer(producerOptions, true));
             }
         }
 
         /// <summary>
         /// Sends the given message to your consumer, you must have passed the consumer into the MicroserviceTester constructor since all adapter setup happens via option
-        /// at RabbitMQAdapter construction time
+        /// at MessageBroker construction time
         /// </summary>
         /// <param name="toConsumer"></param>
         /// <param name="msg"></param>
@@ -86,7 +86,7 @@ namespace Smi.Common.Tests
 
         /// <summary>
         /// Sends the given message to your consumer, you must have passed the consumer into the MicroserviceTester constructor since all adapter setup happens via option
-        /// at RabbitMQAdapter construction time
+        /// at MessageBroker construction time
         /// </summary>
         /// <param name="toConsumer"></param>
         /// <param name="messages"></param>
@@ -101,7 +101,7 @@ namespace Smi.Common.Tests
 
         /// <summary>
         /// Sends the given message to your consumer, you must have passed the consumer into the MicroserviceTester constructor since all adapter setup happens via option
-        /// at RabbitMQAdapter construction time
+        /// at MessageBroker construction time
         /// </summary>
         /// <param name="toConsumer"></param>
         /// <param name="header"></param>
@@ -129,7 +129,7 @@ namespace Smi.Common.Tests
 
             string queueNameToUse = queueName ?? exchangeName.Replace("Exchange", "Queue");
 
-            using var model = Adapter.GetModel(nameof(CreateExchange));
+            using var model = Broker.GetModel(nameof(CreateExchange));
             //setup a sender channel for each of the consumers you want to test sending messages to
 
             //terminate any old queues / exchanges
@@ -140,7 +140,7 @@ namespace Smi.Common.Tests
 
             //Create a binding between the exchange and the queue
             if (!isSecondaryBinding)
-                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because RabbitMQAdapter wants it?
+                model.ExchangeDeclare(exchangeName, ExchangeType.Direct, true);//durable seems to be needed because MessageBroker wants it?
 
             model.QueueDeclare(queueNameToUse, true, false, false); //shared with other users
             model.QueueBind(queueNameToUse, exchangeName, routingKey);
@@ -156,7 +156,7 @@ namespace Smi.Common.Tests
         /// <returns></returns>
         public IEnumerable<Tuple<IMessageHeader, T>> ConsumeMessages<T>(string queueName) where T : IMessage
         {
-            IModel model = Adapter.GetModel($"ConsumeMessages-{queueName}");
+            IModel model = Broker.GetModel($"ConsumeMessages-{queueName}");
 
             while (true)
             {
@@ -187,12 +187,12 @@ namespace Smi.Common.Tests
 
             if (CleanUpAfterTest)
             {
-                using IModel model = Adapter.GetModel(nameof(MicroserviceTester.Dispose));
+                using IModel model = Broker.GetModel(nameof(MicroserviceTester.Dispose));
                 _declaredExchanges.ForEach(x => model.ExchangeDelete(x));
                 _declaredQueues.ForEach(x => model.QueueDelete(x));
             }
 
-            Adapter.Shutdown(RabbitMqAdapter.DefaultOperationTimeout);
+            Broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
         }
     }
 }

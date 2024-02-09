@@ -7,7 +7,7 @@ using Smi.Common.Options;
 namespace Smi.Common.Messaging
 {
     /// <summary>
-    /// Interface for an object which handles messages obtained by a RabbitMQAdapter.
+    /// Interface for an object which handles messages obtained by a MessageBroker.
     /// </summary>
     public interface IConsumer
     {
