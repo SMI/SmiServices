@@ -154,24 +154,28 @@ Some utility functions are used by the DicomText module.
 # Parsing Structured Reports
 
 Generally speaking you can work with Structured Reports in any of these ways:
-* dcm2json - outputs a JSON document (you can parse with `jq`, and use our
-`dicom_tag_string_replace.py` script to turn tag numbers into names)
-* read it with pydicom
-* read it from MongoDB
+
+-   dcm2json - outputs a JSON document (you can parse with `jq`, and use our
+    `dicom_tag_string_replace.py` script to turn tag numbers into names)
+-   read it with pydicom
+-   read it from MongoDB
 
 `dcm2json` - Depending on the source of the JSON, use `.val` or `.Value[0]`:
+
 ```
 dcm2json file.dcm | dicom_tag_string_replace.py | jq dicom_tag_string_replace.py | \
  jq '..| select(.vr == "ST" or .vr == "PN" or .vr == "LO" or .vr == "UT" or .vr == "DA")? | .val'
 ```
 
 `pydicom` - convert to a JSON dict
+
 ```
 dicom_raw = pydicom.dcmread(filename)
 dicom_raw_json = dicom_raw.to_json_dict()
 ```
 
 `MongoDB` - using the SmiServices Mongo helper
+
 ```
 mongodb = Mongo.SmiPyMongoCollection(mongo_host)
 mongodb.setImageCollection('SR')
@@ -207,6 +211,7 @@ dicomtext.write_redacted_text_into_dicom_file(args.output_dcm)
 ## Method 2 - use the StructuredReport module
 
 From a JSON file (e.g. output by dcm2json):
+
 ```
 with open('/lesion1-srdocument-medical.dcm.json') as fd:
   jdoc = json.load(fd)
@@ -215,6 +220,7 @@ sr.SR_parse(jdoc, 'doc', sys.stdout)
 ```
 
 From a DICOM file:
+
 ```
 ds = pydicom.dcmread('/lesion1-srdocument-medical.dcm')
 sr = StructuredReport.StructuredReport()
@@ -222,12 +228,14 @@ sr.SR_parse(ds.to_json_dict(), 'doc_name', sys.stdout)
 ```
 
 From MongoDB, get mongojson as above:
+
 ```
 SR.SR_parse(mongojson, document_name, output_fd)
 ```
 
 Agreed, the output to an open file may be inconvenient
 so here's a temporary file tip:
+
 ```
 with TemporaryFile(mode='w+', encoding='utf-8') as fd:
     SR.SR_parse(json_dict, document_name, fd)
