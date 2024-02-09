@@ -17,6 +17,9 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         private string _ctpWhiteListScriptPath;
         private string _srAnonToolPath;
         private string _smiLogsPath;
+        private string _dicomToTextScriptPath;
+        private string _anonymiseSRScriptPath;
+
 
 
         public DefaultAnonymiser()
@@ -29,6 +32,8 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             _ctpWhiteListScriptPath = "";
             _srAnonToolPath = "";
             _smiLogsPath = "";
+            _dicomToTextScriptPath = "";
+            _anonymiseSRScriptPath = "";
 
             LoadConfiguration();
         }
@@ -57,6 +62,8 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                     _ctpWhiteListScriptPath = config.ctpWhiteListScriptPath;
                     _srAnonToolPath = config.srAnonToolPath;
                     _smiLogsPath = config.smiLogsPath;
+                    _dicomToTextScriptPath = config.dicomToTextScriptPath;
+                    _anonymiseSRScriptPath = config.anonymiseSRScriptPath;
                     }
                 else
                 {
@@ -110,6 +117,39 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
+        private Process CreateDICOMToTextProcess(IFileInfo sourceFile, IFileInfo destFile)
+        {
+            string pythonExe = System.IO.Path.Combine(_virtualEnvPath, "bin/python3");
+
+            Process process = new Process();
+
+            process.StartInfo.FileName = pythonExe;
+            process.StartInfo.Arguments = $"{_dicomToTextScriptPath} -i {sourceFile} -o /Users/daniyalarshad/EPCC/github/NationalSafeHaven/CogStack-SemEHR/anonymisation/test_data/output.txt -y /Users/daniyalarshad/EPCC/github/NationalSafeHaven/SmiServices/data/microserviceConfigs/default.yaml";
+            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_smiServicesPath}";
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+
+            return process;
+        }
+
+        private Process CreateSRProcess(IFileInfo sourceFile, IFileInfo destFile)
+        {
+            string pythonExe = System.IO.Path.Combine(_virtualEnvPath, "bin/python3");
+
+            Process process = new Process();
+
+            process.StartInfo.FileName = pythonExe;
+            process.StartInfo.Arguments = $"{_anonymiseSRScriptPath} conf/anonymisation_task.json";
+            process.StartInfo.WorkingDirectory = "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/CogStack-SemEHR/anonymisation/";
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+
+            return process;
+        }
+
+
         // TODO (da-231122) - Update Anonymise logic based on image modality
         /// <summary>
         ///  Anonymises a DICOM file using the dicom pixel anonymiser
@@ -139,7 +179,45 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                 Console.WriteLine($"SUCCESS [CTP]: Return Code {CTPReturnCode}");
                 System.Console.WriteLine(CTPProcess.StandardOutput.ReadToEnd());
 
-                if(message.Modality != "SR")
+                if(message.Modality == "SR")
+                {
+                    Process DICOMToTextProcess = CreateDICOMToTextProcess(sourceFile, destFile);
+                    DICOMToTextProcess.Start();
+                    DICOMToTextProcess.WaitForExit();
+
+                    string DICOMToTextReturnCode = DICOMToTextProcess.ExitCode.ToString();
+                    if (DICOMToTextReturnCode != "0")
+                    {
+                        Console.WriteLine($"ERROR [DICOMToText]: Return Code {DICOMToTextReturnCode}");
+                        System.Console.WriteLine(DICOMToTextProcess.StandardError.ReadToEnd());
+                        return ExtractedFileStatus.ErrorWontRetry;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"SUCCESS [DICOMToText]: Return Code {DICOMToTextReturnCode}");
+                        System.Console.WriteLine(DICOMToTextProcess.StandardOutput.ReadToEnd());
+
+                        // SR Anonymiser
+                        Process SRProcess = CreateSRProcess(sourceFile, destFile);
+                        SRProcess.Start();
+                        SRProcess.WaitForExit();
+
+                        string SRReturnCode = SRProcess.ExitCode.ToString();
+                        if (SRReturnCode != "0")
+                        {
+                            Console.WriteLine($"ERROR [SR]: Return Code {SRReturnCode}");
+                            System.Console.WriteLine(SRProcess.StandardError.ReadToEnd());
+                            return ExtractedFileStatus.ErrorWontRetry;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"SUCCESS [SR]: Return Code {SRReturnCode}");
+                            System.Console.WriteLine(SRProcess.StandardOutput.ReadToEnd());
+                            return ExtractedFileStatus.Anonymised;
+                        }
+                    }
+                }
+                else
                 {
                     // DICOM Pixel Anonymiser
                     Process DICOMProcess = CreateDICOMProcess(sourceFile, destFile);
@@ -159,11 +237,6 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                         System.Console.WriteLine(DICOMProcess.StandardOutput.ReadToEnd());
                         return ExtractedFileStatus.Anonymised;
                     }
-                }
-                else
-                {
-                    Console.WriteLine("INFO: SR file detected, skipping DICOM Pixel Anonymiser");
-                    return ExtractedFileStatus.Anonymised;
                 }
             }
         }
