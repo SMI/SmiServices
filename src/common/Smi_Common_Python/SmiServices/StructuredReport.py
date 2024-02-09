@@ -487,7 +487,7 @@ class StructuredReport:
         # except for a ConceptSequence which will be done below.
         has_conceptseq_at_root_level = has_tag(json_dict, 'ValueType')
         for json_key in json_dict:
-            if has_conceptseq_at_root_level and not (tag_is(json_key, 'ConceptCodeSequence') or tag_is(json_key, 'ConceptNameCodeSequence')):
+            if not has_conceptseq_at_root_level or (not (tag_is(json_key, 'ConceptCodeSequence') or tag_is(json_key, 'ConceptNameCodeSequence'))):
                 self._SR_parse_key(json_dict, json_key, fp)
 
         # If it has elements which should be inside a ContentSequence but aren't:
