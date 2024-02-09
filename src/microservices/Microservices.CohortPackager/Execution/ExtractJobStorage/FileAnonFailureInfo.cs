@@ -8,11 +8,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
     /// </summary>
     public class FileAnonFailureInfo
     {
-        // TODO(rkm 2020-10-27) This should probably instead reference the source file which failed to anonymise
         /// <summary>
-        /// The path of the output DICOM file which could not be extracted
+        /// The path of the original DICOM file which could not be extracted
         /// </summary>
-        public readonly string ExpectedAnonFile;
+        public readonly string DicomFilePath;
 
         /// <summary>
         /// The reason for the file not being extracted
@@ -20,11 +19,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public readonly string Reason;
 
         public FileAnonFailureInfo(
-            string expectedAnonFile,
+            string dicomFilePath,
             string reason
         )
         {
-            ExpectedAnonFile = string.IsNullOrWhiteSpace(expectedAnonFile) ? throw new ArgumentException(nameof(expectedAnonFile)) : expectedAnonFile;
+            DicomFilePath = string.IsNullOrWhiteSpace(dicomFilePath) ? throw new ArgumentException(nameof(dicomFilePath)) : dicomFilePath;
             Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException(nameof(reason)) : reason;
         }
     }
