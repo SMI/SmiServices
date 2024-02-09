@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution;
+using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Microservices.CohortPackager.Options;
@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Text.RegularExpressions;
 
 
 namespace Microservices.CohortPackager
@@ -46,21 +45,17 @@ namespace Microservices.CohortPackager
             MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
             var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName!);
 
-            string newLine = Regex.Unescape(cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions!.ReportNewLine!);
-
             // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory
-            IJobReporter reporter = JobReporterFactory.GetReporter(
-                "FileReporter",
+            var reporter = new JobReporter(
                 jobStore,
                 new FileSystem(),
                 Directory.GetCurrentDirectory(),
-                cliOptions.ReportFormat.ToString(),
-                newLine
+                cliOptions.OutputNewLine ?? globalOptions.CohortPackagerOptions?.ReportNewLine
             );
 
             try
             {
-                reporter.CreateReport(cliOptions.ExtractionId);
+                reporter.CreateReports(cliOptions.ExtractionId);
             }
             catch (Exception e)
             {
