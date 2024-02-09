@@ -7,6 +7,7 @@ using Smi.Common.Options;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using FellowOakDicom;
 
 namespace Microservices.DicomAnonymiser
 {
@@ -87,6 +88,11 @@ namespace Microservices.DicomAnonymiser
             destFileAbs.Directory!.Create();
 
             _logger.Debug($"Anonymising '{sourceFileAbs}' to '{destFileAbs}'");
+
+            // Fetch the modality from the DICOM file
+            DicomFile dicomFile = DicomFile.Open(sourceFileAbs.FullName);
+            message.Modality = dicomFile.Dataset.GetSingleValue<string>(DicomTag.Modality);
+
             Console.WriteLine("IMAGE MODALITY: "+message.Modality);
             Console.WriteLine("SOURCE FILE: "+message.DicomFilePath);
             Console.WriteLine("DEST FILE: "+message.OutputPath);
