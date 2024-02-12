@@ -398,6 +398,193 @@ internal class JobReporterTests
     }
 
     [Test]
+    public void CreateReports_NoFilterExtraction_Empty()
+    {
+        // Arrange
+
+        CompletedExtractJobInfo jobInfo = TestJobInfo(isNoFilterExtraction: true);
+
+        var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+        mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(new List<string>());
+        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
+        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
+
+        var reportsDir = _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1");
+        var readmePath = _mockFileSystem.Path.Combine(reportsDir, "README.md");
+        var processingErrorsPath = _mockFileSystem.Path.Combine(reportsDir, "processing_errors.csv");
+        var rejectedFilesPath = _mockFileSystem.Path.Combine(reportsDir, "rejected_files.csv");
+        var verificationFailuresPath = _mockFileSystem.Path.Combine(reportsDir, "verification_failures.csv");
+
+        var reporter = new JobReporter(mockJobStore.Object, _mockFileSystem, _extractionRoot, _newLine);
+
+        // Act
+
+        reporter.CreateReports(jobInfo.ExtractionJobIdentifier);
+
+        // Assert
+
+        Assert.Multiple(() =>
+        {
+            Assert.AreEqual(
+                string.Join(_newLine, new List<string>
+                {
+                    $"# SMI extraction validation report for 1234-5678 test-1",
+                    $"",
+                    $"Job info:",
+                    $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                    $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                    $"-   Job duration:                 01:00:00",
+                    $"-   Job extraction id:            d0b6d98f-8c98-4ddb-b469-a6fa7b99dea0",
+                    $"-   Extraction tag:               SeriesInstanceUID",
+                    $"-   Extraction modality:          Unspecified",
+                    $"-   Requested identifier count:   123",
+                    $"-   User name:                    testUser",
+                    $"-   Identifiable extraction:      No",
+                    $"-   Filtered extraction:          No",
+                    $"",
+                }),
+                _mockFileSystem.File.ReadAllText(readmePath)
+            );
+
+            Assert.AreEqual(
+               string.Join(_newLine, new List<string>
+               {
+                    "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
+                    "",
+               }),
+               _mockFileSystem.File.ReadAllText(verificationFailuresPath)
+            );
+
+            Assert.AreEqual(
+                string.Join(_newLine, new List<string>
+                {
+                    "DicomFilePath,Reason",
+                    ""
+                }),
+                _mockFileSystem.File.ReadAllText(processingErrorsPath)
+            );
+
+            Assert.AreEqual(
+                string.Join(_newLine, new List<string>
+                {
+                    "ExtractionKey,Count,Reason",
+                    ""
+                }),
+                _mockFileSystem.File.ReadAllText(rejectedFilesPath)
+            );
+        });
+    }
+
+    [Test]
+    public void CreateReports_NoFilterExtraction_WithData()
+    {
+        // Arrange
+
+        CompletedExtractJobInfo jobInfo = TestJobInfo(isNoFilterExtraction: true);
+
+        var jobRejections = new List<ExtractionIdentifierRejectionInfo>
+        {
+            new("1.2.3.4", new Dictionary<string, int>
+            {
+                {"Some error", 123 },
+            })
+        };
+
+        var missingFiles = new List<string>
+        {
+            "1/2/missing.dcm",
+        };
+
+        var anonFailures = new List<FileAnonFailureInfo>
+        {
+            new("1/2/3.dcm", "Corrupt file"),
+        };
+
+        var verificationFailures = new List<FileVerificationFailureInfo>
+        {
+            new("1/2/3-an.dcm", "[{'Parts': [{'Classification': 3, 'Offset': 0, 'Word': 'FOO'}], 'Resource': '/foo1.dcm', 'ResourcePrimaryKey': '1.2.3.4', 'ProblemField': 'ScanOptions', 'ProblemValue': 'FOO'}]"),
+        };
+
+        var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
+        mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(jobRejections);
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(missingFiles);
+        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(anonFailures);
+        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
+
+        var reportsDir = _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1");
+        var readmePath = _mockFileSystem.Path.Combine(reportsDir, "README.md");
+        var processingErrorsPath = _mockFileSystem.Path.Combine(reportsDir, "processing_errors.csv");
+        var rejectedFilesPath = _mockFileSystem.Path.Combine(reportsDir, "rejected_files.csv");
+        var verificationFailuresPath = _mockFileSystem.Path.Combine(reportsDir, "verification_failures.csv");
+
+        var reporter = new JobReporter(mockJobStore.Object, _mockFileSystem, _extractionRoot, _newLine);
+
+        // Act
+
+        reporter.CreateReports(jobInfo.ExtractionJobIdentifier);
+
+        // Assert
+
+        Assert.Multiple(() =>
+        {
+            Assert.AreEqual(
+                string.Join(_newLine, new List<string>
+                {
+                    $"# SMI extraction validation report for 1234-5678 test-1",
+                    $"",
+                    $"Job info:",
+                    $"-   Job submitted at:             {_dateTimeProvider.UtcNow().ToString("s", CultureInfo.InvariantCulture)}",
+                    $"-   Job completed at:             {(_dateTimeProvider.UtcNow() + TimeSpan.FromHours(1)).ToString("s", CultureInfo.InvariantCulture)}",
+                    $"-   Job duration:                 01:00:00",
+                    $"-   Job extraction id:            d0b6d98f-8c98-4ddb-b469-a6fa7b99dea0",
+                    $"-   Extraction tag:               SeriesInstanceUID",
+                    $"-   Extraction modality:          Unspecified",
+                    $"-   Requested identifier count:   123",
+                    $"-   User name:                    testUser",
+                    $"-   Identifiable extraction:      No",
+                    $"-   Filtered extraction:          No",
+                    $"",
+                }),
+                _mockFileSystem.File.ReadAllText(readmePath)
+            );
+
+            Assert.AreEqual(
+                string.Join(_newLine, new List<string>
+                {
+                    "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
+                    "1/2/3-an.dcm,1.2.3.4,ScanOptions,FOO,FOO,Person,0",
+                    "",
+               }),
+               _mockFileSystem.File.ReadAllText(verificationFailuresPath)
+            );
+
+            Assert.AreEqual(
+                string.Join(_newLine, new List<string>
+                {
+                    "DicomFilePath,Reason",
+                    "1/2/missing.dcm,Missing",
+                    "1/2/3.dcm,Corrupt file",
+                    ""
+                }),
+                _mockFileSystem.File.ReadAllText(processingErrorsPath)
+            );
+
+            Assert.AreEqual(
+                string.Join(_newLine, new List<string>
+                {
+                    "ExtractionKey,Count,Reason",
+                    "1.2.3.4,123,Some error",
+                    ""
+                }),
+                _mockFileSystem.File.ReadAllText(rejectedFilesPath)
+            );
+        });
+    }
+
+    [Test]
     public void Constructor_NoNewLine_SetToEnvironment()
     {
         // Arrange
