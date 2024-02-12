@@ -365,7 +365,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
             // Act
 
-            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IRabbitMqAdapter>().Object, new DateTimeProvider());
+            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IMessageBroker>().Object, new DateTimeProvider());
 
             // Assert
 
@@ -383,7 +383,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
             // Act
 
-            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IRabbitMqAdapter>().Object, null);
+            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IMessageBroker>().Object, null);
 
             // Assert
 
