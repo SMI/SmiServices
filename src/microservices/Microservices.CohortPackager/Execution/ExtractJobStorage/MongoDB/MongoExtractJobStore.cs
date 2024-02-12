@@ -350,11 +350,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
-                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
-                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
-            );
+
+            // Anonymisation failures have VerifiedFileStatus == NotVerified (they did not go through IsIdentifiable) and
+            // ExtractedFileStatus != Copied (as these are not anonymised)
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.NotVerified);
+            filter &= Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied);
 
             IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
             while (cursor.MoveNext())
@@ -366,10 +366,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
-                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
-                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
-             );
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.IsIdentifiable);
 
             IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
