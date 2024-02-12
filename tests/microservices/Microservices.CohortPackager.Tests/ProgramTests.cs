@@ -35,7 +35,10 @@ internal class ProgramTests
     #region Test Methods
 
     [SetUp]
-    public void SetUp() { }
+    public void SetUp()
+    {
+        SmiCliInit.InitSmiLogging = false;
+    }
 
     [TearDown]
     public void TearDown() { }
@@ -47,13 +50,13 @@ internal class ProgramTests
     #region Tests
 
     [Test]
-    public void Program_RecreateReports_HappyPath()
+    public void RecreateReports_HappyPath()
     {
         // Arrange
 
-        using var pf = new PathFixtures(nameof(Program_RecreateReports_HappyPath));
+        using var pf = new PathFixtures(nameof(RecreateReports_HappyPath));
 
-        GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Program_RecreateReports_HappyPath));
+        GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(RecreateReports_HappyPath));
         globals.FileSystemOptions!.ExtractRoot = pf.ExtractRootAbsolute;
         globals.CohortPackagerOptions!.JobWatcherTimeoutInSeconds = 5;
         globals.CohortPackagerOptions.VerificationMessageQueueProcessBatches = false;
@@ -138,6 +141,22 @@ internal class ProgramTests
         // Assert
 
         Assert.AreEqual(0, rc);
+    }
+
+    [Test]
+    public void RecreateReports_MissingJob()
+    {
+        // Arrange
+
+        var args = new[] { "-r", Guid.NewGuid().ToString(), };
+
+        // Act
+
+        var rc = Program.Main(args);
+
+        // Assert
+
+        Assert.AreEqual(1, rc);
     }
 
     #endregion
