@@ -13,6 +13,8 @@ using System.Linq;
 using System.Threading;
 
 namespace Microservices.CohortPackager.Tests;
+
+[RequiresMongoDb, RequiresRabbit]
 internal class ProgramTests
 {
     #region Fixture Methods
