@@ -71,7 +71,8 @@ namespace Microservices.CohortPackager.Execution
 
             if (reporter == null)
             {
-                var extractRoot = Globals.FileSystemOptions?.ExtractRoot;
+                // Globals.FileSystemOptions checked in base constructor
+                var extractRoot = Globals.FileSystemOptions!.ExtractRoot;
                 if (string.IsNullOrWhiteSpace(extractRoot))
                     throw new ArgumentOutOfRangeException(nameof(Globals.FileSystemOptions.ExtractRoot));
 
