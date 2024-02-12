@@ -31,7 +31,7 @@
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.0.16" />
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.1.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="NUnit" Version="3.14.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
