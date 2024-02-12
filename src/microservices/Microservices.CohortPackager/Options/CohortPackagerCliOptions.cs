@@ -3,10 +3,12 @@ using CommandLine.Text;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace Microservices.CohortPackager.Options
 {
+    [ExcludeFromCodeCoverage]
     public class CohortPackagerCliOptions : CliOptions
     {
         [Option(
