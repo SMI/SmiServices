@@ -208,5 +208,27 @@ MongoDatabases:
         Assert.AreEqual(1, rc);
     }
 
+    [Test]
+    public void Main_Service_MissingOptions_ReturnsNonZero()
+    {
+        // Arrange
+
+        var optionsContent = @"
+LoggingOptions:
+    LogConfigFile:
+";
+        File.WriteAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "empty.yml"), optionsContent);
+
+        var args = new[] { "-y", "empty.yml", };
+
+        // Act
+
+        var rc = Program.Main(args);
+
+        // Assert
+
+        Assert.AreEqual(-1, rc);
+    }
+
     #endregion
 }
