@@ -1,5 +1,6 @@
 using Equ;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -107,6 +108,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return ExtractionDirectory.Substring(0, idx);
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString()
         {
             var sb = new StringBuilder();

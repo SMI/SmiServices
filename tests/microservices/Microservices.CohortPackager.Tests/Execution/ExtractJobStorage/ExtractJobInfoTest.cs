@@ -146,6 +146,61 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
         }
 
+        [Test]
+        public void Constructor_DefaultExtractionJobIdentifier_ThrowsException()
+        {
+            // Arrange
+            var jobId = Guid.Empty;
+
+            // Act
+
+            var call = () => new ExtractJobInfo(
+                jobId,
+                _dateTimeProvider.UtcNow(),
+                "1234",
+                "test/directory",
+                "KeyTag",
+                123,
+                "testUser",
+                "MR",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            Assert.Throws<ArgumentNullException>(() => call());
+        }
+
+        [Test]
+        public void Constructor_InvalidModality_ThrowsException()
+        {
+            // Arrange
+
+            var modality = " ";
+
+            // Act
+
+            var call = () => new ExtractJobInfo(
+                Guid.NewGuid(),
+                _dateTimeProvider.UtcNow(),
+                "1234",
+                "test/directory",
+                "KeyTag",
+                123,
+                "testUser",
+                modality,
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            Assert.Throws<ArgumentNullException>(() => call());
+        }
+
         #endregion
     }
 }
