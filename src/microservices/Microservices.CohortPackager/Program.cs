@@ -26,24 +26,35 @@ namespace Microservices.CohortPackager
         private static int OnParse(GlobalOptions globals, CohortPackagerCliOptions opts)
         {
             if (opts.ExtractionId != default)
-                return RecreateReport(globals, opts);
+                return RecreateReports(globals, opts);
 
             var bootstrapper = new MicroserviceHostBootstrapper(() => new CohortPackagerHost(globals));
             int ret = bootstrapper.Main();
             return ret;
         }
 
-        private static int RecreateReport(GlobalOptions globalOptions, CohortPackagerCliOptions cliOptions)
+        private static int RecreateReports(GlobalOptions globalOptions, CohortPackagerCliOptions cliOptions)
         {
             Logger logger = LogManager.GetCurrentClassLogger();
 
+            var mongoDbOptions = globalOptions.MongoDatabases?.ExtractionStoreOptions;
+            if (mongoDbOptions == null)
+            {
+                logger.Error($"{nameof(MongoDatabases.ExtractionStoreOptions)} must be set");
+                return 1;
+            }
+
+            var databaseName = mongoDbOptions.DatabaseName;
+            if (databaseName == null)
+            {
+                logger.Error($"{nameof(mongoDbOptions.DatabaseName)} must be set");
+                return 1;
+            }
+
             logger.Info($"Recreating report for job {cliOptions.ExtractionId}");
 
-            MongoDbOptions mongoDbOptions = globalOptions.MongoDatabases!.ExtractionStoreOptions
-                ?? throw new ArgumentException($"Part of globalOptions.MongoDatabases.ExtractionStoreOptions was null");
-
             MongoClient client = MongoClientHelpers.GetMongoClient(mongoDbOptions, globalOptions.HostProcessName);
-            var jobStore = new MongoExtractJobStore(client, mongoDbOptions.DatabaseName!);
+            var jobStore = new MongoExtractJobStore(client, databaseName);
 
             // NOTE(rkm 2020-10-22) Sets the extraction root to the current directory
             var reporter = new JobReporter(

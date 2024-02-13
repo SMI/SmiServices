@@ -144,11 +144,60 @@ internal class ProgramTests
     }
 
     [Test]
-    public void RecreateReports_MissingJob()
+    public void RecreateReports_MissingJob_ReturnsNonZero()
     {
         // Arrange
 
         var args = new[] { "-r", Guid.NewGuid().ToString(), };
+
+        // Act
+
+        var rc = Program.Main(args);
+
+        // Assert
+
+        Assert.AreEqual(1, rc);
+    }
+
+    [Test]
+    public void RecreateReports_MissingExtractionStoreOptions_ReturnsNonZero()
+    {
+        // Arrange
+
+        var optionsContent = @"
+LoggingOptions:
+    LogConfigFile:
+";
+
+        File.WriteAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "empty.yml"), optionsContent);
+
+        var args = new[] { "-r", Guid.NewGuid().ToString(), "-y", "empty.yml" };
+
+        // Act
+
+        var rc = Program.Main(args);
+
+        // Assert
+
+        Assert.AreEqual(1, rc);
+    }
+
+    [Test]
+    public void RecreateReports_MissingDatabaseName_ReturnsNonZero()
+    {
+        // Arrange
+
+        var optionsContent = @"
+LoggingOptions:
+    LogConfigFile:
+MongoDatabases:  
+  ExtractionStoreOptions:
+    DatabaseName:
+";
+
+        File.WriteAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "empty.yml"), optionsContent);
+
+        var args = new[] { "-r", Guid.NewGuid().ToString(), "-y", "empty.yml" };
 
         // Act
 
