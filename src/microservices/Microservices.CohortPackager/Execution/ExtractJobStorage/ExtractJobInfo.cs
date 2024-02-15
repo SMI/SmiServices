@@ -74,16 +74,16 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             bool isNoFilterExtraction
             )
         {
-            ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
-            JobSubmittedAt = (jobSubmittedAt != default(DateTime)) ? jobSubmittedAt : throw new ArgumentNullException(nameof(jobSubmittedAt));
-            ProjectNumber = (!string.IsNullOrWhiteSpace(projectNumber)) ? projectNumber : throw new ArgumentNullException(nameof(projectNumber));
-            ExtractionDirectory = (!string.IsNullOrWhiteSpace(extractionDirectory)) ? extractionDirectory : throw new ArgumentNullException(nameof(extractionDirectory));
-            KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentNullException(nameof(keyTag));
-            KeyValueCount = (keyValueCount > 0) ? keyValueCount : throw new ArgumentNullException(nameof(keyValueCount));
-            UserName = (!string.IsNullOrWhiteSpace(userName)) ? userName : throw new ArgumentNullException(nameof(userName));
+            ExtractionJobIdentifier = (extractionJobIdentifier != default) ? extractionJobIdentifier : throw new ArgumentOutOfRangeException(nameof(extractionJobIdentifier), $"Must not be the default {nameof(Guid)}");
+            JobSubmittedAt = (jobSubmittedAt != default) ? jobSubmittedAt : throw new ArgumentOutOfRangeException(nameof(jobSubmittedAt), $"Must not be the default {nameof(DateTime)}");
+            ProjectNumber = (!string.IsNullOrWhiteSpace(projectNumber)) ? projectNumber : throw new ArgumentOutOfRangeException(nameof(projectNumber), "Must not be null or whitespace");
+            ExtractionDirectory = (!string.IsNullOrWhiteSpace(extractionDirectory)) ? extractionDirectory : throw new ArgumentOutOfRangeException(nameof(extractionDirectory), "Must not be null or whitespace");
+            KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentOutOfRangeException(nameof(keyTag), "Must not be null or whitespace");
+            KeyValueCount = (keyValueCount > 0) ? keyValueCount : throw new ArgumentOutOfRangeException(nameof(keyValueCount), "Must not be zero");
+            UserName = (!string.IsNullOrWhiteSpace(userName)) ? userName : throw new ArgumentOutOfRangeException(nameof(userName), "Must not be null or whitespace");
             if (extractionModality != null)
-                ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
-            JobStatus = (jobStatus != default(ExtractJobStatus)) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
+                ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentOutOfRangeException(nameof(extractionModality), "Must not be whitespace if passed");
+            JobStatus = (jobStatus != default) ? jobStatus : throw new ArgumentOutOfRangeException(nameof(jobStatus), $"Must not be the default {nameof(ExtractJobStatus)}");
             IsIdentifiableExtraction = isIdentifiableExtraction;
             IsNoFilterExtraction = isNoFilterExtraction;
         }
@@ -97,7 +97,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             string[] split = ExtractionDirectory.Split('/', '\\');
             return split[^1];
         }
-        
+
         /// <summary>
         /// Returns the project extraction directory (first two parts of projName/extractions/extractName)
         /// </summary>
