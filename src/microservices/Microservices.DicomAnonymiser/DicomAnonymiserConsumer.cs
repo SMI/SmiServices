@@ -94,20 +94,22 @@ namespace Microservices.DicomAnonymiser
             DicomFile dicomFile = DicomFile.Open(sourceFileAbs.FullName);
             message.Modality = dicomFile.Dataset.GetSingleValue<string>(DicomTag.Modality);
 
-            Console.WriteLine("IMAGE MODALITY: "+message.Modality);
-            Console.WriteLine("SOURCE FILE: "+message.DicomFilePath);
-            Console.WriteLine("DEST FILE: "+message.OutputPath);
+            Console.WriteLine("[DICOM] Modality: "+message.Modality);
+            Console.WriteLine("[DICOM] Source File: "+message.DicomFilePath);
+            Console.WriteLine("[DICOM] Destination File: "+message.OutputPath);
+
+            string anonymiserStatusMessage = "";
 
             try
             {
-                _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs);                
+                _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs, out anonymiserStatusMessage);             
             }
             catch (Exception e)
             {
                 var msg = $"Error anonymising '{sourceFileAbs}'";
                 _logger.Error(e, msg);
 
-                statusMessage.StatusMessage = $"{msg}. Exception message: {e.Message}";
+                statusMessage.StatusMessage = $"{msg}. {anonymiserStatusMessage}. Exception message: {e.Message}";
                 statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
                 statusMessage.OutputFilePath = null;
                 _statusMessageProducer.SendMessage(statusMessage, header, _options.RoutingKeyFailure);
@@ -119,6 +121,7 @@ namespace Microservices.DicomAnonymiser
             _logger.Debug($"Anonymisation of '{sourceFileAbs}' successful");
 
             statusMessage.Status = ExtractedFileStatus.Anonymised;
+            statusMessage.StatusMessage = anonymiserStatusMessage;
             _statusMessageProducer.SendMessage(statusMessage, header, _options.RoutingKeySuccess);
 
             Ack(header, tag);

@@ -87,13 +87,13 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         /// <summary>
         ///  Anonymises a DICOM file based on image modality
         /// </summary>
-        public ExtractedFileStatus Anonymise(ExtractFileMessage message, IFileInfo sourceFile, IFileInfo destFile) // Set out variable to be a string
+        public ExtractedFileStatus Anonymise(ExtractFileMessage message, IFileInfo sourceFile, IFileInfo destFile, out string anonymiserStatusMessage)
         {
             _logger.Info($"Anonymising {sourceFile} to {destFile}");
 
-            // TODO (da 2024-02-16) - Return a tuple of a status and a message
             if (!RunProcessAndCheckSuccess(CreateCTPProcess(sourceFile, destFile), "CTP"))
             {
+                anonymiserStatusMessage = "Error running CTP anonymiser";
                 return ExtractedFileStatus.ErrorWontRetry;
             }
 
@@ -101,6 +101,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             {
                 if (!RunProcessAndCheckSuccess(CreateSRProcess(sourceFile, destFile), "SR"))
                 {
+                    anonymiserStatusMessage = "Error running SR anonymiser";
                     return ExtractedFileStatus.ErrorWontRetry;
                 }
             }
@@ -109,10 +110,12 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                 // TODO (da 2024-02-16) - Change DICOM name to something more descriptive
                 if (!RunProcessAndCheckSuccess(CreateDICOMProcess(sourceFile, destFile), "DICOM"))
                 {
+                    anonymiserStatusMessage = "Error running PIXEL anonymiser";
                     return ExtractedFileStatus.ErrorWontRetry;
                 }
             }
 
+            anonymiserStatusMessage = "Anonymisation successful";
             return ExtractedFileStatus.Anonymised;
         }
 
