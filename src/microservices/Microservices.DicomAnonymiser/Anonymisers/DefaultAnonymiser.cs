@@ -2,188 +2,142 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Diagnostics;
+using System.Collections.Generic;
 using Smi.Common.Messages.Extraction;
-using Newtonsoft.Json;
 using Smi.Common.Options;
+using Newtonsoft.Json;
+using NLog;
 
 namespace Microservices.DicomAnonymiser.Anonymisers
 {
     public class DefaultAnonymiser : IDicomAnonymiser
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DicomAnonymiserOptions _options;
+        private readonly LoggingOptions _loggingOptions;
+        private const string _bash = "/bin/bash";
 
-        public DefaultAnonymiser(DicomAnonymiserOptions dicomAnonymiserOptions)
+        public DefaultAnonymiser(GlobalOptions globalOptions)
         {
-            _options = dicomAnonymiserOptions;
+            if (globalOptions == null)
+                throw new ArgumentNullException(nameof(globalOptions));
+
+            if (globalOptions.DicomAnonymiserOptions == null)
+                throw new ArgumentNullException(nameof(globalOptions.DicomAnonymiserOptions));
+
+            if (globalOptions.LoggingOptions == null)
+                throw new ArgumentNullException(nameof(globalOptions.LoggingOptions));
+
+            _options = globalOptions.DicomAnonymiserOptions;
+            _loggingOptions = globalOptions.LoggingOptions;
         }
 
         /// <summary>
-        /// Creates a process to run the dicom pixel anonymiser
+        /// Creates a process with the given parameters
         /// </summary>
-        /// <param name="sourceFile"></param>
-        /// <param name="destFile"></param>
-        /// <returns></returns>
+        private Process CreateProcess(string fileName, string arguments, string? workingDirectory = null, Dictionary<string, string>? environmentVariables = null)
+        {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    WorkingDirectory = workingDirectory ?? string.Empty
+                }
+            };
+
+            if (environmentVariables != null)
+            {
+                foreach (var variable in environmentVariables)
+                {
+                    process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
+                }
+            }
+
+            return process;
+        }
+
         private Process CreateDICOMProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string activateCommand = $"source {_options.VirtualEnvPath}/bin/activate";
+            string arguments = $"-c \"{activateCommand} && {_options.DicomPixelAnonPath}/dicom_pixel_anon.sh -o {destFile} {sourceFile}\"";
 
-            Process process = new Process();
-
-            process.StartInfo.FileName = "/bin/bash";
-            process.StartInfo.Arguments = $"-c \"{activateCommand} && {_options.ShellScriptPath} -o {destFile} {sourceFile}\"";
-            process.StartInfo.WorkingDirectory = $"{_options.DicomPixelAnonPath}/src/applications/";
-            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_options.SmiServicesPath}";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-
-            return process;
+            return CreateProcess(_bash, arguments, _options.DicomPixelAnonPath);
         }
 
-        /// <summary>
-        /// Creates a process to run the CTP Anonymiser
-        /// </summary>
         private Process CreateCTPProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
-            Process process = new Process();
+            string arguments = $"-jar {_options.CtpAnonCliJar} -a {_options.CtpAllowlistScript} -s false {sourceFile} {destFile}";
 
-            process.StartInfo.FileName = "java";
-            process.StartInfo.Arguments = $"-jar {_options.CtpJarPath} -a {_options.CtpWhiteListScriptPath} -s false {sourceFile} {destFile}";
-            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_options.SmiServicesPath}";
-            process.StartInfo.EnvironmentVariables["SMI_LOGS_ROOT"] = $"{_options.SmiLogsPath}"; 
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-
-            return process;
+            return CreateProcess("java", arguments);
         }
 
-        /// <summary>
-        /// Creates a process to run the DICOM to Text conversion
-        /// </summary>
-        private Process CreateDICOMToTextProcess(IFileInfo sourceFile, IFileInfo destFile)
-        {
-            string pythonExe = System.IO.Path.Combine(_options.VirtualEnvPath!, "bin/python3");
-
-            Process process = new Process();
-
-            process.StartInfo.FileName = pythonExe;
-            process.StartInfo.Arguments = $"{_options.DicomToTextScriptPath} -i {sourceFile} -o /Users/daniyalarshad/EPCC/github/NationalSafeHaven/CogStack-SemEHR/anonymisation/test_data/output.txt -y /Users/daniyalarshad/EPCC/github/NationalSafeHaven/SmiServices/data/microserviceConfigs/default.yaml";
-            process.StartInfo.EnvironmentVariables["SMI_ROOT"] = $"{_options.SmiServicesPath}";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-
-            return process;
-        }
-
-        /// <summary>
-        /// Creates a process to run the SR Anonymiser
-        /// </summary>
         private Process CreateSRProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
-            string pythonExe = System.IO.Path.Combine(_options.VirtualEnvPath!, "bin/python3");
+            string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr/";
+            var environmentVariables = new Dictionary<string, string> { { "SMI_ROOT", $"{_options.SmiServicesPath}" } };
 
-            Process process = new Process();
-
-            process.StartInfo.FileName = pythonExe;
-            process.StartInfo.Arguments = $"{_options.AnonymiseSRScriptPath} conf/anonymisation_task.json";
-            process.StartInfo.WorkingDirectory = "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/CogStack-SemEHR/anonymisation/";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-
-            return process;
+            return CreateProcess(_bash, arguments);
         }
 
         /// <summary>
-        ///  Anonymises a DICOM file based on the modality
+        ///  Anonymises a DICOM file based on image modality
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="sourceFile"></param>
-        /// <param name="destFile"></param>
-        /// <returns></returns>
-        public ExtractedFileStatus Anonymise(ExtractFileMessage message, IFileInfo sourceFile, IFileInfo destFile)
+        public ExtractedFileStatus Anonymise(ExtractFileMessage message, IFileInfo sourceFile, IFileInfo destFile) // Set out variable to be a string
         {
-            Console.WriteLine($"INFO: Anonymising {sourceFile} to {destFile}");
+            _logger.Info($"Anonymising {sourceFile} to {destFile}");
 
-            // CTP Anonymiser
-            Process CTPProcess = CreateCTPProcess(sourceFile, destFile);
-            CTPProcess.Start();
-            CTPProcess.WaitForExit();
-
-            string CTPReturnCode = CTPProcess.ExitCode.ToString();
-            if (CTPReturnCode != "0")
+            // TODO (da 2024-02-16) - Return a tuple of a status and a message
+            if (!RunProcessAndCheckSuccess(CreateCTPProcess(sourceFile, destFile), "CTP"))
             {
-                Console.WriteLine($"ERROR [CTP]: Return Code {CTPReturnCode}");
-                System.Console.WriteLine(CTPProcess.StandardError.ReadToEnd());
                 return ExtractedFileStatus.ErrorWontRetry;
+            }
+
+            if (message.Modality == "SR")
+            {
+                if (!RunProcessAndCheckSuccess(CreateSRProcess(sourceFile, destFile), "SR"))
+                {
+                    return ExtractedFileStatus.ErrorWontRetry;
+                }
             }
             else
             {
-                Console.WriteLine($"SUCCESS [CTP]: Return Code {CTPReturnCode}");
-                System.Console.WriteLine(CTPProcess.StandardOutput.ReadToEnd());
-
-                if(message.Modality == "SR")
+                // TODO (da 2024-02-16) - Change DICOM name to something more descriptive
+                if (!RunProcessAndCheckSuccess(CreateDICOMProcess(sourceFile, destFile), "DICOM"))
                 {
-                    Process DICOMToTextProcess = CreateDICOMToTextProcess(sourceFile, destFile);
-                    DICOMToTextProcess.Start();
-                    DICOMToTextProcess.WaitForExit();
-
-                    string DICOMToTextReturnCode = DICOMToTextProcess.ExitCode.ToString();
-                    if (DICOMToTextReturnCode != "0")
-                    {
-                        Console.WriteLine($"ERROR [DICOMToText]: Return Code {DICOMToTextReturnCode}");
-                        System.Console.WriteLine(DICOMToTextProcess.StandardError.ReadToEnd());
-                        return ExtractedFileStatus.ErrorWontRetry;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"SUCCESS [DICOMToText]: Return Code {DICOMToTextReturnCode}");
-                        System.Console.WriteLine(DICOMToTextProcess.StandardOutput.ReadToEnd());
-
-                        // SR Anonymiser
-                        Process SRProcess = CreateSRProcess(sourceFile, destFile);
-                        SRProcess.Start();
-                        SRProcess.WaitForExit();
-
-                        string SRReturnCode = SRProcess.ExitCode.ToString();
-                        if (SRReturnCode != "0")
-                        {
-                            Console.WriteLine($"ERROR [SR]: Return Code {SRReturnCode}");
-                            System.Console.WriteLine(SRProcess.StandardError.ReadToEnd());
-                            return ExtractedFileStatus.ErrorWontRetry;
-                        }
-                        else
-                        {
-                            Console.WriteLine($"SUCCESS [SR]: Return Code {SRReturnCode}");
-                            System.Console.WriteLine(SRProcess.StandardOutput.ReadToEnd());
-                            return ExtractedFileStatus.Anonymised;
-                        }
-                    }
-                }
-                else
-                {
-                    // DICOM Pixel Anonymiser
-                    Process DICOMProcess = CreateDICOMProcess(sourceFile, destFile);
-                    DICOMProcess.Start();
-                    DICOMProcess.WaitForExit();
-
-                    string DICOMReturnCode = DICOMProcess.ExitCode.ToString();
-                    if (DICOMReturnCode != "0")
-                    {
-                        Console.WriteLine($"ERROR [DICOM]: Return Code {DICOMReturnCode}");
-                        System.Console.WriteLine(DICOMProcess.StandardError.ReadToEnd());
-                        return ExtractedFileStatus.ErrorWontRetry;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"SUCCESS [DICOM]: Return Code {DICOMReturnCode}");
-                        System.Console.WriteLine(DICOMProcess.StandardOutput.ReadToEnd());
-                        return ExtractedFileStatus.Anonymised;
-                    }
+                    return ExtractedFileStatus.ErrorWontRetry;
                 }
             }
+
+            return ExtractedFileStatus.Anonymised;
         }
+
+        /// <summary>
+        /// Runs a process and logs the result
+        /// </summary>
+        private bool RunProcessAndCheckSuccess(Process process, string processName)
+        {
+            process.Start();
+            process.WaitForExit();
+
+            var returnCode = process.ExitCode.ToString();
+            LogProcessResult(processName, returnCode, process);
+
+            return returnCode == "0";
+        }
+
+        /// <summary>
+        /// Logs the result of a process
+        /// </summary>
+        private void LogProcessResult(string processName, string returnCode, Process process)
+        {
+            var output = returnCode == "0" ? process.StandardOutput.ReadToEnd() : process.StandardError.ReadToEnd();
+            _logger.Info($"{(returnCode == "0" ? "SUCCESS" : "ERROR")} [{processName}]: Return Code {returnCode}\n{output}");
+        }
+
     }
 }
