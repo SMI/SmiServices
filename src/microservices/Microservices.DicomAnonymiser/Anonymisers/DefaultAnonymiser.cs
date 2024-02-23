@@ -29,6 +29,8 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                 throw new ArgumentNullException(nameof(globalOptions.LoggingOptions));
 
             _options = globalOptions.DicomAnonymiserOptions;
+            
+            // TODO (da 240223) - Review if LoggingOptions is needed
             _loggingOptions = globalOptions.LoggingOptions;
         }
 
@@ -61,7 +63,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
-        private Process CreateDICOMProcess(IFileInfo sourceFile, IFileInfo destFile)
+        private Process CreatePixelAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string activateCommand = $"source {_options.VirtualEnvPath}/bin/activate";
             string arguments = $"-c \"{activateCommand} && {_options.DicomPixelAnonPath}/dicom_pixel_anon.sh -o {destFile} {sourceFile}\"";
@@ -69,14 +71,14 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return CreateProcess(_bash, arguments, _options.DicomPixelAnonPath);
         }
 
-        private Process CreateCTPProcess(IFileInfo sourceFile, IFileInfo destFile)
+        private Process CreateCTPAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string arguments = $"-jar {_options.CtpAnonCliJar} -a {_options.CtpAllowlistScript} -s false {sourceFile} {destFile}";
 
             return CreateProcess("java", arguments);
         }
 
-        private Process CreateSRProcess(IFileInfo sourceFile, IFileInfo destFile)
+        private Process CreateSRAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr/";
             var environmentVariables = new Dictionary<string, string> { { "SMI_ROOT", $"{_options.SmiServicesPath}" } };
@@ -91,7 +93,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         {
             _logger.Info($"Anonymising {sourceFile} to {destFile}");
 
-            if (!RunProcessAndCheckSuccess(CreateCTPProcess(sourceFile, destFile), "CTP"))
+            if (!RunProcessAndCheckSuccess(CreateCTPAnonProcess(sourceFile, destFile), "CTP Anonymiser"))
             {
                 anonymiserStatusMessage = "Error running CTP anonymiser";
                 return ExtractedFileStatus.ErrorWontRetry;
@@ -99,7 +101,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 
             if (message.Modality == "SR")
             {
-                if (!RunProcessAndCheckSuccess(CreateSRProcess(sourceFile, destFile), "SR"))
+                if (!RunProcessAndCheckSuccess(CreateSRAnonProcess(sourceFile, destFile), "SR Anonymiser"))
                 {
                     anonymiserStatusMessage = "Error running SR anonymiser";
                     return ExtractedFileStatus.ErrorWontRetry;
@@ -107,8 +109,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             }
             else
             {
-                // TODO (da 2024-02-16) - Change DICOM name to something more descriptive
-                if (!RunProcessAndCheckSuccess(CreateDICOMProcess(sourceFile, destFile), "DICOM"))
+                if (!RunProcessAndCheckSuccess(CreatePixelAnonProcess(sourceFile, destFile), "Pixel Anonymiser"))
                 {
                     anonymiserStatusMessage = "Error running PIXEL anonymiser";
                     return ExtractedFileStatus.ErrorWontRetry;
