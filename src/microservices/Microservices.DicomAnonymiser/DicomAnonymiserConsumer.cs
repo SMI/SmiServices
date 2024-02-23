@@ -13,6 +13,10 @@ namespace Microservices.DicomAnonymiser
 {
     public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
     {
+        // TODO (da 2024-02-23) Additonal Requirement: Message Batching
+        // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.CohortPackager/Messaging/AnonVerificationMessageConsumer.cs#L72
+        // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.MongoDbPopulator/Messaging/MongoDbPopulatorMessageConsumer.cs#L56
+
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DicomAnonymiserOptions _options;
         private readonly IFileSystem _fileSystem;
@@ -100,7 +104,9 @@ namespace Microservices.DicomAnonymiser
 
             try
             {
-                _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs, out anonymiserStatusMessage);             
+                // TODO (da 2024-02-23) Handle exceptions from Anonymise using return status
+                // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.IsIdentifiable/Service/IsIdentifiableQueueConsumer.cs#L62-L79.
+                _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs, out anonymiserStatusMessage);
             }
             catch (Exception e)
             {

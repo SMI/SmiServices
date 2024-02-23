@@ -14,8 +14,6 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         /// <param name="destFile"></param>
         /// <param name="anonymiserStatusMessage"></param>
         /// <returns></returns>
-        // ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile);
-
         ExtractedFileStatus Anonymise(ExtractFileMessage message, IFileInfo sourceFile, IFileInfo destFile, out string anonymiserStatusMessage);
     }
 }

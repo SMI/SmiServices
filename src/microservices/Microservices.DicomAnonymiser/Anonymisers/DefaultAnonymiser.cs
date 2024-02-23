@@ -19,6 +19,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 
         public DefaultAnonymiser(GlobalOptions globalOptions)
         {
+            // TODO (da 2024-02-23) globalOptions can be removed
             if (globalOptions == null)
                 throw new ArgumentNullException(nameof(globalOptions));
 
@@ -30,10 +31,12 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 
             _options = globalOptions.DicomAnonymiserOptions;
             
-            // TODO (da 240223) - Review if LoggingOptions is needed
+            // TODO (da 2024-02-23) Review if LoggingOptions is needed
             _loggingOptions = globalOptions.LoggingOptions;
         }
 
+        // TODO (da 2024-02-23) Add test cases for all classes/methods
+        // TODO (da 2024-02-23) Review unchanged files with check annotations
         /// <summary>
         /// Creates a process with the given parameters
         /// </summary>
@@ -78,6 +81,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return CreateProcess("java", arguments);
         }
 
+        // NOTE (da 2024-02-23) This method uses the SRAnonTool within SmiServices
         private Process CreateSRAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr/";
@@ -87,7 +91,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         }
 
         /// <summary>
-        ///  Anonymises a DICOM file based on image modality
+        /// Anonymises a DICOM file based on image modality
         /// </summary>
         public ExtractedFileStatus Anonymise(ExtractFileMessage message, IFileInfo sourceFile, IFileInfo destFile, out string anonymiserStatusMessage)
         {
