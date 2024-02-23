@@ -14,7 +14,6 @@ namespace Microservices.DicomAnonymiser
     public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
         private readonly DicomAnonymiserOptions _options;
         private readonly IFileSystem _fileSystem;
         private readonly string _fileSystemRoot;
@@ -79,7 +78,7 @@ namespace Microservices.DicomAnonymiser
             var extractionDirAbs = _fileSystem.Path.Combine(_extractRoot, message.ExtractionDirectory);
 
             // NOTE(rkm 2021-12-07) Since this directory should have already been created, we treat this more like an assertion and throw if not found.
-            // This helps prevent a flood of messages if e.g. the filesystem is temporarily unavialable
+            // This helps prevent a flood of messages if e.g. the filesystem is temporarily unavailable.
             if (!_fileSystem.Directory.Exists(extractionDirAbs))
                 throw new DirectoryNotFoundException($"Expected extraction directory to exist: '{extractionDirAbs}'");
 
