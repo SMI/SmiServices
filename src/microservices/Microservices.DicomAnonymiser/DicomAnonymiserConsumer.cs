@@ -100,31 +100,47 @@ namespace Microservices.DicomAnonymiser
             Console.WriteLine("[DICOM] Source File: "+message.DicomFilePath);
             Console.WriteLine("[DICOM] Destination File: "+message.OutputPath);
 
+            ExtractedFileStatus anonymiserStatus = ExtractedFileStatus.None;
             string anonymiserStatusMessage = "";
 
-            try
+            tryå
             {
-                // TODO (da 2024-02-23) Handle exceptions from Anonymise using return status
-                // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.IsIdentifiable/Service/IsIdentifiableQueueConsumer.cs#L62-L79.
-                _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs, out anonymiserStatusMessage);
+                anonymiserStatus = _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs, out anonymiserStatusMessage);
             }
             catch (Exception e)
             {
                 var msg = $"Error anonymising '{sourceFileAbs}'";
                 _logger.Error(e, msg);
 
-                statusMessage.StatusMessage = $"{msg}. {anonymiserStatusMessage}. Exception message: {e.Message}";
                 statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
+                statusMessage.StatusMessage = $"{msg}. Exception message: {e.Message}";
                 statusMessage.OutputFilePath = null;
                 _statusMessageProducer.SendMessage(statusMessage, header, _options.RoutingKeyFailure);
 
                 Ack(header, tag);
-                return;
+            }å
+
+            switch (anonymiserStatus)
+            {
+                case ExtractedFileStatus.ErrorWontRetry:
+                    _logger.Info($"Anonymisation of '{sourceFileAbs}' failed");
+                    statusMessage.OutputFilePath = null;
+                    break;
+
+                case ExtractedFileStatus.FileMissing:
+                    _logger.Info($"Source file '{sourceFileAbs}' missing");
+                    statusMessage.OutputFilePath = null;
+                    break;
+
+                case ExtractedFileStatus.Anonymised:
+                    _logger.Info($"Anonymisation of '{sourceFileAbs}' successful");
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            _logger.Debug($"Anonymisation of '{sourceFileAbs}' successful");
-
-            statusMessage.Status = ExtractedFileStatus.Anonymised;
+            statusMessage.Status = anonymiserStatus;
             statusMessage.StatusMessage = anonymiserStatusMessage;
             _statusMessageProducer.SendMessage(statusMessage, header, _options.RoutingKeySuccess);
 
