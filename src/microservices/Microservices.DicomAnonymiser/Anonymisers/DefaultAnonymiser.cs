@@ -80,7 +80,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
         // NOTE (da 2024-02-23) This method uses the SRAnonTool within SmiServices
         private Process CreateSRAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
-            string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr/";
+            string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr";
             var environmentVariables = new Dictionary<string, string> { { "SMI_ROOT", $"{_options.SmiServicesPath}" } };
 
             return CreateProcess(_bash, arguments);
@@ -117,7 +117,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             }
 
             anonymiserStatusMessage = "Anonymisation successful";
-            return ExtractedFileStatus.Anonymised;
+        return ExtractedFileStatus.Anonymised;
         }
 
         /// <summary>
