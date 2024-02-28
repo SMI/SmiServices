@@ -19,10 +19,6 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 
         public DefaultAnonymiser(GlobalOptions globalOptions)
         {
-            // TODO (da 2024-02-23) globalOptions can be removed
-            if (globalOptions == null)
-                throw new ArgumentNullException(nameof(globalOptions));
-
             if (globalOptions.DicomAnonymiserOptions == null)
                 throw new ArgumentNullException(nameof(globalOptions.DicomAnonymiserOptions));
 
