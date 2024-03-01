@@ -120,29 +120,25 @@ namespace Microservices.DicomAnonymiser
                 Ack(header, tag);
             }
 
-            switch (anonymiserStatus)
+            string routingKey;
+
+            if (anonymiserStatus == ExtractedFileStatus.Anonymised)
             {
-                case ExtractedFileStatus.ErrorWontRetry:
-                    _logger.Info($"Anonymisation of '{sourceFileAbs}' failed");
-                    statusMessage.OutputFilePath = null;
-                    break;
-
-                case ExtractedFileStatus.FileMissing:
-                    _logger.Info($"Source file '{sourceFileAbs}' missing");
-                    statusMessage.OutputFilePath = null;
-                    break;
-
-                case ExtractedFileStatus.Anonymised:
-                    _logger.Info($"Anonymisation of '{sourceFileAbs}' successful");
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
+                _logger.Info($"Anonymisation of '{sourceFileAbs}' successful");
+                statusMessage.Status = anonymiserStatus;
+                statusMessage.StatusMessage = anonymiserStatusMessage;
+                routingKey = _options.RoutingKeySuccess ?? "verify";
+            }
+            else
+            {
+                _logger.Info($"Anonymisation of '{sourceFileAbs}' failed");
+                statusMessage.OutputFilePath = null;
+                statusMessage.Status = anonymiserStatus;
+                statusMessage.StatusMessage = anonymiserStatusMessage;
+                routingKey = _options.RoutingKeyFailure ?? "noverify";
             }
 
-            statusMessage.Status = anonymiserStatus;
-            statusMessage.StatusMessage = anonymiserStatusMessage;
-            _statusMessageProducer.SendMessage(statusMessage, header, _options.RoutingKeySuccess);
+            _statusMessageProducer.SendMessage(statusMessage, header, routingKey);
 
             Ack(header, tag);
             return;
