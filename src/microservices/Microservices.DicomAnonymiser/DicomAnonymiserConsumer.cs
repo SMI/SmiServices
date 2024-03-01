@@ -103,7 +103,7 @@ namespace Microservices.DicomAnonymiser
             ExtractedFileStatus anonymiserStatus = ExtractedFileStatus.None;
             string anonymiserStatusMessage = "";
 
-            tryå
+            try
             {
                 anonymiserStatus = _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs, out anonymiserStatusMessage);
             }
@@ -118,7 +118,7 @@ namespace Microservices.DicomAnonymiser
                 _statusMessageProducer.SendMessage(statusMessage, header, _options.RoutingKeyFailure);
 
                 Ack(header, tag);
-            }å
+            }
 
             switch (anonymiserStatus)
             {
