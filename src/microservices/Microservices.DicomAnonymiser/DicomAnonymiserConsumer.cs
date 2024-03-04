@@ -98,7 +98,7 @@ namespace Microservices.DicomAnonymiser
 
             Console.WriteLine("[DICOM] Modality: "+message.Modality);
             Console.WriteLine("[DICOM] Source File: "+message.DicomFilePath);
-            Console.WriteLine("[DICOM] Destination File: "+message.OutputPath);
+            Console.WriteLine("[DICOM] Dest File: "+message.OutputPath);
 
             ExtractedFileStatus anonymiserStatus = ExtractedFileStatus.None;
             string anonymiserStatusMessage = "";
