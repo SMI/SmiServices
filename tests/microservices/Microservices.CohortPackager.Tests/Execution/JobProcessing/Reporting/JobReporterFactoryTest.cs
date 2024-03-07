@@ -50,7 +50,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     reportNewLine: null
                 )
             );
-            Assert.AreEqual(expected: "Could not parse reportFormatStr to a valid ReportFormat. Got 'FooFormat'", exc.Message);
+            Assert.AreEqual(expected: "Could not parse reportFormatStr to a valid ReportFormat. Got 'FooFormat'", exc!.Message);
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var fileReporter = reporter as FileReporter;
             Assert.NotNull(fileReporter);
-            Assert.AreEqual(ReportFormat.Combined, fileReporter.ReportFormat);
+            Assert.AreEqual(ReportFormat.Combined, fileReporter!.ReportFormat);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var loggingReporter = reporter as LoggingReporter;
             Assert.NotNull(loggingReporter);
-            Assert.AreEqual(ReportFormat.Combined, loggingReporter.ReportFormat);
+            Assert.AreEqual(ReportFormat.Combined, loggingReporter!.ReportFormat);
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     reportNewLine: null
                 )
             );
-            Assert.AreEqual(expected: "No case for type, or invalid type string 'FooReporter'", exc.Message);
+            Assert.AreEqual(expected: "No case for type, or invalid type string 'FooReporter'", exc!.Message);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
                 var asBase = reporter as JobReporterBase;
                 Assert.NotNull(asBase);
-                Assert.AreEqual(testNewLine, asBase.ReportNewLine);
+                Assert.AreEqual(testNewLine, asBase!.ReportNewLine);
             }
         }
 

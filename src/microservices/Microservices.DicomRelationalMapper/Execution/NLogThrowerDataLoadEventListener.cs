@@ -1,13 +1,13 @@
 using System;
 using NLog;
-using ReusableLibraryCode.Progress;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 
-namespace Microservices.DicomRelationalMapper.Execution;
-
-internal class NLogThrowerDataLoadEventListener:IDataLoadEventListener
+namespace Microservices.DicomRelationalMapper.Execution
 {
-    private readonly Logger _logger;
-    private readonly ThrowImmediatelyDataLoadEventListener _thrower = new(){WriteToConsole = false};
+    internal sealed class NLogThrowerDataLoadEventListener:IDataLoadEventListener
+    {
+        private readonly Logger _logger;
+        private static readonly ThrowImmediatelyDataLoadEventListener _thrower = ThrowImmediatelyDataLoadEventListener.Quiet;
 
     public NLogThrowerDataLoadEventListener(Logger logger)
     {
@@ -20,16 +20,16 @@ internal class NLogThrowerDataLoadEventListener:IDataLoadEventListener
         _thrower.OnNotify(sender,e);
     }
 
-    private static LogLevel ToLogLevel(ProgressEventType type) =>
-        type switch
-        {
-            ProgressEventType.Trace => LogLevel.Trace,
-            ProgressEventType.Debug => LogLevel.Debug,
-            ProgressEventType.Information => LogLevel.Info,
-            ProgressEventType.Warning => LogLevel.Warn,
-            ProgressEventType.Error => LogLevel.Error,
-            _ => throw new ArgumentOutOfRangeException(nameof(type))
-        };
+        private static LogLevel ToLogLevel(ProgressEventType t) =>
+            t switch
+            {
+                ProgressEventType.Trace => LogLevel.Trace,
+                ProgressEventType.Debug => LogLevel.Debug,
+                ProgressEventType.Information => LogLevel.Info,
+                ProgressEventType.Warning => LogLevel.Warn,
+                ProgressEventType.Error => LogLevel.Error,
+                _ => throw new ArgumentOutOfRangeException(nameof(t))
+            };
 
     public void OnProgress(object sender, ProgressEventArgs e)
     {

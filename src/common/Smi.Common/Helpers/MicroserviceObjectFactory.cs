@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Smi.Common.Events;
 using NLog;
@@ -14,7 +14,7 @@ namespace Smi.Common.Helpers
         /// Method called when <see cref="CreateInstance{T}(System.Type,object[])"/> fails.  If not set then the Exception is simply
         /// thrown.
         /// </summary>
-        public HostFatalHandler FatalHandler;
+        public HostFatalHandler? FatalHandler;
 
         /// <summary>
         /// Constructs an instance of the specified <paramref name="toCreate"/> and casts it to Type T (e.g. an interface).  You can pass any 
@@ -24,29 +24,28 @@ namespace Smi.Common.Helpers
         /// <param name="toCreate"></param>
         /// <param name="optionalConstructorParameters"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(Type toCreate, params object[] optionalConstructorParameters)
+        public T? CreateInstance<T>(Type toCreate, params object[] optionalConstructorParameters)
         {
-            T toReturn = default(T);
+            T? toReturn = default;
 
             try
             {
-                var constructor = new ObjectConstructor();
-                toReturn = (T)constructor.ConstructIfPossible(toCreate, optionalConstructorParameters);
+                toReturn = (T)ObjectConstructor.ConstructIfPossible(toCreate, optionalConstructorParameters);
 
                 if (optionalConstructorParameters.Length > 0 && toReturn == null)
-                    toReturn = (T)constructor.Construct(toCreate); // Try blank constructor
+                    toReturn = (T)ObjectConstructor.Construct(toCreate); // Try blank constructor
 
                 if (toReturn == null)
                     throw new Exception("ConstructIfPossible returned null");
 
-                _logger.Info("Successfully constructed Type '" + toReturn.GetType() + "'");
+                _logger.Info($"Successfully constructed Type '{toReturn.GetType()}'");
             }
             catch (Exception e)
             {
                 _logger.Error(e,$"Failed to construct Type '{typeof(T)}'");
 
                 if(FatalHandler != null)
-                    FatalHandler(this,new FatalErrorEventArgs("Error constructing Type " + toCreate, e));
+                    FatalHandler(this,new FatalErrorEventArgs($"Error constructing Type {toCreate}", e));
                 else
                     throw;
             }
@@ -63,15 +62,15 @@ namespace Smi.Common.Helpers
         /// <param name="assembly"></param>
         /// <param name="optionalConstructorParameters"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(string typeName, Assembly assembly, params object[] optionalConstructorParameters)
+        public T? CreateInstance<T>(string typeName, Assembly assembly, params object[] optionalConstructorParameters)
         {
             if (string.IsNullOrWhiteSpace(typeName))
             {
-                _logger.Warn("No Type name specified for T " + typeof(T).Name);
-                return default(T);
+                _logger.Warn($"No Type name specified for T {typeof(T).Name}");
+                return default;
             }
 
-            Type toCreate = assembly.GetType(typeName, true);
+            Type toCreate = assembly.GetType(typeName, true) ?? throw new Exception($"Could not create type {typeName} from the given Assembly {assembly}");
             return CreateInstance<T>(toCreate, optionalConstructorParameters);
         }
     }

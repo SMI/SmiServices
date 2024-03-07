@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace Smi.Common.Options
 {
@@ -10,17 +10,22 @@ namespace Smi.Common.Options
         /// <summary>
         /// Name of the queue to consume from.
         /// </summary>
-        public string QueueName { get; set; }
+        public string? QueueName { get; set; }
 
         /// <summary>
         /// Max number of messages the queue will send the consumer before receiving an acknowledgement.
         /// </summary>
-        public ushort QoSPrefetchCount { get; set; }
+        public ushort QoSPrefetchCount { get; set; } = 1;
 
         /// <summary>
         /// Automatically acknowledge any messages sent to the consumer.
         /// </summary>
         public bool AutoAck { get; set; }
+
+        /// <summary>
+        /// If set, consumer will not call Fatal when an unhandled exception occurs when processing a message, up to the <see cref="QoSPrefetchCount"/> limit. Requires <see cref="AutoAck"/> to be false
+        /// </summary>
+        public bool HoldUnprocessableMessages { get; set; }
 
 
         /// <summary>
@@ -38,6 +43,7 @@ namespace Smi.Common.Options
             sb.Append("QueueName: " + QueueName);
             sb.Append(", AutoAck: " + AutoAck);
             sb.Append(", QoSPrefetchCount: " + QoSPrefetchCount);
+            sb.Append(", HoldUnprocessableMessages: " + HoldUnprocessableMessages);
             return sb.ToString();
         }
     }

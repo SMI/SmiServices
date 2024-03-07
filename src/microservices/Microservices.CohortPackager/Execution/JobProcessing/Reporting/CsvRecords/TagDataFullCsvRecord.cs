@@ -1,5 +1,4 @@
-﻿using Equ;
-using JetBrains.Annotations;
+using Equ;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,29 +11,23 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         /// <summary>
         /// The tag name which contained the failure value 
         /// </summary>
-        [NotNull]
-        [UsedImplicitly]
         public string TagName { get; }
 
         /// <summary>
         /// The value which has been recorded as a validation failure
         /// </summary>
-        [NotNull]
-        [UsedImplicitly]
         public string FailureValue { get; }
 
         /// <summary>
         /// The path to the file which contained the failure, relative to the extraction directory
         /// </summary>
-        [NotNull]
-        [UsedImplicitly]
         public string FilePath { get; }
 
 
         public TagDataFullCsvRecord(
-            [NotNull] string tagName,
-            [NotNull] string failureValue,
-            [NotNull] string filePath
+            string tagName,
+            string failureValue,
+            string filePath
         )
         {
             TagName = string.IsNullOrWhiteSpace(tagName) ? throw new ArgumentException(nameof(tagName)) : tagName;
@@ -43,8 +36,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         }
 
         public static IEnumerable<TagDataFullCsvRecord> BuildRecordList(
-            [NotNull] string tagName,
-            [NotNull] Dictionary<string, List<string>> tagFailures
+            string tagName,
+            Dictionary<string, List<string>> tagFailures
         )
         {
             // Order by most frequent first, then alphabetically by filename

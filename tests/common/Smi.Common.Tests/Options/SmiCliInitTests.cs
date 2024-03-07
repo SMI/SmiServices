@@ -1,5 +1,4 @@
-﻿using CommandLine;
-using JetBrains.Annotations;
+using CommandLine;
 using NUnit.Framework;
 using Smi.Common.Options;
 
@@ -30,15 +29,13 @@ namespace Smi.Common.Tests.Options
         [TearDown]
         public void TearDown() { }
 
-        [UsedImplicitly]
         private class FakeCliOpts : CliOptions
         {
             [Option(
                 'f', "foo",
                 Required = false
             )]
-            [UsedImplicitly]
-            public string Foo { get; set; }
+            public string? Foo { get; set; }
         }
 
         [Verb("fake")]
@@ -48,8 +45,7 @@ namespace Smi.Common.Tests.Options
                 'f', "foo",
                 Required = false
             )]
-            [UsedImplicitly]
-            public string Foo { get; set; }
+            public string? Foo { get; set; }
         }
 
         #endregion

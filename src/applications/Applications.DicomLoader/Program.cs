@@ -114,7 +114,6 @@ public static class Program
     }
 }
 
-[UsedImplicitly]
 public class DicomLoaderOptions : CliOptions
 {
     [Option(

@@ -1,4 +1,3 @@
-﻿using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NLog;
 using System.IO;
@@ -9,15 +8,14 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
     /// <summary>
     /// Basic reporter which outputs to its logger. Should be used for testing only
     /// </summary>
-    [UsedImplicitly]
     public class LoggingReporter : JobReporterBase
     {
         private readonly ILogger _logger;
 
         public LoggingReporter(
-            [NotNull] IExtractJobStore jobStore,
+            IExtractJobStore jobStore,
             ReportFormat reportFormat,
-            [CanBeNull] string reportNewLine
+            string? reportNewLine
         )
             : base(
                 jobStore,

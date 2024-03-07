@@ -75,7 +75,21 @@ The SemEHR directory (`/opt/semehr`) can be changed with the `-s` option for tes
 
 This program can be used as part of the SRAnonTool pipeline or it can be used standalone to extract documents in bulk for later SemEHR processing.
 
-Usage: `-y default.yaml -i input.dcm -o output [-m metadata_output] [--semehr-unique]`
+usage: CTP_DicomToText.py [-h] [-y YAMLFILE] [-i INPUT] [-o OUTPUT_DIR] [-m METADATA_DIR] [--semehr-unique] [--replace-html REPLACE_HTML] [--replace-newlines REPLACE_NEWLINES]`
+
+The options are:
+
+```
+  -y YAMLFILE           path to yaml config file (can be used more than once)
+  -i INPUT              SOPInstanceUID or path to raw DICOM file from which text will be redacted
+  -o OUTPUT_DIR         path to directory where extracted text will be written
+  -m METADATA_DIR       path to directory where extracted metadata will be written
+  --semehr-unique       only extract from MongoDB/dicom if not already in MongoDB/semehr
+  --replace-html REPLACE_HTML
+                        replace HTML with a character, default is dot (.), or "squash" to eliminate
+  --replace-newlines REPLACE_NEWLINES
+                        replace carriage returns and newlines with a character (e.g. a space) or "squash" to eliminate
+```
 
 `-y default.yaml` - may be specified more than once if the configuration parameters are spread across multiple yaml files.
 
@@ -83,9 +97,13 @@ Usage: `-y default.yaml -i input.dcm -o output [-m metadata_output] [--semehr-un
 
 `-o output` - full path to the output text file, or directory for multiple files.
 
-`-m metadata_output` - full path to the output metadata json file, or directory for multiple files.
+`-m metadata_output` - full path to the output metadata json file, or directory for multiple files (optional).
 
 `--semehr-unique` - if extracting a StudyDate from MongoDB then ignore any documents which have a SOPInstanceUID that is already in the SemEHR MongoDB database. This is intended to allow reprocessing of any documents that previously failed without having to reprocess the whole day.
+
+`--replace-html=X` - redacted HTML is replaced with a dot by default, but you can choose any other character (or string?) such as a space, or using the keyword `squash` it can be completely removed.
+
+`--replace-newlines=X` - newlines characters can be replaced with any other character such as a space, or using the keyword `squash` they can be completely removed.
 
 If metadata output is requested then JSON output files are created containing the values of these tags:
 `SOPClassUID, SOPInstanceUID, StudyInstanceUID, SeriesInstanceUID, ContentDate, ModalitiesInStudy, PatientID`.
@@ -182,3 +200,12 @@ mkdir -p ./data/input_docs
 mkdir -p ./data/anonymised
 ./CTP_SRAnonTool_test.py -s .
 ```
+
+# Building a standalone executable
+
+First build the SmiServices wheel `python3 ./setup.py bdist_wheel` and pip install it into your virtual environment (use `--no-index --no-deps` if necessary).
+
+Then build the executable `pyinstaller -F --collect-submodules=pydicom ./CTP_DicomToText.py`
+
+Test with `dist/CTP_DicomToText -i test/report10html.dcm -o . -y CTP_DicomToText.yaml --replace-html=squash --replace-newlines=squash`
+where the yaml file is a stripped down version of default.yaml.

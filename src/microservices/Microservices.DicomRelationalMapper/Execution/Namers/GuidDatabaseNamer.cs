@@ -3,39 +3,40 @@ using FAnsi.Discovery;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.EntityNaming;
 
-namespace Microservices.DicomRelationalMapper.Execution.Namers;
-
-/// <summary>
-/// Handles naming RAW/STAGING databases in a data load with unique names (by prefixing a GUID to the name).
-/// 
-/// Since the RDMP currently expects STAGING to always be there and won't automatically create it we have to also support creating
-/// it externally and destroying it after successful loads.
-/// </summary>
-public class GuidDatabaseNamer : FixedStagingDatabaseNamer, ICreateAndDestroyStagingDuringLoads
+namespace Microservices.DicomRelationalMapper.Execution.Namers
 {
-    private readonly string _guid;
-    private DiscoveredDatabase _stagingDatabase;
-
     /// <summary>
-    /// Defines how to name Staging databases by appending a Guid.  You can pass a specific guid if you want or pass Guid.Empty to 
-    /// assign a new random one
+    /// Handles naming RAW/STAGING databases in a data load with unique names (by prefixing a GUID to the name).
+    /// 
+    /// Since the RDMP currently expects STAGING to always be there and won't automatically create it we have to also support creating
+    /// it externally and destroying it after successful loads.
     /// </summary>
-    /// <param name="databaseName"></param>
-    /// <param name="explicitGuid"></param>
-    public GuidDatabaseNamer(string databaseName, Guid explicitGuid) : base(databaseName)
+    public class GuidDatabaseNamer : FixedStagingDatabaseNamer, ICreateAndDestroyStagingDuringLoads
     {
-        _guid = explicitGuid == Guid.Empty ? Guid.NewGuid().ToString("N") : explicitGuid.ToString();
-    }
+        private readonly string _guid;
+        private DiscoveredDatabase? _stagingDatabase;
 
-    /// <summary>
-    /// Prefixes STAGING and RAW databases with the guid
-    /// </summary>
-    /// <param name="rootDatabaseName"></param>
-    /// <param name="stage"></param>
-    /// <returns></returns>
-    public override string GetDatabaseName(string rootDatabaseName, LoadBubble stage)
-    {
-        var basic = base.GetDatabaseName(rootDatabaseName, stage);
+        /// <summary>
+        /// Defines how to name Staging databases by appending a Guid.  You can pass a specific guid if you want or pass Guid.Empty to 
+        /// assign a new random one
+        /// </summary>
+        /// <param name="databaseName"></param>
+        /// <param name="explicitGuid"></param>
+        public GuidDatabaseNamer(string databaseName, Guid explicitGuid) 
+            : base(databaseName)
+        {
+            _guid = explicitGuid == Guid.Empty ? Guid.NewGuid().ToString("N") : explicitGuid.ToString();
+        }
+
+        /// <summary>
+        /// Prefixes STAGING and RAW databases with the guid
+        /// </summary>
+        /// <param name="rootDatabaseName"></param>
+        /// <param name="stage"></param>
+        /// <returns></returns>
+        public override string GetDatabaseName(string? rootDatabaseName, LoadBubble stage)
+        {
+            var basic = base.GetDatabaseName(rootDatabaseName, stage);
 
         return stage is LoadBubble.Live or LoadBubble.Archive ? basic : $"t{_guid.Replace("-", "")}{basic}";
     }

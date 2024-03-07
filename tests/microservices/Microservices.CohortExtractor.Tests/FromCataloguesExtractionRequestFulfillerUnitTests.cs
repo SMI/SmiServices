@@ -217,7 +217,7 @@ namespace Microservices.CohortExtractor.Tests
             { Modality = "MR" })
                 .ToArray());
 
-            Assert.AreEqual("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'", ex.Message);
+            Assert.AreEqual("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'", ex!.Message);
         }
 
 

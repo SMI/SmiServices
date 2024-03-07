@@ -26,7 +26,7 @@ public class DicomFileMessageToDatasetListWorklist : IDicomDatasetWorklist
         _messages.Reset();
     }
 
-    public DicomDataset GetNextDatasetToProcess(out string filename, out Dictionary<string, string> otherValuesToStoreInRow)
+    public DicomDataset? GetNextDatasetToProcess(out string? filename, out Dictionary<string, string> otherValuesToStoreInRow)
     {
 
         if (!_messages.MoveNext())

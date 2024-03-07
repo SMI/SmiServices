@@ -20,8 +20,8 @@ namespace Microservices.MongoDBPopulator.Execution
         public MongoDbPopulatorHost(GlobalOptions options)
             : base(options)
         {
-            Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.SeriesQueueConsumerOptions));
-            Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions));
+            Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases!.DicomStoreOptions!, options.MongoDbPopulatorOptions!, options.MongoDbPopulatorOptions!.SeriesQueueConsumerOptions!));
+            Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions!, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions!));
 
             if (!Consumers.Any())
                 throw new ArgumentException("No consumers created from the given options");
@@ -35,7 +35,7 @@ namespace Microservices.MongoDBPopulator.Execution
             Logger.Info("Starting consumers");
 
             foreach (IMongoDbPopulatorMessageConsumer consumer in Consumers)
-                RabbitMqAdapter.StartConsumer(consumer.ConsumerOptions, consumer, isSolo: false);
+                MessageBroker.StartConsumer(consumer.ConsumerOptions, consumer, isSolo: false);
 
             Logger.Info("Consumers successfully started");
         }

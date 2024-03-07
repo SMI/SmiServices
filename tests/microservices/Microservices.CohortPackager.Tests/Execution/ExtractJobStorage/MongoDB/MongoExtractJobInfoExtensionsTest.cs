@@ -59,6 +59,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 ExtractionDirectory = "test/directory",
                 KeyTag = "KeyTag",
                 KeyValueCount = 123,
+                UserName = "testUser",
                 IsIdentifiableExtraction = true,
                 IsNoFilterExtraction = true,
             };
@@ -73,6 +74,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 "test/directory",
                 "KeyTag",
                 123,
+                "testUser",
                 "MR",
                 ExtractJobStatus.WaitingForCollectionInfo,
                 isIdentifiableExtraction: true,

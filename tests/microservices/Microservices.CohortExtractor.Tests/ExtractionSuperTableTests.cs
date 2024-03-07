@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BadMedicine;
@@ -20,9 +19,12 @@ using Smi.Common.Tests;
 using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microservices.CohortExtractor.Tests
 {
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+    [RequiresRelationalDb(DatabaseType.MySql)]
     class ExtractionSuperTableTests : DatabaseTests
     {
 
@@ -84,10 +86,10 @@ namespace Microservices.CohortExtractor.Tests
         }
 
 
-        [TestCase(DatabaseType.MicrosoftSQLServer,true), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql,true), RequiresRelationalDb(DatabaseType.MySql)]
-        [TestCase(DatabaseType.MicrosoftSQLServer,false), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql,false), RequiresRelationalDb(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer,true)]
+        [TestCase(DatabaseType.MySql,true)]
+        [TestCase(DatabaseType.MicrosoftSQLServer,false)]
+        [TestCase(DatabaseType.MySql,false)]
         public void Test_OnlyExtractableImages(DatabaseType dbType,bool useDynamic)
         {
             var db = GetCleanedServer(dbType);
@@ -117,7 +119,7 @@ namespace Microservices.CohortExtractor.Tests
             
             //The strategy pattern implementation that goes to the database but also considers reason
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cata});
-            fulfiller.Rejectors.Add(useDynamic? (IRejector) new DynamicRejector():new TestRejector());
+            fulfiller.Rejectors.Add(useDynamic? (IRejector) new DynamicRejector(null):new TestRejector());
             
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
@@ -150,7 +152,7 @@ namespace Microservices.CohortExtractor.Tests
                 matches += msgOut.Accepted.Count;
                 rejections += msgOut.Rejected.Count;
 
-                Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason.Equals("We decided NO!")));
+                Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason!.Equals("We decided NO!")));
             }
 
             Assert.AreEqual(testrows-10, matches);
@@ -159,8 +161,8 @@ namespace Microservices.CohortExtractor.Tests
         }
 
 
-        [TestCase(DatabaseType.MicrosoftSQLServer), RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
-        [TestCase(DatabaseType.MySql), RequiresRelationalDb(DatabaseType.MySql)]
+        [TestCase(DatabaseType.MicrosoftSQLServer)]
+        [TestCase(DatabaseType.MySql)]
         public void Test_OnlyListedModalities(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
@@ -195,8 +197,7 @@ namespace Microservices.CohortExtractor.Tests
             
             var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] {cataCT,cataMR})
             {
-                //Give it the default modality pattern (table prefix)
-                ModalityRoutingRegex = new Regex(new CohortExtractorOptions().ModalityRoutingRegex)
+                ModalityRoutingRegex = new Regex(CohortExtractorOptions.DefaultModalityRoutingRegex)
             };
             
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
@@ -212,7 +213,7 @@ namespace Microservices.CohortExtractor.Tests
             // Ask for something that doesn't exist
             msgIn.Modalities = "Hello";
             var ex = Assert.Throws<Exception>(()=>fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            StringAssert.Contains("Modality=Hello",ex.Message);
+            StringAssert.Contains("Modality=Hello",ex!.Message);
 
             // Ask for all modalities at once by not specifying any
             msgIn.Modalities = null;
@@ -231,7 +232,7 @@ namespace Microservices.CohortExtractor.Tests
             msgIn.Modalities = "CT,MR";
 
             ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            StringAssert.Contains("IsOriginal",ex.Message);
+            StringAssert.Contains("IsOriginal",ex!.Message);
 
         }
 
@@ -261,13 +262,13 @@ namespace Microservices.CohortExtractor.Tests
 
     internal class TestRejector : IRejector
     {
-        public bool Reject(DbDataReader row, out string reason)
+        public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
         {
             //if the image is not extractable
             if (!Convert.ToBoolean(row["IsExtractableToDisk"]))
             {
                 //tell them why and reject it
-                reason = row["IsExtractableToDisk_Reason"] as string;
+                reason = (row["IsExtractableToDisk_Reason"] as string)!;
                 return true;
             }
 

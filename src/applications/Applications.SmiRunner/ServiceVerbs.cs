@@ -5,7 +5,7 @@ namespace Applications.SmiRunner
 {
     public abstract class VerbBase
     {
-        protected const string BaseHelpText = "See here at your release version: https://github.com/SMI/SmiServices/tree/master/";
+        protected const string BaseHelpText = "See here at your release version: https://github.com/SMI/SmiServices/tree/main/";
     }
 
     #region Applications
@@ -17,6 +17,9 @@ namespace Applications.SmiRunner
 
     [Verb("dicom-loader",HelpText = "Load DICOM files into MongoDB")]
     public sealed class DicomLoaderVerb : ApplicationVerbBase { }
+
+    [Verb("dynamic-rules-tester", HelpText = "Tester for DynamicRules configurations")]
+    public sealed class DynamicRulesTesterVerb : ApplicationVerbBase { }
 
     [Verb("dicom-directory-processor", HelpText = "Queue dicom files on disk for ETL")]
     public sealed class DicomDirectoryProcessorVerb : ApplicationVerbBase { }

@@ -1,6 +1,5 @@
-﻿
+
 using System;
-using JetBrains.Annotations;
 using NLog;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
@@ -23,8 +22,7 @@ namespace Microservices.DicomReprocessor
         }
 
 
-        [UsedImplicitly]
-        public void ControlMessageHandler(string action, string message = null)
+        public void ControlMessageHandler(string action, string? message = null)
         {
             _logger.Info($"Received control event with action \"{action}\" and message \"{message}\"");
 

@@ -3,17 +3,12 @@
 Describes the build-install-test procedure, not the deployment into production.
 
 Main docs:
-https://github.com/SMI/SmiServices/tree/master/src/microservices/com.smi.microservices.ctpanonymiser
+https://github.com/SMI/SmiServices/tree/main/src/microservices/com.smi.microservices.ctpanonymiser
 
 https://github.com/SMI/SmiServices/tree/release/1.2.0#image-extraction-microservices
 
 See also: the extraction-refactoring branch
 https://github.com/SMI/SmiServices/tree/feature/extraction-refactoring/docs/extraction
-
-Other docs:
-https://uoe.sharepoint.com/sites/SMI/Shared%20Documents/Forms/AllItems.aspx
-https://git.ecdf.ed.ac.uk/SMI/SmiServiceOps/blob/master/Planning/ExtractionFlags
-https://github.com/HicServices/SMIPlugin/blob/master/Documentation/Images/ExtractionMicroservices.png
 
 # Building
 
@@ -146,4 +141,4 @@ A 'success' message is published to TEST.FileStatusExchange containing:
 See the netcoreapp2.2 branch of IsIdentifiable here:
 https://github.com/HicServices/IsIdentifiable/tree/netcoreapp2.2
 with the changes required to build and run on dotnet core 2.2 Linux
-(until such time as it's merged into master).
+(until such time as it's merged into main).

@@ -1,4 +1,4 @@
-﻿
+
 using NUnit.Framework;
 using Smi.Common.Options;
 using System;
@@ -14,9 +14,9 @@ namespace Smi.Common.Tests
         public void GlobalOptions_Test()
         {
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(GlobalOptions_Test));
-            Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RabbitOptions.RabbitMqHostName));
-            Assert.IsFalse(string.IsNullOrWhiteSpace(globals.FileSystemOptions.FileSystemRoot));
-            Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RDMPOptions.CatalogueConnectionString));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RabbitOptions!.RabbitMqHostName));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(globals.FileSystemOptions!.FileSystemRoot));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RDMPOptions!.CatalogueConnectionString));
             Assert.IsFalse(string.IsNullOrWhiteSpace(globals.RDMPOptions.DataExportConnectionString));
         }
 
@@ -38,9 +38,6 @@ namespace Smi.Common.Tests
             Assert.False(consumerOptions.VerifyPopulated());
 
             consumerOptions.QueueName = "Test.QueueName";
-            Assert.False(consumerOptions.VerifyPopulated());
-
-            consumerOptions.QoSPrefetchCount = 1234;
             Assert.True(consumerOptions.VerifyPopulated());
         }
 
@@ -49,7 +46,7 @@ namespace Smi.Common.Tests
         {
             GlobalOptions g = new GlobalOptionsFactory().Load(nameof(Test_GlobalOptionsUseTestValues_Nulls));
 
-            Assert.IsNotNull(g.RabbitOptions.RabbitMqHostName);
+            Assert.IsNotNull(g.RabbitOptions!.RabbitMqHostName);
             g.UseTestValues(null, null, null, null, null);
             Assert.IsNull(g.RabbitOptions.RabbitMqHostName);
         }
@@ -58,7 +55,7 @@ namespace Smi.Common.Tests
         public void Test_GlobalOptions_FileReadOption_ThrowsException()
         {
             GlobalOptions g = new GlobalOptionsFactory().Load(nameof(Test_GlobalOptions_FileReadOption_ThrowsException));
-            g.DicomTagReaderOptions.FileReadOption = "SkipLargeTags";
+            g.DicomTagReaderOptions!.FileReadOption = "SkipLargeTags";
 
             Assert.Throws<ApplicationException>(() => g.DicomTagReaderOptions.GetReadOption());
         }
@@ -78,8 +75,8 @@ namespace Smi.Common.Tests
         {
             var factory = new GlobalOptionsFactory(new List<IOptionsDecorator> { new TestDecorator() });
             var g = factory.Load(nameof(TestDecorators));
-            Assert.AreEqual("FFFFF", g.MongoDatabases.DicomStoreOptions.DatabaseName);
-            Assert.AreEqual("FFFFF", g.MongoDatabases.ExtractionStoreOptions.DatabaseName);
+            Assert.AreEqual("FFFFF", g.MongoDatabases!.DicomStoreOptions!.DatabaseName);
+            Assert.AreEqual("FFFFF", g.MongoDatabases.ExtractionStoreOptions!.DatabaseName);
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -21,8 +21,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         }
 
         public void PersistMessageToStore(
-            [NotNull] ExtractionRequestInfoMessage message,
-            [NotNull] IMessageHeader header)
+            ExtractionRequestInfoMessage message,
+            IMessageHeader header)
         {
             Logger.Info($"Received new job info {message}");
             PersistMessageToStoreImpl(message, header);
@@ -35,8 +35,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         }
 
         public void PersistMessageToStore(
-            [NotNull] ExtractedFileStatusMessage message,
-            [NotNull] IMessageHeader header)
+            ExtractedFileStatusMessage message,
+            IMessageHeader header)
         {
             switch (message.Status)
             {
@@ -51,16 +51,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         }
 
         public void PersistMessageToStore(
-            [NotNull] ExtractedFileVerificationMessage message,
-            [NotNull] IMessageHeader header)
+            ExtractedFileVerificationMessage message,
+            IMessageHeader header)
         {
-            if (string.IsNullOrWhiteSpace(message.OutputFilePath))
-                throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
-            if (string.IsNullOrWhiteSpace(message.Report))
-                throw new ApplicationException("Null or empty report data");
-            if (message.Status == VerifiedFileStatus.IsIdentifiable && message.Report == "[]")
-                throw new ApplicationException("No report data for message marked as identifiable");
-
+            ValidateMessage(message);
             PersistMessageToStoreImpl(message, header);
         }
 
@@ -81,12 +75,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
         public void MarkJobFailed(
             Guid jobId,
-            [NotNull] Exception cause)
+            Exception cause)
         {
-            if (jobId == default(Guid))
+            if (jobId == default)
                 throw new ArgumentNullException(nameof(jobId));
-            if (cause == null)
-                throw new ArgumentNullException(nameof(cause));
 
             MarkJobFailedImpl(jobId, cause);
             Logger.Debug($"Marked job {jobId} as failed");
@@ -132,6 +124,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             return GetCompletedJobMissingFileListImpl(jobId);
         }
 
+        public void AddToWriteQueue(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag)
+        {
+            ValidateMessage(message);
+            AddToWriteQueueImpl(message, header, tag);
+        }
+
         protected abstract void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header);
         protected abstract void PersistMessageToStoreImpl(ExtractedFileStatusMessage message, IMessageHeader header);
@@ -144,5 +142,18 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         protected abstract IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId);
         protected abstract IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId);
+        protected abstract void AddToWriteQueueImpl(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag);
+        public abstract void ProcessVerificationMessageQueue();
+        public abstract ConcurrentQueue<Tuple<IMessageHeader, ulong>> ProcessedVerificationMessages { get; }
+
+        private static void ValidateMessage(ExtractedFileVerificationMessage message)
+        {
+            if (string.IsNullOrWhiteSpace(message.OutputFilePath))
+                throw new ApplicationException("Received a verification message without the AnonymisedFileName set");
+            if (string.IsNullOrWhiteSpace(message.Report))
+                throw new ApplicationException("Null or empty report data");
+            if (message.Status == VerifiedFileStatus.IsIdentifiable && message.Report == "[]")
+                throw new ApplicationException("No report data for message marked as identifiable");
+        }
     }
 }

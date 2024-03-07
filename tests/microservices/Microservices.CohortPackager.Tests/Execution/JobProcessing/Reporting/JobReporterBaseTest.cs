@@ -53,13 +53,13 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             public bool Disposed { get; set; }
 
-            private string _currentReportName;
+            private string? _currentReportName;
             private bool _isCombinedReport;
 
             public TestJobReporter(
                 IExtractJobStore jobStore,
                 ReportFormat reportFormat,
-                string reportNewLine
+                string? reportNewLine
             )
                 : base(
                     jobStore,
@@ -130,6 +130,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 "extractions/test",
                 "keyTag",
                 123,
+                "testUser",
                 null,
                 isIdentifiableExtraction,
                 isNoFilterExtraction
@@ -549,7 +550,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
 
             var missingFilesExpected = new List<Tuple<string, string>>
             {
-                new Tuple<string, string>("missing.dcm", null),
+                new Tuple<string, string>("missing.dcm", "missing"),
             };
 
             ReportEqualityHelpers.AssertReportsAreEqual(
@@ -665,6 +666,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"-   Extraction tag:               keyTag",
                 $"-   Extraction modality:          Unspecified",
                 $"-   Requested identifier count:   123",
+                $"-   User name:                    {jobInfo.UserName}",
                 $"-   Identifiable extraction:      No",
                 $"-   Filtered extraction:          Yes",
                 $"",
@@ -773,7 +775,7 @@ CohortPackagerOptions:
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ReportNewLine_LoadFromYaml_EscapesNewlines), tmpConfig);
 
             // NOTE(rkm 2021-04-06) Verify we get an *escaped* newline from the YAML load here
-            Assert.AreEqual(Regex.Escape(WindowsNewLine), globals.CohortPackagerOptions.ReportNewLine);
+            Assert.AreEqual(Regex.Escape(WindowsNewLine), globals.CohortPackagerOptions!.ReportNewLine);
         }
 
         [Test]
@@ -781,7 +783,7 @@ CohortPackagerOptions:
         {
             const string newLine = @"\n";
             var exc = Assert.Throws<ArgumentException>(() => new TestJobReporter(new Mock<IExtractJobStore>().Object, ReportFormat.Combined, newLine));
-            Assert.AreEqual("ReportNewLine contained an escaped backslash", exc.Message);
+            Assert.AreEqual("ReportNewLine contained an escaped backslash", exc!.Message);
         }
     }
 

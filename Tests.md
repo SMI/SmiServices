@@ -1,6 +1,6 @@
 ## Tests
 
-SMI Microservices use RabbitMQ, MongoDb, Sql Server and MySql. These tests are run automatically by [Travis CI](https://travis-ci.org/SMI/SmiServices) (see [travis.yml](.travis.yml)).
+SMI Microservices use RabbitMQ, MongoDb, Sql Server and MySql. These tests are run automatically by GitHub Actions.
 
 ## Connection Strings
 
@@ -13,7 +13,7 @@ Once you have set up the above dependencies you will need to set the connection 
 
 Tests involving [RDMP](https://github.com/HicServices/RDMP/) require the [RDMP databases to be set up](https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Tests.md#database-tests) on the Sql Server. For example:
 
-If running on linux / travis the following command will do that (use latest version in url):
+If running on Linux, the following command will do that (use latest version in url):
 
 ```
 $ wget https://github.com/HicServices/RDMP/releases/download/v3.2.1/rdmp-cli-linux-x64.zip

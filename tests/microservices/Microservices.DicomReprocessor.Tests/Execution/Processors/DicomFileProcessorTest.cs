@@ -6,7 +6,8 @@ using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
-
+using Moq;
+using Smi.Common.Messaging;
 
 namespace Microservices.DicomReprocessor.Tests.Execution.Processors
 {
@@ -37,7 +38,7 @@ namespace Microservices.DicomReprocessor.Tests.Execution.Processors
         [Test]
         public void ProcessDocument_NationalPacsAccessionNumber_IsIgnored()
         {
-            var processor = new DicomFileProcessor(new DicomReprocessorOptions(), null, null);
+            var processor = new DicomFileProcessor(new DicomReprocessorOptions(), Mock.Of<IProducerModel>(), "");
 
             var msg = new DicomFileMessage
             {

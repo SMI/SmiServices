@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.JobProcessing;
@@ -41,25 +40,30 @@ namespace Microservices.CohortPackager.Execution
         /// Globals.CohortPackagerOptions.ReportFormat. That value should not be set if a reporter is passed.
         /// </param>
         /// <param name="notifier"></param>
-        /// <param name="rabbitMqAdapter"></param>
+        /// <param name="messageBroker"></param>
         /// <param name="dateTimeProvider"></param>
         public CohortPackagerHost(
-            [NotNull] GlobalOptions globals,
-            [CanBeNull] ExtractJobStore jobStore = null,
-            [CanBeNull] IFileSystem fileSystem = null,
-            [CanBeNull] IJobReporter reporter = null,
-            [CanBeNull] IJobCompleteNotifier notifier = null,
-            [CanBeNull] IRabbitMqAdapter rabbitMqAdapter = null,
-            [CanBeNull] DateTimeProvider dateTimeProvider = null
+            GlobalOptions globals,
+            ExtractJobStore? jobStore = null,
+            IFileSystem? fileSystem = null,
+            IJobReporter? reporter = null,
+            IJobCompleteNotifier? notifier = null,
+            IMessageBroker? messageBroker = null,
+            DateTimeProvider? dateTimeProvider = null
         )
-            : base(globals, rabbitMqAdapter)
+            : base(globals, messageBroker)
         {
+            var cohortPackagerOptions = globals.CohortPackagerOptions ??
+                throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions cannot be null");
+
             if (jobStore == null)
             {
-                MongoDbOptions mongoDbOptions = Globals.MongoDatabases.ExtractionStoreOptions;
+                MongoDbOptions mongoDbOptions = Globals.MongoDatabases?.ExtractionStoreOptions
+                    ?? throw new ArgumentException("Some part of Globals.MongoDatabases.ExtractionStoreOptions is null");
+
                 jobStore = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, HostProcessName),
-                    mongoDbOptions.DatabaseName,
+                    mongoDbOptions.DatabaseName!,
                     dateTimeProvider
                 );
             }
@@ -68,16 +72,17 @@ namespace Microservices.CohortPackager.Execution
 
             // If not passed a reporter or notifier, try and construct one from the given options
 
-            string reportFormatStr = Globals.CohortPackagerOptions.ReportFormat;
+            string reportFormatStr = cohortPackagerOptions.ReportFormat
+                ?? throw new ArgumentException("Some part of Globals.CohortPackagerOptions.ReportFormat is null");
             if (reporter == null)
             {
                 reporter = JobReporterFactory.GetReporter(
-                    Globals.CohortPackagerOptions.ReporterType,
+                    cohortPackagerOptions.ReporterType!,
                     jobStore,
                     fileSystem ?? new FileSystem(),
-                    Globals.FileSystemOptions.ExtractRoot,
+                    Globals.FileSystemOptions!.ExtractRoot!,
                     reportFormatStr,
-                    Regex.Unescape(Globals.CohortPackagerOptions.ReportNewLine)
+                    Regex.Unescape(cohortPackagerOptions.ReportNewLine!)
                 );
             }
             else
@@ -89,11 +94,11 @@ namespace Microservices.CohortPackager.Execution
             }
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
-                Globals.CohortPackagerOptions.NotifierType
+                cohortPackagerOptions.NotifierType!
             );
 
             _jobWatcher = new ExtractJobWatcher(
-                globals.CohortPackagerOptions,
+                cohortPackagerOptions,
                 jobStore,
                 ExceptionCallback,
                 notifier,
@@ -102,11 +107,26 @@ namespace Microservices.CohortPackager.Execution
 
             AddControlHandler(new CohortPackagerControlMessageHandler(_jobWatcher));
 
+            var maxUnacknowledgedMessages = cohortPackagerOptions.VerificationStatusOptions?.QoSPrefetchCount ??
+                throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions.VerificationStatusOptions cannot be null");
+
             // Setup our consumers
+
             _requestInfoMessageConsumer = new ExtractionRequestInfoMessageConsumer(jobStore);
             _fileCollectionMessageConsumer = new ExtractFileCollectionMessageConsumer(jobStore);
             _anonFailedMessageConsumer = new AnonFailedMessageConsumer(jobStore);
-            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(jobStore);
+
+            var verificationMessageQueueFlushTime =
+                (cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds != null)
+                ? TimeSpan.FromSeconds((double)cohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds)
+                : CohortPackagerOptions.DefaultVerificationMessageQueueFlushTime;
+
+            _anonVerificationMessageConsumer = new AnonVerificationMessageConsumer(
+                jobStore,
+                cohortPackagerOptions.VerificationMessageQueueProcessBatches,
+                maxUnacknowledgedMessages,
+                verificationMessageQueueFlushTime
+            );
         }
 
         public override void Start()
@@ -116,15 +136,17 @@ namespace Microservices.CohortPackager.Execution
             _jobWatcher.Start();
 
             // TODO(rkm 2020-03-02) Once this is transactional, we can have one "master" service which actually does the job checking
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.ExtractRequestInfoOptions, _requestInfoMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions, _fileCollectionMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions, _anonFailedMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions, _anonVerificationMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, _requestInfoMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions!, _fileCollectionMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions!, _anonFailedMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions!, _anonVerificationMessageConsumer, isSolo: true);
         }
 
         public override void Stop(string reason)
         {
             _jobWatcher.StopProcessing("Host - " + reason);
+
+            _anonVerificationMessageConsumer.Dispose();
 
             base.Stop(reason);
         }

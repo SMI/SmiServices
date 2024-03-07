@@ -18,7 +18,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             Assert.AreEqual(1,mapper.Success);
 
-            NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(target, LogLevel.Debug);
+            LogManager.Setup().LoadConfiguration(x => x.ForLogger(LogLevel.Debug).WriteTo(target));
 
             Logger logger = LogManager.GetLogger("Example");
 

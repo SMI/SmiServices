@@ -20,7 +20,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     [TestFixture]
     public class ImageMessageProcessorTests_NoMongo
     {
-        private GlobalOptions _testOptions;
+        private GlobalOptions _testOptions = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -40,13 +40,13 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         [Test]
         public void ImageProcessor_FailInModalityBatch_AcksWrittenDocuments()
         {
-            _testOptions.MongoDbPopulatorOptions.FailedWriteLimit = 1;
+            _testOptions.MongoDbPopulatorOptions!.FailedWriteLimit = 1;
             _testOptions.MongoDbPopulatorOptions.MongoDbFlushTime = int.MaxValue / 1000;
 
             var testModalities = new[] { "MR", "MR", "MR", "SR", "SR" };
 
             var testAdapter = new MongoTestAdapter();
-            var processor = new ImageMessageProcessor(_testOptions.MongoDbPopulatorOptions, testAdapter, testModalities.Length + 1, null);
+            var processor = new ImageMessageProcessor(_testOptions.MongoDbPopulatorOptions, testAdapter, testModalities.Length + 1, null!);
 
             var mockModel = new Mock<IModel>();
             mockModel.Setup(x => x.BasicAck(It.Is<ulong>(y => y == ulong.MaxValue), It.IsAny<bool>()))
@@ -78,7 +78,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
     public class MongoTestAdapter : IMongoDbAdapter
     {
-        public WriteResult WriteMany(IList<BsonDocument> toWrite, string collectionNamePostfix = null)
+        public WriteResult WriteMany(IList<BsonDocument> toWrite, string? collectionNamePostfix = null)
         {
             Assert.NotZero(toWrite.Count);
 

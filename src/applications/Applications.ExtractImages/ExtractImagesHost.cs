@@ -1,4 +1,3 @@
-﻿using JetBrains.Annotations;
 using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.Helpers;
@@ -25,26 +24,26 @@ namespace Applications.ExtractImages
 
 
         public ExtractImagesHost(
-            [NotNull] GlobalOptions globals,
-            [NotNull] ExtractImagesCliOptions cliOptions,
-            IExtractionMessageSender extractionMessageSender = null,
-            IRabbitMqAdapter rabbitMqAdapter = null,
-            IFileSystem fileSystem = null,
+            GlobalOptions globals,
+            ExtractImagesCliOptions cliOptions,
+            IExtractionMessageSender? extractionMessageSender = null,
+            IMessageBroker? messageBroker = null,
+            IFileSystem? fileSystem = null,
             bool threaded = false
         )
         : base(
             globals,
-            rabbitMqAdapter,
+            messageBroker,
             threaded
         )
         {
-            ExtractImagesOptions options = Globals.ExtractImagesOptions;
+            ExtractImagesOptions? options = Globals.ExtractImagesOptions;
             if (options == null)
                 throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
 
             _fileSystem = fileSystem ?? new FileSystem();
 
-            string extractRoot = Globals.FileSystemOptions.ExtractRoot;
+            string extractRoot = Globals.FileSystemOptions?.ExtractRoot ?? throw new ArgumentException("Some part of Globals.FileSystemOptions.ExtractRoot was null");
             if (!_fileSystem.Directory.Exists(extractRoot))
                 throw new DirectoryNotFoundException($"Could not find the extraction root '{extractRoot}'");
 
@@ -65,8 +64,8 @@ namespace Applications.ExtractImages
 
             if (extractionMessageSender == null)
             {
-                IProducerModel extractionRequestProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestProducerOptions, isBatch: false);
-                IProducerModel extractionRequestInfoProducer = RabbitMqAdapter.SetupProducer(options.ExtractionRequestInfoProducerOptions, isBatch: false);
+                IProducerModel extractionRequestProducer = MessageBroker.SetupProducer(options.ExtractionRequestProducerOptions!, isBatch: false);
+                IProducerModel extractionRequestInfoProducer = MessageBroker.SetupProducer(options.ExtractionRequestInfoProducerOptions!, isBatch: false);
 
                 _extractionMessageSender = new ExtractionMessageSender(
                     options,

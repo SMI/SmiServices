@@ -11,8 +11,8 @@ using RabbitMQ.Client.Exceptions;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.Repositories;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.Startup;
-using ReusableLibraryCode.Checks;
 using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.Messages.Extraction;
@@ -34,13 +34,13 @@ namespace Microservices.CohortExtractor.Execution
         /// <summary>
         /// RabbitMQ queue subscriber responsible for dequeuing messages and feeding them to the <see cref="IExtractionRequestFulfiller"/>
         /// </summary>
-        public ExtractionRequestQueueConsumer Consumer { get; set; }
+        public ExtractionRequestQueueConsumer? Consumer { get; set; }
         private readonly CohortExtractorOptions _consumerOptions;
 
-        private IAuditExtractions _auditor;
-        private IExtractionRequestFulfiller _fulfiller;
-        private IProjectPathResolver _pathResolver;
-        private IProducerModel _fileMessageProducer;
+        private IAuditExtractions? _auditor;
+        private IExtractionRequestFulfiller? _fulfiller;
+        private IProjectPathResolver? _pathResolver;
+        private IProducerModel? _fileMessageProducer;
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -48,10 +48,10 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller)
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller)
             : base(options)
         {
-            _consumerOptions = options.CohortExtractorOptions;
+            _consumerOptions = options.CohortExtractorOptions!;
             _consumerOptions.Validate();
 
             _auditor = auditor;
@@ -65,24 +65,24 @@ namespace Microservices.CohortExtractor.Execution
         {
             FansiImplementations.Load();
 
-            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
+            var repositoryLocator = Globals.RDMPOptions?.GetRepositoryProvider() ?? throw new ApplicationException("RDMPOptions missing");
 
-            var startup = new Startup(new EnvironmentInfo(PluginFolders.Main), repositoryLocator);
+            var startup = new Startup(repositoryLocator);
 
             var toMemory = new ToMemoryCheckNotifier();
             startup.DoStartup(toMemory);
 
-            foreach (CheckEventArgs args in toMemory.Messages.Where(m => m.Result == CheckResult.Fail))
+            foreach (var args in toMemory.Messages.Where(static m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            _fileMessageProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesProducerOptions, isBatch: true);
-            IProducerModel fileMessageInfoProducer = RabbitMqAdapter.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions, isBatch: false);
+            _fileMessageProducer = MessageBroker.SetupProducer(Globals.CohortExtractorOptions!.ExtractFilesProducerOptions!, isBatch: true);
+            var fileMessageInfoProducer = MessageBroker.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller!, _auditor!, _pathResolver!, _fileMessageProducer, fileMessageInfoProducer);
 
-            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
+            MessageBroker.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)
@@ -105,7 +105,7 @@ namespace Microservices.CohortExtractor.Execution
         private void InitializeExtractionSources(IRDMPPlatformRepositoryServiceLocator repositoryLocator)
         {
             // Get all extractable catalogues
-            ICatalogue[] catalogues = repositoryLocator
+            var catalogues = repositoryLocator
                 .DataExportRepository
                 .GetAllObjects<ExtractableDataSet>()
                 .Select(eds => eds.Catalogue)
@@ -121,7 +121,7 @@ namespace Microservices.CohortExtractor.Execution
             if (!_consumerOptions.AllCatalogues)
                 catalogues = catalogues.Where(c => _consumerOptions.OnlyCatalogues.Contains(c.ID)).ToArray();
 
-            _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType,
+            _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType!,
                 typeof(IExtractionRequestFulfiller).Assembly, new object[] { catalogues });
 
             if (_fulfiller == null)
@@ -131,11 +131,11 @@ namespace Microservices.CohortExtractor.Execution
                 _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
 
             if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
-                _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly));
+                _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly)!);
 
-            foreach(var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? new ModalitySpecificRejectorOptions[0])
+            foreach(var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? Array.Empty<ModalitySpecificRejectorOptions>())
             {
-                var r = ObjectFactory.CreateInstance<IRejector>(modalitySpecific.RejectorType, typeof(IRejector).Assembly);
+                var r = ObjectFactory.CreateInstance<IRejector>(modalitySpecific.RejectorType!, typeof(IRejector).Assembly)!;
                 _fulfiller.ModalitySpecificRejectors.Add(modalitySpecific, r);
             }
 
@@ -144,7 +144,7 @@ namespace Microservices.CohortExtractor.Execution
                     _fulfiller.Rejectors.Add(new ColumnInfoValuesRejector(repositoryLocator.CatalogueRepository.GetObjectByID<ColumnInfo>(id)));
 
             if(_consumerOptions.Blacklists != null)
-                foreach (int id in _consumerOptions.Blacklists)
+                foreach (var id in _consumerOptions.Blacklists)
                 {
                     var cata = repositoryLocator.CatalogueRepository.GetObjectByID<Catalogue>(id);
                     var rejector = new BlacklistRejector(cata);

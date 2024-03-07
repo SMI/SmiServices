@@ -24,15 +24,17 @@ namespace Smi.Common.Tests
 
             TestConsumer consumer;
 
-            using var tester = new MicroserviceTester(o.RabbitOptions, consumerOptions);
-            var header = new MessageHeader();
-            header.MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76");
-            header.Parents = new[] { Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76") };
+            using var tester = new MicroserviceTester(o.RabbitOptions!, consumerOptions);
+
+            var header = new MessageHeader {
+                MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76"),
+                Parents = new[] { Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76") },
+            };
 
             tester.SendMessage(consumerOptions, header, new TestMessage { Message = "hi" });
 
             consumer = new TestConsumer();
-            tester.Adapter.StartConsumer(consumerOptions, consumer);
+            tester.Broker.StartConsumer(consumerOptions, consumer);
 
             TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
 
@@ -65,7 +67,7 @@ namespace Smi.Common.Tests
 
         private class TestMessage : IMessage
         {
-            public string Message { get; set; }
+            public string? Message { get; set; }
         }
     }
 

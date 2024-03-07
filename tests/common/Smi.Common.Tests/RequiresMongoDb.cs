@@ -2,7 +2,6 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using System;
 using System.IO;
@@ -11,12 +10,12 @@ using YamlDotNet.Serialization;
 namespace Smi.Common.Tests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresMongoDb : RequiresExternalService, IApplyToContext
+    public class RequiresMongoDb : RequiresExternalService
     {
-        public void ApplyToContext(TestExecutionContext context)
+        protected override void ApplyToContextImpl(TestExecutionContext context)
         {
             MongoClientSettings address = GetMongoClientSettings();
-            
+
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
 
             var client = new MongoClient(address);
@@ -52,10 +51,10 @@ namespace Smi.Common.Tests
 
         class A : MongoClientSettings
         {
-            private string _host;
+            private string? _host;
             private int _port;
 
-            public string Host
+            public string? Host
             {
                 get => _host;
                 set

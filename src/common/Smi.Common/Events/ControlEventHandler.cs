@@ -6,5 +6,5 @@ namespace Smi.Common.Events
     /// </summary>
     /// <param name="routingKey"></param>
     /// <param name="message"></param>
-    public delegate void ControlEventHandler(string routingKey, string message = null);
+    public delegate void ControlEventHandler(string routingKey, string? message = null);
 }

@@ -1,8 +1,9 @@
-﻿using FAnsi;
+using FAnsi;
 using FAnsi.Discovery;
 using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using Smi.Common.Messages.Updating;
+using Smi.Common.Tests;
 using System;
 using System.Data;
 using System.Linq;
@@ -10,6 +11,8 @@ using Tests.Common;
 
 namespace Microservices.UpdateValues.Tests
 {
+    [RequiresRelationalDb(DatabaseType.MySql)]
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class TestUpdateDatabase : DatabaseTests
     {
         protected DiscoveredTable SetupTestTable(DatabaseType dbType)
@@ -118,7 +121,7 @@ namespace Microservices.UpdateValues.Tests
                 ExplicitTableInfo = new int[]{ 999999999}
             }));
 
-            Assert.AreEqual("Could not find all TableInfos IDs=999999999.  Found 0:",ex.Message);
+            Assert.AreEqual("Could not find all TableInfos IDs=999999999.  Found 0:",ex!.Message);
         }
         
         [Test]
@@ -137,7 +140,7 @@ namespace Microservices.UpdateValues.Tests
                 Values = new[]{ "222"}
             }));
 
-            TestContext.WriteLine(ex.Message);
+            TestContext.WriteLine(ex!.Message);
 
             Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=Blarg WriteIntoFields=PatientID",ex.Message);
         }
@@ -158,7 +161,7 @@ namespace Microservices.UpdateValues.Tests
                 Values = new[]{ "222"}
             }));
 
-            TestContext.WriteLine(ex.Message);
+            TestContext.WriteLine(ex!.Message);
 
             Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=PatientID WriteIntoFields=Blarg",ex.Message);
         }

@@ -11,6 +11,6 @@ namespace Microservices.MongoDBPopulator.Execution
 
     public interface IMongoDbAdapter
     {
-        WriteResult WriteMany(IList<BsonDocument> toWrite, string collectionNamePostfix = null);
+        WriteResult WriteMany(IList<BsonDocument> toWrite, string? collectionNamePostfix = null);
     }
 }

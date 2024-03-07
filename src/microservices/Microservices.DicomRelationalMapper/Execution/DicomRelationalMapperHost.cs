@@ -7,9 +7,10 @@ using Rdmp.Core.Curation.Data.EntityNaming;
 using Rdmp.Core.Logging.Listeners.Extensions;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
-using ReusableLibraryCode;
-using ReusableLibraryCode.Checks;
+using Rdmp.Core.ReusableLibraryCode;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using System;
+using Rdmp.Core.Repositories;
 using Smi.Common;
 
 
@@ -32,18 +33,18 @@ public class DicomRelationalMapperHost : MicroserviceHost, IDisposable
 
         Logger.Info("About to run Startup");
 
-        var startup = new Startup(new EnvironmentInfo(PluginFolders.Main), repositoryLocator);
-        startup.DatabaseFound += Startup_DatabaseFound;
+            var startup = new Startup(repositoryLocator);
+            startup.DatabaseFound += Startup_DatabaseFound;
 
         var toMemory = new ToMemoryCheckNotifier();
         startup.DoStartup(toMemory);
 
-        foreach (var args in toMemory.Messages)
-            Logger.Log(args.ToLogLevel(), args.Ex, args.Message);
+            foreach (var args in toMemory.Messages)
+                Logger.Log(args.ToLogLevel(), args.Ex, args.Message);
 
         Logger.Info("Startup Completed");
 
-        var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions.LoadMetadataId);
+            var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions!.LoadMetadataId);
 
         var databaseNamerType = repositoryLocator.CatalogueRepository.MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType);
 
@@ -54,19 +55,20 @@ public class DicomRelationalMapperHost : MicroserviceHost, IDisposable
 
         var liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
 
-        var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid);
 
-            
-        Consumer = new DicomRelationalMapperQueueConsumer(repositoryLocator,
-            lmd,
-            instance,
-            Globals.DicomRelationalMapperOptions)
-        {
-            RunChecks = Globals.DicomRelationalMapperOptions.RunChecks
-        };
+            var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid)
+                ?? throw new Exception("Could not create an INameDatabasesAndTablesDuringLoads");
 
-        RabbitMqAdapter.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer, isSolo: false);
-    }
+            Consumer = new DicomRelationalMapperQueueConsumer(repositoryLocator,
+                                                              lmd,
+                                                              instance,
+                                                              Globals.DicomRelationalMapperOptions)
+            {
+                RunChecks = Globals.DicomRelationalMapperOptions.RunChecks
+            };
+
+            MessageBroker.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer, isSolo: false);
+        }
 
     private void Startup_DatabaseFound(object sender, PlatformDatabaseFoundEventArgs e)
     {

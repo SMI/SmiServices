@@ -27,7 +27,6 @@
     <PackageReference Include="HIC.FAnsiSql" />
     <PackageReference Include="IsIdentifiable" />
     <PackageReference Include="HIC.RDMP.Plugin" />
-    <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="NLog" />
     <PackageReference Include="RabbitMQ.Client" />

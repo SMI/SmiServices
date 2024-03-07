@@ -1,4 +1,3 @@
-﻿using JetBrains.Annotations;
 using System;
 
 
@@ -7,7 +6,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Notifying
     public static class JobCompleteNotifierFactory
     {
         public static IJobCompleteNotifier GetNotifier(
-            [NotNull] string notifierTypeStr
+            string notifierTypeStr
         )
         {
             return notifierTypeStr switch

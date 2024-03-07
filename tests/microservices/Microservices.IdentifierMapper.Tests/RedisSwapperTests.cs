@@ -60,7 +60,7 @@ namespace Microservices.IdentifierMapper.Tests
             }
             
             //hit on the lookup table
-            string answer = swapper.GetSubstitutionFor("0101010101",out string reason);
+            string? answer = swapper.GetSubstitutionFor("0101010101",out string? reason);
             Assert.AreEqual("0A0A0A0A0A",answer);
             Assert.IsNull(reason);
 
@@ -70,7 +70,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             
             //hit from Redis
-            string answer2 = swapper.GetSubstitutionFor("0101010101",out string reason2);
+            string? answer2 = swapper.GetSubstitutionFor("0101010101",out string? reason2);
             Assert.AreEqual("0A0A0A0A0A",answer);
             Assert.IsNull(reason);
             
@@ -124,7 +124,7 @@ namespace Microservices.IdentifierMapper.Tests
             }
             
             //hit on the lookup table
-            string answer = swapper.GetSubstitutionFor("GOGOGO",out string reason);
+            string? answer = swapper.GetSubstitutionFor("GOGOGO",out string? reason);
             Assert.IsNull(answer);
             Assert.AreEqual("No match found for 'GOGOGO'",reason);
 
@@ -133,7 +133,7 @@ namespace Microservices.IdentifierMapper.Tests
             Assert.AreEqual(1,swapper.Fail);
             
             //hit from Redis
-            string answer2 = swapper.GetSubstitutionFor("GOGOGO",out string reason2);
+            string? answer2 = swapper.GetSubstitutionFor("GOGOGO",out string? reason2);
             Assert.IsNull(answer2);
             Assert.AreEqual("Value 'GOGOGO' was cached in Redis as missing (i.e. no mapping was found)",reason2);
             

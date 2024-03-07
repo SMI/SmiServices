@@ -12,13 +12,13 @@ using Rdmp.Core.DataLoad;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
 using Rdmp.Core.Repositories;
-using ReusableLibraryCode.Checks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 
 namespace Microservices.DicomRelationalMapper.Messaging;
 
@@ -57,8 +57,8 @@ public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, ID
     /// </summary>
     private readonly TimeSpan _maximumRunDelayInSeconds;
 
-    private Task _dleTask;
-    private readonly CancellationTokenSource _stopTokenSource = new();
+        private Task? _dleTask;
+        private readonly CancellationTokenSource _stopTokenSource = new();
 
 
     /// <summary>
@@ -222,7 +222,7 @@ public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, ID
             RunDleChecks();
 
         var remainingRetries = _retryOnFailureCount;
-        Exception firstException = null;
+        Exception? firstException = null;
 
         ExitCodeType exitCode;
 

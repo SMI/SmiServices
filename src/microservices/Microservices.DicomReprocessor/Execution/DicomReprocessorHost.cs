@@ -1,4 +1,3 @@
-
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,23 +13,22 @@ namespace Microservices.DicomReprocessor.Execution
     {
         private readonly MongoDbReader _mongoReader;
         private readonly IDocumentProcessor _processor;
-        private Task<TimeSpan> _processorTask;
+        private Task<TimeSpan>? _processorTask;
 
-        private readonly string _queryString;
-
+        private readonly string? _queryString;
 
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
             : base(options)
         {
-            string key = cliOptions.ReprocessingRoutingKey;
+            string? key = cliOptions.ReprocessingRoutingKey;
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");
 
             // Set the initial sleep time
-            Globals.DicomReprocessorOptions.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
+            Globals.DicomReprocessorOptions!.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
-            IProducerModel reprocessingProducerModel = RabbitMqAdapter.SetupProducer(options.DicomReprocessorOptions.ReprocessingProducerOptions, true);
+            IProducerModel reprocessingProducerModel = MessageBroker.SetupProducer(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true);
 
             Logger.Info(
                 $"Documents will be reprocessed to {options.DicomReprocessorOptions.ReprocessingProducerOptions.ExchangeName} on vhost {options.RabbitOptions.RabbitMqVirtualHost} with routing key \"{key}\"");
@@ -57,7 +55,7 @@ namespace Microservices.DicomReprocessor.Execution
 
         public override void Start()
         {
-            _processorTask = _mongoReader.RunQuery(_queryString, _processor, Globals.DicomReprocessorOptions);
+            _processorTask = _mongoReader.RunQuery(_queryString, _processor, Globals.DicomReprocessorOptions!);
             TimeSpan queryTime = _processorTask.Result;
 
             if (_processor.TotalProcessed == 0)
@@ -82,7 +80,7 @@ namespace Microservices.DicomReprocessor.Execution
 
             try
             {
-                _processorTask.Wait();
+                _processorTask!.Wait();
             }
             catch (AggregateException e)
             {

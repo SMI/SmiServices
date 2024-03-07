@@ -1,17 +1,16 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using CommandLine;
 using CommandLine.Text;
-using JetBrains.Annotations;
 using Smi.Common.Options;
 
 namespace Microservices.DicomReprocessor.Options
 {
     public class DicomReprocessorCliOptions : CliOptions
     {
-        private string _sourceCollection;
+        private string _sourceCollection = null!;
         [Option(
             'c',
             "collection-name",
@@ -35,7 +34,7 @@ namespace Microservices.DicomReprocessor.Options
             Required = false,
             HelpText = "[Optional] The file to build the reprocessing query from (if you only want a subset of the collection)"
         )]
-        public string QueryFile { get; set; }
+        public string? QueryFile { get; set; }
 
         [Option(
             "batch-size",
@@ -64,7 +63,7 @@ namespace Microservices.DicomReprocessor.Options
             Required = false,
             HelpText = "[Optional] Routing key for output messages sent to the RabbitMQ exchange, which may depend on your RabbitMQ configuration. The exchange must have a valid route mapped for this routing key"
         )]
-        public string ReprocessingRoutingKey { get; set; }
+        public string? ReprocessingRoutingKey { get; set; }
 
         [Option(
             "auto-run",
@@ -76,7 +75,6 @@ namespace Microservices.DicomReprocessor.Options
 
 
         [Usage]
-        [UsedImplicitly]
         public static IEnumerable<Example> Examples
         {
             get

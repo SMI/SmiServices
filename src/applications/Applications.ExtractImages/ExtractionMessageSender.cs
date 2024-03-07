@@ -28,7 +28,7 @@ namespace Applications.ExtractImages
         private readonly int _maxIdentifiersPerMessage;
 
         private readonly string _projectId;
-        private readonly string[] _modalities;
+        private readonly string[]? _modalities;
         private readonly bool _isIdentifiableExtraction;
         private readonly bool _isNoFiltersExtraction;
         private readonly bool _nonInteractive;
@@ -75,7 +75,8 @@ namespace Applications.ExtractImages
             DateTime now = _dateTimeProvider.UtcNow();
 
             // TODO(rkm 2021-04-01) Change this to a string[] in both messages below
-            string modalitiesString = _modalities == null ? null : string.Join(',', _modalities);
+            string? modalitiesString = _modalities == null ? null : string.Join(',', _modalities);
+            string userName = Environment.UserName;
 
             var erm = new ExtractionRequestMessage
             {
@@ -92,7 +93,7 @@ namespace Applications.ExtractImages
                 Modalities = modalitiesString,
 
                 // NOTE(rkm 2021-04-01) Set below
-                ExtractionIdentifiers = null,
+                ExtractionIdentifiers = null!,
             };
 
             List<ExtractionRequestMessage> ermList =
@@ -116,6 +117,7 @@ namespace Applications.ExtractImages
 
                 KeyTag = extractionKey.ToString(),
                 KeyValueCount = idList.Count,
+                UserName = userName,
                 ExtractionModality = modalitiesString,
             };
 
@@ -128,19 +130,21 @@ namespace Applications.ExtractImages
                 var sb = new StringBuilder();
                 sb.AppendLine();
                 sb.AppendLine($"ExtractionJobIdentifier:        {jobId}");
+                sb.AppendLine($"Submitted:                      {now:u}");
                 sb.AppendLine($"ProjectNumber:                  {_projectId}");
                 sb.AppendLine($"ExtractionDirectory:            {_extractionDir}");
                 sb.AppendLine($"ExtractionKey:                  {extractionKey}");
                 sb.AppendLine($"IsIdentifiableExtraction:       {_isIdentifiableExtraction}");
                 sb.AppendLine($"IsNoFilterExtraction:           {_isNoFiltersExtraction}");
                 sb.AppendLine($"ExtractionModality:             {modalitiesString ?? "<unspecified>"}");
+                sb.AppendLine($"UserName:                       {userName}");
                 sb.AppendLine($"KeyValueCount:                  {idList.Count}");
                 sb.AppendLine($"ExtractionRequestMessage count: {ermList.Count}");
                 _logger.Info(sb.ToString());
                 LogManager.Flush();
                 Console.WriteLine("Confirm you want to start an extract job with the above information");
 
-                string key;
+                string? key;
                 do
                 {
                     Console.Write("[y/n]: ");
@@ -181,9 +185,9 @@ namespace Applications.ExtractImages
             _logger.Info("Sending messages");
 
             foreach (var msg in ermList)
-                _extractionRequestProducer.SendMessage(msg, isInResponseTo: null);
+                _extractionRequestProducer.SendMessage(msg, isInResponseTo: null, routingKey: null);
 
-            _extractionRequestInfoProducer.SendMessage(erim, isInResponseTo: null);
+            _extractionRequestInfoProducer.SendMessage(erim, isInResponseTo: null, routingKey: null);
 
             _logger.Info("All messages sent");
         }

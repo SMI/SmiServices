@@ -3,43 +3,32 @@ updates:
   - package-ecosystem: nuget
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 99
-    target-branch: master
     reviewers:
-      - rkm
-      - jas88
+      - SMI/reviewers
   - package-ecosystem: maven
     directory: "/src/common/com.smi.microservices.parent"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 99
-    target-branch: master
     reviewers:
-      - rkm
-      - jas88
+      - SMI/reviewers
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     reviewers:
-      - rkm
-      - jas88
+      - SMI/reviewers
   - package-ecosystem: "pip"
     directory: "/src/common/Smi_Common_Python"
     schedule:
-      interval: daily
-    allow:
-      - dependency-type: "all"
+      interval: weekly
     reviewers:
-      - rkm
-      - jas88
+      - SMI/reviewers
   - package-ecosystem: "pip"
     directory: "/src/applications/SRAnonTool"
     schedule:
-      interval: daily
-    allow:
-      - dependency-type: "all"
+      interval: weekly
     reviewers:
-      - rkm
-      - jas88
+      - SMI/reviewers

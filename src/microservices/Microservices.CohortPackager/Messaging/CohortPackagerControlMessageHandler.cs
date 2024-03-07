@@ -18,7 +18,7 @@ namespace Microservices.CohortPackager.Messaging
             _jobWatcher = jobWatcher;
         }
 
-        public void ControlMessageHandler(string action, string message = null)
+        public void ControlMessageHandler(string action, string? message = null)
         {
             _logger.Info("Received control event with action: " + action + " and message: " + (message ?? ""));
 

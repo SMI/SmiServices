@@ -49,7 +49,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             public readonly TestExtractionDatabase ExtractionDatabase = new();
             public readonly Mock<IClientSessionHandle> MockSessionHandle = new();
 
-            public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
+            public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings? settings = null)
             {
                 if (name == ExtractionDatabaseName)
                     return ExtractionDatabase;
@@ -57,7 +57,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             }
 
             // NOTE(rkm 2020-03-10) We don't actually implement transaction rollback as we only need to be able to start with a fresh collection for each test
-            public override IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => MockSessionHandle.Object;
+            public override IClientSessionHandle StartSession(ClientSessionOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => MockSessionHandle.Object;
         }
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             public readonly Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>> ExpectedFilesCollections = new();
             public readonly Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>> StatusCollections = new();
 
-            public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null)
+            public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings? settings = null)
             {
-                dynamic retCollection = null;
+                dynamic? retCollection = null;
                 switch (name)
                 {
                     case "inProgressJobs":
@@ -117,15 +117,15 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TVal"></typeparam>
-        private sealed class MockExtractCollection<TKey, TVal> : StubMongoCollection<TKey, TVal>
+        private sealed class MockExtractCollection<TKey, TVal> : StubMongoCollection<TKey, TVal> where TKey : struct
         {
             public readonly Dictionary<TKey, TVal> Documents = new();
 
             public bool RejectChanges { get; set; }
 
-            public override long CountDocuments(FilterDefinition<TVal> filter, CountOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
+            public override long CountDocuments(FilterDefinition<TVal> filter, CountOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
 
-            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection>? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 var mockCursor = new Mock<IAsyncCursor<TProjection>>();
                 mockCursor
@@ -160,7 +160,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 return mockCursor.Object;
             }
 
-            public override void InsertOne(TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override void InsertOne(TVal document, InsertOneOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 if (RejectChanges)
                     throw new Exception("Rejecting changes");
@@ -168,24 +168,24 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 BsonDocument bsonDoc = document.ToBsonDocument();
                 if (!bsonDoc.Contains("_id"))
                     bsonDoc.Add("_id", Guid.NewGuid().ToString());
-                if (!Documents.TryAdd(GetKey(bsonDoc["_id"].ToString()), document))
+                if (!Documents.TryAdd(GetKey(bsonDoc["_id"].ToString()!), document))
                     throw new Exception("Document already exists");
             }
 
-            public override void InsertMany(IEnumerable<TVal> documents, InsertManyOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override void InsertMany(IEnumerable<TVal> documents, InsertManyOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 foreach (TVal doc in documents)
                     InsertOne(doc, null, cancellationToken);
             }
 
             public override ReplaceOneResult ReplaceOne(FilterDefinition<TVal> filter, TVal replacement,
-                ReplaceOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+                ReplaceOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 if (RejectChanges)
                     return ReplaceOneResult.Unacknowledged.Instance;
 
                 BsonDocument bsonDoc = replacement.ToBsonDocument();
-                TKey key = GetKey(bsonDoc["_id"].ToString());
+                TKey key = GetKey(bsonDoc["_id"].ToString()!);
                 if (!Documents.ContainsKey(key))
                     return ReplaceOneResult.Unacknowledged.Instance;
 
@@ -202,7 +202,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 if (!filterDoc.Contains("_id") || filterDoc.Count() > 1)
                     throw new NotImplementedException("No support for deleting multiple docs");
 
-                return Documents.Remove(GetKey(filterDoc["_id"].ToString()))
+                return Documents.Remove(GetKey(filterDoc["_id"].ToString()!))
                     ? (DeleteResult)new DeleteResult.Acknowledged(1)
                     : DeleteResult.Unacknowledged.Instance;
             }
@@ -234,6 +234,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
+                UserName = "testUser",
                 ExtractionModality = "CT",
                 IsIdentifiableExtraction = true,
                 IsNoFilterExtraction = true,
@@ -265,12 +266,63 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 _dateTimeProvider.UtcNow(),
                 "StudyInstanceUID",
                 1,
+                "testUser",
                 "CT",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true,
                 null);
 
             Assert.AreEqual(expected, extractJob);
+        }
+
+        [Test]
+        public void PersistMessageToStoreImpl_ExtractionRequestInfoMessage_CompletedJob()
+        {
+            // Arrange
+
+            var jobId = Guid.NewGuid();
+            var job = new MongoExtractJobDoc(
+              jobId,
+              MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+              "1234",
+              ExtractJobStatus.Failed,
+              "test/dir",
+              _dateTimeProvider.UtcNow(),
+              "SeriesInstanceUID",
+              1,
+              "testUser",
+              "MR",
+              isIdentifiableExtraction: true,
+              isNoFilterExtraction: true,
+              null);
+
+            var client = new TestMongoClient();
+            client.ExtractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
+
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
+            {
+                ExtractionJobIdentifier = jobId,
+                ProjectNumber = "1234-5678",
+                ExtractionDirectory = "1234-5678/testExtract",
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                KeyTag = "StudyInstanceUID",
+                KeyValueCount = 1,
+                UserName = "testUser",
+                ExtractionModality = "CT",
+                IsIdentifiableExtraction = true,
+                IsNoFilterExtraction = true,
+            };
+
+            // Act
+
+            var call = () => store.PersistMessageToStore(testExtractionRequestInfoMessage, new MessageHeader());
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(() => call());
+            Assert.AreEqual("Received an ExtractionRequestInfoMessage for a job that is already completed", exc?.Message);
         }
 
         [Test]
@@ -405,6 +457,50 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         }
 
         [Test]
+        public void PersistMessageToStoreImpl_ExtractedFileVerificationMessage_CompletedJob()
+        {
+            // Arrange
+
+            var jobId = Guid.NewGuid();
+            var job = new MongoExtractJobDoc(
+              jobId,
+              MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+              "1234",
+              ExtractJobStatus.Failed,
+              "test/dir",
+              _dateTimeProvider.UtcNow(),
+              "SeriesInstanceUID",
+              1,
+              "testUser",
+              "MR",
+              isIdentifiableExtraction: true,
+              isNoFilterExtraction: true,
+              null);
+
+            var client = new TestMongoClient();
+            client.ExtractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
+
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            var extractedFileStatusMessage = new ExtractedFileVerificationMessage()
+            {
+                ExtractionJobIdentifier = jobId,
+                OutputFilePath = "foo-an.dcm",
+                Report  = "[]",
+            };
+
+            // Act
+
+            var call = () => store.PersistMessageToStore(extractedFileStatusMessage, new MessageHeader());
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(() => call());
+            Assert.AreEqual($"Received an {nameof(ExtractedFileVerificationMessage)} for a job that is already completed", exc?.Message);
+        }
+
+
+        [Test]
         public void TestPersistMessageToStoreImpl_IsIdentifiableMessage()
         {
             var client = new TestMongoClient();
@@ -454,6 +550,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 _dateTimeProvider.UtcNow(),
                 "SeriesInstanceUID",
                 1,
+                "testUser",
                 "MR",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true,
@@ -495,7 +592,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check we handle a bad ReplaceOneResult
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName,  _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
@@ -505,7 +602,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check happy path
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName,  _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
@@ -532,6 +629,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 _dateTimeProvider.UtcNow(),
                 "SeriesInstanceUID",
                 1,
+                "testUser",
                 "MR",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true,
@@ -641,6 +739,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 _dateTimeProvider.UtcNow(),
                 "1.2.3.4",
                 123,
+                "testUser",
                 "MR",
                 isIdentifiableExtraction: true,
                 isNoFilterExtraction: true,
@@ -689,7 +788,61 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             MongoExtractJobDoc failedDoc = docs[jobId];
             Assert.AreEqual(ExtractJobStatus.Failed, failedDoc.JobStatus);
             Assert.NotNull(failedDoc.FailedJobInfoDoc);
-            Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc.ExceptionMessage);
+            Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc!.ExceptionMessage);
+        }
+
+        [Test]
+        public void AddToWriteQueue_ProcessVerificationMessageQueue()
+        {
+            // Arrange
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            Guid jobId = Guid.NewGuid();
+            var message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = "anon.dcm",
+                JobSubmittedAt = _dateTimeProvider.UtcNow(),
+                ProjectNumber = "1234",
+                ExtractionJobIdentifier = jobId,
+                ExtractionDirectory = "1234/test",
+                DicomFilePath = "original.dcm",
+                Status = VerifiedFileStatus.NotIdentifiable,
+                Report = "[]",
+            };
+            var header = new MessageHeader();
+
+            var nMessages = 10;
+
+            // Act
+
+            for (int i = 0; i < nMessages; ++i)
+                store.AddToWriteQueue(message, header, (ulong)i);
+
+            store.ProcessVerificationMessageQueue();
+
+            // Assert
+
+            Assert.AreEqual(
+                nMessages,
+                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents.Count
+            );
+        }
+
+        [Test]
+        public void ProcessVerificationMessageQueue_Empty()
+        {
+            // Arrange
+
+            var client = new TestMongoClient();
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            // Act
+            store.ProcessVerificationMessageQueue();
+
+            // Assert
+            // No exception
         }
 
         #endregion

@@ -52,7 +52,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             var guidTable = swapper.GetGuidTableIfAny(options);
             
-            Assert.AreEqual("Map_guid",guidTable.GetRuntimeName());
+            Assert.AreEqual("Map_guid",guidTable!.GetRuntimeName());
 
             //The key column should match the SwapColumnName
             Assert.IsNotNull(guidTable.DiscoverColumn("CHI"));
@@ -64,7 +64,7 @@ namespace Microservices.IdentifierMapper.Tests
             
             //should be a guid e.g. like "bc70d07d-4c77-4086-be1c-2971fd66ccf2"
             Assert.IsNotNull(answer2);
-            Assert.AreEqual(4,answer2.Count(c=>c=='-'),$"Answer '{answer2}' did not look like a guid");
+            Assert.AreEqual(4,answer2!.Count(c=>c=='-'),$"Answer '{answer2}' did not look like a guid");
             Assert.IsNull(reason);
 
             //make sure the guid mapping table has the correct row persisted for repeated calls

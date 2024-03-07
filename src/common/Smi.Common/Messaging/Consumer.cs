@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,10 +26,18 @@ namespace Smi.Common.Messaging
         /// </summary>
         public int NackCount { get; private set; }
 
+        /// <inheritdoc/>
+        public bool HoldUnprocessableMessages { get; set; } = false;
+
+        protected int _heldMessages = 0;
+
+        /// <inheritdoc/>
+        public int QoSPrefetchCount { get; set; }
+
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
-        public event ConsumerFatalHandler OnFatal;
+        public event ConsumerFatalHandler? OnFatal;
 
 
         protected readonly ILogger Logger;
@@ -36,7 +45,7 @@ namespace Smi.Common.Messaging
         private readonly object _oConsumeLock = new();
         private bool _exiting;
 
-        protected IModel Model;
+        protected IModel? Model;
 
         public virtual void Shutdown()
         {
@@ -94,7 +103,10 @@ namespace Smi.Common.Messaging
                 if (deliverArgs.BasicProperties?.ContentEncoding != null)
                     enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
-                header = new MessageHeader(deliverArgs.BasicProperties?.Headers, enc);
+                var headers = deliverArgs.BasicProperties?.Headers
+                    ?? throw new ArgumentNullException("A part of deliverArgs.BasicProperties.Headers was null");
+
+                header = new MessageHeader(headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
             }
             catch (Exception e)
@@ -106,17 +118,29 @@ namespace Smi.Common.Messaging
                 return;
             }
 
-            // Now pass the message on to the implementation, catching and calling Fatal on any unhandled exception
-
             try
             {
-                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage message))
+                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage? message))
                     return;
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
             }
             catch (Exception e)
             {
-                Fatal("ProcessMessageImpl threw unhandled exception", e);
+                var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
+                Logger.Error(e, $"Unhandled exception when processing message {header.MessageGuid} with body: {messageBody}");
+
+                if (HoldUnprocessableMessages)
+                {
+                    ++_heldMessages;
+                    string msg = $"Holding an unprocessable message ({_heldMessages} total message(s) currently held";
+                    if (_heldMessages >= QoSPrefetchCount)
+                        msg += $". Have now exceeded the configured BasicQos value of {QoSPrefetchCount}. No further messages will be delivered to this consumer!";
+                    Logger.Warn(msg);
+                }
+                else
+                {
+                    Fatal("ProcessMessageImpl threw unhandled exception", e);
+                }
             }
         }
 
@@ -124,7 +148,7 @@ namespace Smi.Common.Messaging
         {
             try
             {
-                ProcessMessageImpl(null, msg, 1);
+                ProcessMessageImpl(new MessageHeader(), msg, 1);
             }
             catch (Exception e)
             {
@@ -144,7 +168,7 @@ namespace Smi.Common.Messaging
         /// <param name="iMessage"></param>
         /// <returns></returns>
         /// </summary>
-        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, out T iMessage) where T : IMessage
+        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, [NotNullWhen(true)] out T? iMessage) where T : IMessage
         {
             try
             {
@@ -158,7 +182,7 @@ namespace Smi.Common.Messaging
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
                 ErrorAndNack(header, deliverArgs.DeliveryTag, DeserializationMessage<T>(), e);
 
-                iMessage = default(T);
+                iMessage = default;
                 return false;
             }
         }
@@ -169,7 +193,7 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void DiscardSingleMessage(ulong tag)
         {
-            Model.BasicNack(tag, multiple: false, requeue: false);
+            Model!.BasicNack(tag, multiple: false, requeue: false);
             NackCount++;
         }
 
@@ -188,9 +212,9 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void Ack(IMessageHeader header, ulong tag)
         {
-            header?.Log(Logger, LogLevel.Trace, "Acknowledged");
+            header?.Log(Logger, LogLevel.Trace, $"Acknowledged {header.MessageGuid}");
 
-            Model.BasicAck(tag, false);
+            Model!.BasicAck(tag, false);
             AckCount++;
         }
 
@@ -212,7 +236,7 @@ namespace Smi.Common.Messaging
         }
 
         /// <summary>
-        /// Logs a Fatal in the Logger and triggers the FatalError event which should shutdown the RabbitMQAdapter
+        /// Logs a Fatal in the Logger and triggers the FatalError event which should shutdown the MessageBroker
         /// <para>Do not do any further processing after triggering this method</para>
         /// </summary>
         /// <param name="msg"></param>
@@ -228,7 +252,7 @@ namespace Smi.Common.Messaging
 
                 Logger.Fatal(exception, msg);
 
-                ConsumerFatalHandler onFatal = OnFatal;
+                ConsumerFatalHandler? onFatal = OnFatal;
 
                 if (onFatal != null)
                 {

@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using Smi.Common;
+using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
@@ -20,9 +20,9 @@ namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
         public void RabbitAvailable()
         {
             var options = new GlobalOptionsFactory().Load(nameof(RabbitAvailable));
-            var rabbitOptions = options.RabbitOptions;
+            var rabbitOptions = options.RabbitOptions!;
 
-            Assert.DoesNotThrow(()=> _=new RabbitMqAdapter(rabbitOptions.CreateConnectionFactory(),nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
+            Assert.DoesNotThrow(()=> _=new RabbitMQBroker(rabbitOptions,nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
         }
     }
 }

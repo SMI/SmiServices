@@ -1,5 +1,4 @@
 using Equ;
-using JetBrains.Annotations;
 using System;
 using System.Text;
 
@@ -23,19 +22,16 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// <summary>
         /// Reference number for the project
         /// </summary>
-        [NotNull]
         public string ProjectNumber { get; }
 
         /// <summary>
         /// Directory to extract files into, relative to the extraction root. Should be of the format projName/extractions/extractName
         /// </summary>
-        [NotNull]
         public string ExtractionDirectory { get; }
 
         /// <summary>
         /// The DICOM tag of the identifier we are extracting (i.e. "SeriesInstanceUID")
         /// </summary>
-        [NotNull]
         public string KeyTag { get; }
 
         /// <summary>
@@ -44,10 +40,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public uint KeyValueCount { get; }
 
         /// <summary>
+        /// Username of the person who submitted the job
+        /// </summary>
+        public string UserName { get; }
+
+        /// <summary>
         /// The modality being extracted
         /// </summary>
-        [CanBeNull]
-        public string ExtractionModality { get; }
+        public string? ExtractionModality { get; }
 
         /// <summary>
         /// Current status of the extract job
@@ -62,11 +62,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public ExtractJobInfo(
             Guid extractionJobIdentifier,
             DateTime jobSubmittedAt,
-            [NotNull] string projectNumber,
-            [NotNull] string extractionDirectory,
-            [NotNull] string keyTag,
+            string projectNumber,
+            string extractionDirectory,
+            string keyTag,
             uint keyValueCount,
-            [CanBeNull] string extractionModality,
+            string userName,
+            string? extractionModality,
             ExtractJobStatus jobStatus,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction
@@ -78,6 +79,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             ExtractionDirectory = (!string.IsNullOrWhiteSpace(extractionDirectory)) ? extractionDirectory : throw new ArgumentNullException(nameof(extractionDirectory));
             KeyTag = (!string.IsNullOrWhiteSpace(keyTag)) ? keyTag : throw new ArgumentNullException(nameof(keyTag));
             KeyValueCount = (keyValueCount > 0) ? keyValueCount : throw new ArgumentNullException(nameof(keyValueCount));
+            UserName = (!string.IsNullOrWhiteSpace(userName)) ? userName : throw new ArgumentNullException(nameof(userName));
             if (extractionModality != null)
                 ExtractionModality = (!string.IsNullOrWhiteSpace(extractionModality)) ? extractionModality : throw new ArgumentNullException(nameof(extractionModality));
             JobStatus = (jobStatus != default(ExtractJobStatus)) ? jobStatus : throw new ArgumentException(nameof(jobStatus));
@@ -113,6 +115,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             sb.AppendLine("ExtractionDirectory: " + ExtractionDirectory);
             sb.AppendLine("KeyTag: " + KeyTag);
             sb.AppendLine("KeyCount: " + KeyValueCount);
+            sb.AppendLine("UserName: " + UserName);
             sb.AppendLine("ExtractionModality: " + ExtractionModality);
             sb.AppendLine("IsIdentifiableExtraction: " + IsIdentifiableExtraction);
             sb.AppendLine("IsNoFilterExtraction: " + IsNoFilterExtraction);

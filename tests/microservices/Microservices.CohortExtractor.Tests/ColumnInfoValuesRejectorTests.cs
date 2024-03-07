@@ -8,10 +8,13 @@ using Rdmp.Core.Curation.Data;
 using System.Collections.Generic;
 using System.Data.Common;
 using Tests.Common;
+using Smi.Common.Tests;
 
 namespace Microservices.CohortExtractor.Tests
 {
 
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+    [RequiresRelationalDb(DatabaseType.MySql)]
     public class ColumnInfoValuesRejectorTests : DatabaseTests
     {
         private const string PatColName = "PatientID";
@@ -36,7 +39,7 @@ namespace Microservices.CohortExtractor.Tests
             moqDave.Setup(x => x[PatColName])
                 .Returns("Dave");
 
-            Assert.IsFalse(rejector.Reject(moqDave.Object, out string reason));
+            Assert.IsFalse(rejector.Reject(moqDave.Object, out string? reason));
             Assert.IsNull(reason);
 
             var moqFrank = new Mock<DbDataReader>();

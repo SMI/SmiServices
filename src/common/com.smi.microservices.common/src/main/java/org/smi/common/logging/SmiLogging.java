@@ -12,12 +12,15 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.Random;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.WriterAppender;
 
 /**
@@ -100,18 +103,20 @@ public final class SmiLogging {
             logdir.mkdirs();
         }
 
-        // Turn off log4j warnings from library code
-        Logger l = Logger.getRootLogger();
-        //l.setLevel(Level.OFF);
+        Properties props = new Properties();
+        props.put("log4j.logger.org.dcm4cheri", "INFO");
+        props.put("log4j.logger.org.rsna", "INFO");
+        PropertyConfigurator.configure(props);
 
-        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C{1}| %m%n");
+        Logger l = Logger.getRootLogger();
+        l.setLevel(testing ? Level.ALL : Level.DEBUG);
+
+        PatternLayout pl = new PatternLayout("%d{HH:mm:ss.SSS}|%t|%-5p|%-15C| %m%n");
 
         ConsoleAppender ca = new ConsoleAppender();
-        ca.setThreshold(testing?Level.ALL:Level.ERROR);
         l.addAppender(ca);
 
         WriterAppender fa = new WriterAppender(pl,new FileWriter(logfile.getAbsolutePath(),true));
-        fa.setThreshold(Level.ALL);
         fa.setImmediateFlush(true);
         fa.setLayout(pl);
         fa.activateOptions();

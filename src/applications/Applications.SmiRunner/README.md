@@ -12,7 +12,7 @@ smi 1.15.1
 Copyright  SMI Project 2018-2020
 
   trigger-updates              See here at your release version:
-                               https://github.com/SMI/SmiServices/tree/master/src/applications/Applications.TriggerUpdates
+                               https://github.com/SMI/SmiServices/tree/main/src/applications/Applications.TriggerUpdates
 
   ...
 ```

@@ -15,10 +15,10 @@ public class ExplicitListDicomFileWorklist : IDicomFileWorklist
         _filesAndOrDirectories = filesAndOrDirectories.GetEnumerator();
     }
 
-    public bool GetNextFileOrDirectoryToProcess(out DirectoryInfo directory, out AmbiguousFilePath file)
-    {
-        directory = null;
-        file = null;
+        public bool GetNextFileOrDirectoryToProcess(out DirectoryInfo? directory, out AmbiguousFilePath? file)
+        {
+            directory = null;
+            file = null;
 
         if (_filesAndOrDirectories.MoveNext())
         {

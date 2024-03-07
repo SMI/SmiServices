@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -9,7 +9,6 @@ using Applications.DicomDirectoryProcessor.Options;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using FAnsi.Discovery;
-using MapsDirectlyToDatabaseTable;
 using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.DicomRelationalMapper.Execution;
@@ -29,10 +28,10 @@ using Rdmp.Core.Curation.Data.Defaults;
 using Rdmp.Core.Curation.Data.Pipelines;
 using Rdmp.Core.DataExport.Data;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
-using Rdmp.Core.Logging.PastEvents;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.PipelineComponents;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
-using ReusableLibraryCode.Checks;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
@@ -48,11 +47,11 @@ namespace Microservices.DicomRelationalMapper.Tests
     {
         public const string ScratchDatabaseName = "RDMPTests_ScratchArea";
 
-        private DicomRelationalMapperTestHelper _helper;
-        private GlobalOptions _globals;
+        private DicomRelationalMapperTestHelper _helper = null!;
+        private GlobalOptions _globals = null!;
         private const string MongoTestDbName = "nUnitTestDb";
 
-        public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
+        public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)
         {
             TestLogger.Setup();
 
@@ -68,7 +67,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(server, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource), null, null, persistentRaw, modalityPrefix);
 
-            _globals.DicomRelationalMapperOptions.RetryOnFailureCount = 0;
+            _globals.DicomRelationalMapperOptions!.RetryOnFailureCount = 0;
             _globals.DicomRelationalMapperOptions.RetryDelayInSeconds = 0;
 
             //do not use an explicit RAW data load server
@@ -77,21 +76,19 @@ namespace Microservices.DicomRelationalMapper.Tests
         }
 
         [TearDown]
-        public void TearDown()
+        public new void TearDown()
         {
             //delete all joins
-            foreach (JoinInfo j in CatalogueRepository.GetAllObjects<JoinInfo>())
+            foreach (var j in CatalogueRepository.GetAllObjects<JoinInfo>())
                 j.DeleteInDatabase();
 
             //delete everything from data export
-            foreach (var t in new Type[] { typeof(ExtractionConfiguration), typeof(ExternalCohortTable), typeof(ExtractableDataSet) })
-                foreach (IDeleteable o in DataExportRepository.GetAllObjects(t))
-                    o.DeleteInDatabase();
+            foreach (var o in new Type[] { typeof(ExtractionConfiguration), typeof(ExternalCohortTable), typeof(ExtractableDataSet) }.SelectMany(t => DataExportRepository.GetAllObjects(t)))
+                o.DeleteInDatabase();
 
             //delete everything from catalogue
-            foreach (var t in new Type[] { typeof(Catalogue), typeof(TableInfo), typeof(LoadMetadata), typeof(Pipeline) })
-                foreach (IDeleteable o in CatalogueRepository.GetAllObjects(t))
-                    o.DeleteInDatabase();
+            foreach (var o in new Type[] { typeof(Catalogue), typeof(TableInfo), typeof(LoadMetadata), typeof(Pipeline) }.SelectMany(t => CatalogueRepository.GetAllObjects(t)))
+                o.DeleteInDatabase();
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer, typeof(GuidDatabaseNamer))]
@@ -108,7 +105,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var p = new Project(DataExportRepository, "delme");
             p.DeleteInDatabase();
 
-            _globals.DicomRelationalMapperOptions.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
+            _globals.DicomRelationalMapperOptions!.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = namerType.FullName;
 
@@ -118,12 +115,12 @@ namespace Microservices.DicomRelationalMapper.Tests
             var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_HappyPath)));
             dir.Create();
 
-            var arg = _helper.LoadMetadata.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
+            var arg = _helper.LoadMetadata!.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
             arg.SetValue(new Regex("([A-z]*)_.*$"));
             arg.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
@@ -143,11 +140,11 @@ namespace Microservices.DicomRelationalMapper.Tests
             var p = new Project(DataExportRepository, "delme");
             p.DeleteInDatabase();
 
-            _globals.DicomRelationalMapperOptions.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
+            _globals.DicomRelationalMapperOptions!.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = namerType.FullName;
 
-            _globals.FileSystemOptions.DicomSearchPattern = "*";
+            _globals.FileSystemOptions!.DicomSearchPattern = "*";
 
             _helper.TruncateTablesIfExists();
 
@@ -155,12 +152,12 @@ namespace Microservices.DicomRelationalMapper.Tests
             var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_NoFileExtensions)));
             dir.Create();
 
-            var arg = _helper.LoadMetadata.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
+            var arg = _helper.LoadMetadata!.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
             arg.SetValue(new Regex("([A-z]*)_.*$"));
             arg.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
@@ -188,13 +185,13 @@ namespace Microservices.DicomRelationalMapper.Tests
             var p = new Project(DataExportRepository, "delme");
             p.DeleteInDatabase();
 
-            _globals.DicomRelationalMapperOptions.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
+            _globals.DicomRelationalMapperOptions!.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = typeof(GuidDatabaseNamer).FullName;
 
-            _globals.CohortExtractorOptions.RejectorType = rejector?.FullName;
+            _globals.CohortExtractorOptions!.RejectorType = rejector?.FullName;
 
-            _globals.FileSystemOptions.DicomSearchPattern = "*";
+            _globals.FileSystemOptions!.DicomSearchPattern = "*";
 
             _helper.TruncateTablesIfExists();
 
@@ -202,12 +199,12 @@ namespace Microservices.DicomRelationalMapper.Tests
             var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_NoFileExtensions)));
             dir.Create();
 
-            var arg = _helper.LoadMetadata.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
+            var arg = _helper.LoadMetadata!.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("ModalityMatchingRegex"));
             arg.SetValue(new Regex("([A-z]*)_.*$"));
             arg.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
@@ -237,7 +234,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             var p = new Project(DataExportRepository, "delme");
             p.DeleteInDatabase();
 
-            _globals.DicomRelationalMapperOptions.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
+            _globals.DicomRelationalMapperOptions!.Guid = new Guid("fc229fc3-f700-4515-86e8-e3d38b3d1823");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
             _globals.DicomRelationalMapperOptions.MinimumBatchSize = 3;
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = namerType.FullName;
@@ -255,7 +252,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             ptIsolation.ProcessTaskType = ProcessTaskType.MutilateDataTable;
             ptIsolation.SaveToDatabase();
 
-            var arg1 = _helper.LoadMetadata.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("TablesToIsolate"));
+            var arg1 = _helper.LoadMetadata!.ProcessTasks.SelectMany(a => a.ProcessTaskArguments).Single(a => a.Name.Equals("TablesToIsolate"));
             arg1.SetValue(new[] { _helper.StudyTableInfo, _helper.SeriesTableInfo, _helper.ImageTableInfo });
             arg1.SaveToDatabase();
 
@@ -272,13 +269,13 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             //build the joins
             new JoinInfo(CatalogueRepository,
-                _helper.ImageTableInfo.ColumnInfos.Single(c => c.GetRuntimeName().Equals("SeriesInstanceUID")),
-                _helper.SeriesTableInfo.ColumnInfos.Single(c => c.GetRuntimeName().Equals("SeriesInstanceUID")),
+                _helper.ImageTableInfo!.ColumnInfos.Single(c => c.GetRuntimeName().Equals("SeriesInstanceUID")),
+                _helper.SeriesTableInfo!.ColumnInfos.Single(c => c.GetRuntimeName().Equals("SeriesInstanceUID")),
                 ExtractionJoinType.Right, null);
 
             new JoinInfo(CatalogueRepository,
                 _helper.SeriesTableInfo.ColumnInfos.Single(c => c.GetRuntimeName().Equals("StudyInstanceUID")),
-                _helper.StudyTableInfo.ColumnInfos.Single(c => c.GetRuntimeName().Equals("StudyInstanceUID")),
+                _helper.StudyTableInfo!.ColumnInfos.Single(c => c.GetRuntimeName().Equals("StudyInstanceUID")),
                 ExtractionJoinType.Right, null);
 
             //start with Study table
@@ -286,7 +283,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             _helper.StudyTableInfo.SaveToDatabase();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
@@ -318,7 +315,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             RunTest(dir, 1);
 
-            Assert.AreEqual(1, _helper.ImageTable.GetRowCount());
+            Assert.AreEqual(1, _helper.ImageTable!.GetRowCount());
 
             var isoTable = server.ExpectTable($"{_helper.ImageTable.GetRuntimeName()}_Isolation");
             Assert.AreEqual(2, isoTable.GetRowCount());
@@ -333,13 +330,13 @@ namespace Microservices.DicomRelationalMapper.Tests
             var server = GetCleanedServer(databaseType, ScratchDatabaseName);
             SetupSuite(server, persistentRaw: persistentRaw);
 
-            _globals.DicomRelationalMapperOptions.Guid = new Guid("fc229fc3-f888-4515-86e8-e3d38b3d1823");
+            _globals.DicomRelationalMapperOptions!.Guid = new Guid("fc229fc3-f888-4515-86e8-e3d38b3d1823");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
 
             _helper.TruncateTablesIfExists();
 
             //add the column to the table
-            _helper.ImageTable.AddColumn("d_DerivationCodeMeaning", "varchar(100)", true, 5);
+            _helper.ImageTable!.AddColumn("d_DerivationCodeMeaning", "varchar(100)", true, 5);
 
             var archiveTable = _helper.ImageTable.Database.ExpectTable($"{_helper.ImageTable.GetRuntimeName()}_Archive");
             if (archiveTable.Exists())
@@ -367,7 +364,7 @@ namespace Microservices.DicomRelationalMapper.Tests
   </TagElevationRequest>
 </TagElevationRequestCollection>");
 
-            var arg = _helper.DicomSourcePipelineComponent.PipelineComponentArguments.Single(a => a.Name.Equals("TagElevationConfigurationFile"));
+            var arg = _helper.DicomSourcePipelineComponent!.PipelineComponentArguments.Single(a => a.Name.Equals("TagElevationConfigurationFile"));
             arg.SetValue(elevationRules);
             arg.SaveToDatabase();
 
@@ -376,7 +373,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             dir.Create();
 
             //clean up the directory
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.GetFiles())
                 f.Delete();
 
             TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
@@ -400,29 +397,29 @@ namespace Microservices.DicomRelationalMapper.Tests
             var server = GetCleanedServer(databaseType, ScratchDatabaseName);
             SetupSuite(server);
 
-            _globals.DicomRelationalMapperOptions.Guid = new Guid("6c7cfbce-1af6-4101-ade7-6537eea72e03");
+            _globals.DicomRelationalMapperOptions!.Guid = new Guid("6c7cfbce-1af6-4101-ade7-6537eea72e03");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
-            _globals.IdentifierMapperOptions.QoSPrefetchCount = 50;
-            _globals.DicomTagReaderOptions.NackIfAnyFileErrors = false;
+            _globals.IdentifierMapperOptions!.QoSPrefetchCount = 50;
+            _globals.DicomTagReaderOptions!.NackIfAnyFileErrors = false;
 
             _helper.TruncateTablesIfExists();
 
             //Create test directory
             var dir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(IntegrationTest_BumpyRide)));
-            
+
             var r = new Random(500);
 
             //create a generator 
             using var generator = new DicomDataGenerator(r, dir.FullName, "CT");
-            generator.GenerateImageFiles(40,r);
+            generator.GenerateImageFiles(40, r);
             RunTest(dir, 40);
         }
-        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions> adjustFileSystemOptions=null)
-        { 
+        private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions>? adjustFileSystemOptions = null)
+        {
             TestLogger.Setup();
             var logger = LogManager.GetLogger("MicroservicesIntegrationTest");
 
-            _globals.FileSystemOptions.FileSystemRoot = TestContext.CurrentContext.TestDirectory;
+            _globals.FileSystemOptions!.FileSystemRoot = TestContext.CurrentContext.TestDirectory;
 
             var readFromFatalErrors = new ConsumerOptions
             {
@@ -443,29 +440,29 @@ namespace Microservices.DicomRelationalMapper.Tests
             var currentSeriesCollectionName = $"Integration_HappyPath_Series{DateTime.Now.Ticks}";
             var currentImageCollectionName = $"Integration_HappyPath_Image{DateTime.Now.Ticks}";
 
-            _globals.MongoDbPopulatorOptions.SeriesCollection = currentSeriesCollectionName;
+            _globals.MongoDbPopulatorOptions!.SeriesCollection = currentSeriesCollectionName;
             _globals.MongoDbPopulatorOptions.ImageCollection = currentImageCollectionName;
 
             //use the test catalogue not the one in the combined app.config
 
-            _globals.RDMPOptions.CatalogueConnectionString = (RepositoryLocator.CatalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
+            _globals.RDMPOptions!.CatalogueConnectionString = (RepositoryLocator.CatalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
             _globals.RDMPOptions.DataExportConnectionString = (RepositoryLocator.DataExportRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
-            _globals.DicomRelationalMapperOptions.RunChecks = true;
+            _globals.DicomRelationalMapperOptions!.RunChecks = true;
 
             if (_globals.DicomRelationalMapperOptions.MinimumBatchSize < 1)
                 _globals.DicomRelationalMapperOptions.MinimumBatchSize = 1;
 
-            using var tester = new MicroserviceTester(_globals.RabbitOptions, _globals.CohortExtractorOptions);
-            tester.CreateExchange(_globals.ProcessDirectoryOptions.AccessionDirectoryProducerOptions.ExchangeName, _globals.DicomTagReaderOptions.QueueName);
-            tester.CreateExchange(_globals.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions.QueueName);
-            tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.IdentifierMapperOptions.QueueName);
-            tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName, _globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions.QueueName, true);
-            tester.CreateExchange(_globals.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName, _globals.DicomRelationalMapperOptions.QueueName);
-            tester.CreateExchange(_globals.RabbitOptions.FatalLoggingExchange, readFromFatalErrors.QueueName);
+            using var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.CohortExtractorOptions!);
+            tester.CreateExchange(_globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!.ExchangeName!, _globals.DicomTagReaderOptions!.QueueName);
+            tester.CreateExchange(_globals.DicomTagReaderOptions!.SeriesProducerOptions!.ExchangeName!, _globals.MongoDbPopulatorOptions.SeriesQueueConsumerOptions!.QueueName);
+            tester.CreateExchange(_globals.DicomTagReaderOptions!.ImageProducerOptions!.ExchangeName!, _globals.IdentifierMapperOptions!.QueueName);
+            tester.CreateExchange(_globals.DicomTagReaderOptions.ImageProducerOptions.ExchangeName!, _globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions!.QueueName, true);
+            tester.CreateExchange(_globals.IdentifierMapperOptions.AnonImagesProducerOptions!.ExchangeName!, _globals.DicomRelationalMapperOptions.QueueName);
+            tester.CreateExchange(_globals.RabbitOptions!.FatalLoggingExchange!, readFromFatalErrors.QueueName);
 
-            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, false, _globals.CohortExtractorOptions.ExtractIdentRoutingKey);
-            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName, null, true, _globals.CohortExtractorOptions.ExtractAnonRoutingKey);
-            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions.ExchangeName, null);
+            tester.CreateExchange(_globals.CohortExtractorOptions!.ExtractFilesProducerOptions!.ExchangeName!, null, false, _globals.CohortExtractorOptions.ExtractIdentRoutingKey!);
+            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesProducerOptions.ExchangeName!, null, true, _globals.CohortExtractorOptions.ExtractAnonRoutingKey!);
+            tester.CreateExchange(_globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!.ExchangeName!, null);
 
             #region Running Microservices
 
@@ -516,24 +513,24 @@ namespace Microservices.DicomRelationalMapper.Tests
                 try
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(10));
-                    TestTimelineAwaiter.Await(() => relationalMapperHost.Consumer.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer.DleErrors); //number of image files 
+                    TestTimelineAwaiter.Await(() => relationalMapperHost.Consumer!.AckCount >= numberOfExpectedRows, null, 30000, () => relationalMapperHost.Consumer!.DleErrors); //number of image files 
                     logger.Info("\n### DicomRelationalMapper has processed its messages ###\n");
                 }
                 finally
                 {
                     //find out what happens from the logging database
-                    var rdmpLogging = new Rdmp.Core.Logging.LogManager(_helper.LoadMetadata.GetDistinctLoggingDatabase());
+                    var rdmpLogging = new Rdmp.Core.Logging.LogManager(_helper.LoadMetadata!.GetDistinctLoggingDatabase());
 
                     //if error was reported during the dicom relational mapper run
                     foreach (var dli in rdmpLogging.GetArchivalDataLoadInfos(_helper.LoadMetadata.GetDistinctLoggingTask(), null, null))
                         if (dli.StartTime > start)
-                            foreach (ArchivalFatalError e in dli.Errors)
+                            foreach (var e in dli.Errors)
                                 logger.Error($"{e.Date.TimeOfDay}:{e.Source}:{e.Description}");
                 }
 
-                Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable.GetRowCount(), "All images should appear in the image table");
-                Assert.LessOrEqual(_helper.SeriesTable.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
-                Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
+                Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable!.GetRowCount(), "All images should appear in the image table");
+                Assert.LessOrEqual(_helper.SeriesTable!.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
+                Assert.LessOrEqual(_helper.StudyTable!.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
                 Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), _helper.SeriesTable.GetRowCount(), "There should be less studies than series (or equal)");
 
                 //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
@@ -545,7 +542,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 dicomTagReaderHost.Stop("TestIsFinished");
 
                 mongoDbPopulatorHost.Stop("TestIsFinished");
-                DropMongoTestDb(_globals.MongoDatabases.DicomStoreOptions.HostName, _globals.MongoDatabases.DicomStoreOptions.Port);
+                DropMongoTestDb(_globals.MongoDatabases!.DicomStoreOptions!.HostName!, _globals.MongoDatabases.DicomStoreOptions.Port);
 
                 identifierMapperHost.Stop("TestIsFinished");
 
@@ -576,7 +573,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             tester.SendMessage(_globals.CohortExtractorOptions, extract);
 
             //wait till extractor picked up the messages and dispatched the responses
-            TestTimelineAwaiter.Await(() => extractorHost.Consumer.AckCount == 1);
+            TestTimelineAwaiter.Await(() => extractorHost.Consumer!.AckCount == 1);
 
             extractorHost.Stop("TestIsFinished");
 
@@ -604,7 +601,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             public override void Setup(IMappingTableOptions mappingTableOptions) { }
 
-            public override string GetSubstitutionFor(string toSwap, out string reason)
+            public override string? GetSubstitutionFor(string toSwap, out string? reason)
             {
                 reason = null;
                 Success++;
@@ -614,7 +611,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             public override void ClearCache() { }
 
-            public override DiscoveredTable GetGuidTableIfAny(IMappingTableOptions options)
+            public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
             {
                 return null;
             }

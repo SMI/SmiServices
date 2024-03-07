@@ -3,9 +3,12 @@ using FAnsi;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Tests.Common;
+using Smi.Common.Tests;
 
 namespace Microservices.CohortExtractor.Tests
 {
+    [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+    [RequiresRelationalDb(DatabaseType.MySql)]
     class BlacklistRejectorTests : DatabaseTests
     {
         [TestCase(DatabaseType.MicrosoftSQLServer)]

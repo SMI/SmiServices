@@ -1,13 +1,11 @@
-﻿using FAnsi;
+using FAnsi;
 using FAnsi.Discovery;
 using FAnsi.Extensions;
-using MapsDirectlyToDatabaseTable;
 using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
-using ReusableLibraryCode.Checks;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using System;
@@ -15,6 +13,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Applications.TriggerUpdates.Options;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
 
 
@@ -51,7 +51,7 @@ namespace Applications.TriggerUpdates.Execution
                 dtMap.Columns.Add("CHI");
                 dtMap.Columns.Add("ECHI");
 
-                dtMap.PrimaryKey = new []{ dtMap.Columns["CHI"]};
+                dtMap.PrimaryKey = new []{ dtMap.Columns["CHI"]!};
 
                 dtMap.Rows.Add("0101010101", "0A0A0A0A0A");
                 map = db.CreateTable("Map",dtMap);
@@ -74,7 +74,7 @@ namespace Applications.TriggerUpdates.Execution
             swapper.Setup(mapperOptions);
 
             var guidTable = swapper.GetGuidTableIfAny(mapperOptions);
-            Assert.AreEqual(0,guidTable.GetRowCount(), "No temporary guids should exist yet");
+            Assert.AreEqual(0,guidTable!.GetRowCount(), "No temporary guids should exist yet");
             Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
             
             guidTable.Insert(new Dictionary<string,object>
@@ -93,7 +93,7 @@ namespace Applications.TriggerUpdates.Execution
 
             // make a fake data load into this table (create trigger and insert/update)
             var triggerImplementer = new TriggerImplementerFactory(dbType).Create(map);
-            triggerImplementer.CreateTrigger(new ThrowImmediatelyCheckNotifier());
+            triggerImplementer.CreateTrigger(ThrowImmediatelyCheckNotifier.Quiet);
         
             //create a brand new mapping 
             map.Insert(new Dictionary<string, object>
@@ -123,14 +123,14 @@ namespace Applications.TriggerUpdates.Execution
             
 
             //make sure the identifier mapper goes to the right table
-            globals.IdentifierMapperOptions.MappingConnectionString = db.Server.Builder.ConnectionString;
+            globals.IdentifierMapperOptions!.MappingConnectionString = db.Server.Builder.ConnectionString;
             globals.IdentifierMapperOptions.MappingDatabaseType = dbType;
             globals.IdentifierMapperOptions.MappingTableName = map.GetFullyQualifiedName();
             globals.IdentifierMapperOptions.SwapperType = typeof(TableLookupWithGuidFallbackSwapper).FullName;
 
-            using (var tester = new MicroserviceTester(globals.RabbitOptions, globals.CohortExtractorOptions))
+            using (var tester = new MicroserviceTester(globals.RabbitOptions!, globals.CohortExtractorOptions!))
             {
-                tester.CreateExchange(globals.TriggerUpdatesOptions.ExchangeName, globals.UpdateValuesOptions.QueueName);
+                tester.CreateExchange(globals.TriggerUpdatesOptions!.ExchangeName!, globals.UpdateValuesOptions!.QueueName);
 
                 var sourceHost = new TriggerUpdatesHost(globals,new MapperSource(globals,cliOptions));
                 var destHost = new UpdateValuesHost(globals);
@@ -143,7 +143,7 @@ namespace Applications.TriggerUpdates.Execution
 
                 
                 //wait till updater is done updating the live table
-                TestTimelineAwaiter.Await(() => destHost.Consumer.AckCount == 1);
+                TestTimelineAwaiter.Await(() => destHost.Consumer!.AckCount == 1);
             }
 
             var liveDtAfter = liveTable.GetDataTable();

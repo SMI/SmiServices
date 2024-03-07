@@ -1,8 +1,12 @@
+# Parse a DICOM Structured Report in JSON format as output by the MongoDB database.
+
 import os
 import re
 import sys
+from tempfile import TemporaryFile
 from SmiServices import Dicom
 from SmiServices.Dicom import tag_is, tag_val, has_tag
+from SmiServices.StringUtils import redact_html_tags_in_string
 import pydicom
 
 
@@ -10,6 +14,29 @@ import pydicom
 # List of known keys which we either parse or can safely ignore
 # (all the others will be reported during testing to ensure no content is missed).
 sr_keys_to_extract = [
+    # These are all of type PN:
+    { 'label':'Consulting Physician Name', 'tag':'ConsultingPhysicianName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Performing Physician Name', 'tag':'PerformingPhysicianName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Name Of Physicians Reading Study', 'tag':'NameOfPhysiciansReadingStudy', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Operators Name', 'tag':'OperatorsName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Other Patient Names', 'tag':'OtherPatientNames', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Patient Birth Name', 'tag':'PatientBirthName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Patient Mother Birth Name', 'tag':'PatientMotherBirthName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Secondary Reviewer Name', 'tag':'SecondaryReviewerName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Evaluator Name', 'tag':'EvaluatorName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Scheduled Performing Physician Name', 'tag':'ScheduledPerformingPhysicianName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Names Of Intended Recipients Of Results', 'tag':'NamesOfIntendedRecipientsOfResults', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Human Performer Name', 'tag':'HumanPerformerName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Verifying Observer Name', 'tag':'VerifyingObserverName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Person Name', 'tag':'PersonName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Content Creator Name', 'tag':'ContentCreatorName', 'decode_func':Dicom.sr_decode_PNAME },
+    { 'label':'Reviewer Name', 'tag':'ReviewerName', 'decode_func':Dicom.sr_decode_PNAME },
+    # Plain text:
+    { 'label':'Institution Name', 'tag':'InstitutionName', 'decode_func':Dicom.sr_decode_plaintext },
+    { 'label':'Institution Address', 'tag':'InstitutionAddress', 'decode_func':Dicom.sr_decode_plaintext },
+    { 'label':'Institutional Department Name', 'tag':'InstitutionalDepartmentName', 'decode_func':Dicom.sr_decode_plaintext },
+    { 'label':'Patient Address', 'tag':'PatientAddress', 'decode_func':Dicom.sr_decode_plaintext },
+    # First version:
     { 'label':'Study Description', 'tag':'StudyDescription', 'decode_func':Dicom.sr_decode_plaintext },
     { 'label':'Study Date', 'tag':'StudyDate', 'decode_func':Dicom.sr_decode_date },
     { 'label':'Series Description', 'tag':'SeriesDescription', 'decode_func':Dicom.sr_decode_plaintext },
@@ -45,7 +72,6 @@ sr_keys_to_ignore = [
     'Modality',
     'ModalitiesInStudy',
     'Manufacturer',
-    'InstitutionName',
     'ReferencedPerformedProcedureStepSequence',
     'TypeOfPatientID',
     'IssuerOfPatientID',
@@ -67,9 +93,7 @@ sr_keys_to_ignore = [
     'CodingSchemeIdentificationSequence',
     'ImageType',
     'SeriesTime',
-    'InstitutionAddress',
     'StationName',
-    'InstitutionalDepartmentName',
     'PhysiciansOfRecord',
     'ManufacturerModelName',
     'SoftwareVersions',
@@ -112,21 +136,14 @@ sr_keys_to_ignore = [
     'LastMenstrualDate',
     'MedicalRecordLocator',
     'MilitaryRank',
-    'NameOfPhysiciansReadingStudy',
     'ObservationDateTime',
     'Occupation',
-    'OperatorsName',
-    'OtherPatientNames',
-    'PatientAddress',
-    'PatientBirthName',
     'PatientBirthTime',
     'PatientComments', # XXX do we want this?
     'PatientInsurancePlanCodeSequence',
-    'PatientMotherBirthName',
     'PatientReligiousPreference',
     'PatientState',
     'PatientTelephoneNumbers',
-    'PerformingPhysicianName',
     'PredecessorDocumentsSequence',
     'PregnancyStatus',
     'QualityControlImage',
@@ -268,113 +285,192 @@ def sr_key_can_be_ignored(keystr):
 
 
 # ---------------------------------------------------------------------
-# Output the string given in valstr, if not empty.
-# Prepends a section title given in keystr if not empty.
-# eg.  [[keystr]] valstr
-# Replaces HTML tags <BR> with newlines.
-# Removes multiple line endings for clarity.
 
-def _SR_output_string(keystr, valstr, fp):
-    # If it's a list then print each element (but only expecting a single one line ['Findings'])
-    if isinstance(valstr, list):
-        return [_SR_output_string(keystr,X,fp) for X in valstr]
-    # The Key may also be a list but only take first element
-    if isinstance(keystr, list):
-        keystr = keystr[0]
-    # If there is no value the do not print anything at all
-    if valstr == None or valstr == '':
-        return
-    # Replace CRs with LF
-    valstr = re.sub('\r+', '\n', valstr)
-    # Replace HTML tags such as <br>
-    valstr = re.sub('<[Bb][Rr]>', '\n', valstr)
-    # Remove superfluous LFs
-    valstr = re.sub('\n+', '\n', valstr)
-    # If there is no key then do not print a prefix
-    if keystr == None or keystr == '':
-        fp.write('%s\n' % (valstr))
-    else:
-        fp.write('[[%s]] %s\n' % (keystr, valstr))
+class StructuredReport:
+    _replace_HTML_entities = True    # replace HTML tags with same length of space chars
+    _replace_HTML_char = '.'         # replace HTML tags with same length of space chars
+    _replace_newline_char = '\n'     # replace CR and LF with spaces
+    _redact_char = 'X'               # character used to redact text
+    _redact_char_digit = '9'         # character used to redact digits in text
 
+    def __init__(self,
+        replace_HTML_entities = _replace_HTML_entities, \
+        replace_HTML_char = _replace_HTML_char, \
+        replace_newline_char = _replace_newline_char):
+        """ Constructor
+        """
+        self._replace_HTML_entities = replace_HTML_entities
+        self._replace_HTML_char = replace_HTML_char
+        self._replace_newline_char = replace_newline_char
 
-# ---------------------------------------------------------------------
-# Internal function to parse a DICOM tag which calls itself recursively
-# when it finds a sequence
-# Uses str_output_string to format the output.
+    def setRedactChar(self, rchar):
+        """ Change the character used to anonymise/redact text.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        Only used for text not digits (see redact_char_digit).
+        See also redact_random_length.
+        This is a static class member not an instance member
+        so it applies to all instances of this class.
+        """
+        StructuredReport._redact_char = rchar
 
-def _SR_parse_key(json_dict, json_key, fp):
-    if tag_is(json_key, 'ConceptNameCodeSequence'):
-        _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
-    elif tag_is(json_key, 'SourceImageSequence'):
-        _SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
-    elif tag_is(json_key, 'ContentSequence'):
-        for cs_item in tag_val(json_dict, json_key):
-            if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
-                value_type = tag_val(cs_item, 'ValueType')
-                if value_type == 'PNAME' or value_type == ['PNAME']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
-                elif value_type == 'DATETIME' or value_type == ['DATETIME']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
-                elif value_type == 'DATE' or value_type == ['DATE']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
-                elif value_type == 'TEXT' or value_type == ['TEXT']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
-                elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
-                elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
-                elif value_type == 'CODE' or value_type == ['CODE']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
-                elif value_type == 'UIDREF' or value_type == ['UIDREF']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
-                elif value_type == 'IMAGE' or value_type == ['IMAGE']:
-                    _SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
-                elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
-                    # Sometimes it has no ContentSequence or is 'null'
-                    if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
-                        if has_tag(cs_item, 'ConceptNameCodeSequence'):
-                            _SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
-                        _SR_parse_key(cs_item, 'ContentSequence', fp)
-                # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
-                # as they have no useful text to return
-                elif value_type == 'SCOORD' or value_type == ['SCOORD']:
-                    pass
-                elif value_type == 'TCOORD' or value_type == ['TCOORD']:
-                    pass
-                elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
-                    pass
-                elif value_type == 'TIME' or value_type == ['TIME']:
-                    pass
-                elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
-                    pass
-                else:
-                    print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
-            #print('ITEM %s' % cs_item)
-    else:
-        if not sr_key_can_be_ignored(json_key):
-            print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
+    def setReplaceHTMLChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_HTML_char = rchar
+
+    def setReplaceNewlineChar(self, rchar):
+        """ Change the character used to remove HTML.
+        Can be a single character or an empty string.
+        XXX haven't tried a multi-character string yet.
+        """
+        self._replace_newline_char = rchar
+
+    # ---------------------------------------------------------------------
+    # Output the string given in valstr, if not empty.
+    # Prepends a section title given in keystr if not empty.
+    # eg.  [[keystr]] valstr
+    # Replaces HTML tags <BR> with newlines.
+    # Removes multiple line endings for clarity.
+
+    def _SR_output_string(self, keystr, valstr, fp):
+        # If it's a list then print each element (but only expecting a single one line ['Findings'])
+        if isinstance(valstr, list):
+            return [self._SR_output_string(keystr,X,fp) for X in valstr]
+        # The Key may also be a list but only take first element
+        if isinstance(keystr, list):
+            keystr = keystr[0]
+        # Handle a value like { "Alphabetic": "my name" }
+        if isinstance(valstr, dict) and 'Alphabetic' in valstr:
+            valstr = valstr['Alphabetic']
+        # If there is no value the do not print anything at all
+        if valstr == None or valstr == '':
+            return
+        # XXX should we be using Dicom.sr_decode_PNAME if it's a PN/PNAME ???
+        # Replace CRs with LF
+        valstr = re.sub('\r+', '\n', valstr)
+        # Replace all HTML
+        if '<' in valstr and '>' in valstr:
+            valstr = redact_html_tags_in_string(valstr,
+                replace_char = self._replace_HTML_char,
+                replace_newline = self._replace_newline_char)
+        # Remove superfluous LFs
+        valstr = re.sub('\n+', '\n', valstr)
+        # If there is no key then do not print a prefix
+        if keystr == None or keystr == '':
+            fp.write('%s\n' % (valstr))
+        else:
+            fp.write('[[%s]] %s\n' % (keystr, valstr))
 
 
-# ---------------------------------------------------------------------
-# Main function to parse a DICOM Structured Report in JSON format as
-# output by the MongoDB database.
+    # ---------------------------------------------------------------------
+    def find_PersonNames(self, json_dict, names_list):
+        """ Return a list of names (decoded from PN format having ^ separators)
+        from all of the 'PersonName' tags (which probably does not include any
+        top-level tags with a vr of PN). This is a recursive function.
+        Returns the names in the names_list list which must already exist.
+        """
+        if isinstance(json_dict, list):
+            for item in json_dict:
+                self.find_PersonNames(item, names_list)
+        elif isinstance(json_dict, dict):
+            for item in json_dict.keys():
+                # Ignore the MongoDB message metadata dict
+                if item == 'MessageHeader':
+                    return
+                # We don't have the datatype to check for "PN" so assume
+                # anything ending with Name contains a PersonName
+                # This will also catch Institution Name and Observer Name
+                if item.endswith('Name'):
+                    tagval = tag_val(json_dict, item, atomic=True)
+                    names_list.append(Dicom.sr_decode_PNAME(tagval))
+                # Check if the value of this item is a list or dict
+                self.find_PersonNames(json_dict[item], names_list)
 
-def SR_parse(json_dict, doc_name, fp = sys.stdout):
+    # ---------------------------------------------------------------------
+    # Internal function to parse a DICOM tag which calls itself recursively
+    # when it finds a sequence
+    # Uses str_output_string to format the output.
 
-    _SR_output_string('Document name', doc_name, fp)
+    def _SR_parse_key(self, json_dict, json_key, fp):
+        if tag_is(json_key, 'ConceptNameCodeSequence'):
+            self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
+        elif tag_is(json_key, 'SourceImageSequence'):
+            self._SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
+        elif tag_is(json_key, 'ContentSequence') or tag_is(json_key, 'Sequence'):
+            for cs_item in tag_val(json_dict, json_key):
+                if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
+                    value_type = tag_val(cs_item, 'ValueType')
+                    if value_type == 'PNAME' or value_type == ['PNAME']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
+                    elif value_type == 'DATETIME' or value_type == ['DATETIME']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
+                    elif value_type == 'DATE' or value_type == ['DATE']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
+                    elif value_type == 'TEXT' or value_type == ['TEXT']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
+                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
+                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
+                    elif value_type == 'CODE' or value_type == ['CODE']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
+                    elif value_type == 'UIDREF' or value_type == ['UIDREF']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
+                    elif value_type == 'IMAGE' or value_type == ['IMAGE']:
+                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
+                    elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
+                        # Sometimes it has no ContentSequence or is 'null'
+                        if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
+                            if has_tag(cs_item, 'ConceptNameCodeSequence'):
+                                self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
+                            self._SR_parse_key(cs_item, 'ContentSequence', fp)
+                    # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
+                    # as they have no useful text to return
+                    elif value_type == 'SCOORD' or value_type == ['SCOORD']:
+                        pass
+                    elif value_type == 'TCOORD' or value_type == ['TCOORD']:
+                        pass
+                    elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
+                        pass
+                    elif value_type == 'TIME' or value_type == ['TIME']:
+                        pass
+                    elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
+                        pass
+                    else:
+                        print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
+                #print('ITEM %s' % cs_item)
+        else:
+            if not sr_key_can_be_ignored(json_key):
+                print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
 
-    # Output a set of known tags from the root of the document
-    # This loop does the equivalent of
-    # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
-    for sr_extract_dict in sr_keys_to_extract:
-        _SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+    def SR_parse(self, json_dict, doc_name, fp = sys.stdout):
+        """ Parse a Structured Report held in a python dictionary
+        which has come from MongoDB or from dcm2json
+        Output to the file pointer fp (default is stdout).
+        """
 
-    # Now output all the remaining tags which are not ignored
-    for json_key in json_dict:
-        _SR_parse_key(json_dict, json_key, fp)
+        self._SR_output_string('Document name', doc_name, fp)
+
+        # Output a set of known tags from the root of the document
+        # This loop does the equivalent of
+        # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
+        for sr_extract_dict in sr_keys_to_extract:
+            self._SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+        # Now output [[Other Names]] for all the elements having vr of PN
+        names_list = []
+        self.find_PersonNames(json_dict, names_list)
+        #print(names_list)
+        for name in names_list:
+            self._SR_output_string('Other Names', name, fp)
+
+        # Now output all the remaining tags which are not ignored
+        for json_key in json_dict:
+            self._SR_parse_key(json_dict, json_key, fp)
 
 
-#
 def test_SR_parse_key():
     # Extract a small fragment using: dcm2json report10.dcm | dicom_tag_lookup.py
     SR_dict = {
@@ -395,14 +491,47 @@ def test_SR_parse_key():
                         ]
                     },
                     "TextValue": { "vr": "UT", "Value": [ "MRI: Knee" ] }
+                },
+                {
+                  "RelationshipType": { "vr": "CS", "Value": [ "CONTAINS" ] },
+                  "ValueType": { "vr": "CS", "Value": [ "PNAME" ] },
+                  "ConceptNameCodeSequence": { "vr": "SQ", "Value": [ { "CodeMeaning": { "vr": "LO", "Value": [ "Physician" ] } } ] },
+                  "PersonName": { "vr": "PN", "Value": [ { "Alphabetic": "Klugman^^^Dr." } ] }
                 }
             ]
         }
     }
-    tmpfile = 'tmp_pytest_output.txt'
-    with open(tmpfile, 'w') as fd:
-        _SR_parse_key(SR_dict, 'ContentSequence', fd)
-    with open(tmpfile, 'r') as fd:
-        result = fd.read()
-    os.remove(tmpfile)
-    assert(result == '[[Request]] MRI: Knee\n')
+
+    # Create a SR object
+    sr = StructuredReport(replace_HTML_char = '.')
+
+    # Test with the above piece of JSON
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
+
+    # Add some HTML into the string and check it's redacted
+    SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] ..........................MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
+
+    # Check that the HTML redaction can also squash (remove) characters
+    sr.setReplaceHTMLChar('')
+    with TemporaryFile(mode='w+', encoding='utf-8') as fd:
+        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        fd.seek(0)
+        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
+
+def test_find_PersonNames():
+    sr = StructuredReport()
+    jd = {
+        'InstitutionName': 'Ninewells Hospital',
+        'Sequence': [ { 'PersonName': 'Klugman^^^Dr.' } ],
+        'Something Else': 'Other'
+    }
+    names_list = []
+    sr.find_PersonNames(jd, names_list)
+    assert (names_list == ['Ninewells Hospital', 'Dr. Klugman'])

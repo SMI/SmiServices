@@ -1,9 +1,10 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 
@@ -32,6 +33,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         private class TestExtractJobStore : ExtractJobStore
         {
+            public override ConcurrentQueue<Tuple<IMessageHeader, ulong>> ProcessedVerificationMessages => throw new NotImplementedException();
+
             protected override void PersistMessageToStoreImpl(ExtractionRequestInfoMessage message, IMessageHeader header) { }
             protected override void PersistMessageToStoreImpl(ExtractFileCollectionInfoMessage collectionInfoMessage, IMessageHeader header) => throw new NotImplementedException();
             protected override void PersistMessageToStoreImpl(ExtractedFileStatusMessage message, IMessageHeader header) { }
@@ -44,6 +47,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             protected override IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId) => new[] { "missing" };
+            protected override void AddToWriteQueueImpl(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag) => throw new NotImplementedException();
+            public override void ProcessVerificationMessageQueue() => throw new NotImplementedException();
         }
 
         #endregion
@@ -119,7 +124,6 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             var store = new TestExtractJobStore();
 
             Assert.Throws<ArgumentNullException>(() => store.MarkJobFailed(Guid.Empty, new Exception()));
-            Assert.Throws<ArgumentNullException>(() => store.MarkJobFailed(Guid.NewGuid(), null));
 
             store.MarkJobFailed(Guid.NewGuid(), new Exception());
         }

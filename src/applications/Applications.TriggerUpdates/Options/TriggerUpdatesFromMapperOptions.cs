@@ -11,10 +11,10 @@ namespace Applications.TriggerUpdates.Options
         public DateTime DateOfLastUpdate { get; set; }
 
         [Option('f',"FieldName",HelpText = "The field name of the release identifier in your databases e.g. PatientID.  Only needed if different from the mapping table swap column name e.g. ECHI")]
-        public string LiveDatabaseFieldName { get;set;}
+        public string? LiveDatabaseFieldName { get; set; }
 
 
         [Option('q',"Qualifier",HelpText = "Qualifier for values e.g. '.  This should be the DBMS qualifier needed for strings/dates.  If patient identifiers are numerical then do not specify this option")]
-        public char Qualifier { get;set;}
+        public char? Qualifier { get; set; }
     }
 }

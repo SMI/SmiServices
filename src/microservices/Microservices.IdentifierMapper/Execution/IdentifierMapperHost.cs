@@ -26,17 +26,18 @@ namespace Microservices.IdentifierMapper.Execution
 
 
 
-        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers swapper = null)
+        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers? swapper = null)
             : base(options)
         {
-            _consumerOptions = options.IdentifierMapperOptions;
+            _consumerOptions = options.IdentifierMapperOptions!;
 
             FansiImplementations.Load();
 
             if (swapper == null)
             {
-                Logger.Info("Not passed a swapper, creating one of type " + options.IdentifierMapperOptions.SwapperType);
-                _swapper = ObjectFactory.CreateInstance<ISwapIdentifiers>(options.IdentifierMapperOptions.SwapperType, typeof(ISwapIdentifiers).Assembly);
+                Logger.Info("Not passed a swapper, creating one of type " + options.IdentifierMapperOptions!.SwapperType);
+                _swapper = ObjectFactory.CreateInstance<ISwapIdentifiers>(options.IdentifierMapperOptions.SwapperType!, typeof(ISwapIdentifiers).Assembly)
+                    ?? throw new Exception("Could not create a swapper");
             }
             else
             {
@@ -44,7 +45,7 @@ namespace Microservices.IdentifierMapper.Execution
             }
 
             // If we want to use a Redis server to cache answers then wrap the mapper in a Redis caching swapper
-            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions.RedisConnectionString))
+            if (!string.IsNullOrWhiteSpace(options.IdentifierMapperOptions!.RedisConnectionString))
                 try
                 {
                     _swapper = new RedisSwapper(options.IdentifierMapperOptions.RedisConnectionString, _swapper);
@@ -61,7 +62,7 @@ namespace Microservices.IdentifierMapper.Execution
             Logger.Info($"Swapper of type {_swapper.GetType()} created");
 
             // Batching now handled implicitly as backlog demands
-            _producerModel = RabbitMqAdapter.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions, isBatch: true);
+            _producerModel = MessageBroker.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions!, isBatch: true);
 
             Consumer = new IdentifierMapperQueueConsumer(_producerModel, _swapper)
             {
@@ -74,13 +75,13 @@ namespace Microservices.IdentifierMapper.Execution
 
         public override void Start()
         {
-            _consumerId = RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
+            _consumerId = MessageBroker.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)
         {
             if (_consumerId != Guid.Empty)
-                RabbitMqAdapter.StopConsumer(_consumerId, Smi.Common.RabbitMqAdapter.DefaultOperationTimeout);
+                MessageBroker.StopConsumer(_consumerId, RabbitMQBroker.DefaultOperationTimeout);
             try
             {
                 // Wait for any unconfirmed messages before calling stop

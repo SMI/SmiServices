@@ -2,27 +2,27 @@
 using FellowOakDicom;
 using Smi.Common.Messages;
 
-namespace Microservices.DicomRelationalMapper.Messaging;
-
-/// <summary>
-/// 
-/// </summary>
-public class QueuedImage
+namespace Microservices.DicomRelationalMapper.Messaging
 {
-    public IMessageHeader Header { get; set; }
-
-    public ulong tag { get; set; }
-
-    public DicomFileMessage DicomFileMessage { get; set; }
-
-    public DicomDataset DicomDataset { get; set; }
-
-
-    public QueuedImage(IMessageHeader header, ulong _tag, DicomFileMessage dicomFileMessage, DicomDataset dataset)
+    /// <summary>
+    /// 
+    /// </summary>
+    public class QueuedImage
     {
-        Header = header;
-        tag = _tag;
-        DicomFileMessage = dicomFileMessage;
-        DicomDataset = dataset;
+        public IMessageHeader Header { get; init; }
+
+        public ulong Tag { get; init; }
+
+        public DicomFileMessage DicomFileMessage { get; init; }
+
+        public DicomDataset DicomDataset { get; init; }
+
+        public QueuedImage(IMessageHeader header, ulong tag, DicomFileMessage dicomFileMessage, DicomDataset dataset)
+        {
+            Header = header;
+            Tag = tag;
+            DicomFileMessage = dicomFileMessage;
+            DicomDataset = dataset;
+        }
     }
 }

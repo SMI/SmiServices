@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
@@ -23,7 +22,7 @@ namespace Smi.Common.Messaging
         };
 
         public event StopEventHandler StopHost;
-        public event ControlEventHandler ControlEvent;
+        public event ControlEventHandler? ControlEvent;
 
 
         private readonly string _processName;
@@ -35,11 +34,11 @@ namespace Smi.Common.Messaging
 
 
         public ControlMessageConsumer(
-            [NotNull] IConnectionFactory connectionFactory,
-            [NotNull] string processName,
+            RabbitOptions rabbitOptions,
+            string processName,
             int processId,
-            [NotNull] string controlExchangeName,
-            [NotNull] Action<string> stopEvent)
+            string controlExchangeName,
+            Action<string> stopEvent)
         {
             if (processName == null)
                 throw new ArgumentNullException(nameof(processName));
@@ -48,7 +47,14 @@ namespace Smi.Common.Messaging
 
             ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            _factory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _factory = new ConnectionFactory()
+            {
+                HostName = rabbitOptions.RabbitMqHostName,
+                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
+                Port = rabbitOptions.RabbitMqHostPort,
+                UserName = rabbitOptions.RabbitMqUserName,
+                Password = rabbitOptions.RabbitMqPassword
+            };
 
             if (controlExchangeName == null)
                 throw new ArgumentNullException(nameof(controlExchangeName));
@@ -74,7 +80,7 @@ namespace Smi.Common.Messaging
                 Logger.Info("Control message received with routing key: " + e.RoutingKey);
 
                 string[] split = e.RoutingKey.ToLower().Split('.');
-                string body = GetBodyFromArgs(e);
+                string? body = GetBodyFromArgs(e);
 
                 if (split.Length < 4)
                 {
@@ -161,7 +167,7 @@ namespace Smi.Common.Messaging
 
         /// <summary>
         /// Creates a one-time connection to set up the required control queue and bindings on the RabbitMQ server.
-        /// The connection is disposed and StartConsumer(...) can then be called on the parent RabbitMQAdapter with ControlConsumerOptions
+        /// The connection is disposed and StartConsumer(...) can then be called on the parent MessageBroker with ControlConsumerOptions
         /// </summary>
         /// <param name="controlExchangeName"></param>
         private void SetupControlQueueForHost(string controlExchangeName)
@@ -196,12 +202,12 @@ namespace Smi.Common.Messaging
             model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, bindingKey);
         }
 
-        private static string GetBodyFromArgs(BasicDeliverEventArgs e)
+        private static string? GetBodyFromArgs(BasicDeliverEventArgs e)
         {
             if (e.Body.Length == 0)
                 return null;
 
-            Encoding enc = null;
+            Encoding? enc = null;
 
             if (!string.IsNullOrWhiteSpace(e.BasicProperties.ContentEncoding))
             {

@@ -39,7 +39,7 @@ def fake_anonymise(doc_filename):
 	tmp_file = os.path.join(input_dir, doc_filename)
 	txt_file = os.path.join(output_dir, doc_filename)
 	xml_file = os.path.join(output_dir, doc_filename+'.knowtator.xml')
-	logging.debug('Fake-anonymising %s -> %s' % (doc_filename, txt_file))
+	logging.debug('Fake-anonymising the name %s in %s -> %s' % (fake_pattern, doc_filename, txt_file))
 	fdin = open(tmp_file, 'r')
 	fdout = open(txt_file, 'w')
 	in_text = False

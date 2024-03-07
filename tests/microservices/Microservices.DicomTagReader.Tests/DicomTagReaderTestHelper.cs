@@ -20,21 +20,21 @@ namespace Microservices.DicomTagReader.Tests
 
         public readonly ILogger MockLogger = Mock.Of<ILogger>();
 
-        public ConsumerOptions AccessionConsumerOptions;
+        public ConsumerOptions AccessionConsumerOptions = null!;
 
-        public AccessionDirectoryMessage TestAccessionDirectoryMessage;
+        public AccessionDirectoryMessage TestAccessionDirectoryMessage = null!;
 
-        private IConnection _testConnection;
-        private IModel _testModel;
+        private IConnection _testConnection = null!;
+        private IModel _testModel = null!;
 
-        public Mock<IProducerModel> TestSeriesModel;
-        public Mock<IProducerModel> TestImageModel;
+        public Mock<IProducerModel> TestSeriesModel = null!;
+        public Mock<IProducerModel> TestImageModel = null!;
 
-        public MockFileSystem MockFileSystem;
-        public IMicroserviceHost MockHost;
+        public MockFileSystem MockFileSystem = null!;
+        public IMicroserviceHost MockHost = null!;
 
-        public DirectoryInfo TestDir;
-        public GlobalOptions Options;
+        public DirectoryInfo TestDir = null!;
+        public GlobalOptions Options = null!;
 
         /// <summary>
         /// Returns the number of image messages in <see cref="TestImageQueueName"/>
@@ -52,10 +52,10 @@ namespace Microservices.DicomTagReader.Tests
             SetUpDefaults();
 
             // Create the test Series/Image exchanges
-            var tester = new MicroserviceTester(Options.RabbitOptions);
-            tester.CreateExchange(Options.DicomTagReaderOptions.ImageProducerOptions.ExchangeName,  TestImageQueueName);
-            tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions.ExchangeName, TestSeriesQueueName);
-            tester.CreateExchange(Options.RabbitOptions.FatalLoggingExchange, null);
+            var tester = new MicroserviceTester(Options.RabbitOptions!);
+            tester.CreateExchange(Options.DicomTagReaderOptions!.ImageProducerOptions!.ExchangeName!,  TestImageQueueName);
+            tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions!.ExchangeName!, TestSeriesQueueName);
+            tester.CreateExchange(Options.RabbitOptions!.FatalLoggingExchange!, null);
             tester.Shutdown();
 
             _testConnection = new ConnectionFactory
@@ -84,11 +84,11 @@ namespace Microservices.DicomTagReader.Tests
         {
             Options = new GlobalOptionsFactory().Load(nameof(DicomTagReaderTestHelper));
 
-            AccessionConsumerOptions = Options.DicomTagReaderOptions;
+            AccessionConsumerOptions = Options.DicomTagReaderOptions!;
 
             new ProducerOptions
             {
-                ExchangeName = Options.RabbitOptions.FatalLoggingExchange
+                ExchangeName = Options.RabbitOptions!.FatalLoggingExchange
             };
 
             TestAccessionDirectoryMessage = new AccessionDirectoryMessage
