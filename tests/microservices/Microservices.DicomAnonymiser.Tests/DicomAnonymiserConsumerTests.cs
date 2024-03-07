@@ -276,7 +276,11 @@ namespace Microservices.DicomAnonymiser.Tests
 
             var mockAnonymiser = new Mock<IDicomAnonymiser>(MockBehavior.Strict);
             mockAnonymiser
-                .Setup(x => x.Anonymise(It.IsAny<IFileInfo>(), It.IsAny<IFileInfo>()))
+                .Setup(x => x.Anonymise(
+                    It.IsAny<ExtractFileMessage>(),
+                    It.IsAny<IFileInfo>(), 
+                    It.IsAny<IFileInfo>(),
+                    out It.Ref<string>.IsAny))
                 .Throws(new Exception("oh no"));
 
             Expression<Func<IProducerModel, IMessageHeader>> expectedCall =
