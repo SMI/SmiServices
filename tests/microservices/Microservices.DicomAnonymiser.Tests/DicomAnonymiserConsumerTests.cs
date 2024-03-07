@@ -112,8 +112,10 @@ namespace Microservices.DicomAnonymiser.Tests
 
             Expression<Func<IDicomAnonymiser, ExtractedFileStatus>> expectedAnonCall =
                 x => x.Anonymise(
+                    It.Is<ExtractFileMessage>(x => x == _extractFileMessage),
                     It.Is<IFileInfo>(x => x.FullName == _sourceDcmPathAbs),
-                    It.Is<IFileInfo>(x => x.FullName == _mockFs.Path.Combine(_extractDir, _extractFileMessage.OutputPath))
+                    It.Is<IFileInfo>(x => x.FullName == _mockFs.Path.Combine(_extractDir, _extractFileMessage.OutputPath)),
+                    out It.Ref<string>.IsAny
                 );
 
             var mockAnonymiser = new Mock<IDicomAnonymiser>(MockBehavior.Strict);
