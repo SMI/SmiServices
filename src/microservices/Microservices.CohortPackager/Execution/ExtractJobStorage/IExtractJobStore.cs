@@ -89,7 +89,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailures(Guid jobId);
 
         /// <summary>
-        /// Returns the full list of files that were matched from an input identifier but could not be found, and a reason for each
+        /// Returns the full list of files that were matched from an input identifier but could not be found
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>

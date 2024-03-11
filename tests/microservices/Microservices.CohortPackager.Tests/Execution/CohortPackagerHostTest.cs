@@ -1,8 +1,10 @@
 using Microservices.CohortPackager.Execution;
-using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using MongoDB.Driver;
+using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using Smi.Common;
+using Smi.Common.Helpers;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.MessageSerialization;
@@ -48,56 +50,16 @@ namespace Microservices.CohortPackager.Tests.Execution
 
         #region Fixtures
 
-        // TODO(rkm 2020-12-17) Test if the old form of this is fixed in NUnit 3.13 (see https://github.com/nunit/nunit/issues/2574)
-        private class PathFixtures : IDisposable
-        {
-            public readonly string ExtractName;
-            public readonly string TestDirAbsolute;
-            public readonly string ExtractRootAbsolute;
-            public readonly string ProjExtractionsDirRelative = Path.Combine("proj", "extractions");
-            public readonly string ProjExtractDirRelative;
-            public readonly string ProjExtractDirAbsolute;
-            public readonly string ProjReportsDirAbsolute;
-
-            public PathFixtures(string extractName)
-            {
-                ExtractName = extractName;
-                
-                TestDirAbsolute = TestFileSystemHelpers.GetTemporaryTestDirectory();
-
-                ExtractRootAbsolute = Path.Combine(TestDirAbsolute, "extractRoot");
-
-                ProjExtractDirRelative = Path.Combine(ProjExtractionsDirRelative, extractName);
-                ProjExtractDirAbsolute = Path.Combine(ExtractRootAbsolute, ProjExtractDirRelative);
-
-                ProjReportsDirAbsolute = Path.Combine(ExtractRootAbsolute, ProjExtractionsDirRelative, "reports");
-
-                // NOTE(rkm 2020-11-19) This would normally be created by one of the other services
-                Directory.CreateDirectory(ProjExtractDirAbsolute);
-            }
-
-            public void Dispose()
-            {
-                ResultState outcome = TestContext.CurrentContext.Result.Outcome;
-                if (outcome == ResultState.Failure || outcome == ResultState.Error)
-                    return;
-
-                Directory.Delete(TestDirAbsolute, recursive: true);
-            }
-        }
-
         #endregion
 
         #region Tests
 
-        private bool HaveFiles(PathFixtures pf) => Directory.Exists(pf.ProjReportsDirAbsolute) && Directory.EnumerateFiles(pf.ProjExtractDirAbsolute).Any();
+        private static bool HaveFiles(PathFixtures pf) => Directory.Exists(pf.ProjReportsDirAbsolute) && Directory.EnumerateFiles(pf.ProjExtractDirAbsolute).Any();
 
-        private void VerifyReports(GlobalOptions globals, PathFixtures pf, ReportFormat reportFormat, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend)
+        private static void VerifyReports(GlobalOptions globals, PathFixtures pf, IEnumerable<Tuple<ConsumerOptions, IMessage>> toSend, bool isIdentifiableExtraction)
         {
             globals.FileSystemOptions!.ExtractRoot = pf.ExtractRootAbsolute;
             globals.CohortPackagerOptions!.JobWatcherTimeoutInSeconds = 5;
-            globals.CohortPackagerOptions.ReporterType = "FileReporter";
-            globals.CohortPackagerOptions.ReportFormat = reportFormat.ToString();
             globals.CohortPackagerOptions.VerificationMessageQueueProcessBatches = false;
 
             MongoClient client = MongoClientHelpers.GetMongoClient(globals.MongoDatabases!.ExtractionStoreOptions!, "test", true);
@@ -129,38 +91,23 @@ namespace Microservices.CohortPackager.Tests.Execution
                 host.Stop("Test end");
             }
 
-            var firstLine = $"# SMI extraction validation report for testProj1/{pf.ExtractName}{globals.CohortPackagerOptions.ReportNewLine}";
-            switch (reportFormat)
-            {
-                case ReportFormat.Combined:
-                    {
-                        string[] reportContent = File.ReadAllLines(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
-                        Assert.AreEqual(firstLine, reportContent[0]);
-                        break;
-                    }
-                case ReportFormat.Split:
-                    {
-                        string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
-                        Assert.AreEqual(6, Directory.GetFiles(extractReportsDirAbsolute).Length);
-                        string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
-                        Assert.AreEqual(firstLine, reportContent[0]);
-                        break;
-                    }
-                default:
-                    Assert.Fail($"No case for ReportFormat {reportFormat}");
-                    break;
-            }
+            var firstLine = $"# SMI extraction validation report for testProj1 {pf.ExtractName}{globals.CohortPackagerOptions.ReportNewLine}";
+
+            string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
+            var expectedReports = isIdentifiableExtraction ? 3 : 4;
+            Assert.AreEqual(expectedReports, Directory.GetFiles(extractReportsDirAbsolute).Length);
+            string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
+            Assert.AreEqual(firstLine, reportContent[0]);
         }
-                
-        [TestCase(ReportFormat.Combined)]
-        [TestCase(ReportFormat.Split)]
-        public void Integration_HappyPath(ReportFormat reportFormat)
+
+        [Test]
+        public void Integration_HappyPath()
         {
             // Test messages:
             //  - series-1
             //      - series-1-anon-1.dcm -> valid
 
-            using var pf = new PathFixtures($"Integration_HappyPath_{reportFormat}");
+            using var pf = new PathFixtures(nameof(Integration_HappyPath));
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -206,19 +153,18 @@ namespace Microservices.CohortPackager.Tests.Execution
             VerifyReports(
                 globals,
                 pf,
-                reportFormat,
                 new[]
                 {
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!, testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage),
-                }
+                },
+                isIdentifiableExtraction: false
             );
         }
 
-        [TestCase(ReportFormat.Combined)]
-        [TestCase(ReportFormat.Split)]
-        public void Integration_BumpyRoad(ReportFormat reportFormat)
+        [Test]
+        public void Integration_BumpyRoad()
         {
             // Test messages:
             //  - series-1
@@ -228,7 +174,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             //      - series-2-anon-1.dcm -> fails anonymisation
             //      - series-2-anon-2.dcm -> fails validation
 
-            using var pf = new PathFixtures($"Integration_BumpyRoad_{reportFormat}");
+            using var pf = new PathFixtures(nameof(Integration_BumpyRoad));
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -320,7 +266,6 @@ namespace Microservices.CohortPackager.Tests.Execution
             VerifyReports(
                 globals,
                 pf,
-                reportFormat,
                 new[]
                 {
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
@@ -329,14 +274,15 @@ namespace Microservices.CohortPackager.Tests.Execution
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage2),
-                }
+                },
+                isIdentifiableExtraction: false
             );
         }
 
         [Test]
         public void Integration_IdentifiableExtraction_HappyPath()
         {
-            using var pf = new PathFixtures("Integration_IdentifiableExtraction_HappyPath");
+            using var pf = new PathFixtures(nameof(Integration_IdentifiableExtraction_HappyPath));
 
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
@@ -399,15 +345,50 @@ namespace Microservices.CohortPackager.Tests.Execution
             VerifyReports(
                 globals,
                 pf,
-                ReportFormat.Combined,
                 new[]
                 {
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!,  testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,testExtractFileStatusMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage2),
-                }
+                },
+                isIdentifiableExtraction: true
             );
+        }
+
+        [Test]
+        public void Constructor_JobStoreDateProvider_ThrowsException()
+        {
+            // Arrange
+
+            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_JobStoreDateProvider_ThrowsException));
+
+            // Act
+
+            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IMessageBroker>().Object, new DateTimeProvider());
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentException>(() => constructor());
+            Assert.AreEqual("jobStore and dateTimeProvider are mutually exclusive arguments", exc!.Message);
+        }
+
+        [Test]
+        public void Constructor_InvalidExtractRoot_ThrowsException()
+        {
+            // Arrange
+
+            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_InvalidExtractRoot_ThrowsException));
+            globals.FileSystemOptions!.ExtractRoot = "  ";
+
+            // Act
+
+            CohortPackagerHost constructor() => new(globals, new Mock<IExtractJobStore>().Object, null, null, null, new Mock<IMessageBroker>().Object, null);
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
+            Assert.AreEqual("Specified argument was out of the range of valid values. (Parameter 'ExtractRoot')", exc!.Message);
         }
 
         #endregion
