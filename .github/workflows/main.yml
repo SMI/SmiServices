@@ -205,7 +205,7 @@ jobs:
           cd ..
           ./bin/release/createReleaseChangelog.py ${{ needs.init.outputs.build_ref }}
       - name: upload release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ./release/*
           body_path: release_changelog.md
