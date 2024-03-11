@@ -104,7 +104,7 @@ namespace Smi.Common.Messaging
                     enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
                 var headers = deliverArgs.BasicProperties?.Headers
-                    ?? throw new ArgumentNullException("A part of deliverArgs.BasicProperties.Headers was null");
+                              ?? throw new ArgumentNullException(nameof(deliverArgs), "A part of deliverArgs.BasicProperties.Headers was null");
 
                 header = new MessageHeader(headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
@@ -197,11 +197,9 @@ namespace Smi.Common.Messaging
             NackCount++;
         }
 
-        protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
+        protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception? exception)
         {
-            if (header != null)
-                header.Log(Logger, LogLevel.Error, message, exception);
-
+            header?.Log(Logger, LogLevel.Error, message, exception);
             DiscardSingleMessage(tag);
         }
 
@@ -224,13 +222,15 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="batchHeaders"></param>
         /// <param name="latestDeliveryTag"></param>
-        protected void Ack(IList<IMessageHeader> batchHeaders, ulong latestDeliveryTag)
+        protected void Ack(IEnumerable<IMessageHeader> batchHeaders, ulong latestDeliveryTag)
         {
-            foreach (IMessageHeader header in batchHeaders)
+            foreach (var header in batchHeaders)
+            {
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
+                AckCount++;
+            }
 
-            Model!.BasicAck(latestDeliveryTag, true);
-            AckCount += batchHeaders.Count;
+            Model?.BasicAck(latestDeliveryTag, true);
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="exception"></param>
-        protected void Fatal(string msg, Exception exception)
+        protected void Fatal(string msg, Exception? exception)
         {
             lock (_oConsumeLock)
             {
@@ -250,7 +250,7 @@ namespace Smi.Common.Messaging
 
                 Logger.Fatal(exception, msg);
 
-                ConsumerFatalHandler? onFatal = OnFatal;
+                var onFatal = OnFatal;
 
                 if (onFatal != null)
                 {

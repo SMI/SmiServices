@@ -163,7 +163,7 @@ namespace Smi.Common.Messaging
         protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag) => throw new NotImplementedException("ControlMessageConsumer does not implement ProcessMessageImpl");
 
         // NOTE(rkm 2020-05-12) Control messages are automatically acknowledged, so nothing to do here
-        protected override void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exc) => throw new NotImplementedException($"ErrorAndNack called for control message {tag} ({exc})");
+        protected override void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception? exc) => throw new NotImplementedException($"ErrorAndNack called for control message {tag} ({exc})");
 
         /// <summary>
         /// Creates a one-time connection to set up the required control queue and bindings on the RabbitMQ server.

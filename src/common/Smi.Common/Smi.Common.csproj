@@ -19,6 +19,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="CommandLineParser" />
     <PackageReference Include="Equ" />

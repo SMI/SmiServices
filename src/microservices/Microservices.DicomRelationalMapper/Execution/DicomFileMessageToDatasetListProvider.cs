@@ -1,56 +1,55 @@
-﻿using System.Linq;
 using FellowOakDicom;
 using Microservices.DicomRelationalMapper.Messaging;
 using System.Collections.Generic;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 
-namespace Microservices.DicomRelationalMapper.Execution
+namespace Microservices.DicomRelationalMapper.Execution;
+
+public class DicomFileMessageToDatasetListWorklist : IDicomDatasetWorklist
 {
-    public class DicomFileMessageToDatasetListWorklist : IDicomDatasetWorklist
+    private readonly IEnumerator<QueuedImage> _messages;
+    public int Count { get; private set; } = 0;
+
+    public readonly HashSet<QueuedImage> CorruptMessages = new();
+
+    public DicomFileMessageToDatasetListWorklist(IEnumerable<QueuedImage> messages)
     {
-        private readonly List<QueuedImage> _messages;
-        private int _progress;
+        _messages = messages.GetEnumerator();
+    }
 
-        public HashSet<QueuedImage> CorruptMessages = new();
+    /// <summary>
+    /// Resets the progress through the work list e.g. if half the list is consumed and you want to
+    /// start again.
+    /// </summary>
+    public void ResetProgress()
+    {
+        _messages.Reset();
+    }
 
-        public DicomFileMessageToDatasetListWorklist(List<QueuedImage> messages)
+    public DicomDataset? GetNextDatasetToProcess(out string? filename, out Dictionary<string, string>? otherValuesToStoreInRow)
+    {
+        if (!_messages.MoveNext())
         {
-            _messages = messages;
+            filename = null;
+            otherValuesToStoreInRow = null;
+            return null;
         }
 
-        /// <summary>
-        /// Resets the progress through the work list e.g. if half the list is consumed and you want to
-        /// start again.
-        /// </summary>
-        public void ResetProgress()
+        Count++;
+
+        var toReturn = _messages.Current;
+        filename = toReturn.DicomFileMessage.DicomFilePath;
+        otherValuesToStoreInRow = new Dictionary<string, string>
         {
-            _progress = 0;
-        }
+            { "MessageGuid", toReturn.Header.MessageGuid.ToString() },
+            { "DicomFileSize", toReturn.DicomFileMessage.DicomFileSize.ToString() } //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
+        };
+        return toReturn.DicomDataset;
+    }
 
-        public DicomDataset? GetNextDatasetToProcess(out string? filename, out Dictionary<string, string> otherValuesToStoreInRow)
-        {
-            otherValuesToStoreInRow = new Dictionary<string, string>();
-
-            if (_progress >= _messages.Count)
-            {
-                filename = null;
-                return null;
-            }
-
-            QueuedImage toReturn = _messages[_progress];
-            filename = toReturn.DicomFileMessage.DicomFilePath;
-
-            otherValuesToStoreInRow.Add("MessageGuid", _messages[_progress].Header.MessageGuid.ToString());
-            otherValuesToStoreInRow.Add("DicomFileSize", toReturn.DicomFileMessage.DicomFileSize.ToString()); //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
-
-            _progress++;
-
-            return toReturn.DicomDataset;
-        }
-
-        public void MarkCorrupt(DicomDataset ds)
-        {
-            CorruptMessages.Add(_messages.Single(m => m.DicomDataset == ds));
-        }
+    public void MarkCorrupt(DicomDataset ds)
+    {
+        if (_messages.Current?.DicomDataset == ds)
+            CorruptMessages.Add(_messages.Current);
     }
 }

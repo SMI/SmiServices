@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microservices.DicomReprocessor.Execution.Processors;
@@ -20,39 +20,36 @@ namespace Microservices.DicomReprocessor.Execution
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
             : base(options)
         {
-            string? key = cliOptions.ReprocessingRoutingKey;
+            var key = cliOptions.ReprocessingRoutingKey;
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");
+            if (Globals.DicomReprocessorOptions is null)
+                throw new InvalidOperationException("Dicom Reprocessor not configured");
+            if (options.MongoDatabases?.DicomStoreOptions is null)
+                throw new InvalidOperationException("Mongo DB not configured");
 
             // Set the initial sleep time
-            Globals.DicomReprocessorOptions!.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
+            Globals.DicomReprocessorOptions.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
-            IProducerModel reprocessingProducerModel = MessageBroker.SetupProducer(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true);
-
-            Logger.Info("Documents will be reprocessed to " +
-                        options.DicomReprocessorOptions.ReprocessingProducerOptions!.ExchangeName + " on vhost " +
-                        options.RabbitOptions!.RabbitMqVirtualHost + " with routing key \"" + key + "\"");
+            var reprocessingProducerModel = MessageBroker.SetupProducer(options.DicomReprocessorOptions?.ReprocessingProducerOptions ?? throw new InvalidOperationException(), true);
 
             if (!string.IsNullOrWhiteSpace(cliOptions.QueryFile))
                 _queryString = File.ReadAllText(cliOptions.QueryFile);
 
             //TODO Make this into a CreateInstance<> call
-            switch (options.DicomReprocessorOptions.ProcessingMode)
+            _processor = options.DicomReprocessorOptions.ProcessingMode switch
             {
-                case ProcessingMode.TagPromotion:
-                    _processor = new TagPromotionProcessor(options.DicomReprocessorOptions, reprocessingProducerModel, key);
-                    break;
+                ProcessingMode.TagPromotion => new TagPromotionProcessor(options.DicomReprocessorOptions,
+                    reprocessingProducerModel, key),
+                ProcessingMode.ImageReprocessing => new DicomFileProcessor(options.DicomReprocessorOptions,
+                    reprocessingProducerModel, key),
+                _ => throw new ArgumentException(
+                    $"ProcessingMode {options.DicomReprocessorOptions.ProcessingMode} not supported")
+            };
 
-                case ProcessingMode.ImageReprocessing:
-                    _processor = new DicomFileProcessor(options.DicomReprocessorOptions, reprocessingProducerModel, key);
-                    break;
-
-                default:
-                    throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode + " not supported");
-            }
-
-            _mongoReader = new MongoDbReader(options.MongoDatabases!.DicomStoreOptions!, cliOptions, HostProcessName + "-" + HostProcessID);
+            _mongoReader = new MongoDbReader(options.MongoDatabases.DicomStoreOptions, cliOptions,
+                $"{HostProcessName}-{HostProcessID}");
 
             AddControlHandler(new DicomReprocessorControlMessageHandler(Globals.DicomReprocessorOptions));
         }
@@ -67,8 +64,9 @@ namespace Microservices.DicomReprocessor.Execution
             else
                 _processor.LogProgress();
             
-            if (queryTime != default)
-                Logger.Info("Average documents processed per second: " + Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds));
+            if (queryTime != default(TimeSpan))
+                Logger.Info(
+                    $"Average documents processed per second: {Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds)}");
 
             // Only call stop if we exited normally
             if (_mongoReader.WasCancelled)

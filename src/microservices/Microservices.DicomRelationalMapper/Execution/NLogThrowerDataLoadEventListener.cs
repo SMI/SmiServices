@@ -4,10 +4,12 @@ using Rdmp.Core.ReusableLibraryCode.Progress;
 
 namespace Microservices.DicomRelationalMapper.Execution
 {
-    internal sealed class NLogThrowerDataLoadEventListener:IDataLoadEventListener
+    internal sealed class NLogThrowerDataLoadEventListener : IDataLoadEventListener
     {
         private readonly Logger _logger;
-        private static readonly ThrowImmediatelyDataLoadEventListener _thrower = ThrowImmediatelyDataLoadEventListener.Quiet;
+
+        private static readonly ThrowImmediatelyDataLoadEventListener _thrower =
+            ThrowImmediatelyDataLoadEventListener.Quiet;
 
         public NLogThrowerDataLoadEventListener(Logger logger)
         {
@@ -17,7 +19,7 @@ namespace Microservices.DicomRelationalMapper.Execution
         public void OnNotify(object sender, NotifyEventArgs e)
         {
             _logger.Log(ToLogLevel(e.ProgressEventType), e.Exception, e.Message);
-            _thrower.OnNotify(sender,e);
+            _thrower.OnNotify(sender, e);
         }
 
         private static LogLevel ToLogLevel(ProgressEventType t) =>
@@ -33,7 +35,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
         public void OnProgress(object sender, ProgressEventArgs e)
         {
-            _thrower.OnProgress(sender,e);
+            _thrower.OnProgress(sender, e);
         }
     }
 }

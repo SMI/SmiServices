@@ -91,7 +91,7 @@ namespace Microservices.Tests.RDMPTests
                     Assert.AreEqual(0, worklist.CorruptMessages.Count);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("strategy");
+                    throw new ArgumentOutOfRangeException(nameof(strategy));
             }
         }
 

@@ -1,4 +1,3 @@
-
 using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.DicomRelationalMapper.Execution;
@@ -12,7 +11,6 @@ namespace Microservices.Tests.RDMPTests
 {
     public class AutoRoutingAttacherTests
     {
-
         [Test]
         public void TestPatientAgeTag()
         {
@@ -34,10 +32,10 @@ namespace Microservices.Tests.RDMPTests
 
             var source = new DicomFileCollectionSource();
             source.FilenameField = "Path";
-            source.PreInitialize(new ExplicitListDicomFileWorklist(new[] { filename }), ThrowImmediatelyDataLoadEventListener.Quiet);
+            source.PreInitialize(new ExplicitListDicomFileWorklist(new[] { filename }), ThrowImmediatelyDataLoadEventListener.NoisyPicky);
 
 
-            var chunk = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
+            var chunk = source.GetChunk(ThrowImmediatelyDataLoadEventListener.NoisyPicky, new GracefulCancellationToken());
 
             Assert.AreEqual("009Y", chunk.Rows[0]["PatientAge"]);
         }
