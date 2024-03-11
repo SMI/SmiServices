@@ -118,7 +118,7 @@ public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, ID
 
         // Cancel the DLE runner task and wait for it to exit. This will deadlock if the DLE task ever calls Stop directly
         _stopTokenSource.Cancel();
-        _dleTask.Wait();
+        _dleTask?.Wait();
 
         if (DatabaseNamer is ICreateAndDestroyStagingDuringLoads createAndDestroyStaging)
             createAndDestroyStaging.DestroyStagingIfExists();
@@ -128,7 +128,7 @@ public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, ID
     {
         _dleTask = Task.Factory.StartNew(() =>
         {
-            Exception faultCause = null;
+            Exception? faultCause = null;
             var remainingRetries = _retryOnFailureCount;
 
 
@@ -212,7 +212,7 @@ public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, ID
         if (duplicates.Any())
         {
             Logger.Log(LogLevel.Warn, $"Acking {duplicates.Count} duplicate Datasets");
-            duplicates.ForEach(x => Ack(x.Header, x.tag));
+            duplicates.ForEach(x => Ack(x.Header, x.Tag));
         }
 
         var parallelDleHost = new ParallelDLEHost(_repositoryLocator, DatabaseNamer, _useInsertIntoForRawMigration);
@@ -280,12 +280,12 @@ public class DicomRelationalMapperQueueConsumer : Consumer<DicomFileMessage>, ID
             case ExitCodeType.OperationNotRequired:
             {
                 foreach (var corrupt in datasetProvider.CorruptMessages)
-                    ErrorAndNack(corrupt.Header, corrupt.tag, "Nacking Corrupt image", null);
+                    ErrorAndNack(corrupt.Header, corrupt.Tag, "Nacking Corrupt image", null);
 
                 var successes = toProcess.Except(datasetProvider.CorruptMessages).ToArray();
 
-                Ack(successes.Select(x => x.Header),
-                    successes.Select(x => x.tag).Max(x => x));
+                Ack(successes.Select(static x => x.Header),
+                    successes.Select(static x => x.Tag).Max(static x => x));
 
                 break;
             }

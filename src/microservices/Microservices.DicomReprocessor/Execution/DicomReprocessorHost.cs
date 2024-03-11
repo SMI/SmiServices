@@ -24,6 +24,10 @@ namespace Microservices.DicomReprocessor.Execution
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");
+            if (Globals.DicomReprocessorOptions is null)
+                throw new InvalidOperationException("Dicom Reprocessor not configured");
+            if (options.MongoDatabases?.DicomStoreOptions is null)
+                throw new InvalidOperationException("Mongo DB not configured");
 
             // Set the initial sleep time
             Globals.DicomReprocessorOptions.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);

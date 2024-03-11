@@ -10,7 +10,7 @@ namespace Smi.Common.Events
         public Exception? Exception { get; init; }
 
 
-        public FatalErrorEventArgs(string msg, Exception exception)
+        public FatalErrorEventArgs(string msg, Exception? exception)
         {
             Message = msg;
             Exception = exception;

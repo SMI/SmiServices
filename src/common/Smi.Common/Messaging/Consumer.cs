@@ -197,7 +197,7 @@ namespace Smi.Common.Messaging
             NackCount++;
         }
 
-        protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
+        protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception? exception)
         {
             header?.Log(Logger, LogLevel.Error, message, exception);
             DiscardSingleMessage(tag);
@@ -239,7 +239,7 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="exception"></param>
-        protected void Fatal(string msg, Exception exception)
+        protected void Fatal(string msg, Exception? exception)
         {
             lock (_oConsumeLock)
             {
@@ -250,7 +250,7 @@ namespace Smi.Common.Messaging
 
                 Logger.Fatal(exception, msg);
 
-                ConsumerFatalHandler? onFatal = OnFatal;
+                var onFatal = OnFatal;
 
                 if (onFatal != null)
                 {

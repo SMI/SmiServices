@@ -38,13 +38,13 @@ public class DicomFileMessageToDatasetListWorklist : IDicomDatasetWorklist
         Count++;
 
         var toReturn = _messages.Current;
-        filename = toReturn?.DicomFileMessage.DicomFilePath;
+        filename = toReturn.DicomFileMessage.DicomFilePath;
         otherValuesToStoreInRow = new Dictionary<string, string>
         {
-            { "MessageGuid", toReturn?.Header.MessageGuid.ToString() },
-            { "DicomFileSize", toReturn?.DicomFileMessage.DicomFileSize.ToString() } //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
+            { "MessageGuid", toReturn.Header.MessageGuid.ToString() },
+            { "DicomFileSize", toReturn.DicomFileMessage.DicomFileSize.ToString() } //TN: It won't be a string when it hits the database but the API supports only string/string for this out Dictionary
         };
-        return toReturn?.DicomDataset;
+        return toReturn.DicomDataset;
     }
 
     public void MarkCorrupt(DicomDataset ds)
