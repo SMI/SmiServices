@@ -104,7 +104,7 @@ namespace Smi.Common.Messaging
                     enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
 
                 var headers = deliverArgs.BasicProperties?.Headers
-                    ?? throw new ArgumentNullException("A part of deliverArgs.BasicProperties.Headers was null");
+                              ?? throw new ArgumentNullException(nameof(deliverArgs), "A part of deliverArgs.BasicProperties.Headers was null");
 
                 header = new MessageHeader(headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
@@ -199,9 +199,7 @@ namespace Smi.Common.Messaging
 
         protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
         {
-            if (header != null)
-                header.Log(Logger, LogLevel.Error, message, exception);
-
+            header?.Log(Logger, LogLevel.Error, message, exception);
             DiscardSingleMessage(tag);
         }
 
@@ -232,7 +230,7 @@ namespace Smi.Common.Messaging
                 AckCount++;
             }
 
-            Model.BasicAck(latestDeliveryTag, true);
+            Model?.BasicAck(latestDeliveryTag, true);
         }
 
         /// <summary>

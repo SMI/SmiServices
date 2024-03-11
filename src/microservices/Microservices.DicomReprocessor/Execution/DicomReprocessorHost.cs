@@ -20,18 +20,15 @@ namespace Microservices.DicomReprocessor.Execution
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
             : base(options)
         {
-            string? key = cliOptions.ReprocessingRoutingKey;
+            var key = cliOptions.ReprocessingRoutingKey;
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");
 
             // Set the initial sleep time
-            Globals.DicomReprocessorOptions!.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
+            Globals.DicomReprocessorOptions.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
-            IProducerModel reprocessingProducerModel = MessageBroker.SetupProducer(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true);
-
-            Logger.Info(
-                $"Documents will be reprocessed to {options.DicomReprocessorOptions.ReprocessingProducerOptions.ExchangeName} on vhost {options.RabbitOptions.RabbitMqVirtualHost} with routing key \"{key}\"");
+            var reprocessingProducerModel = MessageBroker.SetupProducer(options.DicomReprocessorOptions?.ReprocessingProducerOptions ?? throw new InvalidOperationException(), true);
 
             if (!string.IsNullOrWhiteSpace(cliOptions.QueryFile))
                 _queryString = File.ReadAllText(cliOptions.QueryFile);

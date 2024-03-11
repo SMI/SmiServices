@@ -29,46 +29,40 @@ public class DicomRelationalMapperHost : MicroserviceHost, IDisposable
     //TODO Should most of this not be in the constructor?
     public override void Start()
     {
-        var repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
+        var repositoryLocator = Globals.RDMPOptions?.GetRepositoryProvider();
 
         Logger.Info("About to run Startup");
 
-            var startup = new Startup(repositoryLocator);
-            startup.DatabaseFound += Startup_DatabaseFound;
+        var startup = new Startup(repositoryLocator);
+        startup.DatabaseFound += Startup_DatabaseFound;
 
         var toMemory = new ToMemoryCheckNotifier();
         startup.DoStartup(toMemory);
 
-            foreach (var args in toMemory.Messages)
-                Logger.Log(args.ToLogLevel(), args.Ex, args.Message);
+        foreach (var args in toMemory.Messages)
+            Logger.Log(args.ToLogLevel(), args.Ex, args.Message);
 
         Logger.Info("Startup Completed");
 
-            var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions!.LoadMetadataId);
+        var lmd = repositoryLocator?.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions?.LoadMetadataId ?? throw new InvalidOperationException("LoadMetadataId not set"));
 
-        var databaseNamerType = repositoryLocator.CatalogueRepository.MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType);
-
-        if(databaseNamerType == null)
-        {
-            throw new Exception($"Could not find Type '{Globals.DicomRelationalMapperOptions.DatabaseNamerType}'");
-        }
-
+        var databaseNamerType = MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType) ?? throw new Exception($"Could not find Type '{Globals.DicomRelationalMapperOptions.DatabaseNamerType}'");
         var liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
 
 
-            var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid)
-                ?? throw new Exception("Could not create an INameDatabasesAndTablesDuringLoads");
+        var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid)
+            ?? throw new Exception("Could not create an INameDatabasesAndTablesDuringLoads");
 
-            Consumer = new DicomRelationalMapperQueueConsumer(repositoryLocator,
-                                                              lmd,
-                                                              instance,
-                                                              Globals.DicomRelationalMapperOptions)
-            {
-                RunChecks = Globals.DicomRelationalMapperOptions.RunChecks
-            };
+        Consumer = new DicomRelationalMapperQueueConsumer(repositoryLocator,
+                                                          lmd,
+                                                          instance,
+                                                          Globals.DicomRelationalMapperOptions)
+        {
+            RunChecks = Globals.DicomRelationalMapperOptions.RunChecks
+        };
 
-            MessageBroker.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer, isSolo: false);
-        }
+        MessageBroker.StartConsumer(Globals.DicomRelationalMapperOptions, Consumer, isSolo: false);
+    }
 
     private void Startup_DatabaseFound(object sender, PlatformDatabaseFoundEventArgs e)
     {
