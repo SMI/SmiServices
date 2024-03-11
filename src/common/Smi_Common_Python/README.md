@@ -16,9 +16,9 @@ mysql-connector-python (which requires six, protobuf, dnspython) for IdentifierM
 
 ## Installation
 
-Run `python3 setup.py bdist_wheel` to create `Smi_Services_Python-0.0.0-py3-none-any.whl`
+Run `python3 ./setup.py bdist_wheel` to create `Smi_Services_Python-0.0.0-py3-none-any.whl`
 
-Run `python3 setup.py install` to install (including dependencies) into your python site-packages
+Run `python3 ./setup.py install` to install (including dependencies) into your python site-packages
 (whether that be global or inside a current virtualenv).
 
 Note that the version number is read from AssemblyInfo.cs in a parent directory.
@@ -153,24 +153,97 @@ Some utility functions are used by the DicomText module.
 
 # Parsing Structured Reports
 
-```
-# Read the DICOM file manually and extract to JSON
-  dicom_raw = pydicom.dcmread(filename)
-  dicom_raw_json = dicom_raw.to_json_dict(None, 0)
-# OR read the JSON from MongoDB
-  mongodb = Mongo.SmiPyMongoCollection(mongo_host)
-  mongodb.setImageCollection('SR')
-  mongojson = mongodb.DicomFilePathToJSON(args.input)
-```
+Generally speaking you can work with Structured Reports in any of these ways:
 
-## Method 1 - use the StructuredReport module
+-   dcm2json - outputs a JSON document (you can parse with `jq`, and use our
+    `dicom_tag_string_replace.py` script to turn tag numbers into names)
+-   read it with pydicom
+-   read it from MongoDB
+
+`dcm2json` - Depending on the source of the JSON, use `.val` or `.Value[0]`:
 
 ```
-  SR.SR_parse(dicom_raw_json, document_name, output_fd)
-  SR.SR_parse(mongojson, document_name, output_fd)
+dcm2json file.dcm | dicom_tag_string_replace.py | jq dicom_tag_string_replace.py | \
+ jq '..| select(.vr == "ST" or .vr == "PN" or .vr == "LO" or .vr == "UT" or .vr == "DA")? | .val'
 ```
 
-## Method 2 - use the pydicom walk method
+`pydicom` - convert to a JSON dict
+
+```
+dicom_raw = pydicom.dcmread(filename)
+dicom_raw_json = dicom_raw.to_json_dict()
+```
+
+`MongoDB` - using the SmiServices Mongo helper
+
+```
+mongodb = Mongo.SmiPyMongoCollection(mongo_host)
+mongodb.setImageCollection('SR')
+mongojson = mongodb.DicomFilePathToJSON(filepath)
+```
+
+To parse the actual SR document you can use either `DicomText` which reads
+a DICOM file, and can parse the text, return the parsed text, and redact
+the text given a list of redaction offsets, saving a new redacted DICOM file.
+
+Alternatively the `StructuredReport` module can parse any of the various
+flavours of JSON (from dcm2json, from pydicom, from mongodb).
+
+## Method 1 - use the DicomText module
+
+To read an original:
+
+```
+dicomtext = DicomText.DicomText(filename)
+dicomtext.parse()
+txt = dicomtext.text()
+```
+
+To redact, given an input_xml file:
+
+```
+xmlroot = xml.etree.ElementTree.parse(args.input_xml).getroot()
+xmldictlist = Knowtator.annotation_xml_to_dict(xmlroot)
+dicomtext.redact(xmldictlist)
+dicomtext.write_redacted_text_into_dicom_file(args.output_dcm)
+```
+
+## Method 2 - use the StructuredReport module
+
+From a JSON file (e.g. output by dcm2json):
+
+```
+with open('/lesion1-srdocument-medical.dcm.json') as fd:
+  jdoc = json.load(fd)
+sr = StructuredReport.StructuredReport()
+sr.SR_parse(jdoc, 'doc', sys.stdout)
+```
+
+From a DICOM file:
+
+```
+ds = pydicom.dcmread('/lesion1-srdocument-medical.dcm')
+sr = StructuredReport.StructuredReport()
+sr.SR_parse(ds.to_json_dict(), 'doc_name', sys.stdout)
+```
+
+From MongoDB, get mongojson as above:
+
+```
+SR.SR_parse(mongojson, document_name, output_fd)
+```
+
+Agreed, the output to an open file may be inconvenient
+so here's a temporary file tip:
+
+```
+with TemporaryFile(mode='w+', encoding='utf-8') as fd:
+    SR.SR_parse(json_dict, document_name, fd)
+    fd.seek(0)
+    fd.read()
+```
+
+## Method 3 - use the pydicom walk method
 
 ```
 def decode(filename):
@@ -191,7 +264,7 @@ def decode(filename):
     	content_sequence_item.walk(dataset_callback)
 ```
 
-## Method 3 - use the pydicom recurse_tree method
+## Method 4 - use the pydicom recurse_tree method
 
 ```
 def decode(filename):
@@ -228,22 +301,4 @@ def decode(filename):
     # (to recurse the whole DICOM pass dicom_raw as second param).
     for content_sequence_item in dicom_raw.ContentSequence:
     	recurse_tree(None, content_sequence_item, '')
-```
-
-## Method 4 - use the DicomText module
-
-To read an original:
-
-```
-    dicomtext = DicomText.DicomText(input)
-    dicomtext.parse()
-```
-
-To redact, given an input_xml file:
-
-```
-    xmlroot = xml.etree.ElementTree.parse(args.input_xml).getroot()
-    xmldictlist = Knowtator.annotation_xml_to_dict(xmlroot)
-    dicomtext.redact(xmldictlist)
-    dicomtext.write_redacted_text_into_dicom_file(args.output_dcm)
 ```

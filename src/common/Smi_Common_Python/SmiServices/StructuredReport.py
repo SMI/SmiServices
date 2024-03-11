@@ -348,6 +348,9 @@ class StructuredReport:
         # If there is no value the do not print anything at all
         if valstr == None or valstr == '':
             return
+        # If we end up with an integer convert to string
+        if not isinstance(valstr, str):
+            valstr = str(valstr)
         # XXX should we be using Dicom.sr_decode_PNAME if it's a PN/PNAME ???
         # Replace CRs with LF
         valstr = re.sub('\r+', '\n', valstr)
@@ -390,6 +393,51 @@ class StructuredReport:
                 self.find_PersonNames(json_dict[item], names_list)
 
     # ---------------------------------------------------------------------
+    # Internal function called by _SR_parse_key to handle
+    # ContentSequences of various types.
+
+    def _SR_parse_content_sequence_item(self, cs_item, fp):
+        value_type = tag_val(cs_item, 'ValueType')
+        if value_type == 'PNAME' or value_type == ['PNAME']:
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
+        elif value_type == 'DATETIME' or value_type == ['DATETIME']:
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
+        elif value_type == 'DATE' or value_type == ['DATE']:
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
+        elif value_type == 'TEXT' or value_type == ['TEXT']:
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
+        elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
+        elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
+        elif value_type == 'CODE' or value_type == ['CODE']:
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
+        elif value_type == 'UIDREF' or value_type == ['UIDREF']:
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
+        elif value_type == 'IMAGE' or value_type == ['IMAGE']:
+            self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
+        elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
+            # Sometimes it has no ContentSequence or is 'null'
+            if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
+                if has_tag(cs_item, 'ConceptNameCodeSequence'):
+                    self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
+                self._SR_parse_key(cs_item, 'ContentSequence', fp)
+        # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
+        # as they have no useful text to return
+        elif value_type == 'SCOORD' or value_type == ['SCOORD']:
+            pass
+        elif value_type == 'TCOORD' or value_type == ['TCOORD']:
+            pass
+        elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
+            pass
+        elif value_type == 'TIME' or value_type == ['TIME']:
+            pass
+        elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
+            pass
+        else:
+            print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
+
+    # ---------------------------------------------------------------------
     # Internal function to parse a DICOM tag which calls itself recursively
     # when it finds a sequence
     # Uses str_output_string to format the output.
@@ -397,54 +445,22 @@ class StructuredReport:
     def _SR_parse_key(self, json_dict, json_key, fp):
         if tag_is(json_key, 'ConceptNameCodeSequence'):
             self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(json_dict, json_key)), fp)
+        elif tag_is(json_key, 'AnatomicRegionSequence'):
+            print('UNEXPECTED AnatomicRegionSequence ignored', file=sys.stderr)
+            pass
         elif tag_is(json_key, 'SourceImageSequence'):
             self._SR_output_string('SourceImage', Dicom.sr_decode_SourceImageSequence(tag_val(json_dict, json_key)), fp)
-        elif tag_is(json_key, 'ContentSequence') or tag_is(json_key, 'Sequence'):
+        elif tag_is(json_key, 'ContentSequence') or tag_is(json_key, 'Sequence') or tag_is(json_key, 'AcquisitionContextSequence'):
             for cs_item in tag_val(json_dict, json_key):
-                if has_tag(cs_item, 'RelationshipType') and has_tag(cs_item, 'ValueType'):
-                    value_type = tag_val(cs_item, 'ValueType')
-                    if value_type == 'PNAME' or value_type == ['PNAME']:
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'PersonName'), fp)
-                    elif value_type == 'DATETIME' or value_type == ['DATETIME']:
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'DateTime'), fp)
-                    elif value_type == 'DATE' or value_type == ['DATE']:
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'Date'), fp)
-                    elif value_type == 'TEXT' or value_type == ['TEXT']:
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'TextValue'), fp)
-                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'MeasuredValueSequence'):
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(cs_item['ConceptNameCodeSequence']), Dicom.sr_decode_MeasuredValueSequence(tag_val(cs_item, 'MeasuredValueSequence')), fp)
-                    elif (value_type == 'NUM' or value_type == ['NUM']) and has_tag(cs_item, 'NumericValue'):
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'NumericValue'), fp)
-                    elif value_type == 'CODE' or value_type == ['CODE']:
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptCodeSequence')), fp)
-                    elif value_type == 'UIDREF' or value_type == ['UIDREF']:
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), tag_val(cs_item, 'UID'), fp)
-                    elif value_type == 'IMAGE' or value_type == ['IMAGE']:
-                        self._SR_output_string(Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ReferencedSOPSequence')), Dicom.sr_decode_ReferencedSOPSequence(tag_val(cs_item, 'ReferencedSOPSequence')), fp)
-                    elif value_type == 'CONTAINER' or value_type == ['CONTAINER']:
-                        # Sometimes it has no ContentSequence or is 'null'
-                        if has_tag(cs_item, 'ContentSequence') and tag_val(cs_item, 'ContentSequence') != None:
-                            if has_tag(cs_item, 'ConceptNameCodeSequence'):
-                                self._SR_output_string('', Dicom.sr_decode_ConceptNameCodeSequence(tag_val(cs_item, 'ConceptNameCodeSequence')), fp)
-                            self._SR_parse_key(cs_item, 'ContentSequence', fp)
-                    # explicitly ignore TIME, SCOORD, TCOORD, COMPOSITE, IMAGE, WAVEFORM
-                    # as they have no useful text to return
-                    elif value_type == 'SCOORD' or value_type == ['SCOORD']:
-                        pass
-                    elif value_type == 'TCOORD' or value_type == ['TCOORD']:
-                        pass
-                    elif value_type == 'COMPOSITE' or value_type == ['COMPOSITE']:
-                        pass
-                    elif value_type == 'TIME' or value_type == ['TIME']:
-                        pass
-                    elif value_type == 'WAVEFORM' or value_type == ['WAVEFORM']:
-                        pass
-                    else:
-                        print('UNEXPECTED ITEM OF TYPE %s = %s' % (value_type, cs_item), file=sys.stderr)
-                #print('ITEM %s' % cs_item)
+                if has_tag(cs_item, 'ValueType'): # no need for RelationshipType? and has_tag(cs_item, 'RelationshipType')
+                    self._SR_parse_content_sequence_item(cs_item, fp)
         else:
             if not sr_key_can_be_ignored(json_key):
-                print('UNEXPECTED KEY %s = %s' % (json_key, json_dict[json_key]), file=sys.stderr)
+                #print('UNEXPECTED KEY %s (%s) = %s' % (json_key, pydicom.datadict.keyword_for_tag(json_key), json_dict[json_key]), file=sys.stderr)
+                self._SR_output_string(pydicom.datadict.keyword_for_tag(json_key), Dicom.tag_val(json_dict, json_key), fp)
+
+    # ---------------------------------------------------------------------
+    # Main parsing entrypoint
 
     def SR_parse(self, json_dict, doc_name, fp = sys.stdout):
         """ Parse a Structured Report held in a python dictionary
@@ -459,6 +475,7 @@ class StructuredReport:
         # _SR_output_string('Study Date', sr_decode_date(sr_get_key(json_dict, 'StudyDate')))
         for sr_extract_dict in sr_keys_to_extract:
             self._SR_output_string(sr_extract_dict['label'], sr_extract_dict['decode_func'](Dicom.tag_val(json_dict, sr_extract_dict['tag'])), fp)
+
         # Now output [[Other Names]] for all the elements having vr of PN
         names_list = []
         self.find_PersonNames(json_dict, names_list)
@@ -467,13 +484,21 @@ class StructuredReport:
             self._SR_output_string('Other Names', name, fp)
 
         # Now output all the remaining tags which are not ignored
+        # except for a ConceptSequence which will be done below.
+        has_conceptseq_at_root_level = has_tag(json_dict, 'ValueType')
         for json_key in json_dict:
-            self._SR_parse_key(json_dict, json_key, fp)
+            if not has_conceptseq_at_root_level or (not (tag_is(json_key, 'ConceptCodeSequence') or tag_is(json_key, 'ConceptNameCodeSequence'))):
+                self._SR_parse_key(json_dict, json_key, fp)
+
+        # If it has elements which should be inside a ContentSequence but aren't:
+        if has_tag(json_dict, 'ValueType'):
+            self._SR_parse_content_sequence_item(json_dict, fp)
 
 
 def test_SR_parse_key():
     # Extract a small fragment using: dcm2json report10.dcm | dicom_tag_lookup.py
     SR_dict = {
+        # Structured Reports often have the main body in a sequence
         "ContentSequence": {
             "vr": "SQ",
             "Value": [
@@ -499,6 +524,61 @@ def test_SR_parse_key():
                   "PersonName": { "vr": "PN", "Value": [ { "Alphabetic": "Klugman^^^Dr." } ] }
                 }
             ]
+        },
+        # Structured Reports often have the main body in a TextValue instead
+        "TextValue": { "vr": "UT", "Value": [ "Hello World" ] },
+        # Add a sequence where you expect ConceptName=ConceptCode output
+        "AcquisitionContextSequence": {
+          "vr": "SQ",
+          "Value": [
+            {
+              "ValueType": {"vr": "CS", "Value": ["CODE" ] },
+              "ConceptNameCodeSequence": {
+                "vr": "SQ",
+                "Value": [
+                  {
+                    "CodingSchemeDesignator": {"vr": "SH", "Value": ["DCM" ] },
+                    "CodeMeaning": {"vr": "LO", "Value": ["Fitzpatrick Skin Type" ] },
+                    "ContextUID": {"vr": "UI", "Value": ["1.2.840.10008.6.1.1346" ] }
+                  }
+                ]
+              },
+              "ConceptCodeSequence": {
+                "vr": "SQ",
+                "Value": [
+                  {
+                    "CodeValue": {"vr": "SH", "Value": ["C74571" ] },
+                    "CodingSchemeDesignator": {"vr": "SH", "Value": ["LN" ] },
+                    "CodeMeaning": {"vr": "LO", "Value": ["Fitzpatrick Skin Type III" ] }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        # Now add a ValueType and ConceptNameCodeSequence at the root level
+        # in the document, very unusual, only seen in Dermatology SRs,
+        # normally these are inside a proper Sequence.
+        "ValueType": {"vr": "CS", "Value": ["CODE" ] },
+        "ConceptNameCodeSequence": {
+          "vr": "SQ",
+          "Value": [
+            {
+              "CodeValue": {"vr": "SH", "Value": ["2F23" ] },
+              "CodingSchemeDesignator": {"vr": "SH", "Value": ["I11" ] },
+              "CodeMeaning": {"vr": "LO", "Value": ["Benign dermal fibrous or fibrohistiocytic neoplasms" ] }
+            }
+          ]
+        },
+        "ConceptCodeSequence": {
+          "vr": "SQ",
+          "Value": [
+            {
+              "CodeValue": {"vr": "SH", "Value": ["2F23.0" ] },
+              "CodingSchemeDesignator": {"vr": "SH", "Value": ["I11" ] },
+              "CodeMeaning": {"vr": "LO", "Value": ["Dermatofibroma" ] }
+            }
+          ]
         }
     }
 
@@ -507,9 +587,15 @@ def test_SR_parse_key():
 
     # Test with the above piece of JSON
     with TemporaryFile(mode='w+', encoding='utf-8') as fd:
-        sr._SR_parse_key(SR_dict, 'ContentSequence', fd)
+        sr.SR_parse(SR_dict, 'Test', fd)
         fd.seek(0)
-        assert(fd.read() == '[[Request]] MRI: Knee\n[[Physician]] Klugman^^^Dr.\n')
+        assert(fd.read() == '[[Document name]] Test\n'
+            '[[Text]] Hello World\n'
+            '[[Other Names]] Dr. Klugman\n'
+            '[[Request]] MRI: Knee\n'
+            '[[Physician]] Klugman^^^Dr.\n'
+            '[[Fitzpatrick Skin Type]] Fitzpatrick Skin Type III\n'
+            '[[Benign dermal fibrous or fibrohistiocytic neoplasms]] Dermatofibroma\n')
 
     # Add some HTML into the string and check it's redacted
     SR_dict['ContentSequence']['Value'][0]['TextValue']['Value'][0] = "<html><style class=\"nice\">MRI: Knee"
