@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using FAnsi;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
@@ -29,8 +29,8 @@ namespace Microservices.CohortExtractor.Tests
 
             var rejector = new BlacklistRejector(cata);
             Assert.That(rejector.DoLookup("fff", "aaa", "bbb"), Is.True);
-            Assert.IsFalse(rejector.DoLookup("aaa","fff", "bbb"));
-            Assert.IsFalse(rejector.DoLookup("aaa","bbb","fff"));
+            Assert.That(rejector.DoLookup("aaa","fff", "bbb"), Is.False);
+            Assert.That(rejector.DoLookup("aaa","bbb","fff"), Is.False);
         }
 
 
@@ -51,9 +51,9 @@ namespace Microservices.CohortExtractor.Tests
             var cata = Import(tbl);
 
             var rejector = new BlacklistRejector(cata);
-            Assert.IsFalse(rejector.DoLookup("fff", "aaa", "bbb"));
+            Assert.That(rejector.DoLookup("fff", "aaa", "bbb"), Is.False);
             Assert.That(rejector.DoLookup("aaa","fff", "bbb"), Is.True);
-            Assert.IsFalse(rejector.DoLookup("aaa","bbb","fff"));
+            Assert.That(rejector.DoLookup("aaa","bbb","fff"), Is.False);
         }
 
 
@@ -74,8 +74,8 @@ namespace Microservices.CohortExtractor.Tests
             var cata = Import(tbl);
 
             var rejector = new BlacklistRejector(cata);
-            Assert.IsFalse(rejector.DoLookup("fff", "aaa", "bbb"));
-            Assert.IsFalse(rejector.DoLookup("aaa","fff", "bbb"));
+            Assert.That(rejector.DoLookup("fff", "aaa", "bbb"), Is.False);
+            Assert.That(rejector.DoLookup("aaa","fff", "bbb"), Is.False);
             Assert.That(rejector.DoLookup("aaa","bbb","fff"), Is.True);
         }
 
@@ -111,13 +111,13 @@ namespace Microservices.CohortExtractor.Tests
                 Assert.That(rejector.DoLookup("aaa", "---", "---"), Is.True);
             });
 
-            Assert.IsFalse(rejector.DoLookup("---","---","---"));
-            Assert.IsFalse(rejector.DoLookup("bbb","ccc","aaa"));
-            Assert.IsFalse(rejector.DoLookup("---","ccc","bbb"));
-            Assert.IsFalse(rejector.DoLookup("bbb","aaa","---"));
-            Assert.IsFalse(rejector.DoLookup("---","aaa","---"));
-            Assert.IsFalse(rejector.DoLookup("---","---","bbb"));
-            Assert.IsFalse(rejector.DoLookup("bbb","---","---"));
+            Assert.That(rejector.DoLookup("---","---","---"), Is.False);
+            Assert.That(rejector.DoLookup("bbb","ccc","aaa"), Is.False);
+            Assert.That(rejector.DoLookup("---","ccc","bbb"), Is.False);
+            Assert.That(rejector.DoLookup("bbb","aaa","---"), Is.False);
+            Assert.That(rejector.DoLookup("---","aaa","---"), Is.False);
+            Assert.That(rejector.DoLookup("---","---","bbb"), Is.False);
+            Assert.That(rejector.DoLookup("bbb","---","---"), Is.False);
         }
     }
 }

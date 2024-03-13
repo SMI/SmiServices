@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -34,7 +34,7 @@ namespace Microservices.CohortExtractor.Tests
             moqDave.Setup(x => x[PatColName])
                 .Returns("Dave");
 
-            Assert.IsFalse(rejector.Reject(moqDave.Object, out string? reason));
+            Assert.That(rejector.Reject(moqDave.Object, out var reason), Is.False);
             Assert.That(reason, Is.Null);
 
             var moqFrank = new Mock<DbDataReader>();

@@ -1,4 +1,4 @@
-﻿using Microservices.UpdateValues.Execution;
+using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -59,8 +59,8 @@ namespace Microservices.UpdateValues.Tests
                 Assert.That(audit.ExecutingQueries, Is.EqualTo(0));
                 Assert.That(audit.Queries, Is.EqualTo(50));
             });
-            Assert.IsFalse(audit.Stopwatch.IsRunning);
-            Assert.LessOrEqual(audit.Stopwatch.ElapsedMilliseconds,TimeSpan.FromSeconds(10).TotalMilliseconds);
+            Assert.That(audit.Stopwatch.IsRunning, Is.False);
+            Assert.That(audit.Stopwatch.ElapsedMilliseconds, Is.LessThan(TimeSpan.FromSeconds(10).TotalMilliseconds));
         }
     }
 }

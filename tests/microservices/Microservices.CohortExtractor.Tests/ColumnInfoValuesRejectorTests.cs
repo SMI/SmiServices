@@ -1,4 +1,4 @@
-﻿using FAnsi;
+using FAnsi;
 using FAnsi.Discovery;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Moq;
@@ -36,14 +36,14 @@ namespace Microservices.CohortExtractor.Tests
             var rejector = new ColumnInfoValuesRejector(cols[0]);
 
             var moqDave = new Mock<DbDataReader>();
-            moqDave.Setup(x => x[PatColName])
+            moqDave.Setup(static x => x[PatColName])
                 .Returns("Dave");
 
-            Assert.IsFalse(rejector.Reject(moqDave.Object, out string? reason));
+            Assert.That(rejector.Reject(moqDave.Object, out var reason), Is.False);
             Assert.That(reason, Is.Null);
 
             var moqFrank = new Mock<DbDataReader>();
-            moqFrank.Setup(x => x[PatColName])
+            moqFrank.Setup(static x => x[PatColName])
                 .Returns("Frank");
 
             Assert.Multiple(() =>

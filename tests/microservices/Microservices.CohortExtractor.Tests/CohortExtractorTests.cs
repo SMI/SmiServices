@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortExtractor.Audit;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
@@ -62,7 +62,7 @@ namespace Microservices.CohortExtractor.Tests
             {
                 //if no auditor is provided
                 if (testCase == Test.NoAuditor)
-                    Assert.IsInstanceOf<NullAuditExtractions>(CreateAuditor(opts)); //this one gets created
+                    Assert.That(CreateAuditor(opts), Is.InstanceOf<NullAuditExtractions>()); //we expect NullAuditExtractions to be returned
                 else
                     Assert.Throws<TypeLoadException>(() => CreateAuditor(opts)); //if an invalid auditor (not full name, we expect TypeLoadException)
 
@@ -94,7 +94,7 @@ namespace Microservices.CohortExtractor.Tests
 
             var fulfiller = CreateRequestFulfiller(opts);
 
-            Assert.IsInstanceOf(supplyRejectorName ? typeof(TestRejector) : typeof(RejectNone), fulfiller!.Rejectors.Single());
+            Assert.That(fulfiller?.Rejectors?.Single(), Is.InstanceOf(supplyRejectorName ? typeof(TestRejector) : typeof(RejectNone)));
         }
 
         private IExtractionRequestFulfiller? CreateRequestFulfiller(CohortExtractorOptions opts)
