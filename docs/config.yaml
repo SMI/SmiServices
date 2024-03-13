@@ -13,8 +13,8 @@ LoggingOptions:
   TraceLogging: true
 
 FileSystemOptions:
-  FileSystemRoot: '/imaging'
-  ExtractRoot: '/imaging'
+  FileSystemRoot: "/imaging"
+  ExtractRoot: "/imaging"
   # Set this to "*" if your dicom files do not have file extensions
   DicomSearchPattern: "*.dcm"
 
@@ -23,7 +23,7 @@ RDMPOptions:
   DataExportConnectionString: 'server=localhost\sqlexpress;integrated security=true;database=RDMP_DataExport'
 
   # Alternative to connection strings for if you have RDMP running with a YAML file system backend.  If specified then this will override the connection strings
-  YamlDir: '/imaging/conf/rdmp'
+  YamlDir: "/imaging/conf/rdmp"
 MongoDatabases:
   DicomStoreOptions:
     HostName: "localhost"
