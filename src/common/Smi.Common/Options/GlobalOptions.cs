@@ -487,7 +487,12 @@ namespace Smi.Common.Options
         public string? RoutingKeySuccess { get; set; }
         public string? RoutingKeyFailure { get; set; }
         public bool FailIfSourceWriteable { get; set; } = true;
-
+        public string? VirtualEnvPath { get; set; }
+        public string? DicomPixelAnonPath { get; set; }
+        public string? SmiServicesPath { get; set; }
+        public string? CtpAnonCliJar { get; set; }
+        public string? CtpAllowlistScript { get; set; }
+        public string? SRAnonymiserToolPath { get; set; }
 
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }

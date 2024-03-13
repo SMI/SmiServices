@@ -18,7 +18,7 @@ namespace Microservices.DicomAnonymiser
         )
             : base(options)
         {
-            _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(Globals.DicomAnonymiserOptions!);
+            _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(options!);
 
             var producerModel = MessageBroker.SetupProducer(options.DicomAnonymiserOptions!.ExtractFileStatusProducerOptions!, isBatch: false);
 
