@@ -65,7 +65,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.AreEqual(info1, info2);
+            Assert.That(info2, Is.EqualTo(info1));
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
+            Assert.That(info2.GetHashCode(), Is.EqualTo(info1.GetHashCode()));
         }
 
         #endregion

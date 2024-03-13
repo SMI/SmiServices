@@ -50,7 +50,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     reportNewLine: null
                 )
             );
-            Assert.AreEqual(expected: "Could not parse reportFormatStr to a valid ReportFormat. Got 'FooFormat'", exc!.Message);
+            Assert.That(exc!.Message, Is.EqualTo(expected: "Could not parse reportFormatStr to a valid ReportFormat. Got 'FooFormat'"));
         }
 
         [Test]
@@ -67,8 +67,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             );
 
             var fileReporter = reporter as FileReporter;
-            Assert.NotNull(fileReporter);
-            Assert.AreEqual(ReportFormat.Combined, fileReporter!.ReportFormat);
+            Assert.That(fileReporter, Is.Not.Null);
+            Assert.That(fileReporter!.ReportFormat, Is.EqualTo(ReportFormat.Combined));
         }
 
         [Test]
@@ -85,8 +85,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
             );
 
             var loggingReporter = reporter as LoggingReporter;
-            Assert.NotNull(loggingReporter);
-            Assert.AreEqual(ReportFormat.Combined, loggingReporter!.ReportFormat);
+            Assert.That(loggingReporter, Is.Not.Null);
+            Assert.That(loggingReporter!.ReportFormat, Is.EqualTo(ReportFormat.Combined));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                     reportNewLine: null
                 )
             );
-            Assert.AreEqual(expected: "No case for type, or invalid type string 'FooReporter'", exc!.Message);
+            Assert.That(exc!.Message, Is.EqualTo(expected: "No case for type, or invalid type string 'FooReporter'"));
         }
 
         [Test]
@@ -126,8 +126,8 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 );
 
                 var asBase = reporter as JobReporterBase;
-                Assert.NotNull(asBase);
-                Assert.AreEqual(testNewLine, asBase!.ReportNewLine);
+                Assert.That(asBase, Is.Not.Null);
+                Assert.That(asBase!.ReportNewLine, Is.EqualTo(testNewLine));
             }
         }
 

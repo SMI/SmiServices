@@ -39,12 +39,12 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
         {
             Logger = LogManager.GetLogger(GetType().Name);
             _jobStore = jobStore ?? throw new ArgumentNullException(nameof(jobStore));
-            ReportFormat = (reportFormat == default) ? throw new ArgumentException(nameof(reportFormat)) : reportFormat;
+            ReportFormat = (reportFormat == default) ? throw new ArgumentException(null, nameof(reportFormat)) : reportFormat;
 
             // NOTE(rkm 2020-11-20) IsNullOrWhiteSpace returns true for newline characters!
             if (!string.IsNullOrEmpty(reportNewLine))
             {
-                if (reportNewLine.Contains(@"\"))
+                if (reportNewLine.Contains('\\'))
                     throw new ArgumentException("ReportNewLine contained an escaped backslash");
 
                 ReportNewLine = reportNewLine;

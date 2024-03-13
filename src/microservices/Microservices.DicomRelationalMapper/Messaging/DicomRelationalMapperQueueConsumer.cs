@@ -252,7 +252,7 @@ namespace Microservices.DicomRelationalMapper.Messaging
                         }
                     }
 
-                    firstException = firstException ?? e;
+                    firstException ??= e;
                 }
             }
             while (remainingRetries-- > 0 && (exitCode == ExitCodeType.Error || exitCode == ExitCodeType.Abort));

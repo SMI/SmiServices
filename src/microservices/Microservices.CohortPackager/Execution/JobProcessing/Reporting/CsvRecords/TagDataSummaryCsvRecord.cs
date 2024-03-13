@@ -46,16 +46,16 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
 
 
         public TagDataSummaryCsvRecord(
-            string tagName,
-            string failureValue,
+            string? tagName,
+            string? failureValue,
             uint occurrences,
             double frequency
         )
         {
-            TagName = string.IsNullOrWhiteSpace(tagName) ? throw new ArgumentException(nameof(tagName)) : tagName;
-            FailureValue = string.IsNullOrWhiteSpace(failureValue) ? throw new ArgumentException(nameof(failureValue)) : failureValue;
-            Occurrences = occurrences == 0 ? throw new ArgumentException(nameof(occurrences)) : occurrences;
-            RelativeFrequencyInTag = frequency <= 0 ? throw new ArgumentException(nameof(frequency)) : frequency;
+            TagName = string.IsNullOrWhiteSpace(tagName) ? throw new ArgumentException(null, nameof(tagName)) : tagName;
+            FailureValue = string.IsNullOrWhiteSpace(failureValue) ? throw new ArgumentException(null, nameof(failureValue)) : failureValue;
+            Occurrences = occurrences == 0 ? throw new ArgumentException(null, nameof(occurrences)) : occurrences;
+            RelativeFrequencyInTag = frequency <= 0 ? throw new ArgumentException(null, nameof(frequency)) : frequency;
         }
 
         public static IEnumerable<TagDataSummaryCsvRecord> BuildRecordList(string tagName, Dictionary<string, List<string>> tagFailures)

@@ -43,14 +43,17 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
 
             WriteResult result = adapter.WriteMany(new List<BsonDocument> { testDoc });
 
-            Assert.True(result == WriteResult.Success);
-            Assert.True(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
-                            .CountDocuments(new BsonDocument()) == 1);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.EqualTo(WriteResult.Success));
+                Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
+                                .CountDocuments(new BsonDocument()), Is.EqualTo(1));
+            });
 
             BsonDocument doc =
                 _helper.TestDatabase.GetCollection<BsonDocument>(collectionName).Find(_ => true).ToList()[0];
 
-            Assert.True(doc.Equals(testDoc));
+            Assert.That(doc, Is.EqualTo(testDoc));
 
             var toWrite = new List<BsonDocument>();
 
@@ -59,9 +62,12 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
 
             result = adapter.WriteMany(toWrite);
 
-            Assert.True(result == WriteResult.Success);
-            Assert.True(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
-                            .CountDocuments(new BsonDocument()) == 100);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.EqualTo(WriteResult.Success));
+                Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
+                                .CountDocuments(new BsonDocument()), Is.EqualTo(100));
+            });
         }
     }
 }

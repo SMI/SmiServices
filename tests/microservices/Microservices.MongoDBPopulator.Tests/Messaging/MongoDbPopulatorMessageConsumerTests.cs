@@ -50,7 +50,7 @@ namespace Microservices.MongoDBPopulator.Tests.Messaging
 
             mockDeliverArgs.Body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(null));
             consumer.ProcessMessage(mockDeliverArgs);
-            Assert.AreEqual(1, nackCount);
+            Assert.That(nackCount, Is.EqualTo(1));
         }
     }
 }

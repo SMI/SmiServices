@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microservices.DicomReprocessor.Execution.Processors;
@@ -38,19 +38,15 @@ namespace Microservices.DicomReprocessor.Execution
                 _queryString = File.ReadAllText(cliOptions.QueryFile);
 
             //TODO Make this into a CreateInstance<> call
-            switch (options.DicomReprocessorOptions.ProcessingMode)
+            _processor = options.DicomReprocessorOptions.ProcessingMode switch
             {
-                case ProcessingMode.TagPromotion:
-                    _processor = new TagPromotionProcessor(options.DicomReprocessorOptions, reprocessingProducerModel, key);
-                    break;
-
-                case ProcessingMode.ImageReprocessing:
-                    _processor = new DicomFileProcessor(options.DicomReprocessorOptions, reprocessingProducerModel, key);
-                    break;
-
-                default:
-                    throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode + " not supported");
-            }
+                ProcessingMode.TagPromotion => new TagPromotionProcessor(options.DicomReprocessorOptions,
+                    reprocessingProducerModel, key),
+                ProcessingMode.ImageReprocessing => new DicomFileProcessor(options.DicomReprocessorOptions,
+                    reprocessingProducerModel, key),
+                _ => throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode +
+                                                 " not supported")
+            };
 
             _mongoReader = new MongoDbReader(options.MongoDatabases!.DicomStoreOptions!, cliOptions, HostProcessName + "-" + HostProcessID);
 

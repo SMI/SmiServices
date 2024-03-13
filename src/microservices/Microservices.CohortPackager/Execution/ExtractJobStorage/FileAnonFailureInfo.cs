@@ -20,12 +20,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public readonly string Reason;
 
         public FileAnonFailureInfo(
-            string expectedAnonFile,
-            string reason
+            string? expectedAnonFile,
+            string? reason
         )
         {
-            ExpectedAnonFile = string.IsNullOrWhiteSpace(expectedAnonFile) ? throw new ArgumentException(nameof(expectedAnonFile)) : expectedAnonFile;
-            Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException(nameof(reason)) : reason;
+            ExpectedAnonFile = string.IsNullOrWhiteSpace(expectedAnonFile) ? throw new ArgumentException(null, nameof(expectedAnonFile)) : expectedAnonFile;
+            Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException(null, nameof(reason)) : reason;
         }
     }
 }

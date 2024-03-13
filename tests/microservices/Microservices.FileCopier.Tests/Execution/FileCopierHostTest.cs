@@ -84,7 +84,7 @@ namespace Microservices.FileCopier.Tests.Execution
             model.BasicConsume(outputQueueName, true, "", consumer);
 
             TestTimelineAwaiter.Await(() => statusMessage != null);
-            Assert.AreEqual(ExtractedFileStatus.Copied, statusMessage!.Status);
+            Assert.That(statusMessage!.Status, Is.EqualTo(ExtractedFileStatus.Copied));
         }
 
         #endregion

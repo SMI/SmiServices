@@ -40,8 +40,8 @@ namespace Applications.ExtractImages
             IProducerModel extractionRequestProducer,
             IProducerModel extractionRequestInfoProducer,
             IFileSystem fileSystem,
-            string extractionRoot,
-            string extractionDir,
+            string? extractionRoot,
+            string? extractionDir,
             DateTimeProvider dateTimeProvider,
             IConsoleInput consoleInput
         )
@@ -50,8 +50,8 @@ namespace Applications.ExtractImages
             _extractionRequestInfoProducer = extractionRequestInfoProducer;
 
             _fileSystem = fileSystem;
-            _extractionRoot = (!string.IsNullOrWhiteSpace(extractionRoot)) ? extractionRoot : throw new ArgumentException(nameof(extractionRoot));
-            _extractionDir = (!string.IsNullOrWhiteSpace(extractionDir)) ? extractionDir : throw new ArgumentException(nameof(extractionDir));
+            _extractionRoot = (!string.IsNullOrWhiteSpace(extractionRoot)) ? extractionRoot : throw new ArgumentException(null, nameof(extractionRoot));
+            _extractionDir = (!string.IsNullOrWhiteSpace(extractionDir)) ? extractionDir : throw new ArgumentException(null, nameof(extractionDir));
             _dateTimeProvider = dateTimeProvider;
             _consoleInput = consoleInput;
 

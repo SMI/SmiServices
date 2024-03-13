@@ -12,7 +12,7 @@ namespace Microservices.UpdateValues.Tests
             var msg = new UpdateValuesMessage();
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("There must be at least one search field for WHERE section.  Otherwise this would update entire tables",ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("There must be at least one search field for WHERE section.  Otherwise this would update entire tables"));
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("WhereFields length must match HaveValues length",ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("WhereFields length must match HaveValues length"));
         }
         [Test]
         public void TestNoSet()
@@ -34,7 +34,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("There must be at least one value to write",ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("There must be at least one value to write"));
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("WriteIntoFields length must match Values length",ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("WriteIntoFields length must match Values length"));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Microservices.UpdateValues.Tests
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
-            Assert.AreEqual("WhereFields length must match Operators length",ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("WhereFields length must match Operators length"));
         }
         [Test]
         public void Test_GoodMessage()
@@ -83,51 +83,51 @@ namespace Microservices.UpdateValues.Tests
             var m1 = new UpdateValuesMessage();
             var m2 = new UpdateValuesMessage();
 
-            Assert.AreEqual(m1,m2);
-            Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+            Assert.That(m2, Is.EqualTo(m1));
+            Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
 
             m1.WhereFields = new []{ "fff"};
-            
-            Assert.AreNotEqual(m1,m2);
+
+            Assert.That(m2, Is.Not.EqualTo(m1));
             
             m2.WhereFields = new []{ "fff"};
 
-            Assert.AreEqual(m1,m2);
-            Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+            Assert.That(m2, Is.EqualTo(m1));
+            Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
 
             m1.WhereFields = new string[]{};
             m2.WhereFields = new string[]{};
 
-            Assert.AreEqual(m1,m2);
-            Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+            Assert.That(m2, Is.EqualTo(m1));
+            Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
 
             foreach(var prop in typeof(UpdateValuesMessage).GetProperties())
             {
                 if(prop.Name.Equals(nameof(UpdateValuesMessage.ExplicitTableInfo)))
                 {
                     prop.SetValue(m1,new int[]{ 6});
-                    Assert.AreNotEqual(m1,m2);
+                    Assert.That(m2, Is.Not.EqualTo(m1));
 
                     prop.SetValue(m2,new int[]{ 6});
-                    Assert.AreEqual(m1,m2);
-                    Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+                    Assert.That(m2, Is.EqualTo(m1));
+                    Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
 
                     
                     prop.SetValue(m2,new int[]{ 7});
-                    Assert.AreNotEqual(m1,m2);
+                    Assert.That(m2, Is.Not.EqualTo(m1));
                     prop.SetValue(m2,new int[]{ 6});
 
-                    Assert.AreEqual(m1,m2);
-                    Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+                    Assert.That(m2, Is.EqualTo(m1));
+                    Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
                 }
                 else
                 {
                     prop.SetValue(m1,new string[]{ "ss"});
-                    Assert.AreNotEqual(m1,m2);
+                    Assert.That(m2, Is.Not.EqualTo(m1));
 
                     prop.SetValue(m2,new string[]{ "ss"});
-                    Assert.AreEqual(m1,m2);
-                    Assert.AreEqual(m1.GetHashCode(),m2.GetHashCode());
+                    Assert.That(m2, Is.EqualTo(m1));
+                    Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
                 }
 
             }

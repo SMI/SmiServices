@@ -62,10 +62,13 @@ namespace Microservices.CohortExtractor.Tests
                 ExtractionIdentifiers = new List<string>(new string[] { "123" }),
             }, new NullAuditExtractions()).ToArray();
 
-            Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(2, matching[0].Accepted.Count());
-            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
-            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")));
+            Assert.That(matching, Has.Length.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(matching[0].Accepted.Count(), Is.EqualTo(2));
+                Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")), Is.EqualTo(1));
+                Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")), Is.EqualTo(1));
+            });
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -102,9 +105,9 @@ namespace Microservices.CohortExtractor.Tests
                 ExtractionIdentifiers = new List<string>(new string[] { "123" }),
             }, new NullAuditExtractions()).ToArray();
 
-            Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(1, matching[0].Accepted.Count);
-            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
+            Assert.That(matching, Has.Length.EqualTo(1));
+            Assert.That(matching[0].Accepted, Has.Count.EqualTo(1));
+            Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")), Is.EqualTo(1));
         }
 
 
@@ -139,10 +142,13 @@ namespace Microservices.CohortExtractor.Tests
                 ExtractionIdentifiers = new List<string>(new string[] { "123.1" }),
             }, new NullAuditExtractions()).ToArray();
 
-            Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(2, matching[0].Accepted.Count);
-            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
-            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")));
+            Assert.That(matching, Has.Length.EqualTo(1));
+            Assert.That(matching[0].Accepted, Has.Count.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")), Is.EqualTo(1));
+                Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")), Is.EqualTo(1));
+            });
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -181,9 +187,9 @@ namespace Microservices.CohortExtractor.Tests
                 ExtractionIdentifiers = new List<string>(new string[] { "123.1" }),
             }, new NullAuditExtractions()).ToArray();
 
-            Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(1, matching[0].Accepted.Count);
-            Assert.AreEqual(1, matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")));
+            Assert.That(matching, Has.Length.EqualTo(1));
+            Assert.That(matching[0].Accepted, Has.Count.EqualTo(1));
+            Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")), Is.EqualTo(1));
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer, true)]
@@ -224,8 +230,8 @@ namespace Microservices.CohortExtractor.Tests
             ExtractImageCollection[] matching = fulfiller.GetAllMatchingFiles(message, new NullAuditExtractions()).ToArray();
 
             int expected = isNoFiltersExtraction ? 1 : 0;
-            Assert.AreEqual(1, matching.Length);
-            Assert.AreEqual(expected, matching[0].Accepted.Count);
+            Assert.That(matching, Has.Length.EqualTo(1));
+            Assert.That(matching[0].Accepted, Has.Count.EqualTo(expected));
         }
     }
 }

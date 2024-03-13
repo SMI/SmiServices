@@ -40,21 +40,27 @@ namespace Microservices.CohortExtractor.Tests
                 .Returns("Dave");
 
             Assert.IsFalse(rejector.Reject(moqDave.Object, out string? reason));
-            Assert.IsNull(reason);
+            Assert.That(reason, Is.Null);
 
             var moqFrank = new Mock<DbDataReader>();
             moqFrank.Setup(x => x[PatColName])
                 .Returns("Frank");
 
-            Assert.IsTrue(rejector.Reject(moqFrank.Object, out reason));
-            Assert.AreEqual("Patient or Identifier was in reject list", reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(rejector.Reject(moqFrank.Object, out reason), Is.True);
+                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
+            });
 
             var moqLowerCaseFrank = new Mock<DbDataReader>();
             moqLowerCaseFrank.Setup(x => x[PatColName])
                 .Returns("frank");
 
-            Assert.IsTrue(rejector.Reject(moqLowerCaseFrank.Object, out reason));
-            Assert.AreEqual("Patient or Identifier was in reject list", reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(rejector.Reject(moqLowerCaseFrank.Object, out reason), Is.True);
+                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
+            });
         }
 
     }

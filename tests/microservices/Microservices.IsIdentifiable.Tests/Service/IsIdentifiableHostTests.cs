@@ -29,7 +29,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             options.IsIdentifiableServiceOptions!.ClassifierType = "";
             var ex = Assert.Throws<ArgumentException>(() => new IsIdentifiableHost(options));
-            StringAssert.Contains("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableServiceOptions.ClassifierType), ex!.Message);
+            Assert.That(ex!.Message, Does.Contain("No IClassifier has been set in options.  Enter a value for " + nameof(options.IsIdentifiableServiceOptions.ClassifierType)));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             options.IsIdentifiableServiceOptions.ClassifierType = "HappyFunTimes";
             var ex = Assert.Throws<TypeLoadException>(() => new IsIdentifiableHost(options));
-            StringAssert.Contains("Could not load type 'HappyFunTimes' from", ex!.Message);
+            Assert.That(ex!.Message, Does.Contain("Could not load type 'HappyFunTimes' from"));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             options.FileSystemOptions!.ExtractRoot = extractRoot;
 
             var host = new IsIdentifiableHost(options);
-            Assert.IsNotNull(host);
+            Assert.That(host, Is.Not.Null);
             host.Start();
 
             tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage
@@ -117,7 +117,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             });
 
             TestTimelineAwaiter.Await(() => host.Consumer.AckCount == 1 || host.Consumer.NackCount == 1);
-            Assert.AreEqual(1, host.Consumer.AckCount, "Tesseract not acking");
+            Assert.That(host.Consumer.AckCount, Is.EqualTo(1), "Tesseract not acking");
         }
     }
 }

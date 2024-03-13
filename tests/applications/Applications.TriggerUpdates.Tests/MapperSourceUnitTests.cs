@@ -13,14 +13,14 @@ namespace Applications.TriggerUpdates.Tests
         public void TestNoIdentifierMapperOptions()
         {
             var ex = Assert.Throws<ArgumentException>(() => new MapperSource(new GlobalOptions(), new TriggerUpdatesFromMapperOptions()));
-            Assert.AreEqual("No SwapperType has been specified in GlobalOptions.IdentifierMapperOptions", ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("No SwapperType has been specified in GlobalOptions.IdentifierMapperOptions"));
 
         }
         [Test]
         public void TestNoSwapper()
         {
             var ex = Assert.Throws<ArgumentException>(() => new MapperSource(new GlobalOptions { IdentifierMapperOptions = new IdentifierMapperOptions() }, new TriggerUpdatesFromMapperOptions()));
-            Assert.AreEqual("No SwapperType has been specified in GlobalOptions.IdentifierMapperOptions", ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("No SwapperType has been specified in GlobalOptions.IdentifierMapperOptions"));
         }
         [Test]
         public void InvalidSwapper()
@@ -34,7 +34,7 @@ namespace Applications.TriggerUpdates.Tests
             }
             , new TriggerUpdatesFromMapperOptions()));
 
-            Assert.AreEqual("Could not create IdentifierMapper Swapper with SwapperType:Trollolol", ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("Could not create IdentifierMapper Swapper with SwapperType:Trollolol"));
         }
     }
 }

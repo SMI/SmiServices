@@ -14,8 +14,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
 
         public DynamicRejector(string? dynamicRulesPath, IFileSystem? fileSystem = null)
         {
-            if (dynamicRulesPath == null)
-                dynamicRulesPath = DefaultDynamicRulesPath;
+            dynamicRulesPath ??= DefaultDynamicRulesPath;
 
             fileSystem ??= new FileSystem();
 

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Options;
 using System;
 using System.IO;
@@ -31,12 +31,15 @@ CohortExtractorOptions:
 
             var opts = factory.Load("FF.DD", file);
 
-            Assert.AreEqual(1, opts.CohortExtractorOptions!.ModalitySpecificRejectors!.Length);
-            Assert.AreEqual("CT,MR", opts.CohortExtractorOptions.ModalitySpecificRejectors[0].Modalities);
-            Assert.AreEqual("CT", opts.CohortExtractorOptions.ModalitySpecificRejectors[0].GetModalities()[0]);
-            Assert.AreEqual("MR", opts.CohortExtractorOptions.ModalitySpecificRejectors[0].GetModalities()[1]);
+            Assert.Multiple(() =>
+            {
+                Assert.That(opts.CohortExtractorOptions?.ModalitySpecificRejectors, Has.Length.EqualTo(1));
+                Assert.That(opts.CohortExtractorOptions?.ModalitySpecificRejectors?[0].Modalities, Is.EqualTo("CT,MR"));
+                Assert.That(opts.CohortExtractorOptions?.ModalitySpecificRejectors?[0].GetModalities()[0], Is.EqualTo("CT"));
+                Assert.That(opts.CohortExtractorOptions?.ModalitySpecificRejectors?[0].GetModalities()[1], Is.EqualTo("MR"));
 
-            Assert.AreEqual("Microservices.CohortExtractor.Execution.RequestFulfillers.RejectNone", opts.CohortExtractorOptions.ModalitySpecificRejectors[0].RejectorType);
+                Assert.That(opts.CohortExtractorOptions?.ModalitySpecificRejectors?[0].RejectorType, Is.EqualTo("Microservices.CohortExtractor.Execution.RequestFulfillers.RejectNone"));
+            });
         }
 
         [Test]
@@ -65,7 +68,7 @@ CohortExtractorOptions:
             var opts = factory.Load("FF.DD", file);
             
             var ex = Assert.Throws<Exception>(()=>opts.CohortExtractorOptions!.Validate());
-            Assert.AreEqual("ModalitySpecificRejectors requires providing a ModalityRoutingRegex", ex!.Message);
+            Assert.That(ex!.Message, Is.EqualTo("ModalitySpecificRejectors requires providing a ModalityRoutingRegex"));
         }
     }
 }

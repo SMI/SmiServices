@@ -31,7 +31,7 @@ namespace Microservices.CohortPackager.Tests
 
             if (isIdentifiableExtraction)
             {
-                Assert.NotNull(anonFailuresExpected);
+                Assert.That(anonFailuresExpected, Is.Not.Null);
                 IEnumerable<string> missingFiles = anonFailuresExpected!.Select(x => x.Item1);
                 CheckIdentReport(header, missingFiles, newLine, actualReport);
                 return;
@@ -69,7 +69,7 @@ namespace Microservices.CohortPackager.Tests
             if (ShouldPrintReports)
                 PrintReports(expectedStr, actualReport);
 
-            Assert.AreEqual(expectedStr, actualReport);
+            Assert.That(actualReport, Is.EqualTo(expectedStr));
         }
 
         private static string GetHeaderAndContents(ExtractJobInfo jobInfo, DateTimeProvider provider, string newLine)
@@ -135,7 +135,7 @@ namespace Microservices.CohortPackager.Tests
 
             string expectedStr = string.Join(newLine, expected);
             PrintReports(expectedStr, actualReport);
-            Assert.AreEqual(expectedStr, actualReport);
+            Assert.That(actualReport, Is.EqualTo(expectedStr));
         }
 
         private static Tuple<string?, string?> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>>? verificationFailuresExpected, string newLine)

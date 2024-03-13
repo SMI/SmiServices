@@ -23,7 +23,7 @@ namespace Smi.Common.Tests.Messaging
         private ProducerOptions _testProducerOptions = null!;
         private ConsumerOptions _testConsumerOptions = null!;
 
-        private MicroserviceTester _tester = null!;
+        private MicroserviceTester? _tester = null;
 
         private Consumer<IMessage> _mockConsumer = null!;
         private GlobalOptions _testOptions = null!;
@@ -54,7 +54,8 @@ namespace Smi.Common.Tests.Messaging
         [OneTimeTearDown]
         public void TearDown()
         {
-            _tester.Shutdown();
+            _tester?.Shutdown();
+            _tester?.Dispose();
         }
 
         /// <summary>
@@ -68,10 +69,10 @@ namespace Smi.Common.Tests.Messaging
                 ExchangeName = null
             };
 
-            Assert.Throws<ArgumentException>(() => _tester.Broker.SetupProducer(producerOptions));
+            Assert.Throws<ArgumentException>(() => _tester?.Broker.SetupProducer(producerOptions));
 
             producerOptions.ExchangeName = "TEST.DoesNotExistExchange";
-            Assert.Throws<ApplicationException>(() => _tester.Broker.SetupProducer(producerOptions));
+            Assert.Throws<ApplicationException>(() => _tester?.Broker.SetupProducer(producerOptions));
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace Smi.Common.Tests.Messaging
         {
             var oldq = _testConsumerOptions.QueueName;
             _testConsumerOptions.QueueName = $"TEST.WrongQueue{new Random().NextInt64()}";
-            Assert.Throws<ApplicationException>(() => _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer));
+            Assert.Throws<ApplicationException>(() => _tester?.Broker.StartConsumer(_testConsumerOptions, _mockConsumer));
             _testConsumerOptions.QueueName = oldq;
         }
 
@@ -93,8 +94,8 @@ namespace Smi.Common.Tests.Messaging
         public void TestShutdownExitsProperly()
         {
             // Setup some consumers/producers so some channels are created
-            _tester.Broker.SetupProducer(_testProducerOptions);
-            _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
+            _tester?.Broker.SetupProducer(_testProducerOptions);
+            _tester?.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
         }
 
         /// <summary>
@@ -115,11 +116,11 @@ namespace Smi.Common.Tests.Messaging
         public void TestNoNewConnectionsAfterShutdown()
         {
             var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMQBrokerTests");
-            Assert.False(testAdapter.ShutdownCalled);
+            Assert.That(testAdapter.ShutdownCalled, Is.False);
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
-            Assert.True(testAdapter.ShutdownCalled);
+            Assert.That(testAdapter.ShutdownCalled, Is.True);
             Assert.Throws<ApplicationException>(() => testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
             Assert.Throws<ApplicationException>(() => testAdapter.SetupProducer(_testProducerOptions));
         }
@@ -127,9 +128,17 @@ namespace Smi.Common.Tests.Messaging
         [Test]
         public void TestStopConsumer()
         {
+            if (_tester is null)
+            {
+                Assert.Fail("Failed to start tester");
+                return;
+            }
+
             var consumerId = _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.DoesNotThrow(() => _tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
-            Assert.Throws<ApplicationException>(() => _tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
+            Assert.DoesNotThrow(() =>
+                _tester?.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
+            Assert.Throws<ApplicationException>(() =>
+                _tester?.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
         }
 
         [Test]
@@ -148,18 +157,19 @@ namespace Smi.Common.Tests.Messaging
             // These are all the server properties we can check using the connection
             PrintObjectDictionary(connection.ServerProperties);
 
-            Assert.True(connection.ServerProperties.ContainsKey("version"));
+            Assert.That(connection.ServerProperties.ContainsKey("version"), Is.True);
         }
 
         [Test]
         public void TestMultipleConfirmsOk()
         {
-            var pm = _tester.Broker.SetupProducer(_testProducerOptions, true);
+            var pm = _tester?.Broker.SetupProducer(_testProducerOptions, true);
+            Assert.That(pm, Is.Not.Null);
 
-            pm.SendMessage(new TestMessage(), isInResponseTo: null, routingKey: null);
+            pm?.SendMessage(new TestMessage(), isInResponseTo: null, routingKey: null);
 
             for (var i = 0; i < 10; ++i)
-                pm.WaitForConfirms();
+                pm?.WaitForConfirms();
         }
 
         [Test]
@@ -188,8 +198,11 @@ namespace Smi.Common.Tests.Messaging
             // Closing model after connection is ok
             model.Close(200, "bye bye");
 
-            Assert.False(model.IsOpen);
-            Assert.False(conn.IsOpen);
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.IsOpen, Is.False);
+                Assert.That(conn.IsOpen, Is.False);
+            });
         }
 
         [Test]
@@ -201,7 +214,7 @@ namespace Smi.Common.Tests.Messaging
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
-            Assert.True(model.IsClosed);
+            Assert.That(model.IsClosed, Is.True);
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
         }
 
@@ -240,7 +253,7 @@ namespace Smi.Common.Tests.Messaging
                 _ => "nothing to see here"
             };
 
-            Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
+            Assert.That(target.Logs.Any(s => s.Contains(expectedErrorMessage)), Is.True, $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
         [Test]
@@ -261,8 +274,11 @@ namespace Smi.Common.Tests.Messaging
             tester.SendMessage(consumerOptions, new TestMessage());
             Thread.Sleep(500);
 
-            Assert.AreEqual(1, consumer.HeldMessages);
-            Assert.AreEqual(0, consumer.AckCount);
+            Assert.Multiple(() =>
+            {
+                Assert.That(consumer.HeldMessages, Is.EqualTo(1));
+                Assert.That(consumer.AckCount, Is.EqualTo(0));
+            });
         }
 
         private class ThrowingConsumer : Consumer<TestMessage>

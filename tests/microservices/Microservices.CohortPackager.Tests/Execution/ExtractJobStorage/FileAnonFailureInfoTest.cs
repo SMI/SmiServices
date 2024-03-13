@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -37,9 +37,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         [TestCase("  ", "bar")]
         [TestCase("foo", null)]
         [TestCase("foo", "  ")]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string expectedAnonFile, string reason)
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string? expectedAnonFile, string? reason)
         {
-            Assert.Throws<ArgumentException>(() => { var _ = new FileAnonFailureInfo(expectedAnonFile, reason); });
+            Assert.Throws<ArgumentException>(() => { _ = new FileAnonFailureInfo(expectedAnonFile, reason); });
         }
 
         #endregion

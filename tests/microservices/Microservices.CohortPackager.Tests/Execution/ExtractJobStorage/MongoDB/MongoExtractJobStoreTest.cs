@@ -141,9 +141,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     return mockCursor.Object;
                 }
 
-                BsonDocument rendered = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry);
+                var rendered = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry);
 
-                TKey key = GetKey(rendered["_id"]);
+                var key = GetKey(rendered["_id"]);
 
                 if (Documents.ContainsKey(key))
                 {
@@ -165,7 +165,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 if (RejectChanges)
                     throw new Exception("Rejecting changes");
 
-                BsonDocument bsonDoc = document.ToBsonDocument();
+                var bsonDoc = document.ToBsonDocument();
                 if (!bsonDoc.Contains("_id"))
                     bsonDoc.Add("_id", Guid.NewGuid().ToString());
                 if (!Documents.TryAdd(GetKey(bsonDoc["_id"].ToString()!), document))
@@ -174,7 +174,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             public override void InsertMany(IEnumerable<TVal> documents, InsertManyOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
-                foreach (TVal doc in documents)
+                foreach (var doc in documents)
                     InsertOne(doc, null, cancellationToken);
             }
 
@@ -184,8 +184,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 if (RejectChanges)
                     return ReplaceOneResult.Unacknowledged.Instance;
 
-                BsonDocument bsonDoc = replacement.ToBsonDocument();
-                TKey key = GetKey(bsonDoc["_id"].ToString()!);
+                var bsonDoc = replacement.ToBsonDocument();
+                var key = GetKey(bsonDoc["_id"].ToString()!);
                 if (!Documents.ContainsKey(key))
                     return ReplaceOneResult.Unacknowledged.Instance;
 
@@ -198,7 +198,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 if (RejectChanges)
                     return DeleteResult.Unacknowledged.Instance;
 
-                BsonDocument filterDoc = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry);
+                var filterDoc = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry);
                 if (!filterDoc.Contains("_id") || filterDoc.Count() > 1)
                     throw new NotImplementedException("No support for deleting multiple docs");
 
@@ -225,7 +225,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         [Test]
         public void TestPersistMessageToStoreImpl_ExtractionRequestInfoMessage()
         {
-            Guid guid = Guid.NewGuid();
+            var guid = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
                 ExtractionJobIdentifier = guid,
@@ -253,9 +253,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             store.PersistMessageToStore(testExtractionRequestInfoMessage, testHeader);
 
-            Dictionary<Guid, MongoExtractJobDoc> docs = client.ExtractionDatabase.InProgressCollection.Documents;
-            Assert.AreEqual(docs.Count, 1);
-            MongoExtractJobDoc extractJob = docs.Values.ToList()[0];
+            var docs = client.ExtractionDatabase.InProgressCollection.Documents;
+            Assert.That(docs, Has.Count.EqualTo(1));
+            var extractJob = docs.Values.ToList()[0];
 
             var expected = new MongoExtractJobDoc(
                 guid,
@@ -272,7 +272,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 isNoFilterExtraction: true,
                 null);
 
-            Assert.AreEqual(expected, extractJob);
+            Assert.That(extractJob, Is.EqualTo(expected));
         }
 
         [Test]
@@ -322,13 +322,13 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             // Assert
 
             var exc = Assert.Throws<ApplicationException>(() => call());
-            Assert.AreEqual("Received an ExtractionRequestInfoMessage for a job that is already completed", exc?.Message);
+            Assert.That(exc?.Message, Is.EqualTo("Received an ExtractionRequestInfoMessage for a job that is already completed"));
         }
 
         [Test]
         public void TestPersistMessageToStoreImpl_ExtractFileCollectionInfoMessage()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var header1 = new MessageHeader();
             var header2 = new MessageHeader();
             var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
@@ -363,9 +363,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header);
 
-            Dictionary<Guid, MongoExpectedFilesDoc> docs = client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].Documents;
-            Assert.AreEqual(docs.Count, 1);
-            MongoExpectedFilesDoc extractJob = docs.Values.ToList()[0];
+            var docs = client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].Documents;
+            Assert.That(docs, Has.Count.EqualTo(1));
+            var extractJob = docs.Values.ToList()[0];
 
             var expected = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
@@ -384,13 +384,13 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     })
                 );
 
-            Assert.True(extractJob.Equals(expected));
+            Assert.That(extractJob, Is.EqualTo(expected));
         }
 
         [Test]
         public void TestPersistMessageToStoreImpl_ExtractFileCollectionInfoMessage_NoIdentifiers()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testExtractFileCollectionInfoMessage = new ExtractFileCollectionInfoMessage
             {
                 ExtractionJobIdentifier = jobId,
@@ -425,7 +425,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var client = new TestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testExtractFileStatusMessage = new ExtractedFileStatusMessage
             {
                 OutputFilePath = "anon.dcm",
@@ -441,9 +441,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             store.PersistMessageToStore(testExtractFileStatusMessage, header);
 
-            Dictionary<Guid, MongoFileStatusDoc> docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
-            Assert.AreEqual(docs.Count, 1);
-            MongoFileStatusDoc statusDoc = docs.Values.ToList()[0];
+            var docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
+            Assert.That(docs, Has.Count.EqualTo(1));
+            var statusDoc = docs.Values.ToList()[0];
 
             var expected = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
@@ -453,7 +453,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotVerified,
                 "Could not anonymise");
 
-            Assert.AreEqual(expected, statusDoc);
+            Assert.That(statusDoc, Is.EqualTo(expected));
         }
 
         [Test]
@@ -496,7 +496,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             // Assert
 
             var exc = Assert.Throws<ApplicationException>(() => call());
-            Assert.AreEqual($"Received an {nameof(ExtractedFileVerificationMessage)} for a job that is already completed", exc?.Message);
+            Assert.That(exc?.Message, Is.EqualTo($"Received an {nameof(ExtractedFileVerificationMessage)} for a job that is already completed"));
         }
 
 
@@ -506,7 +506,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var client = new TestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testIsIdentifiableMessage = new ExtractedFileVerificationMessage
             {
                 OutputFilePath = "anon.dcm",
@@ -522,9 +522,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             store.PersistMessageToStore(testIsIdentifiableMessage, header);
 
-            Dictionary<Guid, MongoFileStatusDoc> docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
-            Assert.AreEqual(docs.Count, 1);
-            MongoFileStatusDoc statusDoc = docs.Values.ToList()[0];
+            var docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
+            Assert.That(docs, Has.Count.EqualTo(1));
+            var statusDoc = docs.Values.ToList()[0];
 
             var expected = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
@@ -534,13 +534,13 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotIdentifiable,
                 "[]");
 
-            Assert.True(statusDoc.Equals(expected));
+            Assert.That(statusDoc, Is.EqualTo(expected));
         }
 
         [Test]
         public void TestGetReadJobsImpl()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testJob = new MongoExtractJobDoc(
                 jobId,
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -580,7 +580,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             // Assert that jobs marked as failed are not returned
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
-            Assert.AreEqual(0, store.GetReadyJobs().Count);
+            Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Assert that an in progress job is not returned
             client = new TestMongoClient();
@@ -588,7 +588,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
-            Assert.AreEqual(0, store.GetReadyJobs().Count);
+            Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Check we handle a bad ReplaceOneResult
             client = new TestMongoClient();
@@ -607,19 +607,25 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
-            Assert.AreEqual(0, store.GetReadyJobs().Count);
-            Assert.AreEqual(ExtractJobStatus.WaitingForStatuses, client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus);
+            Assert.Multiple(() =>
+            {
+                Assert.That(store.GetReadyJobs(), Is.Empty);
+                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.WaitingForStatuses));
+            });
             client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
             client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
-            ExtractJobInfo job = store.GetReadyJobs().Single();
-            Assert.AreEqual(ExtractJobStatus.ReadyForChecks, job.JobStatus);
-            Assert.AreEqual(ExtractJobStatus.ReadyForChecks, client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus);
+            var job = store.GetReadyJobs().Single();
+            Assert.Multiple(() =>
+            {
+                Assert.That(job.JobStatus, Is.EqualTo(ExtractJobStatus.ReadyForChecks));
+                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.ReadyForChecks));
+            });
         }
 
         [Test]
         public void TestCompleteJobImpl()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testJob = new MongoExtractJobDoc(
                 jobId,
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -722,14 +728,17 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             store.MarkJobCompleted(jobId);
             client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
             client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.AreEqual(1, client.ExtractionDatabase.ExpectedFilesCollections.Count);
-            Assert.AreEqual(1, client.ExtractionDatabase.StatusCollections.Count);
+            Assert.Multiple(() =>
+            {
+                Assert.That(client.ExtractionDatabase.ExpectedFilesCollections, Has.Count.EqualTo(1));
+                Assert.That(client.ExtractionDatabase.StatusCollections, Has.Count.EqualTo(1));
+            });
         }
 
         [Test]
         public void TestMarkJobFailedImpl()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testJob = new MongoExtractJobDoc(
                 jobId,
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -783,12 +792,12 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             store.MarkJobFailed(jobId, new Exception("TestMarkJobFailedImpl"));
             client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
             client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            Dictionary<Guid, MongoExtractJobDoc> docs = client.ExtractionDatabase.InProgressCollection.Documents;
-            Assert.AreEqual(1, docs.Count);
-            MongoExtractJobDoc failedDoc = docs[jobId];
-            Assert.AreEqual(ExtractJobStatus.Failed, failedDoc.JobStatus);
-            Assert.NotNull(failedDoc.FailedJobInfoDoc);
-            Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc!.ExceptionMessage);
+            var docs = client.ExtractionDatabase.InProgressCollection.Documents;
+            Assert.That(docs, Has.Count.EqualTo(1));
+            var failedDoc = docs[jobId];
+            Assert.That(failedDoc.JobStatus, Is.EqualTo(ExtractJobStatus.Failed));
+            Assert.That(failedDoc.FailedJobInfoDoc, Is.Not.Null);
+            Assert.That(failedDoc.FailedJobInfoDoc!.ExceptionMessage, Is.EqualTo("TestMarkJobFailedImpl"));
         }
 
         [Test]
@@ -799,7 +808,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var client = new TestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var message = new ExtractedFileVerificationMessage
             {
                 OutputFilePath = "anon.dcm",
@@ -817,17 +826,16 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Act
 
-            for (int i = 0; i < nMessages; ++i)
+            for (var i = 0; i < nMessages; ++i)
                 store.AddToWriteQueue(message, header, (ulong)i);
 
             store.ProcessVerificationMessageQueue();
 
             // Assert
 
-            Assert.AreEqual(
-                nMessages,
-                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents.Count
-            );
+            Assert.That(
+                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents, Has.Count
+.EqualTo(nMessages));
         }
 
         [Test]

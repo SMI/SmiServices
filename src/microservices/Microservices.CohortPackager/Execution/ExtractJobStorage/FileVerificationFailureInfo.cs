@@ -21,12 +21,12 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
 
         public FileVerificationFailureInfo(
-            string anonFilePath,
-            string failureData
+            string? anonFilePath,
+            string? failureData
         )
         {
-            AnonFilePath = string.IsNullOrWhiteSpace(anonFilePath) ? throw new ArgumentException(nameof(anonFilePath)) : anonFilePath;
-            Data = string.IsNullOrWhiteSpace(failureData) ? throw new ArgumentException(nameof(failureData)) : failureData;
+            AnonFilePath = string.IsNullOrWhiteSpace(anonFilePath) ? throw new ArgumentException(null, nameof(anonFilePath)) : anonFilePath;
+            Data = string.IsNullOrWhiteSpace(failureData) ? throw new ArgumentException(null, nameof(failureData)) : failureData;
         }
     }
 }

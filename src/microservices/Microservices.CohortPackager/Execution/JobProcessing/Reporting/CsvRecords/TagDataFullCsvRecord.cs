@@ -25,14 +25,14 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
 
 
         public TagDataFullCsvRecord(
-            string tagName,
-            string failureValue,
-            string filePath
+            string? tagName,
+            string? failureValue,
+            string? filePath
         )
         {
-            TagName = string.IsNullOrWhiteSpace(tagName) ? throw new ArgumentException(nameof(tagName)) : tagName;
-            FailureValue = string.IsNullOrWhiteSpace(failureValue) ? throw new ArgumentException(nameof(failureValue)) : failureValue;
-            FilePath = string.IsNullOrWhiteSpace(filePath) ? throw new ArgumentException(nameof(filePath)) : filePath;
+            TagName = string.IsNullOrWhiteSpace(tagName) ? throw new ArgumentException(null, nameof(tagName)) : tagName;
+            FailureValue = string.IsNullOrWhiteSpace(failureValue) ? throw new ArgumentException(null, nameof(failureValue)) : failureValue;
+            FilePath = string.IsNullOrWhiteSpace(filePath) ? throw new ArgumentException(null, nameof(filePath)) : filePath;
         }
 
         public static IEnumerable<TagDataFullCsvRecord> BuildRecordList(

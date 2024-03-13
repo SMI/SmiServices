@@ -50,11 +50,11 @@ namespace Applications.SmiRunner.Tests
             {
                 if (t.BaseType == typeof(ApplicationVerbBase))
                 {
-                    Assert.Contains(t, Program.AllApplications, $"{t} not in the list of applications");
+                    Assert.That(Program.AllApplications, Does.Contain(t), $"{t} not in the list of applications");
                 }
                 else if (t.BaseType == typeof(MicroservicesVerbBase))
                 {
-                    Assert.Contains(t, Program.AllServices, $"{t} not in the list of services");
+                    Assert.That(Program.AllServices, Does.Contain(t), $"{t} not in the list of services");
                 }
                 else
                 {

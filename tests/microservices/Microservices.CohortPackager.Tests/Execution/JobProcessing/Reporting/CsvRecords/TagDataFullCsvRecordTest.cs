@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -44,7 +44,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
         // filePath
         [TestCase("foo", "foo", null)]
         [TestCase("foo", "foo", "")]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string tagName, string failureValue, string filePath)
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string? tagName, string? failureValue, string? filePath)
         {
             Assert.Throws<ArgumentException>(() => { var _ = new TagDataFullCsvRecord(tagName, failureValue, filePath); });
         }
@@ -53,7 +53,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
         public void BuildRecordList_Empty()
         {
             IEnumerable<TagDataFullCsvRecord> records = TagDataFullCsvRecord.BuildRecordList("foo", new Dictionary<string, List<string>>());
-            Assert.AreEqual(Enumerable.Empty<TagDataFullCsvRecord>(), records);
+            Assert.That(records, Is.EqualTo(Enumerable.Empty<TagDataFullCsvRecord>()));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
             List<TagDataFullCsvRecord> actual = TagDataFullCsvRecord.BuildRecordList("ScanOptions", testData).ToList();
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         #endregion

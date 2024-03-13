@@ -79,7 +79,7 @@ public class ProgramTests
         var rc = Program.Main(_args, _fileSystem);
 
         // Assert
-        Assert.AreEqual(0, rc);
+        Assert.That(rc, Is.EqualTo(0));
     }
 
     [Test]
@@ -106,7 +106,7 @@ public class ProgramTests
         var rc = Program.Main(_args, _fileSystem);
 
         // Assert
-        Assert.AreEqual(1, rc);
+        Assert.That(rc, Is.EqualTo(1));
     }
 
     [Test]
@@ -127,7 +127,7 @@ public class ProgramTests
         var rc = Program.Main(_args, _fileSystem);
 
         // Assert
-        Assert.AreEqual(2, rc);
+        Assert.That(rc, Is.EqualTo(2));
     }
 
     [Test]
@@ -149,7 +149,7 @@ public class ProgramTests
         var rc = Program.Main(_args, _fileSystem);
 
         // Assert
-        Assert.AreEqual(1, rc);
+        Assert.That(rc, Is.EqualTo(1));
     }
 
     #endregion

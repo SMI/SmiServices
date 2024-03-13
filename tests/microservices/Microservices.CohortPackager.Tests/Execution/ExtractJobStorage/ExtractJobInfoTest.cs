@@ -53,7 +53,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: false
             );
 
-            Assert.AreEqual("extract-name", info.ExtractionName());
+            Assert.That(info.ExtractionName(), Is.EqualTo("extract-name"));
         }
 
         [TestCase("proj/foo/extract-name", "proj/foo")]
@@ -74,7 +74,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: false
             );
 
-            Assert.AreEqual(expected, info.ProjectExtractionDir());
+            Assert.That(info.ProjectExtractionDir(), Is.EqualTo(expected));
         }
 
 
@@ -109,7 +109,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.AreEqual(info1, info2);
+            Assert.That(info2, Is.EqualTo(info1));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
+            Assert.That(info2.GetHashCode(), Is.EqualTo(info1.GetHashCode()));
         }
 
         #endregion

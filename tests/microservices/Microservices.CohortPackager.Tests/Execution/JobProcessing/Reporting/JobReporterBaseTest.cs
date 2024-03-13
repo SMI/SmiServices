@@ -154,7 +154,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            Assert.True(reporter.Disposed);
+            Assert.That(reporter.Disposed, Is.True);
 
             ReportEqualityHelpers.AssertReportsAreEqual(
                 jobInfo,
@@ -250,7 +250,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 new Tuple<string, string>("foo1.dcm", "image was corrupt"),
             };
 
-            Assert.True(reporter.Disposed);
+            Assert.That(reporter.Disposed, Is.True);
 
             ReportEqualityHelpers.AssertReportsAreEqual(
                 jobInfo,
@@ -287,7 +287,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 Assert.Throws<ApplicationException>(() => reporter.CreateReport(Guid.Empty), "aa");
             }
 
-            Assert.True(reporter.Disposed);
+            Assert.That(reporter.Disposed, Is.True);
         }
 
         [TestCase(LinuxNewLine)]
@@ -368,7 +368,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            Assert.True(reporter.Disposed);
+            Assert.That(reporter.Disposed, Is.True);
 
             var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
             {
@@ -475,7 +475,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            Assert.True(reporter.Disposed);
+            Assert.That(reporter.Disposed, Is.True);
 
             var verificationFailuresExpected = new Dictionary<string, Dictionary<string, List<string>>>
             {
@@ -546,7 +546,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            Assert.True(reporter.Disposed);
+            Assert.That(reporter.Disposed, Is.True);
 
             var missingFilesExpected = new List<Tuple<string, string>>
             {
@@ -650,7 +650,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 reporter.CreateReport(Guid.Empty);
             }
 
-            Assert.True(reporter.Disposed);
+            Assert.That(reporter.Disposed, Is.True);
 
             var expected = new List<string>
             {
@@ -740,7 +740,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 $"",
             };
 
-            Assert.AreEqual(string.Join(newLine, expected), reporter.Report);
+            Assert.That(reporter.Report, Is.EqualTo(string.Join(newLine, expected)));
         }
 
         [Test]
@@ -758,7 +758,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
         {
             var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             var reporter = new TestJobReporter(mockJobStore.Object, ReportFormat.Split, null);
-            Assert.AreEqual(Environment.NewLine, reporter.ReportNewLine);
+            Assert.That(reporter.ReportNewLine, Is.EqualTo(Environment.NewLine));
         }
         
         [Test]
@@ -775,7 +775,7 @@ CohortPackagerOptions:
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(ReportNewLine_LoadFromYaml_EscapesNewlines), tmpConfig);
 
             // NOTE(rkm 2021-04-06) Verify we get an *escaped* newline from the YAML load here
-            Assert.AreEqual(Regex.Escape(WindowsNewLine), globals.CohortPackagerOptions!.ReportNewLine);
+            Assert.That(globals.CohortPackagerOptions!.ReportNewLine, Is.EqualTo(Regex.Escape(WindowsNewLine)));
         }
 
         [Test]
@@ -783,7 +783,7 @@ CohortPackagerOptions:
         {
             const string newLine = @"\n";
             var exc = Assert.Throws<ArgumentException>(() => new TestJobReporter(new Mock<IExtractJobStore>().Object, ReportFormat.Combined, newLine));
-            Assert.AreEqual("ReportNewLine contained an escaped backslash", exc!.Message);
+            Assert.That(exc!.Message, Is.EqualTo("ReportNewLine contained an escaped backslash"));
         }
     }
 

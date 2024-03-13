@@ -102,15 +102,18 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
             mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new Exception("aah"));
             watcher.ProcessJobs(jobId);
-            Assert.True(callbackUsed);
+            Assert.That(callbackUsed, Is.True);
 
             // Check happy path
             mockJobStore.Reset();
             mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
             testNotifier.Notified = false;
             watcher.ProcessJobs(jobId);
-            Assert.True(testNotifier.Notified);
-            Assert.True(testReporter.Reported);
+            Assert.Multiple(() =>
+            {
+                Assert.That(testNotifier.Notified, Is.True);
+                Assert.That(testReporter.Reported, Is.True);
+            });
         }
 
         #endregion

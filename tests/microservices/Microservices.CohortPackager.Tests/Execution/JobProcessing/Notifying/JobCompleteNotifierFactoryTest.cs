@@ -37,7 +37,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Notifying
         public void GetNotifier_ConstructsLoggingNotifier()
         {
             IJobCompleteNotifier notifier = JobCompleteNotifierFactory.GetNotifier(notifierTypeStr: "LoggingNotifier");
-            Assert.True(notifier is LoggingNotifier);
+            Assert.That(notifier is LoggingNotifier, Is.True);
         }
 
         [Test]

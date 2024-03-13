@@ -96,14 +96,14 @@ namespace Applications.ExtractImages.Tests
                 mockExtractionRequestProducer.Verify(expr, Times.Once);
                 mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
 
-                Assert.True(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")));
+                Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")), Is.True);
             }
             else
             {
                 mockExtractionRequestProducer.Verify(expr, Times.Never);
                 mockExtractionRequestInfoProducer.Verify(expr, Times.Never);
 
-                Assert.False(fs.Directory.Exists(extractDir));
+                Assert.That(fs.Directory.Exists(extractDir), Is.False);
             }
         }
 
@@ -140,12 +140,12 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestProducer.Verify(expr, Times.Once);
             mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
 
-            Assert.True(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")));
+            Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")), Is.True);
         }
 
         [TestCase(null)]
         [TestCase("  ")]
-        public void ExtractionDirs_AreValidated(string dir)
+        public void ExtractionDirs_AreValidated(string? dir)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -161,7 +161,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionDir", exc!.Message);
+            Assert.That(exc!.Message, Is.EqualTo("extractionDir"));
 
             exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -177,12 +177,12 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionRoot", exc!.Message);
+            Assert.That(exc!.Message, Is.EqualTo("extractionRoot"));
         }
 
         [TestCase(null)]
         [TestCase("  ")]
-        public void ProjectId_IsValidated(string projectId)
+        public void ProjectId_IsValidated(string? projectId)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -198,7 +198,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("ProjectId", exc!.Message);
+            Assert.That(exc!.Message, Is.EqualTo("ProjectId"));
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.True(exc!.Message.EndsWith("(Parameter 'MaxIdentifiersPerMessage')"));
+            Assert.That(exc?.Message.EndsWith("(Parameter 'MaxIdentifiersPerMessage')", StringComparison.Ordinal), Is.True);
         }
 
 
@@ -241,7 +241,7 @@ namespace Applications.ExtractImages.Tests
             {
                 sender.SendMessages(ExtractionKey.StudyInstanceUID, new List<string>());
             });
-            Assert.AreEqual("ID list is empty", exc!.Message);
+            Assert.That(exc!.Message, Is.EqualTo("ID list is empty"));
         }
 
         [Test]
@@ -281,7 +281,7 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestProducer.Verify(expr, Times.Exactly(5));
             mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
 
-            Assert.True(idList.SequenceEqual(calledWith));
+            Assert.That(idList.SequenceEqual(calledWith), Is.True);
         }
 
         [TestCase(1, 1, 1)] // nIds = maxPerMessage  => 1 message

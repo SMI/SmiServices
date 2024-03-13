@@ -20,9 +20,9 @@ namespace Smi.Common.MongoDB.Tests
 
             List<Tuple<string, List<BsonDocument>>> grouped = MongoModalityGroups.GetModalityChunks(docs).ToList();
 
-            Assert.AreEqual(4, grouped.Count);
+            Assert.That(grouped, Has.Count.EqualTo(4));
             foreach (Tuple<string, List<BsonDocument>> thing in grouped)
-                Assert.AreEqual(1, thing.Item2.Count);
+                Assert.That(thing.Item2, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -48,16 +48,19 @@ namespace Smi.Common.MongoDB.Tests
 
             List<Tuple<string, List<BsonDocument>>> grouped = MongoModalityGroups.GetModalityChunks(docs).ToList();
 
-            Assert.AreEqual(3, grouped.Count, "Expected 3 groupings");
+            Assert.That(grouped, Has.Count.EqualTo(3), "Expected 3 groupings");
 
-            Assert.AreEqual("MR", grouped[0].Item1, "Expected MR group");
-            Assert.AreEqual(2, grouped[0].Item2.Count, "Expected 2 in MR group");
+            Assert.Multiple(() =>
+            {
+                Assert.That(grouped[0].Item1, Is.EqualTo("MR"), "Expected MR group");
+                Assert.That(grouped[0].Item2, Has.Count.EqualTo(2), "Expected 2 in MR group");
 
-            Assert.AreEqual("CT", grouped[1].Item1, "Expected CT group");
-            Assert.AreEqual(3, grouped[1].Item2.Count, "Expected 3 in CT group");
+                Assert.That(grouped[1].Item1, Is.EqualTo("CT"), "Expected CT group");
+                Assert.That(grouped[1].Item2, Has.Count.EqualTo(3), "Expected 3 in CT group");
 
-            Assert.AreEqual("OTHER", grouped[2].Item1, "Expected OTHER group");
-            Assert.AreEqual(4, grouped[2].Item2.Count, "Expected 4 in OTHER group");
+                Assert.That(grouped[2].Item1, Is.EqualTo("OTHER"), "Expected OTHER group");
+                Assert.That(grouped[2].Item2, Has.Count.EqualTo(4), "Expected 4 in OTHER group");
+            });
         }
     }
 }

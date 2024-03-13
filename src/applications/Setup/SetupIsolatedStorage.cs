@@ -86,21 +86,15 @@ namespace Setup
 
                     if (store.FileExists(key))
                     {
-                        using (var stream = store.OpenFile(key, FileMode.Open))
-                        {
-                            using (var sr = new StreamReader(stream))
-                            {
-                                oldValue = sr.ReadToEnd();
-                            }
-                        }
+                        using var stream = store.OpenFile(key, FileMode.Open);
+                        using var sr = new StreamReader(stream);
+                        oldValue = sr.ReadToEnd();
                     }
 
                     using (var stream = store.OpenFile(key, FileMode.Create, FileAccess.Write))
                     {
-                        using (var sw = new StreamWriter(stream))
-                        {
-                            sw.Write(str);
-                        }
+                        using var sw = new StreamWriter(stream);
+                        sw.Write(str);
                     }
 
                     return oldValue != str;
@@ -130,13 +124,9 @@ namespace Setup
                     // If the key exists, retrieve the value.
                     if (store.FileExists(key))
                     {
-                        using (var stream = store.OpenFile(key, FileMode.Open))
-                        {
-                            using (var sr = new StreamReader(stream))
-                            {
-                                str = sr.ReadToEnd();
-                            }
-                        }
+                        using var stream = store.OpenFile(key, FileMode.Open);
+                        using var sr = new StreamReader(stream);
+                        str = sr.ReadToEnd();
                     }
 
                     if (str == null)
@@ -195,8 +185,7 @@ namespace Setup
 
                     else if (type == typeof(Guid))
                     {
-                        Guid guid;
-                        if (Guid.TryParse(str, out guid))
+                        if (Guid.TryParse(str, out var guid))
                             value = guid;
                     }
 

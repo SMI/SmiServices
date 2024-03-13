@@ -117,12 +117,12 @@ namespace Microservices.DicomTagReader.Execution
 
             foreach (DicomFileMessage fileMessage in fileMessages)
             {
-                string seriesUID = fileMessage.SeriesInstanceUID;
+                var seriesUID = fileMessage.SeriesInstanceUID;
 
                 // If we've already seen this seriesUID, just update the image count
-                if (seriesMessages.ContainsKey(seriesUID))
+                if (seriesMessages.TryGetValue(seriesUID, out var c))
                 {
-                    seriesMessages[seriesUID].ImagesInSeries++;
+                    c.ImagesInSeries++;
                     continue;
                 }
 

@@ -87,9 +87,12 @@ namespace Microservices.DicomRelationalMapper.Tests
                 Thread.Sleep(TimeSpan.FromSeconds(10));
                 TestTimelineAwaiter.Await(() => host.Consumer!.AckCount >= 1, null, 30000, () => host.Consumer!.DleErrors);
 
-                Assert.AreEqual(1, _helper.SeriesTable!.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                Assert.AreEqual(1, _helper.StudyTable!.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                Assert.AreEqual(1, _helper.ImageTable!.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(_helper.SeriesTable!.GetRowCount(), Is.EqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.StudyTable!.GetRowCount(), Is.EqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
+                });
 
                 host.Stop("Test end");
 
@@ -125,29 +128,29 @@ namespace Microservices.DicomRelationalMapper.Tests
             {
                 host.Start();
 
-                using (var timeline = new TestTimeline(tester))
+                using var timeline = new TestTimeline(tester);
+                //send the message 10 times over a 10 second period
+                for (int i = 0; i < numberOfMessagesToSend; i++)
                 {
-                    //send the message 10 times over a 10 second period
-                    for (int i = 0; i < numberOfMessagesToSend; i++)
-                    {
-                        timeline
-                            .SendMessage(_globals.DicomRelationalMapperOptions!, _helper.GetDicomFileMessage(_globals.FileSystemOptions!.FileSystemRoot!, fi))
-                            .Wait(1000);
-                    }
-
-                    //start the timeline
-                    timeline.StartTimeline();
-
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                    TestTimelineAwaiter.Await(() => host.Consumer!.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer!.DleErrors);
-
-                    Assert.AreEqual(1, _helper.SeriesTable!.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.StudyTable!.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable!.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                    host.Stop("Test end");
+                    timeline
+                        .SendMessage(_globals.DicomRelationalMapperOptions!, _helper.GetDicomFileMessage(_globals.FileSystemOptions!.FileSystemRoot!, fi))
+                        .Wait(1000);
                 }
 
+                //start the timeline
+                timeline.StartTimeline();
+
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                TestTimelineAwaiter.Await(() => host.Consumer!.AckCount >= numberOfMessagesToSend, null, 30000, () => host.Consumer!.DleErrors);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(_helper.SeriesTable!.GetRowCount(), Is.EqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.StudyTable!.GetRowCount(), Is.EqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
+                });
+
+                host.Stop("Test end");
             }
 
             tester.Shutdown();
@@ -167,7 +170,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             using (var g = new DicomDataGenerator(r, d.FullName, "CT"))
                 files = g.GenerateImageFiles(1, r).ToArray();
 
-            Assert.AreEqual(1, files.Length);
+            Assert.That(files, Has.Length.EqualTo(1));
 
             var existingColumns = _helper.ImageTable!.DiscoverColumns();
 
@@ -204,23 +207,24 @@ namespace Microservices.DicomRelationalMapper.Tests
             {
                 host.Start();
 
-                using (var timeline = new TestTimeline(tester))
+                using var timeline = new TestTimeline(tester);
+                foreach (var f in files)
+                    timeline.SendMessage(_globals.DicomRelationalMapperOptions!,
+                        _helper.GetDicomFileMessage(_globals.FileSystemOptions!.FileSystemRoot!, f));
+
+                //start the timeline
+                timeline.StartTimeline();
+
+                TestTimelineAwaiter.Await(() => host.Consumer?.MessagesProcessed == 1, null, 30000, () => host.Consumer!.DleErrors);
+
+                Assert.Multiple(() =>
                 {
-                    foreach (var f in files)
-                        timeline.SendMessage(_globals.DicomRelationalMapperOptions!,
-                            _helper.GetDicomFileMessage(_globals.FileSystemOptions!.FileSystemRoot!, f));
+                    Assert.That(_helper.SeriesTable?.GetRowCount(), Is.GreaterThanOrEqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.StudyTable!.GetRowCount(), Is.GreaterThanOrEqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.ImageTable.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
+                });
 
-                    //start the timeline
-                    timeline.StartTimeline();
-
-                    TestTimelineAwaiter.Await(() => host.Consumer!.MessagesProcessed == 1, null, 30000, () => host.Consumer!.DleErrors);
-
-                    Assert.GreaterOrEqual(1, _helper.SeriesTable!.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.GreaterOrEqual(1, _helper.StudyTable!.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                    Assert.AreEqual(1, _helper.ImageTable.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
-
-                    host.Stop("Test end");
-                }
+                host.Stop("Test end");
             }
 
             tester.Shutdown();
@@ -259,9 +263,12 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 TestTimelineAwaiter.Await(() => host.Consumer!.MessagesProcessed == 2, null, 30000, () => host.Consumer!.DleErrors);
 
-                Assert.GreaterOrEqual(1, _helper.SeriesTable!.GetRowCount(), "SeriesTable did not have the expected number of rows in LIVE");
-                Assert.GreaterOrEqual(1, _helper.StudyTable!.GetRowCount(), "StudyTable did not have the expected number of rows in LIVE");
-                Assert.AreEqual(1, _helper.ImageTable!.GetRowCount(), "ImageTable did not have the expected number of rows in LIVE");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(_helper.SeriesTable?.GetRowCount(), Is.GreaterThanOrEqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.StudyTable?.GetRowCount(), Is.GreaterThanOrEqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.ImageTable?.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
+                });
 
                 host.Stop("Test end");
             }

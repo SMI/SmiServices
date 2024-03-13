@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -47,7 +47,7 @@ namespace Applications.SmiRunner.Tests
         {
             foreach (Type t in _allVerbs)
             {
-                string nameWithoutVerb = t.Name.Substring(0, t.Name.LastIndexOf("Verb"));
+                string nameWithoutVerb = t.Name[..t.Name.LastIndexOf("Verb", StringComparison.Ordinal)];
                 string[] splitWords = Regex.Split(nameWithoutVerb, @"(?<!^)(?=[A-Z])");
                 string expectedVerbName = string.Join('-', splitWords).ToLower();
 
@@ -55,9 +55,9 @@ namespace Applications.SmiRunner.Tests
                 expectedVerbName = expectedVerbName.Replace("-db-", "db-");
 
                 var verbAttribute = (VerbAttribute?)Attribute.GetCustomAttribute(t, typeof(VerbAttribute));
-                Assert.NotNull(verbAttribute);
+                Assert.That(verbAttribute, Is.Not.Null);
 
-                Assert.AreEqual(expectedVerbName, verbAttribute!.Name);
+                Assert.That(verbAttribute?.Name, Is.EqualTo(expectedVerbName));
             }
         }
 

@@ -25,7 +25,7 @@ namespace Microservices.Tests.RDMPTests
 
             var cSharpValue = DicomTypeTranslaterReader.GetCSharpValue(dataset, DicomTag.PatientAge);
 
-            Assert.AreEqual("009Y", cSharpValue);
+            Assert.That(cSharpValue, Is.EqualTo("009Y"));
 
 
             var file = new DicomFile(dataset);
@@ -39,7 +39,7 @@ namespace Microservices.Tests.RDMPTests
 
             var chunk = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
 
-            Assert.AreEqual("009Y", chunk.Rows[0]["PatientAge"]);
+            Assert.That(chunk.Rows[0]["PatientAge"], Is.EqualTo("009Y"));
         }
     }
 }

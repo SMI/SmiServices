@@ -45,7 +45,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
         public void BuildRecordList_Empty()
         {
             IEnumerable<TagDataFrequencyRecord> records = TagDataFrequencyRecord.BuildRecordList(new Dictionary<uint, uint>());
-            Assert.AreEqual(Enumerable.Empty<TagDataFrequencyRecord>(), records);
+            Assert.That(records, Is.EqualTo(Enumerable.Empty<TagDataFrequencyRecord>()));
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
             List<TagDataFrequencyRecord> actual = TagDataFrequencyRecord.BuildRecordList(testData).ToList();
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         #endregion

@@ -13,7 +13,7 @@ namespace Smi.Common.Tests
             a[0] = 10;
             a[1] = 123;
 
-            Assert.AreEqual("10\\123", ArrayHelperMethods.GetStringRepresentation(a));
+            Assert.That(ArrayHelperMethods.GetStringRepresentation(a), Is.EqualTo("10\\123"));
 
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
+using Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -46,7 +46,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
         // frequency
         [TestCase("foo", "foo", 1U, 0.0)]
         [TestCase("foo", "foo", 1U, -1.0)]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string tagName, string failureValue, uint occurrences, double frequency)
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string? tagName, string? failureValue, uint occurrences, double frequency)
         {
             Assert.Throws<ArgumentException>(() => { var _ = new TagDataSummaryCsvRecord(tagName, failureValue, occurrences, frequency); });
         }
@@ -63,7 +63,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
         public void BuildRecordList_Empty()
         {
             IEnumerable<TagDataSummaryCsvRecord> records = TagDataSummaryCsvRecord.BuildRecordList("foo", new Dictionary<string, List<string>>());
-            Assert.AreEqual(Enumerable.Empty<TagDataSummaryCsvRecord>(), records);
+            Assert.That(records, Is.EqualTo(Enumerable.Empty<TagDataSummaryCsvRecord>()));
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting.C
 
             List<TagDataSummaryCsvRecord> actual = TagDataSummaryCsvRecord.BuildRecordList("ScanOptions", testData).ToList();
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         #endregion

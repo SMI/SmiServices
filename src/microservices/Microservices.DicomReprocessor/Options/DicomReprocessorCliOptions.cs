@@ -22,7 +22,7 @@ namespace Microservices.DicomReprocessor.Options
             get => _sourceCollection;
             set
             {
-                if (value.Contains("."))
+                if (value.Contains('.'))
                     throw new ArgumentException(nameof(value));
                 _sourceCollection = value;
             }

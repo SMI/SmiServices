@@ -21,7 +21,7 @@ namespace Smi.Common.Tests
             consumer.TestMessage(new TestMessage());
 
             Thread.Sleep(1000);
-            Assert.True(fatalCalled);
+            Assert.That(fatalCalled, Is.True);
         }
 
     }

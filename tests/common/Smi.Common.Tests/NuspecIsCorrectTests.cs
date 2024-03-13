@@ -42,7 +42,7 @@ namespace Smi.Common.Tests
         [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.IsIdentifiable/Microservices.IsIdentifiable.csproj", null, null)]
 
-        public void TestDependencyCorrect(string csproj, string nuspec, string packagesMarkdown)
+        public void TestDependencyCorrect(string csproj, string? nuspec, string? packagesMarkdown)
         {
             if (csproj != null && !Path.IsPathRooted(csproj))
                 csproj = Path.Combine(TestContext.CurrentContext.TestDirectory, csproj);
@@ -56,15 +56,15 @@ namespace Smi.Common.Tests
                 packagesMarkdown = Path.Combine(TestContext.CurrentContext.TestDirectory, RelativePackagesRoot);
 
             if (!File.Exists(csproj))
-                Assert.Fail("Could not find file {0}", csproj);
+                Assert.Fail($"Could not find file {csproj}");
             if (nuspec != null && !File.Exists(nuspec))
-                Assert.Fail("Could not find file {0}", nuspec);
+                Assert.Fail($"Could not find file {nuspec}");
 
             if (packagesMarkdown != null && !File.Exists(packagesMarkdown))
-                Assert.Fail("Could not find file {0}", packagesMarkdown);
+                Assert.Fail($"Could not find file {packagesMarkdown}");
 
             //<PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-            Regex rPackageRef = new(@"<PackageReference\s+Include=""(.*)""\s+Version=""([^""]*)""",
+            Regex rPackageRef = new Regex(@"<PackageReference\s+Include=""(.*)""\s+Version=""([^""]*)""",
                 RegexOptions.IgnoreCase);
 
             //<dependency id="CsvHelper" version="12.1.2" />
@@ -78,7 +78,7 @@ namespace Smi.Common.Tests
                 string version = p.Groups[2].Value;
 
                 // NOTE(rkm 2020-02-14) Fix for specifiers which contain lower or upper bounds
-                if (version.Contains("[") || version.Contains("("))
+                if (version.Contains('[') || version.Contains('('))
                     version = version.Substring(1, 5);
 
                 bool found = false;
@@ -89,28 +89,23 @@ namespace Smi.Common.Tests
                     //make sure it appears in the nuspec
                     foreach (Match d in rDependencyRef.Matches(File.ReadAllText(nuspec)))
                     {
-                        string packageDependency = d.Groups[1].Value;
-                        string versionDependency = d.Groups[2].Value;
+                        var packageDependency = d.Groups[1].Value;
+                        var versionDependency = d.Groups[2].Value;
 
                         if (!packageDependency.Equals(package)) continue;
-                        Assert.AreEqual(version, versionDependency,
-                            "Package {0} is version {1} in {2} but version {3} in {4}", package, version, csproj,
-                            versionDependency, nuspec);
+                        Assert.That(versionDependency, Is.EqualTo(version), $"Package {package} is version {version} in {csproj} but version {versionDependency} in {nuspec}");
                         found = true;
                     }
 
                     if (!found)
-                        Assert.Fail(
-                            "Package {0} in {1} is not listed as a dependency of {2}. Recommended line is:\r\n{3}",
-                            package, csproj, nuspec,
-                            BuildRecommendedDependencyLine(package, version));
+                        Assert.Fail($"Package {package} in {csproj} is not listed as a dependency of {nuspec}. Recommended line is:\r\n{BuildRecommendedDependencyLine(package, version)}");
                 }
 
 
                 //And make sure it appears in the packages.md file
                 if (packagesMarkdown == null) continue;
                 found = false;
-                foreach (string line in File.ReadAllLines(packagesMarkdown))
+                foreach (var line in File.ReadAllLines(packagesMarkdown))
                 {
                     if (Regex.IsMatch(line, @"[\s[]" + Regex.Escape(package) + @"[\s\]]", RegexOptions.IgnoreCase))
                     {
@@ -119,9 +114,7 @@ namespace Smi.Common.Tests
                 }
 
                 if (!found)
-                    Assert.Fail("Package {0} in {1} is not documented in {2}. Recommended line is:\r\n{3}", package,
-                        csproj, packagesMarkdown,
-                        BuildRecommendedMarkdownLine(package, version));
+                    Assert.Fail($"Package {package} in {csproj} is not documented in {packagesMarkdown}. Recommended line is:\r\n{BuildRecommendedMarkdownLine(package, version)}");
             }
         }
 
@@ -130,14 +123,14 @@ namespace Smi.Common.Tests
         {
             var readmeMd = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../README.md"));
             var m = Regex.Match(readmeMd, "Version: `(.*)`");
-            Assert.IsTrue(m.Success, "README.md in root did not list the version in the expected format");
+            Assert.That(m.Success, Is.True, "README.md in root did not list the version in the expected format");
 
             var readmeMdVersion = m.Groups[1].Value;
 
             var sharedAssemblyInfo = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../src/SharedAssemblyInfo.cs"));
             var version = Regex.Match(sharedAssemblyInfo, @"AssemblyInformationalVersion\(""(.*)""\)").Groups[1].Value;
 
-            Assert.AreEqual(version, readmeMdVersion, "README.md in root did not match version in SharedAssemblyInfo.cs");
+            Assert.That(readmeMdVersion, Is.EqualTo(version), "README.md in root did not match version in SharedAssemblyInfo.cs");
         }
 
         private static object BuildRecommendedDependencyLine(string package, string version) => $"<dependency id=\"{package}\" version=\"{version}\" />";

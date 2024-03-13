@@ -135,15 +135,15 @@ namespace Microservices.CohortPackager.Tests.Execution
                 case ReportFormat.Combined:
                     {
                         string[] reportContent = File.ReadAllLines(Path.Combine(pf.ProjReportsDirAbsolute, $"{pf.ExtractName}_report.txt"));
-                        Assert.AreEqual(firstLine, reportContent[0]);
+                        Assert.That(reportContent[0], Is.EqualTo(firstLine));
                         break;
                     }
                 case ReportFormat.Split:
                     {
                         string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
-                        Assert.AreEqual(6, Directory.GetFiles(extractReportsDirAbsolute).Length);
+                        Assert.That(Directory.GetFiles(extractReportsDirAbsolute), Has.Length.EqualTo(6));
                         string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
-                        Assert.AreEqual(firstLine, reportContent[0]);
+                        Assert.That(reportContent[0], Is.EqualTo(firstLine));
                         break;
                     }
                 default:

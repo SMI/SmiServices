@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortPackager.Execution.JobProcessing;
 using Microservices.CohortPackager.Messaging;
 using Moq;
@@ -14,13 +14,13 @@ namespace Microservices.CohortPackager.Tests.Messaging
         [Test]
         [TestCase(null)]
         [TestCase("00000000-0000-0000-0000-000000000001")]
-        public void TestControlMessagesCausesProcess(string message)
+        public void TestControlMessagesCausesProcess(string? message)
         {
             TestLogger.Setup();
 
             var mockedWatcher = new Mock<IExtractJobWatcher>();
 
-            Guid parsed = default(Guid);
+            var parsed = default(Guid);
             if (!string.IsNullOrWhiteSpace(message))
                 parsed = Guid.Parse(message);
 

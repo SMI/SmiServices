@@ -50,7 +50,7 @@ namespace Microservices.CohortExtractor.Tests
 
                     //no fulfiller is a problem!
                     var ex = Assert.Throws<Exception>(() => opts.Validate());
-                    StringAssert.Contains("No RequestFulfillerType set on CohortExtractorOptions", ex!.Message);
+                    Assert.That(ex!.Message, Does.Contain("No RequestFulfillerType set on CohortExtractorOptions"));
 
                     break;
                 default:
@@ -68,18 +68,18 @@ namespace Microservices.CohortExtractor.Tests
 
                 //if no fulfiller is provided
                 if (testCase == Test.NoFulfiller)
-                    Assert.IsNull(CreateRequestFulfiller(opts)); //we expect null to be returned
+                    Assert.That(CreateRequestFulfiller(opts), Is.Null); //we expect null to be returned
                 else
                     Assert.Throws<TypeLoadException>(() => CreateRequestFulfiller(opts)); //if an invalid fulfiller (not full name we expect TypeLoadException)
             }
             else
             {
-                Assert.IsNotNull(CreateAuditor(opts));
+                Assert.That(CreateAuditor(opts), Is.Not.Null);
 
                 if (testCase == Test.NoFulfiller)
-                    Assert.IsNull(CreateRequestFulfiller(opts)); //we expect null to be returned
+                    Assert.That(CreateRequestFulfiller(opts), Is.Null); //we expect null to be returned
                 else
-                    Assert.IsNotNull(CreateRequestFulfiller(opts));
+                    Assert.That(CreateRequestFulfiller(opts), Is.Not.Null);
             }
         }
 
@@ -118,7 +118,7 @@ namespace Microservices.CohortExtractor.Tests
 
             c.ClearAllInjections();
 
-            Assert.AreEqual(5, c.GetAllExtractionInformation(ExtractionCategory.Any).Length);
+            Assert.That(c.GetAllExtractionInformation(ExtractionCategory.Any), Has.Length.EqualTo(5));
 
             var f = new MicroserviceObjectFactory();
             var fulfiller = f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType!,

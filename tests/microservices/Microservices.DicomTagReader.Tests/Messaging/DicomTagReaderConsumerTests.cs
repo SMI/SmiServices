@@ -17,7 +17,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
     {
         private readonly DicomTagReaderTestHelper _helper = new();
 
-        private IModel _mockModel = null!;
+        private IModel? _mockModel = null;
 
 
         [OneTimeSetUp]
@@ -32,6 +32,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
         public void OneTimeTearDown()
         {
             _helper.Dispose();
+            _mockModel?.Dispose();
         }
 
         [SetUp]
@@ -53,15 +54,24 @@ namespace Microservices.DicomTagReader.Tests.Messaging
 
         private void CheckAckNackCounts(DicomTagReaderConsumer consumer, int desiredAckCount, int desiredNackCount)
         {
+            if (_mockModel is null)
+            {
+                Assert.Fail("Mock model not set");
+                return;
+            }
+
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
 
             consumer.SetModel(_mockModel);
             consumer.TestMessage(_helper.TestAccessionDirectoryMessage);
 
-            Assert.AreEqual(desiredAckCount, consumer.AckCount);
-            Assert.AreEqual(desiredNackCount, consumer.NackCount);
-            Assert.False(fatalCalled);
+            Assert.Multiple(() =>
+            {
+                Assert.That(consumer.AckCount, Is.EqualTo(desiredAckCount));
+                Assert.That(consumer.NackCount, Is.EqualTo(desiredNackCount));
+                Assert.That(fatalCalled, Is.False);
+            });
         }
 
         /// <summary>
