@@ -22,7 +22,8 @@ EOU
 wget https://raw.githubusercontent.com/HicServices/DicomTypeTranslation/main/Templates/CT.it 
 mysql --user=root --password=mysqlrootpassword < schema.sql
 /imaging/bin/rdmp/rdmp createnewexternaldatabaseserver LiveLoggingServer_ID "DatabaseType:MySQL:Server=127.0.0.1;Uid=smi;Pwd=SmiSqlPassword;Database=smi" --dir /imaging/conf/rdmp 
-/imaging/bin/rdmp/rdmp cmd CreateNewImagingDatasetSuite "DatabaseType:MySQL:Name:smi:Server=127.0.0.1;Uid=smi;Pwd=SmiSqlPassword;Database=smi_images" ./data DicomFileCollectionSource CT_ CT.it false true --dir /imaging/conf/rdmp 
+/imaging/bin/rdmp/rdmp createnewexternaldatabaseserver None "DatabaseType:MySQL:Server=127.0.0.1;Uid=smi;Pwd=SmiSqlPassword;Database=smi_isolation" --dir /imaging/conf/rdmp 
+/imaging/bin/rdmp/rdmp cmd CreateNewImagingDatasetSuite "DatabaseType:MySQL:Name:smi:Server=127.0.0.1;Uid=smi;Pwd=SmiSqlPassword;Database=smi" ./data DicomFileCollectionSource CT_ CT.it false true --dir /imaging/conf/rdmp 
 for modality in CR CT DX IO MG MR NM OTHER PT PX RF SR US XA 
 do 
 egrep -v '(OTHER|SR)_\*(Series|Study)Table' <<EOC | /imaging/bin/rdmp/rdmp -- -f /dev/stdin --dir /imaging/conf/rdmp
