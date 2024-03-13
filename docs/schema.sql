@@ -1,4 +1,42 @@
-CREATE DATABASE IF NOT EXISTS smi; 
+DROP TABLE IF EXISTS smi.IO_ImageTable;
+DROP TABLE IF EXISTS smi.IO_SeriesTable;
+DROP TABLE IF EXISTS smi.IO_StudyTable;
+DROP TABLE IF EXISTS smi.MG_ImageTable;
+DROP TABLE IF EXISTS smi.MG_SeriesTable;
+DROP TABLE IF EXISTS smi.MG_StudyTable;
+DROP TABLE IF EXISTS smi.RF_ImageTable;
+DROP TABLE IF EXISTS smi.RF_SeriesTable;
+DROP TABLE IF EXISTS smi.RF_StudyTable;
+DROP TABLE IF EXISTS smi.SR_ImageTable;
+DROP TABLE IF EXISTS smi.US_ImageTable;
+DROP TABLE IF EXISTS smi.US_SeriesTable;
+DROP TABLE IF EXISTS smi.US_StudyTable;
+DROP TABLE IF EXISTS smi.XA_ImageTable;
+DROP TABLE IF EXISTS smi.XA_SeriesTable;
+DROP TABLE IF EXISTS smi.XA_StudyTable;
+DROP TABLE IF EXISTS smi.CR_ImageTable;
+DROP TABLE IF EXISTS smi.CR_SeriesTable;
+DROP TABLE IF EXISTS smi.CR_StudyTable;
+DROP TABLE IF EXISTS smi.CT_ImageTable;
+DROP TABLE IF EXISTS smi.CT_SeriesTable;
+DROP TABLE IF EXISTS smi.CT_StudyTable;
+DROP TABLE IF EXISTS smi.DX_ImageTable;
+DROP TABLE IF EXISTS smi.DX_SeriesTable;
+DROP TABLE IF EXISTS smi.DX_StudyTable;
+DROP TABLE IF EXISTS smi.MR_ImageTable;
+DROP TABLE IF EXISTS smi.MR_SeriesTable;
+DROP TABLE IF EXISTS smi.MR_StudyTable;
+DROP TABLE IF EXISTS smi.NM_ImageTable;
+DROP TABLE IF EXISTS smi.NM_SeriesTable;
+DROP TABLE IF EXISTS smi.NM_StudyTable;
+DROP TABLE IF EXISTS smi.PT_ImageTable;
+DROP TABLE IF EXISTS smi.PT_SeriesTable;
+DROP TABLE IF EXISTS smi.PT_StudyTable;
+DROP TABLE IF EXISTS smi.PX_ImageTable;
+DROP TABLE IF EXISTS smi.PX_SeriesTable;
+DROP TABLE IF EXISTS smi.PX_StudyTable;
+DROP TABLE IF EXISTS smi.OTHER_ImageTable;
+
 
 CREATE TABLE `smi`.`IO_ImageTable`( 
 `SeriesInstanceUID` varchar(64)    NOT NULL , 
@@ -1189,7 +1227,7 @@ CREATE TABLE `smi`.`PX_StudyTable`(
 `hic_validFrom` datetime    NULL , 
 CONSTRAINT PK_PX_StudyTable PRIMARY KEY (`StudyInstanceUID`));
 
-CREATE TABLE `smi`.`SOME_StudyTable`( 
+CREATE TABLE `smi`.`OTHER_ImageTable`( 
 `PatientID` varchar(64)    NULL , 
 `SOPInstanceUID` varchar(64)    NOT NULL , 
 `RelativeFileArchiveURI` varchar(512)    NOT NULL , 
@@ -1209,8 +1247,4 @@ CREATE TABLE `smi`.`SOME_StudyTable`(
 `SeriesInstanceUID` varchar(64)    NULL , 
 `hic_dataLoadRunID` int    NULL , 
 `hic_validFrom` datetime    NULL , 
-CONSTRAINT PK_SOME_StudyTable PRIMARY KEY (`SOPInstanceUID`));  
-GRANT ALL ON smi.* TO ‘smi’@’localhost’ IDENTIFIED BY ‘SmiSqlPassword’; 
-
-CREATE DATABASE smi_isolation; 
-GRANT ALL ON smi_isolation.* TO ‘smi’@’localhost’ IDENTIFIED BY ‘SmiSqlPassword’; 
+CONSTRAINT PK_OTHER_StudyTable PRIMARY KEY (`SOPInstanceUID`));  
