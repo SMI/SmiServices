@@ -13,6 +13,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq.Expressions;
+using FellowOakDicom;
 
 namespace Microservices.DicomAnonymiser.Tests
 {
@@ -55,7 +56,25 @@ namespace Microservices.DicomAnonymiser.Tests
             _mockFs.Directory.CreateDirectory(_extractDir);
 
             _sourceDcmPathAbs = _mockFs.Path.Combine(_dicomRootDirInfo.FullName, "foo.dcm");
-            _mockFs.File.Create(_sourceDcmPathAbs).Dispose();
+
+            var dicomFile = new DicomFile();
+            dicomFile.Dataset.Add(DicomTag.PatientID, "12345678");
+            dicomFile.Dataset.Add(DicomTag.Modality, "CT");
+            dicomFile.Dataset.Add(DicomTag.StudyInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID());
+            dicomFile.Dataset.Add(DicomTag.SeriesInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID());
+            dicomFile.Dataset.Add(DicomTag.SOPInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID());
+            dicomFile.FileMetaInfo.MediaStorageSOPClassUID = DicomUID.SecondaryCaptureImageStorage;
+            dicomFile.FileMetaInfo.MediaStorageSOPInstanceUID = DicomUIDGenerator.GenerateDerivedFromUUID();
+            dicomFile.FileMetaInfo.ImplementationClassUID = DicomUIDGenerator.GenerateDerivedFromUUID();
+            dicomFile.FileMetaInfo.TransferSyntax = DicomTransferSyntax.ExplicitVRLittleEndian;
+            
+            using var stream = new MemoryStream();
+            dicomFile.Save(stream);
+            
+            var dicomBytes = stream.ToArray();
+            _mockFs.AddFile(_sourceDcmPathAbs, new MockFileData(dicomBytes));
+
+            // _mockFs.File.Create(_sourceDcmPathAbs).Dispose();
             _mockFs.File.SetAttributes(_sourceDcmPathAbs, _mockFs.File.GetAttributes(_sourceDcmPathAbs) | FileAttributes.ReadOnly);
 
             _extractFileMessage = new ExtractFileMessage
@@ -79,6 +98,11 @@ namespace Microservices.DicomAnonymiser.Tests
             _mockModel.Setup(x => x.IsClosed).Returns(false);
             _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
             _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
+
+            Console.WriteLine($"_dicomRootDirInfo.FullName: {_dicomRootDirInfo.FullName}");
+            Console.WriteLine($"_extractRootDirInfo.FullName: {_extractRootDirInfo.FullName}");
+            Console.WriteLine($"_extractDir: {_extractDir}");
+            Console.WriteLine($"_sourceDcmPathAbs: {_sourceDcmPathAbs}");
         }
 
         private DicomAnonymiserConsumer GetNewDicomAnonymiserConsumer(
