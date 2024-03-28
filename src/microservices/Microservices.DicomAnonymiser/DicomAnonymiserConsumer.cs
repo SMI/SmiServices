@@ -92,7 +92,7 @@ namespace Microservices.DicomAnonymiser
 
             _logger.Debug($"Anonymising '{sourceFileAbs}' to '{destFileAbs}'");
 
-            // TODO (rkm 2024-02-09) Temporary fix: Extract modality from cohort extractor
+            // TODO (rkm 2024-02-09) Extract modality from cohort extractor instead of opening DICOM file
             DicomFile dicomFile = DicomFile.Open(sourceFileAbs.FullName);
             message.Modality = dicomFile.Dataset.GetSingleValue<string>(DicomTag.Modality);
 
