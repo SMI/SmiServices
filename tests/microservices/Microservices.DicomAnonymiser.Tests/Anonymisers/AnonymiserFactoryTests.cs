@@ -38,7 +38,9 @@ namespace Microservices.DicomAnonymiser.Tests.Anonymisers
         {
             var e = Assert.Throws<ArgumentException>(() =>
             {
-                AnonymiserFactory.CreateAnonymiser(new DicomAnonymiserOptions { AnonymiserType = "whee" });
+                // TODO (da 2024-02-28) Review if this is the correct way to test this
+                // AnonymiserFactory.CreateAnonymiser(new DefaultAnonymiser { AnonymiserType = "whee" });
+                AnonymiserFactory.CreateAnonymiser(new GlobalOptions { DicomAnonymiserOptions = new DicomAnonymiserOptions { AnonymiserType = "whee" } });
             });
             Assert.AreEqual(e!.Message, "Could not parse 'whee' to a valid AnonymiserType");
         }
@@ -48,7 +50,9 @@ namespace Microservices.DicomAnonymiser.Tests.Anonymisers
         {
             var e = Assert.Throws<NotImplementedException>(() =>
             {
-                AnonymiserFactory.CreateAnonymiser(new DicomAnonymiserOptions { AnonymiserType = "None" });
+                // TODO (da 2024-02-28) Review if this is the correct way to test this
+                // AnonymiserFactory.CreateAnonymiser(new DicomAnonymiserOptions { AnonymiserType = "None" });
+                AnonymiserFactory.CreateAnonymiser(new GlobalOptions { DicomAnonymiserOptions = new DicomAnonymiserOptions { AnonymiserType = "None" } });
             });
             Assert.AreEqual(e!.Message, "No case for AnonymiserType 'None'");
         }
