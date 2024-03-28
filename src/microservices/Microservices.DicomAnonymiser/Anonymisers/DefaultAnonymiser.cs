@@ -62,19 +62,19 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return process;
         }
 
+        private Process CreateCTPAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
+        {
+            string arguments = $"-jar {_options.CtpAnonCliJar} -a {_options.CtpAllowlistScript} -s false {sourceFile} {destFile}";
+
+            return CreateProcess("java", arguments);
+        }
+        
         private Process CreatePixelAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string activateCommand = $"source {_options.VirtualEnvPath}/bin/activate";
             string arguments = $"-c \"{activateCommand} && {_options.DicomPixelAnonPath}/dicom_pixel_anon.sh -o {destFile} {sourceFile}\"";
 
             return CreateProcess(_bash, arguments, _options.DicomPixelAnonPath);
-        }
-
-        private Process CreateCTPAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
-        {
-            string arguments = $"-jar {_options.CtpAnonCliJar} -a {_options.CtpAllowlistScript} -s false {sourceFile} {destFile}";
-
-            return CreateProcess("java", arguments);
         }
 
         // NOTE (da 2024-02-23) This method uses the SRAnonTool within SmiServices
