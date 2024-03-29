@@ -31,8 +31,6 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             _loggingOptions = globalOptions.LoggingOptions;
         }
 
-        // TODO (da 2024-02-23) Add test cases for all classes/methods
-        // TODO (da 2024-02-23) Review unchanged files with check annotations
         /// <summary>
         /// Creates a process with the given parameters
         /// </summary>
@@ -77,7 +75,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             return CreateProcess(_bash, arguments, _options.DicomPixelAnonPath);
         }
 
-        // NOTE (da 2024-02-23) This method uses the SRAnonTool within SmiServices
+        // TODO (da 2024-02-23) Use StructuredReports repository to access SRAnonTool
         private Process CreateSRAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr";
