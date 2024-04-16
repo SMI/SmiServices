@@ -11,6 +11,37 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.6.0] 2024-04-16
+
+## Feature
+
+-   [#1735](https://github.com/SMI/SmiServices/pull/1735) by rkm. Add support for CohortPackager to process ExtractedFileVerificationMessages in batches
+    -   Enabled with `CohortPackagerOptions.VerificationMessageQueueProcessBatches`
+    -   Process rate configured with `CohortPackagerOptions.VerificationMessageQueueFlushTimeSeconds`. Defaults to 5 seconds if not set
+-   [#1746](https://github.com/SMI/SmiServices/pull/1746) by rkm. Start to refactor `RabbitMqAdapter` logic into generic interface
+    -   Rename IRabbitMqAdapter -> IMessageBroker
+    -   Move into `Smi.Common.Messaging` namespace
+    -   Add `MessageBrokerType` and `MessageBrokerFactory`
+    -   Create ConnectionFactory directly in `RabbitMQBroker`
+    -   Tidy unused variables and naming
+-   [#1749](https://github.com/SMI/SmiServices/pull/1749) by rkm. Refactor and simplify extraction reports
+    -   Generate a single `FailureStoreReport` which can be further processed depending on the need
+    -   Removed `ReportFormat` and `ReporterType` from `CohortPackagerOptions`
+    -   Merge `JobReporterBase` and `FileReporter` into `JobReporter`
+
+## Bugfix
+
+-   [#1703](https://github.com/SMI/SmiServices/pull/1703) by jas88. Update to fix issues in installation script in docs
+
+## Change
+
+-   [#1729](https://github.com/SMI/SmiServices/pull/1729) by rkm. Rename branch references from `master` to `main`
+
+## Removal
+
+-   [#1730](https://github.com/SMI/SmiServices/pull/1730) by rkm. Disable services from Windows CI
+-   [#1747](https://github.com/SMI/SmiServices/pull/1747) by rkm. Remove unused `JetBrains.Annotations` package
+
 ## [5.5.0] 2024-01-18
 
 ## Feature
