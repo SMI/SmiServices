@@ -11,6 +11,12 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.6.1] 2024-04-19
+
+## Bugfix
+
+-   [#1799](https://github.com/SMI/SmiServices/pull/1799) by rkm. Re-add a parameterless constructor to DynamicRejector so it can be loaded via reflection in CohortExtractorHost.
+
 ## [5.6.0] 2024-04-16
 
 ## Feature
