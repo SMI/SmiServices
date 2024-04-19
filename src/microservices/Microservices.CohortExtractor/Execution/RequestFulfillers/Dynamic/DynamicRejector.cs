@@ -13,24 +13,13 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
         private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
 
         public DynamicRejector()
-        {
-            // TODO(rkm 2024-04-19) Fix/rework MicroserviceObjectFactory and CohortExtractor to allow overriding these
-            var dynamicRulesPath = DefaultDynamicRulesPath;
-            var fileSystem = new FileSystem();
-
-            _script = LoadScript(dynamicRulesPath, fileSystem);
-        }
+            : this(null) {}
 
         public DynamicRejector(string? dynamicRulesPath, IFileSystem? fileSystem = null)
         {
             dynamicRulesPath ??= DefaultDynamicRulesPath;
             fileSystem ??= new FileSystem();
 
-            _script = LoadScript(dynamicRulesPath, fileSystem);
-        }
-
-        private static Script<string> LoadScript(string dynamicRulesPath, IFileSystem fileSystem)
-        {
             if (!fileSystem.File.Exists(dynamicRulesPath))
                 throw new System.IO.FileNotFoundException($"Could not find rules file '{dynamicRulesPath}'");
 
@@ -39,7 +28,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
             if (string.IsNullOrWhiteSpace(dynamicRules))
                 throw new ArgumentOutOfRangeException("Rules file is empty");
 
-            return CSharpScript.Create<string>(
+            _script = CSharpScript.Create<string>(
                 dynamicRules,
                 ScriptOptions.Default.WithReferences(typeof(Convert).Assembly).WithWarningLevel(0),
                 typeof(Payload)
