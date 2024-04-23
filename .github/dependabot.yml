@@ -20,15 +20,3 @@ updates:
       interval: weekly
     reviewers:
       - SMI/reviewers
-  - package-ecosystem: "pip"
-    directory: "/src/common/Smi_Common_Python"
-    schedule:
-      interval: weekly
-    reviewers:
-      - SMI/reviewers
-  - package-ecosystem: "pip"
-    directory: "/src/applications/SRAnonTool"
-    schedule:
-      interval: weekly
-    reviewers:
-      - SMI/reviewers
