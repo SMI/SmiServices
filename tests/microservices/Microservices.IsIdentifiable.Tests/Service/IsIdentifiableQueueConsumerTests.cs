@@ -270,7 +270,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
             Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
-            Assert.AreEqual("whee", _fatalArgs.Exception.Message);
+            Assert.AreEqual("whee", _fatalArgs?.Exception?.Message);
             Assert.AreEqual(0, consumer.NackCount);
             Assert.AreEqual(0, consumer.AckCount);
         }
