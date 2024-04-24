@@ -63,10 +63,15 @@ namespace Microservices.IsIdentifiable.Service
             {
                 failures = _classifier.Classify(toProcess);
             }
-            catch (ArithmeticException ae)
+            catch (Exception e)
             {
-                SendVerificationMessage(statusMessage, header, tag, VerifiedFileStatus.ErrorWontRetry, $"Exception while classifying {statusMessage.GetType().Name}:\n{ae}");
-                return;
+                if (e is ArithmeticException)
+                {
+                    SendVerificationMessage(statusMessage, header, tag, VerifiedFileStatus.ErrorWontRetry, $"Exception while classifying {statusMessage.GetType().Name}:\n{e}");
+                    return;
+                }
+
+                throw;
             }
 
             foreach (Failure f in failures)
