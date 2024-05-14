@@ -99,7 +99,7 @@ jobs:
               "$cov"
       - name: upload coverage
         if: ${{ matrix.os == 'linux' }}
-        uses: codecov/codecov-action@v4.1.0
+        uses: codecov/codecov-action@v4.3.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage.cobertura.xml
@@ -123,7 +123,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: Setup Java JDK
-        uses: actions/setup-java@v4.1.0
+        uses: actions/setup-java@v4.2.1
         with:
           java-version: ${{ env.java-version }}
           distribution: ${{ env.java-distribution }}
@@ -143,43 +143,9 @@ jobs:
           name: SmiServices-${{ needs.init.outputs.build_ref }}-ctp.zip
           path: dist/${{ needs.init.outputs.build_ref }}/*
           if-no-files-found: error
-  smi-py:
-    needs: [init]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.init.outputs.matrix) }}
-    runs-on: ${{ matrix.image }}
-    steps:
-      - name: "[linux] enable disk caching"
-        if: ${{ matrix.os == 'linux' }}
-        run: sudo apt-get install -y libeatmydata1
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.python-version }}
-      - name: create venv
-        run: |
-          set -exuo pipefail
-          python -m pip install --upgrade virtualenv
-          python -m virtualenv venv
-          echo "venv_bin=./venv/bin" >> $GITHUB_ENV
-      - name: "[windows] update venv var"
-        if: ${{ matrix.os == 'windows' }}
-        run: echo "venv_bin=./venv/Scripts" >> $GITHUB_ENV
-      - name: test and package python
-        run: ./bin/smi-py/testPackage.py ${{ needs.init.outputs.build_ref }} ${{ env.venv_bin }}/python
-      - name: "[linux] upload packages"
-        if: ${{ matrix.os == 'linux' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: SmiServices-${{ needs.init.outputs.build_ref }}-py.zip
-          path: dist/${{ needs.init.outputs.build_ref }}/*
-          if-no-files-found: error
   upload-to-release:
     if: contains(github.ref, 'refs/tags/v')
-    needs: [init, smi, ctp, smi-py]
+    needs: [init, smi, ctp]
     runs-on: ubuntu-20.04
     steps:
       - name: "[linux] enable disk caching"

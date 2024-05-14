@@ -1,7 +1,0 @@
-deepmerge
-mysql_connector_python<8.0.29
-pika
-protobuf<3.20.0
-pydicom
-pymongo
-PyYAML

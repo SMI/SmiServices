@@ -56,7 +56,7 @@ def _print_fragments(version: str, fragments: Dict[str, Dict[int, str]]) -> None
     print(f"## [{version[1:]}] {today}")
 
     def _print_type_fragment(frag_type: str, fragments: Dict[str, Dict[int, str]]):
-        print(f"\n## {frag_type.capitalize()}\n")
+        print(f"\n### {frag_type.capitalize()}\n")
         for pr_ref in sorted(fragments[frag_type]):
             first, *rest = fragments[frag_type][pr_ref].splitlines()
             list_items = ""
@@ -86,7 +86,7 @@ def _print_fragments(version: str, fragments: Dict[str, Dict[int, str]]) -> None
 def _print_links(last_tag: str, next_tag: str) -> None:
 
     unreleased_str = (
-        "[Unreleased]: "
+        "[unreleased]: "
         f"https://github.com/{_ORG}/{_REPO}/compare/{next_tag}"
         "...main"
     )

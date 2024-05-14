@@ -24,6 +24,8 @@ MySQL databases will be:
 -   smi
 -   smi_isolation
 
+There is a password for MySQL embedded in the installation scripts, defaulting to SmiSqlPassword - this should be replaced with a secure unique password for production use by replacing the 4 instances of that word before installing.
+
 ## Limitations
 
 -   These instructions currently deliver only the load/indexing stage, not an extraction pipeline.
