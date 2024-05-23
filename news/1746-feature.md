@@ -1,6 +1,0 @@
--   Start to refactor `RabbitMqAdapter` logic into generic interface
-    -   Rename IRabbitMqAdapter -> IMessageBroker
-    -   Move into `Smi.Common.Messaging` namespace
-    -   Add `MessageBrokerType` and `MessageBrokerFactory`
-    -   Create ConnectionFactory directly in `RabbitMQBroker`
-    -   Tidy unused variables and naming

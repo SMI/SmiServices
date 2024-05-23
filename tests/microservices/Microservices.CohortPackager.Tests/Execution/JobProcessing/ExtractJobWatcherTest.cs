@@ -52,7 +52,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
         private class TestJobReporter : IJobReporter
         {
             public bool Reported { get; set; }
-            public void CreateReport(Guid jobId)
+            public void CreateReports(Guid jobId)
             {
                 Reported = true;
             }

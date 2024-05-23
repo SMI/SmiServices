@@ -12,10 +12,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
         private readonly Script<string> _script;
         private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
 
+        public DynamicRejector()
+            : this(null) {}
+
         public DynamicRejector(string? dynamicRulesPath, IFileSystem? fileSystem = null)
         {
             dynamicRulesPath ??= DefaultDynamicRulesPath;
-
             fileSystem ??= new FileSystem();
 
             if (!fileSystem.File.Exists(dynamicRulesPath))

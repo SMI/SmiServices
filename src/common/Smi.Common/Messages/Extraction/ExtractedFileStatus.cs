@@ -1,4 +1,4 @@
-﻿namespace Smi.Common.Messages.Extraction
+namespace Smi.Common.Messages.Extraction
 {
     public enum ExtractedFileStatus
     {

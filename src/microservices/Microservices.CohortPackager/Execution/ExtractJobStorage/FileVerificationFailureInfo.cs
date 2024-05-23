@@ -13,7 +13,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         /// </summary>
         public readonly string AnonFilePath;
 
-        // NOTE(rkm 2020-10-28) This is a JSON string for now, but might be worth deserializing it into a Failure object here (instead of in JobReporterBase)
+        // NOTE(rkm 2020-10-28) This is a JSON string for now, but might be worth deserializing it into a Failure object here (instead of in JobReporter)
         /// <summary>
         /// The failure data from the validation checks, as a JSON string
         /// </summary>
