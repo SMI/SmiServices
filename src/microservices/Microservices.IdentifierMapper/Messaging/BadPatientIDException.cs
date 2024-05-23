@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.Serialization;
 
 namespace Microservices.IdentifierMapper.Messaging
@@ -21,6 +21,7 @@ namespace Microservices.IdentifierMapper.Messaging
         {
         }
 
+        [Obsolete("Serialising exceptions using legacy code is bad")]
         protected BadPatientIDException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
