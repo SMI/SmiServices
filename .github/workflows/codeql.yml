@@ -25,20 +25,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        if: ${{ matrix.language == 'csharp' }}
-        with:
-          limit-access-to-users: jas88
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
       - name: Autobuild
-        if: ${{ matrix.language == 'python' }}
+        if: ${{ matrix.language != 'java' }}
         uses: github/codeql-action/autobuild@v3
-      - name: Build .Net
-        run: dotnet build -c Release
       - name: Build java
         if: ${{ matrix.language == 'java' }}
         # NOTE(rkm 2023-03-21) Ensure test code is detected but don't actually run anything
