@@ -54,7 +54,7 @@ namespace Microservices.CohortExtractor.Tests
 
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("testCase");
+                    throw new ArgumentOutOfRangeException(nameof(testCase));
             }
 
             //if user has not provided the full name 

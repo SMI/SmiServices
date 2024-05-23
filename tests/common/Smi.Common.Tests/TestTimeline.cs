@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages;
 using Smi.Common.Options;
 using System;
@@ -53,6 +53,7 @@ namespace Smi.Common.Tests
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _tester?.Dispose();
             cts.Cancel();
             cts.Dispose();

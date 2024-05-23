@@ -171,7 +171,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.AreEqual("Must not be the default Guid (Parameter 'extractionJobIdentifier')", exc!.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Must not be the default Guid (Parameter 'extractionJobIdentifier')"));
         }
 
         [Test]
@@ -200,7 +200,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.AreEqual("Must not be whitespace if passed (Parameter 'extractionModality')", exc!.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Must not be whitespace if passed (Parameter 'extractionModality')"));
         }
 
         [Test]
@@ -229,7 +229,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.AreEqual("Must not be the default DateTime (Parameter 'jobSubmittedAt')", exc!.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Must not be the default DateTime (Parameter 'jobSubmittedAt')"));
         }
 
         [Test]
@@ -258,7 +258,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.AreEqual("Must not be null or whitespace (Parameter 'projectNumber')", exc!.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'projectNumber')"));
         }
 
         [Test]
@@ -287,7 +287,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.AreEqual("Must not be null or whitespace (Parameter 'extractionDirectory')", exc!.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'extractionDirectory')"));
         }
 
         [Test]
@@ -316,7 +316,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.AreEqual("Must not be null or whitespace (Parameter 'keyTag')", exc!.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'keyTag')"));
         }
 
         [Test]
@@ -345,7 +345,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.AreEqual("Must not be zero (Parameter 'keyValueCount')", exc!.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Must not be zero (Parameter 'keyValueCount')"));
         }
 
         #endregion

@@ -58,20 +58,19 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 return null;
             }
 
-            string insertSql;
             lock (_oCacheLock)
             {
-                if (_cachedAnswers.ContainsKey(toSwap))
+                if (_cachedAnswers.TryGetValue(toSwap, out var hit))
                 {
                     CacheHit++;
                     Success++;
-                    return _cachedAnswers[toSwap];
+                    return hit;
                 }
 
 
                 var guid = Guid.NewGuid().ToString();
 
-                insertSql = _options?.MappingDatabaseType switch
+                var insertSql = _options?.MappingDatabaseType switch
                 {
                     FAnsi.DatabaseType.MicrosoftSQLServer => string.Format(
                         @"if not exists( select 1 from {0} where {1} = '{3}') insert into {0}({1},{2}) values ('{3}','{4}')",

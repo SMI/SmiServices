@@ -58,7 +58,7 @@ namespace Smi.Common.Execution
             Logger = LogManager.GetLogger(GetType().Name);
             Logger.Info("Host logger created");
 
-            HostProcessID = Process.GetCurrentProcess().Id;
+            HostProcessID = Environment.ProcessId;
             Logger.Info($"Starting {HostProcessName} (Host={Environment.MachineName} PID={HostProcessID} User={Environment.UserName})");
 
             // log centrally

@@ -306,8 +306,9 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             //make sure we stop the consume loop if it hasn't already stopped
-            if (_stopTokenSource != null && !_stopTokenSource.IsCancellationRequested)
+            if (_stopTokenSource is { IsCancellationRequested: false })
                 _stopTokenSource.Cancel();
         }
     }

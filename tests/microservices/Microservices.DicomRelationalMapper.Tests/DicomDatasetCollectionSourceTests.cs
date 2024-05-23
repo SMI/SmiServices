@@ -94,7 +94,7 @@ namespace Microservices.Tests.RDMPTests
                     Assert.That(worklist.CorruptMessages, Is.Empty);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("strategy");
+                    throw new ArgumentOutOfRangeException(nameof(strategy));
             }
         }
 
@@ -208,7 +208,7 @@ namespace Microservices.Tests.RDMPTests
                     return;
 
                 default:
-                    throw new ArgumentOutOfRangeException("dataHandlingStrategy");
+                    throw new ArgumentOutOfRangeException(nameof(dataHandlingStrategy));
             }
 
         }
@@ -286,7 +286,7 @@ namespace Microservices.Tests.RDMPTests
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException("dataHandlingStrategy");
+                    throw new ArgumentOutOfRangeException(nameof(dataHandlingStrategy));
             }
 
             Assert.Multiple(() =>

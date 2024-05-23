@@ -1,4 +1,4 @@
-﻿
+
 using RabbitMQ.Client;
 using Smi.Common.Execution;
 using Smi.Common.Messages;
@@ -183,6 +183,7 @@ namespace Smi.Common.Tests
         /// </summary>
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             Shutdown();
 
             if (CleanUpAfterTest)

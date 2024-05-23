@@ -66,27 +66,24 @@ namespace Microservices.DicomRelationalMapper.Execution
 
         private void Startup_DatabaseFound(object sender, PlatformDatabaseFoundEventArgs e)
         {
-            
-            var msg = "RDMPPlatformDatabaseStatus is " + e.Status + " for tier " + e.Patcher.Tier +
-                      (e.Exception == null
-                          ? "No exception"
-                          : ExceptionHelper.ExceptionToListOfInnerMessages(e.Exception));
+            var msg = $"RDMPPlatformDatabaseStatus is {e.Status} for tier {e.Patcher.Tier}{(e.Exception == null
+                ? "No exception"
+                : ExceptionHelper.ExceptionToListOfInnerMessages(e.Exception))}";
 
             Logger.Log(e.Status == RDMPPlatformDatabaseStatus.Healthy ? LogLevel.Info : LogLevel.Error, e.Exception, msg);
         }
 
         public override void Stop(string reason)
         {
-            if (Consumer != null)
-                Consumer.Stop(reason);
+            Consumer?.Stop(reason);
 
             base.Stop(reason);
         }
 
         public void Dispose()
         {
-            if(Consumer != null)
-                Consumer.Dispose();
+            GC.SuppressFinalize(this);
+            Consumer?.Dispose();
         }
     }
 }

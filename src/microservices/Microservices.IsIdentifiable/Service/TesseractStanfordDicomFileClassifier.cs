@@ -43,6 +43,7 @@ namespace Microservices.IsIdentifiable.Service
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _runner?.Dispose();
         }
     }

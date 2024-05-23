@@ -99,6 +99,7 @@ namespace Microservices.IsIdentifiable.Service
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             if (_classifier is IDisposable d)
                 d.Dispose();
         }

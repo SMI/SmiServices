@@ -56,8 +56,8 @@ internal class ExtractionRequestInfoMessageConsumerTests
 
         // Assert
 
-        Assert.AreEqual(1, consumer.AckCount);
-        Assert.AreEqual(0, consumer.NackCount);
+        Assert.That(consumer.AckCount,Is.EqualTo(1));
+        Assert.That(consumer.NackCount,Is.EqualTo(0));
     }
 
     [Test]
@@ -81,8 +81,8 @@ internal class ExtractionRequestInfoMessageConsumerTests
 
         // Assert
 
-        Assert.AreEqual(0, consumer.AckCount);
-        Assert.AreEqual(1, consumer.NackCount);
+        Assert.That(consumer.AckCount,Is.EqualTo(0));
+        Assert.That(consumer.NackCount,Is.EqualTo(1));
     }
 
     #endregion

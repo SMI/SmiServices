@@ -120,7 +120,7 @@ namespace Applications.ExtractImages.Tests
                     Thread.Sleep(TimeSpan.FromSeconds(delta));
                 }
 
-                Assert.That(timeoutSecs > 0, Is.True);
+                Assert.That(timeoutSecs, Is.GreaterThan(0));
             }
 
             File.Delete(tmpFile);

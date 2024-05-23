@@ -272,7 +272,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             Assert.Multiple(() =>
             {
                 Assert.That(_response.Status, Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
-                Assert.That(_response.Report.StartsWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"), Is.True);
+                Assert.That(_response.Report, Does.StartWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
             });
         }
 

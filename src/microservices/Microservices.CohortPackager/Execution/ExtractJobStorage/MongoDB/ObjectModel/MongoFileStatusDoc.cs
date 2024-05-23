@@ -72,20 +72,20 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                 return;
 
             // NOTE(rkm 2022-07-28) Removed after v1.11.1
-            if (ExtraElements.ContainsKey("anonymisedFileName"))
+            if (ExtraElements.TryGetValue("anonymisedFileName",out var anonFileName))
             {
-                OutputFileName = (string)ExtraElements["anonymisedFileName"];
+                OutputFileName = anonFileName as string;
                 DicomFilePath = "<unknown>";
                 ExtractedFileStatus = OutputFileName == null ? ExtractedFileStatus.ErrorWontRetry : ExtractedFileStatus.Anonymised;
             }
 
             // NOTE(rkm 2022-07-28) Removed after v5.1.3
-            if (ExtraElements.ContainsKey("isIdentifiable"))
+            if (ExtraElements.TryGetValue("isIdentifiable", out var isIdentifiable))
             {
                 if (OutputFileName == null)
                     VerifiedFileStatus = VerifiedFileStatus.NotVerified;
                 else
-                    VerifiedFileStatus = (bool)ExtraElements["isIdentifiable"] ? VerifiedFileStatus.IsIdentifiable : VerifiedFileStatus.NotIdentifiable;
+                    VerifiedFileStatus = (bool)isIdentifiable ? VerifiedFileStatus.IsIdentifiable : VerifiedFileStatus.NotIdentifiable;
             }
         }
     }

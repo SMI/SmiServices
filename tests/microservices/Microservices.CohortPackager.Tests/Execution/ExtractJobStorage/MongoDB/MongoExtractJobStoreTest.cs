@@ -145,11 +145,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
                 var key = GetKey(rendered["_id"]);
 
-                if (Documents.ContainsKey(key))
+                if (Documents.TryGetValue(key, out var doc))
                 {
                     mockCursor
-                        .Setup(x => x.Current)
-                        .Returns((IEnumerable<TProjection>)new List<TVal> { Documents[key] });
+                        .Setup(static x => x.Current)
+                        .Returns((IEnumerable<TProjection>)new List<TVal> { doc });
                     return mockCursor.Object;
                 }
 

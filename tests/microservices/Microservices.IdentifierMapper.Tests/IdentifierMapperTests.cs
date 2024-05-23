@@ -281,7 +281,7 @@ namespace Microservices.IdentifierMapper.Tests
             sw.Reset();
 
             Assert.That(answer, Is.Not.Null);
-            Assert.That(answer!.Length > 20, Is.True);
+            Assert.That(answer?.Length, Is.GreaterThan(20));
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -547,7 +547,7 @@ namespace Microservices.IdentifierMapper.Tests
                     ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", "0202020202" });
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("testCase");
+                    throw new ArgumentOutOfRangeException(nameof(testCase));
             }
 
 

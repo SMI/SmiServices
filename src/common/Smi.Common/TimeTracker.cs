@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 
 namespace Smi.Common
@@ -25,6 +25,7 @@ namespace Smi.Common
         /// </summary>
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _sw.Stop();
         }
     }

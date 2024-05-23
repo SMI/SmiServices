@@ -120,6 +120,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _redis?.Dispose();
         }
 

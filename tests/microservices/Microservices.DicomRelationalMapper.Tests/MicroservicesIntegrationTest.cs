@@ -45,13 +45,13 @@ namespace Microservices.DicomRelationalMapper.Tests
     [RequiresRabbit, RequiresMongoDb, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class MicroservicesIntegrationTest : DatabaseTests
     {
-        public const string ScratchDatabaseName = "RDMPTests_ScratchArea";
+        private const string ScratchDatabaseName = "RDMPTests_ScratchArea";
 
         private DicomRelationalMapperTestHelper _helper = null!;
         private GlobalOptions _globals = null!;
         private const string MongoTestDbName = "nUnitTestDb";
 
-        public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)
+        private void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)
         {
             TestLogger.Setup();
 
@@ -532,15 +532,15 @@ namespace Microservices.DicomRelationalMapper.Tests
                 }
 
                 Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(numberOfExpectedRows), "All images should appear in the image table");
-                Assert.LessOrEqual(_helper.SeriesTable!.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
-                Assert.LessOrEqual(_helper.StudyTable!.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
-                Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), _helper.SeriesTable.GetRowCount(), "There should be less studies than series (or equal)");
+                Assert.That(_helper.SeriesTable!.GetRowCount(),Is.LessThanOrEqualTo(numberOfExpectedRows), "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
+                Assert.That(_helper.StudyTable!.GetRowCount(),Is.LessThanOrEqualTo(numberOfExpectedRows), "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
+                Assert.That(_helper.StudyTable.GetRowCount(),Is.LessThanOrEqualTo(_helper.SeriesTable.GetRowCount()), "There should be less studies than series (or equal)");
 
                 //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
                 Assert.That(_helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"], Is.EqualTo("FISHFISH"));
 
                 //The file size in the final table should be more than 0
-                Assert.Greater((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"], 0);
+                Assert.That((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"],Is.GreaterThan(0));
 
                 dicomTagReaderHost.Stop("TestIsFinished");
 

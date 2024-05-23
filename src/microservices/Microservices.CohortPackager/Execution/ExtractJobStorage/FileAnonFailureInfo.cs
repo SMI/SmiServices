@@ -23,7 +23,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
             string? reason
         )
         {
-            ExpectedAnonFile = string.IsNullOrWhiteSpace(expectedAnonFile) ? throw new ArgumentException(null, nameof(expectedAnonFile)) : expectedAnonFile;
+            DicomFilePath = string.IsNullOrWhiteSpace(expectedAnonFile) ? throw new ArgumentException(null, nameof(expectedAnonFile)) : expectedAnonFile;
             Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException(null, nameof(reason)) : reason;
         }
     }

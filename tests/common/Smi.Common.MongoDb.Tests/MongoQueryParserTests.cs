@@ -1,4 +1,4 @@
-﻿
+
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
@@ -63,7 +63,7 @@ namespace Smi.Common.MongoDB.Tests
 
             t.Wait(1_000);
             Assert.That(t.IsCompleted, Is.True);
-            Assert.IsFalse(t.IsFaulted);
+            Assert.That(t.IsFaulted,Is.False);
 
             using IAsyncCursor<BsonDocument> _ = t.Result;
             _logger.Info("Received new batch");

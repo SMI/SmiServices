@@ -162,7 +162,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.That(exc!.Message.StartsWith("CSV header must be a valid ExtractionKey"), Is.True);
+            Assert.That(exc?.Message, Does.StartWith("CSV header must be a valid ExtractionKey"));
         }
 
         [Test]

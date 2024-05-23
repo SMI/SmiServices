@@ -65,9 +65,9 @@ namespace Microservices.CohortExtractor.Tests
             Assert.That(matching, Has.Length.EqualTo(1));
             Assert.Multiple(() =>
             {
-                Assert.That(matching[0].Accepted.Count(), Is.EqualTo(2));
-                Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")), Is.EqualTo(1));
-                Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")), Is.EqualTo(1));
+                Assert.That(matching[0].Accepted,Has.Count.EqualTo(2));
+                Assert.That(matching[0].Accepted.Count(static f => f.FilePathValue.Equals("/images/1.dcm")), Is.EqualTo(1));
+                Assert.That(matching[0].Accepted.Count(static f => f.FilePathValue.Equals("/images/2.dcm")), Is.EqualTo(1));
             });
         }
 

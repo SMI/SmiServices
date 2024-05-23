@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Messages.Updating;
 using System;
 
@@ -95,8 +95,8 @@ namespace Microservices.UpdateValues.Tests
             Assert.That(m2, Is.EqualTo(m1));
             Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
 
-            m1.WhereFields = new string[]{};
-            m2.WhereFields = new string[]{};
+            m1.WhereFields = Array.Empty<string>();
+            m2.WhereFields = Array.Empty<string>();
 
             Assert.That(m2, Is.EqualTo(m1));
             Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));

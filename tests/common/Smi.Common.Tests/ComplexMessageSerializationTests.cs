@@ -27,7 +27,7 @@ namespace Smi.Common.Tests
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
             Assert.That(msg2.ExtractFileMessagesDispatched, Has.Count.EqualTo(1));
-            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is not null, Is.True);
+            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single(), Is.Not.Null);
         }
 
         [Test]

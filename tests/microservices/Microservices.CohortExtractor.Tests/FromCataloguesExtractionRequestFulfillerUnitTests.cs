@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
@@ -41,7 +41,7 @@ namespace Microservices.CohortExtractor.Tests
                     new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF"));
 
             // we should see our rejector being used
-            Assert.IsInstanceOf<TestRejector>(result.Single());
+            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
 
             // when we ask for mr to be extracted
             result = f.GetRejectorsFor(
@@ -50,7 +50,7 @@ namespace Microservices.CohortExtractor.Tests
                     new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF"));
 
             // we should still see the rejector being used
-            Assert.IsInstanceOf<TestRejector>(result.Single());
+            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
         }
 
 
@@ -71,14 +71,14 @@ namespace Microservices.CohortExtractor.Tests
                     new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF"){ Modality = "CT" });
 
             // run with the basic rejector
-            Assert.IsInstanceOf<TestRejector>(result.Single());
+            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
                     new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF"){ Modality = "MR" });
 
             // use only the modality specific rejector (since it overrides)
-            Assert.IsInstanceOf<RejectAll>(result.Single());
+            Assert.That(result.Single(),Is.InstanceOf<RejectAll>());
         }
 
 
@@ -103,7 +103,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the basic rejector
-            Assert.IsInstanceOf<TestRejector>(result.Single());
+            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -209,7 +209,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the basic rejector
-            Assert.IsInstanceOf<TestRejector>(result.Single());
+            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
 
             // MR should...
             var ex = Assert.Throws<Exception>(()=>f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(

@@ -31,7 +31,7 @@ namespace Smi.Common.Messages
         static MessageHeader()
         {
             _producerExecutableName = Assembly.GetEntryAssembly()?.GetName().Name ?? "dotnet";
-            _producerProcessID = Process.GetCurrentProcess().Id;
+            _producerProcessID = Environment.ProcessId;
         }
 
         [JsonConstructor]

@@ -134,10 +134,8 @@ public class Program
 
     private static void SetProgress(ProgressTask consoleTask, ToMemoryDataLoadEventListener listener, string taskName)
     {
-        if (listener.LastProgressRecieivedByTaskName.ContainsKey(taskName))
+        if (listener.LastProgressRecieivedByTaskName.TryGetValue(taskName, out var progress))
         {
-            var progress = listener.LastProgressRecieivedByTaskName[taskName];
-
             consoleTask.Value = progress.Progress.Value;
             consoleTask.MaxValue = progress.Progress.KnownTargetValue;
         }

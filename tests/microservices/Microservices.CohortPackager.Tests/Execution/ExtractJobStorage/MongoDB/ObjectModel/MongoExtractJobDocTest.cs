@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -141,7 +141,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     failedJobInfo: null
 }";
             var mongoExtractJobDoc = BsonSerializer.Deserialize<MongoExtractJobDoc>(BsonDocument.Parse(jsonDoc));
-            Assert.Null(mongoExtractJobDoc.UserName);
+            Assert.That(mongoExtractJobDoc.UserName,Is.Null);
         }
 
         [Test]
