@@ -126,7 +126,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
                 },
@@ -193,7 +193,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
                 },
@@ -209,7 +209,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>
                 {
                     { new MessageHeader(), "series-2-anon-1.dcm" },
                     { new MessageHeader(), "series-2-anon-2.dcm" },
@@ -303,7 +303,7 @@ namespace Microservices.CohortPackager.Tests.Execution
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>
                 {
                     { new MessageHeader(), "out1.dcm" },
                     { new MessageHeader(), "out2.dcm" },

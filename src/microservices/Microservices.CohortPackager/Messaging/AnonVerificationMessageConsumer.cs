@@ -77,7 +77,7 @@ namespace Microservices.CohortPackager.Messaging
             try
             {
                 // Check the report contents are valid here, since we just treat it as a JSON string from now on
-                _ = JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report);
+                _ = JsonConvert.DeserializeObject<IEnumerable<Failure>>(message.Report ?? throw new InvalidOperationException());
             }
             catch (JsonException e)
             {

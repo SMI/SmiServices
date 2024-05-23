@@ -11,7 +11,7 @@ namespace Smi.Common.Messages.Extraction
         /// Original file path
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DicomFilePath { get; set; } = null!;
+        public string? DicomFilePath { get; set; } = null!;
 
         /// <summary>
         /// The <see cref="ExtractedFileStatus"/> for this file

@@ -78,7 +78,7 @@ internal class ProgramTests
             ProjectNumber = "testProj1",
             ExtractionJobIdentifier = jobId,
             ExtractionDirectory = pf.ProjExtractDirRelative,
-            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
                 },

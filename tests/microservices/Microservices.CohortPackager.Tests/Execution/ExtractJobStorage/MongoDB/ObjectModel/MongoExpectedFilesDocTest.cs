@@ -60,7 +60,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             mockMessage.Object.ExtractionJobIdentifier = jobId;
             var header1 = new MessageHeader();
             var header2 = new MessageHeader();
-            mockMessage.Object.ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+            mockMessage.Object.ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>
             {
                 { header1, "AnonFile1.dcm"},
                 { header2, "AnonFile2.dcm"},

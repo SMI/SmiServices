@@ -44,7 +44,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         public MongoFileStatusDoc(
             MongoExtractionMessageHeaderDoc header,
-            string dicomFilePath,
+            string? dicomFilePath,
             string? outputFileName,
             ExtractedFileStatus extractedFileStatus,
             VerifiedFileStatus verifiedFileStatus,

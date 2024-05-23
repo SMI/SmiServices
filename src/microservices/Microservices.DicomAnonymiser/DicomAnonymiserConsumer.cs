@@ -1,4 +1,4 @@
-﻿using Microservices.DicomAnonymiser.Anonymisers;
+using Microservices.DicomAnonymiser.Anonymisers;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -51,7 +51,7 @@ namespace Microservices.DicomAnonymiser
 
             var statusMessage = new ExtractedFileStatusMessage(message);
 
-            var sourceFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath));
+            var sourceFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath ?? throw new InvalidOperationException()));
 
             if (!sourceFileAbs.Exists)
             {
@@ -82,7 +82,7 @@ namespace Microservices.DicomAnonymiser
             if (!_fileSystem.Directory.Exists(extractionDirAbs))
                 throw new DirectoryNotFoundException($"Expected extraction directory to exist: '{extractionDirAbs}'");
 
-            var destFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(extractionDirAbs, message.OutputPath));
+            var destFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(extractionDirAbs, message.OutputPath ?? throw new InvalidOperationException()));
 
             destFileAbs.Directory!.Create();
 

@@ -22,7 +22,7 @@ namespace Smi.Common.Messages.Extraction
         /// Collection of all the messages sent out as the result of an <see cref="ExtractionRequestMessage"/> (headers only) along with the file path extracted
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public JsonCompatibleDictionary<MessageHeader, string> ExtractFileMessagesDispatched { get; set; } = null!;
+        public JsonCompatibleDictionary<MessageHeader, string?> ExtractFileMessagesDispatched { get; set; } = null!;
 
         /// <summary>
         /// All the reasons for message rejection and count of occurrences
@@ -34,13 +34,13 @@ namespace Smi.Common.Messages.Extraction
         [JsonConstructor]
         public ExtractFileCollectionInfoMessage()
         {
-            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
+            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>();
         }
 
         public ExtractFileCollectionInfoMessage(ExtractionRequestMessage request)
             : base(request)
         {
-            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
+            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>();
         }
 
         public override string ToString()

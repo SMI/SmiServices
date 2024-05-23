@@ -1,4 +1,4 @@
-﻿using Microservices.DicomAnonymiser.Anonymisers;
+using Microservices.DicomAnonymiser.Anonymisers;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
@@ -108,6 +108,9 @@ namespace Microservices.DicomAnonymiser.Tests
         [Test]
         public void ProcessMessageImpl_HappyPath()
         {
+            if (_extractFileMessage.OutputPath is null)
+                throw new InvalidOperationException("Null output path");
+
             // Arrange
 
             Expression<Func<IDicomAnonymiser, ExtractedFileStatus>> expectedAnonCall =

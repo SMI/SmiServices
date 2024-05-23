@@ -48,7 +48,7 @@ namespace Microservices.FileCopier.Execution
             ExtractFileMessage message,
             IMessageHeader header)
         {
-            string fullSrc = _fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath);
+            string fullSrc = _fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath ?? throw new InvalidOperationException());
 
             ExtractedFileStatusMessage statusMessage;
 
@@ -64,7 +64,7 @@ namespace Microservices.FileCopier.Execution
                 return;
             }
 
-            string fullDest = _fileSystem.Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputPath);
+            string fullDest = _fileSystem.Path.Combine(_extractionRoot, message.ExtractionDirectory, message.OutputPath ?? throw new InvalidOperationException());
 
             if (_fileSystem.File.Exists(fullDest))
                 _logger.Warn($"Output file '{fullDest}' already exists. Will overwrite.");

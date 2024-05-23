@@ -9,6 +9,6 @@ namespace Smi.Common.Messages
         /// <summary>
         /// File path relative to the FileSystemRoot
         /// </summary>
-        string DicomFilePath { get; set; }
+        string? DicomFilePath { get; set; }
     }
 }

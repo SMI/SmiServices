@@ -18,7 +18,7 @@ namespace Smi.Common.Tests
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 KeyValue = "f",
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string> {{new MessageHeader(), "dave"}},
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?> {{new MessageHeader(), "dave"}},
                 ExtractionDirectory = "C:\\fish",
                 ProjectNumber = "1234-5678",
             };
@@ -37,7 +37,7 @@ namespace Smi.Common.Tests
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 KeyValue = "f",
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(),
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>(),
                 ExtractionDirectory = "C:\\fish",
                 ProjectNumber = "123",
                 JobSubmittedAt = DateTime.UtcNow,

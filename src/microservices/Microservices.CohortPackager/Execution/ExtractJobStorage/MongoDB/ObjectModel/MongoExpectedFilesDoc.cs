@@ -66,8 +66,11 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         public MongoExpectedFileInfoDoc(
             Guid extractFileMessageGuid,
-            string anonymisedFilePath)
+            string? anonymisedFilePath)
         {
+            if (string.IsNullOrWhiteSpace(anonymisedFilePath))
+                throw new ArgumentNullException(nameof(anonymisedFilePath));
+
             ExtractFileMessageGuid = (extractFileMessageGuid != default) ? extractFileMessageGuid : throw new ArgumentException(nameof(extractFileMessageGuid));
             AnonymisedFilePath = (!string.IsNullOrWhiteSpace(anonymisedFilePath)) ? anonymisedFilePath : throw new ArgumentException(nameof(anonymisedFilePath));
         }

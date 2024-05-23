@@ -12,20 +12,20 @@ namespace Smi.Common.Messages.Extraction
         /// The file path where the original dicom file can be found, relative to the FileSystemRoot
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DicomFilePath { get; set; } = null!;
+        public string? DicomFilePath { get; set; } = null;
 
         /// <summary>
         /// The subdirectory and dicom filename within the ExtractionDirectory to extract the identifiable image (specified by <see cref="DicomFilePath"/>) into.  For example
         /// "Series132\1234-an.dcm"
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string OutputPath { get; set; } = null!;
+        public string? OutputPath { get; set; } = null;
 
         /// <summary>
         /// The modality of the specified file
         /// </summary>
         [JsonProperty(Required = Required.AllowNull)]
-        public string Modality { get; set; } = null!;
+        public string? Modality { get; set; } = null;
 
 
         [JsonConstructor]

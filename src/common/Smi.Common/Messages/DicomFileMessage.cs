@@ -1,4 +1,4 @@
-﻿
+
 using Equ;
 using Newtonsoft.Json;
 using System;
@@ -18,7 +18,7 @@ namespace Smi.Common.Messages
         /// File path relative to the root path.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string DicomFilePath { get; set; } = null!;
+        public string? DicomFilePath { get; set; } = null!;
 
         public long DicomFileSize { get; set; } = -1;
 
@@ -60,9 +60,9 @@ namespace Smi.Common.Messages
             DicomFilePath = file.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar);
         }
 
-        public string GetAbsolutePath(string rootPath)
+        private string? GetAbsolutePath(string rootPath)
         {
-            return Path.Combine(rootPath, DicomFilePath);
+            return DicomFilePath == null ? null : Path.Combine(rootPath, DicomFilePath);
         }
 
         public bool Validate(string fileSystemRoot)

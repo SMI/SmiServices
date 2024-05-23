@@ -342,7 +342,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 },
                 JobSubmittedAt = DateTime.UtcNow,
                 ExtractionDirectory = "1234-5678/testExtract",
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>
                 {
                     { header1, "file1" },
                     { header2, "file2" }
@@ -401,7 +401,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 },
                 JobSubmittedAt = DateTime.UtcNow,
                 ExtractionDirectory = "1234-5678/testExtract",
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(), // No files were extractable for this key
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string?>(), // No files were extractable for this key
                 KeyValue = "series-1",
             };
             var header = new MessageHeader
