@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         if: ${{ matrix.language == 'csharp' }}
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
