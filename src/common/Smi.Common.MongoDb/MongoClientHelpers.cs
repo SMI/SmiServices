@@ -22,18 +22,23 @@ namespace Smi.Common.MongoDB
         /// <param name="options"></param>
         /// <param name="applicationName"></param>
         /// <param name="skipAuthentication"></param>
+        /// <param name="fastMode"></param>
         /// <returns></returns>
-        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName, bool skipAuthentication = false)
+        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName, bool skipAuthentication = false, bool fastMode = false)
         {
             if (!options.AreValid(skipAuthentication))
                 throw new ApplicationException($"Invalid MongoDB options: {options}");
+
+            var wc = fastMode
+                ? new WriteConcern(w: 0, journal: false, fsync: false)
+                : new WriteConcern(journal: true);
 
             if (skipAuthentication || options.UserName == string.Empty)
                 return new MongoClient(new MongoClientSettings
                 {
                     ApplicationName = applicationName,
                     Server = new MongoServerAddress(options.HostName, options.Port),
-                    WriteConcern = new WriteConcern(w:0, journal: false,fsync:false)
+                    WriteConcern = wc
                 });
 
             if (string.IsNullOrWhiteSpace(options.Password))
@@ -46,7 +51,7 @@ namespace Smi.Common.MongoDB
                 ApplicationName = applicationName,
                 Credential = credentials,
                 Server = new MongoServerAddress(options.HostName, options.Port),
-                WriteConcern = new WriteConcern(w:1, journal: false,fsync:false)
+                WriteConcern = wc
             };
 
             var client = new MongoClient(mongoClientSettings);
