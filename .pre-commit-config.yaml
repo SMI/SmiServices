@@ -35,7 +35,7 @@ repos:
             meta/pre-commit-config-base.yaml|
           )$
   - repo: https://github.com/codespell-project/codespell
-    rev: "v2.2.6"
+    rev: "v2.3.0"
     hooks:
       - id: codespell
         args:
