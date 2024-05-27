@@ -9,8 +9,8 @@
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
     <PackageVersion Include="CsvHelper" Version="30.0.1" />
     <PackageVersion Include="Equ" Version="2.3.0" />
-    <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.0.3" />
-    <PackageVersion Include="HIC.FAnsiSql" Version="3.1.1" />
+    <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.1.0" />
+    <PackageVersion Include="HIC.FAnsiSql" Version="3.2.1" />
     <PackageVersion Include="HIC.RDMP.Dicom" Version="7.0.2" />
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.0" />
     <PackageVersion Include="IsIdentifiable" Version="0.3.0" />
