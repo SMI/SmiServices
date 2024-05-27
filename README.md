@@ -16,22 +16,22 @@ The following workflows are supported:
 
 This repo currently provides 2 packages:
 
--   `SmiServices`: The suite of services for image loading and de-identification
--   `CTPAnonymiser`: A java service which performs de-identification
+-   `SmiServices` - The suite of services for loading metadata and de-identifying files
+-   `CTPAnonymiser` - A service which performs de-identification. A Java runtime is required to launch this
 
-Binaries for each package are available from the [Releases](https://github.com/SMI/SmiServices/releases) page.
+Binaries for each package are available from the [Releases](https://github.com/SMI/SmiServices/releases) page. We support Linux as our primary platform for testing, however development is also supported on both Windows and MacOS.
 
 ## Usage
 
-After downloading the required packages, you must configure RabbitMQ and any required databases
+After downloading the required packages, you must configure a RabbitMQ server and the databases. This is currently a self-guided activity, however we are working on automated setup of this in future. For now you can use the following resources:
 
--   Sample docker-compose files for this can be found [here](./utils/docker-compose)
+-   Sample docker-compose files can be found [here](./utils/docker-compose)
 -   A basic service config file can be found [here](./data/microserviceConfigs/README.md)
 -   RabbitMQ configs for the data load and extraction pipelines can be found [here](./data/rabbitmqConfigs/)
 
 All SmiServices tools are available through the `smi` binary. Run `./smi --help` for a list of tools.
 
-`CTPAnonymiser` is available as an "all-in-one" jar file.
+`CTPAnonymiser` is available as an "all-in-one" jar file, which can be run with `java -jar <jarfile>`
 
 ## Developing
 
@@ -43,7 +43,12 @@ A .NET Core SDK matching the version specified [here](global.json) is required.
 
 Visual Studio is not required, but recommended. A `sln` file is provided which can be used to open all projects.
 
-`./bin/smi` directory contains useful build scripts. You can also build the entire solution manually with `dotnet build`, or individual projects by changing into the appropriate directory (e.g., `src/microservices/Microservices.DicomTagReader`).
+The `./bin/smi` directory contains useful build scripts. You can also build the entire solution manually with `dotnet build`, or individual projects by changing into the appropriate directory, e.g.:
+
+```console
+cd src/microservices/Microservices.DicomTagReader
+dotnet build
+```
 
 ### CTPAnonymiser (Java)
 
@@ -52,22 +57,21 @@ Building the Java project requires:
 -   A JDK `>= 1.8`
 -   Maven `>= 3.6`
 
-`./bin/ctp` directory contains useful build scripts. You need to run `./bin/ctp/installLibs.py` first.
+The `./bin/ctp` directory contains useful build scripts. You must run `./bin/ctp/installLibs.py` first.
 
 ### pre-commit
 
-This repo uses [pre-commit] to manage and automatically run a series of linters
+This repo uses [pre-commit](https://pre-commit.com/) to manage and automatically run a series of linters
 and code formatters. After cloning the repo and changing into the directory, run
 this once to setup pre-commit.
 
 ```console
-$ pip install pre-commit
-$ pre-commit install
+pip install --upgrade --user pre-commit
+pre-commit install
 ```
 
-Running pre-commit locally is optional, since it is also run during any PR. To remove
-pre-commit from your repo clone, simply run:
+Running pre-commit locally is recommended but optional. To remove the hooks from your repo, simply run:
 
 ```console
-$ pre-commit uninstall
+pre-commit uninstall
 ```
