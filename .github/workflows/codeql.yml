@@ -29,14 +29,32 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-      - name: Autobuild
-        if: ${{ matrix.language != 'java' }}
+      - name: Build Python
+        if: ${{ matrix.language == 'python' }}
         uses: github/codeql-action/autobuild@v3
+      - name: Build .Net
+        if: ${{ matrix.language == 'csharp' }}
+        run: dotnet build -c Release
       - name: Build java
         if: ${{ matrix.language == 'java' }}
         # NOTE(rkm 2023-03-21) Ensure test code is detected but don't actually run anything
         run: ./bin/ctp/test.py --install-libs -DskipTests
+      - name: SecurityCodescan
+        if: ${{ matrix.language == 'csharp' }}
+        run: |
+          dotnet tool install --global security-scan
+          mkdir -p sarif-results
+          security-scan SmiServices.sln -n -x sarif-results/scs.sarif
+          sed -i 's/"language": ""/"language": "en-US"/' sarif-results/scs.sarif
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
+          upload: False
+          output: sarif-results
+      
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif-results
