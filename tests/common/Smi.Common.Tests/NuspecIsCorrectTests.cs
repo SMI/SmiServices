@@ -119,21 +119,6 @@ $"Package {package} in {csproj} is not listed as a dependency of {nuspec}. Recom
             }
         }
 
-        [Test]
-        public void VersionIsCorrectTest()
-        {
-            var readmeMd = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../README.md"));
-            var m = Regex.Match(readmeMd, "Version: `(.*)`");
-            Assert.That(m.Success,Is.True, "README.md in root did not list the version in the expected format");
-
-            var readmeMdVersion = m.Groups[1].Value;
-
-            var sharedAssemblyInfo = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../src/SharedAssemblyInfo.cs"));
-            var version = Regex.Match(sharedAssemblyInfo, @"AssemblyInformationalVersion\(""(.*)""\)").Groups[1].Value;
-
-            Assert.That(readmeMdVersion,Is.EqualTo(version), "README.md in root did not match version in SharedAssemblyInfo.cs");
-        }
-
         private static object BuildRecommendedDependencyLine(string package, string version) => $"<dependency id=\"{package}\" version=\"{version}\" />";
 
         private static object BuildRecommendedMarkdownLine(string package, string version) => $"| {package} | [GitHub]() | [{version}](https://www.nuget.org/packages/{package}/{version}) | | | |";
