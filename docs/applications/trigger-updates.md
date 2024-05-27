@@ -1,28 +1,10 @@
-# TriggerUpdates
+# Trigger Updates
 
-Primary Author: [Thomas Nind](https://github.com/tznind)
+TODO
 
-## Contents
+This application issues update messages designed for consumption by the [UpdateValues](../services/update-values.md) service.
 
-1.  [Overview](#1-overview)
-2.  [Setup / Installation](#2-setup--installation)
-3.  [Exchange and Queue Settings](#3-exchange-and-queue-settings)
-4.  [Config](#4-config)
-5.  [Expectations](#5-expectations)
-    1.  [Aliases](#51-aliases)
-6.  [Class Diagram](#6-class-diagram)
-
-### 1. Overview
-
-The TriggerUpdates app is a console app that runs and terminates rather than a microservice that runs forever. The app issues update messages designed for consumption by the [UpdateValues microservice] .
-
-This application uses the verb system e.g. `./TriggerUpdates mapper` or `./TriggerUpdates mongo`.
-
-### 2. Setup / Installation
-
--   Clone the project and build. Any NuGet dependencies should be automatically downloaded
--   Edit the yaml.default with the configuration for your environment
--   Run `TriggerUpdates.exe mapper -d <somedate> -f PatientID` from a commandline to issue messages for updating the live database(s) with changed mappings.
+using the options specified in the `TriggerUpdatesOptions` config setting.
 
 ### 3. Exchange and Queue Settings
 
@@ -69,7 +51,3 @@ _Triggering an update at this point will merge 111 and 222 in the live database_
 Once an alias has been established the lookup cannot successfully be updated to reverse the alias e.g. reverting it back to the initial state.
 
 ### 6. Class Diagram
-
-![Class Diagram](./Images/ClassDiagram.png)
-
-[updatevalues microservice]: ../../microservices/Updating/Microservices.UpdateValues/README.md
