@@ -95,7 +95,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                 yield return filter;
         }
 
-        private string? GetSqlForKeyValue(string value)
+        private string GetSqlForKeyValue(string value)
         {
             return string.Format(_sql!, value);
         }
