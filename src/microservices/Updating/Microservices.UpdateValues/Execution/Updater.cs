@@ -80,31 +80,16 @@ namespace Microservices.UpdateValues.Execution
 
             StringBuilder builder = new();
 
-            builder.AppendLine("UPDATE ");
-            builder.AppendLine(t.GetFullyQualifiedName());
-            builder.AppendLine(" SET ");
-
-            for (var i = 0; i < message.WriteIntoFields.Length; i++)
-            {
-                builder.Append(GetFieldEqualsValueExpression(t.DiscoverColumn(message.WriteIntoFields[i]),message.Values[i],"="));
-
-                //if there are more SET fields to come
-                if(i < message.WriteIntoFields.Length -1)
-                    builder.AppendLine(",");
-            }
+            builder.AppendLine($"UPDATE {t.GetFullyQualifiedName()} SET ");
+            builder.AppendJoin(',',
+                message.WriteIntoFields.Select((col, i) =>
+                    GetFieldEqualsValueExpression(t.DiscoverColumn(col), message.Values[i], "=")));
 
             builder.AppendLine(" WHERE ");
 
-            for (var i = 0; i < message.WhereFields.Length; i++)
-            {
-                var col = t.DiscoverColumn(message.WhereFields[i]);
-
-                builder.Append(GetFieldEqualsValueExpression(col,message.HaveValues[i]!,message.Operators?[i]!));
-
-                //if there are more WHERE fields to come
-                if(i < message.WhereFields.Length -1)
-                    builder.AppendLine(" AND ");
-            }
+            // Column name can't be null, operator can be (and defaults to =).
+            builder.AppendJoin(" AND ", message.WhereFields.Select((col, i) =>
+                GetFieldEqualsValueExpression(t.DiscoverColumn(col ?? throw new ArgumentNullException(nameof(col))), message.HaveValues[i]!, message.Operators?[i] ?? "=")));
 
             var sql = builder.ToString();
             var affectedRows = 0;
