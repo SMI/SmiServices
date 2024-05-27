@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;
@@ -49,6 +49,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
+            if (_options is null)
+                throw new NullReferenceException("Setup() must be called before GetSubstitutionFor()");
+
             reason = null;
 
             if (_swapColumnLength > 0 && toSwap.Length > _swapColumnLength)
@@ -58,7 +61,6 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 return null;
             }
 
-            string insertSql;
             lock (_oCacheLock)
             {
                 if (_cachedAnswers.ContainsKey(toSwap))
@@ -71,7 +73,8 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
                 var guid = Guid.NewGuid().ToString();
 
-                switch (_options!.MappingDatabaseType)
+                string insertSql;
+                switch (_options.MappingDatabaseType)
                 {
 
 
@@ -127,7 +130,7 @@ where not exists(select *
 
                     _cachedAnswers.Add(toSwap, syncAnswer);
 
-                    con.ManagedTransaction.CommitAndCloseConnection();
+                    con.ManagedTransaction?.CommitAndCloseConnection();
                     Success++;
                     CacheMiss++;
                     return syncAnswer;
@@ -154,6 +157,8 @@ where not exists(select *
             {
                 if (_table == null)
                     throw new NullReferenceException("_table was null. Try calling Setup()");
+                if (_options?.SwapColumnName is null || _options.ReplacementColumnName is null)
+                    throw new NullReferenceException($"{nameof(_options)} was null or had no SwapColumnName or ReplacementColumnName. Try calling Setup()");
 
                 //create the database if it doesn't exist
                 if (!_table.Database.Exists())
@@ -167,7 +172,7 @@ where not exists(select *
                     _table.Database.CreateTable(_table.GetRuntimeName(),
                         new[]
                         {
-                            new DatabaseColumnRequest(_options!.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
+                            new DatabaseColumnRequest(_options.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
                             new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)}
                         );
                 }
@@ -178,7 +183,7 @@ where not exists(select *
                     throw new Exception("Table creation did not result in table existing!");
 
                 _logger.Info("Checking for column " + _options!.SwapColumnName);
-                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType.GetLengthIfString();
+                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType?.GetLengthIfString() ?? -1;
 
                 _logger.Info("Checking for column " + _options.ReplacementColumnName);
                 _table.DiscoverColumn(_options.ReplacementColumnName);
