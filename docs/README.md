@@ -11,6 +11,12 @@
 
 ## Services
 
-## Misc.
+## Guides
 
--   [Controlling services via RabbitMQ](misc/control-queues.md) - Services can be controlled by sending messages to the RabbitMQ control exchange
+-   [Loading data](guides/data-loading.md)
+-   [Extracting images](guides/extraction.md)
+-   [Controlling services via RabbitMQ](guides/control-queues.md)
+
+## Development
+
+-   [Release process](dev/release-process.md)
