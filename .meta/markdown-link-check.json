@@ -1,0 +1,9 @@
+{
+  "ignorePatterns": [],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "{{BASEURL}}/"
+    }
+  ]
+}
