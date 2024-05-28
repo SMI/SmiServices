@@ -6,3 +6,7 @@ This application is used to check the behaviour of the specified extraction rule
   -d, --dynamic-rules-file    Required. The file to load dynamic rules from
   -r, --test-row-file         Required. The JSON file containing test data for the rules
 ```
+
+## YAML Configuration
+
+N/A.

@@ -10,4 +10,6 @@ find /data/dicom -type f -print0 | ./smi dicom-loader -y smi.yaml
 
 DICOM files and archives containing DICOM files will be enumerated and loaded to MongoDB if not already present (checking by filename).
 
-MongoDB hostname and credentials are configured as per other SMI components, in particular the MongoDatabases section (where DicomStoreOptions has HostName, Port, UserName, Password and DatabaseName values).
+## YAML Configuration
+
+MongoDB hostname and credentials are configured as per other SMI components, in particular the `MongoDatabases.DicomStoreOptions` section.

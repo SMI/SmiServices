@@ -11,4 +11,9 @@ This application is used to launch a file extraction request using a file of DIC
   -n, --non-interactive            Don't pause for manual confirmation before sending messages
 ```
 
-It publishes images to two exchanges specified by the `ExtractionRequestProducerOptions` and `ExtractionRequestInfoProducerOptions` config options.
+## YAML Configuration
+
+Uses the `ExtractImagesOptions` config key. Messages are published to two exchanges specified by:
+
+-   `ExtractionRequestProducerOptions` - Messages containing the input identifiers for consumption by e.g., [cohort-extractor](../services/cohort-extractor.md)
+-   `ExtractionRequestInfoProducerOptions` - Messages containing extraction summary info for consumption by e.g., [cohort-packager](../services/cohort-packager.md)

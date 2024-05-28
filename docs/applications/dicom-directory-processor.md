@@ -1,6 +1,6 @@
 # Dicom Directory Processor
 
-This application searches recursively searches the specified directory to find all subdirectories which contain at least one DICOM file. For each such directory, an `AccessionDirectoryMessage` is sent using the options specified in the `ProcessDirectoryOptions.AccessionDirectoryProducerOptions` config setting.
+This application searches recursively searches the specified directory to find all subdirectories which contain at least one DICOM file. For each such directory, an `AccessionDirectoryMessage` is sent.
 
 Note that this application used to be called `ProcessDirectory`, and some config values still reference this.
 
@@ -12,3 +12,9 @@ The scan mode of the application can be changed with the `-f` option. Supported 
 -   [pacs](src/applications/Applications.DicomDirectoryProcessor/Execution/DirectoryFinders/PacsDirectoryFinder.cs). Performs a scan which assumes files are located inside a particular directory structure. The `PACS` directory structure is of the form `<any root>/YYYY/MM/DD/ACC/<dicom>`. `ACC` represents accession directories. Note that this scan mode does not actually assert that there are any files inside the accession directories.
 -   [list](src/applications/Applications.DicomDirectoryProcessor/Execution/DirectoryFinders/AccessionDirectoryLister.cs). Receives a file containing a list of accession directory paths. The accession directory path structure is expected to be of the form `<any root>/YYYY/MM/DD/ACC/`. The existence of the directory and whether it contains DICOM files is checked.
 -   [zips](/src/applications/Applications.DicomDirectoryProcessor/ZipDicomDirectoryFinder.cs). Performs a scan for ZIP files (or DICOM files) in the specified directory.
+
+## YAML Configuration
+
+Uses the `ProcessDirectoryOptions` config key.
+
+Produces messages using the `AccessionDirectoryProducerOptions`.
