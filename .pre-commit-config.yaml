@@ -56,7 +56,7 @@ repos:
       - id: prettier
   # Markdown
   - repo: https://github.com/tcort/markdown-link-check
-    rev: "v3.11.2"
+    rev: "v3.12.2"
     hooks:
       - id: markdown-link-check
         args: [--quiet, --config, .meta/markdown-link-check.json]
