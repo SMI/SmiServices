@@ -1,13 +1,16 @@
-# SMI Services Documentation
+# Documentation
 
-This is the documentation for the SMIServices platform. It should (hopefully) contain enough information to run your own instance of the service.
+## Applications
 
-The platform is currently deployed in the National Safe Haven, so some documentation may specifically refer to that environment. The software should be deployable in any environment though, so please open an [issue](https://github.com/SMI/SmiServices/issues) if anything isn't clear.
+-   [dicom-directory-processor](applications/dicom-directory-processor.md)
+-   [dicom-loader](applications/dicom-loader.md)
+-   [dynamic-rules-tester](applications/dynamic-rules-tester.md)
+-   [extract-images](applications/extract-images.md)
+-   [setup](applications/setup.md)
+-   [trigger-updates](applications/trigger-updates.md)
 
-### Contents
+## Services
 
--   [Controlling the services](#controlling-the-services)
+## Misc.
 
-## Controlling the services
-
-The services can be controlled by sending messages to the RabbitMQ control exchange with specific routing keys. See the [main doc](control-queues.md)
+-   [Controlling services via RabbitMQ](misc/control-queues.md) - Services can be controlled by sending messages to the RabbitMQ control exchange
