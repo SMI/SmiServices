@@ -1,28 +1,13 @@
 # Cohort Extractor
 
-Primary Author: [Thomas](https://github.com/tznind)
+This service consumes `ExtractionRequestMessage`s produced by e.g., [extract-images](../applications/extract-images.md) and identifies the images corresponding to the specified key values (e.g. each specified `SeriesInstanceUID`) by querying a database of DICOM metadata. One output message is produced per matched file in order for a downstream service to generate a de-identified file. or a full copy in the case of an identifiable extraction. One message is also produced per input identifier which specifies all files that are expected to be produced.
 
-## Contents
+There can be multiple datasets in which matching images should be sourced e.g., MR / CT which could even reside on different servers. Datasets are identified and distinguished from one another through RDMP `ICatalogue`S which must already exist e.g., as part of the data load process.
 
-1.  [Overview](#1-overview)
-2.  [Setup / Installation](#2-setup--installation)
-3.  [Exchange and Queue Settings](#3-exchange-and-queue-settings)
-4.  [Config](#4-config)
-    -   [Fulfiller]
-    -   [Rejector]
-5.  [Expectations](#5-expectations)
-6.  [Class Diagram](#6-class-diagram)
+TODO
 
-### 1. Overview
+## Configuration
 
-This service services `ExtractionRequestMessage` which is a request to extract a given set images identified by a key tag (e.g. `SeriesInstanceUID`) collection (e.g. 5000 SeriesInstanceUID values). It is the job of the Cohort Extractor to identify the images which correspond to the specified key values requested (e.g. the `SeriesInstanceUID`) and generate output messages to downstream processes responsible for anonymising the images.
-
-There can be multiple datasets in which matching images should be sourced e.g. MR / CT which could even reside on different servers. Datasets are identified and distinguished from one another through RDMP `ICatalogue` which exists already as part of the data load process (See `DicomRelationalMapper`).
-
-### 2. Setup / Installation
-
--   Clone the project and build. Any NuGet dependencies should be automatically downloaded
--   Edit the yaml.default with the configuration for your environment
 -   Pick an implementation of `IAuditExtractions` e.g. `Microservices.CohortExtractor.Audit.NullAuditExtractions` and enter the full Type name into default.yaml `AuditorType`
 -   Pick an implementation of `IExtractionRequestFulfiller` e.g. `Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller` and enter the full Type name into default.yaml `RequestFulfillerType`.
 -   Specify the mapping RDMP catalogue database
