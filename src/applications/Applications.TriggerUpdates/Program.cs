@@ -19,7 +19,6 @@ namespace Applications.TriggerUpdates
                     new[]
                     {
                         typeof(TriggerUpdatesFromMapperOptions),
-                        typeof(TriggerUpdatesFromMongoOptions)
                     },
                     OnParse
                 );
@@ -33,7 +32,6 @@ namespace Applications.TriggerUpdates
             ITriggerUpdatesSource source = parsedOptions switch
             {
                 TriggerUpdatesFromMapperOptions o => new MapperSource(globals, o),
-                TriggerUpdatesFromMongoOptions o => new MongoSource(globals, o),
                 _ => throw new NotImplementedException($"No case for '{parsedOptions.GetType()}'")
             };
 
