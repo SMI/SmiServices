@@ -95,9 +95,9 @@ namespace Microservices.CohortPackager.Tests.Execution
 
             string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
             var expectedReports = isIdentifiableExtraction ? 3 : 4;
-            Assert.AreEqual(expectedReports, Directory.GetFiles(extractReportsDirAbsolute).Length);
+            Assert.That(Directory.GetFiles(extractReportsDirAbsolute),Has.Length.EqualTo(expectedReports));
             string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
-            Assert.AreEqual(firstLine, reportContent[0]);
+            Assert.That(reportContent[0],Is.EqualTo(firstLine));
         }
 
         [Test]
@@ -370,7 +370,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             // Assert
 
             var exc = Assert.Throws<ArgumentException>(() => constructor());
-            Assert.AreEqual("jobStore and dateTimeProvider are mutually exclusive arguments", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("jobStore and dateTimeProvider are mutually exclusive arguments"));
         }
 
         [Test]
@@ -388,7 +388,7 @@ namespace Microservices.CohortPackager.Tests.Execution
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
-            Assert.AreEqual("Specified argument was out of the range of valid values. (Parameter 'ExtractRoot')", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("Specified argument was out of the range of valid values. (Parameter 'ExtractRoot')"));
         }
 
         #endregion

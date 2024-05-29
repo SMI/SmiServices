@@ -8,6 +8,7 @@ using Smi.Common.Helpers;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace Applications.ExtractImages

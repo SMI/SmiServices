@@ -58,7 +58,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                     }
                 );
             });
-            Assert.AreEqual("Dict contains key(s) with a zero count: bar,baz", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("Dict contains key(s) with a zero count: bar,baz"));
         }
 
         #endregion
