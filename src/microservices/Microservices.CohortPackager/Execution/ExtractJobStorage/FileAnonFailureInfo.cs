@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
+
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 {
@@ -19,8 +19,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
         public readonly string Reason;
 
         public FileAnonFailureInfo(
-            [NotNull] string? dicomFilePath,
-            [NotNull] string? reason
+            string dicomFilePath,
+            string reason
         )
         {
             DicomFilePath = string.IsNullOrWhiteSpace(dicomFilePath) ? throw new ArgumentException(nameof(dicomFilePath)) : dicomFilePath;

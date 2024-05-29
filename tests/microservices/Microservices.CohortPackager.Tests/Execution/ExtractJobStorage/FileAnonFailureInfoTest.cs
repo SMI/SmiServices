@@ -33,11 +33,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         #region Tests
 
-        [TestCase(null, "bar")]
         [TestCase("  ", "bar")]
-        [TestCase("foo", null)]
         [TestCase("foo", "  ")]
-        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string? dicomFilePath, string? reason)
+        public void Constructor_ThrowsArgumentException_OnInvalidArgs(string dicomFilePath, string reason)
         {
             Assert.Throws<ArgumentException>(() => { var _ = new FileAnonFailureInfo(dicomFilePath, reason); });
         }
