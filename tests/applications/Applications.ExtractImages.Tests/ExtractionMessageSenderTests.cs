@@ -180,9 +180,9 @@ namespace Applications.ExtractImages.Tests
             Assert.That(exc!.Message,Is.EqualTo("extractionRoot"));
         }
 
-        [TestCase(null)]
+        [TestCase("")]
         [TestCase("  ")]
-        public void ProjectId_IsValidated(string? projectId)
+        public void ProjectId_IsValidated(string projectId)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
