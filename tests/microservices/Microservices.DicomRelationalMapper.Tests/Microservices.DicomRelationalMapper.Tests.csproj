@@ -12,12 +12,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\applications\Applications.DicomDirectoryProcessor\Applications.DicomDirectoryProcessor.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.CohortExtractor\Microservices.CohortExtractor.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.DicomRelationalMapper\Microservices.DicomRelationalMapper.csproj" />

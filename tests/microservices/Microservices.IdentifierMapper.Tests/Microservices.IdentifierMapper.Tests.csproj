@@ -3,12 +3,6 @@
     <AssemblyName>Microservices.DicomTagReader.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />
     <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
     <ProjectReference Include="..\Microservices.DicomRelationalMapper.Tests\Microservices.DicomRelationalMapper.Tests.csproj" />

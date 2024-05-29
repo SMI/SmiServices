@@ -3,12 +3,6 @@
     <AssemblyName>Applications.TriggerUpdates.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\applications\Applications.TriggerUpdates\Applications.TriggerUpdates.csproj" />
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />

@@ -25,10 +25,6 @@
     <PackageReference Include="HIC.BadMedicine.Dicom" />
     <PackageReference Include="HIC.RDMP.Plugin.Test" />
     <PackageReference Include="Moq" />
-    <PackageReference Include="NUnit.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="NunitXml.TestLogger" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
   </ItemGroup>

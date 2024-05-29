@@ -3,12 +3,6 @@
     <AssemblyName>Applications.DicomDirectoryProcessor.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\applications\Applications.DicomDirectoryProcessor\Applications.DicomDirectoryProcessor.csproj" />
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
     <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
