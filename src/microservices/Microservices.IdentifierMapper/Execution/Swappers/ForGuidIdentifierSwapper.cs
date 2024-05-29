@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;
@@ -127,7 +127,7 @@ where not exists(select *
 
                     _cachedAnswers.Add(toSwap, syncAnswer);
 
-                    con.ManagedTransaction.CommitAndCloseConnection();
+                    con.ManagedTransaction?.CommitAndCloseConnection();
                     Success++;
                     CacheMiss++;
                     return syncAnswer;
@@ -154,6 +154,8 @@ where not exists(select *
             {
                 if (_table == null)
                     throw new NullReferenceException("_table was null. Try calling Setup()");
+                if (_options?.SwapColumnName == null || _options.ReplacementColumnName == null)
+                    throw new NullReferenceException("Column names to swap were null");
 
                 //create the database if it doesn't exist
                 if (!_table.Database.Exists())
@@ -178,7 +180,7 @@ where not exists(select *
                     throw new Exception("Table creation did not result in table existing!");
 
                 _logger.Info("Checking for column " + _options!.SwapColumnName);
-                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType.GetLengthIfString();
+                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType?.GetLengthIfString() ?? -1;
 
                 _logger.Info("Checking for column " + _options.ReplacementColumnName);
                 _table.DiscoverColumn(_options.ReplacementColumnName);
