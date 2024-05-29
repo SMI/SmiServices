@@ -47,12 +47,12 @@ namespace Microservices.IdentifierMapper.Tests
 
             //cache hit
             var answer = swapper.GetSubstitutionFor("0101010101",out var reason);
-            Assert.AreEqual("0A0A0A0A0A",answer);
+            Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
             Assert.IsNull(reason);
 
             var guidTable = swapper.GetGuidTableIfAny(options);
-            
-            Assert.AreEqual("Map_guid",guidTable!.GetRuntimeName());
+
+            Assert.That(guidTable!.GetRuntimeName(),Is.EqualTo("Map_guid"));
 
             //The key column should match the SwapColumnName
             Assert.IsNotNull(guidTable.DiscoverColumn("CHI"));
@@ -64,24 +64,24 @@ namespace Microservices.IdentifierMapper.Tests
             
             //should be a guid e.g. like "bc70d07d-4c77-4086-be1c-2971fd66ccf2"
             Assert.IsNotNull(answer2);
-            Assert.AreEqual(4,answer2!.Count(c=>c=='-'),$"Answer '{answer2}' did not look like a guid");
+            Assert.That(answer2!.Count(c=>c=='-'),Is.EqualTo(4),$"Answer '{answer2}' did not look like a guid");
             Assert.IsNull(reason);
 
             //make sure the guid mapping table has the correct row persisted for repeated calls
-            Assert.IsTrue(guidTable.Exists());
-            Assert.AreEqual(1,guidTable.GetRowCount());
-            Assert.AreEqual("0202020202",guidTable.GetDataTable().Rows[0]["CHI"]);
-            Assert.AreEqual(answer2,guidTable.GetDataTable().Rows[0]["guid"]);
+            Assert.That(guidTable.Exists(),Is.True);
+            Assert.That(guidTable.GetRowCount(),Is.EqualTo(1));
+            Assert.That(guidTable.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
+            Assert.That(guidTable.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
 
 
             //repeated misses should not result in more rows and should return the same guid (obviously)
-            Assert.AreEqual(answer2,swapper.GetSubstitutionFor("0202020202",out reason));
-            Assert.AreEqual(answer2,swapper.GetSubstitutionFor("0202020202",out reason));
-            Assert.AreEqual(answer2,swapper.GetSubstitutionFor("0202020202",out reason));
+            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
+            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
+            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
 
-            Assert.AreEqual(1,guidTable.GetRowCount());
-            Assert.AreEqual("0202020202",guidTable.GetDataTable().Rows[0]["CHI"]);
-            Assert.AreEqual(answer2,guidTable.GetDataTable().Rows[0]["guid"]);
+            Assert.That(guidTable.GetRowCount(),Is.EqualTo(1));
+            Assert.That(guidTable.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
+            Assert.That(guidTable.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
 
 
             //now insert a legit mapping for 0202020202
@@ -91,7 +91,7 @@ namespace Microservices.IdentifierMapper.Tests
             //note that the below line could fail if we ever implement miss caching (i.e. cache that we looked up the value and failed in the lookup swapper in which case this test would need to clearcache)
 
             //now that we have a cache hit we can lookup the good value
-            Assert.AreEqual("0B0B0B0B0B",swapper.GetSubstitutionFor("0202020202",out reason));
+            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo("0B0B0B0B0B"));
 
         }
 
@@ -145,8 +145,8 @@ namespace Microservices.IdentifierMapper.Tests
             var answer = swapper.GetSubstitutionFor("010101010031002300020320402054240204022433040301",out var reason);
             Assert.IsNull(answer);
 
-            StringAssert.AreEqualIgnoringCase(
-                    $"Supplied value was too long (48) - max allowed is ({(createGuidTableUpFront?30:10)})", reason);
+            Assert.That(
+reason,Is.EqualTo($"Supplied value was too long (48) - max allowed is ({(createGuidTableUpFront?30:10)})").IgnoreCase);
         }
     }
 }

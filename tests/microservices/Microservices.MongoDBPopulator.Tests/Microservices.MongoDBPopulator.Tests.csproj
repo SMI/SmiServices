@@ -3,6 +3,12 @@
     <AssemblyName>Microservices.DicomTagReader.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="NUnit.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\src\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
     <ProjectReference Include="..\..\..\src\common\Smi.Common\Smi.Common.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.MongoDbPopulator\Microservices.MongoDbPopulator.csproj" />

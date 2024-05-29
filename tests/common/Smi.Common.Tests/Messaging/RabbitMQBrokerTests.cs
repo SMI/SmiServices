@@ -55,6 +55,7 @@ namespace Smi.Common.Tests.Messaging
         public void TearDown()
         {
             _tester.Shutdown();
+            _tester.Dispose();
         }
 
         /// <summary>
@@ -240,7 +241,7 @@ namespace Smi.Common.Tests.Messaging
                 _ => "nothing to see here"
             };
 
-            Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
+            Assert.That(target.Logs.Any(s => s.Contains(expectedErrorMessage)),Is.True, $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
         [Test]
@@ -261,8 +262,8 @@ namespace Smi.Common.Tests.Messaging
             tester.SendMessage(consumerOptions, new TestMessage());
             Thread.Sleep(500);
 
-            Assert.AreEqual(1, consumer.HeldMessages);
-            Assert.AreEqual(0, consumer.AckCount);
+            Assert.That(consumer.HeldMessages,Is.EqualTo(1));
+            Assert.That(consumer.AckCount,Is.EqualTo(0));
         }
 
         private class ThrowingConsumer : Consumer<TestMessage>

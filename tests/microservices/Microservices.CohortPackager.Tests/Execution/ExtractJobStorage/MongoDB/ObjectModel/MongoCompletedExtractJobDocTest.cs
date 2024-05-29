@@ -98,7 +98,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         {
             var doc = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
 
-            Assert.AreEqual(ExtractJobStatus.Completed, doc.JobStatus);
+            Assert.That(doc.JobStatus,Is.EqualTo(ExtractJobStatus.Completed));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         {
             var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
-            Assert.AreEqual(doc1, doc2);
+            Assert.That(doc2,Is.EqualTo(doc1));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         {
             var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
-            Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());
+            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

@@ -50,7 +50,7 @@ namespace Microservices.CohortExtractor.Tests
 
                     //no fulfiller is a problem!
                     var ex = Assert.Throws<Exception>(() => opts.Validate());
-                    StringAssert.Contains("No RequestFulfillerType set on CohortExtractorOptions", ex!.Message);
+                    Assert.That(ex!.Message,Does.Contain("No RequestFulfillerType set on CohortExtractorOptions"));
 
                     break;
                 default:
@@ -118,7 +118,7 @@ namespace Microservices.CohortExtractor.Tests
 
             c.ClearAllInjections();
 
-            Assert.AreEqual(5, c.GetAllExtractionInformation(ExtractionCategory.Any).Length);
+            Assert.That(c.GetAllExtractionInformation(ExtractionCategory.Any).Length,Is.EqualTo(5));
 
             var f = new MicroserviceObjectFactory();
             var fulfiller = f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType!,

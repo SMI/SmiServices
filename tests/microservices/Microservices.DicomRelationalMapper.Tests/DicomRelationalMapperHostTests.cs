@@ -56,7 +56,7 @@ namespace Microservices.Tests.RDMPTests
                 using var host = new DicomRelationalMapperHost(globals);
                 host.Start();
 
-                Assert.AreEqual(expectedType, host.Consumer?.DatabaseNamer.GetType());
+                Assert.That(host.Consumer?.DatabaseNamer.GetType(),Is.EqualTo(expectedType));
                 Assert.IsNotNull(host);
 
                 host.Stop("Test finished");
@@ -76,12 +76,12 @@ namespace Microservices.Tests.RDMPTests
             var raw = namer.GetDatabaseName("test", LoadBubble.Raw);
             Console.WriteLine(raw);
 
-            StringAssert.Contains("6ff", raw);
+            Assert.That(raw,Does.Contain("6ff"));
 
             var staging = namer.GetDatabaseName("test", LoadBubble.Staging);
             Console.WriteLine(staging);
 
-            StringAssert.Contains("6ff", staging);
+            Assert.That(staging,Does.Contain("6ff"));
         }
 
     }

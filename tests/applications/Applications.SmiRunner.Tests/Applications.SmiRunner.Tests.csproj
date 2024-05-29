@@ -3,6 +3,12 @@
     <AssemblyName>Applications.SmiRunner.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="NUnit.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\src\applications\Applications.SmiRunner\Applications.SmiRunner.csproj" />
     <ProjectReference Include="..\..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
   </ItemGroup>

@@ -44,11 +44,11 @@ namespace Applications.ExtractImages.Tests
                 parser.ParseArguments<ExtractImagesCliOptions>(args)
                     .WithParsed(options =>
                     {
-                        Assert.AreEqual("1234-5678", options.ProjectId);
-                        Assert.AreEqual("foo.csv", options.CohortCsvFile);
-                        Assert.AreEqual(modalities, options.Modalities);
-                        Assert.AreEqual(ident, options.IsIdentifiableExtraction);
-                        Assert.AreEqual(noFilters, options.IsNoFiltersExtraction);
+                        Assert.That(options.ProjectId,Is.EqualTo("1234-5678"));
+                        Assert.That(options.CohortCsvFile,Is.EqualTo("foo.csv"));
+                        Assert.That(options.Modalities,Is.EqualTo(modalities));
+                        Assert.That(options.IsIdentifiableExtraction,Is.EqualTo(ident));
+                        Assert.That(options.IsNoFiltersExtraction,Is.EqualTo(noFilters));
                     })
                     .WithNotParsed(errors => Assert.Fail(string.Join(',', errors)));
             }

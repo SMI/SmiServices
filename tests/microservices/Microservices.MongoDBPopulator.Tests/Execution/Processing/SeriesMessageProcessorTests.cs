@@ -48,9 +48,9 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             Assert.True(document.TryGetElement("header", out var element));
 
             var docHeader = (BsonDocument)element.Value;
-            Assert.AreEqual(_seriesMessageProps.Count - 3, docHeader.ElementCount);
-            Assert.AreEqual(message.DirectoryPath, docHeader["DirectoryPath"].AsString);
-            Assert.AreEqual(message.ImagesInSeries, docHeader["ImagesInSeries"].AsInt32);
+            Assert.That(docHeader.ElementCount,Is.EqualTo(_seriesMessageProps.Count - 3));
+            Assert.That(docHeader["DirectoryPath"].AsString,Is.EqualTo(message.DirectoryPath));
+            Assert.That(docHeader["ImagesInSeries"].AsInt32,Is.EqualTo(message.ImagesInSeries));
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);
             Assert.NotNull(dataset);
@@ -59,7 +59,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             document.Remove("_id");
             document.Remove("header");
 
-            Assert.AreEqual(datasetDocument, document);
+            Assert.That(document,Is.EqualTo(datasetDocument));
         }
 
         [Test]

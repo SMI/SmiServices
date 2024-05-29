@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
+using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Smi.Common.Helpers;
@@ -15,7 +15,7 @@ namespace Microservices.CohortExtractor.Tests
         [TestCase("study", null)]
         [TestCase(null, "series")]
         [TestCase(null, null)]
-        public void TestDefaultProjectPathResolver_IdParts(string study, string series)
+        public void TestDefaultProjectPathResolver_IdParts(string? study, string? series)
         {
             var result = new QueryToExecuteResult(
                 "foo.dcm",
@@ -25,12 +25,11 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()),Is.EqualTo(Path.Combine(
                     study ?? "unknown",
                     series ?? "unknown",
-                    "foo.dcm"),
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()));
+                    "foo.dcm")));
         }
 
         [TestCase("file.dcm", "file.dcm")]
@@ -47,12 +46,11 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()),Is.EqualTo(Path.Combine(
                     "study",
                     "series",
-                    expectedOutput),
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()));
+                    expectedOutput)));
         }
 
         [Test]
@@ -66,12 +64,11 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()),Is.EqualTo(Path.Combine(
                     "study",
                     "unknown",
-                    "file.dcm"),
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()));
+                    "file.dcm")));
         }
 
         [Test]

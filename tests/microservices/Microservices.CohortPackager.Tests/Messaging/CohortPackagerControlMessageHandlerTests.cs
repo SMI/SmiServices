@@ -28,7 +28,7 @@ namespace Microservices.CohortPackager.Tests.Messaging
 
         [TestCase(null)]
         [TestCase("00000000-0000-0000-0000-000000000001")]
-        public void ControlMessageHandler_ProcessJobs_ValidGuids(string jobIdStr)
+        public void ControlMessageHandler_ProcessJobs_ValidGuids(string? jobIdStr)
         {
             // Arrange
 

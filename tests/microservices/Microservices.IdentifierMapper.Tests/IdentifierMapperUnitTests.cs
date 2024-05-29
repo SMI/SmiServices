@@ -14,9 +14,9 @@ namespace Microservices.IdentifierMapper.Tests
             target.Layout = "${message}";
             
             var mapper = new SwapForFixedValueTester("fish");
-            StringAssert.AreEqualIgnoringCase("fish",mapper.GetSubstitutionFor("heyyy", out _));
+            Assert.That(mapper.GetSubstitutionFor("heyyy", out _),Is.EqualTo("fish").IgnoreCase);
 
-            Assert.AreEqual(1,mapper.Success);
+            Assert.That(mapper.Success,Is.EqualTo(1));
 
             LogManager.Setup().LoadConfiguration(x => x.ForLogger(LogLevel.Debug).WriteTo(target));
 
@@ -24,7 +24,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             mapper.LogProgress(logger, LogLevel.Info);
 
-            StringAssert.StartsWith("SwapForFixedValueTester: CacheRatio=1:0 SuccessRatio=1:0:0",target.Logs.Single());
+            Assert.That(target.Logs.Single(),Does.StartWith("SwapForFixedValueTester: CacheRatio=1:0 SuccessRatio=1:0:0"));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microservices.DicomAnonymiser.Anonymisers;
+using Microservices.DicomAnonymiser.Anonymisers;
 using NUnit.Framework;
 using Smi.Common.Options;
 using Smi.Common.Tests;
@@ -40,7 +40,7 @@ namespace Microservices.DicomAnonymiser.Tests.Anonymisers
             {
                 AnonymiserFactory.CreateAnonymiser(new DicomAnonymiserOptions { AnonymiserType = "whee" });
             });
-            Assert.AreEqual(e!.Message, "Could not parse 'whee' to a valid AnonymiserType");
+            Assert.That(e!.Message,Is.EqualTo("Could not parse 'whee' to a valid AnonymiserType"));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Microservices.DicomAnonymiser.Tests.Anonymisers
             {
                 AnonymiserFactory.CreateAnonymiser(new DicomAnonymiserOptions { AnonymiserType = "None" });
             });
-            Assert.AreEqual(e!.Message, "No case for AnonymiserType 'None'");
+            Assert.That(e!.Message,Is.EqualTo("No case for AnonymiserType 'None'"));
         }
 
         #endregion

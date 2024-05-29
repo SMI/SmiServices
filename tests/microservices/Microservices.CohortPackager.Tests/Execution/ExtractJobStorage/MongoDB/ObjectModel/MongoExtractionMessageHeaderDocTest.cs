@@ -69,7 +69,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 dateTimeProvider.UtcNow()
             );
 
-            Assert.AreEqual(expected, doc);
+            Assert.That(doc,Is.EqualTo(expected));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
             var doc2 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
 
-            Assert.AreEqual(doc1, doc2);
+            Assert.That(doc2,Is.EqualTo(doc1));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
             var doc2 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
 
-            Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());
+            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

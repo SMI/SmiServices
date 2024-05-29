@@ -138,7 +138,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the basic rejector
-            Assert.AreEqual(rej1, result.Single());
+            Assert.That(result.Single(),Is.EqualTo(rej1));
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -147,7 +147,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the modality specific rejector 
-            Assert.AreEqual(rej2,result.Single());
+            Assert.That(result.Single(),Is.EqualTo(rej2));
         }
 
 
@@ -172,7 +172,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the modality specific rejector 
-            Assert.AreEqual(rej2, result.Single());
+            Assert.That(result.Single(),Is.EqualTo(rej2));
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -181,7 +181,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the modality specific rejector 
-            Assert.AreEqual(rej2, result.Single());
+            Assert.That(result.Single(),Is.EqualTo(rej2));
         }
 
         [Test]
@@ -217,7 +217,7 @@ namespace Microservices.CohortExtractor.Tests
             { Modality = "MR" })
                 .ToArray());
 
-            Assert.AreEqual("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'", ex!.Message);
+            Assert.That(ex!.Message,Is.EqualTo("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'"));
         }
 
 

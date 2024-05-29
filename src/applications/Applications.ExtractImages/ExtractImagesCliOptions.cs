@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using CommandLine;
@@ -13,7 +13,7 @@ namespace Applications.ExtractImages
         // Required
 
         [Option(shortName: 'p', longName: "project-id", Required = true, HelpText = "The project identifier")]
-        public string ProjectId { get; set; } = null!;
+        public string? ProjectId { get; set; } = null;
 
         [Option(shortName: 'c', longName: "cohort-csv-file", Required = true,
             HelpText = "The CSV file containing IDs of the cohort for extraction")]

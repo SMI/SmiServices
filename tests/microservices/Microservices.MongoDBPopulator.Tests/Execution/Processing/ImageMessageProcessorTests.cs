@@ -45,7 +45,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             Assert.True(document.TryGetElement("header", out var element));
 
             var docHeader = (BsonDocument)element.Value;
-            Assert.AreEqual(_imageMessageProps.Count - 3, docHeader.ElementCount);
+            Assert.That(docHeader.ElementCount,Is.EqualTo(_imageMessageProps.Count - 3));
             ValidateHeader(message, header, docHeader);
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);
@@ -55,28 +55,28 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             document.Remove("_id");
             document.Remove("header");
 
-            Assert.AreEqual(datasetDocument, document);
+            Assert.That(document,Is.EqualTo(datasetDocument));
         }
 
         private static void ValidateHeader(DicomFileMessage message, MessageHeader header, BsonDocument docHeader)
         {
-            Assert.AreEqual(message.DicomFilePath, docHeader["DicomFilePath"].AsString);
+            Assert.That(docHeader["DicomFilePath"].AsString,Is.EqualTo(message.DicomFilePath));
 
             Assert.True(docHeader.TryGetElement("MessageHeader", out var element));
 
             var messageHeaderDoc = (BsonDocument)element.Value;
             Assert.NotNull(messageHeaderDoc);
 
-            Assert.AreEqual(header.ProducerProcessID, messageHeaderDoc["ProducerProcessID"].AsInt32);
-            Assert.AreEqual(header.ProducerExecutableName, messageHeaderDoc["ProducerExecutableName"].AsString);
-            Assert.AreEqual(header.OriginalPublishTimestamp, messageHeaderDoc["OriginalPublishTimestamp"].AsInt64);
+            Assert.That(messageHeaderDoc["ProducerProcessID"].AsInt32,Is.EqualTo(header.ProducerProcessID));
+            Assert.That(messageHeaderDoc["ProducerExecutableName"].AsString,Is.EqualTo(header.ProducerExecutableName));
+            Assert.That(messageHeaderDoc["OriginalPublishTimestamp"].AsInt64,Is.EqualTo(header.OriginalPublishTimestamp));
 
             Assert.True(messageHeaderDoc.TryGetElement("Parents", out element));
 
             string parentsString = element.Value.AsString;
 
             Assert.False(string.IsNullOrWhiteSpace(parentsString));
-            Assert.AreEqual(Guid.NewGuid().ToString().Length, parentsString.Length);
+            Assert.That(parentsString.Length,Is.EqualTo(Guid.NewGuid().ToString().Length));
         }
 
         [Test]

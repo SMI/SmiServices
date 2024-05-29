@@ -100,8 +100,8 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             host.AccessionDirectoryMessageConsumer.RunSingleFile(files[2]);
 
-            Assert.AreEqual(1,_helper.ImageCount);
-            Assert.AreEqual(1,_helper.SeriesCount);
+            Assert.That(_helper.ImageCount,Is.EqualTo(1));
+            Assert.That(_helper.SeriesCount,Is.EqualTo(1));
             
             var julyZip = Path.Combine(dirRoot.FullName,"july.zip");
 
@@ -109,7 +109,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             host.AccessionDirectoryMessageConsumer.RunSingleFile(new FileInfo(julyZip));
 
-            Assert.AreEqual(11,_helper.ImageCount);
+            Assert.That(_helper.ImageCount,Is.EqualTo(11));
             Assert.GreaterOrEqual(_helper.SeriesCount,1);
         }
     }

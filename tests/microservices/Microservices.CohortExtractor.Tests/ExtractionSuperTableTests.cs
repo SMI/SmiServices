@@ -98,7 +98,7 @@ namespace Microservices.CohortExtractor.Tests
             const int testrows = 300;
             var tbl = BuildExampleExtractionTable(db, "CT", testrows, true);
 
-            Assert.AreEqual(testrows, tbl.GetRowCount());
+            Assert.That(tbl.GetRowCount(),Is.EqualTo(testrows));
 
             var cata = Import(tbl);
             
@@ -128,7 +128,7 @@ namespace Microservices.CohortExtractor.Tests
             }
 
             //currently all images are extractable
-            Assert.AreEqual(testrows, matches);
+            Assert.That(matches,Is.EqualTo(testrows));
 
             //now make 10 not extractable
             using (var con = tbl.Database.Server.GetConnection())
@@ -152,11 +152,11 @@ namespace Microservices.CohortExtractor.Tests
                 matches += msgOut.Accepted.Count;
                 rejections += msgOut.Rejected.Count;
 
-                Assert.IsTrue(msgOut.Rejected.All(v=>v.RejectReason!.Equals("We decided NO!")));
+                Assert.That(msgOut.Rejected.All(v=>v.RejectReason!.Equals("We decided NO!")),Is.True);
             }
 
-            Assert.AreEqual(testrows-10, matches);
-            Assert.AreEqual(10, rejections);
+            Assert.That(matches,Is.EqualTo(testrows-10));
+            Assert.That(rejections,Is.EqualTo(10));
 
         }
 
@@ -207,32 +207,32 @@ namespace Microservices.CohortExtractor.Tests
             }
 
             //expect only the MR images to be returned
-            Assert.AreEqual(30,matches);
+            Assert.That(matches,Is.EqualTo(30));
 
 
             // Ask for something that doesn't exist
             msgIn.Modalities = "Hello";
             var ex = Assert.Throws<Exception>(()=>fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            StringAssert.Contains("Modality=Hello",ex!.Message);
+            Assert.That(ex!.Message,Does.Contain("Modality=Hello"));
 
             // Ask for all modalities at once by not specifying any
             msgIn.Modalities = null;
-            Assert.AreEqual(100,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
+            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count),Is.EqualTo(100));
             
             // Ask for both modalities specifically
             msgIn.Modalities = "CT,Hello";
-            Assert.AreEqual(70,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
+            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count),Is.EqualTo(70));
 
             // Ask for both modalities specifically
             msgIn.Modalities = "CT,MR";
-            Assert.AreEqual(100,fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count));
+            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count),Is.EqualTo(100));
 
             //when we don't have that flag anymore the error should tell us that
             tblCT.DropColumn(tblCT.DiscoverColumn("IsOriginal"));
             msgIn.Modalities = "CT,MR";
 
             ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            StringAssert.Contains("IsOriginal",ex!.Message);
+            Assert.That(ex!.Message,Does.Contain("IsOriginal"));
 
         }
 

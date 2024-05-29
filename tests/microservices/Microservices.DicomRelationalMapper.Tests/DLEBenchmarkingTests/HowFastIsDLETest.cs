@@ -97,7 +97,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             using (var generator = new DicomDataGenerator(r, TestContext.CurrentContext.TestDirectory, "CT"){NoPixels = true})
                 allImages = generator.GenerateImages(numberOfImages, r);
 
-            Assert.AreEqual(numberOfImages, allImages.Count);
+            Assert.That(allImages.Count,Is.EqualTo(numberOfImages));
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions))
             {
@@ -145,8 +145,8 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             sw.Stop();
             Console.WriteLine($"GetChunk took {sw.ElapsedMilliseconds}");
 
-            Assert.AreEqual(numberOfImages, dt.Rows.Count);
-            Assert.AreEqual(numberOfImages, dt.Rows.Cast<DataRow>().Select(static w => w["SOPInstanceUID"]).Distinct().Count());
+            Assert.That(dt.Rows.Count,Is.EqualTo(numberOfImages));
+            Assert.That(dt.Rows.Cast<DataRow>().Select(static w => w["SOPInstanceUID"]).Distinct().Count(),Is.EqualTo(numberOfImages));
         }
 
         [TestCase(DatabaseType.MySql, 500)]
@@ -191,8 +191,8 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
             source.Dispose(ThrowImmediatelyDataLoadEventListener.Noisy, null);
 
-            Assert.AreEqual(numberOfImages, allImages.Count);
-            Assert.AreEqual(numberOfImages, dt.Rows.Count);
+            Assert.That(allImages.Count,Is.EqualTo(numberOfImages));
+            Assert.That(dt.Rows.Count,Is.EqualTo(numberOfImages));
 
             var tables = _helper.LoadMetadata!.GetDistinctTableInfoList(false);
 
@@ -238,8 +238,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             }
 
             foreach (var tableInfo in tables)
-                Assert.AreEqual(numberOfImages,
-                    tableInfo.Discover(DataAccessContext.InternalDataProcessing).GetRowCount(),
+                Assert.That(tableInfo.Discover(DataAccessContext.InternalDataProcessing).GetRowCount(),Is.EqualTo(numberOfImages),
                     "Row count was wrong for " + tableInfo);
 
             foreach (Pipeline allObject in CatalogueRepository.GetAllObjects<Pipeline>())

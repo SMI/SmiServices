@@ -145,7 +145,7 @@ namespace Applications.ExtractImages.Tests
 
         [TestCase(null)]
         [TestCase("  ")]
-        public void ExtractionDirs_AreValidated(string dir)
+        public void ExtractionDirs_AreValidated(string? dir)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -161,7 +161,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionDir", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("extractionDir"));
 
             exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -177,12 +177,12 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("extractionRoot", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("extractionRoot"));
         }
 
         [TestCase(null)]
         [TestCase("  ")]
-        public void ProjectId_IsValidated(string projectId)
+        public void ProjectId_IsValidated(string? projectId)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
@@ -198,7 +198,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.AreEqual("ProjectId", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("ProjectId"));
         }
 
         [Test]
@@ -241,7 +241,7 @@ namespace Applications.ExtractImages.Tests
             {
                 sender.SendMessages(ExtractionKey.StudyInstanceUID, new List<string>());
             });
-            Assert.AreEqual("ID list is empty", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("ID list is empty"));
         }
 
         [Test]

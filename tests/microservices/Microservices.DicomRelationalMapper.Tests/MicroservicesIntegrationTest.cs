@@ -175,7 +175,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
         [TestCase(DatabaseType.MicrosoftSQLServer, null)]
         [TestCase(DatabaseType.MySql, typeof(RejectAll))]
-        public void IntegrationTest_Rejector(DatabaseType databaseType, Type rejector)
+        public void IntegrationTest_Rejector(DatabaseType databaseType, Type? rejector)
         {
             var server = GetCleanedServer(databaseType, ScratchDatabaseName);
             SetupSuite(server, false, "MR_");
@@ -315,10 +315,10 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             RunTest(dir, 1);
 
-            Assert.AreEqual(1, _helper.ImageTable!.GetRowCount());
+            Assert.That(_helper.ImageTable!.GetRowCount(),Is.EqualTo(1));
 
             var isoTable = server.ExpectTable($"{_helper.ImageTable.GetRuntimeName()}_Isolation");
-            Assert.AreEqual(2, isoTable.GetRowCount());
+            Assert.That(isoTable.GetRowCount(),Is.EqualTo(2));
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer, true)]
@@ -381,8 +381,8 @@ namespace Microservices.DicomRelationalMapper.Tests
             RunTest(dir, 1);
 
             var tbl = _helper.ImageTable.GetDataTable();
-            Assert.AreEqual(1, tbl.Rows.Count);
-            Assert.AreEqual("Full fidelity image, uncompressed or lossless compressed", tbl.Rows[0]["d_DerivationCodeMeaning"]);
+            Assert.That(tbl.Rows.Count,Is.EqualTo(1));
+            Assert.That(tbl.Rows[0]["d_DerivationCodeMeaning"],Is.EqualTo("Full fidelity image, uncompressed or lossless compressed"));
 
             _helper.ImageTable.DropColumn(_helper.ImageTable.DiscoverColumn("d_DerivationCodeMeaning"));
 
@@ -504,10 +504,10 @@ namespace Microservices.DicomRelationalMapper.Tests
                 TestTimelineAwaiter.Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
                 logger.Info("\n### IdentifierMapper has processed its messages ###\n");
 
-                Assert.AreEqual(0, dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount);
-                Assert.AreEqual(0, identifierMapperHost.Consumer.NackCount);
-                Assert.AreEqual(0, ((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount);
-                Assert.AreEqual(0, ((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount);
+                Assert.That(dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount,Is.EqualTo(0));
+                Assert.That(identifierMapperHost.Consumer.NackCount,Is.EqualTo(0));
+                Assert.That(((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount,Is.EqualTo(0));
+                Assert.That(((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount,Is.EqualTo(0));
 
 
                 try
@@ -528,13 +528,13 @@ namespace Microservices.DicomRelationalMapper.Tests
                                 logger.Error($"{e.Date.TimeOfDay}:{e.Source}:{e.Description}");
                 }
 
-                Assert.AreEqual(numberOfExpectedRows, _helper.ImageTable!.GetRowCount(), "All images should appear in the image table");
+                Assert.That(_helper.ImageTable!.GetRowCount(),Is.EqualTo(numberOfExpectedRows), "All images should appear in the image table");
                 Assert.LessOrEqual(_helper.SeriesTable!.GetRowCount(), numberOfExpectedRows, "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
                 Assert.LessOrEqual(_helper.StudyTable!.GetRowCount(), numberOfExpectedRows, "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
                 Assert.LessOrEqual(_helper.StudyTable.GetRowCount(), _helper.SeriesTable.GetRowCount(), "There should be less studies than series (or equal)");
 
                 //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
-                Assert.AreEqual("FISHFISH", _helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"]);
+                Assert.That(_helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"],Is.EqualTo("FISHFISH"));
 
                 //The file size in the final table should be more than 0
                 Assert.Greater((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"], 0);

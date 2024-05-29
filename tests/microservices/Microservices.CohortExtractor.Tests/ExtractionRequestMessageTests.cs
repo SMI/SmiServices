@@ -13,7 +13,7 @@ namespace Microservices.CohortExtractor.Tests
             msg.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
             msg.ExtractionIdentifiers.Add("1.2.3");
 
-            Assert.AreEqual("StudyInstanceUID",msg.KeyTag);
+            Assert.That(msg.KeyTag,Is.EqualTo("StudyInstanceUID"));
             Assert.Contains("1.2.3",msg.ExtractionIdentifiers);
         }
     }

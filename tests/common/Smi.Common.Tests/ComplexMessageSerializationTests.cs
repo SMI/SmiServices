@@ -26,8 +26,8 @@ namespace Smi.Common.Tests
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
-            Assert.AreEqual(msg2!.ExtractFileMessagesDispatched.Count,1);
-            Assert.IsTrue(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader);
+            Assert.That(msg2!.ExtractFileMessagesDispatched.Count,Is.EqualTo(1));
+            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
         }
 
         [Test]
@@ -51,10 +51,10 @@ namespace Smi.Common.Tests
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
-            Assert.AreEqual(msg2!.ExtractFileMessagesDispatched.Count, 1);
-            Assert.IsTrue(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader);
+            Assert.That(msg2!.ExtractFileMessagesDispatched.Count,Is.EqualTo(1));
+            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
 
-            Assert.AreEqual(child.MessageGuid,msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid);
+            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid,Is.EqualTo(child.MessageGuid));
             Assert.Contains(parent.MessageGuid,msg2.ExtractFileMessagesDispatched.Keys.First().Parents);
             Assert.Contains(grandparent.MessageGuid, msg2.ExtractFileMessagesDispatched.Keys.First().Parents);
         }
@@ -83,7 +83,7 @@ namespace Smi.Common.Tests
             Assert.NotNull(json);
 
             var reconstructed = JsonConvert.DeserializeObject<ExtractionRequestMessage>(json);
-            Assert.AreEqual(message, reconstructed);
+            Assert.That(reconstructed,Is.EqualTo(message));
         }
     }
 }

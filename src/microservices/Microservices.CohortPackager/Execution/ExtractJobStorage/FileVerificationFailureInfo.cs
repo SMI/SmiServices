@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
@@ -21,8 +22,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 
 
         public FileVerificationFailureInfo(
-            string anonFilePath,
-            string failureData
+            [NotNull] string? anonFilePath,
+            [NotNull] string? failureData
         )
         {
             AnonFilePath = string.IsNullOrWhiteSpace(anonFilePath) ? throw new ArgumentException(nameof(anonFilePath)) : anonFilePath;

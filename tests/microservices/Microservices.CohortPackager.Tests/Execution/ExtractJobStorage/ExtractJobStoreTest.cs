@@ -133,7 +133,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
         {
             var store = new TestExtractJobStore();
             Assert.Throws<ArgumentNullException>(() => store.GetCompletedJobMissingFileList(default));
-            Assert.AreEqual(new[] { "missing" }, store.GetCompletedJobMissingFileList(Guid.NewGuid()));
+            Assert.That(store.GetCompletedJobMissingFileList(Guid.NewGuid()),Is.EqualTo(new[] { "missing" }));
         }
 
         #endregion

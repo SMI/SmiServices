@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Messages;
 using System;
 using System.Collections.Generic;
@@ -53,12 +53,12 @@ namespace Smi.Common.Tests.Messages
 
             // Test all the various flavours of equality
 
-            Assert.AreEqual(h1, h2);
+            Assert.That(h2,Is.EqualTo(h1));
             Assert.True(Equals(h1, h2));
             Assert.True(h1.Equals(h2));
             Assert.True(h1 == h2);
 
-            Assert.AreNotEqual(h1, h3);
+            Assert.That(h3,Is.Not.EqualTo(h1));
             Assert.False(Equals(h1, h3));
             Assert.False(h1.Equals(h3));
             Assert.True(h1 != h3);
@@ -70,8 +70,8 @@ namespace Smi.Common.Tests.Messages
             var h1 = new MessageHeader(_testProps);
             var h2 = new MessageHeader(_testProps);
             // "A hash function must have the following properties: - If two objects compare as equal, the GetHashCode() method for each object must return the same value"
-            Assert.AreEqual(h1, h2);
-            Assert.AreEqual(h1.GetHashCode(), h2.GetHashCode());
+            Assert.That(h2,Is.EqualTo(h1));
+            Assert.That(h2.GetHashCode(),Is.EqualTo(h1.GetHashCode()));
         }
     }
 }

@@ -75,8 +75,8 @@ namespace Smi.Common.Tests
         {
             var factory = new GlobalOptionsFactory(new List<IOptionsDecorator> { new TestDecorator() });
             var g = factory.Load(nameof(TestDecorators));
-            Assert.AreEqual("FFFFF", g.MongoDatabases!.DicomStoreOptions!.DatabaseName);
-            Assert.AreEqual("FFFFF", g.MongoDatabases.ExtractionStoreOptions!.DatabaseName);
+            Assert.That(g.MongoDatabases!.DicomStoreOptions!.DatabaseName,Is.EqualTo("FFFFF"));
+            Assert.That(g.MongoDatabases.ExtractionStoreOptions!.DatabaseName,Is.EqualTo("FFFFF"));
         }
     }
 }

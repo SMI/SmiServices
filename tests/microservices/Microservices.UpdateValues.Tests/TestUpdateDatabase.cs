@@ -43,26 +43,26 @@ namespace Microservices.UpdateValues.Tests
             var tblToUpdate = SetupTestTable(dbType);
 
             var updater = new Updater(CatalogueRepository);
-            
+
             //update PatientID that does not exist
-            Assert.AreEqual(0,updater.HandleUpdate(new UpdateValuesMessage
+            Assert.That(updater.HandleUpdate(new UpdateValuesMessage
             { 
                 WhereFields = new[]{ "PatientID"},
                 HaveValues = new[]{ "5345"},
                 WriteIntoFields = new[]{ "PatientID"},
                 Values = new[]{ "999"}
-            }), "Should not have been any updates because there is no patient number 5345");
-                        
+            }),Is.EqualTo(0), "Should not have been any updates because there is no patient number 5345");
+
             //update PatientID that DOES exist
-            Assert.AreEqual(2,updater.HandleUpdate(new UpdateValuesMessage
+            Assert.That(updater.HandleUpdate(new UpdateValuesMessage
             { 
                 WhereFields = new[]{ "PatientID"},
                 HaveValues = new[]{ "111"},
                 WriteIntoFields = new[]{ "PatientID"},
                 Values = new[]{ "222"}
-            }), "Should have been 2 rows updated");
+            }),Is.EqualTo(2), "Should have been 2 rows updated");
 
-            Assert.AreEqual(2,tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222));
+            Assert.That(tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222),Is.EqualTo(2));
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -72,17 +72,17 @@ namespace Microservices.UpdateValues.Tests
             var tblToUpdate = SetupTestTable(dbType);
 
             var updater = new Updater(CatalogueRepository);
-            
+
             //update PatientID that DOES exist, there are 2 patient 111s but only one has the Age 3
-            Assert.AreEqual(1,updater.HandleUpdate(new UpdateValuesMessage
+            Assert.That(updater.HandleUpdate(new UpdateValuesMessage
             { 
                 WhereFields = new[]{ "PatientID","Age"},
                 HaveValues = new[]{ "111","3"},
                 WriteIntoFields = new[]{ "PatientID"},
                 Values = new[]{ "222"}
-            }));
+            }),Is.EqualTo(1));
 
-            Assert.AreEqual(1,tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222));
+            Assert.That(tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222),Is.EqualTo(1));
         }
         
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -92,9 +92,9 @@ namespace Microservices.UpdateValues.Tests
             var tblToUpdate = SetupTestTable(dbType);
 
             var updater = new Updater(CatalogueRepository);
-            
+
             //update PatientID that DOES exist, there are 2 patient 111s both are under 6
-            Assert.AreEqual(2,updater.HandleUpdate(new UpdateValuesMessage
+            Assert.That(updater.HandleUpdate(new UpdateValuesMessage
             { 
                 WhereFields = new[]{ "PatientID","Age"},
                 HaveValues = new[]{ "111","6"},
@@ -102,9 +102,9 @@ namespace Microservices.UpdateValues.Tests
                 WriteIntoFields = new[]{ "PatientID"},
                 Values = new[]{ "222"},
                 
-            }));
+            }),Is.EqualTo(2));
 
-            Assert.AreEqual(2,tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222));
+            Assert.That(tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r=>(int)r["PatientID"] == 222),Is.EqualTo(2));
         }
         [Test]
         public void Test_TableInfoNotFound()
@@ -121,7 +121,7 @@ namespace Microservices.UpdateValues.Tests
                 ExplicitTableInfo = new int[]{ 999999999}
             }));
 
-            Assert.AreEqual("Could not find all TableInfos IDs=999999999.  Found 0:",ex!.Message);
+            Assert.That(ex!.Message,Is.EqualTo("Could not find all TableInfos IDs=999999999.  Found 0:"));
         }
         
         [Test]
@@ -142,7 +142,7 @@ namespace Microservices.UpdateValues.Tests
 
             TestContext.WriteLine(ex!.Message);
 
-            Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=Blarg WriteIntoFields=PatientID",ex.Message);
+            Assert.That(ex.Message,Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=Blarg WriteIntoFields=PatientID"));
         }
         
         [Test]
@@ -163,7 +163,7 @@ namespace Microservices.UpdateValues.Tests
 
             TestContext.WriteLine(ex!.Message);
 
-            Assert.AreEqual("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=PatientID WriteIntoFields=Blarg",ex.Message);
+            Assert.That(ex.Message,Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=PatientID WriteIntoFields=Blarg"));
         }
 
 

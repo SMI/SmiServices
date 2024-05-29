@@ -49,7 +49,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
                 var expectedProp = prop.GetValue(expected);
                 var parsedProp = prop.GetValue(actual);
-                Assert.AreEqual(expectedProp, parsedProp);
+                Assert.That(parsedProp,Is.EqualTo(expectedProp));
             }
         }
 
@@ -70,7 +70,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     null
                 )
             );
-            Assert.AreEqual("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
 
             exc = Assert.Throws<ArgumentException>(() =>
                 new MongoFileStatusDoc(
@@ -82,7 +82,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     "  "
                 )
             );
-            Assert.AreEqual("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')", exc!.Message);
+            Assert.That(exc!.Message,Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
 
             var _ = new MongoFileStatusDoc(
                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
@@ -289,7 +289,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotIdentifiable,
                 "anonymised");
 
-            Assert.AreEqual(doc1, doc2);
+            Assert.That(doc2,Is.EqualTo(doc1));
         }
 
         [Test]
@@ -312,7 +312,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotIdentifiable,
                 "anonymised");
 
-            Assert.AreEqual(doc1.GetHashCode(), doc2.GetHashCode());
+            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

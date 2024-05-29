@@ -62,14 +62,14 @@ namespace Smi.Common.MongoDB.Tests
             Task<IAsyncCursor<BsonDocument>> t = MongoQueryParser.GetCursor(coll, findOptions, jsonQuery);
 
             t.Wait(1_000);
-            Assert.IsTrue(t.IsCompleted);
+            Assert.That(t.IsCompleted,Is.True);
             Assert.IsFalse(t.IsFaulted);
 
             using IAsyncCursor<BsonDocument> _ = t.Result;
             _logger.Info("Received new batch");
 
-            Assert.AreEqual(expectedSkip, findOptions.Skip);
-            Assert.AreEqual(expectedLimit, findOptions.Limit);
+            Assert.That(findOptions.Skip,Is.EqualTo(expectedSkip));
+            Assert.That(findOptions.Limit,Is.EqualTo(expectedLimit));
         }
 
         #endregion

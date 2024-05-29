@@ -58,7 +58,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var fi = new FileInfo(Path.Combine(_helper.TestDir.FullName, "InvalidFile.dcm"));
             File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
 
-            Assert.AreEqual(2,_helper.TestDir.EnumerateFiles("*.dcm").Count());
+            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(),Is.EqualTo(2));
 
             _helper.Options.DicomTagReaderOptions!.NackIfAnyFileErrors = nackIfAnyFileErrors;
             _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
@@ -204,7 +204,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             
             Assert.True(seriesMessage!.ImagesInSeries == 4, "Expected 4, 2 in the zip archive and 2 in the root");
 
-            Assert.AreEqual(4,fileImages.Count,"Expected 4 file messages to be sent and recorded by TestImageModel Callback");
+            Assert.That(fileImages.Count,Is.EqualTo(4),"Expected 4 file messages to be sent and recorded by TestImageModel Callback");
 
             Assert.Contains("MyTestFile.dcm",fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray());
             Assert.Contains("MyTestFile2.dcm",fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray());
@@ -226,7 +226,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
 
             // One valid, one invalid
-            Assert.AreEqual(2,_helper.TestDir.EnumerateFiles("*.dcm").Count());
+            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(),Is.EqualTo(2));
 
             var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
 
