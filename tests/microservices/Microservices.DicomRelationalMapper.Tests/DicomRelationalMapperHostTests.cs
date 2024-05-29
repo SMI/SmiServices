@@ -36,7 +36,7 @@ namespace Microservices.Tests.RDMPTests
             var consumerOptions = globals.DicomRelationalMapperOptions;
 
             var lmd = new LoadMetadata(CatalogueRepository, "MyLoad");
-            cata.LoadMetadata_ID = lmd.ID;
+            lmd.LinkToCatalogue(cata);
             cata.SaveToDatabase();
 
             consumerOptions!.LoadMetadataId = lmd.ID;
