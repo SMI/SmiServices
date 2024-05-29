@@ -50,7 +50,11 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
             (ExtractionKey extractionKey, List<string> ids) = parser.Parse("foo.csv");
 
-            Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+            Assert.Multiple(() =>
+            {
+                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+                Assert.That(extractionKey,Is.EqualTo(expectedExtractionKey));
+            });
         }
 
         [Test]
