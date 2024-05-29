@@ -62,14 +62,14 @@ namespace Applications.TriggerUpdates.Tests
                 swapper.Setup(mapperOptions);
 
                 guidTable = swapper.GetGuidTableIfAny(mapperOptions);
-                Assert.That(guidTable?.GetRowCount(),Is.EqualTo(0), "No temporary guids should exist yet");
+                Assert.That(guidTable?.GetRowCount(),Is.EqualTo(0),"No temporary guids should exist yet");
                 Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
-            
+
                 //lookup an as yet unknown value
                 swapper.GetSubstitutionFor("0202020202",out _);
 
                 Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
-                Assert.That(guidTable?.GetRowCount(),Is.EqualTo(1), "We should have a temporary guid for 0202020202");
+                Assert.That(guidTable?.GetRowCount(),Is.EqualTo(1),"We should have a temporary guid for 0202020202");
             }
             else
                 guidTable = null;
@@ -96,7 +96,7 @@ namespace Applications.TriggerUpdates.Tests
 
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
-            Assert.IsEmpty(source.GetUpdates(), "Since 0303030303 has never before been seen (not in guid table) we don't have any existing mappings to update");
+            Assert.That(source.GetUpdates(),Is.Empty, "Since 0303030303 has never before been seen (not in guid table) we don't have any existing mappings to update");
         }
         
         [TestCase(DatabaseType.MySql)]
@@ -129,23 +129,29 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
-            Assert.That(archive.GetRowCount(),Is.EqualTo(1), "Expected the old ECHI to have an entry in the archive when it was updated");
+            Assert.Multiple(() =>
+            {
+                Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
+                Assert.That(archive.GetRowCount(),Is.EqualTo(1),"Expected the old ECHI to have an entry in the archive when it was updated");
 
-            Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+                Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+            });
 
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
             var msg = source.GetUpdates().ToArray();
-            Assert.IsNotNull(msg);
+            Assert.That(msg,Is.Not.Null);
 
-            Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("ECHI"));
-            Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("ECHI"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("ECHI"));
+                Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("ECHI"));
 
-            Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("0A0A0A0A0A"));
-            Assert.That(msg[0].Values.Single(),Is.EqualTo("0Z0Z0Z0Z0Z"));
+                Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(msg[0].Values.Single(),Is.EqualTo("0Z0Z0Z0Z0Z"));
 
-            Assert.That(msg.Length,Is.EqualTo(1), "We expected only one update");
+                Assert.That(msg,Has.Length.EqualTo(1),"We expected only one update");
+            });
         }
 
         [TestCase(DatabaseType.MySql)]
@@ -162,10 +168,13 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
-            Assert.That(archive.GetRowCount(),Is.EqualTo(1), "Expected the old ECHI to have an entry in the archive when it was updated");
+            Assert.Multiple(() =>
+            {
+                Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
+                Assert.That(archive.GetRowCount(),Is.EqualTo(1),"Expected the old ECHI to have an entry in the archive when it was updated");
 
-            Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+                Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+            });
 
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions
             {
@@ -176,15 +185,18 @@ namespace Applications.TriggerUpdates.Tests
             });
 
             var msg = source.GetUpdates().ToArray();
-            Assert.IsNotNull(msg);
+            Assert.That(msg,Is.Not.Null);
 
-            Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
-            Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
+            Assert.Multiple(() =>
+            {
+                Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
+                Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
 
-            Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("0A0A0A0A0A"));
-            Assert.That(msg[0].Values.Single(),Is.EqualTo("0Z0Z0Z0Z0Z"));
+                Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(msg[0].Values.Single(),Is.EqualTo("0Z0Z0Z0Z0Z"));
 
-            Assert.That(msg.Length,Is.EqualTo(1), "We expected only one update");
+                Assert.That(msg,Has.Length.EqualTo(1),"We expected only one update");
+            });
         }
 
         
@@ -202,10 +214,13 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
-            Assert.That(archive.GetRowCount(),Is.EqualTo(1), "Expected the old ECHI to have an entry in the archive when it was updated");
+            Assert.Multiple(() =>
+            {
+                Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
+                Assert.That(archive.GetRowCount(),Is.EqualTo(1),"Expected the old ECHI to have an entry in the archive when it was updated");
 
-            Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+                Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+            });
 
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions
             {
@@ -217,15 +232,18 @@ namespace Applications.TriggerUpdates.Tests
             });
 
             var msg = source.GetUpdates().ToArray();
-            Assert.IsNotNull(msg);
+            Assert.That(msg,Is.Not.Null);
 
-            Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
-            Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
+            Assert.Multiple(() =>
+            {
+                Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
+                Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("PatientID"),"Expected the column in the live database to be updated to be the explicit column name we provided on the command line");
 
-            Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("'0A0A0A0A0A'"));
-            Assert.That(msg[0].Values.Single(),Is.EqualTo("null"));
+                Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("'0A0A0A0A0A'"));
+                Assert.That(msg[0].Values.Single(),Is.EqualTo("null"));
 
-            Assert.That(msg.Length,Is.EqualTo(1), "We expected only one update");
+                Assert.That(msg,Has.Length.EqualTo(1),"We expected only one update");
+            });
         }
 
         
@@ -247,22 +265,28 @@ namespace Applications.TriggerUpdates.Tests
                 });
             
             var oldTempGuid = guidTable!.GetDataTable().Rows[0][TableLookupWithGuidFallbackSwapper.GuidColumnName];
-            Assert.IsNotNull(oldTempGuid);
+            Assert.Multiple(() =>
+            {
+                Assert.That(oldTempGuid,Is.Not.Null);
 
-            Assert.That(map.GetRowCount(),Is.EqualTo(2),"We should have a mapping table with 2 entries, the old existing one 0101010101 and a new one 0202020202");
+                Assert.That(map.GetRowCount(),Is.EqualTo(2),"We should have a mapping table with 2 entries, the old existing one 0101010101 and a new one 0202020202");
+            });
 
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions()  }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
             var msg = source.GetUpdates().ToArray();
-            Assert.IsNotNull(msg);
+            Assert.That(msg,Is.Not.Null);
 
-            Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("ECHI"));
-            Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("ECHI"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("ECHI"));
+                Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("ECHI"));
 
-            Assert.That(msg[0].HaveValues.Single(),Is.EqualTo(oldTempGuid),"Expected the temporary guid to be the thing we are searching for to replace");
-            Assert.That(msg[0].Values.Single(),Is.EqualTo("0X0X0X0X0X"),"Expected the replacement value to be the new legit mapping");
+                Assert.That(msg[0].HaveValues.Single(),Is.EqualTo(oldTempGuid),"Expected the temporary guid to be the thing we are searching for to replace");
+                Assert.That(msg[0].Values.Single(),Is.EqualTo("0X0X0X0X0X"),"Expected the replacement value to be the new legit mapping");
 
-            Assert.That(msg.Length,Is.EqualTo(1), "We expected only one update");
+                Assert.That(msg,Has.Length.EqualTo(1),"We expected only one update");
+            });
         }
         
         [TestCase(DatabaseType.MySql)]
@@ -279,23 +303,29 @@ namespace Applications.TriggerUpdates.Tests
             }
             
             var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
-            Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
-            Assert.That(archive.GetRowCount(),Is.EqualTo(1), "Expected the old ECHI to have an entry in the archive when it was updated");
+            Assert.Multiple(() =>
+            {
+                Assert.That(archive.Exists(),Is.True,"Archive table should definitely be there, we created the trigger after all");
+                Assert.That(archive.GetRowCount(),Is.EqualTo(1),"Expected the old ECHI to have an entry in the archive when it was updated");
 
-            Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+                Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+            });
 
             var source = new MapperSource(new GlobalOptions {IdentifierMapperOptions = mapperOptions,TriggerUpdatesOptions = new TriggerUpdatesOptions() }, new TriggerUpdatesFromMapperOptions {DateOfLastUpdate = new DateTime(2020,01,01)});
 
             var msg = source.GetUpdates().ToArray();
-            Assert.IsNotNull(msg);
+            Assert.That(msg,Is.Not.Null);
 
-            Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("ECHI"));
-            Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("ECHI"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(msg[0].WhereFields.Single(),Is.EqualTo("ECHI"));
+                Assert.That(msg[0].WriteIntoFields.Single(),Is.EqualTo("ECHI"));
 
-            Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("0A0A0A0A0A"));
-            Assert.That(msg[0].Values.Single(),Is.EqualTo("0Z0Z0Z0Z0Z"));
+                Assert.That(msg[0].HaveValues.Single(),Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(msg[0].Values.Single(),Is.EqualTo("0Z0Z0Z0Z0Z"));
 
-            Assert.That(msg.Length,Is.EqualTo(1), "We expected only one update");
+                Assert.That(msg,Has.Length.EqualTo(1),"We expected only one update");
+            });
         }
     }
 }

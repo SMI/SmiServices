@@ -95,7 +95,7 @@ namespace Microservices.CohortPackager.Tests.Execution
 
             string extractReportsDirAbsolute = Path.Combine(pf.ProjReportsDirAbsolute, pf.ExtractName);
             var expectedReports = isIdentifiableExtraction ? 3 : 4;
-            Assert.That(Directory.GetFiles(extractReportsDirAbsolute).Length,Is.EqualTo(expectedReports));
+            Assert.That(Directory.GetFiles(extractReportsDirAbsolute),Has.Length.EqualTo(expectedReports));
             string[] reportContent = File.ReadAllLines(Path.Combine(extractReportsDirAbsolute, "README.md"));
             Assert.That(reportContent[0],Is.EqualTo(firstLine));
         }

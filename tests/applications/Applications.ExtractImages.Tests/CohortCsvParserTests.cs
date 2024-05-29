@@ -66,8 +66,11 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
             (ExtractionKey extractionKey, List<string> ids) = parser.Parse("foo.csv");
 
-            Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-            Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4", "5.6.7.8" }));
+            Assert.Multiple(() =>
+            {
+                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4","5.6.7.8" }));
+            });
         }
 
         [Test]
@@ -83,8 +86,11 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
             (ExtractionKey extractionKey, List<string> ids) = parser.Parse("foo.csv");
 
-            Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-            Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4", "5.6.7.8" }));
+            Assert.Multiple(() =>
+            {
+                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4","5.6.7.8" }));
+            });
         }
 
         [Test]
@@ -100,8 +106,11 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
             (ExtractionKey extractionKey, List<string> ids) = parser.Parse("foo.csv");
 
-            Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-            Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+            Assert.Multiple(() =>
+            {
+                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+            });
         }
 
         [Test]
@@ -117,8 +126,11 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
             (ExtractionKey extractionKey, List<string> ids) = parser.Parse("foo.csv");
 
-            Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-            Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+            Assert.Multiple(() =>
+            {
+                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+            });
         }
 
         [Test]
@@ -150,7 +162,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.True(exc!.Message.StartsWith("CSV header must be a valid ExtractionKey"));
+            Assert.That(exc!.Message,Does.StartWith("CSV header must be a valid ExtractionKey"));
         }
 
         [Test]

@@ -15,8 +15,11 @@ namespace Smi.Common.Tests.Options
                 ExtractRoot = "/",
             };
 
-            Assert.That(opts.FileSystemRoot,Is.EqualTo("/"));
-            Assert.That(opts.ExtractRoot,Is.EqualTo("/"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(opts.FileSystemRoot,Is.EqualTo("/"));
+                Assert.That(opts.ExtractRoot,Is.EqualTo("/"));
+            });
         }
     }
 }

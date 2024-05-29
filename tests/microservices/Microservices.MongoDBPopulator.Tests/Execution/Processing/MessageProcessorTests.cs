@@ -47,12 +47,15 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             var processor = new TestMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter, 1, exceptionCallback);
 
-            Assert.False(processor.IsStopping);
+            Assert.That(processor.IsStopping,Is.False);
 
             Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) + 100);
 
-            Assert.True(callbackUsed);
-            Assert.True(processor.IsStopping);
+            Assert.Multiple(() =>
+            {
+                Assert.That(callbackUsed,Is.True);
+                Assert.That(processor.IsStopping,Is.True);
+            });
         }
 
         // Implementation of MessageProcessor for testing

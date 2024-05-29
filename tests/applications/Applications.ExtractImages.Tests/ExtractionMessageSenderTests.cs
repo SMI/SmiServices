@@ -96,14 +96,14 @@ namespace Applications.ExtractImages.Tests
                 mockExtractionRequestProducer.Verify(expr, Times.Once);
                 mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
 
-                Assert.True(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")));
+                Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")),Is.True);
             }
             else
             {
                 mockExtractionRequestProducer.Verify(expr, Times.Never);
                 mockExtractionRequestInfoProducer.Verify(expr, Times.Never);
 
-                Assert.False(fs.Directory.Exists(extractDir));
+                Assert.That(fs.Directory.Exists(extractDir),Is.False);
             }
         }
 
@@ -140,7 +140,7 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestProducer.Verify(expr, Times.Once);
             mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
 
-            Assert.True(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")));
+            Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")),Is.True);
         }
 
         [TestCase(null)]
@@ -218,7 +218,7 @@ namespace Applications.ExtractImages.Tests
                     new RealConsoleInput()
                 );
             });
-            Assert.True(exc!.Message.EndsWith("(Parameter 'MaxIdentifiersPerMessage')"));
+            Assert.That(exc!.Message,Does.EndWith("(Parameter 'MaxIdentifiersPerMessage')"));
         }
 
 
@@ -281,7 +281,7 @@ namespace Applications.ExtractImages.Tests
             mockExtractionRequestProducer.Verify(expr, Times.Exactly(5));
             mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
 
-            Assert.True(idList.SequenceEqual(calledWith));
+            Assert.That(idList.SequenceEqual(calledWith),Is.True);
         }
 
         [TestCase(1, 1, 1)] // nIds = maxPerMessage  => 1 message

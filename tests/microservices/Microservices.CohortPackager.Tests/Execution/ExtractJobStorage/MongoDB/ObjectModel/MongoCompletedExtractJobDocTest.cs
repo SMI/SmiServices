@@ -81,16 +81,19 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             var mongoExtractJobDoc = BsonSerializer.Deserialize<MongoCompletedExtractJobDoc>(BsonDocument.Parse(jsonDoc));
 
-            // NOTE(rkm 2020-08-28) This works by chance since the missing bool will default to false, so we don't require MongoCompletedExtractJobDoc to implement ISupportInitialize
-            Assert.False(mongoExtractJobDoc.IsIdentifiableExtraction);
-            Assert.False(mongoExtractJobDoc.IsNoFilterExtraction);
+            Assert.Multiple(() =>
+            {
+                // NOTE(rkm 2020-08-28) This works by chance since the missing bool will default to false, so we don't require MongoCompletedExtractJobDoc to implement ISupportInitialize
+                Assert.That(mongoExtractJobDoc.IsIdentifiableExtraction,Is.False);
+                Assert.That(mongoExtractJobDoc.IsNoFilterExtraction,Is.False);
+            });
         }
 
         [Test]
         public void TestMongoCompletedExtractJobDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoCompletedExtractJobDoc).GetProperties())
-                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]

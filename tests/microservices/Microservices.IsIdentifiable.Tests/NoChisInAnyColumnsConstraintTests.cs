@@ -20,7 +20,7 @@ namespace Microservices.IsIdentifiable.Tests
         public void Test_SingleValue_IsNotChi(string testValue)
         {
             var constraint = new NoChisInAnyColumnsConstraint();
-            Assert.IsNull( constraint.Validate(new[] { testValue }, new[] { nameof(testValue) }));
+            Assert.That( constraint.Validate(new[] { testValue }, new[] { nameof(testValue) }),Is.Null);
         }
 
     }

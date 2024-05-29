@@ -1,4 +1,4 @@
-﻿
+
 
 using BadMedicine.Dicom;
 using Microservices.DicomTagReader.Execution;
@@ -100,17 +100,23 @@ namespace Microservices.DicomTagReader.Tests.Execution
 
             host.AccessionDirectoryMessageConsumer.RunSingleFile(files[2]);
 
-            Assert.That(_helper.ImageCount,Is.EqualTo(1));
-            Assert.That(_helper.SeriesCount,Is.EqualTo(1));
-            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_helper.ImageCount,Is.EqualTo(1));
+                Assert.That(_helper.SeriesCount,Is.EqualTo(1));
+            });
+
             var julyZip = Path.Combine(dirRoot.FullName,"july.zip");
 
             ZipFile.CreateFromDirectory(julyFolder.FullName,julyZip);
 
             host.AccessionDirectoryMessageConsumer.RunSingleFile(new FileInfo(julyZip));
 
-            Assert.That(_helper.ImageCount,Is.EqualTo(11));
-            Assert.GreaterOrEqual(_helper.SeriesCount,1);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_helper.ImageCount,Is.EqualTo(11));
+                Assert.That(_helper.SeriesCount,Is.GreaterThanOrEqualTo(1));
+            });
         }
     }
 }

@@ -61,9 +61,12 @@ namespace Microservices.DicomTagReader.Tests.Messaging
             consumer.SetModel(_mockModel ?? throw new InvalidOperationException());
             consumer.TestMessage(_helper.TestAccessionDirectoryMessage);
 
-            Assert.That(consumer.AckCount,Is.EqualTo(desiredAckCount));
-            Assert.That(consumer.NackCount,Is.EqualTo(desiredNackCount));
-            Assert.False(fatalCalled);
+            Assert.Multiple(() =>
+            {
+                Assert.That(consumer.AckCount,Is.EqualTo(desiredAckCount));
+                Assert.That(consumer.NackCount,Is.EqualTo(desiredNackCount));
+                Assert.That(fatalCalled,Is.False);
+            });
         }
 
         /// <summary>

@@ -97,12 +97,18 @@ namespace Microservices.FileCopier.Tests.Execution
                 Status = ExtractedFileStatus.Copied,
                 OutputFilePath = _requestMessage.OutputPath,
             };
-            Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
-            Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
+            Assert.Multiple(() =>
+            {
+                Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
+                Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
+            });
 
             string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
-            Assert.True(_mockFileSystem.File.Exists(expectedDest));
-            Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest),Is.EqualTo(_expectedContents));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_mockFileSystem.File.Exists(expectedDest),Is.True);
+                Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest),Is.EqualTo(_expectedContents));
+            });
         }
 
         [Test]
@@ -133,8 +139,11 @@ namespace Microservices.FileCopier.Tests.Execution
                 OutputFilePath = null,
                 StatusMessage = $"Could not find '{_mockFileSystem.Path.Combine(FileSystemRoot, "missing.dcm")}'"
             };
-            Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
-            Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
+            Assert.Multiple(() =>
+            {
+                Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
+                Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
+            });
         }
 
         [Test]
@@ -167,9 +176,12 @@ namespace Microservices.FileCopier.Tests.Execution
                 OutputFilePath = _requestMessage.OutputPath,
                 StatusMessage = null,
             };
-            Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
-            Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
-            Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest),Is.EqualTo(_expectedContents));
+            Assert.Multiple(() =>
+            {
+                Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
+                Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
+                Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest),Is.EqualTo(_expectedContents));
+            });
         }
 
         #endregion

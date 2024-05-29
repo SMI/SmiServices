@@ -22,7 +22,7 @@ namespace Smi.Common.Tests
             //trim off extras
             toReturn = toReturn.Take(numberOfImages).ToList();
 
-            Assert.That(toReturn.Count,Is.EqualTo(numberOfImages));
+            Assert.That(toReturn,Has.Count.EqualTo(numberOfImages));
 
             return toReturn;
         }

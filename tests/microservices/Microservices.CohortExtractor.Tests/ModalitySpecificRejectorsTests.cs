@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Options;
 using System;
 using System.IO;
@@ -31,12 +31,14 @@ CohortExtractorOptions:
 
             var opts = factory.Load("FF.DD", file);
 
-            Assert.That(opts.CohortExtractorOptions!.ModalitySpecificRejectors!.Length,Is.EqualTo(1));
-            Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors[0].Modalities,Is.EqualTo("CT,MR"));
-            Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors[0].GetModalities()[0],Is.EqualTo("CT"));
-            Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors[0].GetModalities()[1],Is.EqualTo("MR"));
-
-            Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors[0].RejectorType,Is.EqualTo("Microservices.CohortExtractor.Execution.RequestFulfillers.RejectNone"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(opts.CohortExtractorOptions!.ModalitySpecificRejectors!,Has.Length.EqualTo(1));
+                Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors?[0].Modalities,Is.EqualTo("CT,MR"));
+                Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors?[0].GetModalities()[0],Is.EqualTo("CT"));
+                Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors?[0].GetModalities()[1],Is.EqualTo("MR"));
+                Assert.That(opts.CohortExtractorOptions.ModalitySpecificRejectors?[0].RejectorType,Is.EqualTo("Microservices.CohortExtractor.Execution.RequestFulfillers.RejectNone"));
+            });
         }
 
         [Test]

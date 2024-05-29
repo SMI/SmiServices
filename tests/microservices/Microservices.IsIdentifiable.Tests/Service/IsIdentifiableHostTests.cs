@@ -62,7 +62,7 @@ namespace Microservices.IsIdentifiable.Tests.Service
             options.FileSystemOptions!.ExtractRoot = extractRoot;
 
             var host = new IsIdentifiableHost(options);
-            Assert.IsNotNull(host);
+            Assert.That(host,Is.Not.Null);
             host.Start();
 
             tester.SendMessage(options.IsIdentifiableServiceOptions, new ExtractedFileStatusMessage

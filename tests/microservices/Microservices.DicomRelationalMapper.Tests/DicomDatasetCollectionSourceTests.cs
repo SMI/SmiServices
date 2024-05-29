@@ -43,8 +43,11 @@ namespace Microservices.Tests.RDMPTests
             source.FilenameField = "RelFileName";
 
             var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
-            Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
-            Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
+                Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+            });
         }
 
 
@@ -76,19 +79,19 @@ namespace Microservices.Tests.RDMPTests
             {
                 case DataTooWideHandling.None:
                     Assert.That(dt.Rows[0]["AccessionNumber"],Is.EqualTo("1342340123129473279427572495349757459347839479375974"));
-                    Assert.That(worklist.CorruptMessages.Count,Is.EqualTo(0));
+                    Assert.That(worklist.CorruptMessages,Is.Empty);
                     break;
                 case DataTooWideHandling.TruncateAndWarn:
                     Assert.That(dt.Rows[0]["AccessionNumber"],Is.EqualTo("1342340123129473"));
-                    Assert.That(worklist.CorruptMessages.Count,Is.EqualTo(0));
+                    Assert.That(worklist.CorruptMessages,Is.Empty);
                     break;
                 case DataTooWideHandling.MarkCorrupt:
-                    Assert.IsNull(dt); //since dt has no rows it just returns null
-                    Assert.That(worklist.CorruptMessages.Count,Is.EqualTo(1));
+                    Assert.That(dt,Is.Null); //since dt has no rows it just returns null
+                    Assert.That(worklist.CorruptMessages,Has.Count.EqualTo(1));
                     break;
                 case DataTooWideHandling.ConvertToNullAndWarn:
                     Assert.That(dt.Rows[0]["AccessionNumber"],Is.EqualTo(DBNull.Value));
-                    Assert.That(worklist.CorruptMessages.Count,Is.EqualTo(0));
+                    Assert.That(worklist.CorruptMessages,Is.Empty);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("strategy");
@@ -132,10 +135,10 @@ namespace Microservices.Tests.RDMPTests
 
                     //should be a warning about WedgeAngleFloat logged
                     var warning = toMem.EventsReceivedBySender.SelectMany(static e => e.Value).Single(v => v.ProgressEventType == ProgressEventType.Warning);
-                    Assert.That(warning.Message.Contains("WedgeAngleFloat"),Is.True);
-                    Assert.That(warning.Message.Contains("MessageGuid"),Is.True);
-                    Assert.That(warning.Message.Contains("123x321"),Is.True);
-                    Assert.That(warning.Message.Contains("fish.dcm"),Is.True);
+                    Assert.That(warning.Message,Does.Contain("WedgeAngleFloat"));
+                    Assert.That(warning.Message,Does.Contain("MessageGuid"));
+                    Assert.That(warning.Message,Does.Contain("123x321"));
+                    Assert.That(warning.Message,Does.Contain("fish.dcm"));
 
                     break;
 
@@ -143,8 +146,11 @@ namespace Microservices.Tests.RDMPTests
                     throw new ArgumentOutOfRangeException(nameof(dataHandlingStrategy));
             }
 
-            Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
-            Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
+                Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+            });
         }
 
         [TestCase(InvalidDataHandling.ConvertToNullAndWarn)]
@@ -184,10 +190,10 @@ namespace Microservices.Tests.RDMPTests
                     dt =source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
 
                     //row was not processed (which leaves data table with 0 rows and hence component returns null)
-                    Assert.IsNull(dt);
+                    Assert.That(dt,Is.Null);
 
                     //corrupt message should appear in the worklist
-                    Assert.That(worklist.CorruptMessages.Count,Is.EqualTo(1));
+                    Assert.That(worklist.CorruptMessages,Has.Count.EqualTo(1));
                     return;
                 case InvalidDataHandling.ConvertToNullAndWarn:
                     dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
@@ -195,7 +201,7 @@ namespace Microservices.Tests.RDMPTests
                     Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
                     Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
                     Assert.That(dt.Rows[0]["AcquisitionContextSequence"],Is.EqualTo(DBNull.Value));
-                    Assert.That(worklist.CorruptMessages.Count,Is.EqualTo(0));
+                    Assert.That(worklist.CorruptMessages,Is.Empty);
                     break;
                 case InvalidDataHandling.ThrowException:
                     Assert.Throws<ArgumentException>(() => source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken()));
@@ -272,10 +278,10 @@ namespace Microservices.Tests.RDMPTests
 
                     //should be a warning about WedgeAngleFloat logged
                     var warning = tomem.EventsReceivedBySender.SelectMany(e => e.Value).Single(v => v.ProgressEventType == ProgressEventType.Warning);
-                    Assert.That(warning.Message.Contains("WedgeAngleFloat"),Is.True);
-                    Assert.That(warning.Message.Contains("MessageGuid"),Is.True);
-                    Assert.That(warning.Message.Contains("123x321"),Is.True);
-                    Assert.That(warning.Message.Contains("fish.dcm"),Is.True);
+                    Assert.That(warning.Message,Does.Contain("WedgeAngleFloat"));
+                    Assert.That(warning.Message,Does.Contain("MessageGuid"));
+                    Assert.That(warning.Message,Does.Contain("123x321"));
+                    Assert.That(warning.Message,Does.Contain("fish.dcm"));
 
                     break;
 
@@ -283,8 +289,11 @@ namespace Microservices.Tests.RDMPTests
                     throw new ArgumentOutOfRangeException("dataHandlingStrategy");
             }
 
-            Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
-            Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
+                Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+            });
         }
 
         [Test]
@@ -317,9 +326,12 @@ namespace Microservices.Tests.RDMPTests
             source.FieldMapTableIfAny = ti;
 
             var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
-            Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
-            Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
-            Assert.That(dt.Columns.Count,Is.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
+                Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+                Assert.That(dt.Columns,Has.Count.EqualTo(2));
+            });
         }
 
         [Test]
@@ -368,9 +380,12 @@ namespace Microservices.Tests.RDMPTests
             source.UseAllTableInfoInLoadAsFieldMap = lmd;
 
             var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
-            Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
-            Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
-            Assert.That(dt.Columns.Count,Is.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(dt.Rows[0]["PatientAge"],Is.EqualTo("123Y"));
+                Assert.That(dt.Rows[0]["RelFileName"],Is.EqualTo("fish.dcm"));
+                Assert.That(dt.Columns,Has.Count.EqualTo(2));
+            });
         }
     }
 }

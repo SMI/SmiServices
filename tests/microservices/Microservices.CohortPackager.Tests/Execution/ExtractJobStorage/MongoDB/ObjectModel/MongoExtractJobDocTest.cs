@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -73,7 +73,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExtractJobDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExtractJobDoc).GetProperties())
-                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     failedJobInfo: null
 }";
             var mongoExtractJobDoc = BsonSerializer.Deserialize<MongoExtractJobDoc>(BsonDocument.Parse(jsonDoc));
-            Assert.Null(mongoExtractJobDoc.UserName);
+            Assert.That(mongoExtractJobDoc.UserName,Is.Null);
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoFailedJobInfoDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoFailedJobInfoDoc).GetProperties())
-                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]

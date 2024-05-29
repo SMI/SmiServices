@@ -51,9 +51,12 @@ namespace Smi.Common.Tests
             {
                 try
                 {
-                    Assert.That(header.Parents[0].ToString(),Is.EqualTo("12345678-c270-4bf3-b327-756f6038bb76"));
-                    Assert.That(header.Parents[1].ToString(),Is.EqualTo("87654321-c270-4bf3-b327-756f6038bb76"));
-                    Assert.That(header.Parents[2].ToString(),Is.EqualTo("5afce68f-c270-4bf3-b327-756f6038bb76"));
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(header.Parents[0].ToString(),Is.EqualTo("12345678-c270-4bf3-b327-756f6038bb76"));
+                        Assert.That(header.Parents[1].ToString(),Is.EqualTo("87654321-c270-4bf3-b327-756f6038bb76"));
+                        Assert.That(header.Parents[2].ToString(),Is.EqualTo("5afce68f-c270-4bf3-b327-756f6038bb76"));
+                    });
 
                     Passed = true;
                     Ack(header,tag);

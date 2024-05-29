@@ -36,7 +36,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExtractionMessageHeaderDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExtractionMessageHeaderDoc).GetProperties())
-                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]

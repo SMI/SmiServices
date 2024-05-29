@@ -56,8 +56,11 @@ namespace Microservices.Tests.RDMPTests
                 using var host = new DicomRelationalMapperHost(globals);
                 host.Start();
 
-                Assert.That(host.Consumer?.DatabaseNamer.GetType(),Is.EqualTo(expectedType));
-                Assert.IsNotNull(host);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(host.Consumer?.DatabaseNamer.GetType(),Is.EqualTo(expectedType));
+                    Assert.That(host,Is.Not.Null);
+                });
 
                 host.Stop("Test finished");
             }

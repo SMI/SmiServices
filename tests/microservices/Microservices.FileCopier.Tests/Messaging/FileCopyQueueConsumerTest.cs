@@ -101,8 +101,11 @@ namespace Microservices.FileCopier.Tests.Messaging
             consumer.TestMessage(_message);
 
             TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
-            Assert.That(consumer.AckCount,Is.EqualTo(0));
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
+            Assert.Multiple(() =>
+            {
+                Assert.That(consumer.AckCount,Is.EqualTo(0));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+            });
         }
 
         [Test]
@@ -122,8 +125,11 @@ namespace Microservices.FileCopier.Tests.Messaging
             consumer.TestMessage(_message);
 
             TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
-            Assert.That(consumer.AckCount,Is.EqualTo(0));
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
+            Assert.Multiple(() =>
+            {
+                Assert.That(consumer.AckCount,Is.EqualTo(0));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+            });
         }
 
         #endregion

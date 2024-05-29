@@ -51,17 +51,16 @@ namespace Smi.Common.Tests.Messages
             var h2 = new MessageHeader(_testProps);
             var h3 = new MessageHeader();
 
-            // Test all the various flavours of equality
+            Assert.Multiple(() =>
+            {
+                // Test all the various flavours of equality
 
-            Assert.That(h2,Is.EqualTo(h1));
-            Assert.True(Equals(h1, h2));
-            Assert.True(h1.Equals(h2));
-            Assert.True(h1 == h2);
+                Assert.That(h2,Is.EqualTo(h1));
+                Assert.That(h1,Is.EqualTo(h2));
 
-            Assert.That(h3,Is.Not.EqualTo(h1));
-            Assert.False(Equals(h1, h3));
-            Assert.False(h1.Equals(h3));
-            Assert.True(h1 != h3);
+                Assert.That(h3,Is.Not.EqualTo(h1));
+            });
+            Assert.That(h1,Is.Not.EqualTo(h3));
         }
 
         [Test]

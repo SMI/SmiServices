@@ -55,7 +55,7 @@ namespace Applications.SmiRunner.Tests
                 expectedVerbName = expectedVerbName.Replace("-db-", "db-");
 
                 var verbAttribute = (VerbAttribute?)Attribute.GetCustomAttribute(t, typeof(VerbAttribute));
-                Assert.NotNull(verbAttribute);
+                Assert.That(verbAttribute,Is.Not.Null);
 
                 Assert.That(verbAttribute!.Name,Is.EqualTo(expectedVerbName));
             }

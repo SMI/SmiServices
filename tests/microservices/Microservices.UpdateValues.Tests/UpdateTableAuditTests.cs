@@ -1,4 +1,4 @@
-﻿using Microservices.UpdateValues.Execution;
+using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -18,15 +18,21 @@ namespace Microservices.UpdateValues.Tests
             audit.StartOne();
             audit.StartOne();
 
-            Assert.That(audit.ExecutingQueries,Is.EqualTo(2));
-            Assert.That(audit.Queries,Is.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(audit.ExecutingQueries,Is.EqualTo(2));
+                Assert.That(audit.Queries,Is.EqualTo(2));
+            });
 
             audit.EndOne(2);
             audit.EndOne(5);
 
-            Assert.That(audit.ExecutingQueries,Is.EqualTo(0));
-            Assert.That(audit.Queries,Is.EqualTo(2));
-            Assert.That(audit.AffectedRows,Is.EqualTo(7));
+            Assert.Multiple(() =>
+            {
+                Assert.That(audit.ExecutingQueries,Is.EqualTo(0));
+                Assert.That(audit.Queries,Is.EqualTo(2));
+                Assert.That(audit.AffectedRows,Is.EqualTo(7));
+            });
         }
         [Test]
         public void TestManyQueriesAtOnce_MultiThreaded()
@@ -48,10 +54,13 @@ namespace Microservices.UpdateValues.Tests
                 
             Task.WaitAll(tasks.ToArray());
 
-            Assert.That(audit.ExecutingQueries,Is.EqualTo(0));
-            Assert.That(audit.Queries,Is.EqualTo(50));
-            Assert.IsFalse(audit.Stopwatch.IsRunning);
-            Assert.LessOrEqual(audit.Stopwatch.ElapsedMilliseconds,TimeSpan.FromSeconds(10).TotalMilliseconds);
+            Assert.Multiple(() =>
+            {
+                Assert.That(audit.ExecutingQueries,Is.EqualTo(0));
+                Assert.That(audit.Queries,Is.EqualTo(50));
+                Assert.That(audit.Stopwatch.IsRunning,Is.False);
+                Assert.That(audit.Stopwatch.ElapsedMilliseconds,Is.LessThanOrEqualTo(TimeSpan.FromSeconds(10).TotalMilliseconds));
+            });
         }
     }
 }

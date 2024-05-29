@@ -48,7 +48,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExpectedFilesDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExpectedFilesDoc).GetProperties())
-                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExpectedFileInfoDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExpectedFileInfoDoc).GetProperties())
-                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoRejectedKeyInfoDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoRejectedKeyInfoDoc).GetProperties())
-                Assert.True(p.CanWrite, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]

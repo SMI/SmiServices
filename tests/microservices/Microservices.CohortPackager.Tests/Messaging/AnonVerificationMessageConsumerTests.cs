@@ -102,10 +102,13 @@ internal class AnonVerificationMessageConsumerTests
 
         consumer.TestMessage(_invalidMessage);
 
-        // Assert
+        Assert.Multiple(() =>
+        {
+            // Assert
 
-        Assert.That(consumer.AckCount,Is.EqualTo(0));
-        Assert.That(consumer.NackCount,Is.EqualTo(1));
+            Assert.That(consumer.AckCount,Is.EqualTo(0));
+            Assert.That(consumer.NackCount,Is.EqualTo(1));
+        });
     }
 
     [Test]
@@ -126,10 +129,13 @@ internal class AnonVerificationMessageConsumerTests
 
         consumer.TestMessage(_emptyReportMessage);
 
-        // Assert
+        Assert.Multiple(() =>
+        {
+            // Assert
 
-        Assert.That(consumer.AckCount,Is.EqualTo(0));
-        Assert.That(consumer.NackCount,Is.EqualTo(1));
+            Assert.That(consumer.AckCount,Is.EqualTo(0));
+            Assert.That(consumer.NackCount,Is.EqualTo(1));
+        });
     }
 
     [Test]
@@ -146,19 +152,25 @@ internal class AnonVerificationMessageConsumerTests
 
         consumer.TestMessage(_emptyReportMessage);
 
-        // Assert
+        Assert.Multiple(() =>
+        {
+            // Assert
 
-        Assert.That(_writeQueueCount,Is.EqualTo(1));
-        Assert.That(consumer.AckCount,Is.EqualTo(0));
+            Assert.That(_writeQueueCount,Is.EqualTo(1));
+            Assert.That(consumer.AckCount,Is.EqualTo(0));
+        });
 
         // Act
 
         consumer.TestMessage(_emptyReportMessage);
 
-        // Assert
+        Assert.Multiple(() =>
+        {
+            // Assert
 
-        Assert.That(_writeQueueCount,Is.EqualTo(0));
-        Assert.That(consumer.AckCount,Is.EqualTo(2));
+            Assert.That(_writeQueueCount,Is.EqualTo(0));
+            Assert.That(consumer.AckCount,Is.EqualTo(2));
+        });
     }
 
     [Test]
@@ -177,10 +189,13 @@ internal class AnonVerificationMessageConsumerTests
 
         SleepWithEarlyExit(verificationMessageQueueFlushTime, () => (consumer.AckCount == 1));
 
-        // Assert
+        Assert.Multiple(() =>
+        {
+            // Assert
 
-        Assert.That(_writeQueueCount,Is.EqualTo(0));
-        Assert.That(consumer.AckCount,Is.EqualTo(1));
+            Assert.That(_writeQueueCount,Is.EqualTo(0));
+            Assert.That(consumer.AckCount,Is.EqualTo(1));
+        });
     }
 
     [Test]
@@ -209,10 +224,13 @@ internal class AnonVerificationMessageConsumerTests
 
         consumer.TestMessage(_emptyReportMessage);
 
-        // Assert
+        Assert.Multiple(() =>
+        {
+            // Assert
 
-        Assert.True(hasThrown);
-        Assert.That(_writeQueueCount,Is.EqualTo(1));
+            Assert.That(hasThrown,Is.True);
+            Assert.That(_writeQueueCount,Is.EqualTo(1));
+        });
     }
 
     [Test]

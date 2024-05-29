@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using FAnsi;
@@ -47,41 +47,54 @@ namespace Microservices.IdentifierMapper.Tests
 
             //cache hit
             var answer = swapper.GetSubstitutionFor("0101010101",out var reason);
-            Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
-            Assert.IsNull(reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(reason,Is.Null);
+            });
 
             var guidTable = swapper.GetGuidTableIfAny(options);
 
-            Assert.That(guidTable!.GetRuntimeName(),Is.EqualTo("Map_guid"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(guidTable!.GetRuntimeName(),Is.EqualTo("Map_guid"));
 
-            //The key column should match the SwapColumnName
-            Assert.IsNotNull(guidTable.DiscoverColumn("CHI"));
-            
-            //but the swap column should always be called guid
-            Assert.IsNotNull(guidTable.DiscoverColumn("guid"));
+                //The key column should match the SwapColumnName
+                Assert.That(guidTable.DiscoverColumn("CHI"),Is.Not.Null);
+
+                //but the swap column should always be called guid
+                Assert.That(guidTable.DiscoverColumn("guid"),Is.Not.Null);
+            });
 
             var answer2 = swapper.GetSubstitutionFor("0202020202",out reason);
-            
+
             //should be a guid e.g. like "bc70d07d-4c77-4086-be1c-2971fd66ccf2"
-            Assert.IsNotNull(answer2);
-            Assert.That(answer2!.Count(c=>c=='-'),Is.EqualTo(4),$"Answer '{answer2}' did not look like a guid");
-            Assert.IsNull(reason);
+            Assert.That(answer2,Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(answer2!.Count(c => c=='-'),Is.EqualTo(4),$"Answer '{answer2}' did not look like a guid");
+                Assert.That(reason,Is.Null);
 
-            //make sure the guid mapping table has the correct row persisted for repeated calls
-            Assert.That(guidTable.Exists(),Is.True);
-            Assert.That(guidTable.GetRowCount(),Is.EqualTo(1));
-            Assert.That(guidTable.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
-            Assert.That(guidTable.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
+                //make sure the guid mapping table has the correct row persisted for repeated calls
+                Assert.That(guidTable,Is.Not.Null);
+                Assert.That(guidTable?.Exists(),Is.True);
+                Assert.That(guidTable?.GetRowCount(),Is.EqualTo(1));
+                Assert.That(guidTable?.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
+                Assert.That(guidTable?.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
 
 
-            //repeated misses should not result in more rows and should return the same guid (obviously)
+                //repeated misses should not result in more rows and should return the same guid (obviously)
+                Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
+            });
             Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
-            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
-            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
 
-            Assert.That(guidTable.GetRowCount(),Is.EqualTo(1));
-            Assert.That(guidTable.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
-            Assert.That(guidTable.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
+                Assert.That(guidTable.GetRowCount(),Is.EqualTo(1));
+                Assert.That(guidTable.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
+                Assert.That(guidTable.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
+            });
 
 
             //now insert a legit mapping for 0202020202
@@ -143,10 +156,13 @@ namespace Microservices.IdentifierMapper.Tests
 
             //cache hit
             var answer = swapper.GetSubstitutionFor("010101010031002300020320402054240204022433040301",out var reason);
-            Assert.IsNull(answer);
+            Assert.Multiple(() =>
+            {
+                Assert.That(answer,Is.Null);
 
-            Assert.That(
-reason,Is.EqualTo($"Supplied value was too long (48) - max allowed is ({(createGuidTableUpFront?30:10)})").IgnoreCase);
+                Assert.That(
+    reason,Is.EqualTo($"Supplied value was too long (48) - max allowed is ({(createGuidTableUpFront ? 30 : 10)})").IgnoreCase);
+            });
         }
     }
 }

@@ -97,7 +97,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             using (var generator = new DicomDataGenerator(r, TestContext.CurrentContext.TestDirectory, "CT"){NoPixels = true})
                 allImages = generator.GenerateImages(numberOfImages, r);
 
-            Assert.That(allImages.Count,Is.EqualTo(numberOfImages));
+            Assert.That(allImages,Has.Count.EqualTo(numberOfImages));
 
             using (var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions))
             {
@@ -145,7 +145,7 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             sw.Stop();
             Console.WriteLine($"GetChunk took {sw.ElapsedMilliseconds}");
 
-            Assert.That(dt.Rows.Count,Is.EqualTo(numberOfImages));
+            Assert.That(dt.Rows,Has.Count.EqualTo(numberOfImages));
             Assert.That(dt.Rows.Cast<DataRow>().Select(static w => w["SOPInstanceUID"]).Distinct().Count(),Is.EqualTo(numberOfImages));
         }
 
@@ -191,8 +191,11 @@ namespace Microservices.DicomRelationalMapper.Tests.DLEBenchmarkingTests
             var dt = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
             source.Dispose(ThrowImmediatelyDataLoadEventListener.Noisy, null);
 
-            Assert.That(allImages.Count,Is.EqualTo(numberOfImages));
-            Assert.That(dt.Rows.Count,Is.EqualTo(numberOfImages));
+            Assert.Multiple(() =>
+            {
+                Assert.That(allImages,Has.Count.EqualTo(numberOfImages));
+                Assert.That(dt.Rows,Has.Count.EqualTo(numberOfImages));
+            });
 
             var tables = _helper.LoadMetadata!.GetDistinctTableInfoList(false);
 

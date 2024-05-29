@@ -41,8 +41,11 @@ namespace Smi.Common.Tests.Messages
 
             var statusMessage = new ExtractedFileStatusMessage(fileMessage);
 
-            Assert.That(statusMessage.DicomFilePath,Is.EqualTo("foo.dcm"));
-            Assert.That(statusMessage.OutputFilePath,Is.EqualTo("foo-an.dcm"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(statusMessage.DicomFilePath,Is.EqualTo("foo.dcm"));
+                Assert.That(statusMessage.OutputFilePath,Is.EqualTo("foo-an.dcm"));
+            });
         }
 
         #endregion

@@ -588,7 +588,7 @@ internal class JobReporterTests
             _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1", "README.md")
         );
 
-        Assert.True(readmeText.EndsWith(Environment.NewLine));
+        Assert.That(readmeText,Does.EndWith(Environment.NewLine));
     }
 
     [Test]

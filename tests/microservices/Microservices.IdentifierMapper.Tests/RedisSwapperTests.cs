@@ -61,22 +61,28 @@ namespace Microservices.IdentifierMapper.Tests
             
             //hit on the lookup table
             string? answer = swapper.GetSubstitutionFor("0101010101",out string? reason);
-            Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
-            Assert.IsNull(reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(reason,Is.Null);
 
-            //hit didn't come from Redis
-            Assert.That(swapper.CacheHit,Is.EqualTo(0));
-            Assert.That(swapper.Success,Is.EqualTo(1));
+                //hit didn't come from Redis
+                Assert.That(swapper.CacheHit,Is.EqualTo(0));
+                Assert.That(swapper.Success,Is.EqualTo(1));
+            });
 
-            
+
             //hit from Redis
             string? answer2 = swapper.GetSubstitutionFor("0101010101",out string? reason2);
-            Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
-            Assert.IsNull(reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(reason,Is.Null);
 
-            //hit must come from Redis
-            Assert.That(swapper.CacheHit,Is.EqualTo(1));
-            Assert.That(swapper.Success,Is.EqualTo(2));
+                //hit must come from Redis
+                Assert.That(swapper.CacheHit,Is.EqualTo(1));
+                Assert.That(swapper.Success,Is.EqualTo(2));
+            });
         }
 
 
@@ -125,21 +131,27 @@ namespace Microservices.IdentifierMapper.Tests
             
             //hit on the lookup table
             string? answer = swapper.GetSubstitutionFor("GOGOGO",out string? reason);
-            Assert.IsNull(answer);
-            Assert.That(reason,Is.EqualTo("No match found for 'GOGOGO'"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(answer,Is.Null);
+                Assert.That(reason,Is.EqualTo("No match found for 'GOGOGO'"));
 
-            //hit didn't come from Redis
-            Assert.That(swapper.CacheHit,Is.EqualTo(0));
-            Assert.That(swapper.Fail,Is.EqualTo(1));
-            
+                //hit didn't come from Redis
+                Assert.That(swapper.CacheHit,Is.EqualTo(0));
+                Assert.That(swapper.Fail,Is.EqualTo(1));
+            });
+
             //hit from Redis
             string? answer2 = swapper.GetSubstitutionFor("GOGOGO",out string? reason2);
-            Assert.IsNull(answer2);
-            Assert.That(reason2,Is.EqualTo("Value 'GOGOGO' was cached in Redis as missing (i.e. no mapping was found)"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(answer2,Is.Null);
+                Assert.That(reason2,Is.EqualTo("Value 'GOGOGO' was cached in Redis as missing (i.e. no mapping was found)"));
 
-            //hit must come from Redis
-            Assert.That(swapper.CacheHit,Is.EqualTo(1));
-            Assert.That(swapper.Fail,Is.EqualTo(2));
+                //hit must come from Redis
+                Assert.That(swapper.CacheHit,Is.EqualTo(1));
+                Assert.That(swapper.Fail,Is.EqualTo(2));
+            });
         }
 
         private void ClearRedisServer()

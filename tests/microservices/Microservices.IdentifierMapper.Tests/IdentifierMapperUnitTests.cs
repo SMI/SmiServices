@@ -14,9 +14,12 @@ namespace Microservices.IdentifierMapper.Tests
             target.Layout = "${message}";
             
             var mapper = new SwapForFixedValueTester("fish");
-            Assert.That(mapper.GetSubstitutionFor("heyyy", out _),Is.EqualTo("fish").IgnoreCase);
+            Assert.Multiple(() =>
+            {
+                Assert.That(mapper.GetSubstitutionFor("heyyy",out _),Is.EqualTo("fish").IgnoreCase);
 
-            Assert.That(mapper.Success,Is.EqualTo(1));
+                Assert.That(mapper.Success,Is.EqualTo(1));
+            });
 
             LogManager.Setup().LoadConfiguration(x => x.ForLogger(LogLevel.Debug).WriteTo(target));
 

@@ -149,13 +149,19 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             consumer.TestMessage(_extractedFileStatusMessage);
 
-            // Assert
+            Assert.Multiple(() =>
+            {
+                // Assert
 
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
-            Assert.That(consumer.AckCount,Is.EqualTo(1));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+                Assert.That(consumer.AckCount,Is.EqualTo(1));
+            });
             _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
-            Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.NotIdentifiable));
-            Assert.That(_response.Report,Is.EqualTo("[]"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.NotIdentifiable));
+                Assert.That(_response.Report,Is.EqualTo("[]"));
+            });
         }
 
         [Test]
@@ -174,13 +180,19 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             consumer.TestMessage(_extractedFileStatusMessage);
 
-            // Assert
+            Assert.Multiple(() =>
+            {
+                // Assert
 
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
-            Assert.That(consumer.AckCount,Is.EqualTo(1));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+                Assert.That(consumer.AckCount,Is.EqualTo(1));
+            });
             _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
-            Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.IsIdentifiable));
-            Assert.That(_response.Report,Is.EqualTo(JsonConvert.SerializeObject(failures)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.IsIdentifiable));
+                Assert.That(_response.Report,Is.EqualTo(JsonConvert.SerializeObject(failures)));
+            });
         }
 
         [Test]
@@ -200,10 +212,13 @@ namespace Microservices.IsIdentifiable.Tests.Service
             // Assert
 
             TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
-            Assert.That(_fatalArgs?.Message,Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
-            Assert.That(_fatalArgs!.Exception!.Message,Is.EqualTo("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'"));
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
-            Assert.That(consumer.AckCount,Is.EqualTo(0));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fatalArgs?.Message,Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
+                Assert.That(_fatalArgs!.Exception!.Message,Is.EqualTo("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'"));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+                Assert.That(consumer.AckCount,Is.EqualTo(0));
+            });
         }
 
         [Test]
@@ -219,10 +234,13 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             consumer.TestMessage(_extractedFileStatusMessage);
 
-            // Assert
+            Assert.Multiple(() =>
+            {
+                // Assert
 
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
-            Assert.That(consumer.AckCount,Is.EqualTo(1));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+                Assert.That(consumer.AckCount,Is.EqualTo(1));
+            });
             _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
             Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
             var outPath = _mockFs.Path.Combine(_extractDir, "bar-an.dcm");
@@ -243,13 +261,19 @@ namespace Microservices.IsIdentifiable.Tests.Service
 
             consumer.TestMessage(_extractedFileStatusMessage);
 
-            // Assert
+            Assert.Multiple(() =>
+            {
+                // Assert
 
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
-            Assert.That(consumer.AckCount,Is.EqualTo(1));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+                Assert.That(consumer.AckCount,Is.EqualTo(1));
+            });
             _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
-            Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
-            Assert.True(_response.Report.StartsWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
+                Assert.That(_response.Report,Does.StartWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
+            });
         }
 
         #endregion

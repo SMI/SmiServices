@@ -26,8 +26,11 @@ namespace Smi.Common.Tests
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
-            Assert.That(msg2!.ExtractFileMessagesDispatched.Count,Is.EqualTo(1));
-            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(msg2!.ExtractFileMessagesDispatched,Has.Count.EqualTo(1));
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
+            });
         }
 
         [Test]
@@ -51,12 +54,15 @@ namespace Smi.Common.Tests
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(msg);
             var msg2 = JsonConvert.DeserializeObject<ExtractFileCollectionInfoMessage>(str);
 
-            Assert.That(msg2!.ExtractFileMessagesDispatched.Count,Is.EqualTo(1));
-            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(msg2!.ExtractFileMessagesDispatched,Has.Count.EqualTo(1));
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
 
-            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid,Is.EqualTo(child.MessageGuid));
-            Assert.Contains(parent.MessageGuid,msg2.ExtractFileMessagesDispatched.Keys.First().Parents);
-            Assert.Contains(grandparent.MessageGuid, msg2.ExtractFileMessagesDispatched.Keys.First().Parents);
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid,Is.EqualTo(child.MessageGuid));
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().Parents,Does.Contain(parent.MessageGuid));
+            });
+            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().Parents,Does.Contain(grandparent.MessageGuid));
         }
 
         [Test]
@@ -80,7 +86,7 @@ namespace Smi.Common.Tests
             };
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
-            Assert.NotNull(json);
+            Assert.That(json,Is.Not.Null);
 
             var reconstructed = JsonConvert.DeserializeObject<ExtractionRequestMessage>(json);
             Assert.That(reconstructed,Is.EqualTo(message));

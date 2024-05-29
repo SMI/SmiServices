@@ -108,7 +108,7 @@ namespace Microservices.CohortExtractor.Tests
             using(var dt = tbl.GetDataTable())
                 studies = dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct().ToList();
 
-            Assert.GreaterOrEqual(studies.Count,2,"Expected at least 2 studies to be randomly generated in database");
+            Assert.That(studies,Has.Count.GreaterThanOrEqualTo(2),"Expected at least 2 studies to be randomly generated in database");
 
             //Create message to extract all the studies by StudyInstanceUID
             var msgIn = new ExtractionRequestMessage();
@@ -124,7 +124,7 @@ namespace Microservices.CohortExtractor.Tests
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
                 matches += msgOut.Accepted.Count();
-                Assert.IsEmpty(msgOut.Rejected);
+                Assert.That(msgOut.Rejected,Is.Empty);
             }
 
             //currently all images are extractable
@@ -155,8 +155,11 @@ namespace Microservices.CohortExtractor.Tests
                 Assert.That(msgOut.Rejected.All(v=>v.RejectReason!.Equals("We decided NO!")),Is.True);
             }
 
-            Assert.That(matches,Is.EqualTo(testrows-10));
-            Assert.That(rejections,Is.EqualTo(10));
+            Assert.Multiple(() =>
+            {
+                Assert.That(matches,Is.EqualTo(testrows-10));
+                Assert.That(rejections,Is.EqualTo(10));
+            });
 
         }
 
@@ -203,7 +206,7 @@ namespace Microservices.CohortExtractor.Tests
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
                 matches += msgOut.Accepted.Count();
-                Assert.IsEmpty(msgOut.Rejected);
+                Assert.That(msgOut.Rejected,Is.Empty);
             }
 
             //expect only the MR images to be returned
