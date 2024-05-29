@@ -41,8 +41,8 @@ namespace Applications.ExtractImages
             IProducerModel extractionRequestProducer,
             IProducerModel extractionRequestInfoProducer,
             IFileSystem fileSystem,
-            [NotNull] string? extractionRoot,
-            [NotNull] string? extractionDir,
+            string extractionRoot,
+            string extractionDir,
             DateTimeProvider dateTimeProvider,
             IConsoleInput consoleInput
         )

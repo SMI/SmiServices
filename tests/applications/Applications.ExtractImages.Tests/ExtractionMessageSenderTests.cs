@@ -143,9 +143,9 @@ namespace Applications.ExtractImages.Tests
             Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")),Is.True);
         }
 
-        [TestCase(null)]
+        [TestCase("")]
         [TestCase("  ")]
-        public void ExtractionDirs_AreValidated(string? dir)
+        public void ExtractionDirs_AreValidated(string dir)
         {
             var exc = Assert.Throws<ArgumentException>(() =>
             {
