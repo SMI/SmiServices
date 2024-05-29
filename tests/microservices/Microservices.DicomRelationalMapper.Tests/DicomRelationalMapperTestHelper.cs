@@ -86,9 +86,9 @@ namespace Microservices.Tests.RDMPTests
 
             var tableInfos = LoadMetadata.GetAllCatalogues().SelectMany(c => c.GetTableInfoList(false)).Distinct().ToArray();
 
-            ImageTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName().Equals(ImageTable.GetRuntimeName()));
-            SeriesTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName().Equals(SeriesTable.GetRuntimeName()));
-            StudyTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName().Equals(StudyTable.GetRuntimeName()));
+            ImageTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(ImageTable.GetRuntimeName()) == true);
+            SeriesTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(SeriesTable.GetRuntimeName()) == true);
+            StudyTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(StudyTable.GetRuntimeName()) == true);
 
             // Override the options with stuff coming from Core RDMP DatabaseTests (TestDatabases.txt)
             globalOptions.FileSystemOptions!.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
