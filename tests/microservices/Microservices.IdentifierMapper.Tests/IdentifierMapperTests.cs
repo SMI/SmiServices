@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using BadMedicine;
 using BadMedicine.Dicom;
+using SynthEHR;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
