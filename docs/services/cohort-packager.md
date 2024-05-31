@@ -29,3 +29,7 @@ For an identifiable extraction, the `verification_failures.csv` is not produced.
 | `CohortPackagerOptions`                 | Main configuration for this service                    |
 | `RabbitOptions`                         | RabbitMQ connection options                            |
 | `MongoDatabases.ExtractionStoreOptions` | Database connection info for the extraction data store |
+
+## CLI Options
+
+N/A.

@@ -6,12 +6,40 @@ import os
 import re
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import common as C
 
 
 _VERB_CS_PATH = f"{C.PROJ_ROOT}/src/applications/Applications.SmiRunner/ServiceVerbs.cs"
 _VERB_RE = re.compile(r'\[Verb\(("\S*?")')
+
+
+def check_doc_content(doc_path: str) -> int:
+
+    has_flow = has_yaml = has_cli = False
+
+    with open(doc_path) as f:
+        for line in f.read().splitlines():
+            if line == "## Message Flow":
+                has_flow = True
+            elif line == "## YAML Configuration":
+                has_yaml = True
+            elif line == "## CLI Options":
+                has_cli = True
+
+    rc = 0
+    if not has_flow:
+        print(f"{doc_path}: Missing 'Message Flow' section")
+        rc = 1
+
+    if not has_yaml:
+        print(f"{doc_path}: Missing 'YAML Configuration' section")
+        rc = 1
+
+    if not has_cli:
+        print(f"{doc_path}: Missing 'CLI Options' section")
+        rc = 1
+
+    return rc
 
 
 def main() -> int:
@@ -38,7 +66,10 @@ def main() -> int:
             doc_path = f"{C.PROJ_ROOT}/docs/{tool_type}s/{tool}.md"
             if not os.path.isfile(doc_path):
                 print(f"Missing {doc_path}")
-                rc = 1
+                rc |= 1
+                continue
+
+            rc |= check_doc_content(doc_path)
 
     return rc
 

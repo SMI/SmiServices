@@ -77,6 +77,6 @@ if (!System.Convert.ToBoolean(row["IsExtractableToDisk"]))
 return null;
 ```
 
-### CLI Options
+## CLI Options
 
 N/A.
