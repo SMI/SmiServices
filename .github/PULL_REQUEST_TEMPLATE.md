@@ -1,10 +1,10 @@
 ## Proposed Changes
 
-Summarise your proposed changes here, including any notes for reviewers.
+<!-- Summarise your proposed changes here, including any notes for reviewers -->
 
 ## Types of changes
 
-What types of changes does your code introduce? Tick all that apply.
+<!-- What types of changes does your code introduce? Tick all that apply. -->
 
 -   [ ] Bugfix (non-breaking change which fixes an issue)
 -   [ ] New Feature (non-breaking change which adds functionality)
@@ -23,11 +23,8 @@ By opening this PR, I confirm that I have:
 -   [ ] Created a [news](https://github.com/SMI/SmiServices/blob/main/news/README.md) file
     -   NOTE: This **_must_** include any changes to any of the following files: default.yaml, any of the RabbitMQ server configurations, GlobalOptions.cs
 -   [ ] Listed myself in the [CONTRIBUTORS](https://github.com/SMI/SmiServices/blob/main/CONTRIBUTORS.md) file 🚀
--   [ ] Requested a review by one of the repository maintainers
+-   [ ] Requested a review by the `@SMI/Reviewers` team
 
 ## Issues
 
-If relevant, tag any issues that are _expected_ to be resolved with this PR. E.g.:
-
--   Closes #\<issue-number>
--   ...
+<!-- If relevant, tag any issues that are _expected_ to be resolved with this PR. E.g.: -->
