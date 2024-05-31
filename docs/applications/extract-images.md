@@ -1,6 +1,24 @@
 ## Extract Images
 
-This application is used to launch a file extraction request using a file of DICOM UIDs. In addition to any common CLI options, the following arguments are supported:
+This application is used to launch a file extraction request using a file of DICOM UIDs.
+
+## Message Flow
+
+| Read/Write | Message Type                   | Config Property                                             |
+| ---------- | ------------------------------ | ----------------------------------------------------------- |
+| Write      | `ExtractionRequestMessage`     | `ExtractImagesOptions.ExtractionRequestProducerOptions`     |
+| Write      | `ExtractionRequestInfoMessage` | `ExtractImagesOptions.ExtractionRequestInfoProducerOptions` |
+
+## YAML Configuration
+
+| Key                    | Purpose                             |
+| ---------------------- | ----------------------------------- |
+| `ExtractImagesOptions` | Main configuration for this service |
+| `RabbitOptions`        | RabbitMQ connection options         |
+
+## CLI Options
+
+In addition to any common options:
 
 ```console
   -p, --project-id                 Required. The project identifier
@@ -11,9 +29,13 @@ This application is used to launch a file extraction request using a file of DIC
   -n, --non-interactive            Don't pause for manual confirmation before sending messages
 ```
 
-## YAML Configuration
+## Example Usage
 
-Uses the `ExtractImagesOptions` config key. Messages are published to two exchanges specified by:
-
--   `ExtractionRequestProducerOptions` - Messages containing the input identifiers for consumption by e.g., [cohort-extractor](../services/cohort-extractor.md)
--   `ExtractionRequestInfoProducerOptions` - Messages containing extraction summary info for consumption by e.g., [cohort-packager](../services/cohort-packager.md)
+```console
+./smi extract-images \
+    -y config.yaml \
+    -p 1234-5678 \
+    -m CT \
+    -n \
+    -c proj_ids.csv
+```

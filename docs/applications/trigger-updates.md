@@ -2,15 +2,30 @@
 
 This application checks for updates to identifier mapping tables, and sends messages designed for consumption by the [UpdateValues](../services/update-values.md) service.
 
-It issues updates to different database types specified by the CLI verb. Supported verbs are currently:
+## Message Flow
+
+| Read/Write | Message Type          | Config Property         |
+| ---------- | --------------------- | ----------------------- |
+| Write      | `UpdateValuesMessage` | `TriggerUpdatesOptions` |
+
+## YAML Configuration
+
+| Key                     | Purpose                             |
+| ----------------------- | ----------------------------------- |
+| `TriggerUpdatesOptions` | Main configuration for this service |
+| `RabbitOptions`         | RabbitMQ connection options         |
+
+## CLI Options
+
+Issues updates to different database types specified by the CLI verb. Supported verbs are currently:
 
 ```console
   mapper     Triggers updates based on new identifier mapping table updates
 ```
 
-## Mapper
+### `mapper` Verb
 
-In addition to any common CLI options, the following arguments are supported:
+In addition to any common options:
 
 ```console
   -d, --DateOfLastUpdate    Required. The last known date where live tables and mapping table were in sync.  Updates will be issued for records changed after this date
@@ -18,7 +33,7 @@ In addition to any common CLI options, the following arguments are supported:
   -q, --Qualifier           Qualifier for values e.g. '.  This should be the DBMS qualifier needed for strings/dates.  If patient identifiers are numerical then do not specify this option
 ```
 
-### Mapper Alias Note
+#### Mapper Alias Note
 
 When using mapping updates it is possible for certain corner case sequences to result in crossed mappings, especially when aliases are permitted and where those aliases change over time
 
@@ -41,7 +56,3 @@ Update lookup table with fact A=B
 _Triggering an update at this point will merge 111 and 222 in the live database_
 
 Once an alias has been established the lookup cannot successfully be updated to reverse the alias e.g. reverting it back to the initial state.
-
-## YAML Configuration
-
-Uses the `TriggerUpdatesOptions` config key to determine the publishing options.
