@@ -742,8 +742,7 @@ A raw git diff can be seen [here][unreleased].
     -   For identifiable extractions, the NoSuffixProjectPathResolver is now
         used
 -   Validation reports can now be created as either "Combined" (single report as
-    before" or "Split" (a
-    [pack](src/microservices/Microservices.CohortPackager/README.md) of reports
+    before" or "Split" (a pack of reports
     including CSVs suitable for post-processing). This is configurable in the
     YAML config and can also be specified on the CLI when recreating reports for
     an extraction
@@ -1062,11 +1061,10 @@ A raw git diff can be seen [here][unreleased].
     via TCP (entered in [SocketRules] in `Rules.yaml`)
 -   IsIdentifiable NLP text classification now outsourced via TCP to any
     services configured in
-    -   [StanfordNER implementation written in java](./src/microservices/uk.ac.dundee.hic.nerd/README.md)
+    -   StanfordNER implementation written in Java
 -   New CohortExtractor yaml config option `ProjectPathResolverType` which
     determines the folder structure for extracted images
--   Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to
-    verify RabbitMQ config files
+-   Added a script to verify RabbitMQ config files
 -   Added `DynamicRejector` which takes its cohort extraction rules from a
     script file (of CSharp code)
 -   Added new application for reviewing IsIdentifiable output files
@@ -1338,5 +1336,3 @@ First stable release after importing the repository from the private
 [1.2.0]: https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
-[isidentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
-[socketrules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules

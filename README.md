@@ -26,7 +26,7 @@ Binaries for each package are available from the [Releases](https://github.com/S
 After downloading the required packages, you must configure a RabbitMQ server and the databases. This is currently a self-guided activity, however we are working on automated setup of this in future. For now you can use the following resources:
 
 -   Sample docker-compose files can be found [here](./utils/docker-compose)
--   A basic service config file can be found [here](./data/microserviceConfigs/README.md)
+-   A basic service config file can be found [here](data/microserviceConfigs/default.yaml)
 -   RabbitMQ configs for the data load and extraction pipelines can be found [here](./data/rabbitmqConfigs/)
 
 All SmiServices tools are available through the `smi` binary. Run `./smi --help` for a list of tools.
