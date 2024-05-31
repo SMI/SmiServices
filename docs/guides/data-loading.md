@@ -4,9 +4,10 @@
 
 ## Contents
 
+-   [Contents](#contents)
 -   [Background](#background)
-    -   [MongoDb]
-    -   [RelationalDb]
+    -   [MongoDb](#mongodb)
+    -   [RelationalDb](#relationaldb)
 -   [Preparation](#preparation)
     -   [Publish Binaries](#publish-binaries)
 -   [MongoDb Loading Microservices](#mongodb-loading-microservices)
@@ -17,7 +18,7 @@
     -   [MongoDbPopulator](#mongodbpopulator)
 -   [RelationalDb Loading Microservices](#relationaldb-loading-microservices)
     -   [DicomReprocessor](#dicomreprocessor)
-    -   [IdentifierMapper](#identifiermapper)
+-   [IdentifierMapper](#identifiermapper)
     -   [DicomRelationalMapper](#dicomrelationalmapper)
         -   [Installing RDMP](#installing-rdmp)
         -   [Picking the Schema](#picking-the-schema)
@@ -55,7 +56,7 @@ Download [BadDicom] and use it to generate some test images on disk:
 BadDicom.exe c:\temp\testdicoms
 ```
 
-![Test files in file explorer (windows)](./Images/DataLoading/testfiles.png)
+![Test files in file explorer (windows)](img/testfiles.png)
 
 Ensure Mongo Db is running e.g.:
 
@@ -123,7 +124,7 @@ Create the exchange:
 
 ---
 
-![Create Exchange](./Images/DataLoading/TEST.ControlExchange.png)
+![Create Exchange](img/TEST.ControlExchange.png)
 
 ---
 
@@ -146,7 +147,7 @@ This is because there is no queue associated with the output exchange. Create a 
 
 ---
 
-![Create Exchange](./Images/DataLoading/TEST.AccessionDirectoryQueue.png)
+![Create Exchange](img/TEST.AccessionDirectoryQueue.png)
 
 ---
 
@@ -154,7 +155,7 @@ Bind the `TEST.AccessionDirectoryExchange` exchange with the queue `TEST.Accessi
 
 ---
 
-![Bind Exchange To Queue](./Images/DataLoading/BindExchange.png)
+![Bind Exchange To Queue](img/BindExchange.png)
 
 ---
 
@@ -190,7 +191,7 @@ There should be 1 message per folder in the your test dicoms directory:
 
 ---
 
-![10 messages queued](./Images/DataLoading/AfterAccessionDirectory.png)
+![10 messages queued](img/AfterAccessionDirectory.png)
 
 ---
 
@@ -198,7 +199,7 @@ If you use GetMessages in the rabbit MQ interface you can see what was the messa
 
 ---
 
-![Example message from output queue](./Images/DataLoading/PeekAccessionDirectory.png)
+![Example message from output queue](img/PeekAccessionDirectory.png)
 
 ---
 
@@ -229,7 +230,7 @@ Notice also that a queue message has still been consumed and we have 1 less mess
 
 ---
 
-![One message has been consumed](./Images/DataLoading/LostMessages.png)
+![One message has been consumed](img/LostMessages.png)
 
 _RabbitMQ queue graph are 1 less message available for processing_
 
@@ -286,7 +287,7 @@ After execution the queues should look like:
 
 ---
 
-![Output queues with 1 message per image + 1 message per series](./Images/DataLoading/AfterDicomTagReader.png)
+![Output queues with 1 message per image + 1 message per series](img/AfterDicomTagReader.png)
 
 _Output queues from a successful run of DicomTagReader_
 
@@ -327,7 +328,7 @@ C:\Users\tznind\AppData\Local\MongoDBCompassCommunity\MongoDBCompassCommunity.ex
 
 Your MongoDb instance should be blank (contain no imaging datasets at least):
 
-![Mongo Db Compass showing no user databases](./Images/DataLoading/MongoDbCompassAtStart.png)
+![Mongo Db Compass showing no user databases](img/MongoDbCompassAtStart.png)
 
 Publish and run `MongoDbPopulator` (making sure to copy across [Smi.NLog.config] if required)
 
@@ -376,7 +377,7 @@ Bootstrapper -> Exiting main
 
 Your MongoDb instance should now have 2 new collections `image_CT` and `series`. The queues should also be fully drained of messages.
 
-![Mongo Db Compass showing imaging databases](./Images/DataLoading/MongoDbCompassAtEnd.png)
+![Mongo Db Compass showing imaging databases](img/MongoDbCompassAtEnd.png)
 
 _Mongo Db after MongoDbPopulator has run_
 
@@ -532,7 +533,7 @@ Bootstrapper -> Exiting main
 
 If you look in your Sql Server database you should see a persistent record of the anonmised mapping. This ensures that patients have consistent identifiers over time and no aliases are generated.
 
-![Sql server table containing mapped identifiers](./Images/DataLoading/SqlServerIdentifierMapperMappingTable.png)
+![Sql server table containing mapped identifiers](img/SqlServerIdentifierMapperMappingTable.png)
 
 Notice that the PatientID is a primary key column to prevent aliases ever forming. Multiple swappers can execute in parallel without risking aliases (e.g. due to race conditions) because lookup is performed in a single atomic transaction (SELECT if not exists INSERT).
 
@@ -581,7 +582,7 @@ Run the install command (if you need to use sql authentication use the -u and -p
 
 This will create all the databases required for [RDMP] to run (including running data loads)
 
-![RDMP platform databases installed on localhost sql server](./Images/DataLoading/RdmpPlatformDatabases.png)
+![RDMP platform databases installed on localhost sql server](img/RdmpPlatformDatabases.png)
 
 Edit `Databases.yaml` in the RDMP CLI directory so that the connection strings are correct for your server e.g.
 
@@ -626,18 +627,18 @@ Alternatively you can run it from the rdmp console gui:
 
 Press `F9` to access the menu and select `R` (Run). Locate the `CreateNewImagingDatasetSuite` command and run it:
 
-![Create suite command listed in rdmp gui](./Images/DataLoading/RdmpGuiCreateSuite.png)
+![Create suite command listed in rdmp gui](img/RdmpGuiCreateSuite.png)
 
 Enter the server/database name you want the tables created into. **Make sure to select Create Database** (if the database does not already exist).
 
-![Create the target database in rdmp gui](./Images/DataLoading/RdmpGuiCreateDatabase.png)
+![Create the target database in rdmp gui](img/RdmpGuiCreateDatabase.png)
 
 -   Select a 'project directory' this should be a directory on disk (that must exist) in which load scripts can be added later (all [RDMP] loads require a load folder regardless of whether they actually use it)
 -   Select DicomDatasetCollectionSource for the `dicomSourceType`
 -   Enter `CT_` when prompted for table prefix
 -   Select the `CT.it` template file when prompted
 
-![Pick the template file in rdmp gui](./Images/DataLoading/RdmpGuiTemplateFile.png)
+![Pick the template file in rdmp gui](img/RdmpGuiTemplateFile.png)
 
 -   Enter Yes for `persistentRAW` (this allows parallel loading)
 -   Enter Yes for `createLoad`
@@ -646,11 +647,11 @@ Run Refresh (`F9` Refresh `f`)
 
 Now open the tree (`F9` Tree `t`) and search for "loadmetadata"
 
-![The load created in rdmp gui](./Images/DataLoading/RdmpGuiOpenTree.png)
+![The load created in rdmp gui](img/RdmpGuiOpenTree.png)
 
 Select "SMI Image Loading CT", this will show all the operations created in the load
 
-![The load created in rdmp gui detail](./Images/DataLoading/RdmpGuiLoadCreated.png)
+![The load created in rdmp gui detail](img/RdmpGuiLoadCreated.png)
 
 Take note of the ID of the load (in this case `1`). You can see this in the search or by opening the load.
 
@@ -662,7 +663,7 @@ You can check the load by exiting (`F9` Quit `Q`) and running the command line c
 
 In Sql Server you should see tables (and archive tables) that match your template
 
-![The imaging tables and archive tables](./Images/DataLoading/RdmpAllDatabases.png)
+![The imaging tables and archive tables](img/RdmpAllDatabases.png)
 
 ### DicomRelationalMapper Continued
 
@@ -709,11 +710,11 @@ _Successful loading of images to the relational database (23 images because it r
 
 Your live tables should have the following (or rough equivellents):
 
-![Final state of the study level tags](./Images/DataLoading/FinalStudyTable.png)
+![Final state of the study level tags](img/FinalStudyTable.png)
 
 _Final live study table containing aggregate tag data at the study level_
 
-![The final state of the image level](./Images/DataLoading/FinalImageTable.png)
+![The final state of the image level](img/FinalImageTable.png)
 
 _Final live image table containing an entry for each image_
 
@@ -728,16 +729,18 @@ testdicoms/1987/12/6/2.25.176347174691273338913144606255096043339.dcm
 [...]
 ```
 
-[smi.nlog.config]: ../data/logging/Smi.NLog.config
+<!-- Links -->
+
+[smi.nlog.config]: /data/logging/Smi.NLog.config
 [baddicom]: https://github.com/HicServices/BadMedicine.Dicom/releases
 [mongodb]: #mongodb
 [relationaldb]: #relationaldb
-[mongodbpopulator]: #MongoDbPopulator
-[dicomreprocessor]: #DicomReprocessor
+[mongodbpopulator]: #mongodbpopulator
+[dicomreprocessor]: #dicomreprocessor
 [patientid]: https://dicom.innolitics.com/ciods/rt-plan/patient/00100020
 [strategy pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
-[forguididentifierswapper]: ../src/microservices/Microservices.IdentifierMapper/Execution/Swappers/ForGuidIdentifierSwapper.cs
-[tablelookupswapper]: ../src/microservices/Microservices.IdentifierMapper/Execution/Swappers/TableLookupSwapper.cs
+[forguididentifierswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/ForGuidIdentifierSwapper.cs
+[tablelookupswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/TableLookupSwapper.cs
 [rdmp]: https://github.com/HicServices/RDMP
 [rdmp.dicom]: https://github.com/HicServices/RdmpDicom
 [rdmp user manual]: https://github.com/HicServices/RDMP#research-data-management-platform
