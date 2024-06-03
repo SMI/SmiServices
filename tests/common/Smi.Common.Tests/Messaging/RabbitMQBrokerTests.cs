@@ -55,6 +55,7 @@ namespace Smi.Common.Tests.Messaging
         public void TearDown()
         {
             _tester.Shutdown();
+            _tester.Dispose();
         }
 
         /// <summary>
@@ -115,11 +116,11 @@ namespace Smi.Common.Tests.Messaging
         public void TestNoNewConnectionsAfterShutdown()
         {
             var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMQBrokerTests");
-            Assert.False(testAdapter.ShutdownCalled);
+            Assert.That(testAdapter.ShutdownCalled,Is.False);
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
-            Assert.True(testAdapter.ShutdownCalled);
+            Assert.That(testAdapter.ShutdownCalled,Is.True);
             Assert.Throws<ApplicationException>(() => testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
             Assert.Throws<ApplicationException>(() => testAdapter.SetupProducer(_testProducerOptions));
         }
@@ -148,7 +149,7 @@ namespace Smi.Common.Tests.Messaging
             // These are all the server properties we can check using the connection
             PrintObjectDictionary(connection.ServerProperties);
 
-            Assert.True(connection.ServerProperties.ContainsKey("version"));
+            Assert.That(connection.ServerProperties.ContainsKey("version"),Is.True);
         }
 
         [Test]
@@ -188,8 +189,11 @@ namespace Smi.Common.Tests.Messaging
             // Closing model after connection is ok
             model.Close(200, "bye bye");
 
-            Assert.False(model.IsOpen);
-            Assert.False(conn.IsOpen);
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.IsOpen,Is.False);
+                Assert.That(conn.IsOpen,Is.False);
+            });
         }
 
         [Test]
@@ -201,7 +205,7 @@ namespace Smi.Common.Tests.Messaging
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
-            Assert.True(model.IsClosed);
+            Assert.That(model.IsClosed,Is.True);
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
         }
 
@@ -240,7 +244,7 @@ namespace Smi.Common.Tests.Messaging
                 _ => "nothing to see here"
             };
 
-            Assert.IsTrue(target.Logs.Any(s => s.Contains(expectedErrorMessage)), $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
+            Assert.That(target.Logs.Any(s => s.Contains(expectedErrorMessage)),Is.True, $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
         [Test]
@@ -261,8 +265,11 @@ namespace Smi.Common.Tests.Messaging
             tester.SendMessage(consumerOptions, new TestMessage());
             Thread.Sleep(500);
 
-            Assert.AreEqual(1, consumer.HeldMessages);
-            Assert.AreEqual(0, consumer.AckCount);
+            Assert.Multiple(() =>
+            {
+                Assert.That(consumer.HeldMessages,Is.EqualTo(1));
+                Assert.That(consumer.AckCount,Is.EqualTo(0));
+            });
         }
 
         private class ThrowingConsumer : Consumer<TestMessage>

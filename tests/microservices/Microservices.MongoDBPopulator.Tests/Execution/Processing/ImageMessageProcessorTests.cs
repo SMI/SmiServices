@@ -14,6 +14,7 @@ using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 
 namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
@@ -42,41 +43,42 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
         private void Validate(DicomFileMessage message, MessageHeader header, BsonDocument document)
         {
-            Assert.True(document.TryGetElement("header", out var element));
+            Assert.That(document.TryGetElement("header", out var element),Is.True);
 
             var docHeader = (BsonDocument)element.Value;
-            Assert.AreEqual(_imageMessageProps.Count - 3, docHeader.ElementCount);
+            Assert.That(docHeader.ElementCount,Is.EqualTo(_imageMessageProps.Count - 3));
             ValidateHeader(message, header, docHeader);
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);
-            Assert.NotNull(dataset);
+            Assert.That(dataset,Is.Not.Null);
 
             BsonDocument datasetDocument = DicomTypeTranslaterReader.BuildBsonDocument(dataset);
             document.Remove("_id");
             document.Remove("header");
 
-            Assert.AreEqual(datasetDocument, document);
+            Assert.That(document,Is.EqualTo(datasetDocument));
         }
 
         private static void ValidateHeader(DicomFileMessage message, MessageHeader header, BsonDocument docHeader)
         {
-            Assert.AreEqual(message.DicomFilePath, docHeader["DicomFilePath"].AsString);
+            Assert.Multiple(() =>
+            {
+                Assert.That(docHeader["DicomFilePath"].AsString,Is.EqualTo(message.DicomFilePath));
 
-            Assert.True(docHeader.TryGetElement("MessageHeader", out var element));
+                Assert.That(docHeader.TryGetElement("MessageHeader",out var element),Is.True);
+                Assert.That(element.Value,Is.Not.Null);
 
-            var messageHeaderDoc = (BsonDocument)element.Value;
-            Assert.NotNull(messageHeaderDoc);
+                var messageHeaderDoc = (BsonDocument)element.Value;
+                Assert.That(messageHeaderDoc["ProducerProcessID"].AsInt32,Is.EqualTo(header.ProducerProcessID));
+                Assert.That(messageHeaderDoc["ProducerExecutableName"].AsString,Is.EqualTo(header.ProducerExecutableName));
+                Assert.That(messageHeaderDoc["OriginalPublishTimestamp"].AsInt64,Is.EqualTo(header.OriginalPublishTimestamp));
 
-            Assert.AreEqual(header.ProducerProcessID, messageHeaderDoc["ProducerProcessID"].AsInt32);
-            Assert.AreEqual(header.ProducerExecutableName, messageHeaderDoc["ProducerExecutableName"].AsString);
-            Assert.AreEqual(header.OriginalPublishTimestamp, messageHeaderDoc["OriginalPublishTimestamp"].AsInt64);
+                Assert.That(messageHeaderDoc.TryGetElement("Parents",out element),Is.True);
 
-            Assert.True(messageHeaderDoc.TryGetElement("Parents", out element));
-
-            string parentsString = element.Value.AsString;
-
-            Assert.False(string.IsNullOrWhiteSpace(parentsString));
-            Assert.AreEqual(Guid.NewGuid().ToString().Length, parentsString.Length);
+                var parentsString = element.Value.AsString;
+                Assert.That(string.IsNullOrWhiteSpace(parentsString),Is.False);
+                Assert.That(parentsString,Has.Length.EqualTo(Guid.NewGuid().ToString().Length));
+            });
         }
 
         [Test]
@@ -119,12 +121,15 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             // Max queue size set to 1 so will immediately process this
             processor.AddToWriteQueue(_helper.TestImageMessage, header, 1);
 
-            Assert.False(callbackUsed);
-            Assert.True(processor.AckCount == 1);
+            Assert.Multiple(() =>
+            {
+                Assert.That(callbackUsed,Is.False);
+                Assert.That(processor.AckCount,Is.EqualTo(1));
+            });
 
             IMongoCollection<BsonDocument> imageCollection = _helper.TestDatabase.GetCollection<BsonDocument>(collectionName + "_SR");
 
-            Assert.True(imageCollection.CountDocuments(new BsonDocument()) == 1);
+            Assert.That(imageCollection.CountDocuments(new BsonDocument()),Is.EqualTo(1));
 
             BsonDocument doc = imageCollection.FindAsync(FilterDefinition<BsonDocument>.Empty).Result.Single();
             Validate(_helper.TestImageMessage, header, doc);
@@ -170,7 +175,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             largeMessage.DicomDataset = json;
 
             processor.AddToWriteQueue(largeMessage, new MessageHeader(), 2);
-            Assert.True(processor.AckCount == 1);
+            Assert.That(processor.AckCount,Is.EqualTo(1));
         }
 
         [Test]

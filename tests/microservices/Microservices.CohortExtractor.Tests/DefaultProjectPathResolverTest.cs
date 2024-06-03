@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
+using Microservices.CohortExtractor.Execution.ProjectPathResolvers;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
@@ -46,7 +46,7 @@ namespace Microservices.CohortExtractor.Tests
         [TestCase("study", null)]
         [TestCase(null, "series")]
         [TestCase(null, null)]
-        public void TestDefaultProjectPathResolver_IdParts(string study, string series)
+        public void TestDefaultProjectPathResolver_IdParts(string? study, string? series)
         {
             var result = new QueryToExecuteResult(
                 "foo.dcm",
@@ -56,12 +56,11 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
                     study ?? "unknown",
                     series ?? "unknown",
-                    "foo-an.dcm"),
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+                    "foo-an.dcm")));
         }
 
         [TestCase("file-an.dcm", "file.dcm")]
@@ -78,12 +77,11 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
                     "study",
                     "series",
-                    expectedOutput),
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+                    expectedOutput)));
         }
 
         [Test]
@@ -97,12 +95,11 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
                     "study",
                     "unknown",
-                    "file-an.dcm"),
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+                    "file-an.dcm")));
         }
 
         [Test]
@@ -121,19 +118,18 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new DefaultProjectPathResolver().GetOutputPath(result, requestMessage),Is.EqualTo(Path.Combine(
                     "study",
                     "unknown",
-                    "file.dcm"),
-                new DefaultProjectPathResolver().GetOutputPath(result, requestMessage));
+                    "file.dcm")));
         }
 
         [TestCase(".study", "series")]
         [TestCase(".study", ".series")]
         [TestCase(null, ".series")]
         [TestCase(".study", null)]
-        public void TestDefaultProjectPathResolver_HiddenDirectories(string study, string series)
+        public void TestDefaultProjectPathResolver_HiddenDirectories(string? study, string? series)
         {
             var result = new QueryToExecuteResult(
                 "foo.dcm",
@@ -143,12 +139,11 @@ namespace Microservices.CohortExtractor.Tests
                 false,
                 null);
 
-            Assert.AreEqual(
-                Path.Combine(
+            Assert.That(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
                     study?.TrimStart('.') ?? "unknown",
                     series?.TrimStart('.') ?? "unknown",
-                    "foo-an.dcm"),
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage));
+                    "foo-an.dcm")));
         }
 
         #endregion

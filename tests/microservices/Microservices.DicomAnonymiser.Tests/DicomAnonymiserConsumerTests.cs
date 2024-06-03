@@ -167,10 +167,13 @@ namespace Microservices.DicomAnonymiser.Tests
             // Assert
 
             TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
-            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
-            Assert.AreEqual("DicomAnonymiserConsumer should not handle identifiable extraction messages", fatalArgs!.Exception!.Message);
-            Assert.AreEqual(0, consumer.AckCount);
-            Assert.AreEqual(0, consumer.NackCount);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fatalArgs?.Message,Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
+                Assert.That(fatalArgs!.Exception!.Message,Is.EqualTo("DicomAnonymiserConsumer should not handle identifiable extraction messages"));
+                Assert.That(consumer.AckCount,Is.EqualTo(0));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+            });
         }
 
         [Test]
@@ -261,10 +264,13 @@ namespace Microservices.DicomAnonymiser.Tests
 
             TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
 
-            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", fatalArgs?.Message);
-            Assert.AreEqual($"Expected extraction directory to exist: '{_extractDir}'", fatalArgs!.Exception!.Message);
-            Assert.AreEqual(0, consumer.AckCount);
-            Assert.AreEqual(0, consumer.NackCount);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fatalArgs?.Message,Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
+                Assert.That(fatalArgs!.Exception!.Message,Is.EqualTo($"Expected extraction directory to exist: '{_extractDir}'"));
+                Assert.That(consumer.AckCount,Is.EqualTo(0));
+                Assert.That(consumer.NackCount,Is.EqualTo(0));
+            });
         }
 
         [Test]

@@ -36,7 +36,7 @@ namespace Microservices.Tests.RDMPTests
             var consumerOptions = globals.DicomRelationalMapperOptions;
 
             var lmd = new LoadMetadata(CatalogueRepository, "MyLoad");
-            cata.LoadMetadata_ID = lmd.ID;
+            lmd.LinkToCatalogue(cata);
             cata.SaveToDatabase();
 
             consumerOptions!.LoadMetadataId = lmd.ID;
@@ -56,8 +56,11 @@ namespace Microservices.Tests.RDMPTests
                 using var host = new DicomRelationalMapperHost(globals);
                 host.Start();
 
-                Assert.AreEqual(expectedType, host.Consumer?.DatabaseNamer.GetType());
-                Assert.IsNotNull(host);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(host.Consumer?.DatabaseNamer.GetType(),Is.EqualTo(expectedType));
+                    Assert.That(host,Is.Not.Null);
+                });
 
                 host.Stop("Test finished");
             }
@@ -76,12 +79,12 @@ namespace Microservices.Tests.RDMPTests
             var raw = namer.GetDatabaseName("test", LoadBubble.Raw);
             Console.WriteLine(raw);
 
-            StringAssert.Contains("6ff", raw);
+            Assert.That(raw,Does.Contain("6ff"));
 
             var staging = namer.GetDatabaseName("test", LoadBubble.Staging);
             Console.WriteLine(staging);
 
-            StringAssert.Contains("6ff", staging);
+            Assert.That(staging,Does.Contain("6ff"));
         }
 
     }

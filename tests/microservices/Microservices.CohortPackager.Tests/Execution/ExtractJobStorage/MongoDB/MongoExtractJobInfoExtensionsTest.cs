@@ -81,7 +81,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 isNoFilterExtraction: true
                 );
 
-            Assert.AreEqual(expected, extractJobInfo);
+            Assert.That(extractJobInfo,Is.EqualTo(expected));
         }
 
         #endregion

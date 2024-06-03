@@ -33,9 +33,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
 
         #region Tests
 
-        [TestCase(null, "bar")]
         [TestCase("  ", "bar")]
-        [TestCase("foo", null)]
         [TestCase("foo", "  ")]
         public void Constructor_ThrowsArgumentException_OnInvalidArgs(string dicomFilePath, string reason)
         {

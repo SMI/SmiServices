@@ -6,6 +6,7 @@ using BadMedicine;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using NUnit.Framework;
+using SynthEHR;
 
 namespace Smi.Common.Tests
 {
@@ -22,7 +23,7 @@ namespace Smi.Common.Tests
             //trim off extras
             toReturn = toReturn.Take(numberOfImages).ToList();
 
-            Assert.AreEqual(numberOfImages,toReturn.Count);
+            Assert.That(toReturn,Has.Count.EqualTo(numberOfImages));
 
             return toReturn;
         }

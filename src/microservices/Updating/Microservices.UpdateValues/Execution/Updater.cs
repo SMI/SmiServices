@@ -78,18 +78,18 @@ namespace Microservices.UpdateValues.Execution
         {
             var audit = _audits.GetOrAdd(t, static k=>new UpdateTableAudit(k));
 
-            StringBuilder builder = new();
-
-            builder.AppendLine($"UPDATE {t.GetFullyQualifiedName()} SET ");
+            var builder = new StringBuilder($"UPDATE {t.GetFullyQualifiedName()} SET ");
             builder.AppendJoin(',',
-                message.WriteIntoFields.Select((col, i) =>
-                    GetFieldEqualsValueExpression(t.DiscoverColumn(col), message.Values[i], "=")));
+                message.WriteIntoFields.Select((field, i) =>
+                    GetFieldEqualsValueExpression(t.DiscoverColumn(message.WriteIntoFields[i]), message.Values[i],
+                        "=")));
 
             builder.AppendLine(" WHERE ");
 
-            // Column name can't be null, operator can be (and defaults to =).
-            builder.AppendJoin(" AND ", message.WhereFields.Select((col, i) =>
-                GetFieldEqualsValueExpression(t.DiscoverColumn(col ?? throw new ArgumentNullException(nameof(col))), message.HaveValues[i]!, message.Operators?[i] ?? "=")));
+            builder.AppendJoin(" AND ", message.WhereFields.Select((field, i) =>
+                GetFieldEqualsValueExpression(t.DiscoverColumn(field ?? throw new ArgumentNullException(nameof(field))),
+                    message.HaveValues[i]!,
+                    message.Operators?[i])));
 
             var sql = builder.ToString();
             var affectedRows = 0;

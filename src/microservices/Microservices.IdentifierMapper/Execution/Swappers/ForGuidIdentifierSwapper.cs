@@ -155,10 +155,10 @@ where not exists(select *
         {
             try
             {
-                if (_table == null)
-                    throw new NullReferenceException("_table was null. Try calling Setup()");
-                if (_options?.SwapColumnName is null || _options.ReplacementColumnName is null)
-                    throw new NullReferenceException($"{nameof(_options)} was null or had no SwapColumnName or ReplacementColumnName. Try calling Setup()");
+                ArgumentNullException.ThrowIfNull(_table, nameof(_table));
+                ArgumentNullException.ThrowIfNull(_options, nameof(_options));
+                ArgumentNullException.ThrowIfNull(_options.SwapColumnName, nameof(_options.SwapColumnName));
+                ArgumentNullException.ThrowIfNull(_options.ReplacementColumnName, nameof(_options.ReplacementColumnName));
 
                 //create the database if it doesn't exist
                 if (!_table.Database.Exists())
