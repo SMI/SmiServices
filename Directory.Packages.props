@@ -9,9 +9,9 @@
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
     <PackageVersion Include="CsvHelper" Version="32.0.3" />
     <PackageVersion Include="Equ" Version="2.3.0" />
-    <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.0.3" />
+    <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.1.1" />
     <PackageVersion Include="HIC.FAnsiSql" Version="3.2.3" />
-    <PackageVersion Include="HIC.RDMP.Dicom" Version="7.0.2" />
+    <PackageVersion Include="HIC.RDMP.Dicom" Version="7.0.5" />
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.6" />
     <PackageVersion Include="IsIdentifiable" Version="0.3.0" />
     <PackageVersion Include="LibArchive.Net" Version="0.1.5" />
@@ -26,8 +26,8 @@
     <PackageVersion Include="System.IO.Abstractions" Version="21.0.2" />
     <PackageVersion Include="StackExchange.Redis" Version="2.7.33" />
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageVersion Include="Terminal.Gui" Version="1.16.0" />
-    <PackageVersion Include="YamlDotNet" Version="15.1.4" />
+    <PackageVersion Include="Terminal.Gui" Version="1.17.0" />
+    <PackageVersion Include="YamlDotNet" Version="15.1.6" />
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.1.0" />
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.1.6" />
