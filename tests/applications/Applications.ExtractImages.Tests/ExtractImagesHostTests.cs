@@ -120,29 +120,38 @@ namespace Applications.ExtractImages.Tests
                     Thread.Sleep(TimeSpan.FromSeconds(delta));
                 }
 
-                Assert.True(timeoutSecs > 0);
+                Assert.That(timeoutSecs,Is.GreaterThan(0));
             }
 
             File.Delete(tmpFile);
 
-            Assert.AreEqual(1, consumedExtReqMsgs.Count);
+            Assert.That(consumedExtReqMsgs,Has.Count.EqualTo(1));
             ExtractionRequestMessage receivedRequestMessage = consumedExtReqMsgs[0].Item2;
-            Assert.AreEqual("SeriesInstanceUID", receivedRequestMessage.KeyTag);
-            Assert.AreEqual("CT,MR", receivedRequestMessage.Modalities);
-            Assert.AreEqual(new List<string> { "1.2.3.4" }, receivedRequestMessage.ExtractionIdentifiers);
+            Assert.Multiple(() =>
+            {
+                Assert.That(receivedRequestMessage.KeyTag,Is.EqualTo("SeriesInstanceUID"));
+                Assert.That(receivedRequestMessage.Modalities,Is.EqualTo("CT,MR"));
+                Assert.That(receivedRequestMessage.ExtractionIdentifiers,Is.EqualTo(new List<string> { "1.2.3.4" }));
 
-            Assert.AreEqual(1, consumedExtReqInfoMsgs.Count);
+                Assert.That(consumedExtReqInfoMsgs,Has.Count.EqualTo(1));
+            });
             ExtractionRequestInfoMessage receivedRequestInfoMessage = consumedExtReqInfoMsgs[0].Item2;
-            Assert.AreEqual("SeriesInstanceUID", receivedRequestInfoMessage.KeyTag);
-            Assert.AreEqual("CT,MR", receivedRequestInfoMessage.ExtractionModality);
-            Assert.AreEqual(1, receivedRequestInfoMessage.KeyValueCount);
+            Assert.Multiple(() =>
+            {
+                Assert.That(receivedRequestInfoMessage.KeyTag,Is.EqualTo("SeriesInstanceUID"));
+                Assert.That(receivedRequestInfoMessage.ExtractionModality,Is.EqualTo("CT,MR"));
+                Assert.That(receivedRequestInfoMessage.KeyValueCount,Is.EqualTo(1));
+            });
 
             foreach (IExtractMessage msg in new List<IExtractMessage> { receivedRequestMessage, receivedRequestInfoMessage })
             {
-                Assert.AreEqual("1234-5678", msg.ProjectNumber);
-                Assert.AreEqual(Path.Join("1234-5678", "extractions", Path.GetFileNameWithoutExtension(tmpFile)), msg.ExtractionDirectory);
-                Assert.True(msg.IsIdentifiableExtraction);
-                Assert.True(msg.IsNoFilterExtraction);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(msg.ProjectNumber,Is.EqualTo("1234-5678"));
+                    Assert.That(msg.ExtractionDirectory,Is.EqualTo(Path.Join("1234-5678","extractions",Path.GetFileNameWithoutExtension(tmpFile))));
+                    Assert.That(msg.IsIdentifiableExtraction,Is.True);
+                    Assert.That(msg.IsNoFilterExtraction,Is.True);
+                });
             }
         }
 
@@ -158,7 +167,7 @@ namespace Applications.ExtractImages.Tests
             {
                 var _ = new ExtractImagesHost(globals, new ExtractImagesCliOptions());
             });
-            Assert.AreEqual("ExtractImagesOptions", exc?.Message);
+            Assert.That(exc?.Message,Is.EqualTo("ExtractImagesOptions"));
         }
 
         [Test]
@@ -173,7 +182,7 @@ namespace Applications.ExtractImages.Tests
             {
                 var _ = new ExtractImagesHost(globals, new ExtractImagesCliOptions());
             });
-            Assert.AreEqual("Could not find the extraction root 'nope'", exc?.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Could not find the extraction root 'nope'"));
         }
 
         [Test]
@@ -192,7 +201,7 @@ namespace Applications.ExtractImages.Tests
             {
                 var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
             });
-            Assert.AreEqual("Could not find the cohort CSV file 'missing.csv'", exc?.Message);
+            Assert.That(exc?.Message,Is.EqualTo("Could not find the cohort CSV file 'missing.csv'"));
         }
 
         [Test]
@@ -214,7 +223,7 @@ namespace Applications.ExtractImages.Tests
             {
                 var _ = new ExtractImagesHost(globals, cliOptions, fileSystem: fs);
             });
-            Assert.True(exc?.Message.StartsWith("Extraction directory already exists"));
+            Assert.That(exc?.Message.StartsWith("Extraction directory already exists"),Is.True);
         }
 
         #endregion

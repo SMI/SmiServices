@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -22,7 +22,7 @@ namespace Microservices.CohortExtractor.Tests
                 .Throws<IndexOutOfRangeException>();
 
             var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out var _));
-            Assert.True(exc!.Message.Contains($"Expected a column called fff"));
+            Assert.That(exc!.Message,Does.Contain($"Expected a column called fff"));
         }
 
         [Test]
@@ -34,22 +34,31 @@ namespace Microservices.CohortExtractor.Tests
             moqDave.Setup(x => x[PatColName])
                 .Returns("Dave");
 
-            Assert.IsFalse(rejector.Reject(moqDave.Object, out string? reason));
-            Assert.IsNull(reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(rejector.Reject(moqDave.Object,out string? reason),Is.False);
+                Assert.That(reason,Is.Null);
+            });
 
             var moqFrank = new Mock<DbDataReader>();
             moqFrank.Setup(x => x[PatColName])
                 .Returns("Frank");
 
-            Assert.IsTrue(rejector.Reject(moqFrank.Object, out reason));
-            Assert.AreEqual("Patient or Identifier was in reject list", reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(rejector.Reject(moqFrank.Object,out var reason),Is.True);
+                Assert.That(reason,Is.EqualTo("Patient or Identifier was in reject list"));
+            });
 
             var moqLowerCaseFrank = new Mock<DbDataReader>();
             moqLowerCaseFrank.Setup(x => x[PatColName])
                 .Returns("frank");
 
-            Assert.IsTrue(rejector.Reject(moqLowerCaseFrank.Object, out reason));
-            Assert.AreEqual("Patient or Identifier was in reject list", reason);
+            Assert.Multiple(() =>
+            {
+                Assert.That(rejector.Reject(moqLowerCaseFrank.Object,out var reason),Is.True);
+                Assert.That(reason,Is.EqualTo("Patient or Identifier was in reject list"));
+            });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.MongoDBPopulator.Execution;
@@ -72,7 +72,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             msg.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
 
             Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(msg, new MessageHeader(), ulong.MaxValue));
-            Assert.AreEqual(5, processor.AckCount);
+            Assert.That(processor.AckCount,Is.EqualTo(5));
         }
     }
 
@@ -80,10 +80,10 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     {
         public WriteResult WriteMany(IList<BsonDocument> toWrite, string? collectionNamePostfix = null)
         {
-            Assert.NotZero(toWrite.Count);
+            Assert.That(toWrite,Is.Not.Empty);
 
             BsonDocument doc = toWrite.First();
-            Assert.True(toWrite.All(x => x["Modality"] == doc["Modality"]));
+            Assert.That(toWrite.All(x => x["Modality"] == doc["Modality"]),Is.True);
 
             // Fails for "CT" modalities
             switch (doc["Modality"].AsString)

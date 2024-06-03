@@ -11,7 +11,7 @@ namespace Microservices.IsIdentifiable.Tests
         public void Test_SingleValue_IsChi(string testValue)
         {
             var constraint = new NoChisInAnyColumnsConstraint();
-            Assert.AreEqual($"Found chi in field {nameof(testValue)}",constraint.Validate(new []{testValue},new []{nameof(testValue)}));
+            Assert.That(constraint.Validate(new []{testValue},new []{nameof(testValue)}),Is.EqualTo($"Found chi in field {nameof(testValue)}"));
         }
 
         [TestCase("test)4401010101.")] //not a chi because there's no 44th day of the month
@@ -20,7 +20,7 @@ namespace Microservices.IsIdentifiable.Tests
         public void Test_SingleValue_IsNotChi(string testValue)
         {
             var constraint = new NoChisInAnyColumnsConstraint();
-            Assert.IsNull( constraint.Validate(new[] { testValue }, new[] { nameof(testValue) }));
+            Assert.That( constraint.Validate(new[] { testValue }, new[] { nameof(testValue) }),Is.Null);
         }
 
     }

@@ -78,33 +78,18 @@ namespace Microservices.UpdateValues.Execution
         {
             var audit = _audits.GetOrAdd(t, static k=>new UpdateTableAudit(k));
 
-            StringBuilder builder = new();
-
-            builder.AppendLine("UPDATE ");
-            builder.AppendLine(t.GetFullyQualifiedName());
-            builder.AppendLine(" SET ");
-
-            for (var i = 0; i < message.WriteIntoFields.Length; i++)
-            {
-                builder.Append(GetFieldEqualsValueExpression(t.DiscoverColumn(message.WriteIntoFields[i]),message.Values[i],"="));
-
-                //if there are more SET fields to come
-                if(i < message.WriteIntoFields.Length -1)
-                    builder.AppendLine(",");
-            }
+            var builder = new StringBuilder($"UPDATE {t.GetFullyQualifiedName()} SET ");
+            builder.AppendJoin(',',
+                message.WriteIntoFields.Select((field, i) =>
+                    GetFieldEqualsValueExpression(t.DiscoverColumn(message.WriteIntoFields[i]), message.Values[i],
+                        "=")));
 
             builder.AppendLine(" WHERE ");
 
-            for (var i = 0; i < message.WhereFields.Length; i++)
-            {
-                var col = t.DiscoverColumn(message.WhereFields[i]);
-
-                builder.Append(GetFieldEqualsValueExpression(col,message.HaveValues[i]!,message.Operators?[i]!));
-
-                //if there are more WHERE fields to come
-                if(i < message.WhereFields.Length -1)
-                    builder.AppendLine(" AND ");
-            }
+            builder.AppendJoin(" AND ", message.WhereFields.Select((field, i) =>
+                GetFieldEqualsValueExpression(t.DiscoverColumn(field ?? throw new ArgumentNullException(nameof(field))),
+                    message.HaveValues[i]!,
+                    message.Operators?[i])));
 
             var sql = builder.ToString();
             var affectedRows = 0;

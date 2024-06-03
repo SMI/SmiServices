@@ -16,6 +16,7 @@ using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SynthEHR;
 
 namespace Applications.DicomLoader.Tests;
 
@@ -42,8 +43,11 @@ public class DicomLoaderTests
 
         imageStore.DeleteMany(new BsonDocument());
         seriesStore.DeleteMany(new BsonDocument());
-        Assert.That(imageStore.CountDocuments(new BsonDocument()), Is.EqualTo(0));
-        Assert.That(seriesStore.CountDocuments(new BsonDocument()), Is.EqualTo(0));
+        Assert.Multiple(() =>
+        {
+            Assert.That(imageStore.CountDocuments(new BsonDocument()),Is.EqualTo(0));
+            Assert.That(seriesStore.CountDocuments(new BsonDocument()),Is.EqualTo(0));
+        });
 
         // Create a bunch of (pixel-free) DICOM files
         Random r = new(321);
@@ -77,9 +81,12 @@ public class DicomLoaderTests
         typeof(Program).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static,
                 new[] { typeof(GlobalOptions), typeof(DicomLoaderOptions), typeof(Stream) })!
             .Invoke(null, new object[] { _gOptions, new DicomLoaderOptions(), fileList });
-        //Program.OnParse(_gOptions,_dOptions,fileList);
+        Assert.Multiple(() =>
+        {
+            //Program.OnParse(_gOptions,_dOptions,fileList);
 
-        Assert.That(imageStore.CountDocuments(new BsonDocument()), Is.EqualTo(testImages.Length));
-        Assert.That(seriesStore.CountDocuments(new BsonDocument()), Is.EqualTo(study.Series.Count));
+            Assert.That(imageStore.CountDocuments(new BsonDocument()),Is.EqualTo(testImages.Length));
+            Assert.That(seriesStore.CountDocuments(new BsonDocument()),Is.EqualTo(study.Series.Count));
+        });
     }
 }

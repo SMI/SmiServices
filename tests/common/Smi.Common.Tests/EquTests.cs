@@ -58,12 +58,12 @@ namespace Smi.Common.Tests.Messages
                 FooDict = new Dictionary<string, int> { }
             };
 
-            Assert.AreNotEqual(m1, m2);
+            Assert.That(m2,Is.Not.EqualTo(m1));
 
             m2.FooDict.Add("bar", 2);
             m2.FooDict.Add("foo", 1);
 
-            Assert.AreEqual(m1, m2);
+            Assert.That(m2,Is.EqualTo(m1));
         }
 
         [Test]
@@ -80,13 +80,13 @@ namespace Smi.Common.Tests.Messages
                 FooString = "study",
             };
 
-            Assert.AreNotEqual(m1, m2);
+            Assert.That(m2,Is.Not.EqualTo(m1));
 
             m2.FooList = new List<string> { "bar", "foo" };
-            Assert.AreNotEqual(m1, m2);
+            Assert.That(m2,Is.Not.EqualTo(m1));
 
             m2.FooList = new List<string> { "foo", "bar" };
-            Assert.AreEqual(m1, m2);
+            Assert.That(m2,Is.EqualTo(m1));
         }
 
         #endregion

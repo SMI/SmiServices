@@ -48,7 +48,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             var databaseNamerType = MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType)??throw new Exception($"Could not find Type '{Globals.DicomRelationalMapperOptions.DatabaseNamerType}'");
 
-            var liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase().GetRuntimeName();
+            var liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase()?.GetRuntimeName() ?? throw new Exception("Unable to find database name");
 
             var instance = ObjectFactory.CreateInstance<INameDatabasesAndTablesDuringLoads>(databaseNamerType, liveDatabaseName, Globals.DicomRelationalMapperOptions.Guid)
                 ?? throw new Exception("Could not create an INameDatabasesAndTablesDuringLoads");

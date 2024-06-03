@@ -350,24 +350,28 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
-                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
-                Builders<MongoFileStatusDoc>.Filter.Eq(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
-            );
+
+            // Anonymisation failures have VerifiedFileStatus == NotVerified (they did not go through IsIdentifiable) and
+            // ExtractedFileStatus != Copied (as these are not anonymised)
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.NotVerified);
-            return CompletedStatusDocsForFilter(filter).Select(x => new FileAnonFailureInfo(x.Item1, x.Item2));
+            filter &= Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied);
+
+            IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
+            while (cursor.MoveNext())
+                foreach (MongoFileStatusDoc doc in cursor.Current)
+                    yield return new FileAnonFailureInfo(doc.DicomFilePath, doc.StatusMessage!);
         }
 
         protected override IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId)
         {
             var filter = FilterDefinition<MongoFileStatusDoc>.Empty;
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.Header.ExtractionJobIdentifier, jobId);
-            filter &= Builders<MongoFileStatusDoc>.Filter.Or(
-                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Anonymised),
-                 Builders<MongoFileStatusDoc>.Filter.Ne(x => x.ExtractedFileStatus, ExtractedFileStatus.Copied)
-             );
             filter &= Builders<MongoFileStatusDoc>.Filter.Eq(x => x.VerifiedFileStatus, VerifiedFileStatus.IsIdentifiable);
-            return CompletedStatusDocsForFilter(filter).Select(x => new FileVerificationFailureInfo(x.Item1, x.Item2));
+
+            IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
+            while (cursor.MoveNext())
+                foreach (MongoFileStatusDoc doc in cursor.Current)
+                    yield return new FileVerificationFailureInfo(doc.OutputFileName!, doc.StatusMessage!);
         }
 
         protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId)
@@ -418,14 +422,6 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
             return _completedJobCollection
                 .Find(GetFilterForSpecificJob<MongoCompletedExtractJobDoc>(extractionJobIdentifier))
                 .SingleOrDefault() != null;
-        }
-
-        private IEnumerable<Tuple<string, string>> CompletedStatusDocsForFilter(FilterDefinition<MongoFileStatusDoc> filter)
-        {
-            IAsyncCursor<MongoFileStatusDoc> cursor = _completedStatusCollection.FindSync(filter);
-            while (cursor.MoveNext())
-                foreach (MongoFileStatusDoc doc in cursor.Current)
-                    yield return new Tuple<string, string>(doc.OutputFileName!, doc.StatusMessage!);
         }
 
         private MongoFileStatusDoc MongoFileStatusDocFor(ExtractedFileVerificationMessage message, IMessageHeader header)

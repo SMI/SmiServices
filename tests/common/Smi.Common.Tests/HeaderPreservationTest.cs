@@ -38,7 +38,7 @@ namespace Smi.Common.Tests
 
             TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
 
-            Assert.IsTrue(consumer.Passed);
+            Assert.That(consumer.Passed,Is.True);
         }
 
         private class TestConsumer : Consumer<TestMessage>
@@ -51,9 +51,12 @@ namespace Smi.Common.Tests
             {
                 try
                 {
-                    Assert.AreEqual(header.Parents[0].ToString(), "12345678-c270-4bf3-b327-756f6038bb76");
-                    Assert.AreEqual(header.Parents[1].ToString(), "87654321-c270-4bf3-b327-756f6038bb76");
-                    Assert.AreEqual(header.Parents[2].ToString(), "5afce68f-c270-4bf3-b327-756f6038bb76");
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(header.Parents[0].ToString(),Is.EqualTo("12345678-c270-4bf3-b327-756f6038bb76"));
+                        Assert.That(header.Parents[1].ToString(),Is.EqualTo("87654321-c270-4bf3-b327-756f6038bb76"));
+                        Assert.That(header.Parents[2].ToString(),Is.EqualTo("5afce68f-c270-4bf3-b327-756f6038bb76"));
+                    });
 
                     Passed = true;
                     Ack(header,tag);

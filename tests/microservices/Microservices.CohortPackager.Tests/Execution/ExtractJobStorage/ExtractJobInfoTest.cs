@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -53,7 +53,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: false
             );
 
-            Assert.AreEqual("extract-name", info.ExtractionName());
+            Assert.That(info.ExtractionName(),Is.EqualTo("extract-name"));
         }
 
         [TestCase("proj/foo/extract-name", "proj/foo")]
@@ -74,7 +74,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: false
             );
 
-            Assert.AreEqual(expected, info.ProjectExtractionDir());
+            Assert.That(info.ProjectExtractionDir(),Is.EqualTo(expected));
         }
 
 
@@ -109,7 +109,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.AreEqual(info1, info2);
+            Assert.That(info2,Is.EqualTo(info1));
         }
 
         [Test]
@@ -143,7 +143,209 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.AreEqual(info1.GetHashCode(), info2.GetHashCode());
+            Assert.That(info2.GetHashCode(),Is.EqualTo(info1.GetHashCode()));
+        }
+
+        [Test]
+        public void Constructor_DefaultExtractionJobIdentifier_ThrowsException()
+        {
+            // Arrange
+            var jobId = Guid.Empty;
+
+            // Act
+
+            ExtractJobInfo call() => new(
+                jobId,
+                _dateTimeProvider.UtcNow(),
+                "1234",
+                "test/directory",
+                "KeyTag",
+                123,
+                "testUser",
+                "MR",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc!.Message,Is.EqualTo("Must not be the default Guid (Parameter 'extractionJobIdentifier')"));
+        }
+
+        [Test]
+        public void Constructor_InvalidModality_ThrowsException()
+        {
+            // Arrange
+
+            var modality = " ";
+
+            // Act
+
+            ExtractJobInfo call() => new(
+                Guid.NewGuid(),
+                _dateTimeProvider.UtcNow(),
+                "1234",
+                "test/directory",
+                "KeyTag",
+                123,
+                "testUser",
+                modality,
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc!.Message,Is.EqualTo("Must not be whitespace if passed (Parameter 'extractionModality')"));
+        }
+
+        [Test]
+        public void Constructor_DefaultJobSubmittedAt_ThrowsException()
+        {
+            // Arrange
+
+            var jobSubmittedAt = default(DateTime);
+
+            // Act
+
+            ExtractJobInfo call() => new(
+                Guid.NewGuid(),
+                jobSubmittedAt,
+                "1234",
+                "test/directory",
+                "KeyTag",
+                123,
+                "testUser",
+                "CT",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc!.Message,Is.EqualTo("Must not be the default DateTime (Parameter 'jobSubmittedAt')"));
+        }
+
+        [Test]
+        public void Constructor_InvalidProjectNumber_ThrowsException()
+        {
+            // Arrange
+
+            var projectNumber = " ";
+
+            // Act
+
+            ExtractJobInfo call() => new(
+                Guid.NewGuid(),
+                _dateTimeProvider.UtcNow(),
+                projectNumber,
+                "test/directory",
+                "KeyTag",
+                123,
+                "testUser",
+                "CT",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc!.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'projectNumber')"));
+        }
+
+        [Test]
+        public void Constructor_InvalidExtractionDirectory_ThrowsException()
+        {
+            // Arrange
+
+            var extractionDirectory = " ";
+
+            // Act
+
+            ExtractJobInfo call() => new(
+                Guid.NewGuid(),
+                _dateTimeProvider.UtcNow(),
+                "1234",
+                extractionDirectory,
+                "KeyTag",
+                123,
+                "testUser",
+                "CT",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc!.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'extractionDirectory')"));
+        }
+
+        [Test]
+        public void Constructor_InvalidKeyTag_ThrowsException()
+        {
+            // Arrange
+
+            var keyTag = " ";
+
+            // Act
+
+            ExtractJobInfo call() => new(
+                Guid.NewGuid(),
+                _dateTimeProvider.UtcNow(),
+                "1234",
+                "test/directory",
+                keyTag,
+                123,
+                "testUser",
+                "CT",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc!.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'keyTag')"));
+        }
+
+        [Test]
+        public void Constructor_InvalidKeyValue_ThrowsException()
+        {
+            // Arrange
+
+            uint keyValue = 0;
+
+            // Act
+
+            ExtractJobInfo call() => new(
+                Guid.NewGuid(),
+                _dateTimeProvider.UtcNow(),
+                "1234",
+                "test/directory",
+                "KeyTag",
+                keyValue,
+                "testUser",
+                "CT",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                isIdentifiableExtraction: true,
+                isNoFilterExtraction: true
+            );
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc!.Message,Is.EqualTo("Must not be zero (Parameter 'keyValueCount')"));
         }
 
         #endregion
