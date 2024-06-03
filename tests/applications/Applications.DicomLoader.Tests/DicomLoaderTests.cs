@@ -16,6 +16,7 @@ using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SynthEHR;
 
 namespace Applications.DicomLoader.Tests;
 

@@ -20,6 +20,7 @@ using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
 using System.Diagnostics.CodeAnalysis;
+using SynthEHR;
 
 namespace Microservices.CohortExtractor.Tests
 {

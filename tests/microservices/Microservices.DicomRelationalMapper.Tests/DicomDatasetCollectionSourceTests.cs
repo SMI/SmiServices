@@ -347,7 +347,7 @@ namespace Microservices.Tests.RDMPTests
             var colInfo1 = new ColumnInfo(repo, "PatientAge", "varchar(100)", ti1);
             ci1.ColumnInfo_ID = colInfo1.ID;
             ci1.SaveToDatabase();
-            cata1.LoadMetadata_ID = lmd.ID;
+            lmd.LinkToCatalogue(cata1);
             cata1.SaveToDatabase();
 
             var cata2 = new Catalogue(repo, "FileCatalogue");
@@ -356,7 +356,7 @@ namespace Microservices.Tests.RDMPTests
             var colInfo2 = new ColumnInfo(repo, "RelFileName", "varchar(100)", ti2);
             ci2.ColumnInfo_ID = colInfo2.ID;
             ci2.SaveToDatabase();
-            cata2.LoadMetadata_ID = lmd.ID;
+            lmd.LinkToCatalogue(cata2);
             cata2.SaveToDatabase();
 
             var source = new DicomDatasetCollectionSource();

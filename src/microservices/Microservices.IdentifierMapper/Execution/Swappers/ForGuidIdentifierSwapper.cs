@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;
@@ -127,7 +127,7 @@ where not exists(select *
 
                     _cachedAnswers.Add(toSwap, syncAnswer);
 
-                    con.ManagedTransaction.CommitAndCloseConnection();
+                    con.ManagedTransaction?.CommitAndCloseConnection();
                     Success++;
                     CacheMiss++;
                     return syncAnswer;
@@ -152,8 +152,10 @@ where not exists(select *
         {
             try
             {
-                if (_table == null)
-                    throw new NullReferenceException("_table was null. Try calling Setup()");
+                ArgumentNullException.ThrowIfNull(_table, nameof(_table));
+                ArgumentNullException.ThrowIfNull(_options, nameof(_options));
+                ArgumentNullException.ThrowIfNull(_options.SwapColumnName, nameof(_options.SwapColumnName));
+                ArgumentNullException.ThrowIfNull(_options.ReplacementColumnName, nameof(_options.ReplacementColumnName));
 
                 //create the database if it doesn't exist
                 if (!_table.Database.Exists())
@@ -167,7 +169,7 @@ where not exists(select *
                     _table.Database.CreateTable(_table.GetRuntimeName(),
                         new[]
                         {
-                            new DatabaseColumnRequest(_options!.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
+                            new DatabaseColumnRequest(_options.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
                             new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)}
                         );
                 }
@@ -178,7 +180,7 @@ where not exists(select *
                     throw new Exception("Table creation did not result in table existing!");
 
                 _logger.Info("Checking for column " + _options!.SwapColumnName);
-                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType.GetLengthIfString();
+                _swapColumnLength = _table.DiscoverColumn(_options.SwapColumnName).DataType?.GetLengthIfString() ?? -1;
 
                 _logger.Info("Checking for column " + _options.ReplacementColumnName);
                 _table.DiscoverColumn(_options.ReplacementColumnName);

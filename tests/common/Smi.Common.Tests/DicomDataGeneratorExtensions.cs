@@ -6,6 +6,7 @@ using BadMedicine;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using NUnit.Framework;
+using SynthEHR;
 
 namespace Smi.Common.Tests
 {
