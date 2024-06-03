@@ -152,10 +152,10 @@ where not exists(select *
         {
             try
             {
-                if (_table == null)
-                    throw new NullReferenceException("_table was null. Try calling Setup()");
-                if (_options?.SwapColumnName == null || _options.ReplacementColumnName == null)
-                    throw new NullReferenceException("Column names to swap were null");
+                ArgumentNullException.ThrowIfNull(_table, nameof(_table));
+                ArgumentNullException.ThrowIfNull(_options, nameof(_options));
+                ArgumentNullException.ThrowIfNull(_options.SwapColumnName, nameof(_options.SwapColumnName));
+                ArgumentNullException.ThrowIfNull(_options.ReplacementColumnName, nameof(_options.ReplacementColumnName));
 
                 //create the database if it doesn't exist
                 if (!_table.Database.Exists())
@@ -169,7 +169,7 @@ where not exists(select *
                     _table.Database.CreateTable(_table.GetRuntimeName(),
                         new[]
                         {
-                            new DatabaseColumnRequest(_options!.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
+                            new DatabaseColumnRequest(_options.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
                             new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)}
                         );
                 }
