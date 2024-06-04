@@ -13,6 +13,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CsvHelper;
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
@@ -69,9 +70,9 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             _logger.Info($"Creating reports for {jobId}");
 
-            CompletedExtractJobInfo completedJobInfo = _jobStore.GetCompletedJobInfo(jobId);
+            var completedJobInfo = _jobStore.GetCompletedJobInfo(jobId);
 
-            string jobReportsDirAbsolute = _fileSystem.Path.Combine(
+            var jobReportsDirAbsolute = _fileSystem.Path.Combine(
                 _extractionRoot,
                 completedJobInfo.ProjectExtractionDir(),
                 "reports",
@@ -87,24 +88,17 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             WriteRejectedFilesCsv(completedJobInfo, jobReportsDirAbsolute);
 
-            var hadErrors = WriteProcessingErrorsCsv(completedJobInfo, jobReportsDirAbsolute);
-            if (hadErrors)
-            {
+            if (WriteProcessingErrorsCsv(completedJobInfo,jobReportsDirAbsolute))
                 _logger.Warn($"Job {jobId} had errors during proecssing. Check {PROCESSING_ERRORS_FILE_NAME}");
-            }
 
-            if (completedJobInfo.IsIdentifiableExtraction)
-                return;
-
-            WriteVerificationFailuresCsv(completedJobInfo, jobReportsDirAbsolute);
+            if (!completedJobInfo.IsIdentifiableExtraction)
+                WriteVerificationFailuresCsv(completedJobInfo, jobReportsDirAbsolute);
 
             _logger.Info($"Reports for {jobId} written to {jobReportsDirAbsolute}");
         }
 
         private void WriteReadme(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolute)
         {
-            string identExtraction = jobInfo.IsIdentifiableExtraction ? "Yes" : "No";
-            string filteredExtraction = !jobInfo.IsNoFilterExtraction ? "Yes" : "No";
             var lines = new List<string>
             {
                 $"# SMI extraction validation report for {jobInfo.ProjectNumber} {jobInfo.ExtractionName()}",
@@ -118,68 +112,55 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"-   Extraction modality:          {jobInfo.ExtractionModality ?? "Unspecified"}",
                 $"-   Requested identifier count:   {jobInfo.KeyValueCount}",
                 $"-   User name:                    {jobInfo.UserName}",
-                $"-   Identifiable extraction:      {identExtraction}",
-                $"-   Filtered extraction:          {filteredExtraction}",
+                $"-   Identifiable extraction:      {(jobInfo.IsIdentifiableExtraction ? "Yes" : "No")}",
+                $"-   Filtered extraction:          {(!jobInfo.IsNoFilterExtraction ? "Yes" : "No")}",
             };
 
-            string jobReadmePath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "README.md");
+            var jobReadmePath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "README.md");
             using var fileStream = _fileSystem.File.OpenWrite(jobReadmePath);
             using var streamWriter = GetStreamWriter(fileStream);
-
-            foreach (string line in lines)
-                streamWriter.WriteLine(line);
+            streamWriter.Write(string.Join(_reportNewLine, lines));
         }
 
+        private readonly record struct DicomFileFailure(string DicomFilePath, string Reason);
         private bool WriteProcessingErrorsCsv(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolute)
         {
-            string errorsPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, PROCESSING_ERRORS_FILE_NAME);
+            var errorsPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, PROCESSING_ERRORS_FILE_NAME);
             using var fileStream = _fileSystem.File.OpenWrite(errorsPath);
             using var streamWriter = GetStreamWriter(fileStream);
+            using var csv = new CsvWriter(streamWriter, _csvConfiguration);
 
-            streamWriter.WriteLine("DicomFilePath,Reason");
+            var missing = _jobStore.GetCompletedJobMissingFileList(jobInfo.ExtractionJobIdentifier)
+                .Select(static f => new DicomFileFailure(f, "Missing"));
+            csv.WriteRecords(missing);
 
-            var hasFailures = false;
+            if (!jobInfo.IsIdentifiableExtraction)
+                csv.WriteRecords(_jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier)
+                    .Select(static fi => new DicomFileFailure(fi.DicomFilePath, fi.Reason)));
 
-            var missingFiles = _jobStore.GetCompletedJobMissingFileList(jobInfo.ExtractionJobIdentifier);
-            foreach (var filePath in missingFiles)
-            {
-                streamWriter.WriteLine($"{filePath},Missing");
-                hasFailures = true;
-            }
-
-            if (jobInfo.IsIdentifiableExtraction)
-                return hasFailures;
-
-            var anonFailures = _jobStore.GetCompletedJobAnonymisationFailures(jobInfo.ExtractionJobIdentifier);
-            foreach (var failureInfo in anonFailures)
-            {
-                streamWriter.WriteLine($"{failureInfo.DicomFilePath},{failureInfo.Reason}");
-                hasFailures = true;
-            }
-
-            return hasFailures;
+            // Row == 2 => only header written => no failures recorded.
+            return csv.Row > 2;
         }
 
+        private readonly record struct Rejection(string ExtractionKey, int Count, string Reason);
         private void WriteRejectedFilesCsv(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolute)
         {
-            string rejectionsReportPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "rejected_files.csv");
+            var rejectionsReportPath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "rejected_files.csv");
             using var fileStream = _fileSystem.File.OpenWrite(rejectionsReportPath);
             using var streamWriter = GetStreamWriter(fileStream);
-
-            streamWriter.WriteLine("ExtractionKey,Count,Reason");
+            using var csv = new CsvWriter(streamWriter, _csvConfiguration);
 
             var jobRejections = _jobStore
                 .GetCompletedJobRejections(jobInfo.ExtractionJobIdentifier)
-                .OrderByDescending(x => x.RejectionItems.Sum(y => y.Value));
-
-            foreach (var rejectionInfo in jobRejections)
-                foreach (var rejectionReason in rejectionInfo.RejectionItems.OrderByDescending(x => x.Value))
-                    streamWriter.WriteLine($"{rejectionInfo.ExtractionIdentifier},{rejectionReason.Value},{rejectionReason.Key}");
+                .OrderByDescending(static x => x.RejectionItems.Sum(static y => y.Value))
+                .SelectMany(static info => info.RejectionItems.OrderByDescending(static x => x.Value)
+                    .Select(reason => new Rejection(info.ExtractionIdentifier, reason.Value, reason.Key)));
+            csv.WriteRecords(jobRejections);
         }
 
         private void WriteVerificationFailuresCsv(CompletedExtractJobInfo jobInfo, string jobReportsDirAbsolute)
         {
-            string verificationFailuresReportName = "verification_failures";
+            var verificationFailuresReportName = "verification_failures";
             var report = new FailureStoreReport(targetName: "", maxSize: 1_000, _fileSystem);
 
             // TODO(rkm 2022-03-22) Can we pass this directly?
@@ -193,24 +174,23 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             foreach (var fileVerificationFailureInfo in _jobStore.GetCompletedJobVerificationFailures(jobInfo.ExtractionJobIdentifier))
             {
-                IEnumerable<Failure>? fileFailures;
                 try
                 {
                     // NOTE(rkm 2024-02-09) fileVerificationFailureInfo.Data can never be null, so neither can fileFailures
-                    fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(fileVerificationFailureInfo.Data)!;
+                    var fileFailures = JsonConvert.DeserializeObject<IEnumerable<Failure>>(fileVerificationFailureInfo.Data)!;
+                    foreach (var failure in fileFailures)
+                    {
+                        // NOTE(rkm 2022-03-17) Updates the Resource to be the relative path in the output directory
+                        failure.Resource = fileVerificationFailureInfo.AnonFilePath;
+
+                        report.Add(failure);
+                    }
                 }
                 catch (JsonException e)
                 {
                     throw new ApplicationException($"Could not deserialize report content for {fileVerificationFailureInfo.AnonFilePath}", e);
                 }
 
-                foreach (Failure failure in fileFailures)
-                {
-                    // NOTE(rkm 2022-03-17) Updates the Resource to be the relative path in the output directory
-                    failure.Resource = fileVerificationFailureInfo.AnonFilePath;
-
-                    report.Add(failure);
-                }
             }
 
             report.CloseReport();
