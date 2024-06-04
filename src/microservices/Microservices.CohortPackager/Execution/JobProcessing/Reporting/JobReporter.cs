@@ -114,6 +114,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
                 $"-   User name:                    {jobInfo.UserName}",
                 $"-   Identifiable extraction:      {(jobInfo.IsIdentifiableExtraction ? "Yes" : "No")}",
                 $"-   Filtered extraction:          {(!jobInfo.IsNoFilterExtraction ? "Yes" : "No")}",
+                ""
             };
 
             var jobReadmePath = _fileSystem.Path.Combine(jobReportsDirAbsolute, "README.md");
