@@ -531,7 +531,7 @@ Bootstrapper -> Host started
 Bootstrapper -> Exiting main
 ```
 
-If you look in your Sql Server database you should see a persistent record of the anonmised mapping. This ensures that patients have consistent identifiers over time and no aliases are generated.
+If you look in your SQL database you should see a persistent record of the anonymised mapping. This ensures that patients have consistent identifiers over time and no aliases are generated.
 
 ![Sql server table containing mapped identifiers](img/SqlServerIdentifierMapperMappingTable.png)
 
