@@ -1,6 +1,6 @@
 # SmiRunner
 
-This CLI application serves as the single entry point for all other C# applications and servcices in the SmiServices repo.
+This CLI application serves as the single entry point for all other C# applications and services in the SmiServices repo.
 
 ## Supporting a new app or service
 
