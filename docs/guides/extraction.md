@@ -114,7 +114,7 @@ python3 -m pip install pika
 #!/usr/bin/env python3
 msg_json = '{ "DicomFilePath": "image-000001.dcm", "ExtractionDirectory": "001/tmp/extractiondir/", "OutputPath": "output.dcm", "ExtractionJobIdentifier":"bb1cbed5-a666-4307-a781-5b83926eaa81",
 "ProjectNumber":"001", "ExtractionDirectory":"001/tmp", "JobSubmittedAt":"2019-12-19T10:49Z" }'
-hdr={'MessageGuid':'', 'OriginalPublishTimestamp':'', 'ProducerExacutableName':'test.py', 'ProducerProcessID': '0'}
+hdr={'MessageGuid':'', 'OriginalPublishTimestamp':'', 'ProducerExecutableName':'test.py', 'ProducerProcessID': '0'}
 import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()

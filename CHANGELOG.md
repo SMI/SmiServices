@@ -924,7 +924,7 @@ A raw git diff can be seen [here][unreleased].
     rules directory (Now goes IgnoreRules=>ReportRules=>SocketRules)
 -   Adjust log handling in CTP anonymiser to use SMIlogging setup
 -   IsIdentifiable case-sensitive rules now implemented with property
--   Bufix for fo-dicom image handling race condition in Release mode builds
+-   Bugfix for fo-dicom image handling race condition in Release mode builds
     (issue #238)
 
 ### Changed

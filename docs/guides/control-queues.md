@@ -42,7 +42,7 @@ smi.control.dicomtagreader.stop # Stop all DicomTagReader services
 smi.control.identifiermapper.refresh1234 # Refresh the IdentifierMapper service with PID `1234`
 ```
 
-Note that some services may take some time to finish their current operation and exit after recieveing a `shutdown` command.
+Note that some services may take some time to finish their current operation and exit after receiving a `shutdown` command.
 
 ### Via the Web UI
 

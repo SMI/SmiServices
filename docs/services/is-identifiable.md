@@ -1,6 +1,6 @@
 ﻿# IsIdentifiable
 
-This service evaluates 'data' for personally identifiable values (e.g. names). It can source data from a veriety of places (e.g. databases, file system).
+This service evaluates 'data' for personally identifiable values (e.g. names). It can source data from a variety of places (e.g. databases, file system).
 
 This service relies on the [IsIdentifiable](https://github.com/SMI/IsIdentifiable) library for identifying personal data. See the [docs on setting up rules](https://github.com/SMI/IsIdentifiable/blob/main/IsIdentifiable/README.md).
 

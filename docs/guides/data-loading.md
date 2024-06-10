@@ -320,7 +320,7 @@ _A JSON serialized dicom dataset in RabbitMQ (this is **synthetic test data** ma
 
 The next microservice is responsible for persisting the dicom tag data into a MongoDb database.
 
-Install and launch MongoDb Compas e.g.:
+Install and launch MongoDb Compass e.g.:
 
 ```
 C:\Users\tznind\AppData\Local\MongoDBCompassCommunity\MongoDBCompassCommunity.exe
@@ -485,7 +485,7 @@ System.ArgumentException: MappingTableName did not contain the database/user sec
 -   [ForGuidIdentifierSwapper]
 -   [TableLookupSwapper]
 
-We will use the [ForGuidIdentifierSwapper] because it doesn't require us to create an identiifer mapping up front. Open `default.yaml` and edit the `IdentifierMapperOptions` settings e.g.:
+We will use the [ForGuidIdentifierSwapper] because it doesn't require us to create an identifier mapping up front. Open `default.yaml` and edit the `IdentifierMapperOptions` settings e.g.:
 
 ```yaml
 IdentifierMapperOptions:
@@ -708,7 +708,7 @@ After it finishes executing (which will produce copious logs) you should see an 
 
 _Successful loading of images to the relational database (23 images because it ran two batches in sequence - 1 of 1 and one of 23)._
 
-Your live tables should have the following (or rough equivellents):
+Your live tables should have the following (or rough equivalents):
 
 ![Final state of the study level tags](img/FinalStudyTable.png)
 

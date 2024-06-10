@@ -29,7 +29,7 @@ public class Program
 
 Next you need to decide which queues you want to read from and which you want to write to.
 For this example let's assume you want to consume only from a single queue.
-Your Consumer Options will be available from the GlobaOptions.
+Your Consumer Options will be available from the GlobalOptions.
 The `FatalLoggingProducerOptions` instance is created by the base host class.
 
 ```csharp
