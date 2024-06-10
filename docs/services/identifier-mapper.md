@@ -1,6 +1,6 @@
 # Identifier Mapper
 
-This service takes serialized Dicom file as `DicomFileMessage` messages and uses an `ISwapIdentifiers` to replace the top level `DicomTag.PatientID` tag for an anonymous representation. If there is no PatientID then the message is nacked. If the `ISwapIdentifiers` returns null then the message is nacked with the reason provided by `string GetSubstitutionFor(string toSwap, out string reason)`.
+This service takes serialized Dicom files as `DicomFileMessage` messages and uses an `ISwapIdentifiers` to replace the top level `DicomTag.PatientID` tag for an anonymous representation. If there is no PatientID then the message is nacked. If the `ISwapIdentifiers` returns null then the message is nacked with the reason provided by `string GetSubstitutionFor(string toSwap, out string reason)`.
 
 ## Message Flow
 
