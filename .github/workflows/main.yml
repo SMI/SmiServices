@@ -47,6 +47,8 @@ jobs:
           build_ref="$GITHUB_REF_NAME"
           [ "$GITHUB_REF_TYPE" != "tag" ] && build_ref="${GITHUB_SHA:0:6}"
           echo "build_ref=$build_ref" >> $GITHUB_OUTPUT
+      - name: run ./bin/checkDocs.py
+        run: ./bin/checkDocs.py
   smi:
     needs: [init]
     strategy:

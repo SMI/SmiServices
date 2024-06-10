@@ -123,7 +123,7 @@ def start_containers(
 
     for c in checks:
         cmd = (
-            "./utils/wait-for.bash",
+            "./bin/wait-for.bash",
             "--timeout", "60s",
             f"{docker} exec {c}",
         )
