@@ -54,7 +54,7 @@ RejectorType: Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic.
 
 Using the DynamicRejector also requires you to configure a file DynamicRules.txt in the execution directory of your binary. Rules are written in C# and can only index fields that appear in the records returned by the Fulfiller. An example DynamicRules file looks like:
 
-```txt
+```csharp
 // This script is run when the IRejector is set to DynamicRejector ('#' symbols are not supported in this script, use CSharp syntax)
 
 if (!System.Convert.ToBoolean(row["IsOriginal"]))
