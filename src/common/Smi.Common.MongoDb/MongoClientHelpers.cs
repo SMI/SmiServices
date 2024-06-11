@@ -22,8 +22,9 @@ namespace Smi.Common.MongoDB
         /// <param name="options"></param>
         /// <param name="applicationName"></param>
         /// <param name="skipAuthentication"></param>
+        /// <param name="skipJournal"></param>
         /// <returns></returns>
-        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName, bool skipAuthentication = false)
+        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName, bool skipAuthentication = false, bool skipJournal = false)
         {
             if (!options.AreValid(skipAuthentication))
                 throw new ApplicationException($"Invalid MongoDB options: {options}");
@@ -33,7 +34,7 @@ namespace Smi.Common.MongoDB
                 {
                     ApplicationName = applicationName,
                     Server = new MongoServerAddress(options.HostName, options.Port),
-                    WriteConcern = new WriteConcern(journal: true)
+                    WriteConcern = new WriteConcern(journal: !skipJournal)
                 });
 
             if (string.IsNullOrWhiteSpace(options.Password))
@@ -46,7 +47,7 @@ namespace Smi.Common.MongoDB
                 ApplicationName = applicationName,
                 Credential = credentials,
                 Server = new MongoServerAddress(options.HostName, options.Port),
-                WriteConcern = new WriteConcern(journal: true)
+                WriteConcern = new WriteConcern(journal: !skipJournal)
             };
 
             var client = new MongoClient(mongoClientSettings);
