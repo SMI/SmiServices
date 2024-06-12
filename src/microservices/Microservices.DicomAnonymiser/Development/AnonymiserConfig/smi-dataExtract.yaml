@@ -13,14 +13,14 @@ LoggingOptions:
   TraceLogging: true
 
 FileSystemOptions:
-  FileSystemRoot: '/Users/daniyalarshad/EPCC/github/SmiServices/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/fileSystemRoot'
-  ExtractRoot: '/Users/daniyalarshad/EPCC/github/SmiServices/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/extractRoot'
+  FileSystemRoot: "/Users/daniyalarshad/EPCC/github/SmiServices/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/fileSystemRoot"
+  ExtractRoot: "/Users/daniyalarshad/EPCC/github/SmiServices/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/extractRoot"
   # Set this to "*" if your dicom files do not have file extensions
   DicomSearchPattern: "*.dcm"
 
 RDMPOptions:
-  CatalogueConnectionString: 'Server=localhost;Database=RDMP_Catalogue;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;'
-  DataExportConnectionString: 'Server=localhost;Database=RDMP_DataExport;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;'
+  CatalogueConnectionString: "Server=localhost;Database=RDMP_Catalogue;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;"
+  DataExportConnectionString: "Server=localhost;Database=RDMP_DataExport;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;"
 
   # Alternative to connection strings for if you have RDMP running with a YAML file system backend.  If specified then this will override the connection strings
   YamlDir:
@@ -140,7 +140,7 @@ IdentifierMapperOptions:
   AnonImagesProducerOptions:
     ExchangeName: "AnonymousImageExchange"
     MaxConfirmAttempts: 1
-  MappingConnectionString: 'Server=localhost,1433;User Id=sa;Password=YourStrongPassw0rd;Initial Catalog=MappingDatabase;Encrypt=false;'
+  MappingConnectionString: "Server=localhost,1433;User Id=sa;Password=YourStrongPassw0rd;Initial Catalog=MappingDatabase;Encrypt=false;"
   MappingDatabaseType: "MicrosoftSQLServer"
   MappingTableName: "MappingDatabase.dbo.MappingTable"
   TimeoutInSeconds: 600
@@ -196,7 +196,6 @@ DicomAnonymiserOptions:
   CtpAnonCliJar: "/Users/daniyalarshad/EPCC/github/ctp-anon-cli/ctp-anon-cli-0.5.0.jar" # replace with /nfs/smi/home/smi/bin/ctp-anon-cli-0.5.0.jar for production
   CtpAllowlistScript: "/Users/daniyalarshad/EPCC/github/SmiServices/data/ctp/ctp-whitelist.script" # replace with /nfs/smi/home/smi/configs/ctp-whitelist.script for production
   SRAnonymiserToolPath: "/Users/daniyalarshad/EPCC/github/StructuredReports/src/applications/SRAnonTool/CTP_SRAnonTool.sh"
-  
 
 FileCopierOptions:
   NoVerifyRoutingKey: noverify

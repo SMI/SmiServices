@@ -2,15 +2,15 @@
 
 ## Pre-Requisites
 
-  VirtualEnvPath: "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/venv"
-  DicomPixelAnonPath: "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/dicompixelanon/src/applications/"
-  SmiServicesPath: "/Users/daniyalarshad/EPCC/github/SmiServices" # replace with /nfs/smi/home/smi for production
-  CtpAnonCliJar: "/Users/daniyalarshad/EPCC/github/ctp-anon-cli/ctp-anon-cli-0.5.0.jar" # replace with /nfs/smi/home/smi/bin/ctp-anon-cli-0.5.0.jar for production
-  CtpAllowlistScript: "/Users/daniyalarshad/EPCC/github/SmiServices/data/ctp/ctp-whitelist.script" # replace with /nfs/smi/home/smi/configs/ctp-whitelist.script for production
-  SRAnonymiserToolPath: "/Users/daniyalarshad/EPCC/github/StructuredReports/src/applications/SRAnonTool/CTP_SRAnonTool.sh"
+VirtualEnvPath: "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/venv"
+DicomPixelAnonPath: "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/dicompixelanon/src/applications/"
+SmiServicesPath: "/Users/daniyalarshad/EPCC/github/SmiServices" # replace with /nfs/smi/home/smi for production
+CtpAnonCliJar: "/Users/daniyalarshad/EPCC/github/ctp-anon-cli/ctp-anon-cli-0.5.0.jar" # replace with /nfs/smi/home/smi/bin/ctp-anon-cli-0.5.0.jar for production
+CtpAllowlistScript: "/Users/daniyalarshad/EPCC/github/SmiServices/data/ctp/ctp-whitelist.script" # replace with /nfs/smi/home/smi/configs/ctp-whitelist.script for production
+SRAnonymiserToolPath: "/Users/daniyalarshad/EPCC/github/StructuredReports/src/applications/SRAnonTool/CTP_SRAnonTool.sh"
 
 **1. Docker (Container)**
-   
+
 Initiate Essential Services (RabbitMQ, MSSQL, MongoDB, MariaDB, Redis)
 
 ```
@@ -52,7 +52,7 @@ Generate UIDs List (.csv)
 
 ```
 cd SmiServices/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/extractRoot
-cat > extractme.csv << _EOF 
+cat > extractme.csv << _EOF
 SOPInstanceUID
 1.2.840.113619.2.1.2411.1031152382.365.1.736169244.dcm
 _EOF

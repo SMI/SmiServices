@@ -13,14 +13,14 @@ LoggingOptions:
   TraceLogging: true
 
 FileSystemOptions:
-  FileSystemRoot: '/Users/daniyalarshad/EPCC/github/SmiConfig/fileSystemRoot'
-  ExtractRoot: '/Users/daniyalarshad/EPCC/github/SmiConfig/extractRoot'
+  FileSystemRoot: "/Users/daniyalarshad/EPCC/github/SmiConfig/fileSystemRoot"
+  ExtractRoot: "/Users/daniyalarshad/EPCC/github/SmiConfig/extractRoot"
   # Set this to "*" if your dicom files do not have file extensions
   DicomSearchPattern: "*.dcm"
 
 RDMPOptions:
-  CatalogueConnectionString: 'Server=localhost;Database=RDMP_Catalogue;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;'
-  DataExportConnectionString: 'Server=localhost;Database=RDMP_DataExport;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;'
+  CatalogueConnectionString: "Server=localhost;Database=RDMP_Catalogue;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;"
+  DataExportConnectionString: "Server=localhost;Database=RDMP_DataExport;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;"
 
   # Alternative to connection strings for if you have RDMP running with a YAML file system backend.  If specified then this will override the connection strings
   YamlDir:
@@ -140,7 +140,7 @@ IdentifierMapperOptions:
   AnonImagesProducerOptions:
     ExchangeName: "AnonymousImageExchange"
     MaxConfirmAttempts: 1
-  MappingConnectionString: 'Server=localhost,1433;User Id=sa;Password=YourStrongPassw0rd;Initial Catalog=MappingDatabase;Encrypt=false;'
+  MappingConnectionString: "Server=localhost,1433;User Id=sa;Password=YourStrongPassw0rd;Initial Catalog=MappingDatabase;Encrypt=false;"
   MappingDatabaseType: "MicrosoftSQLServer"
   MappingTableName: "MappingDatabase.dbo.MappingTable"
   TimeoutInSeconds: 600
