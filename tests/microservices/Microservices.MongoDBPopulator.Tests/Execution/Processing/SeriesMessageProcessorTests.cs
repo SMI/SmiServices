@@ -42,24 +42,30 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
         private void Validate(SeriesMessage message, BsonDocument document)
         {
-            Assert.NotNull(message);
-            Assert.NotNull(document);
+            Assert.Multiple(() =>
+            {
+                Assert.That(message,Is.Not.Null);
+                Assert.That(document,Is.Not.Null);
+            });
 
-            Assert.True(document.TryGetElement("header", out var element));
+            Assert.That(document.TryGetElement("header", out var element),Is.True);
 
             var docHeader = (BsonDocument)element.Value;
-            Assert.AreEqual(_seriesMessageProps.Count - 3, docHeader.ElementCount);
-            Assert.AreEqual(message.DirectoryPath, docHeader["DirectoryPath"].AsString);
-            Assert.AreEqual(message.ImagesInSeries, docHeader["ImagesInSeries"].AsInt32);
+            Assert.Multiple(() =>
+            {
+                Assert.That(docHeader.ElementCount,Is.EqualTo(_seriesMessageProps.Count - 3));
+                Assert.That(docHeader["DirectoryPath"].AsString,Is.EqualTo(message.DirectoryPath));
+                Assert.That(docHeader["ImagesInSeries"].AsInt32,Is.EqualTo(message.ImagesInSeries));
+            });
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);
-            Assert.NotNull(dataset);
+            Assert.That(dataset,Is.Not.Null);
 
             BsonDocument datasetDocument = DicomTypeTranslaterReader.BuildBsonDocument(dataset);
             document.Remove("_id");
             document.Remove("header");
 
-            Assert.AreEqual(datasetDocument, document);
+            Assert.That(document,Is.EqualTo(datasetDocument));
         }
 
         [Test]
@@ -100,12 +106,15 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             // Max queue size set to 1 so will immediately process this
             processor.AddToWriteQueue(_helper.TestSeriesMessage, new MessageHeader(), 1);
 
-            Assert.False(callbackUsed);
-            Assert.True(processor.AckCount == 1);
+            Assert.Multiple(() =>
+            {
+                Assert.That(callbackUsed,Is.False);
+                Assert.That(processor.AckCount,Is.EqualTo(1));
+            });
 
             IMongoCollection<BsonDocument> collection = _helper.TestDatabase.GetCollection<BsonDocument>(collectionName);
 
-            Assert.True(collection.CountDocuments(new BsonDocument()) == 1);
+            Assert.That(collection.CountDocuments(new BsonDocument()),Is.EqualTo(1));
 
             BsonDocument document = collection.Find(_ => true).ToList()[0];
 

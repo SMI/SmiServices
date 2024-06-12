@@ -38,7 +38,7 @@ this will create zip archives in each of the target directories containing all t
 
 # Configs
 
-The Java microservices share the same yaml config files as the C# microservices. Documentation can be found [here](../Microservices/Microservices.Common/Options/RabbitMqConfigOptions.md).
+The Java microservices share the same yaml config files as the C# microservices.
 
 # Logging notes
 

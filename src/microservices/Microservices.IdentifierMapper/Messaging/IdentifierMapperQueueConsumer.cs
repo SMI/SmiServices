@@ -224,14 +224,11 @@ namespace Microservices.IdentifierMapper.Messaging
                 case string[] arr:
                     {
                         var unique = arr.Where(a => !string.IsNullOrWhiteSpace(a)).Distinct().ToArray();
-
-                        return unique.Length switch
-                        {
-                            0 => null,
-                            1 => unique[0],
-                            _ => throw new BadPatientIDException(
-                                $"DicomDataset had multiple values for PatientID:{string.Join("\\", arr)}")
-                        };
+                        if (unique.Length == 0)
+                            return null;
+                        if (unique.Length == 1)
+                            return unique[0];
+                        throw new BadPatientIDException($"DicomDataset had multiple values for PatientID:{string.Join("\\", arr)}");
                     }
                 default:
                     throw new BadPatientIDException($"DicomDataset had bad Type for PatientID:{val.GetType()}");

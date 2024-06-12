@@ -74,9 +74,13 @@ namespace Applications.TriggerUpdates.Execution
             swapper.Setup(mapperOptions);
 
             var guidTable = swapper.GetGuidTableIfAny(mapperOptions);
-            Assert.AreEqual(0,guidTable!.GetRowCount(), "No temporary guids should exist yet");
-            Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
-            
+            Assert.Multiple(() =>
+            {
+                Assert.That(guidTable,Is.Not.Null);
+                Assert.That(guidTable?.GetRowCount(),Is.EqualTo(0),"No temporary guids should exist yet");
+                Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+            });
+
             guidTable.Insert(new Dictionary<string,object>
             { 
                 { "CHI","0202020202" },
@@ -88,8 +92,11 @@ namespace Applications.TriggerUpdates.Execution
                 { TableLookupWithGuidFallbackSwapper.GuidColumnName,"ccc-ccc-ccc"}
                 });
 
-            Assert.AreEqual(1,map.GetRowCount(),"We should have a mapping table with 1 entry");
-            Assert.AreEqual(2,guidTable.GetRowCount(), "We should have a temporary guid for 0202020202");
+            Assert.Multiple(() =>
+            {
+                Assert.That(map.GetRowCount(),Is.EqualTo(1),"We should have a mapping table with 1 entry");
+                Assert.That(guidTable.GetRowCount(),Is.EqualTo(2),"We should have a temporary guid for 0202020202");
+            });
 
             // make a fake data load into this table (create trigger and insert/update)
             var triggerImplementer = new TriggerImplementerFactory(dbType).Create(map);
@@ -148,9 +155,12 @@ namespace Applications.TriggerUpdates.Execution
 
             var liveDtAfter = liveTable.GetDataTable();
 
-            Assert.AreEqual(1,liveDtAfter.Rows.Cast<DataRow>().Count(r=>(string)r["PatientID"] == "0A0A0A0A0A"),"Expected original data to still be intact");
-            Assert.AreEqual(1,liveDtAfter.Rows.Cast<DataRow>().Count(r=>(string)r["PatientID"] == "bbb-bbb-bbb"), "Expected unknown CHI with guid bbb to still be unknown");
-            Assert.AreEqual(1,liveDtAfter.Rows.Cast<DataRow>().Count(r=>(string)r["PatientID"] == "0C0C0C0C0C"), "Expected the unknown CHI ccc to be now known as 0C0C0C0C0C");
+            Assert.Multiple(() =>
+            {
+                Assert.That(liveDtAfter.Rows.Cast<DataRow>().Count(r => (string)r["PatientID"] == "0A0A0A0A0A"),Is.EqualTo(1),"Expected original data to still be intact");
+                Assert.That(liveDtAfter.Rows.Cast<DataRow>().Count(r => (string)r["PatientID"] == "bbb-bbb-bbb"),Is.EqualTo(1),"Expected unknown CHI with guid bbb to still be unknown");
+                Assert.That(liveDtAfter.Rows.Cast<DataRow>().Count(r => (string)r["PatientID"] == "0C0C0C0C0C"),Is.EqualTo(1),"Expected the unknown CHI ccc to be now known as 0C0C0C0C0C");
+            });
         }
     }
 }

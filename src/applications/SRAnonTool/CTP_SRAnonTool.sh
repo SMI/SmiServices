@@ -10,17 +10,10 @@
 
 prog=$(basename "$0")
 progdir=$(dirname "$0")
-
 usage="usage: ${prog} [-d] [-v] [-e virtualenv] [-s semehr_root] [-y yaml] -i read_from.dcm  -o write_into.dcm"
 options="dve:s:y:i:o:"
-# Default values for production
-# semehr_dir="/opt/semehr"
-# virtenv=""
-
-# Default values for testing
-semehr_dir="/Users/daniyalarshad/EPCC/github/NationalSafeHaven"
-virtenv="/Users/daniyalarshad/EPCC/github/NationalSafeHaven/venv"
-
+semehr_dir="/opt/semehr"
+virtenv=""
 debug=0
 verbose=0
 

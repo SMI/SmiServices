@@ -2,7 +2,7 @@
 
 The SMI Services project team uses the Feature Branch Workflow to accomplish work in a consistent and productive manner. It is a Git workflow that uses feature branches to isolate new features and bug fixes from the main codebase, allowing multiple developers to work on the same codebase without causing conflicts or disrupting the main codebase.
 
-This workflow works if you are a member of the SMI organisation, or a direct member of the repo, however, external contributors will need to fork the repo first as described here: [GitHub Fork a repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo). Once forked, the Feature Branch Workflow remains the same as desrcibed below.
+This workflow works if you are a member of the SMI organisation, or a direct member of the repo, however, external contributors will need to fork the repo first as described here: [GitHub Fork a repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo). Once forked, the Feature Branch Workflow remains the same as described below.
 
 **Feature Branch Workflow**:
 

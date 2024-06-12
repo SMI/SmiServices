@@ -185,8 +185,11 @@ namespace Microservices.DicomAnonymiser.Tests
             // and that the anonymised file exists.
 
             var statusMessage = statusMessages.Single();
-            Assert.AreEqual(ExtractedFileStatus.Anonymised, statusMessage.Status, statusMessage.StatusMessage);
-            Assert.True(File.Exists(expectedAnonPathAbs));
+            Assert.Multiple(() =>
+            {
+                Assert.That(statusMessage.Status,Is.EqualTo(ExtractedFileStatus.Anonymised),statusMessage.StatusMessage);
+                Assert.That(File.Exists(expectedAnonPathAbs),Is.True);
+            });
         }
 
         #endregion

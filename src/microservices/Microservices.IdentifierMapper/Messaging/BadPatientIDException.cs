@@ -6,7 +6,6 @@ namespace Microservices.IdentifierMapper.Messaging
     /// <summary>
     /// Exception thrown when the PatientID tag of a dicom file contains invalid/corrupt data
     /// </summary>
-    [Serializable]
     public class BadPatientIDException : Exception
     {
         public BadPatientIDException()
@@ -18,10 +17,6 @@ namespace Microservices.IdentifierMapper.Messaging
         }
 
         public BadPatientIDException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected BadPatientIDException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
