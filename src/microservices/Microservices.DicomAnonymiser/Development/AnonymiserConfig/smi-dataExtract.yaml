@@ -1,0 +1,287 @@
+RabbitOptions:
+  RabbitMqHostName: "localhost"
+  RabbitMqHostPort: 5672
+  RabbitMqVirtualHost: "smi_extract"
+  RabbitMqUserName: "guest"
+  RabbitMqPassword: "guest"
+  RabbitMqControlExchangeName: "ControlExchange"
+  FatalLoggingExchange: "FatalLoggingExchange"
+
+LoggingOptions:
+  LogConfigFile: ""
+  LogsRoot: ""
+  TraceLogging: true
+
+FileSystemOptions:
+  FileSystemRoot: '/Users/daniyalarshad/EPCC/github/SmiServices/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/fileSystemRoot'
+  ExtractRoot: '/Users/daniyalarshad/EPCC/github/SmiServices/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/extractRoot'
+  # Set this to "*" if your dicom files do not have file extensions
+  DicomSearchPattern: "*.dcm"
+
+RDMPOptions:
+  CatalogueConnectionString: 'Server=localhost;Database=RDMP_Catalogue;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;'
+  DataExportConnectionString: 'Server=localhost;Database=RDMP_DataExport;User ID=sa;Password=YourStrongPassw0rd;Trust Server Certificate=true;'
+
+  # Alternative to connection strings for if you have RDMP running with a YAML file system backend.  If specified then this will override the connection strings
+  YamlDir:
+MongoDatabases:
+  DicomStoreOptions:
+    HostName: "localhost"
+    Port: 27017
+    UserName: ""
+    Password: ""
+    DatabaseName: "dicom"
+  ExtractionStoreOptions:
+    HostName: "localhost"
+    Port: 27017
+    UserName: ""
+    Password: ""
+    DatabaseName: "extraction"
+
+DicomRelationalMapperOptions:
+  Guid: "6ff062af-5538-473f-801c-ed2b751c7897"
+  QueueName: "AnonymousImageQueue"
+  QoSPrefetchCount: 10000
+  AutoAck: false
+  LoadMetadataId: 1
+  DatabaseNamerType: "GuidDatabaseNamer"
+  MinimumBatchSize: 1
+  UseInsertIntoForRAWMigration: true
+  RetryOnFailureCount: 1
+  RetryDelayInSeconds: 60
+  RunChecks: true
+
+UpdateValuesOptions:
+  QueueName: "UpdateValuesQueue"
+  QoSPrefetchCount: 10000
+  AutoAck: false
+  #TableInfosToUpdate: 1,2,3 <-set this to limit which tables get updated when no explicit table is listed in the message
+  UpdateTimeout: 500 # number of seconds to wait for each UPDATE statement
+
+TriggerUpdatesOptions:
+  ExchangeName: "TriggerUpdatesExchange"
+  MaxConfirmAttempts: 1
+
+CohortExtractorOptions:
+  QueueName: "RequestQueue"
+  QoSPrefetchCount: 10000
+  AutoAck: false
+  AllCatalogues: true
+
+  # List of IDs of Catalogues to extract from (in ascending order).
+  # Ignored if "AllCatalogues == true"
+  OnlyCatalogues: [1, 2, 3]
+
+  # ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
+  #RejectColumnInfos: [105,110]
+
+  AuditorType: "Microservices.CohortExtractor.Audit.NullAuditExtractions"
+  RequestFulfillerType: "Microservices.CohortExtractor.Execution.RequestFulfillers.FakeFulfiller"
+  ProjectPathResolverType: "Microservices.CohortExtractor.Execution.ProjectPathResolvers.DefaultProjectPathResolver"
+  ExtractAnonRoutingKey: anon
+  ExtractIdentRoutingKey: ident
+  # Writes (Producer) to this exchange
+  ExtractFilesProducerOptions:
+    ExchangeName: "ExtractFileExchange"
+    MaxConfirmAttempts: 1
+  # And audits this too
+  ExtractFilesInfoProducerOptions:
+    ExchangeName: "FileCollectionInfoExchange"
+    MaxConfirmAttempts: 1
+
+CohortPackagerOptions:
+  JobWatcherTimeoutInSeconds: 30
+  ReporterType: "LoggingReporter"
+  NotifierType: "LoggingNotifier"
+  ReportFormat: "Combined"
+  ReportNewLine: ""
+  ExtractRequestInfoOptions:
+    QueueName: "RequestInfoQueue"
+    QoSPrefetchCount: 1
+    AutoAck: false
+  FileCollectionInfoOptions:
+    QueueName: "FileCollectionInfoQueue"
+    QoSPrefetchCount: 1
+    AutoAck: false
+  NoVerifyStatusOptions:
+    QueueName: "ExtractedFileNoVerifyQueue"
+    QoSPrefetchCount: 1
+    AutoAck: false
+  VerificationStatusOptions:
+    QueueName: "ExtractedFileVerifiedQueue"
+    QoSPrefetchCount: 1
+    AutoAck: false
+
+DicomReprocessorOptions:
+  ProcessingMode: "ImageReprocessing"
+  ReprocessingProducerOptions:
+    ExchangeName: "IdentifiableImageExchange"
+    MaxConfirmAttempts: 1
+
+DicomTagReaderOptions:
+  QueueName: "AccessionDirectoryQueue"
+  QoSPrefetchCount: 1
+  AutoAck: false
+  NackIfAnyFileErrors: true
+  ImageProducerOptions:
+    ExchangeName: "IdentifiableImageExchange"
+    MaxConfirmAttempts: 1
+  SeriesProducerOptions:
+    ExchangeName: "IdentifiableSeriesExchange"
+    MaxConfirmAttempts: 1
+  FileReadOption: "ReadLargeOnDemand"
+  TagProcessorMode: "Serial"
+  MaxIoThreads: 1
+
+IdentifierMapperOptions:
+  QueueName: "IdentifiableImageQueue"
+  QoSPrefetchCount: 1000
+  AutoAck: false
+  AnonImagesProducerOptions:
+    ExchangeName: "AnonymousImageExchange"
+    MaxConfirmAttempts: 1
+  MappingConnectionString: 'Server=localhost,1433;User Id=sa;Password=YourStrongPassw0rd;Initial Catalog=MappingDatabase;Encrypt=false;'
+  MappingDatabaseType: "MicrosoftSQLServer"
+  MappingTableName: "MappingDatabase.dbo.MappingTable"
+  TimeoutInSeconds: 600
+  SwapColumnName: "PatientID"
+  ReplacementColumnName: "GuidPatientID"
+  SwapperType: "Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper"
+  AllowRegexMatching: false
+  RedisConnectionString: ""
+
+MongoDbPopulatorOptions:
+  SeriesQueueConsumerOptions:
+    QueueName: "MongoSeriesQueue"
+    QoSPrefetchCount: 1000
+    AutoAck: false
+  ImageQueueConsumerOptions:
+    QueueName: "MongoImageQueue"
+    QoSPrefetchCount: 10000
+    AutoAck: false
+  MongoDbFlushTime: 30 # Seconds
+  FailedWriteLimit: 5
+
+ProcessDirectoryOptions:
+  AccessionDirectoryProducerOptions:
+    ExchangeName: "AccessionDirectoryExchange"
+    MaxConfirmAttempts: 1
+
+CTPAnonymiserOptions:
+  VerifyRoutingKey: verify
+  NoVerifyRoutingKey: noverify
+  AnonFileConsumerOptions:
+    QueueName: "ExtractFileAnonQueue"
+    QoSPrefetchCount: 1
+    AutoAck: false
+  ExtractFileStatusProducerOptions:
+    ExchangeName: "ExtractedFileStatusExchange"
+    MaxConfirmAttempts: 1
+
+DicomAnonymiserOptions:
+  AnonymiserType: "DefaultAnonymiser"
+  AnonFileConsumerOptions:
+    QueueName: "ExtractFileAnonQueue"
+    QoSPrefetchCount: 1
+    AutoAck: false
+  ExtractFileStatusProducerOptions:
+    ExchangeName: "ExtractedFileStatusExchange"
+    MaxConfirmAttempts: 1
+  RoutingKeySuccess: verify
+  RoutingKeyFailure: noverify
+  FailIfSourceWriteable: false
+  VirtualEnvPath: "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/venv"
+  DicomPixelAnonPath: "/Users/daniyalarshad/EPCC/github/NationalSafeHaven/dicompixelanon/src/applications/"
+  SmiServicesPath: "/Users/daniyalarshad/EPCC/github/SmiServices" # replace with /nfs/smi/home/smi for production
+  CtpAnonCliJar: "/Users/daniyalarshad/EPCC/github/ctp-anon-cli/ctp-anon-cli-0.5.0.jar" # replace with /nfs/smi/home/smi/bin/ctp-anon-cli-0.5.0.jar for production
+  CtpAllowlistScript: "/Users/daniyalarshad/EPCC/github/SmiServices/data/ctp/ctp-whitelist.script" # replace with /nfs/smi/home/smi/configs/ctp-whitelist.script for production
+  SRAnonymiserToolPath: "/Users/daniyalarshad/EPCC/github/StructuredReports/src/applications/SRAnonTool/CTP_SRAnonTool.sh"
+  
+
+FileCopierOptions:
+  NoVerifyRoutingKey: noverify
+  QueueName: "ExtractFileIdentQueue"
+  QoSPrefetchCount: 1
+  AutoAck: false
+  CopyStatusProducerOptions:
+    ExchangeName: "ExtractedFileStatusExchange"
+    MaxConfirmAttempts: 1
+
+ExtractImagesOptions:
+  MaxIdentifiersPerMessage: 1000
+  ExtractionRequestProducerOptions:
+    ExchangeName: "RequestExchange"
+    MaxConfirmAttempts: 1
+  ExtractionRequestInfoProducerOptions:
+    ExchangeName: "RequestInfoExchange"
+    MaxConfirmAttempts: 1
+
+IsIdentifiableServiceOptions:
+  QueueName: "ExtractedFileToVerifyQueue"
+  QoSPrefetchCount: 1
+  AutoAck: false
+  IsIdentifiableProducerOptions:
+    ExchangeName: "ExtractedFileVerifiedExchange"
+    MaxConfirmAttempts: 1
+  ClassifierType: "Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier"
+  DataDirectory: ""
+
+IsIdentifiableOptions:
+  #Optional. Full connection string to the database storing the Allowlist of valid entries
+  AllowlistConnectionString:
+  #Optional. The DBMS provider of the Allowlist table e.g. MySql
+  AllowlistDatabaseType:
+  #Optional. The unqualified name of the Allowlist table
+  AllowlistTableName:
+  #Optional. The column in AllowlistTableName which contains the Allowlist elements
+  AllowlistColumn:
+
+  #Optional. Path to a CSV file containing a single untitled column of Allowlist values
+  AllowlistCsv:
+
+  #Optional. Generate a report on the proportion of values failing validation (for each column)
+  #ColumnReport: true
+
+  #Optional. Generate a report listing every unique value failing validation (and the column the value failed in)
+  #ValuesReport: true
+
+  #Optional. Generate a full failure storage report that persists Failure objects in a manner that they can be retrieved.
+  #StoreReport: true
+
+  #Optional - If specified reports will be generated in the given folder.  If not specified, current directory is used (unless an alternate destination option is picked)
+  DestinationCsvFolder:
+  #Optional - If specified, the given separator will be used instead of ,.  Includes support for \t for tab and \r\n
+  DestinationCsvSeparator:
+  #Optional - If specified all tabs, newlines (\r and \n) and 2+ spaces will be stripped from the values written as output (applies to all output formats)
+  DestinationNoWhitespace:
+
+  #Optional. Full connection string to the database in which to store the report results
+  DestinationConnectionString:
+  #Optional. The DBMS provider of DestinationConnectionString e.g. MySql
+  DestinationDatabaseType:
+
+  #Optional. If specified postcodes will not be reported as failures
+  IgnorePostcodes: false
+  #Optional. Comma separated list of columns/tags which should be ignored and not processed
+  SkipColumns:
+  #Optional. If set and using a 7 class NER model then DATE and TIME objects will not be considered failures.
+  IgnoreDatesInText:
+  #Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data
+  MaxCacheSize:
+
+  #Optional. Filename of additional rules in yaml format.
+  RulesFile:
+  #Optional. Directory of additional rules in yaml format.
+  RulesDirectory:
+  #Optional.  Maximum number of answers to cache per column.
+  MaxValidationCacheSize:
+
+IsIdentifiableReviewerOptions:
+  #Location of database connection strings file (for issuing UPDATE statements)
+  TargetsFile:
+  #File containing rules for ignoring validation errors
+  IgnoreList:
+  #File containing rules for when to issue UPDATE statements
+  RedList:
+  #Sets the user interface to use a specific color palette yaml file
+  Theme:
