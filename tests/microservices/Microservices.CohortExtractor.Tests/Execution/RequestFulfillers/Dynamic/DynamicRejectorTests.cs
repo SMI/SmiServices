@@ -40,5 +40,11 @@ public class DynamicRejectorTests
         Assert.Throws<FileNotFoundException>(() => new DynamicRejector("foo.txt", new MockFileSystem()));
     }
 
+    [Test]
+    public void Constructor_ExistsWithNoArgs()
+    {
+        _ = new DynamicRejector();
+    }
+
     #endregion
 }

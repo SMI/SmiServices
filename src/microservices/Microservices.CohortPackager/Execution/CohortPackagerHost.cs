@@ -11,7 +11,6 @@ using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using System;
 using System.IO.Abstractions;
-using System.Text.RegularExpressions;
 
 
 namespace Microservices.CohortPackager.Execution
@@ -40,18 +39,18 @@ namespace Microservices.CohortPackager.Execution
         /// Globals.CohortPackagerOptions.ReportFormat. That value should not be set if a reporter is passed.
         /// </param>
         /// <param name="notifier"></param>
-        /// <param name="rabbitMqAdapter"></param>
+        /// <param name="messageBroker"></param>
         /// <param name="dateTimeProvider"></param>
         public CohortPackagerHost(
             GlobalOptions globals,
-            ExtractJobStore? jobStore = null,
+            IExtractJobStore? jobStore = null,
             IFileSystem? fileSystem = null,
             IJobReporter? reporter = null,
             IJobCompleteNotifier? notifier = null,
-            IRabbitMqAdapter? rabbitMqAdapter = null,
+            IMessageBroker? messageBroker = null,
             DateTimeProvider? dateTimeProvider = null
         )
-            : base(globals, rabbitMqAdapter)
+            : base(globals, messageBroker)
         {
             var cohortPackagerOptions = globals.CohortPackagerOptions ??
                 throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions cannot be null");
@@ -70,27 +69,19 @@ namespace Microservices.CohortPackager.Execution
             else if (dateTimeProvider != null)
                 throw new ArgumentException("jobStore and dateTimeProvider are mutually exclusive arguments");
 
-            // If not passed a reporter or notifier, try and construct one from the given options
-
-            string reportFormatStr = cohortPackagerOptions.ReportFormat
-                ?? throw new ArgumentException("Some part of Globals.CohortPackagerOptions.ReportFormat is null");
             if (reporter == null)
             {
-                reporter = JobReporterFactory.GetReporter(
-                    cohortPackagerOptions.ReporterType!,
+                // Globals.FileSystemOptions checked in base constructor
+                var extractRoot = Globals.FileSystemOptions!.ExtractRoot;
+                if (string.IsNullOrWhiteSpace(extractRoot))
+                    throw new ArgumentOutOfRangeException(nameof(Globals.FileSystemOptions.ExtractRoot));
+
+                reporter = new JobReporter(
                     jobStore,
                     fileSystem ?? new FileSystem(),
-                    Globals.FileSystemOptions!.ExtractRoot!,
-                    reportFormatStr,
-                    Regex.Unescape(cohortPackagerOptions.ReportNewLine!)
+                    extractRoot,
+                    cohortPackagerOptions.ReportNewLine
                 );
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(reportFormatStr))
-                    throw new ArgumentException($"Passed an IJobReporter, but this conflicts with the ReportFormat of '{reportFormatStr}' in the given options");
-                if (fileSystem != null)
-                    throw new ArgumentException("Passed a fileSystem, but this will be unused as also passed an existing IJobReporter");
             }
 
             notifier ??= JobCompleteNotifierFactory.GetNotifier(
@@ -136,10 +127,10 @@ namespace Microservices.CohortPackager.Execution
             _jobWatcher.Start();
 
             // TODO(rkm 2020-03-02) Once this is transactional, we can have one "master" service which actually does the job checking
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, _requestInfoMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions!, _fileCollectionMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions!, _anonFailedMessageConsumer, isSolo: true);
-            RabbitMqAdapter.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions!, _anonVerificationMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, _requestInfoMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.FileCollectionInfoOptions!, _fileCollectionMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.NoVerifyStatusOptions!, _anonFailedMessageConsumer, isSolo: true);
+            MessageBroker.StartConsumer(Globals.CohortPackagerOptions.VerificationStatusOptions!, _anonVerificationMessageConsumer, isSolo: true);
         }
 
         public override void Stop(string reason)

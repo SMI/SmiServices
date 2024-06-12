@@ -11,11 +11,11 @@ namespace Applications.TriggerUpdates.Execution
         private ITriggerUpdatesSource _source;
         private IProducerModel _producer;
 
-        public TriggerUpdatesHost(GlobalOptions options,ITriggerUpdatesSource source,IRabbitMqAdapter? rabbitMqAdapter = null)
-            : base(options, rabbitMqAdapter)
+        public TriggerUpdatesHost(GlobalOptions options,ITriggerUpdatesSource source,IMessageBroker? messageBroker = null)
+            : base(options, messageBroker)
         {
             _source = source;
-            _producer =  RabbitMqAdapter.SetupProducer(options.TriggerUpdatesOptions!, isBatch: false);
+            _producer =  MessageBroker.SetupProducer(options.TriggerUpdatesOptions!, isBatch: false);
         }
         
         public override void Start()

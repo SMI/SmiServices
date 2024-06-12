@@ -33,14 +33,14 @@ namespace Microservices.IsIdentifiable.Service
             var objectFactory = new MicroserviceObjectFactory();
             var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions!)
                 ?? throw new TypeLoadException($"Could not find IClassifier Type {classifierTypename}");
-            _producerModel = RabbitMqAdapter.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions!, isBatch: false);
+            _producerModel = MessageBroker.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions!, isBatch: false);
 
             Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions!.ExtractRoot!, classifier);
         }
 
         public override void Start()
         {
-            RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
+            MessageBroker.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
 
         public override void Stop(string reason)

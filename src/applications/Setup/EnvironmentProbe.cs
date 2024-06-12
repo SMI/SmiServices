@@ -21,6 +21,7 @@ using System.Text;
 using Rdmp.Core.ReusableLibraryCode;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
+using Smi.Common.Messaging;
 
 namespace Setup
 {
@@ -225,8 +226,7 @@ DicomTagReader {
 
             try
             {
-                var factory = Options.RabbitOptions.CreateConnectionFactory();
-                var adapter = new RabbitMqAdapter(factory, "setup");
+                var adapter = new RabbitMQBroker(Options.RabbitOptions, "setup");
 
                 return new CheckEventArgs("Connected to RabbitMq", CheckResult.Success);
             }
