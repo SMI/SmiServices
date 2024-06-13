@@ -321,3 +321,6 @@ coverage/
 htmlcov/
 src/plugin/SmiPlugin/nuget.exe
 rdmp-cli/
+
+# exclude anonymiser output data
+/src/microservices/Microservices.DicomAnonymiser/Development/AnonymiserData/extractRoot
