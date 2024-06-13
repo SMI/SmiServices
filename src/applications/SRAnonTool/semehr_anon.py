@@ -7,7 +7,7 @@
 #          --xml to write .knowtator.xml files.
 # To anonymise *DICOM* files you need CTP_SRAnonTool.sh
 # (which uses CTP_DicomToText, this script, and CTP_XMLToDicom).
-# NOTE: this script has superceded semehr_anon.sh.
+# NOTE: this script has superseded semehr_anon.sh.
 
 import argparse, json, logging, re, sys, os, glob
 import shutil # for copyfile

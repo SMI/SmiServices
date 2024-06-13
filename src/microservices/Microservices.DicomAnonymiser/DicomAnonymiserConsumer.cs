@@ -13,7 +13,7 @@ namespace Microservices.DicomAnonymiser
 {
     public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
     {
-        // TODO (da 2024-02-23) Additonal Requirement: Message Batching
+        // TODO (da 2024-02-23) Additional Requirement: Message Batching
         // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.CohortPackager/Messaging/AnonVerificationMessageConsumer.cs#L72
         // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.MongoDbPopulator/Messaging/MongoDbPopulatorMessageConsumer.cs#L56
 
