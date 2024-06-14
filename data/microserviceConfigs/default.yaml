@@ -181,11 +181,11 @@ CTPAnonymiserOptions:
 DicomAnonymiserOptions:
   AnonymiserType: "DefaultAnonymiser"
   AnonFileConsumerOptions:
-    QueueName: "ExtractFileAnonQueue"
+    QueueName: "TEST.ExtractFileAnonQueue"
     QoSPrefetchCount: 1
     AutoAck: false
   ExtractFileStatusProducerOptions:
-    ExchangeName: "ExtractedFileStatusExchange"
+    ExchangeName: "TEST.ExtractedFileStatusExchange"
     MaxConfirmAttempts: 1
   RoutingKeySuccess: verify
   RoutingKeyFailure: noverify
