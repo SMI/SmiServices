@@ -1,10 +1,10 @@
 # Dicom Anonymiser (Microservice)
 
-The dicom anonymiser also known as generic wrapper microservice streamlines the existing dicom processing workflow. It serves as a versatile tool capable of calling external programs to perform tasks such as anonymisation of [dicom tags](https://github.com/SMI/ctp-anon-cli), [pixel data](https://github.com/SMI/dicompixelanon) and/or [structured reports]( https://github.com/SMI/StructuredReports) based on the dicom image modality. 
+The dicom anonymiser also known as generic wrapper microservice streamlines the existing dicom processing workflow. It serves as a versatile tool capable of calling external programs to perform tasks such as anonymisation of [dicom tags](https://github.com/SMI/ctp-anon-cli), [pixel data](https://github.com/SMI/dicompixelanon) and/or [structured reports](https://github.com/SMI/StructuredReports) based on the dicom image modality.
 
 One of the key strengths of this microservice lies in its ability to offer a unified interface for different types of external programs (for e.g., written in python or java), set configuration options, manage logging, and handle other environment variables. This flexibility allows the microservice to be easily integrated into the existing C# SmiServices architecture.
 
- > Additional requirements which require further work _(i) Safe Haven Environment Testing_ and _(ii) Message Batching Mechanism (optional)_
+> Additional requirements which require further work _(i) Safe Haven Environment Testing_ and _(ii) Message Batching Mechanism (optional)_
 
 ## Getting Started
 
@@ -12,7 +12,7 @@ As of 1 June 2024, the dicom anonymiser microservice is functional (supports ano
 
 1. [dicom tags anonymisation](https://github.com/SMI/dicompixelanon)
 2. [dicom pixel anonymisation](https://github.com/SMI/ctp-anon-cli)
-3. [structured reports anonymisation]( https://github.com/SMI/StructuredReports)
+3. [structured reports anonymisation](https://github.com/SMI/StructuredReports)
 
 Once these programs/services are installed, you will need to update the configuration file _default.yaml_ under `SmiServices/data/microserviceConfigs/` with the correct paths to the external programs. For example (see below):
 
@@ -41,7 +41,7 @@ The `Microservices.DicomAnonymiser/AnonymiserData/` directory contains the follo
 ## Example Workflow
 
 **1. Docker (Container)**
-   
+
 Initiate Essential Services (RabbitMQ, MSSQL, MongoDB, MariaDB, Redis)
 
 ```
@@ -84,12 +84,11 @@ Sample Image (.dcm)
   <figcaption>Sample Image (with burned in text)</figcaption>
 </figure>
 
-
 Generate UIDs List (.csv)
 
 ```
 cd SmiServices/src/microservices/Microservices.DicomAnonymiser/AnonymiserData/sampleWorkflow/extractRoot
-cat > extractme.csv << _EOF 
+cat > extractme.csv << _EOF
 SOPInstanceUID
 1.2.840.113619.2.1.2411.1031152382.365.1.736169244.dcm
 _EOF
