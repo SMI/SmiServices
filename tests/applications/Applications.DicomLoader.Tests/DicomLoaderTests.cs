@@ -1,12 +1,16 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using BadMedicine;
 using BadMedicine.Dicom;
+using FAnsi;
 using FellowOakDicom;
+using Microservices.Tests.RDMPTests;
 using MongoDB.Bson;
+using Rdmp.Core.Repositories;
+using Rdmp.Dicom.PipelineComponents.DicomSources;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
@@ -17,10 +21,12 @@ using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using Smi.Common.Tests;
 using SynthEHR;
+using Tests.Common;
 
 namespace Applications.DicomLoader.Tests;
 
-public class DicomLoaderTests
+[RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+public class DicomLoaderTests : DatabaseTests
 {
     private GlobalOptions _gOptions = null!;
 
@@ -28,6 +34,15 @@ public class DicomLoaderTests
     public void Setup()
     {
         _gOptions = new GlobalOptionsFactory().Load(nameof(DicomLoader));
+        Debug.Assert(_gOptions.RDMPOptions != null, "_gOptions.RDMPOptions != null");
+        var conn = (RepositoryLocator.CatalogueRepository as CatalogueRepository)?.ConnectionString;
+        _gOptions.RDMPOptions.CatalogueConnectionString = conn;
+        _gOptions.RDMPOptions.DataExportConnectionString = conn;
+        var helper = new DicomRelationalMapperTestHelper();
+        var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
+        helper.SetupSuite(db,RepositoryLocator,_gOptions,typeof(DicomDatasetCollectionSource));
+        Debug.Assert(helper.LoadMetadata != null, "helper.LoadMetadata != null");
+        _gOptions.DicomRelationalMapperOptions!.LoadMetadataId = helper.LoadMetadata?.ID ?? throw new Exception("No LoadMetadataId");
     }
 
     [Test]
@@ -80,7 +95,7 @@ public class DicomLoaderTests
         using var fileList = new MemoryStream(Encoding.UTF8.GetBytes(files));
         typeof(Program).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static,
                 new[] { typeof(GlobalOptions), typeof(DicomLoaderOptions), typeof(Stream) })!
-            .Invoke(null, new object[] { _gOptions, new DicomLoaderOptions(), fileList });
+            .Invoke(null, new object[] { _gOptions, new DicomLoaderOptions() { LoadSql = true }, fileList });
         Assert.Multiple(() =>
         {
             //Program.OnParse(_gOptions,_dOptions,fileList);
