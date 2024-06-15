@@ -2,13 +2,13 @@
 
 ## Contents
 
--   [Implementing a Host](#implementing-a-host)
--   [Implementing a Consumer](#implementing-a-consumer)
--   [Logging](#logging)
--   [Rules of Microservice Club](#rules-of-microservice-club)
-    -   [The First Rule](#the-first-rule)
-    -   [The Second Rule](#the-second-rule)
--   [Class Diagram](#class-diagram)
+- [Implementing a Host](#implementing-a-host)
+- [Implementing a Consumer](#implementing-a-consumer)
+- [Logging](#logging)
+- [Rules of Microservice Club](#rules-of-microservice-club)
+  - [The First Rule](#the-first-rule)
+  - [The Second Rule](#the-second-rule)
+- [Class Diagram](#class-diagram)
 
 ## Implementing a Host
 
@@ -229,7 +229,7 @@ If your `ProcessMessageImpl` throws an unhandled Exception then a Fatal shutdown
 
 ### The Second Rule
 
-The second rule of Microservice Club is you don't nack messages without giving a reason. This is facilitated through the `Consumer.ErrorAndNack` method.  
+The second rule of Microservice Club is you don't nack messages without giving a reason. This is facilitated through the `Consumer.ErrorAndNack` method.\
 This will log an error to NLog and Nack the message for you.
 
 ```csharp

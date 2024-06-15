@@ -147,7 +147,7 @@ ProcessDirectoryOptions:
 
 ## How to use it
 
-### C#
+### C\#
 
 Simply use the static `Load()` method on the `GlobalOptions` class and you will receive a strongly typed object with all
 of the above settings.

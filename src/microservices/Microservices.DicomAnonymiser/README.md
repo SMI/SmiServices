@@ -11,8 +11,8 @@ One of the key strengths of this microservice lies in its ability to offer a uni
 As of 1 June 2024, the dicom anonymiser microservice is functional (supports anonymisation of dicom tags, pixel data and structured reports), however, it is still in its infancy stage. To get started, ensure that the following programs/services are installed on your local machine in the same directory as the SmiServices repository:
 
 1. [dicom tags anonymisation](https://github.com/SMI/dicompixelanon)
-2. [dicom pixel anonymisation](https://github.com/SMI/ctp-anon-cli)
-3. [structured reports anonymisation](https://github.com/SMI/StructuredReports)
+1. [dicom pixel anonymisation](https://github.com/SMI/ctp-anon-cli)
+1. [structured reports anonymisation](https://github.com/SMI/StructuredReports)
 
 Once these programs/services are installed, you will need to update the configuration file _default.yaml_ under `SmiServices/data/microserviceConfigs/` with the correct paths to the external programs. For example (see below):
 
@@ -33,8 +33,8 @@ Once these programs/services are installed, you will need to update the configur
 The `Microservices.DicomAnonymiser/AnonymiserData/` directory contains the following subdirectories:
 
 1. `sampleData/`: contains test dicom images (with SOPInstanceUID as their filename) to be anonymised.
-2. `sampleScreenshots/`: contains screenshots from the dicom anonymiser microservice example workflow.
-3. `sampleWorkflows/`: contains the extractRoot and fileSystemRoot subdirectories for testing purposes.
+1. `sampleScreenshots/`: contains screenshots from the dicom anonymiser microservice example workflow.
+1. `sampleWorkflows/`: contains the extractRoot and fileSystemRoot subdirectories for testing purposes.
 
 > Note: If you are using the extractRoot and fileSystemRoot directories within the `sampleWorkflow/` directory, ensure that the `default.yaml` configuration file is updated with the correct paths and that the sample dicom files are placed in the fileSystemRoot directory.
 

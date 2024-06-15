@@ -22,10 +22,10 @@ There can be multiple datasets in which matching images should be sourced e.g., 
 
 In the `CohortExtractorOptions` key:
 
--   Pick an implementation of `IAuditExtractions` e.g. `Microservices.CohortExtractor.Audit.NullAuditExtractions` and enter the full Type name into default.yaml `AuditorType`
--   Pick an implementation of `IExtractionRequestFulfiller` e.g. `Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller` and enter the full Type name into default.yaml `RequestFulfillerType`.
--   Specify the mapping RDMP catalogue database
--   Optionally specify a list of Catalogue IDs in CataloguesToExtractFrom (or set it to \* to use any). Depending on your `IExtractionRequestFulfiller` this value might be ignored.
+- Pick an implementation of `IAuditExtractions` e.g. `Microservices.CohortExtractor.Audit.NullAuditExtractions` and enter the full Type name into default.yaml `AuditorType`
+- Pick an implementation of `IExtractionRequestFulfiller` e.g. `Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller` and enter the full Type name into default.yaml `RequestFulfillerType`.
+- Specify the mapping RDMP catalogue database
+- Optionally specify a list of Catalogue IDs in CataloguesToExtractFrom (or set it to * to use any). Depending on your `IExtractionRequestFulfiller` this value might be ignored.
 
 ### Fulfiller
 
@@ -33,7 +33,7 @@ The set of images that **could** be extracted is controlled by the `IExtractionR
 
 The current recommended implementation is FromCataloguesExtractionRequestFulfiller. This fulfiller will look up one or more tables or multi table joins (Catalogues) and search for the provided extraction key (e.g. SeriesInstanceUID = x)
 
-The matched records are what will be reported on e.g. "for x UIDs we found y available images". From this result set a subset will be rejected (because you have made row level decisions not to extract particular images). This is handled by the [Rejector]
+The matched records are what will be reported on e.g. "for x UIDs we found y available images". From this result set a subset will be rejected (because you have made row level decisions not to extract particular images). This is handled by the \[Rejector\]
 
 Configure the fulfiller in your options yaml:
 

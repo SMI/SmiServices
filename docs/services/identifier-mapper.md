@@ -18,14 +18,14 @@ This service takes serialized Dicom files as `DicomFileMessage` messages and use
 
 In the `IdentifierMapperOptions` key:
 
--   Pick an implementation of `ISwapIdentifiers` e.g. `Microservices.IdentifierMapper.Execution.IdentifierSwapper` and enter the full Type name into default.yaml `IdentifierMapperOptions.SwapperType`.
--   Specify the mapping table database details\*
-    -   MappingConnectionString, the connection string to use to connect to the mapping server
-    -   MappingDatabaseType, either MicrosoftSQLServer or MYSQLServer
-    -   MappingTableName, the table on the mapping server that contains the identifier mapping table\* (identifiable=>anonymous)
-    -   SwapColumnName, the column in the `MappingTableName` that will contain the expected (identifiable) input values to replace.
-    -   ReplacementColumnName, the column in the `MappingTableName` that contains the replacement values.
--   Decide if you want to [use a Redis](#redis) cache.
+- Pick an implementation of `ISwapIdentifiers` e.g. `Microservices.IdentifierMapper.Execution.IdentifierSwapper` and enter the full Type name into default.yaml `IdentifierMapperOptions.SwapperType`.
+- Specify the mapping table database details\*
+  - MappingConnectionString, the connection string to use to connect to the mapping server
+  - MappingDatabaseType, either MicrosoftSQLServer or MYSQLServer
+  - MappingTableName, the table on the mapping server that contains the identifier mapping table\* (identifiable=>anonymous)
+  - SwapColumnName, the column in the `MappingTableName` that will contain the expected (identifiable) input values to replace.
+  - ReplacementColumnName, the column in the `MappingTableName` that contains the replacement values.
+- Decide if you want to [use a Redis](#redis) cache.
 
 \*The table/connection string details are at the disposal of the `ISwapIdentifiers` chosen. Some might ignore them completely or might manually create the mapping table themselves (e.g. `ForGuidIdentifierSwapper`)
 
