@@ -47,8 +47,8 @@ We use Logback in Java to log to both file and console. Logback seems to be the 
 To properly set up the logging across the microservices, we use the following method:
 
 1. The file `SmiLogbackConfig.xml` is copied from `SMIPlugin\Java\Microservices\res` to each of the output target directories.
-2. At the beginning of the main method of each of the microservices, we call `SmiLogging.Setup();`, which is a helper class to configure everything.
-3. In every class of the program, you can then create a logger object with `private static final Logger _logger = LoggerFactory.getLogger(MyClass.class);`.
-4. Then just implement your log messages appropriately.
+1. At the beginning of the main method of each of the microservices, we call `SmiLogging.Setup();`, which is a helper class to configure everything.
+1. In every class of the program, you can then create a logger object with `private static final Logger _logger = LoggerFactory.getLogger(MyClass.class);`.
+1. Then just implement your log messages appropriately.
 
 Everything is logged to file, `INFO`, `WARN`, and `ERROR` are also logged to console.

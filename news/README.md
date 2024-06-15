@@ -20,12 +20,12 @@ e.g.
 
 Where `type` is one of
 
--   `feature`
--   `change`
--   `bugfix`
--   `doc`
--   `removal`
--   `meta`
+- `feature`
+- `change`
+- `bugfix`
+- `doc`
+- `removal`
+- `meta`
 
 _Note_ Ensure that the file is named with the _PR_ number, rather than any associated _issue_ number.
 

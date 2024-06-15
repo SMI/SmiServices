@@ -4,26 +4,26 @@
 
 ## Contents
 
--   [Contents](#contents)
--   [Background](#background)
-    -   [MongoDb](#mongodb)
-    -   [RelationalDb](#relationaldb)
--   [Preparation](#preparation)
-    -   [Publish Binaries](#publish-binaries)
--   [MongoDb Loading Microservices](#mongodb-loading-microservices)
-    -   [DicomDirectoryProcessor](#dicomdirectoryprocessor)
-    -   [DicomTagReader](#dicomtagreader)
-        -   [Dead Letter Exchange](#dead-letter-exchange)
-    -   [DicomTagReader Continued](#dicomtagreader-continued)
-    -   [MongoDbPopulator](#mongodbpopulator)
--   [RelationalDb Loading Microservices](#relationaldb-loading-microservices)
-    -   [DicomReprocessor](#dicomreprocessor)
--   [IdentifierMapper](#identifiermapper)
-    -   [DicomRelationalMapper](#dicomrelationalmapper)
-        -   [Installing RDMP](#installing-rdmp)
-        -   [Picking the Schema](#picking-the-schema)
-        -   [Building the load](#building-the-load)
-    -   [DicomRelationalMapper Continued](#dicomrelationalmapper-continued)
+- [Contents](#contents)
+- [Background](#background)
+  - [MongoDb](#mongodb)
+  - [RelationalDb](#relationaldb)
+- [Preparation](#preparation)
+  - [Publish Binaries](#publish-binaries)
+- [MongoDb Loading Microservices](#mongodb-loading-microservices)
+  - [DicomDirectoryProcessor](#dicomdirectoryprocessor)
+  - [DicomTagReader](#dicomtagreader)
+    - [Dead Letter Exchange](#dead-letter-exchange)
+  - [DicomTagReader Continued](#dicomtagreader-continued)
+  - [MongoDbPopulator](#mongodbpopulator)
+- [RelationalDb Loading Microservices](#relationaldb-loading-microservices)
+  - [DicomReprocessor](#dicomreprocessor)
+- [IdentifierMapper](#identifiermapper)
+  - [DicomRelationalMapper](#dicomrelationalmapper)
+    - [Installing RDMP](#installing-rdmp)
+    - [Picking the Schema](#picking-the-schema)
+    - [Building the load](#building-the-load)
+  - [DicomRelationalMapper Continued](#dicomrelationalmapper-continued)
 
 ## Background
 
@@ -33,8 +33,8 @@ Microservices are designed to execute in parallel and scale to support hundreds 
 
 The data load process populates two databases:
 
--   Mongo Db (identifiable)
--   Relational Db (anonymous)
+- Mongo Db (identifiable)
+- Relational Db (anonymous)
 
 ### MongoDb
 
@@ -122,11 +122,11 @@ System.ApplicationException: The given control exchange was not found on the ser
 
 Create the exchange:
 
----
+______________________________________________________________________
 
 ![Create Exchange](img/TEST.ControlExchange.png)
 
----
+______________________________________________________________________
 
 This is the exchange by which you can send runtime messages (e.g. shutdown) to the service
 
@@ -134,8 +134,8 @@ Now when it is run you will see an error relating to another missing exchange (p
 
 Create the following exchanges:
 
--   TEST.AccessionDirectoryExchange
--   TEST.FatalLoggingExchange
+- TEST.AccessionDirectoryExchange
+- TEST.FatalLoggingExchange
 
 Now when running you should see an error:
 
@@ -145,19 +145,19 @@ Now when running you should see an error:
 
 This is because there is no queue associated with the output exchange. Create a queue `TEST.AccessionDirectoryQueue`
 
----
+______________________________________________________________________
 
 ![Create Exchange](img/TEST.AccessionDirectoryQueue.png)
 
----
+______________________________________________________________________
 
 Bind the `TEST.AccessionDirectoryExchange` exchange with the queue `TEST.AccessionDirectoryQueue`:
 
----
+______________________________________________________________________
 
 ![Bind Exchange To Queue](img/BindExchange.png)
 
----
+______________________________________________________________________
 
 Once you have done this you should see output from the program like:
 
@@ -189,19 +189,19 @@ Bootstrapper -> Exiting main
 
 There should be 1 message per folder in the your test dicoms directory:
 
----
+______________________________________________________________________
 
 ![10 messages queued](img/AfterAccessionDirectory.png)
 
----
+______________________________________________________________________
 
 If you use GetMessages in the rabbit MQ interface you can see what was the messages contain:
 
----
+______________________________________________________________________
 
 ![Example message from output queue](img/PeekAccessionDirectory.png)
 
----
+______________________________________________________________________
 
 That's right, all this work was just to get a **directory listing** into RabbitMQ! But now that you have the basics of creating exchanges / queues down it should be much easier to get the rest of the services running (see below).
 
@@ -217,8 +217,8 @@ E:\SmiServices\src\microservices\Microservices.DicomTagReader\bin\AnyCPU\Debug\n
 
 This should result in an error about `TEST.IdentifiableSeriesExchange`. Create the following exchanges:
 
--   TEST.IdentifiableSeriesExchange
--   TEST.IdentifiableImageExchange
+- TEST.IdentifiableSeriesExchange
+- TEST.IdentifiableImageExchange
 
 This should cause our old friend:
 
@@ -228,32 +228,32 @@ Could not confirm message published after timeout
 
 Notice also that a queue message has still been consumed and we have 1 less message in the `TEST.AccessionDirectoryQueue`
 
----
+______________________________________________________________________
 
 ![One message has been consumed](img/LostMessages.png)
 
 _RabbitMQ queue graph are 1 less message available for processing_
 
----
+______________________________________________________________________
 
 Messages that cannot be processed are 'nacked' and not returned to the processing queue. This prevents 'bad' messages getting served up repeatedly to consumers and degrading system performance. To prevent message loss we can set up a dead letter exchange.
 
 #### Dead Letter Exchange
 
-Retries can be handled using an extra queue+exchange combination in RabbitMQ: dead messages go to the DLQ, sit in that DLQ and wait until their configured TTL elapses, after which they `expire' back to the main queue and get retried.
+Retries can be handled using an extra queue+exchange combination in RabbitMQ: dead messages go to the DLQ, sit in that DLQ and wait until their configured TTL elapses, after which they \`expire' back to the main queue and get retried.
 
 https://igkuz.ru/ruby-retry-scheduled-tasks-with-dead-letter-exchange-in-rabbitmq/
 
----
+______________________________________________________________________
 
 ### DicomTagReader Continued
 
 Create the output queues for the tag reader exchanges (make sure to bind them to the correct exchanges):
 
--   TEST.IdentifiableSeriesExchange
-    -   TEST.IdentifiableSeriesQueue
--   TEST.IdentifiableImageExchange
-    -   TEST.IdentifiableImageQueue
+- TEST.IdentifiableSeriesExchange
+  - TEST.IdentifiableSeriesQueue
+- TEST.IdentifiableImageExchange
+  - TEST.IdentifiableImageQueue
 
 This should produce the following output:
 
@@ -285,13 +285,13 @@ The binary will not exit by default (it will wait for more messages). Use Ctrl+C
 
 After execution the queues should look like:
 
----
+______________________________________________________________________
 
 ![Output queues with 1 message per image + 1 message per series](img/AfterDicomTagReader.png)
 
 _Output queues from a successful run of DicomTagReader_
 
----
+______________________________________________________________________
 
 If you peek at the messages in the `TEST.IdentifiableImageExchange`. You should see the JSON representation of a dicom image (tags only - no pixel data):
 
@@ -421,8 +421,8 @@ This is because `DicomReprocessor` is designed to feed images identified in Mong
 
 Since we only want to send the messages on to one queue we can create a `fanout` exchange as the destination. Create a new `fanout` exchange with a destination queue:
 
--   TEST.DicomReprocessorExchange `(fanout)`
-    -   TEST.DicomReprocessorQueue
+- TEST.DicomReprocessorExchange `(fanout)`
+  - TEST.DicomReprocessorQueue
 
 Edit `default.yaml` and set the `DicomReprocessorOptions` to use the new exchange.
 
@@ -482,8 +482,8 @@ System.ArgumentException: MappingTableName did not contain the database/user sec
 
 `IdentifierMapper` uses a [strategy pattern] to determine how identifiers are substituted. The following implementations are provided out of the box:
 
--   [ForGuidIdentifierSwapper]
--   [TableLookupSwapper]
+- [ForGuidIdentifierSwapper]
+- [TableLookupSwapper]
 
 We will use the [ForGuidIdentifierSwapper] because it doesn't require us to create an identifier mapping up front. Open `default.yaml` and edit the `IdentifierMapperOptions` settings e.g.:
 
@@ -509,8 +509,8 @@ Make sure the `QueueName` is set to the output queue of [DicomReprocessor] (e.g.
 
 Create the output exchange and queue
 
--   TEST.AnonymousImageExchange
-    -   TEST.AnonymousImageQueue
+- TEST.AnonymousImageExchange
+  - TEST.AnonymousImageQueue
 
 Run `IdentifierMapper` again with the new yaml settings. It should complete and have written all messages to the output queue `TEST.AnonymousImageQueue`:
 
@@ -633,15 +633,15 @@ Enter the server/database name you want the tables created into. **Make sure to 
 
 ![Create the target database in rdmp gui](img/RdmpGuiCreateDatabase.png)
 
--   Select a 'project directory' this should be a directory on disk (that must exist) in which load scripts can be added later (all [RDMP] loads require a load folder regardless of whether they actually use it)
--   Select DicomDatasetCollectionSource for the `dicomSourceType`
--   Enter `CT_` when prompted for table prefix
--   Select the `CT.it` template file when prompted
+- Select a 'project directory' this should be a directory on disk (that must exist) in which load scripts can be added later (all [RDMP] loads require a load folder regardless of whether they actually use it)
+- Select DicomDatasetCollectionSource for the `dicomSourceType`
+- Enter `CT_` when prompted for table prefix
+- Select the `CT.it` template file when prompted
 
 ![Pick the template file in rdmp gui](img/RdmpGuiTemplateFile.png)
 
--   Enter Yes for `persistentRAW` (this allows parallel loading)
--   Enter Yes for `createLoad`
+- Enter Yes for `persistentRAW` (this allows parallel loading)
+- Enter Yes for `createLoad`
 
 Run Refresh (`F9` Refresh `f`)
 
@@ -731,18 +731,18 @@ testdicoms/1987/12/6/2.25.176347174691273338913144606255096043339.dcm
 
 <!-- Links -->
 
-[smi.nlog.config]: /data/logging/Smi.NLog.config
 [baddicom]: https://github.com/HicServices/BadMedicine.Dicom/releases
-[mongodb]: #mongodb
-[relationaldb]: #relationaldb
-[mongodbpopulator]: #mongodbpopulator
-[dicomreprocessor]: #dicomreprocessor
-[patientid]: https://dicom.innolitics.com/ciods/rt-plan/patient/00100020
-[strategy pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
-[forguididentifierswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/ForGuidIdentifierSwapper.cs
-[tablelookupswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/TableLookupSwapper.cs
-[rdmp]: https://github.com/HicServices/RDMP
-[rdmp.dicom]: https://github.com/HicServices/RdmpDicom
-[rdmp user manual]: https://github.com/HicServices/RDMP#research-data-management-platform
 [dbms]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#dbms
 [dicom template builder]: https://github.com/SMI/DicomTemplateBuilder
+[dicomreprocessor]: #dicomreprocessor
+[forguididentifierswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/ForGuidIdentifierSwapper.cs
+[mongodb]: #mongodb
+[mongodbpopulator]: #mongodbpopulator
+[patientid]: https://dicom.innolitics.com/ciods/rt-plan/patient/00100020
+[rdmp]: https://github.com/HicServices/RDMP
+[rdmp user manual]: https://github.com/HicServices/RDMP#research-data-management-platform
+[rdmp.dicom]: https://github.com/HicServices/RdmpDicom
+[relationaldb]: #relationaldb
+[smi.nlog.config]: /data/logging/Smi.NLog.config
+[strategy pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
+[tablelookupswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/TableLookupSwapper.cs

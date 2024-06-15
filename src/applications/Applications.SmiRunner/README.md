@@ -10,8 +10,8 @@ It might be useful to first create this as a Console project, with a main entryp
 
 To add the project to SmiRunner, the process is then to
 
--   Add reference to the project in the SmiRunner csproj
--   Add a new [ServiceVerb](./ServiceVerbs.cs)
--   Add the new verb to [Program](./Program.cs)
-    -   Add to one of the static arrays `AllServices` or `AllApplications`
-    -   Add a case statement which points to the program entry point
+- Add reference to the project in the SmiRunner csproj
+- Add a new [ServiceVerb](./ServiceVerbs.cs)
+- Add the new verb to [Program](./Program.cs)
+  - Add to one of the static arrays `AllServices` or `AllApplications`
+  - Add a case statement which points to the program entry point

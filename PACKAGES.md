@@ -3,8 +3,8 @@
 ### Risk Assessment common to all
 
 1. Packages on NuGet are virus scanned by the NuGet site.
-2. This package is widely used and is actively maintained.
-3. It is open source.
+1. This package is widely used and is actively maintained.
+1. It is open source.
 
 | Package                                 | Source Code                                                                | License                                                                                             | Purpose                                                                                     |
 | --------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
