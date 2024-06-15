@@ -314,9 +314,6 @@ venv/
 
 *.egg-info/
 
-# for prettier in scripts/updateChangelog.py
-package-lock.json
-
 coverage/
 htmlcov/
 src/plugin/SmiPlugin/nuget.exe

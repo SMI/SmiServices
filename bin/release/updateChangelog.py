@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """
 Automatically updates the CHANGELOG with the fragments from each news file.
-
-Requires git and npx/prettier to be available on the PATH. The npx/prettier
-dependency will hopefully be removed in favour of pre-commit in future.
 """
 import argparse
 import collections
@@ -100,15 +97,6 @@ def _print_links(last_tag: str, next_tag: str) -> None:
     print(diff_link_str)
 
 
-def _check_requirements() -> None:
-
-    cmd = ("npx", "--version")
-    _run(cmd)
-
-    cmd = ("npm", "list", "prettier")
-    _run(cmd)
-
-
 def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = argparse.ArgumentParser()
@@ -121,8 +109,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="The tag for the next release",
     )
     args = parser.parse_args(argv)
-
-    _check_requirements()
 
     # Gather the news files for the next release
     fragments = collections.defaultdict(dict)
@@ -152,14 +138,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             news_file
         )
         _run(cmd)
-
-    # Finally, auto-format using prettier
-    cmd = (
-        "npx",
-        "prettier",
-        "--write", "CHANGELOG.md",
-    )
-    _run(cmd)
 
     return 0
 

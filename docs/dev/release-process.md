@@ -38,7 +38,7 @@ The release workflow is to checkout a new `release/` branch from main, update th
   Switched to a new branch 'release/v1.2.3'
   ```
 
-- Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running `./bin/release/updateChangelog.py <prev version> <next version>`. Note that this currently requires `prettier` to be installed from npm. Review the diff and check for any obvious errors.
+- Update the [CHANGELOG](/CHANGELOG.md) for the new release. This involves running `./bin/release/updateChangelog.py <prev version> <next version>`. Review the diff and check for any obvious errors.
 
 - Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
 
