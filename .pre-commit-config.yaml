@@ -57,6 +57,10 @@ repos:
     - id: mdformat
       additional_dependencies:
         - mdformat-gfm==0.3.6
+      exclude: |
+          (?x)^(
+              .github/ISSUE_TEMPLATE/.*md|
+          )$
   - repo: https://github.com/tcort/markdown-link-check
     rev: "v3.12.2"
     hooks:

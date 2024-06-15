@@ -1,6 +1,10 @@
-______________________________________________________________________
-
-## name: Bug Report about: Create a report to help us improve title: "" labels: \["bug", "needs-triage"\] assignees: ""
+---
+name: Bug Report
+about: Create a report to help us improve
+title: ""
+labels: ["bug", "needs-triage"]
+assignees: ""
+---
 
 **Describe the bug**
 
