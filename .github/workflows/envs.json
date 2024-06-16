@@ -2,7 +2,7 @@
   "include": [
     {
       "os": "linux",
-      "image": "ubuntu-20.04"
+      "image": "ubuntu-22.04"
     },
     {
       "os": "windows",
