@@ -101,7 +101,7 @@ jobs:
               "$cov"
       - name: upload coverage
         if: ${{ matrix.os == 'linux' }}
-        uses: codecov/codecov-action@v4.4.1
+        uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage.cobertura.xml
