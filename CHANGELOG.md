@@ -11,6 +11,39 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.7.0] 2024-06-24
+
+### Feature
+
+- [#1679](https://github.com/SMI/SmiServices/pull/1679) by darshad-github. Add dicom-anonymiser (Generic Wrapper Microservice)
+- [#1723](https://github.com/SMI/SmiServices/pull/1723) by rkm. bump CI image to ubuntu-22.04
+- [#1748](https://github.com/SMI/SmiServices/pull/1748) by howff. Add support for Dermatology SRs
+- [#1823](https://github.com/SMI/SmiServices/pull/1823) by rkm. Bump to .NET 8.0 and C# 12
+- [#1833](https://github.com/SMI/SmiServices/pull/1833) by jas88. Move SecurityCodeScan.VS2019 analysis to run as part of CodeQL CI checks not in IDE
+- [#1834](https://github.com/SMI/SmiServices/pull/1834) by jas88. Update to NUnit v4 API
+- [#1843](https://github.com/SMI/SmiServices/pull/1843) by jas88. Update DicomLoader switches and docs
+- [#1844](https://github.com/SMI/SmiServices/pull/1844) by rkm. Tidy some files in DicomAnonymiser
+- [#1845](https://github.com/SMI/SmiServices/pull/1845) by darshad-github. Update dicom-anonymiser docs
+- [#1848](https://github.com/SMI/SmiServices/pull/1848) by rkm. replace archived prettier mirror with mdformat
+
+### Bugfix
+
+- [#1840](https://github.com/SMI/SmiServices/pull/1840) by jas88. Escape multiline CSV properly via CsvHelper
+
+### Doc
+
+- [#1831](https://github.com/SMI/SmiServices/pull/1831) by rkm. Refresh all documentation
+
+  - Simplify the top-level README, as this content has been migrated to SMI/docs
+  - Move READMEs for all tools inside the top-level docs/ to improve navigation
+  - Add script for checking docs
+  - Add markdown-link-check hook
+  - Delete unused TriggerUpdates MongoDB source
+
+### Removal
+
+- [#1804](https://github.com/SMI/SmiServices/pull/1804) by rkm. Delete SRAnonTool, which has been migrated to https://github.com/SMI/StructuredReports.
+
 ## [5.6.1] 2024-04-19
 
 ### Bugfix
@@ -1335,4 +1368,5 @@ First stable release after importing the repository from the private
 [5.5.0]: https://github.com/SMI/SmiServices/compare/v5.4.0...v5.5.0
 [5.6.0]: https://github.com/SMI/SmiServices/compare/v5.5.0...v5.6.0
 [5.6.1]: https://github.com/SMI/SmiServices/compare/v5.6.0...v5.6.1
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.6.1...main
+[5.7.0]: https://github.com/SMI/SmiServices/compare/v5.6.1...v5.7.0
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.7.0...main

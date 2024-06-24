@@ -42,12 +42,11 @@ The release workflow is to checkout a new `release/` branch from main, update th
 
 - Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
 
-  - `README.md`: Bump the version in the header
   - `src/SharedAssemblyInfo.cs`: Bump the versions in each property
 
 - Commit these changes and push the new branch
 
-- Open a PR for this branch with the title `Release <version>`. Request a review from `@tznind` and `@rkm`
+- Open a PR for this branch with the title `Release <version>`. Request a review from `@SMI/reviewers`.
 
 - If there are any further changes which need to be included in the release PR, then these can be merged into the release branch from `main`
 
