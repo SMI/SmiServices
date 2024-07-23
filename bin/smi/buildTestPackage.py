@@ -44,7 +44,6 @@ def main() -> int:
         rc = DT.main((
             *cfg_args,
             "--no-coverage" if args.no_coverage else "",
-            "--no-build",
         ))
         if rc:
             return rc
