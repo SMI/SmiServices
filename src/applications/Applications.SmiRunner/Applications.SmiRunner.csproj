@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>smi</AssemblyName>
     <IsPublishable>true</IsPublishable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(CI)'=='true' or '$(CI)'==1">true</RestoreLockedMode>
   </PropertyGroup>
 
   <ItemGroup>
