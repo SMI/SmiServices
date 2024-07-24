@@ -11,6 +11,12 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.7.1] 2024-07-24
+
+### Feature
+
+- [#1876](https://github.com/SMI/SmiServices/pull/1876) by rkm. Manually bump DicomTypeTranslation, IsIdentifiable, YamlDotNet, and RDMP libs
+
 ## [5.7.0] 2024-06-24
 
 ### Feature
@@ -1369,4 +1375,5 @@ First stable release after importing the repository from the private
 [5.6.0]: https://github.com/SMI/SmiServices/compare/v5.5.0...v5.6.0
 [5.6.1]: https://github.com/SMI/SmiServices/compare/v5.6.0...v5.6.1
 [5.7.0]: https://github.com/SMI/SmiServices/compare/v5.6.1...v5.7.0
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.7.0...main
+[5.7.1]: https://github.com/SMI/SmiServices/compare/v5.7.0...v5.7.1
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.7.1...main
