@@ -65,8 +65,13 @@ namespace Microservices.IsIdentifiable.Service
             }
             catch (Exception e)
             {
-                SendVerificationMessage(statusMessage, header, tag, VerifiedFileStatus.ErrorWontRetry, $"Exception while classifying {statusMessage.GetType().Name}:\n{e}. File could not be scanned.");
-                return;
+                if (e is ArithmeticException)
+                {
+                    SendVerificationMessage(statusMessage, header, tag, VerifiedFileStatus.ErrorWontRetry, $"Exception while classifying {statusMessage.GetType().Name}:\n{e}");
+                    return;
+                }
+
+                throw;
             }
 
             foreach (Failure f in failures)

@@ -1,4 +1,4 @@
-using IsIdentifiable.Failures;
+﻿using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using Microservices.IsIdentifiable.Service;
 using Moq;
@@ -274,6 +274,52 @@ namespace Microservices.IsIdentifiable.Tests.Service
                 Assert.That(_response.Status,Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
                 Assert.That(_response.Report,Does.StartWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
             });
+        }
+
+        [Test]
+        public void ProcessMessage_ClassifierUnhandledException_CallsFatal()
+        {
+            // Arrange
+
+            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
+            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new Exception("whee"));
+
+            var consumer = GetNewIsIdentifiableQueueConsumer(null, mockClassifier.Object);
+
+            // Act
+
+            consumer.TestMessage(_extractedFileStatusMessage);
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
+            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
+            Assert.AreEqual("whee", _fatalArgs?.Exception?.Message);
+            Assert.AreEqual(0, consumer.NackCount);
+            Assert.AreEqual(0, consumer.AckCount);
+        }
+
+        [Test]
+        public void ProcessMessage_ClassifierInvalidFile_CallsFatal()
+        {
+            // Arrange
+
+            var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
+            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new ApplicationException("File does not contain valid preamble and header"));
+
+            var consumer = GetNewIsIdentifiableQueueConsumer(null, mockClassifier.Object);
+
+            // Act
+
+            consumer.TestMessage(_extractedFileStatusMessage);
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => _fatalArgs != null, "Expected Fatal to be called");
+            Assert.AreEqual("ProcessMessageImpl threw unhandled exception", _fatalArgs?.Message);
+            Assert.AreEqual("File does not contain valid preamble and header", _fatalArgs?.Exception?.Message);
+            Assert.AreEqual(0, consumer.NackCount);
+            Assert.AreEqual(0, consumer.AckCount);
         }
 
         #endregion
