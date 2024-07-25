@@ -71,38 +71,18 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
                 var guid = Guid.NewGuid().ToString();
 
-                switch (_options!.MappingDatabaseType)
+                insertSql = _options!.MappingDatabaseType switch
                 {
-
-
-                    case FAnsi.DatabaseType.MicrosoftSQLServer:
-                        insertSql = string.Format(@"if not exists( select 1 from {0} where {1} = '{3}') insert into {0}({1},{2}) values ('{3}','{4}')",
-                                    _table!.GetRuntimeName(),
-                                    _options.SwapColumnName,
-                                    _options.ReplacementColumnName,
-                                    toSwap,
-                                    guid);
-                        break;
-                    case FAnsi.DatabaseType.Oracle:
-
-                        insertSql = string.Format(@"
-
-insert into {0} ({1}, {2}) 
-select '{3}','{4}'
-from dual
-where not exists(select * 
-                 from {0} 
-                 where ({1} = '{3}'))
-", _table!.GetFullyQualifiedName(), _options.SwapColumnName, _options.ReplacementColumnName, toSwap, guid);
-
-                        break;
-                    case FAnsi.DatabaseType.MySql:
-                        insertSql =
-                            $@"INSERT IGNORE INTO {_table!.GetFullyQualifiedName()} SET {_options.SwapColumnName} = '{toSwap}', {_options.ReplacementColumnName} = '{guid}';";
-                        break;
-                    default: throw new ArgumentOutOfRangeException(_options.MappingConnectionString);
-
-                }
+                    FAnsi.DatabaseType.MicrosoftSQLServer => string.Format(
+                        "if not exists( select 1 from {0} where {1} = '{3}') insert into {0}({1},{2}) values ('{3}','{4}')",
+                        _table!.GetRuntimeName(), _options.SwapColumnName, _options.ReplacementColumnName, toSwap,
+                        guid),
+                    FAnsi.DatabaseType.MySql =>
+                        $"INSERT IGNORE INTO {_table!.GetFullyQualifiedName()} SET {_options.SwapColumnName} = '{toSwap}', {_options.ReplacementColumnName} = '{guid}';",
+                    FAnsi.DatabaseType.PostgreSql =>
+                        $"INSERT INTO {_table!.GetFullyQualifiedName()} ({_options.SwapColumnName},{_options.ReplacementColumnName}) VALUES ('{toSwap}','{guid}') ON CONFLICT DO NOTHING;",
+                    _ => throw new ArgumentOutOfRangeException(_options.MappingConnectionString)
+                };
 
                 using (new TimeTracker(DatabaseStopwatch))
                 using (var con = _table.Database.Server.BeginNewTransactedConnection())
