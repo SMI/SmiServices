@@ -11,6 +11,17 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.7.2] 2024-07-29
+
+### Feature
+
+- [#1889](https://github.com/SMI/SmiServices/pull/1889) by jas88. Make DB exception handling DB-agnostic rather than MySQL specific
+
+### Bugfix
+
+- [#1887](https://github.com/SMI/SmiServices/pull/1887) by rkm. Pass setInitialDatabase as true to GetDistinctLiveDatabaseServer to ensure that the correct database is used when connecting to Postgres
+- [#1888](https://github.com/SMI/SmiServices/pull/1888) by rkm. Ensure keyTag is properly wrapped in QuerySyntaxHelper for Postgres support
+
 ## [5.7.1] 2024-07-24
 
 ### Feature
@@ -1376,4 +1387,5 @@ First stable release after importing the repository from the private
 [5.6.1]: https://github.com/SMI/SmiServices/compare/v5.6.0...v5.6.1
 [5.7.0]: https://github.com/SMI/SmiServices/compare/v5.6.1...v5.7.0
 [5.7.1]: https://github.com/SMI/SmiServices/compare/v5.7.0...v5.7.1
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.7.1...main
+[5.7.2]: https://github.com/SMI/SmiServices/compare/v5.7.1...v5.7.2
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.7.2...main
