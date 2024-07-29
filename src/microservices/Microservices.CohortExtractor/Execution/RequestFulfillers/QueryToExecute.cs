@@ -41,7 +41,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             Columns = columns;
             KeyTag = keyTag;
-            Server = columns.Catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, false);
+            Server = columns.Catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, setInitialDatabase: true);
         }
 
         /// <summary>
