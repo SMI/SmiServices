@@ -247,6 +247,7 @@ namespace Microservices.CohortExtractor.Tests
             var ci = new CatalogueItem(repo, c, col);
             var ti = new TableInfo(repo, "ff");
             ti.Server = "ff";
+            ti.Database = "db";
             var ei = new ExtractionInformation(repo, ci, new ColumnInfo(repo,col,"varchar(10)",ti), col);
         }
     }
