@@ -21,7 +21,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <summary>
         /// The column to search for in the WHERE logic
         /// </summary>
-        public string KeyTag { get; }
+        private readonly string _keyTag;
 
         public DiscoveredServer? Server { get; set; }
         private string? _sql;
@@ -40,8 +40,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag)
         {
             Columns = columns;
-            KeyTag = keyTag;
             Server = columns.Catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, setInitialDatabase: true);
+            _keyTag = Server.GetQuerySyntaxHelper().EnsureWrapped(keyTag);
         }
 
         /// <summary>
@@ -81,14 +81,14 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         /// <summary>
         /// Override to change what filters are included in the WHERE Sql of your query.  Default behaviour is to match on the
-        /// <see cref="KeyTag"/> and AND with all <see cref="ICatalogue.GetAllMandatoryFilters"/> listed on the <see cref="Catalogue"/>
+        /// supplied keyTag and AND with all <see cref="ICatalogue.GetAllMandatoryFilters"/> listed on the <see cref="Catalogue"/>
         /// </summary>
         /// <param name="memoryRepo"></param>
         /// <param name="rootContainer"></param>
         /// <returns></returns>
         protected virtual IEnumerable<IFilter> GetFilters(MemoryCatalogueRepository memoryRepo,IContainer rootContainer)
         {
-            yield return new SpontaneouslyInventedFilter(memoryRepo, rootContainer, KeyTag + "= '{0}'",
+            yield return new SpontaneouslyInventedFilter(memoryRepo, rootContainer, _keyTag + "= '{0}'",
                 "Filter Series", "Filters by series UID", null);
 
             foreach(var filter in Columns.Catalogue.GetAllMandatoryFilters())
