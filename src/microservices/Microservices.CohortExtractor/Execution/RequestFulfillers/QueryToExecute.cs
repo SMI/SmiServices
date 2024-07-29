@@ -40,8 +40,8 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag)
         {
             Columns = columns;
-            _keyTag = keyTag;
             Server = columns.Catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, setInitialDatabase: true);
+            _keyTag = Server.GetQuerySyntaxHelper().EnsureWrapped(keyTag);
         }
 
         /// <summary>
