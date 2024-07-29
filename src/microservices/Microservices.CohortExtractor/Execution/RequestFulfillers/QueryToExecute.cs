@@ -1,5 +1,4 @@
 using FAnsi.Discovery;
-using MySqlConnector;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
@@ -133,7 +132,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
             {
                 reader = Server.GetCommand(sqlString, con).ExecuteReader();
             }
-            catch (MySqlException)
+            catch (DbException)
             {
                 _logger.Error($"The following query resulted in an exception: {sqlString}");
                 throw;
