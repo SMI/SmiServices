@@ -9,6 +9,7 @@ using FAnsi;
 using FellowOakDicom;
 using Microservices.Tests.RDMPTests;
 using MongoDB.Bson;
+using NUnit.Framework;
 using Rdmp.Core.Repositories;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using SharpCompress.Archives;
@@ -20,10 +21,11 @@ using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SmiServices.Applications.DicomLoader;
 using SynthEHR;
 using Tests.Common;
 
-namespace Applications.DicomLoader.Tests;
+namespace SmiServices.UnitTests.Applications.DicomLoader;
 
 [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
 public class DicomLoaderTests : DatabaseTests

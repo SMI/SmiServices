@@ -55,7 +55,7 @@ namespace Applications.SmiRunner
                         return service switch
                         {
                             // Applications
-                            DicomLoaderVerb _ => Applications.DicomLoader.Program.Main(rest),
+                            DicomLoaderVerb _ => SmiServices.Applications.DicomLoader.Program.Main(rest),
                             DynamicRulesTesterVerb _ => Applications.DynamicRulesTester.Program.Main(rest),
                             TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             ExtractImagesVerb _ => ExtractImages.Program.Main(rest),

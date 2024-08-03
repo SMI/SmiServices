@@ -21,7 +21,7 @@ using Rdmp.Core.DataLoad;
 using Smi.Common.Messages;
 using Smi.Common.MongoDB;
 
-namespace Applications.DicomLoader;
+namespace SmiServices.Applications.DicomLoader;
 
 public class Loader
 {

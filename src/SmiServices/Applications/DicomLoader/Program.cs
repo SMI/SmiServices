@@ -21,7 +21,7 @@ using Smi.Common.Helpers;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
 
-namespace Applications.DicomLoader;
+namespace SmiServices.Applications.DicomLoader;
 
 public static class Program
 {
