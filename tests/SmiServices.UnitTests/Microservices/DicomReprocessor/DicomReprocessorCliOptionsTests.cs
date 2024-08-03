@@ -1,9 +1,9 @@
 
 using System;
-using Microservices.DicomReprocessor.Options;
 using NUnit.Framework;
+using SmiServices.Microservices.DicomReprocessor;
 
-namespace Microservices.DicomReprocessor.Tests.Options
+namespace SmiServices.UnitTests.Microservices.DicomReprocessor
 {
     public class DicomReprocessorCliOptionsTests
     {

@@ -1,7 +1,6 @@
-
 using MongoDB.Bson;
 
-namespace Microservices.DicomReprocessor.Execution.Processors
+namespace SmiServices.Microservices.DicomReprocessor
 {
     /// <summary>
     /// Interface for classes which process documents from MongoDb into a specific message type

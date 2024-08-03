@@ -8,7 +8,7 @@ using SmiServices.Microservices.FileCopier;
 using System;
 
 
-namespace Microservices.FileCopier.Tests.Messaging
+namespace SmiServices.UnitTests.Microservices.FileCopier
 {
     public class FileCopyQueueConsumerTest
     {

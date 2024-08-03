@@ -1,8 +1,7 @@
-
 using NUnit.Framework;
 
 
-namespace Microservices.DicomReprocessor.Tests
+namespace SmiServices.UnitTests.Microservices.DicomReprocessor
 {
     [TestFixture]
     public class DicomReprocessorTests

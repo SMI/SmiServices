@@ -11,8 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-
-namespace Microservices.DicomReprocessor.Execution.Processors
+namespace SmiServices.Microservices.DicomReprocessor
 {
     /// <summary>
     /// Processes whole BsonDocuments (whole dicom files) into DicomFileMessage(s) and publishes them to config-defined image exchange

@@ -1,13 +1,11 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microservices.DicomReprocessor.Execution.Processors;
-using Microservices.DicomReprocessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 
-namespace Microservices.DicomReprocessor.Execution
+namespace SmiServices.Microservices.DicomReprocessor
 {
     public class DicomReprocessorHost : MicroserviceHost
     {

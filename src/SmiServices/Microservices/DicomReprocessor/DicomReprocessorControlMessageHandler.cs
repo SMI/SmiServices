@@ -5,7 +5,7 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 
 
-namespace Microservices.DicomReprocessor
+namespace SmiServices.Microservices.DicomReprocessor
 {
     public class DicomReprocessorControlMessageHandler : IControlMessageHandler
     {

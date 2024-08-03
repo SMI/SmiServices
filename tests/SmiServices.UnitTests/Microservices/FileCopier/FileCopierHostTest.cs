@@ -10,7 +10,7 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
-namespace Microservices.FileCopier.Tests.Execution
+namespace SmiServices.UnitTests.Microservices.FileCopier
 {
     [RequiresRabbit]
     public class FileCopierHostTest

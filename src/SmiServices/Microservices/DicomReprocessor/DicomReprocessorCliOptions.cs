@@ -6,7 +6,7 @@ using CommandLine;
 using CommandLine.Text;
 using Smi.Common.Options;
 
-namespace Microservices.DicomReprocessor.Options
+namespace SmiServices.Microservices.DicomReprocessor
 {
     public class DicomReprocessorCliOptions : CliOptions
     {

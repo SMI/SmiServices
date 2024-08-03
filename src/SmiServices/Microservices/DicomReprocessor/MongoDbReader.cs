@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microservices.DicomReprocessor.Execution.Processors;
-using Microservices.DicomReprocessor.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
@@ -12,7 +10,7 @@ using Smi.Common.MongoDB;
 using Smi.Common.Options;
 
 
-namespace Microservices.DicomReprocessor.Execution
+namespace SmiServices.Microservices.DicomReprocessor
 {
     public class MongoDbReader
     {
@@ -86,7 +84,7 @@ namespace Microservices.DicomReprocessor.Execution
                     if (key == null || !key.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         _logger.Warn("User cancelled reprocessing by not answering 'y', exiting");
-                        return default(TimeSpan);
+                        return default;
                     }
 
                     _logger.Info("User chose to continue with query execution");

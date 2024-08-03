@@ -9,7 +9,7 @@ using SmiServices.Microservices.FileCopier;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace Microservices.FileCopier.Tests.Execution
+namespace SmiServices.UnitTests.Microservices.FileCopier
 {
     public class FileCopierTest
     {

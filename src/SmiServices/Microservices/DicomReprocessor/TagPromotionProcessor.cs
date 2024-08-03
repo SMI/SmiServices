@@ -4,7 +4,7 @@ using MongoDB.Bson;
 using NLog;
 using System;
 
-namespace Microservices.DicomReprocessor.Execution.Processors
+namespace SmiServices.Microservices.DicomReprocessor
 {
     /// <summary>
     /// Processes tags from documents into TagPromotionMessage(s) and publishes them to the config-defined tag promotion exchange

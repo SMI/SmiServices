@@ -1,10 +1,8 @@
-using Microservices.DicomReprocessor.Execution;
-using Microservices.DicomReprocessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;
 
-namespace Microservices.DicomReprocessor
+namespace SmiServices.Microservices.DicomReprocessor
 {
     public static class Program
     {

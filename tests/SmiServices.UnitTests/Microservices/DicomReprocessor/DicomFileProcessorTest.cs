@@ -1,6 +1,5 @@
 using FellowOakDicom;
 using DicomTypeTranslation;
-using Microservices.DicomReprocessor.Execution.Processors;
 using MongoDB.Bson;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -8,8 +7,9 @@ using Smi.Common.MongoDB;
 using Smi.Common.Options;
 using Moq;
 using Smi.Common.Messaging;
+using SmiServices.Microservices.DicomReprocessor;
 
-namespace Microservices.DicomReprocessor.Tests.Execution.Processors
+namespace SmiServices.UnitTests.Microservices.DicomReprocessor
 {
     public class DicomFileProcessorTest
     {
