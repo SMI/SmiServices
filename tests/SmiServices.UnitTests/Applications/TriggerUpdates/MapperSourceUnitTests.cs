@@ -1,11 +1,10 @@
 using NUnit.Framework;
 using Smi.Common.Options;
+using SmiServices.Applications.TriggerUpdates;
 using System;
-using Applications.TriggerUpdates.Execution;
-using Applications.TriggerUpdates.Options;
 
 
-namespace Applications.TriggerUpdates.Tests
+namespace SmiServices.UnitTests.Applications.TriggerUpdates
 {
     class MapperSourceUnitTests
     {

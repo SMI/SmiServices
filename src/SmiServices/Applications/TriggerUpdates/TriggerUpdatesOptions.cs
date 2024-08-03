@@ -1,7 +1,7 @@
 using Smi.Common.Options;
 
 
-namespace Applications.TriggerUpdates.Options
+namespace SmiServices.Applications.TriggerUpdates
 {
     public abstract class TriggerUpdatesCliOptions : CliOptions
     {

@@ -4,7 +4,7 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 
 
-namespace Applications.TriggerUpdates.Execution
+namespace SmiServices.Applications.TriggerUpdates
 {
     public class TriggerUpdatesHost : MicroserviceHost
     {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Smi.Common.Messages.Updating;
 
 
-namespace Applications.TriggerUpdates.Execution
+namespace SmiServices.Applications.TriggerUpdates
 {
     public interface ITriggerUpdatesSource
     {

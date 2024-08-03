@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\microservices\Updating\Microservices.UpdateValues\Microservices.UpdateValues.csproj" />
     <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
     <ProjectReference Include="..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
     <ProjectReference Include="..\microservices\Microservices.DicomRelationalMapper.Tests\Microservices.DicomRelationalMapper.Tests.csproj" />

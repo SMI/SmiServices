@@ -55,7 +55,6 @@ namespace Applications.SmiRunner
                         return service switch
                         {
                             // Applications
-                            TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             SetupVerb _ => Setup.Program.Main(rest),
 
                             // Microservices

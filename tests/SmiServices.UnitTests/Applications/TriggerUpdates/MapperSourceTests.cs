@@ -9,13 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Applications.TriggerUpdates.Execution;
-using Applications.TriggerUpdates.Options;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
 using Smi.Common.Tests;
+using SmiServices.Applications.TriggerUpdates;
 
-namespace Applications.TriggerUpdates.Tests
+namespace SmiServices.UnitTests.Applications.TriggerUpdates
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [RequiresRelationalDb(DatabaseType.MySql)]

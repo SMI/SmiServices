@@ -2,7 +2,7 @@ using System;
 using CommandLine;
 
 
-namespace Applications.TriggerUpdates.Options
+namespace SmiServices.Applications.TriggerUpdates
 {
     [Verb("mapper", HelpText = "Triggers updates based on new identifier mapping table updates")]
     public class TriggerUpdatesFromMapperOptions : TriggerUpdatesCliOptions

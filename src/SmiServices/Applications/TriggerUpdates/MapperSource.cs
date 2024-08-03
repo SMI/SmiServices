@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
-using Applications.TriggerUpdates.Options;
 using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
 using Microservices.IdentifierMapper.Execution.Swappers;
@@ -15,7 +14,7 @@ using Smi.Common.Messages.Updating;
 using Smi.Common.Options;
 
 
-namespace Applications.TriggerUpdates.Execution
+namespace SmiServices.Applications.TriggerUpdates
 {
     public class MapperSource : ITriggerUpdatesSource
     {

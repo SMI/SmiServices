@@ -2,7 +2,6 @@ using FAnsi;
 using FAnsi.Discovery;
 using FAnsi.Extensions;
 using Microservices.IdentifierMapper.Execution.Swappers;
-using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
@@ -12,13 +11,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Applications.TriggerUpdates.Options;
 using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
+using SmiServices.Applications.TriggerUpdates;
+using Microservices.UpdateValues.Execution;
 
 
-namespace Applications.TriggerUpdates.Execution
+namespace SmiServices.UnitTests.Applications.TriggerUpdates
 {
     [RequiresRabbit]
     class MapperSourceIntegrationTest : DatabaseTests
