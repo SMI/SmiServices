@@ -1,6 +1,5 @@
 using Microservices.CohortExtractor.Execution;
 using Microservices.DicomRelationalMapper.Execution;
-using Microservices.IdentifierMapper.Execution;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
 using Smi.Common.Execution;
@@ -21,6 +20,7 @@ using Microservices.CohortPackager.Execution;
 using Microservices.IsIdentifiable.Service;
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
+using SmiServices.Microservices.IdentifierMapper;
 
 namespace SmiServices.Applications.Setup
 {

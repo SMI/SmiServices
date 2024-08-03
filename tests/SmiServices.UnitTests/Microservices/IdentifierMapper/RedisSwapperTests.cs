@@ -3,14 +3,14 @@ using System.Data;
 using System.Linq;
 using FAnsi;
 using FAnsi.Discovery;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using NUnit.Framework;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 using StackExchange.Redis;
 using Tests.Common;
 
-namespace Microservices.IdentifierMapper.Tests
+namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [RequiresRelationalDb(DatabaseType.MySql)]

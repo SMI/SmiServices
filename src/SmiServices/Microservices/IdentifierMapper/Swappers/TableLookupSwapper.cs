@@ -6,7 +6,7 @@ using System;
 using System.Data.Common;
 using Smi.Common;
 
-namespace Microservices.IdentifierMapper.Execution.Swappers
+namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {
     /// <summary>
     /// Connects to a database containing values to swap identifiers with. Keeps a single cache of the last seen value

@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading;
 using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
 using Rdmp.Core.DataLoad.Triggers;
 using Smi.Common;
 using Smi.Common.Helpers;
 using Smi.Common.Messages.Updating;
 using Smi.Common.Options;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 
 
 namespace SmiServices.Applications.TriggerUpdates

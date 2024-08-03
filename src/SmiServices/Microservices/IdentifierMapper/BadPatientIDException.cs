@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Microservices.IdentifierMapper.Messaging
+namespace SmiServices.Microservices.IdentifierMapper
 {
     /// <summary>
     /// Exception thrown when the PatientID tag of a dicom file contains invalid/corrupt data

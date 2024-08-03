@@ -1,6 +1,5 @@
 using FellowOakDicom;
 using DicomTypeTranslation;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using System;
@@ -10,8 +9,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 
-namespace Microservices.IdentifierMapper.Messaging
+namespace SmiServices.Microservices.IdentifierMapper
 {
     public class IdentifierMapperQueueConsumer : Consumer<DicomFileMessage>
     {

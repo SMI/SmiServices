@@ -1,12 +1,12 @@
 
 using System.Threading;
 using FAnsi.Discovery;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using Smi.Common;
 using Smi.Common.Options;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 
 
-namespace Microservices.IdentifierMapper.Tests
+namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 {
     internal class SwapForFixedValueTester : SwapIdentifiers
     {

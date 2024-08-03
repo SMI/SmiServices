@@ -3,7 +3,7 @@ using NLog;
 using NLog.Targets;
 using NUnit.Framework;
 
-namespace Microservices.IdentifierMapper.Tests
+namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 {
     public class IdentifierMapperUnitTests
     {

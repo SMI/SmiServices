@@ -1,9 +1,8 @@
-
-using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
 using Smi.Common.Messaging;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 
-namespace Microservices.IdentifierMapper.Messaging
+namespace SmiServices.Microservices.IdentifierMapper
 {
     public class IdentifierMapperControlMessageHandler : IControlMessageHandler
     {

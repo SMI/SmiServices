@@ -2,9 +2,6 @@
 using FellowOakDicom;
 using DicomTypeTranslation;
 using FAnsi.Discovery;
-using Microservices.IdentifierMapper.Execution;
-using Microservices.IdentifierMapper.Execution.Swappers;
-using Microservices.IdentifierMapper.Messaging;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -21,8 +18,10 @@ using BadMedicine.Dicom;
 using SynthEHR;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
+using SmiServices.Microservices.IdentifierMapper;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 
-namespace Microservices.IdentifierMapper.Tests
+namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 {
     [TestFixture]
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]

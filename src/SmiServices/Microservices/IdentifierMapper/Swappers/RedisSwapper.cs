@@ -7,7 +7,7 @@ using NLog;
 using Smi.Common.Options;
 using StackExchange.Redis;
 
-namespace Microservices.IdentifierMapper.Execution.Swappers
+namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {
     /// <summary>
     /// A swapper that wraps <see cref="TableLookupWithGuidFallbackSwapper"/> and uses a Redis database (on localhost)

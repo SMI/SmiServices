@@ -2,7 +2,7 @@ using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;
 
-namespace Microservices.IdentifierMapper.Execution.Swappers
+namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {
     /// <summary>
     /// Identifier swapper which connects to lookup table (wrapping <see cref="TableLookupSwapper"/>) but if no mapping is

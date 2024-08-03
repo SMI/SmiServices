@@ -9,7 +9,7 @@ using System.Text;
 using Smi.Common;
 using TypeGuesser;
 
-namespace Microservices.IdentifierMapper.Execution.Swappers
+namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {
     /// <summary>
     /// Connects to a (possibly empty) database containing values to swap identifiers with. If no valid replacement found for a value,

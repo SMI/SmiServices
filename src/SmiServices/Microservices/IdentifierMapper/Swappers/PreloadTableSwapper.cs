@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Smi.Common;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Microservices.IdentifierMapper.Execution.Swappers
+namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {
     /// <summary>
     /// Connects to a database containing values to swap identifiers with, and loads it entirely into memory

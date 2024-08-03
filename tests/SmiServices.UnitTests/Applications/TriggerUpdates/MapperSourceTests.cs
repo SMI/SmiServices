@@ -1,6 +1,5 @@
 using FAnsi;
 using FAnsi.Discovery;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
@@ -13,6 +12,7 @@ using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
 using Smi.Common.Tests;
 using SmiServices.Applications.TriggerUpdates;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 
 namespace SmiServices.UnitTests.Applications.TriggerUpdates
 {

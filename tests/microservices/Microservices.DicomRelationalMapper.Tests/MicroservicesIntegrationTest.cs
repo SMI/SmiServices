@@ -11,8 +11,6 @@ using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
-using Microservices.IdentifierMapper.Execution;
-using Microservices.IdentifierMapper.Execution.Swappers;
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.Tests.RDMPTests;
 using MongoDB.Driver;
@@ -38,6 +36,8 @@ using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 using SmiServices.Applications.DicomDirectoryProcessor;
 using SmiServices.Microservices.DicomTagReader.Execution;
+using SmiServices.Microservices.IdentifierMapper;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 
 namespace Microservices.DicomRelationalMapper.Tests
 {

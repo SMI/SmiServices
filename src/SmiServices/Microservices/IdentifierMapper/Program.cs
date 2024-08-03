@@ -1,9 +1,8 @@
-using Microservices.IdentifierMapper.Execution;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;
 
-namespace Microservices.IdentifierMapper
+namespace SmiServices.Microservices.IdentifierMapper
 {
     public static class Program
     {

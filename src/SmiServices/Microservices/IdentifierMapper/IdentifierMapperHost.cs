@@ -2,16 +2,15 @@
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using Microservices.IdentifierMapper.Execution.Swappers;
-using Microservices.IdentifierMapper.Messaging;
 using System;
 using NLog;
 using RabbitMQ.Client.Exceptions;
 using Smi.Common;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 using StackExchange.Redis;
 
 
-namespace Microservices.IdentifierMapper.Execution
+namespace SmiServices.Microservices.IdentifierMapper
 {
     public class IdentifierMapperHost : MicroserviceHost
     {

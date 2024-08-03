@@ -3,7 +3,7 @@ using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;
 
-namespace Microservices.IdentifierMapper.Execution.Swappers
+namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {
     public abstract class SwapIdentifiers : ISwapIdentifiers
     {
