@@ -4,7 +4,7 @@ using Smi.Common.Tests;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace Applications.DynamicRulesTester.Tests;
+namespace SmiServices.UnitTests.Applications.DynamicRulesTester;
 
 public class ProgramTests
 {
@@ -76,7 +76,7 @@ public class ProgramTests
         });
 
         // Act
-        var rc = Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(0));
@@ -103,7 +103,7 @@ public class ProgramTests
         });
 
         // Act
-        var rc = Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(1));
@@ -124,7 +124,7 @@ public class ProgramTests
         });
 
         // Act
-        var rc = Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(2));
@@ -146,7 +146,7 @@ public class ProgramTests
         WriteTestRowFile(new List<string> { });
 
         // Act
-        var rc = Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(1));
