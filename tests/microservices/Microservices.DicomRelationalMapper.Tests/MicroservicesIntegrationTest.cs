@@ -7,8 +7,6 @@ using System.Threading;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using FAnsi.Discovery;
-using Microservices.CohortExtractor.Execution;
-using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
 using Microservices.Tests.RDMPTests;
@@ -38,6 +36,8 @@ using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.Microservices.IdentifierMapper;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using SmiServices.Microservices.CohortExtractor;
 
 namespace Microservices.DicomRelationalMapper.Tests
 {

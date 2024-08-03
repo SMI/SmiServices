@@ -1,8 +1,8 @@
 using CommandLine;
-using Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic;
 using Newtonsoft.Json;
 using NLog;
 using Smi.Common.Options;
+using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Data;

@@ -5,5 +5,7 @@
         <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
         <ProjectReference Include="..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
         <ProjectReference Include="..\microservices\Microservices.DicomRelationalMapper.Tests\Microservices.DicomRelationalMapper.Tests.csproj" />
+        <PackageReference Include="HIC.RDMP.Plugin.Test" />
+        <PackageReference Include="HIC.BadMedicine.Dicom" />
     </ItemGroup>
 </Project>
