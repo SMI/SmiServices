@@ -4,6 +4,7 @@ using NUnit.Framework;
 using NUnit.Framework.Internal;
 using System;
 using System.IO;
+using FAnsi.Implementations.PostgreSql.Aggregation;
 using YamlDotNet.Serialization;
 
 namespace Smi.Common.Tests
@@ -55,7 +56,7 @@ namespace Smi.Common.Tests
             }
 
             public string? SqlServer { get; set; }
-            public string? Oracle { get; set; }
+            public string? PostgreSql { get; set; }
 
             public DiscoveredServer GetServer(DatabaseType dbType)
             {
@@ -63,8 +64,8 @@ namespace Smi.Common.Tests
                 {
                     DatabaseType.MicrosoftSQLServer => SqlServer,
                     DatabaseType.MySql => MySql,
-                    DatabaseType.Oracle => Oracle,
-                    _ => throw new ArgumentOutOfRangeException()
+                    DatabaseType.PostgreSql => PostgreSql,
+                    _ => throw new ArgumentOutOfRangeException(nameof(dbType))
                 };
 
                 if (string.IsNullOrEmpty(str))

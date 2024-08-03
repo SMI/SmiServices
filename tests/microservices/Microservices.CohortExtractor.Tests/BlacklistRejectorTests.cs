@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using FAnsi;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
@@ -9,17 +9,17 @@ namespace Microservices.CohortExtractor.Tests
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [RequiresRelationalDb(DatabaseType.MySql)]
+    [RequiresRelationalDb(DatabaseType.PostgreSql)]
     class BlacklistRejectorTests : DatabaseTests
     {
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.PostgreSql)]
-        [TestCase(DatabaseType.Oracle)]
         public void TestBlacklistOn_Study(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
 
-            var dt = new DataTable();
+            using var dt = new DataTable();
             dt.Columns.Add("StudyInstanceUID");
             dt.Rows.Add("fff");
 
@@ -40,12 +40,11 @@ namespace Microservices.CohortExtractor.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.PostgreSql)]
-        [TestCase(DatabaseType.Oracle)]
         public void TestBlacklistOn_Series(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
 
-            var dt = new DataTable();
+            using var dt = new DataTable();
             dt.Columns.Add("SeriesInstanceUID");
             dt.Rows.Add("fff");
 
@@ -66,12 +65,11 @@ namespace Microservices.CohortExtractor.Tests
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.PostgreSql)]
-        [TestCase(DatabaseType.Oracle)]
         public void TestBlacklistOn_SOPInstanceUID(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
 
-            var dt = new DataTable();
+            using var dt = new DataTable();
             dt.Columns.Add("SOPInstanceUID");
             dt.Rows.Add("fff");
 
@@ -88,16 +86,15 @@ namespace Microservices.CohortExtractor.Tests
             });
         }
 
-        
+
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.PostgreSql)]
-        [TestCase(DatabaseType.Oracle)]
         public void TestBlacklistOn_AllThree(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
 
-            var dt = new DataTable();
+            using var dt = new DataTable();
             dt.Columns.Add("StudyInstanceUID");
             dt.Columns.Add("SeriesInstanceUID");
             dt.Columns.Add("SOPInstanceUID");

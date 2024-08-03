@@ -287,19 +287,21 @@ namespace Microservices.IdentifierMapper.Tests
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
-        [TestCase(DatabaseType.Oracle)]
+        [TestCase(DatabaseType.PostgreSql)]
         public void TestIdentifierSwapForGuid(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
             var mapTbl = db.ExpectTable("Map");
 
             //the declaration of what the guid namer table should be
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = mapTbl.GetFullyQualifiedName();
-            options.SwapColumnName = "priv";
-            options.ReplacementColumnName = "pub";
-            options.MappingDatabaseType = dbType;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                MappingTableName = mapTbl.GetFullyQualifiedName(),
+                SwapColumnName = "priv",
+                ReplacementColumnName = "pub",
+                MappingDatabaseType = dbType
+            };
 
             var swapper = new ForGuidIdentifierSwapper();
             swapper.Setup(options);
@@ -315,7 +317,7 @@ namespace Microservices.IdentifierMapper.Tests
             var newDs = DicomTypeTranslater.DeserializeJsonToDataset(msg.DicomDataset);
             var guidAllocated = newDs.GetValue<string>(DicomTag.PatientID, 0);
 
-            var dt = mapTbl.GetDataTable();
+            using var dt = mapTbl.GetDataTable();
             Assert.Multiple(() =>
             {
                 Assert.That(dt.Rows,Has.Count.EqualTo(1));
@@ -328,19 +330,21 @@ namespace Microservices.IdentifierMapper.Tests
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
-        [TestCase(DatabaseType.Oracle)]
+        [TestCase(DatabaseType.PostgreSql)]
         public void TestIdentifierSwap2ForGuids(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
             var mapTbl = db.ExpectTable("Map");
 
             //the declaration of what the guid namer table should be
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = mapTbl.GetFullyQualifiedName();
-            options.SwapColumnName = "priv";
-            options.ReplacementColumnName = "pub";
-            options.MappingDatabaseType = dbType;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                MappingTableName = mapTbl.GetFullyQualifiedName(),
+                SwapColumnName = "priv",
+                ReplacementColumnName = "pub",
+                MappingDatabaseType = dbType
+            };
 
             var swapper = new ForGuidIdentifierSwapper();
             swapper.Setup(options);
@@ -374,19 +378,21 @@ namespace Microservices.IdentifierMapper.Tests
         /// <param name="dbType"></param>
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         [TestCase(DatabaseType.MySql)]
-        [TestCase(DatabaseType.Oracle)]
+        [TestCase(DatabaseType.PostgreSql)]
         public void TestIdentifierSwap2ForGuids_WithSeperateSwappers(DatabaseType dbType)
         {
             var db = GetCleanedServer(dbType);
             var mapTbl = db.ExpectTable("Map");
 
             //the declaration of what the guid namer table should be
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = mapTbl.GetFullyQualifiedName();
-            options.SwapColumnName = "priv";
-            options.ReplacementColumnName = "pub";
-            options.MappingDatabaseType = dbType;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                MappingTableName = mapTbl.GetFullyQualifiedName(),
+                SwapColumnName = "priv",
+                ReplacementColumnName = "pub",
+                MappingDatabaseType = dbType
+            };
 
             var swapper1 = new ForGuidIdentifierSwapper();
             swapper1.Setup(options);
@@ -426,8 +432,10 @@ namespace Microservices.IdentifierMapper.Tests
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
             //the declaration of what the guid namer table should be
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString
+            };
 
             var swapper = new SwapForFixedValueTester("meeee");
             swapper.Setup(options);
@@ -485,8 +493,10 @@ namespace Microservices.IdentifierMapper.Tests
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
             //the declaration of what the guid namer table should be
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString
+            };
 
             //null here means it will never find any identifier
             var swapper = new SwapForFixedValueTester(null);
@@ -556,7 +566,7 @@ namespace Microservices.IdentifierMapper.Tests
                     ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", "0202020202" });
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("testCase");
+                    throw new ArgumentOutOfRangeException(nameof(testCase));
             }
 
 
