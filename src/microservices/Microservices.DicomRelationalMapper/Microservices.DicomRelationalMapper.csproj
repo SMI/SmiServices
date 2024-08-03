@@ -3,9 +3,6 @@
     <AssemblyName>DicomRelationalMapper</AssemblyName>
     <OutputType>Library</OutputType>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <None Include="DicomRelationalMapper.cd" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HIC.RDMP.Dicom" />
   </ItemGroup>

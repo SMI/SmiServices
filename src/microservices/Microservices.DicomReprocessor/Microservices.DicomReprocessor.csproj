@@ -3,9 +3,6 @@
     <AssemblyName>DicomReprocessor</AssemblyName>
     <OutputType>Library</OutputType>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <None Include="DicomReprocessor.cd" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />

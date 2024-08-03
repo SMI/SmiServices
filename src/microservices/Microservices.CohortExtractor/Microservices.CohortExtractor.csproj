@@ -6,9 +6,6 @@
   <ItemGroup>
     <None Remove="DynamicRules.txt" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <None Include="CohortExtractor.cd" />
-  </ItemGroup>
   <ItemGroup>
     <Content Include="DynamicRules.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -19,5 +16,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common\Smi.Common.csproj" />
-  </ItemGroup>  
+  </ItemGroup>
 </Project>
