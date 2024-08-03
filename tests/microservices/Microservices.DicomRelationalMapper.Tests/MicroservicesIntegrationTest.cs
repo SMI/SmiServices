@@ -11,7 +11,6 @@ using Microservices.CohortExtractor.Execution;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.DicomRelationalMapper.Execution.Namers;
-using Microservices.MongoDBPopulator.Execution;
 using Microservices.Tests.RDMPTests;
 using MongoDB.Driver;
 using NLog;
@@ -38,6 +37,7 @@ using SmiServices.Applications.DicomDirectoryProcessor;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.Microservices.IdentifierMapper;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
+using SmiServices.Microservices.MongoDBPopulator;
 
 namespace Microservices.DicomRelationalMapper.Tests
 {

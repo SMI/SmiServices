@@ -17,10 +17,10 @@ using Smi.Common.Messaging;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using Microservices.DicomAnonymiser;
 using Microservices.CohortPackager.Execution;
-using Microservices.IsIdentifiable.Service;
-using Microservices.MongoDBPopulator.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using SmiServices.Microservices.IdentifierMapper;
+using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.Microservices.IsIdentifiable;
 
 namespace SmiServices.Applications.Setup
 {

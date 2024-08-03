@@ -13,7 +13,8 @@ namespace SmiServices
     {
         public static readonly Type[] AllApplications =
         {
-            //typeof(DicomLoaderVerb),
+            // TODO
+            typeof(DicomLoaderVerb),
             typeof(DicomDirectoryProcessorVerb),
             //typeof(ExtractImagesVerb),
             //typeof(TriggerUpdatesVerb),
