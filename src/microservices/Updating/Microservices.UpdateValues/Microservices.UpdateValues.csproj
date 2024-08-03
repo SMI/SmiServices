@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <AssemblyName>UpdateValues</AssemblyName>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\common\Smi.Common\Smi.Common.csproj" />
-  </ItemGroup>
-</Project>

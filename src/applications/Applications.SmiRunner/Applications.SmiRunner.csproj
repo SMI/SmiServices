@@ -22,7 +22,6 @@
     <ProjectReference Include="..\..\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.IsIdentifiable\Microservices.IsIdentifiable.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.MongoDbPopulator\Microservices.MongoDbPopulator.csproj" />
-    <ProjectReference Include="..\..\microservices\Updating\Microservices.UpdateValues\Microservices.UpdateValues.csproj" />
     <ProjectReference Include="..\Setup\Setup.csproj" />
   </ItemGroup>
 

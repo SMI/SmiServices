@@ -3,7 +3,7 @@ using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 
-namespace Microservices.UpdateValues.Execution
+namespace SmiServices.Microservices.UpdateValues
 {
     public class UpdateValuesHost : MicroserviceHost
     {

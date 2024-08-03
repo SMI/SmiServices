@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microservices.UpdateValues.Execution
+namespace SmiServices.Microservices.UpdateValues
 {
     public class Updater : IUpdater
     {

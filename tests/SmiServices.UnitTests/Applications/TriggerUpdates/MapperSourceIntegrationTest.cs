@@ -15,7 +15,7 @@ using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
 using SmiServices.Applications.TriggerUpdates;
-using Microservices.UpdateValues.Execution;
+using SmiServices.Microservices.UpdateValues;
 
 
 namespace SmiServices.UnitTests.Applications.TriggerUpdates

@@ -1,9 +1,9 @@
 using FAnsi;
 using FAnsi.Discovery;
-using Microservices.UpdateValues.Execution;
 using NUnit.Framework;
 using Smi.Common.Messages.Updating;
 using Smi.Common.Tests;
+using SmiServices.Microservices.UpdateValues;
 using System;
 using System.Data;
 using System.Linq;

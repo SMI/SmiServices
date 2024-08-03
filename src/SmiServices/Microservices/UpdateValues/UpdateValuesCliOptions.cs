@@ -1,6 +1,6 @@
 using Smi.Common.Options;
 
-namespace Microservices.UpdateValues.Options
+namespace SmiServices.Microservices.UpdateValues
 {
     public class UpdateValuesCliOptions : CliOptions
     {

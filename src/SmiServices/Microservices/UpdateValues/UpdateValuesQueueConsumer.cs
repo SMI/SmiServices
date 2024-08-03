@@ -5,7 +5,7 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System;
 
-namespace Microservices.UpdateValues.Execution
+namespace SmiServices.Microservices.UpdateValues
 {
     public class UpdateValuesQueueConsumer : Consumer<UpdateValuesMessage>
     {

@@ -1,6 +1,6 @@
 using Smi.Common.Messages.Updating;
 
-namespace Microservices.UpdateValues.Execution
+namespace SmiServices.Microservices.UpdateValues
 {
     public interface IUpdater
     {

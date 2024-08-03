@@ -2,7 +2,7 @@ using FAnsi.Discovery;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Microservices.UpdateValues.Execution
+namespace SmiServices.Microservices.UpdateValues
 {
     public class UpdateTableAudit
     {

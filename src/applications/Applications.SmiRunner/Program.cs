@@ -67,7 +67,6 @@ namespace Applications.SmiRunner
                             IdentifierMapperVerb _ => Microservices.IdentifierMapper.Program.Main(rest),
                             IsIdentifiableVerb _ => Microservices.IsIdentifiable.Program.Main(rest),
                             MongoDbPopulatorVerb _ => Microservices.MongoDBPopulator.Program.Main(rest),
-                            UpdateValuesVerb _ => Microservices.UpdateValues.Program.Main(rest),
                             _ => throw new ArgumentException($"No case for {nameof(service)}")
                         };
                     }

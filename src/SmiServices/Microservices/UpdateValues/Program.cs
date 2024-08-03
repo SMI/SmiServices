@@ -1,11 +1,9 @@
-using Microservices.UpdateValues.Execution;
-using Microservices.UpdateValues.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;
 
 
-namespace Microservices.UpdateValues
+namespace SmiServices.Microservices.UpdateValues
 {
     public static class Program
     {
