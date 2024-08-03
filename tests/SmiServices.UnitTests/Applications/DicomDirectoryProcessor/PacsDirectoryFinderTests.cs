@@ -9,7 +9,7 @@ using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 
 
-namespace Applications.DicomDirectoryProcessor.Tests
+namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
 {
     [TestFixture]
     public class PacsDirectoryFinderTests

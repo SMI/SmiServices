@@ -2,11 +2,11 @@
 using System;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
-using Microservices.DicomTagReader.Execution;
 using System.IO;
 using Smi.Common.Options;
+using SmiServices.Microservices.DicomTagReader.Execution;
 
-namespace Microservices.DicomTagReader.Messaging
+namespace SmiServices.Microservices.DicomTagReader.Messaging
 {
     /// <summary>
     /// Consumer class for AccessionDirectoryMessage(s)

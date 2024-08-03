@@ -15,7 +15,7 @@ using NLog;
 using System.IO.Compression;
 using Smi.Common;
 
-namespace Microservices.DicomTagReader.Execution
+namespace SmiServices.Microservices.DicomTagReader.Execution
 {
     public abstract class TagReaderBase
     {
@@ -315,10 +315,10 @@ namespace Microservices.DicomTagReader.Execution
 
             long freq = Stopwatch.Frequency;
             var sb = new StringBuilder("Average rates - ");
-            sb.Append($"enumerate dir (per acc. message): {_swTotals[0] * 1.0 / (double)(freq * _nAccMessagesProcessed):f6}s, ");
-            sb.Append($"file process: {_swTotals[1] * 1.0 / (double)(freq * NFilesProcessed):f6}s, ");
-            sb.Append($"send messages: {_swTotals[2] * 1.0 / (double)(freq * _nMessagesSent):f6}s, ");
-            sb.Append($"overall: {_swTotals[3] * 1.0 / (double)(freq * _nAccMessagesProcessed):f6}s");
+            sb.Append($"enumerate dir (per acc. message): {_swTotals[0] * 1.0 / (freq * _nAccMessagesProcessed):f6}s, ");
+            sb.Append($"file process: {_swTotals[1] * 1.0 / (freq * NFilesProcessed):f6}s, ");
+            sb.Append($"send messages: {_swTotals[2] * 1.0 / (freq * _nMessagesSent):f6}s, ");
+            sb.Append($"overall: {_swTotals[3] * 1.0 / (freq * _nAccMessagesProcessed):f6}s");
             Logger.Info(sb.ToString);
         }
 

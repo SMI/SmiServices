@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\microservices\Microservices.CohortExtractor\Microservices.CohortExtractor.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.DicomRelationalMapper\Microservices.DicomRelationalMapper.csproj" />
-    <ProjectReference Include="..\..\..\src\microservices\Microservices.DicomTagReader\Microservices.DicomTagReader.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />
     <ProjectReference Include="..\..\..\src\microservices\Microservices.MongoDbPopulator\Microservices.MongoDbPopulator.csproj" />
     <ProjectReference Include="..\..\..\src\SmiServices\SmiServices.csproj" />

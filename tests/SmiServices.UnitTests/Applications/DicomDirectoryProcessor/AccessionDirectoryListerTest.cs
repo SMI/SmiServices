@@ -10,7 +10,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
 
-namespace Applications.DicomDirectoryProcessor.Tests
+namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
 {
     /// <summary>
     /// Unit tests for AccessionDirectoryLister
@@ -24,7 +24,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
             TestLogger.Setup();
         }
 
-        private String GetListContent()
+        private string GetListContent()
         {
             StringBuilder accessionList = new();
 

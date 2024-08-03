@@ -1,10 +1,8 @@
-
-
 using BadMedicine.Dicom;
-using Microservices.DicomTagReader.Execution;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Tests;
+using SmiServices.Microservices.DicomTagReader.Execution;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -12,7 +10,7 @@ using System.Linq;
 using System.Threading;
 
 
-namespace Microservices.DicomTagReader.Tests.Execution
+namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
 {
     [TestFixture, RequiresRabbit]
     public class DicomTagReaderHostTests

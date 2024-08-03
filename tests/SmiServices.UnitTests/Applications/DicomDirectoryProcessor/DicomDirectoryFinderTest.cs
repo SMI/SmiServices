@@ -1,4 +1,3 @@
-
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -10,7 +9,7 @@ using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 
 
-namespace Applications.DicomDirectoryProcessor.Tests
+namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
 {
     /// <summary>
     /// Unit tests for BasicDicomDirectoryFinder

@@ -5,9 +5,9 @@ using System.IO.Abstractions;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
-using Microservices.DicomTagReader.Messaging;
+using SmiServices.Microservices.DicomTagReader.Messaging;
 
-namespace Microservices.DicomTagReader.Execution
+namespace SmiServices.Microservices.DicomTagReader.Execution
 {
     public class DicomTagReaderHost : MicroserviceHost
     {

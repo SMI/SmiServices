@@ -67,7 +67,6 @@ namespace Applications.SmiRunner
                             DicomAnonymiserVerb _ => Microservices.DicomAnonymiser.Program.Main(rest),
                             DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.Program.Main(rest),
                             DicomReprocessorVerb _ => Microservices.DicomReprocessor.Program.Main(rest),
-                            DicomTagReaderVerb _ => Microservices.DicomTagReader.Program.Main(rest),
                             FileCopierVerb _ => Microservices.FileCopier.Program.Main(rest),
                             IdentifierMapperVerb _ => Microservices.IdentifierMapper.Program.Main(rest),
                             IsIdentifiableVerb _ => Microservices.IsIdentifiable.Program.Main(rest),

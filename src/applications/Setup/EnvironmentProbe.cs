@@ -3,7 +3,6 @@ using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.DicomAnonymiser;
 using Microservices.DicomRelationalMapper.Execution;
-using Microservices.DicomTagReader.Execution;
 using Microservices.IdentifierMapper.Execution;
 using Microservices.IsIdentifiable.Service;
 using Microservices.MongoDBPopulator.Execution;
@@ -22,6 +21,7 @@ using Rdmp.Core.ReusableLibraryCode;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
 using Smi.Common.Messaging;
+using SmiServices.Microservices.DicomTagReader.Execution;
 
 namespace Setup
 {

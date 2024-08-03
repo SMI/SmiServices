@@ -2,7 +2,7 @@ using CommandLine;
 using Smi.Common.Options;
 using System.IO;
 
-namespace Microservices.DicomTagReader
+namespace SmiServices.Microservices.DicomTagReader
 {
     public class DicomTagReaderCliOptions : CliOptions
     {

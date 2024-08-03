@@ -1,11 +1,11 @@
-using Microservices.DicomTagReader.Execution;
 using NLog;
 using Smi.Common.Execution;
 using Smi.Common.Options;
+using SmiServices.Microservices.DicomTagReader.Execution;
 using System;
 using System.Collections.Generic;
 
-namespace Microservices.DicomTagReader
+namespace SmiServices.Microservices.DicomTagReader
 {
     public static class Program
     {

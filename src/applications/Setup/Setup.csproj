@@ -13,8 +13,8 @@
     <ProjectReference Include="..\..\microservices\Microservices.CohortPackager\Microservices.CohortPackager.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.DicomAnonymiser\Microservices.DicomAnonymiser.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.DicomRelationalMapper\Microservices.DicomRelationalMapper.csproj" />
-    <ProjectReference Include="..\..\microservices\Microservices.DicomTagReader\Microservices.DicomTagReader.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.IdentifierMapper\Microservices.IdentifierMapper.csproj" />
     <ProjectReference Include="..\..\microservices\Microservices.MongoDbPopulator\Microservices.MongoDbPopulator.csproj" />
+    <ProjectReference Include="..\..\SmiServices\SmiServices.csproj" />
   </ItemGroup>
 </Project>

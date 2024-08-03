@@ -4,14 +4,15 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Microservices.DicomTagReader.Execution;
 using Moq;
 using Smi.Common.Messages;
 using Smi.Common.Tests;
 using System.IO.Compression;
 using System.Collections.Generic;
+using SmiServices.UnitTests.Microservices.DicomTagReader;
+using SmiServices.Microservices.DicomTagReader.Execution;
 
-namespace Microservices.DicomTagReader.Tests.Execution
+namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
 {
     //TODO Some of these can be tested without RabbitMQ
     [TestFixture, RequiresRabbit]

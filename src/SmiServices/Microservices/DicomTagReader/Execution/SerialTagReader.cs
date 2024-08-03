@@ -3,38 +3,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Threading;
-using System.Threading.Tasks;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 
 
-namespace Microservices.DicomTagReader.Execution
+namespace SmiServices.Microservices.DicomTagReader.Execution
 {
-    public class ParallelTagReader : TagReaderBase
+    public class SerialTagReader : TagReaderBase
     {
-        private readonly ParallelOptions _parallelOptions;
-
-        public ParallelTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
+        public SerialTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
             IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
-            : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs)
-        {
-            _parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = options.MaxIoThreads
-            };
+            : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs) { }
 
-            Logger.Info($"Using MaxDegreeOfParallelism={_parallelOptions.MaxDegreeOfParallelism} for parallel IO operations");
-        }
-
-        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
-            AccessionDirectoryMessage accMessage)
+        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths, AccessionDirectoryMessage accMessage)
         {
             var fileMessages = new List<DicomFileMessage>();
-            var fileMessagesLock = new object();
 
-            Parallel.ForEach(dicomFilePaths, _parallelOptions, dicomFilePath =>
+            foreach (FileInfo dicomFilePath in dicomFilePaths)
             {
                 Logger.Trace("TagReader: Processing " + dicomFilePath);
 
@@ -55,14 +41,12 @@ namespace Microservices.DicomTagReader.Execution
                         "Error processing file " + dicomFilePath +
                         ". Ignoring and moving on since NackIfAnyFileErrors is false");
 
-                    return;
+                    continue;
                 }
 
-                lock (fileMessagesLock)
-                    fileMessages.Add(fileMessage);
-
-                Interlocked.Increment(ref NFilesProcessed);
-            });
+                fileMessages.Add(fileMessage);
+                ++NFilesProcessed;
+            }
 
             return fileMessages;
         }

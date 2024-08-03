@@ -1,4 +1,3 @@
-
 using Moq;
 using NLog;
 using RabbitMQ.Client;
@@ -11,7 +10,7 @@ using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 
 
-namespace Microservices.DicomTagReader.Tests
+namespace SmiServices.UnitTests.Microservices.DicomTagReader
 {
     public class DicomTagReaderTestHelper
     {
