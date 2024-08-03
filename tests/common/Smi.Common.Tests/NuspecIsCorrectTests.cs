@@ -25,9 +25,6 @@ namespace Smi.Common.Tests
 
         // TODO(rkm 2021-12-17) There are projects missing here. We should update the test so it gathers packages from all csprojs (and Directory.Build.props) automatically
 
-        // Applications
-        [TestCase("../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj", null, null)]
-
         // Common
         [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null, null)]
         [TestCase("../../../../../../../src/common/Smi.Common.MongoDb/Smi.Common.MongoDb.csproj", null, null)]
@@ -37,7 +34,6 @@ namespace Smi.Common.Tests
         [TestCase("../../../../../../../src/microservices/Microservices.CohortPackager/Microservices.CohortPackager.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.DicomRelationalMapper/Microservices.DicomRelationalMapper.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.DicomReprocessor/Microservices.DicomReprocessor.csproj", null, null)]
-        [TestCase("../../../../../../../src/microservices/Microservices.DicomTagReader/Microservices.DicomTagReader.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.IdentifierMapper/Microservices.IdentifierMapper.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.MongoDbPopulator/Microservices.MongoDbPopulator.csproj", null, null)]
         [TestCase("../../../../../../../src/microservices/Microservices.IsIdentifiable/Microservices.IsIdentifiable.csproj", null, null)]
