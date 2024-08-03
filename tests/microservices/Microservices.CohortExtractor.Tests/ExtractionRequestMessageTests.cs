@@ -15,8 +15,8 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(msg.KeyTag,Is.EqualTo("StudyInstanceUID"));
-                Assert.That(msg.ExtractionIdentifiers,Does.Contain("1.2.3"));
+                Assert.That(msg.KeyTag, Is.EqualTo("StudyInstanceUID"));
+                Assert.That(msg.ExtractionIdentifiers, Does.Contain("1.2.3"));
             });
         }
     }

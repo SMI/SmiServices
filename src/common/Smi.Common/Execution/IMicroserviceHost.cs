@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Events;
 
 namespace Smi.Common.Execution

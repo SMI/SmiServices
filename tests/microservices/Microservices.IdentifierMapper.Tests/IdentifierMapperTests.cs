@@ -52,7 +52,7 @@ namespace Microservices.IdentifierMapper.Tests
             options.ReplacementColumnName = "pub";
             options.MappingDatabaseType = type;
             options.TimeoutInSeconds = 500;
-            
+
             var swapper = new PreloadTableSwapper();
             swapper.Setup(options);
 
@@ -86,7 +86,7 @@ namespace Microservices.IdentifierMapper.Tests
             options.ReplacementColumnName = "pub";
             options.MappingDatabaseType = type;
             options.TimeoutInSeconds = 500;
-            
+
             var swapper = new TableLookupSwapper();
             swapper.Setup(options);
 
@@ -135,7 +135,7 @@ namespace Microservices.IdentifierMapper.Tests
             options.IdentifierMapperOptions.MappingDatabaseType = type;
             options.IdentifierMapperOptions.TimeoutInSeconds = 500;
 
-            
+
             var swapper = new PreloadTableSwapper();
             swapper.Setup(options.IdentifierMapperOptions);
 
@@ -248,7 +248,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             Stopwatch sw = new();
             sw.Start();
-            
+
             mappingDataTable.Rows.Clear();
             using (var blk = tbl.BeginBulkInsert())
                 for (int i = 0; i < 9999999; i++) //9 million
@@ -281,8 +281,8 @@ namespace Microservices.IdentifierMapper.Tests
             Console.WriteLine("Lookup Key:" + sw.ElapsedMilliseconds);
             sw.Reset();
 
-            Assert.That(answer,Is.Not.Null);
-            Assert.That(answer!,Has.Length.GreaterThan(20));
+            Assert.That(answer, Is.Not.Null);
+            Assert.That(answer!, Has.Length.GreaterThan(20));
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer)]
@@ -320,10 +320,10 @@ namespace Microservices.IdentifierMapper.Tests
             using var dt = mapTbl.GetDataTable();
             Assert.Multiple(() =>
             {
-                Assert.That(dt.Rows,Has.Count.EqualTo(1));
+                Assert.That(dt.Rows, Has.Count.EqualTo(1));
 
                 //e.g. '841A2E3E-B7C9-410C-A5D1-816B95C0E806'
-                Assert.That(guidAllocated,Has.Length.EqualTo(36));
+                Assert.That(guidAllocated, Has.Length.EqualTo(36));
             });
         }
 
@@ -351,8 +351,8 @@ namespace Microservices.IdentifierMapper.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(swapper.GetSubstitutionFor("01010101",out var reason),Has.Length.EqualTo(36));
-                Assert.That(swapper.GetSubstitutionFor("02020202",out reason),Has.Length.EqualTo(36));
+                Assert.That(swapper.GetSubstitutionFor("01010101", out var reason), Has.Length.EqualTo(36));
+                Assert.That(swapper.GetSubstitutionFor("02020202", out reason), Has.Length.EqualTo(36));
             });
 
             var answer1 = swapper.GetSubstitutionFor("03030303", out _);
@@ -363,9 +363,9 @@ namespace Microservices.IdentifierMapper.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(answer3,Is.EqualTo(answer1));
+                Assert.That(answer3, Is.EqualTo(answer1));
 
-                Assert.That(answer2,Is.Not.EqualTo(answer1));
+                Assert.That(answer2, Is.Not.EqualTo(answer1));
             });
         }
 
@@ -405,11 +405,11 @@ namespace Microservices.IdentifierMapper.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(answer2,Is.EqualTo(answer1));
+                Assert.That(answer2, Is.EqualTo(answer1));
 
-                Assert.That(answer1,Is.Not.Null);
+                Assert.That(answer1, Is.Not.Null);
             });
-            Assert.That(answer2,Is.Not.Null);
+            Assert.That(answer2, Is.Not.Null);
         }
 
         public enum Test
@@ -444,24 +444,24 @@ namespace Microservices.IdentifierMapper.Tests
 
             var msg = GetTestDicomFileMessage(testCase: testCase);
 
-            Assert.That(consumer.SwapIdentifier(msg, out var reason),Is.False);
+            Assert.That(consumer.SwapIdentifier(msg, out var reason), Is.False);
 
             switch (testCase)
             {
                 case Test.EmptyInPatientTag:
-                    Assert.That(reason,Is.EqualTo("PatientID was blank"));
+                    Assert.That(reason, Is.EqualTo("PatientID was blank"));
                     break;
                 case Test.NoPatientTag:
-                    Assert.That(reason,Is.EqualTo("Dataset did not contain PatientID"));
+                    Assert.That(reason, Is.EqualTo("Dataset did not contain PatientID"));
                     break;
             }
         }
 
         [Test]
-        [TestCase(Test.DuplicatePatientID,true)]
-        [TestCase(Test.DuplicatePatientIDButNull,true)]
-        [TestCase(Test.DuplicatePatientIDAndDifferent,false)]
-        public void Test_DuplicatePatientID(Test testCase,bool expectAllowed)
+        [TestCase(Test.DuplicatePatientID, true)]
+        [TestCase(Test.DuplicatePatientIDButNull, true)]
+        [TestCase(Test.DuplicatePatientIDAndDifferent, false)]
+        public void Test_DuplicatePatientID(Test testCase, bool expectAllowed)
         {
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
@@ -478,7 +478,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             if (expectAllowed)
             {
-                Assert.That(consumer.SwapIdentifier(msg, out _),Is.True);
+                Assert.That(consumer.SwapIdentifier(msg, out _), Is.True);
                 AssertDicomFileMessageHasPatientID(msg, "meeee");
             }
             else
@@ -508,15 +508,15 @@ namespace Microservices.IdentifierMapper.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(consumer.SwapIdentifier(msg,out var reason),Is.False);
-                Assert.That(reason,Is.EqualTo("Swapper Microservices.IdentifierMapper.Tests.SwapForFixedValueTester returned null"));
+                Assert.That(consumer.SwapIdentifier(msg, out var reason), Is.False);
+                Assert.That(reason, Is.EqualTo("Swapper Microservices.IdentifierMapper.Tests.SwapForFixedValueTester returned null"));
             });
         }
 
         private void AssertDicomFileMessageHasPatientID(DicomFileMessage msg, string patientId)
         {
             var newDs = DicomTypeTranslater.DeserializeJsonToDataset(msg.DicomDataset);
-            Assert.That(patientId,Is.EqualTo(newDs.GetValue<string>(DicomTag.PatientID, 0)));
+            Assert.That(patientId, Is.EqualTo(newDs.GetValue<string>(DicomTag.PatientID, 0)));
         }
 
         private DicomFileMessage GetTestDicomFileMessage(Test testCase = Test.Normal, int numberOfRandomTagsPerDicom = 0)
@@ -533,7 +533,7 @@ namespace Microservices.IdentifierMapper.Tests
 
             Random r = new(123);
 
-            
+
             using (var generator = new DicomDataGenerator(r, null, "CT"))
                 ds = generator.GenerateTestDataset(new Person(r), r);
 
@@ -541,7 +541,7 @@ namespace Microservices.IdentifierMapper.Tests
             ds.AddOrUpdate(DicomTag.SOPInstanceUID, "1.2.3.4");
             ds.AddOrUpdate(DicomTag.SeriesInstanceUID, "1.2.3.4");
             ds.AddOrUpdate(DicomTag.StudyInstanceUID, "1.2.3.4");
-            
+
             switch (testCase)
             {
                 case Test.Normal:
@@ -560,7 +560,7 @@ namespace Microservices.IdentifierMapper.Tests
                     ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", null });
                     break;
                 case Test.DuplicatePatientID:
-                    ds.AddOrUpdate(DicomTag.PatientID, new []{ "0101010101" , "0101010101" });
+                    ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", "0101010101" });
                     break;
                 case Test.DuplicatePatientIDAndDifferent:
                     ds.AddOrUpdate(DicomTag.PatientID, new[] { "0101010101", "0202020202" });
@@ -621,25 +621,25 @@ namespace Microservices.IdentifierMapper.Tests
             swapper.Setup(options.IdentifierMapperOptions);
 
             string? swapped = swapper.GetSubstitutionFor("CHI-1", out var _);
-            Assert.That(swapped,Is.EqualTo("REP-1"));
+            Assert.That(swapped, Is.EqualTo("REP-1"));
             swapped = swapper.GetSubstitutionFor("CHI-1", out _);
             Assert.Multiple(() =>
             {
-                Assert.That(swapped,Is.EqualTo("REP-1"));
+                Assert.That(swapped, Is.EqualTo("REP-1"));
 
-                Assert.That(swapper.Success,Is.EqualTo(2));
-                Assert.That(swapper.CacheHit,Is.EqualTo(1));
+                Assert.That(swapper.Success, Is.EqualTo(2));
+                Assert.That(swapper.CacheHit, Is.EqualTo(1));
             });
 
             swapped = swapper.GetSubstitutionFor("CHI-2", out _);
-            Assert.That(swapped,Is.EqualTo("REP-2"));
+            Assert.That(swapped, Is.EqualTo("REP-2"));
             swapped = swapper.GetSubstitutionFor("CHI-2", out _);
             Assert.Multiple(() =>
             {
-                Assert.That(swapped,Is.EqualTo("REP-2"));
+                Assert.That(swapped, Is.EqualTo("REP-2"));
 
-                Assert.That(swapper.Success,Is.EqualTo(4));
-                Assert.That(swapper.CacheHit,Is.EqualTo(2));
+                Assert.That(swapper.Success, Is.EqualTo(4));
+                Assert.That(swapper.CacheHit, Is.EqualTo(2));
             });
 
             // Just to make sure...
@@ -647,10 +647,10 @@ namespace Microservices.IdentifierMapper.Tests
             swapped = swapper.GetSubstitutionFor("CHI-1", out _);
             Assert.Multiple(() =>
             {
-                Assert.That(swapped,Is.EqualTo("REP-1"));
+                Assert.That(swapped, Is.EqualTo("REP-1"));
 
-                Assert.That(swapper.Success,Is.EqualTo(5));
-                Assert.That(swapper.CacheHit,Is.EqualTo(2));
+                Assert.That(swapper.Success, Is.EqualTo(5));
+                Assert.That(swapper.CacheHit, Is.EqualTo(2));
             });
         }
     }

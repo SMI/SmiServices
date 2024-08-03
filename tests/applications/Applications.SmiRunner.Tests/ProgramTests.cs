@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
@@ -50,11 +50,11 @@ namespace Applications.SmiRunner.Tests
             {
                 if (t.BaseType == typeof(ApplicationVerbBase))
                 {
-                    Assert.That(Program.AllApplications,Does.Contain(t), $"{t} not in the list of applications");
+                    Assert.That(Program.AllApplications, Does.Contain(t), $"{t} not in the list of applications");
                 }
                 else if (t.BaseType == typeof(MicroservicesVerbBase))
                 {
-                    Assert.That(Program.AllServices,Does.Contain(t), $"{t} not in the list of services");
+                    Assert.That(Program.AllServices, Does.Contain(t), $"{t} not in the list of services");
                 }
                 else
                 {

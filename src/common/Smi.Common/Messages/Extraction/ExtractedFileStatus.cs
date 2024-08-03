@@ -16,7 +16,7 @@ namespace Smi.Common.Messages.Extraction
         /// The file could not be anonymised and will not be retired
         /// </summary>
         ErrorWontRetry,
-        
+
         /// <summary>
         /// The source file could not be found under the given filesystem root
         /// </summary>

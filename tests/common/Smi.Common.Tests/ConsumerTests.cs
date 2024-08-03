@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using System;
@@ -21,7 +21,7 @@ namespace Smi.Common.Tests
             consumer.TestMessage(new TestMessage());
 
             Thread.Sleep(1000);
-            Assert.That(fatalCalled,Is.True);
+            Assert.That(fatalCalled, Is.True);
         }
 
     }

@@ -1,4 +1,4 @@
-﻿using Microservices.FileCopier.Execution;
+using Microservices.FileCopier.Execution;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -99,15 +99,15 @@ namespace Microservices.FileCopier.Tests.Execution
             };
             Assert.Multiple(() =>
             {
-                Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
-                Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
+                Assert.That(sentStatusMessage, Is.EqualTo(expectedStatusMessage));
+                Assert.That(sentRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
             });
 
             string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
             Assert.Multiple(() =>
             {
-                Assert.That(_mockFileSystem.File.Exists(expectedDest),Is.True);
-                Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest),Is.EqualTo(_expectedContents));
+                Assert.That(_mockFileSystem.File.Exists(expectedDest), Is.True);
+                Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest), Is.EqualTo(_expectedContents));
             });
         }
 
@@ -141,8 +141,8 @@ namespace Microservices.FileCopier.Tests.Execution
             };
             Assert.Multiple(() =>
             {
-                Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
-                Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
+                Assert.That(sentStatusMessage, Is.EqualTo(expectedStatusMessage));
+                Assert.That(sentRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
             });
         }
 
@@ -178,9 +178,9 @@ namespace Microservices.FileCopier.Tests.Execution
             };
             Assert.Multiple(() =>
             {
-                Assert.That(sentStatusMessage,Is.EqualTo(expectedStatusMessage));
-                Assert.That(sentRoutingKey,Is.EqualTo(_options.NoVerifyRoutingKey));
-                Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest),Is.EqualTo(_expectedContents));
+                Assert.That(sentStatusMessage, Is.EqualTo(expectedStatusMessage));
+                Assert.That(sentRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
+                Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest), Is.EqualTo(_expectedContents));
             });
         }
 

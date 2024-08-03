@@ -229,10 +229,10 @@ namespace Setup
                 {
                     return defaultValue;
                 }
-                
+
             }
 
-            return null != value ? (T) value : defaultValue;
+            return null != value ? (T)value : defaultValue;
         }
 
         /// <summary>

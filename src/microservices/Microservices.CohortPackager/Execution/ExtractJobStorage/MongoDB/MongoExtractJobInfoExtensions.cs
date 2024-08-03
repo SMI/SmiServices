@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
 {

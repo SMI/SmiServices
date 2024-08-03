@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using Microservices.DicomReprocessor.Options;
 using NUnit.Framework;

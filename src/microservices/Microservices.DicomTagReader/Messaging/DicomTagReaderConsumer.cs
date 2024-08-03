@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
@@ -64,7 +64,7 @@ namespace Microservices.DicomTagReader.Messaging
         public void RunSingleFile(FileInfo file)
         {
             // tell reader only to consider our specific file
-            _reader.IncludeFile = f=>new FileInfo(f).FullName.Equals(file.FullName,StringComparison.CurrentCultureIgnoreCase);
+            _reader.IncludeFile = f => new FileInfo(f).FullName.Equals(file.FullName, StringComparison.CurrentCultureIgnoreCase);
             _reader.ReadTags(null, new AccessionDirectoryMessage(_opts.FileSystemOptions!.FileSystemRoot!, file.Directory!));
 
             // good practice to clear this afterwards

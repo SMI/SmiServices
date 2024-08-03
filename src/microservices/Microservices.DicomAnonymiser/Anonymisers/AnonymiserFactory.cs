@@ -1,4 +1,4 @@
-﻿using Smi.Common.Options;
+using Smi.Common.Options;
 using System;
 
 namespace Microservices.DicomAnonymiser.Anonymisers

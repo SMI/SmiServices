@@ -116,11 +116,11 @@ namespace Smi.Common.Tests.Messaging
         public void TestNoNewConnectionsAfterShutdown()
         {
             var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMQBrokerTests");
-            Assert.That(testAdapter.ShutdownCalled,Is.False);
+            Assert.That(testAdapter.ShutdownCalled, Is.False);
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
-            Assert.That(testAdapter.ShutdownCalled,Is.True);
+            Assert.That(testAdapter.ShutdownCalled, Is.True);
             Assert.Throws<ApplicationException>(() => testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
             Assert.Throws<ApplicationException>(() => testAdapter.SetupProducer(_testProducerOptions));
         }
@@ -149,7 +149,7 @@ namespace Smi.Common.Tests.Messaging
             // These are all the server properties we can check using the connection
             PrintObjectDictionary(connection.ServerProperties);
 
-            Assert.That(connection.ServerProperties.ContainsKey("version"),Is.True);
+            Assert.That(connection.ServerProperties.ContainsKey("version"), Is.True);
         }
 
         [Test]
@@ -191,8 +191,8 @@ namespace Smi.Common.Tests.Messaging
 
             Assert.Multiple(() =>
             {
-                Assert.That(model.IsOpen,Is.False);
-                Assert.That(conn.IsOpen,Is.False);
+                Assert.That(model.IsOpen, Is.False);
+                Assert.That(conn.IsOpen, Is.False);
             });
         }
 
@@ -205,7 +205,7 @@ namespace Smi.Common.Tests.Messaging
 
             testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
-            Assert.That(model.IsClosed,Is.True);
+            Assert.That(model.IsClosed, Is.True);
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
         }
 
@@ -244,7 +244,7 @@ namespace Smi.Common.Tests.Messaging
                 _ => "nothing to see here"
             };
 
-            Assert.That(target.Logs.Any(s => s.Contains(expectedErrorMessage)),Is.True, $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
+            Assert.That(target.Logs.Any(s => s.Contains(expectedErrorMessage)), Is.True, $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
         [Test]
@@ -267,8 +267,8 @@ namespace Smi.Common.Tests.Messaging
 
             Assert.Multiple(() =>
             {
-                Assert.That(consumer.HeldMessages,Is.EqualTo(1));
-                Assert.That(consumer.AckCount,Is.EqualTo(0));
+                Assert.That(consumer.HeldMessages, Is.EqualTo(1));
+                Assert.That(consumer.AckCount, Is.EqualTo(0));
             });
         }
 

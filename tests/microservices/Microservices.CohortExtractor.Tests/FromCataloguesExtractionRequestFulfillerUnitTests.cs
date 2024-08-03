@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
@@ -16,14 +16,14 @@ namespace Microservices.CohortExtractor.Tests
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] {ct,mr});
+            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
 
-            var result =  f.GetRejectorsFor(
+            var result = f.GetRejectorsFor(
                 new ExtractionRequestMessage(),
                 new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct,null,null,null,null,false), "FF"));
+                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF"));
 
-            Assert.That(result,Is.Empty);
+            Assert.That(result, Is.Empty);
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace Microservices.CohortExtractor.Tests
                     new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF"));
 
             // we should see our rejector being used
-            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
+            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
 
             // when we ask for mr to be extracted
             result = f.GetRejectorsFor(
@@ -50,7 +50,7 @@ namespace Microservices.CohortExtractor.Tests
                     new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF"));
 
             // we should still see the rejector being used
-            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
+            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
         }
 
 
@@ -60,25 +60,27 @@ namespace Microservices.CohortExtractor.Tests
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
             var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
-            
+
             // basic rejector
             f.Rejectors.Add(new TestRejector());
             f.ModalitySpecificRejectors.Add(
                 new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = true }, new RejectAll());
 
             // CT should...
-            var result = f.GetRejectorsFor(new ExtractionRequestMessage(),new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF"){ Modality = "CT" });
+            var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
+                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF")
+            { Modality = "CT" });
 
             // run with the basic rejector
-            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
+            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF"){ Modality = "MR" });
+                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF")
+            { Modality = "MR" });
 
             // use only the modality specific rejector (since it overrides)
-            Assert.That(result.Single(),Is.InstanceOf<RejectAll>());
+            Assert.That(result.Single(), Is.InstanceOf<RejectAll>());
         }
 
 
@@ -103,7 +105,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the basic rejector
-            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
+            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -112,8 +114,8 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // use both the modality specific and the generic rules
-            Assert.That(result,Does.Contain(rej1));
-            Assert.That(result,Does.Contain(rej2));
+            Assert.That(result, Does.Contain(rej1));
+            Assert.That(result, Does.Contain(rej2));
         }
 
 
@@ -138,7 +140,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the basic rejector
-            Assert.That(result.Single(),Is.EqualTo(rej1));
+            Assert.That(result.Single(), Is.EqualTo(rej1));
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -147,7 +149,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the modality specific rejector 
-            Assert.That(result.Single(),Is.EqualTo(rej2));
+            Assert.That(result.Single(), Is.EqualTo(rej2));
         }
 
 
@@ -172,7 +174,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the modality specific rejector 
-            Assert.That(result.Single(),Is.EqualTo(rej2));
+            Assert.That(result.Single(), Is.EqualTo(rej2));
 
             // MR should...
             result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
@@ -181,7 +183,7 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the modality specific rejector 
-            Assert.That(result.Single(),Is.EqualTo(rej2));
+            Assert.That(result.Single(), Is.EqualTo(rej2));
         }
 
         [Test]
@@ -209,15 +211,15 @@ namespace Microservices.CohortExtractor.Tests
                 .ToArray();
 
             // run with the basic rejector
-            Assert.That(result.Single(),Is.InstanceOf<TestRejector>());
+            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
 
             // MR should...
-            var ex = Assert.Throws<Exception>(()=>f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
+            var ex = Assert.Throws<Exception>(() => f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
                     new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF")
             { Modality = "MR" })
                 .ToArray());
 
-            Assert.That(ex!.Message,Is.EqualTo("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'"));
+            Assert.That(ex!.Message, Is.EqualTo("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'"));
         }
 
 
@@ -248,7 +250,7 @@ namespace Microservices.CohortExtractor.Tests
             var ti = new TableInfo(repo, "ff");
             ti.Server = "ff";
             ti.Database = "db";
-            var ei = new ExtractionInformation(repo, ci, new ColumnInfo(repo,col,"varchar(10)",ti), col);
+            var ei = new ExtractionInformation(repo, ci, new ColumnInfo(repo, col, "varchar(10)", ti), col);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
@@ -37,7 +37,7 @@ namespace Microservices.MongoDBPopulator.Execution
             _logger.Debug("MongoDbAdapter: Creating connection to MongoDb on " + mongoDbOptions.HostName + ":" + mongoDbOptions.Port);
 
             //TODO Standardise AppId
-            MongoClient mongoClient = MongoClientHelpers.GetMongoClient(mongoDbOptions, "MongoDbPopulator::" + applicationName,string.IsNullOrWhiteSpace(mongoDbOptions.UserName));
+            MongoClient mongoClient = MongoClientHelpers.GetMongoClient(mongoDbOptions, "MongoDbPopulator::" + applicationName, string.IsNullOrWhiteSpace(mongoDbOptions.UserName));
 
             _logger.Debug("MongoDbAdapter: Getting reference to database " + mongoDbOptions.DatabaseName);
             _database = mongoClient.GetDatabase(mongoDbOptions.DatabaseName);

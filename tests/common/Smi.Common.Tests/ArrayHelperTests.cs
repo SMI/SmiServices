@@ -1,4 +1,4 @@
-﻿
+
 using DicomTypeTranslation.Helpers;
 using NUnit.Framework;
 
@@ -13,7 +13,7 @@ namespace Smi.Common.Tests
             a[0] = 10;
             a[1] = 123;
 
-            Assert.That(ArrayHelperMethods.GetStringRepresentation(a),Is.EqualTo("10\\123"));
+            Assert.That(ArrayHelperMethods.GetStringRepresentation(a), Is.EqualTo("10\\123"));
 
         }
     }

@@ -97,7 +97,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             else
                 listener.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "Flag is false for SWAP RAW=>STAGING migration strategy to INSERT INTO So won't do it"));
 
-            var procedure = new DataLoadProcess(_repositoryLocator, lmd, null, logManager, listener, execution,_configuration);
+            var procedure = new DataLoadProcess(_repositoryLocator, lmd, null, logManager, listener, execution, _configuration);
 
             ExitCodeType exitCode = procedure.Run(new GracefulCancellationToken(), payload);
 

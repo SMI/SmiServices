@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -55,9 +55,9 @@ namespace Applications.SmiRunner.Tests
                 expectedVerbName = expectedVerbName.Replace("-db-", "db-");
 
                 var verbAttribute = (VerbAttribute?)Attribute.GetCustomAttribute(t, typeof(VerbAttribute));
-                Assert.That(verbAttribute,Is.Not.Null);
+                Assert.That(verbAttribute, Is.Not.Null);
 
-                Assert.That(verbAttribute!.Name,Is.EqualTo(expectedVerbName));
+                Assert.That(verbAttribute!.Name, Is.EqualTo(expectedVerbName));
             }
         }
 

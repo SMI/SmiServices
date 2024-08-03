@@ -26,7 +26,8 @@ namespace Smi.Common.Tests
 
             using var tester = new MicroserviceTester(o.RabbitOptions!, consumerOptions);
 
-            var header = new MessageHeader {
+            var header = new MessageHeader
+            {
                 MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76"),
                 Parents = new[] { Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76") },
             };
@@ -38,7 +39,7 @@ namespace Smi.Common.Tests
 
             TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
 
-            Assert.That(consumer.Passed,Is.True);
+            Assert.That(consumer.Passed, Is.True);
         }
 
         private class TestConsumer : Consumer<TestMessage>
@@ -53,13 +54,13 @@ namespace Smi.Common.Tests
                 {
                     Assert.Multiple(() =>
                     {
-                        Assert.That(header.Parents[0].ToString(),Is.EqualTo("12345678-c270-4bf3-b327-756f6038bb76"));
-                        Assert.That(header.Parents[1].ToString(),Is.EqualTo("87654321-c270-4bf3-b327-756f6038bb76"));
-                        Assert.That(header.Parents[2].ToString(),Is.EqualTo("5afce68f-c270-4bf3-b327-756f6038bb76"));
+                        Assert.That(header.Parents[0].ToString(), Is.EqualTo("12345678-c270-4bf3-b327-756f6038bb76"));
+                        Assert.That(header.Parents[1].ToString(), Is.EqualTo("87654321-c270-4bf3-b327-756f6038bb76"));
+                        Assert.That(header.Parents[2].ToString(), Is.EqualTo("5afce68f-c270-4bf3-b327-756f6038bb76"));
                     });
 
                     Passed = true;
-                    Ack(header,tag);
+                    Ack(header, tag);
                 }
                 catch (Exception)
                 {

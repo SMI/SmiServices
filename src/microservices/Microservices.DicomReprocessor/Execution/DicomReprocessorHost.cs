@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microservices.DicomReprocessor.Execution.Processors;
@@ -66,7 +66,7 @@ namespace Microservices.DicomReprocessor.Execution
                 Logger.Warn("Nothing reprocessed");
             else
                 _processor.LogProgress();
-            
+
             if (queryTime != default)
                 Logger.Info("Average documents processed per second: " + Convert.ToInt32(_processor.TotalProcessed / queryTime.TotalSeconds));
 

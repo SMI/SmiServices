@@ -66,8 +66,8 @@ internal class AnonFailedMessageConsumerTests
         {
             // Assert
 
-            Assert.That(consumer.AckCount,Is.EqualTo(1));
-            Assert.That(consumer.NackCount,Is.EqualTo(0));
+            Assert.That(consumer.AckCount, Is.EqualTo(1));
+            Assert.That(consumer.NackCount, Is.EqualTo(0));
         });
     }
 
@@ -100,8 +100,8 @@ internal class AnonFailedMessageConsumerTests
         {
             // Assert
 
-            Assert.That(consumer.AckCount,Is.EqualTo(0));
-            Assert.That(consumer.NackCount,Is.EqualTo(1));
+            Assert.That(consumer.AckCount, Is.EqualTo(0));
+            Assert.That(consumer.NackCount, Is.EqualTo(1));
         });
     }
 

@@ -1,4 +1,4 @@
-﻿using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
+using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 using System;
 using System.IO;
 using Rdmp.Dicom.Extraction.FoDicomBased;

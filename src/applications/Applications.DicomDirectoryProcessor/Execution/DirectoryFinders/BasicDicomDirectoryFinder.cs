@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messaging;
 using System;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         /// True - Always go to bottom of directory structure
         /// False - If a directory contains dicom files do not enumerate it's subdirectories
         /// </summary>
-        public bool AlwaysSearchSubdirectories {get;set; }
+        public bool AlwaysSearchSubdirectories { get; set; }
 
         public BasicDicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
         : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel) { }
@@ -88,8 +88,8 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
                     FoundNewDicomDirectory(dir);
                     LogTime(TimeLabel.FoundNewDir);
                 }
-                
-                if(!hasDicom || AlwaysSearchSubdirectories)
+
+                if (!hasDicom || AlwaysSearchSubdirectories)
                 {
                     Logger.Debug($"Enumerating subdirectories of {dir}");
 

@@ -37,7 +37,7 @@ namespace Microservices.DicomAnonymiser.Tests
         }
 
         [OneTimeTearDown]
-        public void OneTimeTearDown() { } 
+        public void OneTimeTearDown() { }
 
         #endregion
 
@@ -187,8 +187,8 @@ namespace Microservices.DicomAnonymiser.Tests
             var statusMessage = statusMessages.Single();
             Assert.Multiple(() =>
             {
-                Assert.That(statusMessage.Status,Is.EqualTo(ExtractedFileStatus.Anonymised),statusMessage.StatusMessage);
-                Assert.That(File.Exists(expectedAnonPathAbs),Is.True);
+                Assert.That(statusMessage.Status, Is.EqualTo(ExtractedFileStatus.Anonymised), statusMessage.StatusMessage);
+                Assert.That(File.Exists(expectedAnonPathAbs), Is.True);
             });
         }
 

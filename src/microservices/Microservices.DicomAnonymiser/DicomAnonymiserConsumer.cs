@@ -1,4 +1,4 @@
-﻿using Microservices.DicomAnonymiser.Anonymisers;
+using Microservices.DicomAnonymiser.Anonymisers;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -96,9 +96,9 @@ namespace Microservices.DicomAnonymiser
             DicomFile dicomFile = DicomFile.Open(sourceFileAbs.FullName);
             message.Modality = dicomFile.Dataset.GetSingleValue<string>(DicomTag.Modality);
 
-            Console.WriteLine("[DICOM] Modality: "+message.Modality);
-            Console.WriteLine("[DICOM] Source File: "+message.DicomFilePath);
-            Console.WriteLine("[DICOM] Dest File: "+message.OutputPath);
+            Console.WriteLine("[DICOM] Modality: " + message.Modality);
+            Console.WriteLine("[DICOM] Source File: " + message.DicomFilePath);
+            Console.WriteLine("[DICOM] Dest File: " + message.OutputPath);
 
             ExtractedFileStatus anonymiserStatus = ExtractedFileStatus.None;
             string anonymiserStatusMessage = "";

@@ -1,4 +1,4 @@
-﻿using Microservices.IdentifierMapper.Execution;
+using Microservices.IdentifierMapper.Execution;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;

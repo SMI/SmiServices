@@ -36,7 +36,7 @@ namespace Smi.Common.MessageSerialization
         {
             _errors = new List<string>();
 
-            var messageObj = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(message, _serializerSettings) 
+            var messageObj = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(message, _serializerSettings)
                 ?? throw new JsonSerializationException("Deserialized message object is null, message was empty.");
 
             if (_errors.Count == 0)

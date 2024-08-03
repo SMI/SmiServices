@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using FellowOakDicom;
 using Microservices.DicomRelationalMapper.Messaging;
 using System.Collections.Generic;

@@ -41,8 +41,8 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(rejector.Reject(moqDave.Object,out string? reason),Is.False);
-                Assert.That(reason,Is.Null);
+                Assert.That(rejector.Reject(moqDave.Object, out string? reason), Is.False);
+                Assert.That(reason, Is.Null);
             });
 
             var moqFrank = new Mock<DbDataReader>();
@@ -51,8 +51,8 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(rejector.Reject(moqFrank.Object,out var reason),Is.True);
-                Assert.That(reason,Is.EqualTo("Patient or Identifier was in reject list"));
+                Assert.That(rejector.Reject(moqFrank.Object, out var reason), Is.True);
+                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
             });
 
             var moqLowerCaseFrank = new Mock<DbDataReader>();
@@ -61,8 +61,8 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(rejector.Reject(moqLowerCaseFrank.Object,out var reason),Is.True);
-                Assert.That(reason,Is.EqualTo("Patient or Identifier was in reject list"));
+                Assert.That(rejector.Reject(moqLowerCaseFrank.Object, out var reason), Is.True);
+                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
             });
         }
 

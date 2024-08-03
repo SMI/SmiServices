@@ -58,7 +58,7 @@ namespace Smi.Common.Messaging
             //TODO Understand this a bit better and investigate whether this also happens on consumer processes
 
             // Handle messages 'returned' by RabbitMQ - occurs when a messages published as persistent can't be routed to a queue
-            _model.BasicReturn += (s, a) => _logger.Warn("BasicReturn for Exchange '{0}' Routing Key '{1}' ReplyCode '{2}' ({3})",a.Exchange,a.RoutingKey,a.ReplyCode,a.ReplyText);
+            _model.BasicReturn += (s, a) => _logger.Warn("BasicReturn for Exchange '{0}' Routing Key '{1}' ReplyCode '{2}' ({3})", a.Exchange, a.RoutingKey, a.ReplyCode, a.ReplyText);
             _model.BasicReturn += (s, a) => Fatal(a);
 
             // Handle RabbitMQ putting the queue into flow control mode

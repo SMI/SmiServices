@@ -1,4 +1,4 @@
-﻿namespace Smi.Common.Helpers
+namespace Smi.Common.Helpers
 {
     /// <summary>
     /// Interface useful when testing interactive console input

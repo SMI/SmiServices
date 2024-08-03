@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Execution;
 using Smi.Common.Messages;
 using Smi.Common.Options;

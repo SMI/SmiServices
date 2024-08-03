@@ -9,7 +9,7 @@ namespace Smi.Common.Helpers
     public class MicroserviceObjectFactory
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        
+
         /// <summary>
         /// Method called when <see cref="CreateInstance{T}(System.Type,object[])"/> fails.  If not set then the Exception is simply
         /// thrown.
@@ -42,10 +42,10 @@ namespace Smi.Common.Helpers
             }
             catch (Exception e)
             {
-                _logger.Error(e,$"Failed to construct Type '{typeof(T)}'");
+                _logger.Error(e, $"Failed to construct Type '{typeof(T)}'");
 
-                if(FatalHandler != null)
-                    FatalHandler(this,new FatalErrorEventArgs($"Error constructing Type {toCreate}", e));
+                if (FatalHandler != null)
+                    FatalHandler(this, new FatalErrorEventArgs($"Error constructing Type {toCreate}", e));
                 else
                     throw;
             }

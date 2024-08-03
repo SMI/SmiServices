@@ -89,9 +89,9 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 Assert.Multiple(() =>
                 {
-                    Assert.That(_helper.SeriesTable!.GetRowCount(),Is.EqualTo(1),"SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.That(_helper.StudyTable!.GetRowCount(),Is.EqualTo(1),"StudyTable did not have the expected number of rows in LIVE");
-                    Assert.That(_helper.ImageTable!.GetRowCount(),Is.EqualTo(1),"ImageTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.SeriesTable!.GetRowCount(), Is.EqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.StudyTable!.GetRowCount(), Is.EqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
                 });
 
                 host.Stop("Test end");
@@ -146,9 +146,9 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                     Assert.Multiple(() =>
                     {
-                        Assert.That(_helper.SeriesTable!.GetRowCount(),Is.EqualTo(1),"SeriesTable did not have the expected number of rows in LIVE");
-                        Assert.That(_helper.StudyTable!.GetRowCount(),Is.EqualTo(1),"StudyTable did not have the expected number of rows in LIVE");
-                        Assert.That(_helper.ImageTable!.GetRowCount(),Is.EqualTo(1),"ImageTable did not have the expected number of rows in LIVE");
+                        Assert.That(_helper.SeriesTable!.GetRowCount(), Is.EqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                        Assert.That(_helper.StudyTable!.GetRowCount(), Is.EqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                        Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
                     });
 
                     host.Stop("Test end");
@@ -173,7 +173,7 @@ namespace Microservices.DicomRelationalMapper.Tests
             using (var g = new DicomDataGenerator(r, d.FullName, "CT"))
                 files = g.GenerateImageFiles(1, r).ToArray();
 
-            Assert.That(files,Has.Length.EqualTo(1));
+            Assert.That(files, Has.Length.EqualTo(1));
 
             var existingColumns = _helper.ImageTable!.DiscoverColumns();
 
@@ -184,7 +184,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 try
                 {
-                    dataType = TagColumnAdder.GetDataTypeForTag(tag,  MicrosoftSQLTypeTranslater.Instance);
+                    dataType = TagColumnAdder.GetDataTypeForTag(tag, MicrosoftSQLTypeTranslater.Instance);
 
                 }
                 catch (Exception)
@@ -223,9 +223,9 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                     Assert.Multiple(() =>
                     {
-                        Assert.That(_helper.SeriesTable!.GetRowCount(),Is.GreaterThanOrEqualTo(1),"SeriesTable did not have the expected number of rows in LIVE");
-                        Assert.That(_helper.StudyTable!.GetRowCount(),Is.GreaterThanOrEqualTo(1),"StudyTable did not have the expected number of rows in LIVE");
-                        Assert.That(_helper.ImageTable.GetRowCount(),Is.EqualTo(1),"ImageTable did not have the expected number of rows in LIVE");
+                        Assert.That(_helper.SeriesTable!.GetRowCount(), Is.GreaterThanOrEqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                        Assert.That(_helper.StudyTable!.GetRowCount(), Is.GreaterThanOrEqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                        Assert.That(_helper.ImageTable.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
                     });
 
                     host.Stop("Test end");
@@ -270,9 +270,9 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 Assert.Multiple(() =>
                 {
-                    Assert.That(_helper.SeriesTable!.GetRowCount(),Is.GreaterThanOrEqualTo(1),"SeriesTable did not have the expected number of rows in LIVE");
-                    Assert.That(_helper.StudyTable!.GetRowCount(),Is.GreaterThanOrEqualTo(1),"StudyTable did not have the expected number of rows in LIVE");
-                    Assert.That(_helper.ImageTable!.GetRowCount(),Is.EqualTo(1),"ImageTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.SeriesTable!.GetRowCount(), Is.GreaterThanOrEqualTo(1), "SeriesTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.StudyTable!.GetRowCount(), Is.GreaterThanOrEqualTo(1), "StudyTable did not have the expected number of rows in LIVE");
+                    Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(1), "ImageTable did not have the expected number of rows in LIVE");
                 });
 
                 host.Stop("Test end");

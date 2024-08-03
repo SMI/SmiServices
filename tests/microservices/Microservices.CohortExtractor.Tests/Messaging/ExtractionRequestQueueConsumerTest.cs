@@ -121,9 +121,9 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             consumer.TestMessage(msg);
 
             Thread.Sleep(500); // Fatal call is race-y
-            Assert.That(fatalCalled,Is.False, $"Fatal was called with {fatalErrorEventArgs}");
+            Assert.That(fatalCalled, Is.False, $"Fatal was called with {fatalErrorEventArgs}");
             mockModel.Verify(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()), Times.Once);
-            Assert.That(fileMessageRoutingKey,Is.EqualTo(expectedRoutingKey));
+            Assert.That(fileMessageRoutingKey, Is.EqualTo(expectedRoutingKey));
         }
 
         #endregion

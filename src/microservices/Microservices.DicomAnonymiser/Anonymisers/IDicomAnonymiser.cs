@@ -1,4 +1,4 @@
-﻿using Smi.Common.Messages.Extraction;
+using Smi.Common.Messages.Extraction;
 using System.IO.Abstractions;
 
 namespace Microservices.DicomAnonymiser.Anonymisers

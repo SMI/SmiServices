@@ -1,4 +1,4 @@
-﻿using Microservices.DicomReprocessor.Execution;
+using Microservices.DicomReprocessor.Execution;
 using Microservices.DicomReprocessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;

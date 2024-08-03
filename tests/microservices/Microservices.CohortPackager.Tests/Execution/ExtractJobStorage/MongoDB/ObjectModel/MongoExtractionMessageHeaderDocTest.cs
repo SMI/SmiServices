@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using NUnit.Framework;
@@ -36,7 +36,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExtractionMessageHeaderDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExtractionMessageHeaderDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 dateTimeProvider.UtcNow()
             );
 
-            Assert.That(doc,Is.EqualTo(expected));
+            Assert.That(doc, Is.EqualTo(expected));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
             var doc2 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
 
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
             var doc2 = new MongoExtractionMessageHeaderDoc(guid, guid, "Test1", 123, now, "parents", now);
 
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

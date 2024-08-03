@@ -91,7 +91,7 @@ internal class JobReporterTests
         {
             Assert.That(
                 _mockFileSystem.File.ReadAllText(readmePath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     $"# SMI extraction validation report for 1234-5678 test-1",
                     $"",
@@ -111,7 +111,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(verificationFailuresPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
                     "",
@@ -119,7 +119,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(processingErrorsPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "DicomFilePath,Reason",
                     ""
@@ -127,7 +127,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(rejectedFilesPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "ExtractionKey,Count,Reason",
                     ""
@@ -190,7 +190,7 @@ internal class JobReporterTests
         {
             Assert.That(
                 _mockFileSystem.File.ReadAllText(readmePath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     $"# SMI extraction validation report for 1234-5678 test-1",
                     $"",
@@ -210,7 +210,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(verificationFailuresPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
                     "1/2/3-an.dcm,1.2.3.4,ScanOptions,FOO,FOO,Person,0",
@@ -219,7 +219,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(processingErrorsPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "DicomFilePath,Reason",
                     "1/2/missing.dcm,Missing",
@@ -229,7 +229,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(rejectedFilesPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "ExtractionKey,Count,Reason",
                     "1.2.3.4,123,Some error",
@@ -267,7 +267,7 @@ internal class JobReporterTests
         {
             Assert.That(
                 _mockFileSystem.File.ReadAllText(readmePath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     $"# SMI extraction validation report for 1234-5678 test-1",
                     $"",
@@ -287,7 +287,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(processingErrorsPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "DicomFilePath,Reason",
                     ""
@@ -295,7 +295,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(rejectedFilesPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "ExtractionKey,Count,Reason",
                     ""
@@ -345,7 +345,7 @@ internal class JobReporterTests
         {
             Assert.That(
                 _mockFileSystem.File.ReadAllText(readmePath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     $"# SMI extraction validation report for 1234-5678 test-1",
                     $"",
@@ -365,7 +365,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(processingErrorsPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "DicomFilePath,Reason",
                     "1/2/missing.dcm,Missing",
@@ -374,7 +374,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(rejectedFilesPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "ExtractionKey,Count,Reason",
                     "1.2.3.4,123,Some error",
@@ -415,7 +415,7 @@ internal class JobReporterTests
         {
             Assert.That(
                 _mockFileSystem.File.ReadAllText(readmePath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     $"# SMI extraction validation report for 1234-5678 test-1",
                     $"",
@@ -435,7 +435,7 @@ internal class JobReporterTests
 
             Assert.That(
                _mockFileSystem.File.ReadAllText(verificationFailuresPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                {
                     "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
                     "",
@@ -443,7 +443,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(processingErrorsPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "DicomFilePath,Reason",
                     ""
@@ -451,7 +451,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(rejectedFilesPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "ExtractionKey,Count,Reason",
                     ""
@@ -514,7 +514,7 @@ internal class JobReporterTests
         {
             Assert.That(
                 _mockFileSystem.File.ReadAllText(readmePath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     $"# SMI extraction validation report for 1234-5678 test-1",
                     $"",
@@ -534,7 +534,7 @@ internal class JobReporterTests
 
             Assert.That(
                _mockFileSystem.File.ReadAllText(verificationFailuresPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
                     "1/2/3-an.dcm,1.2.3.4,ScanOptions,FOO,FOO,Person,0",
@@ -543,7 +543,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(processingErrorsPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "DicomFilePath,Reason",
                     "1/2/missing.dcm,Missing",
@@ -553,7 +553,7 @@ internal class JobReporterTests
 
             Assert.That(
                 _mockFileSystem.File.ReadAllText(rejectedFilesPath)
-,Is.EqualTo(string.Join(_newLine, new List<string>
+, Is.EqualTo(string.Join(_newLine, new List<string>
                 {
                     "ExtractionKey,Count,Reason",
                     "1.2.3.4,123,Some error",
@@ -588,7 +588,7 @@ internal class JobReporterTests
             _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1", "README.md")
         );
 
-        Assert.That(readmeText,Does.EndWith(Environment.NewLine));
+        Assert.That(readmeText, Does.EndWith(Environment.NewLine));
     }
 
     [Test]
@@ -605,7 +605,7 @@ internal class JobReporterTests
         // Assert
 
         var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
-        Assert.That(exc!.Message,Is.EqualTo("Must be a Unix or Windows newline (Parameter 'reportNewLine')"));
+        Assert.That(exc!.Message, Is.EqualTo("Must be a Unix or Windows newline (Parameter 'reportNewLine')"));
     }
 
     [Test]
@@ -623,7 +623,7 @@ internal class JobReporterTests
         // Assert
 
         var exc = Assert.Throws<ArgumentException>(() => constructor());
-        Assert.That(exc!.Message,Is.EqualTo("Path must be rooted (Parameter 'extractionRoot')"));
+        Assert.That(exc!.Message, Is.EqualTo("Path must be rooted (Parameter 'extractionRoot')"));
     }
 
     [Test]
@@ -641,7 +641,7 @@ internal class JobReporterTests
         // Assert
 
         var exc = Assert.Throws<ArgumentOutOfRangeException>(call);
-        Assert.That(exc!.Message,Is.EqualTo("Must provide a non-zero jobId (Parameter 'jobId')"));
+        Assert.That(exc!.Message, Is.EqualTo("Must provide a non-zero jobId (Parameter 'jobId')"));
     }
 
     [Test]
@@ -666,7 +666,7 @@ internal class JobReporterTests
         // Assert
 
         var exc = Assert.Throws<ApplicationException>(call);
-        Assert.That(exc!.Message,Is.EqualTo($"Job reports directory already exists: {directoryInfo.FullName}"));
+        Assert.That(exc!.Message, Is.EqualTo($"Job reports directory already exists: {directoryInfo.FullName}"));
     }
 
     [Test]
@@ -697,6 +697,6 @@ internal class JobReporterTests
         // Assert
 
         var exc = Assert.Throws<ApplicationException>(call);
-        Assert.That(exc!.Message,Is.EqualTo("Could not deserialize report content for 1/2/3-an.dcm"));
+        Assert.That(exc!.Message, Is.EqualTo("Could not deserialize report content for 1/2/3-an.dcm"));
     }
 }

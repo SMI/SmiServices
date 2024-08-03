@@ -1,4 +1,4 @@
-﻿
+
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -15,14 +15,14 @@ namespace Smi.Common.Tests
             var msg1 = new AccessionDirectoryMessage();
             var msg2 = new AccessionDirectoryMessage();
 
-            Assert.That(msg2,Is.EqualTo(msg1));
-            Assert.That(msg2.GetHashCode(),Is.EqualTo(msg1.GetHashCode()));
+            Assert.That(msg2, Is.EqualTo(msg1));
+            Assert.That(msg2.GetHashCode(), Is.EqualTo(msg1.GetHashCode()));
 
             msg1.DirectoryPath = @"c:\temp";
             msg2.DirectoryPath = @"c:\temp";
 
-            Assert.That(msg2,Is.EqualTo(msg1));
-            Assert.That(msg2.GetHashCode(),Is.EqualTo(msg1.GetHashCode()));
+            Assert.That(msg2, Is.EqualTo(msg1));
+            Assert.That(msg2.GetHashCode(), Is.EqualTo(msg1.GetHashCode()));
         }
 
         [Test]
@@ -31,14 +31,14 @@ namespace Smi.Common.Tests
             var msg1 = new DicomFileMessage();
             var msg2 = new DicomFileMessage();
 
-            Assert.That(msg2,Is.EqualTo(msg1));
-            Assert.That(msg2.GetHashCode(),Is.EqualTo(msg1.GetHashCode()));
+            Assert.That(msg2, Is.EqualTo(msg1));
+            Assert.That(msg2.GetHashCode(), Is.EqualTo(msg1.GetHashCode()));
 
             msg1.DicomDataset = "jsonified string";
             msg2.DicomDataset = "jsonified string";
 
-            Assert.That(msg2,Is.EqualTo(msg1));
-            Assert.That(msg2.GetHashCode(),Is.EqualTo(msg1.GetHashCode()));
+            Assert.That(msg2, Is.EqualTo(msg1));
+            Assert.That(msg2.GetHashCode(), Is.EqualTo(msg1.GetHashCode()));
         }
 
         [Test]
@@ -47,14 +47,14 @@ namespace Smi.Common.Tests
             var msg1 = new SeriesMessage();
             var msg2 = new SeriesMessage();
 
-            Assert.That(msg2,Is.EqualTo(msg1));
-            Assert.That(msg2.GetHashCode(),Is.EqualTo(msg1.GetHashCode()));
+            Assert.That(msg2, Is.EqualTo(msg1));
+            Assert.That(msg2.GetHashCode(), Is.EqualTo(msg1.GetHashCode()));
 
             msg1.DicomDataset = "jsonified string";
             msg2.DicomDataset = "jsonified string";
 
-            Assert.That(msg2,Is.EqualTo(msg1));
-            Assert.That(msg2.GetHashCode(),Is.EqualTo(msg1.GetHashCode()));
+            Assert.That(msg2, Is.EqualTo(msg1));
+            Assert.That(msg2.GetHashCode(), Is.EqualTo(msg1.GetHashCode()));
         }
 
 
@@ -84,8 +84,8 @@ namespace Smi.Common.Tests
                 IsIdentifiableExtraction = true,
             };
 
-            Assert.That(msg2,Is.EqualTo(msg1));
-            Assert.That(msg2.GetHashCode(),Is.EqualTo(msg1.GetHashCode()));
+            Assert.That(msg2, Is.EqualTo(msg1));
+            Assert.That(msg2.GetHashCode(), Is.EqualTo(msg1.GetHashCode()));
         }
     }
 }

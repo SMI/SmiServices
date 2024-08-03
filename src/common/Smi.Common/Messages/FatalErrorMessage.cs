@@ -1,4 +1,4 @@
-﻿
+
 using Equ;
 using Newtonsoft.Json;
 using System;

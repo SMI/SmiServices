@@ -45,7 +45,7 @@ namespace Smi.Common.MongoDB.Tests
                 }}
             };
 
-            Assert.That(bsonImageHeader,Is.EqualTo(expected));
+            Assert.That(bsonImageHeader, Is.EqualTo(expected));
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace Smi.Common.MongoDB.Tests
                 { "ImagesInSeries",              msg.ImagesInSeries }
             };
 
-            Assert.That(seriesHeader,Is.EqualTo(expected));
+            Assert.That(seriesHeader, Is.EqualTo(expected));
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace Smi.Common.MongoDB.Tests
             BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
             IMessageHeader rebuiltHeader = MongoDocumentHeaders.RebuildMessageHeader(bsonImageHeader["MessageHeader"].AsBsonDocument);
 
-            Assert.That(rebuiltHeader,Is.EqualTo(header));
+            Assert.That(rebuiltHeader, Is.EqualTo(header));
         }
     }
 }

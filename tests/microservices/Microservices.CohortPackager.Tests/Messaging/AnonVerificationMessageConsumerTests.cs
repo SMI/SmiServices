@@ -106,8 +106,8 @@ internal class AnonVerificationMessageConsumerTests
         {
             // Assert
 
-            Assert.That(consumer.AckCount,Is.EqualTo(0));
-            Assert.That(consumer.NackCount,Is.EqualTo(1));
+            Assert.That(consumer.AckCount, Is.EqualTo(0));
+            Assert.That(consumer.NackCount, Is.EqualTo(1));
         });
     }
 
@@ -133,8 +133,8 @@ internal class AnonVerificationMessageConsumerTests
         {
             // Assert
 
-            Assert.That(consumer.AckCount,Is.EqualTo(0));
-            Assert.That(consumer.NackCount,Is.EqualTo(1));
+            Assert.That(consumer.AckCount, Is.EqualTo(0));
+            Assert.That(consumer.NackCount, Is.EqualTo(1));
         });
     }
 
@@ -156,8 +156,8 @@ internal class AnonVerificationMessageConsumerTests
         {
             // Assert
 
-            Assert.That(_writeQueueCount,Is.EqualTo(1));
-            Assert.That(consumer.AckCount,Is.EqualTo(0));
+            Assert.That(_writeQueueCount, Is.EqualTo(1));
+            Assert.That(consumer.AckCount, Is.EqualTo(0));
         });
 
         // Act
@@ -168,8 +168,8 @@ internal class AnonVerificationMessageConsumerTests
         {
             // Assert
 
-            Assert.That(_writeQueueCount,Is.EqualTo(0));
-            Assert.That(consumer.AckCount,Is.EqualTo(2));
+            Assert.That(_writeQueueCount, Is.EqualTo(0));
+            Assert.That(consumer.AckCount, Is.EqualTo(2));
         });
     }
 
@@ -193,8 +193,8 @@ internal class AnonVerificationMessageConsumerTests
         {
             // Assert
 
-            Assert.That(_writeQueueCount,Is.EqualTo(0));
-            Assert.That(consumer.AckCount,Is.EqualTo(1));
+            Assert.That(_writeQueueCount, Is.EqualTo(0));
+            Assert.That(consumer.AckCount, Is.EqualTo(1));
         });
     }
 
@@ -228,8 +228,8 @@ internal class AnonVerificationMessageConsumerTests
         {
             // Assert
 
-            Assert.That(hasThrown,Is.True);
-            Assert.That(_writeQueueCount,Is.EqualTo(1));
+            Assert.That(hasThrown, Is.True);
+            Assert.That(_writeQueueCount, Is.EqualTo(1));
         });
     }
 
@@ -256,7 +256,7 @@ internal class AnonVerificationMessageConsumerTests
 
         // Assert
 
-        Assert.That(timesCalled,Is.EqualTo(1));
+        Assert.That(timesCalled, Is.EqualTo(1));
     }
 
     [Test]

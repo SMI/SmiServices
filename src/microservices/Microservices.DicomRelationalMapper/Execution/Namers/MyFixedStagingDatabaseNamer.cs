@@ -1,4 +1,4 @@
-﻿using Rdmp.Core.Curation.Data.EntityNaming;
+using Rdmp.Core.Curation.Data.EntityNaming;
 using System;
 
 namespace Microservices.DicomRelationalMapper.Execution.Namers
@@ -6,7 +6,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
     public class MyFixedStagingDatabaseNamer : FixedStagingDatabaseNamer
     {
         //all injectable constructors must match
-        public MyFixedStagingDatabaseNamer(string databaseName, Guid someGuid): base(databaseName)
+        public MyFixedStagingDatabaseNamer(string databaseName, Guid someGuid) : base(databaseName)
         {
         }
     }

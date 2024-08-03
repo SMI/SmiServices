@@ -26,7 +26,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
                 throw new ArgumentNullException(nameof(globalOptions.LoggingOptions));
 
             _options = globalOptions.DicomAnonymiserOptions;
-            
+
             // TODO (da 2024-02-23) Review if LoggingOptions is needed
             _loggingOptions = globalOptions.LoggingOptions;
         }
@@ -66,7 +66,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
 
             return CreateProcess("java", arguments);
         }
-        
+
         private Process CreatePixelAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string activateCommand = $"source {_options.VirtualEnvPath}/bin/activate";
@@ -115,7 +115,7 @@ namespace Microservices.DicomAnonymiser.Anonymisers
             }
 
             anonymiserStatusMessage = "Anonymisation successful";
-        return ExtractedFileStatus.Anonymised;
+            return ExtractedFileStatus.Anonymised;
         }
 
         /// <summary>

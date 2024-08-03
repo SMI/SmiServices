@@ -1,4 +1,4 @@
-﻿
+
 using RabbitMQ.Client;
 using Smi.Common.Execution;
 using Smi.Common.Messages;

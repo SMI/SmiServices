@@ -1,4 +1,4 @@
-﻿using NLog.Config;
+using NLog.Config;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;

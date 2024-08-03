@@ -1,4 +1,4 @@
-﻿using Applications.DicomDirectoryProcessor.Execution;
+using Applications.DicomDirectoryProcessor.Execution;
 using Applications.DicomDirectoryProcessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;

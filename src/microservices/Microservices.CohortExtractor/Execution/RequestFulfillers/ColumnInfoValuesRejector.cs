@@ -13,7 +13,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
     public class ColumnInfoValuesRejector : ColumnValuesRejector
     {
 
-        public ColumnInfoValuesRejector(ColumnInfo columnInfo) : base(columnInfo.GetRuntimeName(),FetchTable(columnInfo))
+        public ColumnInfoValuesRejector(ColumnInfo columnInfo) : base(columnInfo.GetRuntimeName(), FetchTable(columnInfo))
         {
 
         }

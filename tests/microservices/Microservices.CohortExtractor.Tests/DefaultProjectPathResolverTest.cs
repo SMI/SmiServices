@@ -57,7 +57,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
                     study ?? "unknown",
                     series ?? "unknown",
                     "foo-an.dcm")));
@@ -78,7 +78,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
                     "study",
                     "series",
                     expectedOutput)));
@@ -96,7 +96,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
                     "study",
                     "unknown",
                     "file-an.dcm")));
@@ -119,7 +119,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, requestMessage),Is.EqualTo(Path.Combine(
+                new DefaultProjectPathResolver().GetOutputPath(result, requestMessage), Is.EqualTo(Path.Combine(
                     "study",
                     "unknown",
                     "file.dcm")));
@@ -140,7 +140,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage),Is.EqualTo(Path.Combine(
+                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
                     study?.TrimStart('.') ?? "unknown",
                     series?.TrimStart('.') ?? "unknown",
                     "foo-an.dcm")));

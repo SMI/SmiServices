@@ -43,7 +43,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         #endregion
 
         #region Tests
-        
+
         [Test]
         public void Test_MongoExtractJobDoc_CopyConstructor()
         {
@@ -65,7 +65,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             );
             var copied = new MongoExtractJobDoc(original);
 
-            Assert.That(copied,Is.EqualTo(original));
+            Assert.That(copied, Is.EqualTo(original));
         }
 
 
@@ -73,7 +73,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExtractJobDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExtractJobDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 isNoFilterExtraction: true,
                 null);
 
-            Assert.That(doc,Is.EqualTo(expected));
+            Assert.That(doc, Is.EqualTo(expected));
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
     failedJobInfo: null
 }";
             var mongoExtractJobDoc = BsonSerializer.Deserialize<MongoExtractJobDoc>(BsonDocument.Parse(jsonDoc));
-            Assert.That(mongoExtractJobDoc.UserName,Is.Null);
+            Assert.That(mongoExtractJobDoc.UserName, Is.Null);
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 isNoFilterExtraction: true,
                 failedInfoDoc);
 
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -216,14 +216,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 isNoFilterExtraction: true,
                 null);
 
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
 
         [Test]
         public void TestMongoFailedJobInfoDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoFailedJobInfoDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -234,7 +234,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoFailedJobInfoDoc(exception, _dateTimeProvider);
             var doc2 = new MongoFailedJobInfoDoc(exception, _dateTimeProvider);
 
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -245,7 +245,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoFailedJobInfoDoc(exception, _dateTimeProvider);
             var doc2 = new MongoFailedJobInfoDoc(exception, _dateTimeProvider);
 
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

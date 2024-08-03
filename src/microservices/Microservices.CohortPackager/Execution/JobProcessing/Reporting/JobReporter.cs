@@ -88,7 +88,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 
             WriteRejectedFilesCsv(completedJobInfo, jobReportsDirAbsolute);
 
-            if (WriteProcessingErrorsCsv(completedJobInfo,jobReportsDirAbsolute))
+            if (WriteProcessingErrorsCsv(completedJobInfo, jobReportsDirAbsolute))
                 _logger.Warn($"Job {jobId} had errors during proecssing. Check {PROCESSING_ERRORS_FILE_NAME}");
 
             if (!completedJobInfo.IsIdentifiableExtraction)

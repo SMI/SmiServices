@@ -22,7 +22,7 @@ namespace Smi.Common.Options
             else
                 _decorators.Add(new EnvironmentVariableDecorator());
         }
-        
+
         /// <summary>
         /// Loads and decorates a GlobalOptions object from the specified YAML config file
         /// </summary>
@@ -48,7 +48,7 @@ namespace Smi.Common.Options
                 throw new Exception($"Loaded YAML did not contain a {nameof(globals.LoggingOptions)} key. Did you provide a valid config file?");
 
             globals.HostProcessName = hostProcessName;
-            
+
             return Decorate(globals);
         }
 
@@ -74,7 +74,7 @@ namespace Smi.Common.Options
         public GlobalOptions Load(string hostProcessName, CliOptions cliOptions)
         {
             GlobalOptions globalOptions = Load(hostProcessName, cliOptions.YamlFile);
-            
+
             // The above Load call does the decoration - don't do it here.
             return globalOptions;
         }

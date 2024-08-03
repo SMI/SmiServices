@@ -55,12 +55,12 @@ namespace Smi.Common.Tests.Messages
             {
                 // Test all the various flavours of equality
 
-                Assert.That(h2,Is.EqualTo(h1));
-                Assert.That(h1,Is.EqualTo(h2));
+                Assert.That(h2, Is.EqualTo(h1));
+                Assert.That(h1, Is.EqualTo(h2));
 
-                Assert.That(h3,Is.Not.EqualTo(h1));
+                Assert.That(h3, Is.Not.EqualTo(h1));
             });
-            Assert.That(h1,Is.Not.EqualTo(h3));
+            Assert.That(h1, Is.Not.EqualTo(h3));
         }
 
         [Test]
@@ -69,8 +69,8 @@ namespace Smi.Common.Tests.Messages
             var h1 = new MessageHeader(_testProps);
             var h2 = new MessageHeader(_testProps);
             // "A hash function must have the following properties: - If two objects compare as equal, the GetHashCode() method for each object must return the same value"
-            Assert.That(h2,Is.EqualTo(h1));
-            Assert.That(h2.GetHashCode(),Is.EqualTo(h1.GetHashCode()));
+            Assert.That(h2, Is.EqualTo(h1));
+            Assert.That(h2.GetHashCode(), Is.EqualTo(h1.GetHashCode()));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
 
 namespace Smi.Common.Tests.Messages
@@ -43,8 +43,8 @@ namespace Smi.Common.Tests.Messages
 
             Assert.Multiple(() =>
             {
-                Assert.That(statusMessage.DicomFilePath,Is.EqualTo("foo.dcm"));
-                Assert.That(statusMessage.OutputFilePath,Is.EqualTo("foo-an.dcm"));
+                Assert.That(statusMessage.DicomFilePath, Is.EqualTo("foo.dcm"));
+                Assert.That(statusMessage.OutputFilePath, Is.EqualTo("foo-an.dcm"));
             });
         }
 

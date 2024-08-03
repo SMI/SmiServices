@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.MongoDBPopulator.Execution.Processing;
 using Smi.Common.Messaging;
 using Smi.Common.Options;

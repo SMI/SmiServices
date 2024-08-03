@@ -14,7 +14,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 {
     internal class MigrateRawToStagingWithSelectIntoStatements : DataLoadComponent
     {
-        
+
         public override ExitCodeType Run(IDataLoadJob job, GracefulCancellationToken cancellationToken)
         {
             if (Skip(job))
@@ -30,13 +30,13 @@ namespace Microservices.DicomRelationalMapper.Execution
             {
                 var stagingDbName = table.GetDatabaseRuntimeName(LoadStage.AdjustStaging, namer);
                 var stagingTableName = table.GetRuntimeName(LoadStage.AdjustStaging, namer);
-                
+
                 var stagingDb = server.ExpectDatabase(stagingDbName);
                 var stagingTable = stagingDb.ExpectTable(stagingTableName);
 
                 if (stagingDb.Exists() && stagingTable.Exists())
                 {
-                    job.OnNotify(this,new NotifyEventArgs(ProgressEventType.Information,$"Dropping existing STAGING table remnant {stagingTable.GetFullyQualifiedName()}"));
+                    job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, $"Dropping existing STAGING table remnant {stagingTable.GetFullyQualifiedName()}"));
                     stagingTable.Drop();
                 }
             }
@@ -70,7 +70,7 @@ namespace Microservices.DicomRelationalMapper.Execution
                 var sql = string.Format(@"INSERT INTO {1}({2}) SELECT DISTINCT {2} FROM {0}",
                     syntaxHelper.EnsureFullyQualified(fromDb, null, fromTable),
                     syntaxHelper.EnsureFullyQualified(toDb, null, toTable),
-                    string.Join(",",commonColumns.Select(c=>syntaxHelper.EnsureWrapped(c))));
+                    string.Join(",", commonColumns.Select(c => syntaxHelper.EnsureWrapped(c))));
 
                 job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "About to send SQL:" + sql));
 
@@ -88,7 +88,7 @@ namespace Microservices.DicomRelationalMapper.Execution
             }
 
             sw.Stop();
-                
+
             job.OnNotify(this, new NotifyEventArgs(ProgressEventType.Information, "Migrated all rows using INSERT INTO in " + sw.ElapsedMilliseconds + "ms"));
             return ExitCodeType.Success;
         }

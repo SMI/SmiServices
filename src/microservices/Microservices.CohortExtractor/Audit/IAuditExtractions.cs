@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortExtractor.Execution;
 using Rdmp.Core.Curation.Data;
 using Smi.Common.Messages.Extraction;

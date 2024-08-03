@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
 using MongoDB.Bson;
@@ -47,14 +47,14 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             var processor = new TestMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter, 1, exceptionCallback);
 
-            Assert.That(processor.IsStopping,Is.False);
+            Assert.That(processor.IsStopping, Is.False);
 
             Thread.Sleep((_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000) + 100);
 
             Assert.Multiple(() =>
             {
-                Assert.That(callbackUsed,Is.True);
-                Assert.That(processor.IsStopping,Is.True);
+                Assert.That(callbackUsed, Is.True);
+                Assert.That(processor.IsStopping, Is.True);
             });
         }
 

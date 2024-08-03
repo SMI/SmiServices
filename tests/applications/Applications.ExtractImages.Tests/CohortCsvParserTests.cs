@@ -52,8 +52,8 @@ namespace Applications.ExtractImages.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
-                Assert.That(extractionKey,Is.EqualTo(expectedExtractionKey));
+                Assert.That(ids, Is.EqualTo(new List<string> { "1.2.3.4" }));
+                Assert.That(extractionKey, Is.EqualTo(expectedExtractionKey));
             });
         }
 
@@ -72,8 +72,8 @@ namespace Applications.ExtractImages.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4","5.6.7.8" }));
+                Assert.That(extractionKey, Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids, Is.EqualTo(new List<string> { "1.2.3.4", "5.6.7.8" }));
             });
         }
 
@@ -92,8 +92,8 @@ namespace Applications.ExtractImages.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4","5.6.7.8" }));
+                Assert.That(extractionKey, Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids, Is.EqualTo(new List<string> { "1.2.3.4", "5.6.7.8" }));
             });
         }
 
@@ -112,8 +112,8 @@ namespace Applications.ExtractImages.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+                Assert.That(extractionKey, Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids, Is.EqualTo(new List<string> { "1.2.3.4" }));
             });
         }
 
@@ -132,8 +132,8 @@ namespace Applications.ExtractImages.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(extractionKey,Is.EqualTo(ExtractionKey.StudyInstanceUID));
-                Assert.That(ids,Is.EqualTo(new List<string> { "1.2.3.4" }));
+                Assert.That(extractionKey, Is.EqualTo(ExtractionKey.StudyInstanceUID));
+                Assert.That(ids, Is.EqualTo(new List<string> { "1.2.3.4" }));
             });
         }
 
@@ -150,7 +150,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.That(exc!.Message,Is.EqualTo("CSV is empty"));
+            Assert.That(exc!.Message, Is.EqualTo("CSV is empty"));
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.That(exc!.Message,Does.StartWith("CSV header must be a valid ExtractionKey"));
+            Assert.That(exc!.Message, Does.StartWith("CSV header must be a valid ExtractionKey"));
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.That(exc!.Message,Is.EqualTo("CSV must have exactly 1 column"));
+            Assert.That(exc!.Message, Is.EqualTo("CSV must have exactly 1 column"));
         }
 
         [Test]
@@ -198,7 +198,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.That(exc!.Message,Is.EqualTo("CSV must have exactly 1 column"));
+            Assert.That(exc!.Message, Is.EqualTo("CSV must have exactly 1 column"));
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace Applications.ExtractImages.Tests
             var parser = new CohortCsvParser(fs);
 
             var exc = Assert.Throws<ApplicationException>(() => parser.Parse("foo.csv"));
-            Assert.That(exc!.Message,Is.EqualTo("No records in the cohort CSV"));
+            Assert.That(exc!.Message, Is.EqualTo("No records in the cohort CSV"));
         }
 
         #endregion

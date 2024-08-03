@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -58,7 +58,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                     }
                 );
             });
-            Assert.That(exc!.Message,Is.EqualTo("Dict contains key(s) with a zero count: bar,baz"));
+            Assert.That(exc!.Message, Is.EqualTo("Dict contains key(s) with a zero count: bar,baz"));
         }
 
         #endregion

@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using FAnsi;
 using MongoDB.Driver;
 using RabbitMQ.Client;

@@ -1,4 +1,4 @@
-﻿using Equ;
+using Equ;
 
 namespace Smi.Common.Options
 {

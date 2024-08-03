@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Smi.Common.Options
 {
@@ -24,7 +24,7 @@ namespace Smi.Common.Options
 
         public string[] GetModalities()
         {
-            return string.IsNullOrWhiteSpace(Modalities) ? Array.Empty<string>() : Modalities.Split(new[] { ',' },StringSplitOptions.RemoveEmptyEntries);
+            return string.IsNullOrWhiteSpace(Modalities) ? Array.Empty<string>() : Modalities.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
     }

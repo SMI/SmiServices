@@ -23,12 +23,12 @@ namespace Smi.Common.Tests
         /// <returns></returns>
         public static FileInfo Create(FileInfo fileInfo, string? testFile = null)
         {
-            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, testFile??IMG_013);
+            var from = Path.Combine(TestContext.CurrentContext.TestDirectory, testFile ?? IMG_013);
 
-            if(!fileInfo.Directory!.Exists)
+            if (!fileInfo.Directory!.Exists)
                 fileInfo.Directory.Create();
 
-            File.Copy(from,fileInfo.FullName,true);
+            File.Copy(from, fileInfo.FullName, true);
 
             return fileInfo;
         }

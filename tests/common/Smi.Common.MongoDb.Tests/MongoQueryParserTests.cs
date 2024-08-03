@@ -1,4 +1,4 @@
-﻿
+
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
@@ -64,8 +64,8 @@ namespace Smi.Common.MongoDB.Tests
             t.Wait(1_000);
             Assert.Multiple(() =>
             {
-                Assert.That(t.IsCompleted,Is.True);
-                Assert.That(t.IsFaulted,Is.False);
+                Assert.That(t.IsCompleted, Is.True);
+                Assert.That(t.IsFaulted, Is.False);
             });
 
             using IAsyncCursor<BsonDocument> _ = t.Result;
@@ -73,8 +73,8 @@ namespace Smi.Common.MongoDB.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(findOptions.Skip,Is.EqualTo(expectedSkip));
-                Assert.That(findOptions.Limit,Is.EqualTo(expectedLimit));
+                Assert.That(findOptions.Skip, Is.EqualTo(expectedSkip));
+                Assert.That(findOptions.Limit, Is.EqualTo(expectedLimit));
             });
         }
 

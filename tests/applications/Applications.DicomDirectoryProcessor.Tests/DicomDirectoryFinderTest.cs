@@ -1,4 +1,4 @@
-﻿
+
 using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
 using NUnit.Framework;

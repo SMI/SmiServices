@@ -13,7 +13,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers.Dynamic
         private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
 
         public DynamicRejector()
-            : this(null) {}
+            : this(null) { }
 
         public DynamicRejector(string? dynamicRulesPath, IFileSystem? fileSystem = null)
         {

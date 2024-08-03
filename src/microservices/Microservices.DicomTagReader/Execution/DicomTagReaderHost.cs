@@ -53,7 +53,7 @@ namespace Microservices.DicomTagReader.Execution
             };
 
             // Setup our consumer
-            AccessionDirectoryMessageConsumer = new DicomTagReaderConsumer(_tagReader,options);
+            AccessionDirectoryMessageConsumer = new DicomTagReaderConsumer(_tagReader, options);
         }
 
         public override void Start()

@@ -14,7 +14,7 @@ namespace Microservices.CohortExtractor.Tests
         [Test]
         public void Test_ColumnValuesRejector_MissingColumn_Throws()
         {
-            var rejector = new ColumnValuesRejector("fff",new HashSet<string>{ "dave","frank"});
+            var rejector = new ColumnValuesRejector("fff", new HashSet<string> { "dave", "frank" });
 
             var moqDave = new Mock<DbDataReader>();
             moqDave
@@ -22,13 +22,13 @@ namespace Microservices.CohortExtractor.Tests
                 .Throws<IndexOutOfRangeException>();
 
             var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out var _));
-            Assert.That(exc!.Message,Does.Contain($"Expected a column called fff"));
+            Assert.That(exc!.Message, Does.Contain($"Expected a column called fff"));
         }
 
         [Test]
         public void Test_ColumnValuesRejectorTests()
         {
-            var rejector = new ColumnValuesRejector(PatColName,new HashSet<string>(new []{ "Frank","Peter","David"},StringComparer.CurrentCultureIgnoreCase));
+            var rejector = new ColumnValuesRejector(PatColName, new HashSet<string>(new[] { "Frank", "Peter", "David" }, StringComparer.CurrentCultureIgnoreCase));
 
             var moqDave = new Mock<DbDataReader>();
             moqDave.Setup(x => x[PatColName])
@@ -36,8 +36,8 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(rejector.Reject(moqDave.Object,out string? reason),Is.False);
-                Assert.That(reason,Is.Null);
+                Assert.That(rejector.Reject(moqDave.Object, out string? reason), Is.False);
+                Assert.That(reason, Is.Null);
             });
 
             var moqFrank = new Mock<DbDataReader>();
@@ -46,8 +46,8 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(rejector.Reject(moqFrank.Object,out var reason),Is.True);
-                Assert.That(reason,Is.EqualTo("Patient or Identifier was in reject list"));
+                Assert.That(rejector.Reject(moqFrank.Object, out var reason), Is.True);
+                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
             });
 
             var moqLowerCaseFrank = new Mock<DbDataReader>();
@@ -56,8 +56,8 @@ namespace Microservices.CohortExtractor.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(rejector.Reject(moqLowerCaseFrank.Object,out var reason),Is.True);
-                Assert.That(reason,Is.EqualTo("Patient or Identifier was in reject list"));
+                Assert.That(rejector.Reject(moqLowerCaseFrank.Object, out var reason), Is.True);
+                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
             });
         }
     }

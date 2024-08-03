@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;

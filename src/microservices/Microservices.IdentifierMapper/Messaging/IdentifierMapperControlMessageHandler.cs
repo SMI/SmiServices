@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.IdentifierMapper.Execution.Swappers;
 using NLog;
 using Smi.Common.Messaging;
