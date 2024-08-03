@@ -10,8 +10,9 @@ using Rdmp.Core.ReusableLibraryCode;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
 using Terminal.Gui;
+using Setup;
 
-namespace Setup;
+namespace SmiServices.Applications.Setup;
 public class Program
 {
     class SetupOptions

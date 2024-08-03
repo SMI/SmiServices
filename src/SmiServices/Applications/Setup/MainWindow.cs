@@ -10,9 +10,11 @@
 //      You can make changes to this file and they will not be overwritten when saving.
 //  </auto-generated>
 // -----------------------------------------------------------------------------
-namespace Setup {
+namespace Setup
+{
     using Rdmp.Core.ReusableLibraryCode;
     using Rdmp.Core.ReusableLibraryCode.Checks;
+    using SmiServices.Applications.Setup;
     using System;
     using System.Collections.Generic;
     using System.IO;

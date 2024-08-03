@@ -1,14 +1,8 @@
 using Microservices.CohortExtractor.Execution;
-using Microservices.CohortPackager.Execution;
-using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
-using Microservices.DicomAnonymiser;
 using Microservices.DicomRelationalMapper.Execution;
 using Microservices.IdentifierMapper.Execution;
-using Microservices.IsIdentifiable.Service;
-using Microservices.MongoDBPopulator.Execution;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
-using Smi.Common;
 using Smi.Common.Execution;
 using Smi.Common.MongoDB;
 using Smi.Common.Options;
@@ -22,8 +16,13 @@ using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
 using Smi.Common.Messaging;
 using SmiServices.Microservices.DicomTagReader.Execution;
+using Microservices.DicomAnonymiser;
+using Microservices.CohortPackager.Execution;
+using Microservices.IsIdentifiable.Service;
+using Microservices.MongoDBPopulator.Execution;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 
-namespace Setup
+namespace SmiServices.Applications.Setup
 {
 
 
@@ -37,7 +36,7 @@ namespace Setup
         public Probeable(string name, Func<CheckEventArgs?> run, string category)
         {
             Name = name;
-            this.Run = run;
+            Run = run;
             Category = category;
         }
     }
@@ -183,8 +182,8 @@ DicomTagReader {
                 if (Options.RDMPOptions == null ||
 
                     // Must specify either SqlServer or file system backend for RDMP platform metadata
-                    (string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString) &&
-                    string.IsNullOrWhiteSpace(Options.RDMPOptions.YamlDir)))
+                    string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString) &&
+                    string.IsNullOrWhiteSpace(Options.RDMPOptions.YamlDir))
                 {
                     throw new Exception("No RDMP connection settings specified");
                 }

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Setup
+namespace SmiServices.Applications.Setup
 {
     /// <summary>
     /// This is the Settings static class that can be used in your Core solution or in any
