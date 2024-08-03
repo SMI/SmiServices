@@ -6,7 +6,7 @@ using CommandLine.Text;
 using Smi.Common.Options;
 
 
-namespace Applications.ExtractImages
+namespace SmiServices.Applications.ExtractImages
 {
     public class ExtractImagesCliOptions : CliOptions
     {

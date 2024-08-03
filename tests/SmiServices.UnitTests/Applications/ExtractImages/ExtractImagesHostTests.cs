@@ -10,9 +10,10 @@ using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SmiServices.Applications.ExtractImages;
 
 
-namespace Applications.ExtractImages.Tests
+namespace SmiServices.UnitTests.Applications.ExtractImages
 {
     [RequiresRabbit]
     public class ExtractImagesHostTests

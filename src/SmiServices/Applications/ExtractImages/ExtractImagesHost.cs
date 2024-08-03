@@ -10,7 +10,7 @@ using System.IO;
 using System.IO.Abstractions;
 
 
-namespace Applications.ExtractImages
+namespace SmiServices.Applications.ExtractImages
 {
     public class ExtractImagesHost : MicroserviceHost
     {

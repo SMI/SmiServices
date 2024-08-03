@@ -4,9 +4,10 @@ using System.IO.Abstractions.TestingHelpers;
 using NUnit.Framework;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
+using SmiServices.Applications.ExtractImages;
 
 
-namespace Applications.ExtractImages.Tests
+namespace SmiServices.UnitTests.Applications.ExtractImages
 {
     public class CohortCsvParserTests
     {

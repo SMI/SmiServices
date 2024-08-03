@@ -10,8 +10,7 @@ using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System.Diagnostics.CodeAnalysis;
 
-
-namespace Applications.ExtractImages
+namespace SmiServices.Applications.ExtractImages
 {
     public class ExtractionMessageSender : IExtractionMessageSender
     {
@@ -51,8 +50,8 @@ namespace Applications.ExtractImages
             _extractionRequestInfoProducer = extractionRequestInfoProducer;
 
             _fileSystem = fileSystem;
-            _extractionRoot = (!string.IsNullOrWhiteSpace(extractionRoot)) ? extractionRoot : throw new ArgumentException(nameof(extractionRoot));
-            _extractionDir = (!string.IsNullOrWhiteSpace(extractionDir)) ? extractionDir : throw new ArgumentException(nameof(extractionDir));
+            _extractionRoot = !string.IsNullOrWhiteSpace(extractionRoot) ? extractionRoot : throw new ArgumentException(nameof(extractionRoot));
+            _extractionDir = !string.IsNullOrWhiteSpace(extractionDir) ? extractionDir : throw new ArgumentException(nameof(extractionDir));
             _dateTimeProvider = dateTimeProvider;
             _consoleInput = consoleInput;
 
@@ -60,7 +59,7 @@ namespace Applications.ExtractImages
             if (_maxIdentifiersPerMessage <= 0)
                 throw new ArgumentOutOfRangeException(nameof(options.MaxIdentifiersPerMessage));
 
-            _projectId = (!string.IsNullOrWhiteSpace(cliOptions.ProjectId)) ? cliOptions.ProjectId : throw new ArgumentException(nameof(cliOptions.ProjectId));
+            _projectId = !string.IsNullOrWhiteSpace(cliOptions.ProjectId) ? cliOptions.ProjectId : throw new ArgumentException(nameof(cliOptions.ProjectId));
             _modalities = cliOptions.Modalities?.ToUpper().Split(',', StringSplitOptions.RemoveEmptyEntries);
             _isIdentifiableExtraction = cliOptions.IsIdentifiableExtraction;
             _isNoFiltersExtraction = cliOptions.IsNoFiltersExtraction;

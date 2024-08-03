@@ -4,7 +4,7 @@ using Smi.Common.Execution;
 using Smi.Common.Options;
 
 
-namespace Applications.ExtractImages
+namespace SmiServices.Applications.ExtractImages
 {
     [ExcludeFromCodeCoverage]
     public static class Program
