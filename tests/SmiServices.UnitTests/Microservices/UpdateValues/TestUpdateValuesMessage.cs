@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Smi.Common.Messages.Updating;
 using System;
 
-namespace Microservices.UpdateValues.Tests
+namespace SmiServices.UnitTests.Microservices.UpdateValues
 {
     public class TestUpdateValuesMessage
     {

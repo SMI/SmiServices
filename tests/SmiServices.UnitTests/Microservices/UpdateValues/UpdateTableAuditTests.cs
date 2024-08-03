@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Microservices.UpdateValues.Tests
+namespace SmiServices.UnitTests.Microservices.UpdateValues
 {
     class UpdateTableAuditTests
     {

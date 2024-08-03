@@ -9,7 +9,7 @@ using System.Data;
 using System.Linq;
 using Tests.Common;
 
-namespace Microservices.UpdateValues.Tests
+namespace SmiServices.UnitTests.Microservices.UpdateValues
 {
     [RequiresRelationalDb(DatabaseType.MySql)]
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]

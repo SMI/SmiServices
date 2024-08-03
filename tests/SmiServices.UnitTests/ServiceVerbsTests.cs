@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 
-namespace Applications.SmiRunner.Tests
+namespace SmiServices.UnitTests
 {
     public class ServiceVerbsTests
     {

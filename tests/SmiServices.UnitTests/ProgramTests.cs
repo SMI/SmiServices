@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace Applications.SmiRunner.Tests
+namespace SmiServices.UnitTests
 {
     public class ProgramTests
     {
