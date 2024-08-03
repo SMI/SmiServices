@@ -110,7 +110,8 @@ def start_containers(
         print(f.read())
 
     cmd = (
-        f"{docker}-compose",
+        f"{docker}",
+        "compose",
         "-f", compose_file,
         "up",
         "--detach",
