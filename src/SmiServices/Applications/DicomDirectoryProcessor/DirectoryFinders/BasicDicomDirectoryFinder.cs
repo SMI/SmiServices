@@ -1,4 +1,3 @@
-
 using Smi.Common.Messaging;
 using System;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 
-namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
+namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
     public class BasicDicomDirectoryFinder : DicomDirectoryFinder
     {

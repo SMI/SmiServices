@@ -1,11 +1,10 @@
-
 using Smi.Common;
 using Smi.Common.Messaging;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 
-namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
+namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
     /// <summary>
     /// Finds directories that contain zip files or dicom files.  Does not require files to be in a directory structure

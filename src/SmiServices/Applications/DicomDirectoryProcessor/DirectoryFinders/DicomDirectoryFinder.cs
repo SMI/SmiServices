@@ -1,3 +1,6 @@
+using NLog;
+using Smi.Common.Messages;
+using Smi.Common.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,11 +9,8 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
-using NLog;
 
-namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
+namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
     /// <summary>
     /// Finds directories that contain DICOM files and outputs one AccessionDirectoryMessage for each directory it finds

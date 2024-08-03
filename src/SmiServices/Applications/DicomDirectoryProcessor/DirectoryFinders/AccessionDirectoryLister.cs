@@ -1,11 +1,11 @@
+using Smi.Common.Messaging;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Smi.Common.Messaging;
 
-namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
+namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
     public class AccessionDirectoryLister : DicomDirectoryFinder
     {

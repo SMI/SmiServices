@@ -1,13 +1,11 @@
-
 using CommandLine;
 using CommandLine.Text;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Rdmp.Core.ReusableLibraryCode.Annotations;
 
-namespace Applications.DicomDirectoryProcessor.Options
+namespace SmiServices.Applications.DicomDirectoryProcessor
 {
     public class DicomDirectoryProcessorCliOptions : CliOptions
     {

@@ -1,17 +1,15 @@
-using Applications.DicomDirectoryProcessor.Execution;
-using Applications.DicomDirectoryProcessor.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;
 
-namespace Applications.DicomDirectoryProcessor
+namespace SmiServices.Applications.DicomDirectoryProcessor
 {
     /// <summary>
     /// Command line program to process a directory and write an Accession
     /// Directory message to the message exchange for each directory found
     /// that contains DICOM (*.dcm) files.
     /// </summary>
-    public static class Program
+    public static class DicomDirectoryProcessor
     {
         /// <summary>
         /// Main program.
@@ -25,7 +23,7 @@ namespace Applications.DicomDirectoryProcessor
             int ret = SmiCliInit
                 .ParseAndRun<DicomDirectoryProcessorCliOptions>(
                     args,
-                    typeof(Program),
+                    typeof(DicomDirectoryProcessor),
                     OnParse
                 );
             return ret;

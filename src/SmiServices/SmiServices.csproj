@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <IsPublishable>true</IsPublishable>
+        <OutputType>Exe</OutputType>
+        <StartupObject>SmiServices.Program</StartupObject>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\common\Smi.Common\Smi.Common.csproj" />
+    </ItemGroup>
+</Project>

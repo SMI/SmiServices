@@ -1,9 +1,9 @@
-using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using Smi.Common.Tests;
+using SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders;
 using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;

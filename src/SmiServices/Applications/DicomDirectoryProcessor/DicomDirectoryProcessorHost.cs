@@ -1,13 +1,11 @@
-
+using Smi.Common.Execution;
+using Smi.Common.Options;
+using SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders;
 using System;
 using System.Globalization;
 using System.IO;
-using Applications.DicomDirectoryProcessor.Execution.DirectoryFinders;
-using Applications.DicomDirectoryProcessor.Options;
-using Smi.Common.Execution;
-using Smi.Common.Options;
 
-namespace Applications.DicomDirectoryProcessor.Execution
+namespace SmiServices.Applications.DicomDirectoryProcessor
 {
     /// <summary>
     /// Processes directories to find those that contain DICOM files

@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Applications.DicomDirectoryProcessor.Execution;
-using Applications.DicomDirectoryProcessor.Options;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using FAnsi.Discovery;
@@ -39,6 +37,7 @@ using Smi.Common.Options;
 using Smi.Common.Tests;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
+using SmiServices.Applications.DicomDirectoryProcessor;
 
 namespace Microservices.DicomRelationalMapper.Tests
 {
