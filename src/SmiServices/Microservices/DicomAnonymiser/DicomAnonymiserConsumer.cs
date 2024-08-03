@@ -1,4 +1,3 @@
-using Microservices.DicomAnonymiser.Anonymisers;
 using NLog;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
@@ -8,8 +7,9 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using FellowOakDicom;
+using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 
-namespace Microservices.DicomAnonymiser
+namespace SmiServices.Microservices.DicomAnonymiser
 {
     public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
     {

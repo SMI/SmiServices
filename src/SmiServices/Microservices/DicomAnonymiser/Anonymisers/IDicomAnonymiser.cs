@@ -1,7 +1,7 @@
 using Smi.Common.Messages.Extraction;
 using System.IO.Abstractions;
 
-namespace Microservices.DicomAnonymiser.Anonymisers
+namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers
 {
     public interface IDicomAnonymiser
     {

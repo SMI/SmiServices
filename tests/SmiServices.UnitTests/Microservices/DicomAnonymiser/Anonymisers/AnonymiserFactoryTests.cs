@@ -1,10 +1,10 @@
-using Microservices.DicomAnonymiser.Anonymisers;
 using NUnit.Framework;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using System;
 
-namespace Microservices.DicomAnonymiser.Tests.Anonymisers
+namespace SmiServices.UnitTests.Microservices.DicomAnonymiser.Anonymisers
 {
     public class AnonymiserFactoryTests
     {

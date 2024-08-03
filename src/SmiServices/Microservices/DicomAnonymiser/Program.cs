@@ -2,7 +2,7 @@ using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;
 
-namespace Microservices.DicomAnonymiser
+namespace SmiServices.Microservices.DicomAnonymiser
 {
     public static class Program
     {

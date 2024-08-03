@@ -1,4 +1,3 @@
-using Microservices.DicomAnonymiser.Anonymisers;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -12,8 +11,10 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using FellowOakDicom;
+using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
+using SmiServices.Microservices.DicomAnonymiser;
 
-namespace Microservices.DicomAnonymiser.Tests
+namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 {
     [RequiresRabbit]
     public class DicomAnonymiserHostTests

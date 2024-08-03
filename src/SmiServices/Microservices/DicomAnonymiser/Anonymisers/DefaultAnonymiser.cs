@@ -8,7 +8,7 @@ using Smi.Common.Options;
 using Newtonsoft.Json;
 using NLog;
 
-namespace Microservices.DicomAnonymiser.Anonymisers
+namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers
 {
     public class DefaultAnonymiser : IDicomAnonymiser
     {

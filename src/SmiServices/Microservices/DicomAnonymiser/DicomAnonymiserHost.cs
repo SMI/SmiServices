@@ -1,10 +1,10 @@
-using Microservices.DicomAnonymiser.Anonymisers;
 using Smi.Common.Execution;
 using Smi.Common.Options;
+using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using System;
 using System.IO.Abstractions;
 
-namespace Microservices.DicomAnonymiser
+namespace SmiServices.Microservices.DicomAnonymiser
 {
     public class DicomAnonymiserHost : MicroserviceHost
     {

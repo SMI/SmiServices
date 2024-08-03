@@ -15,12 +15,12 @@ using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
 using Smi.Common.Messaging;
 using SmiServices.Microservices.DicomTagReader.Execution;
-using Microservices.DicomAnonymiser;
 using Microservices.CohortPackager.Execution;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using SmiServices.Microservices.IdentifierMapper;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.Microservices.IsIdentifiable;
+using SmiServices.Microservices.DicomAnonymiser;
 
 namespace SmiServices.Applications.Setup
 {
