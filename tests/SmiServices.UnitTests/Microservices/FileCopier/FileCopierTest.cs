@@ -1,4 +1,3 @@
-using Microservices.FileCopier.Execution;
 using Moq;
 using NUnit.Framework;
 using Smi.Common.Messages;
@@ -6,6 +5,7 @@ using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SmiServices.Microservices.FileCopier;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 

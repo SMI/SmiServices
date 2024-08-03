@@ -1,11 +1,10 @@
-using Microservices.FileCopier.Messaging;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using System.IO.Abstractions;
 
 
-namespace Microservices.FileCopier.Execution
+namespace SmiServices.Microservices.FileCopier
 {
     public class FileCopierHost : MicroserviceHost
     {

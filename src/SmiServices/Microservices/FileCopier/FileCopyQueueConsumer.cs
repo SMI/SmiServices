@@ -1,10 +1,9 @@
-using Microservices.FileCopier.Execution;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Messaging;
 using System;
 
-namespace Microservices.FileCopier.Messaging
+namespace SmiServices.Microservices.FileCopier
 {
     public class FileCopyQueueConsumer : Consumer<ExtractFileMessage>
     {

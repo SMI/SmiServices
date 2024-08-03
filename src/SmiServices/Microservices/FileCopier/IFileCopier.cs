@@ -2,7 +2,7 @@ using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 
 
-namespace Microservices.FileCopier.Execution
+namespace SmiServices.Microservices.FileCopier
 {
     public interface IFileCopier
     {

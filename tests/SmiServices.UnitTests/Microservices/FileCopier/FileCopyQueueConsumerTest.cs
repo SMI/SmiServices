@@ -1,11 +1,10 @@
-using Microservices.FileCopier.Execution;
-using Microservices.FileCopier.Messaging;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Tests;
+using SmiServices.Microservices.FileCopier;
 using System;
 
 

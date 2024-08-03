@@ -7,7 +7,7 @@ using System;
 using System.IO.Abstractions;
 
 
-namespace Microservices.FileCopier.Execution
+namespace SmiServices.Microservices.FileCopier
 {
     public class ExtractionFileCopier : IFileCopier
     {

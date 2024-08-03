@@ -1,9 +1,8 @@
-using Microservices.FileCopier.Execution;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;
 
-namespace Microservices.FileCopier
+namespace SmiServices.Microservices.FileCopier
 {
     public static class Program
     {

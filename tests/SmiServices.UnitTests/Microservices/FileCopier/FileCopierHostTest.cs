@@ -1,4 +1,3 @@
-using Microservices.FileCopier.Execution;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
@@ -6,6 +5,7 @@ using RabbitMQ.Client.Events;
 using Smi.Common.Messages.Extraction;
 using Smi.Common.Options;
 using Smi.Common.Tests;
+using SmiServices.Microservices.FileCopier;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
