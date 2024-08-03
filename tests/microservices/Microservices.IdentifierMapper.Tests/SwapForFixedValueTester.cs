@@ -1,4 +1,4 @@
-﻿
+
 using System.Threading;
 using FAnsi.Discovery;
 using Microservices.IdentifierMapper.Execution.Swappers;

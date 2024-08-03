@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
+using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
@@ -49,7 +49,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
                 var expectedProp = prop.GetValue(expected);
                 var parsedProp = prop.GetValue(actual);
-                Assert.That(parsedProp,Is.EqualTo(expectedProp));
+                Assert.That(parsedProp, Is.EqualTo(expectedProp));
             }
         }
 
@@ -70,7 +70,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     null
                 )
             );
-            Assert.That(exc!.Message,Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
+            Assert.That(exc!.Message, Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
 
             exc = Assert.Throws<ArgumentException>(() =>
                 new MongoFileStatusDoc(
@@ -82,7 +82,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     "  "
                 )
             );
-            Assert.That(exc!.Message,Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
+            Assert.That(exc!.Message, Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
 
             var _ = new MongoFileStatusDoc(
                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
@@ -266,7 +266,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoFileStatusDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoFileStatusDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -289,7 +289,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotIdentifiable,
                 "anonymised");
 
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -312,7 +312,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotIdentifiable,
                 "anonymised");
 
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

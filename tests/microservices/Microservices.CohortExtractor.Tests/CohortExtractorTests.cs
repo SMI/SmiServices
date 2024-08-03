@@ -50,7 +50,7 @@ namespace Microservices.CohortExtractor.Tests
 
                     //no fulfiller is a problem!
                     var ex = Assert.Throws<Exception>(() => opts.Validate());
-                    Assert.That(ex!.Message,Does.Contain("No RequestFulfillerType set on CohortExtractorOptions"));
+                    Assert.That(ex!.Message, Does.Contain("No RequestFulfillerType set on CohortExtractorOptions"));
 
                     break;
                 default:
@@ -62,24 +62,24 @@ namespace Microservices.CohortExtractor.Tests
             {
                 //if no auditor is provided
                 if (testCase == Test.NoAuditor)
-                    Assert.That(CreateAuditor(opts),Is.InstanceOf<NullAuditExtractions>()); //this one gets created
+                    Assert.That(CreateAuditor(opts), Is.InstanceOf<NullAuditExtractions>()); //this one gets created
                 else
                     Assert.Throws<TypeLoadException>(() => CreateAuditor(opts)); //if an invalid auditor (not full name, we expect TypeLoadException)
 
                 //if no fulfiller is provided
                 if (testCase == Test.NoFulfiller)
-                    Assert.That(CreateRequestFulfiller(opts),Is.Null); //we expect null to be returned
+                    Assert.That(CreateRequestFulfiller(opts), Is.Null); //we expect null to be returned
                 else
                     Assert.Throws<TypeLoadException>(() => CreateRequestFulfiller(opts)); //if an invalid fulfiller (not full name we expect TypeLoadException)
             }
             else
             {
-                Assert.That(CreateAuditor(opts),Is.Not.Null);
+                Assert.That(CreateAuditor(opts), Is.Not.Null);
 
                 if (testCase == Test.NoFulfiller)
-                    Assert.That(CreateRequestFulfiller(opts),Is.Null); //we expect null to be returned
+                    Assert.That(CreateRequestFulfiller(opts), Is.Null); //we expect null to be returned
                 else
-                    Assert.That(CreateRequestFulfiller(opts),Is.Not.Null);
+                    Assert.That(CreateRequestFulfiller(opts), Is.Not.Null);
             }
         }
 
@@ -94,7 +94,7 @@ namespace Microservices.CohortExtractor.Tests
 
             var fulfiller = CreateRequestFulfiller(opts);
 
-            Assert.That(fulfiller!.Rejectors.Single(),Is.InstanceOf(supplyRejectorName ? typeof(TestRejector) : typeof(RejectNone)));
+            Assert.That(fulfiller!.Rejectors.Single(), Is.InstanceOf(supplyRejectorName ? typeof(TestRejector) : typeof(RejectNone)));
         }
 
         private IExtractionRequestFulfiller? CreateRequestFulfiller(CohortExtractorOptions opts)
@@ -118,7 +118,7 @@ namespace Microservices.CohortExtractor.Tests
 
             c.ClearAllInjections();
 
-            Assert.That(c.GetAllExtractionInformation(ExtractionCategory.Any),Has.Length.EqualTo(5));
+            Assert.That(c.GetAllExtractionInformation(ExtractionCategory.Any), Has.Length.EqualTo(5));
 
             var f = new MicroserviceObjectFactory();
             var fulfiller = f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType!,

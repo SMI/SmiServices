@@ -17,8 +17,8 @@ namespace Smi.Common.Tests.Options
 
             Assert.Multiple(() =>
             {
-                Assert.That(opts.FileSystemRoot,Is.EqualTo("/"));
-                Assert.That(opts.ExtractRoot,Is.EqualTo("/"));
+                Assert.That(opts.FileSystemRoot, Is.EqualTo("/"));
+                Assert.That(opts.ExtractRoot, Is.EqualTo("/"));
             });
         }
     }

@@ -54,7 +54,7 @@ namespace Smi.Common.Execution
             new DicomSetupBuilder().SkipValidation();
 
             HostProcessName = globals.HostProcessName;
-            
+
             Logger = LogManager.GetLogger(GetType().Name);
             Logger.Info("Host logger created");
 

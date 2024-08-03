@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Smi.Common.Messages.Extraction;
 
@@ -15,6 +15,6 @@ namespace Microservices.CohortExtractor.Execution.ProjectPathResolvers
         /// extraction table which this result was fetched from</param>
         /// <param name="request">Contains information about the original request e.g. project number</param>
         /// <returns></returns>
-        string GetOutputPath(QueryToExecuteResult result,ExtractionRequestMessage request);
+        string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage request);
     }
 }

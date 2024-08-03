@@ -1,4 +1,4 @@
-﻿using Applications.TriggerUpdates.Execution;
+using Applications.TriggerUpdates.Execution;
 using Applications.TriggerUpdates.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;

@@ -76,7 +76,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
                 totalSent = 0;
                 pacsFinder.SearchForDicomDirectories(Path.GetFullPath(Path.Combine(rootDir, item.Key)));
 
-                Assert.That(totalSent,Is.EqualTo(item.Value));
+                Assert.That(totalSent, Is.EqualTo(item.Value));
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Linq;
 using FAnsi;
@@ -17,7 +17,7 @@ namespace Microservices.IdentifierMapper.Tests
     class RedisSwapperTests : DatabaseTests
     {
         private const string TestRedisServer = "localhost";
-        
+
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void Test_Redist_CacheUsage(DatabaseType dbType)
@@ -25,14 +25,14 @@ namespace Microservices.IdentifierMapper.Tests
             var db = GetCleanedServer(dbType);
 
             DiscoveredTable map;
-            
+
             using (var dt = new DataTable())
             {
                 dt.Columns.Add("CHI");
                 dt.Columns.Add("ECHI");
 
                 dt.Rows.Add("0101010101", "0A0A0A0A0A");
-                map = db.CreateTable("Map",dt);
+                map = db.CreateTable("Map", dt);
             }
 
             var options = new IdentifierMapperOptions
@@ -48,46 +48,46 @@ namespace Microservices.IdentifierMapper.Tests
 
             try
             {
-                swapper = new RedisSwapper(TestRedisServer,new TableLookupWithGuidFallbackSwapper());
+                swapper = new RedisSwapper(TestRedisServer, new TableLookupWithGuidFallbackSwapper());
                 swapper.Setup(options);
 
                 ClearRedisServer();
             }
-            catch (RedisConnectionException  )
+            catch (RedisConnectionException)
             {
                 Assert.Inconclusive();
                 throw new Exception("To keep static analysis happy, btw Redis was unavailable");
             }
-            
+
             //hit on the lookup table
-            string? answer = swapper.GetSubstitutionFor("0101010101",out string? reason);
+            string? answer = swapper.GetSubstitutionFor("0101010101", out string? reason);
             Assert.Multiple(() =>
             {
-                Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
-                Assert.That(reason,Is.Null);
+                Assert.That(answer, Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(reason, Is.Null);
 
                 //hit didn't come from Redis
-                Assert.That(swapper.CacheHit,Is.EqualTo(0));
-                Assert.That(swapper.Success,Is.EqualTo(1));
+                Assert.That(swapper.CacheHit, Is.EqualTo(0));
+                Assert.That(swapper.Success, Is.EqualTo(1));
             });
 
 
             //hit from Redis
-            string? answer2 = swapper.GetSubstitutionFor("0101010101",out string? reason2);
+            string? answer2 = swapper.GetSubstitutionFor("0101010101", out string? reason2);
             Assert.Multiple(() =>
             {
-                Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
-                Assert.That(reason,Is.Null);
+                Assert.That(answer, Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(reason, Is.Null);
 
                 //hit must come from Redis
-                Assert.That(swapper.CacheHit,Is.EqualTo(1));
-                Assert.That(swapper.Success,Is.EqualTo(2));
+                Assert.That(swapper.CacheHit, Is.EqualTo(1));
+                Assert.That(swapper.Success, Is.EqualTo(2));
             });
         }
 
 
 
-        
+
         [TestCase(DatabaseType.MySql)]
         [TestCase(DatabaseType.MicrosoftSQLServer)]
         public void Test_Redist_CacheMisses(DatabaseType dbType)
@@ -95,14 +95,14 @@ namespace Microservices.IdentifierMapper.Tests
             var db = GetCleanedServer(dbType);
 
             DiscoveredTable map;
-            
+
             using (var dt = new DataTable())
             {
                 dt.Columns.Add("CHI");
                 dt.Columns.Add("ECHI");
 
                 dt.Rows.Add("0101010101", "0A0A0A0A0A");
-                map = db.CreateTable("Map",dt);
+                map = db.CreateTable("Map", dt);
             }
 
             var options = new IdentifierMapperOptions
@@ -118,46 +118,46 @@ namespace Microservices.IdentifierMapper.Tests
 
             try
             {
-                swapper = new RedisSwapper(TestRedisServer,new TableLookupSwapper());
+                swapper = new RedisSwapper(TestRedisServer, new TableLookupSwapper());
                 swapper.Setup(options);
 
                 ClearRedisServer();
             }
-            catch (RedisConnectionException  )
+            catch (RedisConnectionException)
             {
                 Assert.Inconclusive();
                 throw new Exception("To keep static analysis happy, btw Redis was unavailable");
             }
-            
+
             //hit on the lookup table
-            string? answer = swapper.GetSubstitutionFor("GOGOGO",out string? reason);
+            string? answer = swapper.GetSubstitutionFor("GOGOGO", out string? reason);
             Assert.Multiple(() =>
             {
-                Assert.That(answer,Is.Null);
-                Assert.That(reason,Is.EqualTo("No match found for 'GOGOGO'"));
+                Assert.That(answer, Is.Null);
+                Assert.That(reason, Is.EqualTo("No match found for 'GOGOGO'"));
 
                 //hit didn't come from Redis
-                Assert.That(swapper.CacheHit,Is.EqualTo(0));
-                Assert.That(swapper.Fail,Is.EqualTo(1));
+                Assert.That(swapper.CacheHit, Is.EqualTo(0));
+                Assert.That(swapper.Fail, Is.EqualTo(1));
             });
 
             //hit from Redis
-            string? answer2 = swapper.GetSubstitutionFor("GOGOGO",out string? reason2);
+            string? answer2 = swapper.GetSubstitutionFor("GOGOGO", out string? reason2);
             Assert.Multiple(() =>
             {
-                Assert.That(answer2,Is.Null);
-                Assert.That(reason2,Is.EqualTo("Value 'GOGOGO' was cached in Redis as missing (i.e. no mapping was found)"));
+                Assert.That(answer2, Is.Null);
+                Assert.That(reason2, Is.EqualTo("Value 'GOGOGO' was cached in Redis as missing (i.e. no mapping was found)"));
 
                 //hit must come from Redis
-                Assert.That(swapper.CacheHit,Is.EqualTo(1));
-                Assert.That(swapper.Fail,Is.EqualTo(2));
+                Assert.That(swapper.CacheHit, Is.EqualTo(1));
+                Assert.That(swapper.Fail, Is.EqualTo(2));
             });
         }
 
         private void ClearRedisServer()
         {
             using var admin = ConnectionMultiplexer.Connect($"{TestRedisServer},allowAdmin=true");
-            foreach (var server in admin.GetEndPoints().Select(e=> admin.GetServer(e)))
+            foreach (var server in admin.GetEndPoints().Select(e => admin.GetServer(e)))
                 server.FlushAllDatabases();
         }
     }

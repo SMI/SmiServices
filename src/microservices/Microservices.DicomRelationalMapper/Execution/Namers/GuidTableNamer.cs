@@ -19,7 +19,7 @@ namespace Microservices.DicomRelationalMapper.Execution.Namers
         /// </summary>
         /// <param name="databaseName"></param>
         /// <param name="explicitGuid"></param>
-        public GuidTableNamer(string databaseName, Guid explicitGuid): base(databaseName)
+        public GuidTableNamer(string databaseName, Guid explicitGuid) : base(databaseName)
         {
             _guid = explicitGuid == Guid.Empty ? Guid.NewGuid().ToString("N") : explicitGuid.ToString();
 

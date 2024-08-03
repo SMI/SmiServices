@@ -69,9 +69,9 @@ namespace Microservices.DicomRelationalMapper.Messaging
 
 
         public DicomRelationalMapperQueueConsumer(
-            IRDMPPlatformRepositoryServiceLocator repositoryLocator, 
+            IRDMPPlatformRepositoryServiceLocator repositoryLocator,
             LoadMetadata lmd,
-            INameDatabasesAndTablesDuringLoads namer, 
+            INameDatabasesAndTablesDuringLoads namer,
             DicomRelationalMapperOptions options
         )
         {

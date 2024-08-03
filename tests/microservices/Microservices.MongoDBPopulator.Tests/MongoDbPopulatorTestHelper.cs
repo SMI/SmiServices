@@ -1,4 +1,4 @@
-﻿
+
 using FellowOakDicom;
 using DicomTypeTranslation;
 using MongoDB.Driver;

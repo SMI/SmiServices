@@ -53,7 +53,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: false
             );
 
-            Assert.That(info.ExtractionName(),Is.EqualTo("extract-name"));
+            Assert.That(info.ExtractionName(), Is.EqualTo("extract-name"));
         }
 
         [TestCase("proj/foo/extract-name", "proj/foo")]
@@ -74,7 +74,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: false
             );
 
-            Assert.That(info.ProjectExtractionDir(),Is.EqualTo(expected));
+            Assert.That(info.ProjectExtractionDir(), Is.EqualTo(expected));
         }
 
 
@@ -109,7 +109,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.That(info2,Is.EqualTo(info1));
+            Assert.That(info2, Is.EqualTo(info1));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.That(info2.GetHashCode(),Is.EqualTo(info1.GetHashCode()));
+            Assert.That(info2.GetHashCode(), Is.EqualTo(info1.GetHashCode()));
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.That(exc!.Message,Is.EqualTo("Must not be the default Guid (Parameter 'extractionJobIdentifier')"));
+            Assert.That(exc!.Message, Is.EqualTo("Must not be the default Guid (Parameter 'extractionJobIdentifier')"));
         }
 
         [Test]
@@ -200,7 +200,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.That(exc!.Message,Is.EqualTo("Must not be whitespace if passed (Parameter 'extractionModality')"));
+            Assert.That(exc!.Message, Is.EqualTo("Must not be whitespace if passed (Parameter 'extractionModality')"));
         }
 
         [Test]
@@ -229,7 +229,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.That(exc!.Message,Is.EqualTo("Must not be the default DateTime (Parameter 'jobSubmittedAt')"));
+            Assert.That(exc!.Message, Is.EqualTo("Must not be the default DateTime (Parameter 'jobSubmittedAt')"));
         }
 
         [Test]
@@ -258,7 +258,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.That(exc!.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'projectNumber')"));
+            Assert.That(exc!.Message, Is.EqualTo("Must not be null or whitespace (Parameter 'projectNumber')"));
         }
 
         [Test]
@@ -287,7 +287,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.That(exc!.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'extractionDirectory')"));
+            Assert.That(exc!.Message, Is.EqualTo("Must not be null or whitespace (Parameter 'extractionDirectory')"));
         }
 
         [Test]
@@ -316,7 +316,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.That(exc!.Message,Is.EqualTo("Must not be null or whitespace (Parameter 'keyTag')"));
+            Assert.That(exc!.Message, Is.EqualTo("Must not be null or whitespace (Parameter 'keyTag')"));
         }
 
         [Test]
@@ -345,7 +345,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
-            Assert.That(exc!.Message,Is.EqualTo("Must not be zero (Parameter 'keyValueCount')"));
+            Assert.That(exc!.Message, Is.EqualTo("Must not be zero (Parameter 'keyValueCount')"));
         }
 
         #endregion

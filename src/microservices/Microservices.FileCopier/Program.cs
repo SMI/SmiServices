@@ -1,4 +1,4 @@
-﻿using Microservices.FileCopier.Execution;
+using Microservices.FileCopier.Execution;
 using Smi.Common.Execution;
 using Smi.Common.Options;
 using System.Collections.Generic;

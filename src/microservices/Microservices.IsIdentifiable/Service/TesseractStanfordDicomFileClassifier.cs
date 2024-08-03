@@ -16,7 +16,7 @@ namespace Microservices.IsIdentifiable.Service
 
         //public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
         public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions fileOptions) : base(dataDirectory)
-        {            
+        {
             //need to pass this so that the runner doesn't get unhappy about there being no reports (even though we clear it below)
             fileOptions.ColumnReport = true;
             fileOptions.TessDirectory = dataDirectory.FullName;
@@ -26,10 +26,10 @@ namespace Microservices.IsIdentifiable.Service
             foreach (DirectoryInfo subDir in subDirs)
                 fileOptions.RulesDirectory = subDir.FullName;
 
-            _runner = new DicomFileRunner(fileOptions,new FileSystem());
+            _runner = new DicomFileRunner(fileOptions, new FileSystem());
         }
 
-        
+
 
         public override IEnumerable<Failure> Classify(IFileInfo dcm)
         {

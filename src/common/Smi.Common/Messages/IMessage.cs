@@ -1,4 +1,4 @@
-﻿
+
 namespace Smi.Common.Messages
 {
     /// <summary>

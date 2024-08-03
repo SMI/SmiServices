@@ -1,4 +1,4 @@
-﻿using Microservices.CohortExtractor.Execution.RequestFulfillers;
+using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;

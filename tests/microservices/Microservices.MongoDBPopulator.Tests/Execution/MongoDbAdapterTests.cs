@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.MongoDBPopulator.Execution;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -45,15 +45,15 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
 
             Assert.Multiple(() =>
             {
-                Assert.That(result,Is.EqualTo(WriteResult.Success));
+                Assert.That(result, Is.EqualTo(WriteResult.Success));
                 Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
-                                .CountDocuments(new BsonDocument()),Is.EqualTo(1));
+                                .CountDocuments(new BsonDocument()), Is.EqualTo(1));
             });
 
             BsonDocument doc =
                 _helper.TestDatabase.GetCollection<BsonDocument>(collectionName).Find(_ => true).ToList()[0];
 
-            Assert.That(doc,Is.EqualTo(testDoc));
+            Assert.That(doc, Is.EqualTo(testDoc));
 
             var toWrite = new List<BsonDocument>();
 
@@ -64,9 +64,9 @@ namespace Microservices.MongoDBPopulator.Tests.Execution
 
             Assert.Multiple(() =>
             {
-                Assert.That(result,Is.EqualTo(WriteResult.Success));
+                Assert.That(result, Is.EqualTo(WriteResult.Success));
                 Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
-                                .CountDocuments(new BsonDocument()),Is.EqualTo(100));
+                                .CountDocuments(new BsonDocument()), Is.EqualTo(100));
             });
         }
     }

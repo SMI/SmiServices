@@ -69,7 +69,7 @@ namespace Microservices.FileCopier.Execution
             if (_fileSystem.File.Exists(fullDest))
                 _logger.Warn($"Output file '{fullDest}' already exists. Will overwrite.");
 
-            IDirectoryInfo parent = _fileSystem.Directory.GetParent(fullDest) 
+            IDirectoryInfo parent = _fileSystem.Directory.GetParent(fullDest)
                 ?? throw new ArgumentException($"Parameter {fullDest} is the filesystem root");
 
             if (!parent.Exists)

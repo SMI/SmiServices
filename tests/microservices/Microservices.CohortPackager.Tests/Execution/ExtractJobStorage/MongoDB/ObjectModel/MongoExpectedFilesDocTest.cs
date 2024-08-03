@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
@@ -48,7 +48,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoExpectedFilesDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExpectedFilesDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 },
                 MongoRejectedKeyInfoDoc.FromMessage(mockMessage.Object, _testHeader, _dateTimeProvider));
 
-            Assert.That(doc,Is.EqualTo(expected));
+            Assert.That(doc, Is.EqualTo(expected));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 expectedFiles,
                 rejectedKeys);
 
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -146,14 +146,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 expectedFiles,
                 rejectedKeys);
 
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
 
         [Test]
         public void TestMongoExpectedFileInfoDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoExpectedFileInfoDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Guid guid = Guid.NewGuid();
             var doc1 = new MongoExpectedFileInfoDoc(guid, "AnonFile1.dcm");
             var doc2 = new MongoExpectedFileInfoDoc(guid, "AnonFile1.dcm");
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -171,14 +171,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Guid guid = Guid.NewGuid();
             var doc1 = new MongoExpectedFileInfoDoc(guid, "AnonFile1.dcm");
             var doc2 = new MongoExpectedFileInfoDoc(guid, "AnonFile1.dcm");
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
-        
+
         [Test]
         public void TestMongoRejectedKeyInfoDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoRejectedKeyInfoDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -203,7 +203,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     {"Reject2", 2},
                 });
 
-            Assert.That(doc,Is.EqualTo(expected));
+            Assert.That(doc, Is.EqualTo(expected));
         }
 
         [Test]
@@ -219,7 +219,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoRejectedKeyInfoDoc(MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _testHeader, _dateTimeProvider), rejectReasons);
             var doc2 = new MongoRejectedKeyInfoDoc(MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _testHeader, _dateTimeProvider), rejectReasons);
 
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -235,7 +235,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             var doc1 = new MongoRejectedKeyInfoDoc(MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _testHeader, _dateTimeProvider), rejectReasons);
             var doc2 = new MongoRejectedKeyInfoDoc(MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _testHeader, _dateTimeProvider), rejectReasons);
 
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

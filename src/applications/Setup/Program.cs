@@ -21,7 +21,7 @@ public class Program
 
         [Option('y', Required = false, HelpText = "Unattended Yaml validation mode.  Provide path to yaml settings file.  No gui is launched. Summary only is produced and exit code is nonzero for any failing service")]
         public string? UnattendedYaml { get; set; }
-    } 
+    }
 
     public static int Main(IEnumerable<string> args)
     {
@@ -32,7 +32,7 @@ public class Program
         Parser.Default.ParseArguments<SetupOptions>(args)
                    .WithParsed(o =>
                    {
-                       if(string.IsNullOrWhiteSpace(o.UnattendedYaml))
+                       if (string.IsNullOrWhiteSpace(o.UnattendedYaml))
                        {
                            RunGui(o);
                        }
@@ -64,7 +64,7 @@ public class Program
         AnsiConsole.Progress()
             .Start(ctx =>
             {
-                                   // Define tasks
+                // Define tasks
                 var consoleTaskCheckInfra = ctx.AddTask("[green]Checking Infrastructure[/]");
                 var consoleTaskCheckMicro = ctx.AddTask("[green]Checking Microservices [/]");
 
@@ -83,7 +83,7 @@ public class Program
         table.AddColumn("Result");
         table.AddColumn("Exception");
 
-        AddResult(table,probe.DeserializeYaml, nameof(probe.DeserializeYaml));
+        AddResult(table, probe.DeserializeYaml, nameof(probe.DeserializeYaml));
 
         foreach (var p in probe.Probes)
         {
@@ -101,7 +101,7 @@ public class Program
     {
         StringBuilder sb = new StringBuilder();
 
-        if(result != null)
+        if (result != null)
         {
             if (result.Ex != null)
             {
@@ -115,13 +115,13 @@ public class Program
         }
         table.AddRow(taskName,
             result == null ? "Not Attempted" : result.Result == CheckResult.Fail ? "[red]Fail[/]" : "[green]Success[/]",
-            result?.Result == CheckResult.Fail ?  sb.ToString().Trim() :""
-            ) ;
+            result?.Result == CheckResult.Fail ? sb.ToString().Trim() : ""
+            );
     }
 
     private static void ReportFailure(CheckEventArgs e)
     {
-        if(e.Ex != null)
+        if (e.Ex != null)
         {
             Console.WriteLine(e.Message);
             Console.WriteLine(ExceptionHelper.ExceptionToListOfInnerMessages(e.Ex));
@@ -160,7 +160,8 @@ public class Program
         // don't log to console!
         LogManager.SuspendLogging();
 
-        Application.Run(new MainWindow(), (e) => {
+        Application.Run(new MainWindow(), (e) =>
+        {
             MessageBox.ErrorQuery("Global Error", e.ToString(), "Ok");
             return true;
         });

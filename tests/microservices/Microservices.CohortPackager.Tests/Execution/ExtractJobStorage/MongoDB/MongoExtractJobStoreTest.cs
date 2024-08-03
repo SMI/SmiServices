@@ -254,7 +254,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             store.PersistMessageToStore(testExtractionRequestInfoMessage, testHeader);
 
             Dictionary<Guid, MongoExtractJobDoc> docs = client.ExtractionDatabase.InProgressCollection.Documents;
-            Assert.That(docs,Has.Count.EqualTo(1));
+            Assert.That(docs, Has.Count.EqualTo(1));
             MongoExtractJobDoc extractJob = docs.Values.ToList()[0];
 
             var expected = new MongoExtractJobDoc(
@@ -272,7 +272,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 isNoFilterExtraction: true,
                 null);
 
-            Assert.That(extractJob,Is.EqualTo(expected));
+            Assert.That(extractJob, Is.EqualTo(expected));
         }
 
         [Test]
@@ -322,7 +322,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             // Assert
 
             var exc = Assert.Throws<ApplicationException>(() => call());
-            Assert.That(exc?.Message,Is.EqualTo("Received an ExtractionRequestInfoMessage for a job that is already completed"));
+            Assert.That(exc?.Message, Is.EqualTo("Received an ExtractionRequestInfoMessage for a job that is already completed"));
         }
 
         [Test]
@@ -364,7 +364,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header);
 
             Dictionary<Guid, MongoExpectedFilesDoc> docs = client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].Documents;
-            Assert.That(docs,Has.Count.EqualTo(1));
+            Assert.That(docs, Has.Count.EqualTo(1));
             MongoExpectedFilesDoc extractJob = docs.Values.ToList()[0];
 
             var expected = new MongoExpectedFilesDoc(
@@ -384,7 +384,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     })
                 );
 
-            Assert.That(extractJob,Is.EqualTo(expected));
+            Assert.That(extractJob, Is.EqualTo(expected));
         }
 
         [Test]
@@ -442,7 +442,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             store.PersistMessageToStore(testExtractFileStatusMessage, header);
 
             Dictionary<Guid, MongoFileStatusDoc> docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
-            Assert.That(docs,Has.Count.EqualTo(1));
+            Assert.That(docs, Has.Count.EqualTo(1));
             MongoFileStatusDoc statusDoc = docs.Values.ToList()[0];
 
             var expected = new MongoFileStatusDoc(
@@ -453,7 +453,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotVerified,
                 "Could not anonymise");
 
-            Assert.That(statusDoc,Is.EqualTo(expected));
+            Assert.That(statusDoc, Is.EqualTo(expected));
         }
 
         [Test]
@@ -486,7 +486,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             {
                 ExtractionJobIdentifier = jobId,
                 OutputFilePath = "foo-an.dcm",
-                Report  = "[]",
+                Report = "[]",
             };
 
             // Act
@@ -496,7 +496,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             // Assert
 
             var exc = Assert.Throws<ApplicationException>(() => call());
-            Assert.That(exc?.Message,Is.EqualTo($"Received an {nameof(ExtractedFileVerificationMessage)} for a job that is already completed"));
+            Assert.That(exc?.Message, Is.EqualTo($"Received an {nameof(ExtractedFileVerificationMessage)} for a job that is already completed"));
         }
 
 
@@ -523,7 +523,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             store.PersistMessageToStore(testIsIdentifiableMessage, header);
 
             Dictionary<Guid, MongoFileStatusDoc> docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
-            Assert.That(docs,Has.Count.EqualTo(1));
+            Assert.That(docs, Has.Count.EqualTo(1));
             MongoFileStatusDoc statusDoc = docs.Values.ToList()[0];
 
             var expected = new MongoFileStatusDoc(
@@ -534,7 +534,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 VerifiedFileStatus.NotIdentifiable,
                 "[]");
 
-            Assert.That(statusDoc,Is.EqualTo(expected));
+            Assert.That(statusDoc, Is.EqualTo(expected));
         }
 
         [Test]
@@ -580,7 +580,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             // Assert that jobs marked as failed are not returned
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
-            Assert.That(store.GetReadyJobs(),Is.Empty);
+            Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Assert that an in progress job is not returned
             client = new TestMongoClient();
@@ -588,11 +588,11 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
-            Assert.That(store.GetReadyJobs(),Is.Empty);
+            Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Check we handle a bad ReplaceOneResult
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName,  _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
@@ -602,23 +602,23 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             // Check happy path
             client = new TestMongoClient();
-            store = new MongoExtractJobStore(client, ExtractionDatabaseName,  _dateTimeProvider);
+            store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
             client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
             Assert.Multiple(() =>
             {
-                Assert.That(store.GetReadyJobs(),Is.Empty);
-                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus,Is.EqualTo(ExtractJobStatus.WaitingForStatuses));
+                Assert.That(store.GetReadyJobs(), Is.Empty);
+                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.WaitingForStatuses));
             });
             client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
             client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
             ExtractJobInfo job = store.GetReadyJobs().Single();
             Assert.Multiple(() =>
             {
-                Assert.That(job.JobStatus,Is.EqualTo(ExtractJobStatus.ReadyForChecks));
-                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus,Is.EqualTo(ExtractJobStatus.ReadyForChecks));
+                Assert.That(job.JobStatus, Is.EqualTo(ExtractJobStatus.ReadyForChecks));
+                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.ReadyForChecks));
             });
         }
 
@@ -730,8 +730,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
             Assert.Multiple(() =>
             {
-                Assert.That(client.ExtractionDatabase.ExpectedFilesCollections,Has.Count.EqualTo(1));
-                Assert.That(client.ExtractionDatabase.StatusCollections,Has.Count.EqualTo(1));
+                Assert.That(client.ExtractionDatabase.ExpectedFilesCollections, Has.Count.EqualTo(1));
+                Assert.That(client.ExtractionDatabase.StatusCollections, Has.Count.EqualTo(1));
             });
         }
 
@@ -793,14 +793,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
             client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
             Dictionary<Guid, MongoExtractJobDoc> docs = client.ExtractionDatabase.InProgressCollection.Documents;
-            Assert.That(docs,Has.Count.EqualTo(1));
+            Assert.That(docs, Has.Count.EqualTo(1));
             MongoExtractJobDoc failedDoc = docs[jobId];
             Assert.Multiple(() =>
             {
-                Assert.That(failedDoc.JobStatus,Is.EqualTo(ExtractJobStatus.Failed));
-                Assert.That(failedDoc.FailedJobInfoDoc,Is.Not.Null);
+                Assert.That(failedDoc.JobStatus, Is.EqualTo(ExtractJobStatus.Failed));
+                Assert.That(failedDoc.FailedJobInfoDoc, Is.Not.Null);
             });
-            Assert.That(failedDoc.FailedJobInfoDoc!.ExceptionMessage,Is.EqualTo("TestMarkJobFailedImpl"));
+            Assert.That(failedDoc.FailedJobInfoDoc!.ExceptionMessage, Is.EqualTo("TestMarkJobFailedImpl"));
         }
 
         [Test]
@@ -837,7 +837,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             // Assert
 
             Assert.That(
-                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents,Has.Count
+                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents, Has.Count
 .EqualTo(nMessages));
         }
 

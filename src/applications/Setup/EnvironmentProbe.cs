@@ -244,7 +244,7 @@ DicomTagReader {
             try
             {
                 // this opens connection to the server and tests for collection existing
-                _=new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
+                _ = new MongoDbAdapter("Setup", Options.MongoDatabases.DicomStoreOptions,
                          Options.MongoDbPopulatorOptions?.ImageCollection ?? throw new InvalidOperationException());
 
 

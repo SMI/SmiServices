@@ -93,7 +93,7 @@ namespace Smi.Common.Tests
                         string versionDependency = d.Groups[2].Value;
 
                         if (!packageDependency.Equals(package)) continue;
-                        Assert.That(versionDependency,Is.EqualTo(version),$"Package {package} is version {version} in {csproj} but version {versionDependency} in {nuspec}");
+                        Assert.That(versionDependency, Is.EqualTo(version), $"Package {package} is version {version} in {csproj} but version {versionDependency} in {nuspec}");
                         found = true;
                     }
 

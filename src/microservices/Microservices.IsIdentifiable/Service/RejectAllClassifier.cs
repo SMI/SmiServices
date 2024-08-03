@@ -7,7 +7,7 @@ using IsIdentifiable.Reporting;
 
 namespace Microservices.IsIdentifiable.Service
 {
-    public class RejectAllClassifier: Classifier
+    public class RejectAllClassifier : Classifier
     {
         public RejectAllClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions _) : base(dataDirectory)
         {
@@ -15,7 +15,7 @@ namespace Microservices.IsIdentifiable.Service
 
         public override IEnumerable<Failure> Classify(IFileInfo dcm)
         {
-            yield return new Failure(new []{new FailurePart("Reject All classifier rejected all content",FailureClassification.Person)});
+            yield return new Failure(new[] { new FailurePart("Reject All classifier rejected all content", FailureClassification.Person) });
         }
     }
 }

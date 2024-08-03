@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortPackager.Execution.JobProcessing;
 using NLog;
 using System;

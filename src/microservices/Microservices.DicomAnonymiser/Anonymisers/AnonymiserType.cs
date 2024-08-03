@@ -1,4 +1,4 @@
-﻿namespace Microservices.DicomAnonymiser.Anonymisers
+namespace Microservices.DicomAnonymiser.Anonymisers
 {
     public enum AnonymiserType
     {

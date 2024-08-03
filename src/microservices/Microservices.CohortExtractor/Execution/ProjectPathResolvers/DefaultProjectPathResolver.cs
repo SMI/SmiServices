@@ -1,4 +1,4 @@
-﻿
+
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using Smi.Common.Messages.Extraction;
 using System;

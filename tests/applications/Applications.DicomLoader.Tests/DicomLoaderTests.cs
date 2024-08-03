@@ -40,7 +40,7 @@ public class DicomLoaderTests : DatabaseTests
         _gOptions.RDMPOptions.DataExportConnectionString = conn;
         var helper = new DicomRelationalMapperTestHelper();
         var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
-        helper.SetupSuite(db,RepositoryLocator,_gOptions,typeof(DicomDatasetCollectionSource));
+        helper.SetupSuite(db, RepositoryLocator, _gOptions, typeof(DicomDatasetCollectionSource));
         Debug.Assert(helper.LoadMetadata != null, "helper.LoadMetadata != null");
         _gOptions.DicomRelationalMapperOptions!.LoadMetadataId = helper.LoadMetadata?.ID ?? throw new Exception("No LoadMetadataId");
     }
@@ -60,8 +60,8 @@ public class DicomLoaderTests : DatabaseTests
         seriesStore.DeleteMany(new BsonDocument());
         Assert.Multiple(() =>
         {
-            Assert.That(imageStore.CountDocuments(new BsonDocument()),Is.EqualTo(0));
-            Assert.That(seriesStore.CountDocuments(new BsonDocument()),Is.EqualTo(0));
+            Assert.That(imageStore.CountDocuments(new BsonDocument()), Is.EqualTo(0));
+            Assert.That(seriesStore.CountDocuments(new BsonDocument()), Is.EqualTo(0));
         });
 
         // Create a bunch of (pixel-free) DICOM files
@@ -100,8 +100,8 @@ public class DicomLoaderTests : DatabaseTests
         {
             //Program.OnParse(_gOptions,_dOptions,fileList);
 
-            Assert.That(imageStore.CountDocuments(new BsonDocument()),Is.EqualTo(testImages.Length));
-            Assert.That(seriesStore.CountDocuments(new BsonDocument()),Is.EqualTo(study.Series.Count));
+            Assert.That(imageStore.CountDocuments(new BsonDocument()), Is.EqualTo(testImages.Length));
+            Assert.That(seriesStore.CountDocuments(new BsonDocument()), Is.EqualTo(study.Series.Count));
         });
     }
 }

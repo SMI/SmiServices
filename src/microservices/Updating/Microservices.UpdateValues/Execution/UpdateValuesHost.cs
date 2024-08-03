@@ -9,7 +9,7 @@ namespace Microservices.UpdateValues.Execution
     {
         public UpdateValuesQueueConsumer? Consumer { get; set; }
 
-        public UpdateValuesHost(GlobalOptions globals, IMessageBroker? messageBroker = null, bool threaded = false) 
+        public UpdateValuesHost(GlobalOptions globals, IMessageBroker? messageBroker = null, bool threaded = false)
         : base(globals, messageBroker, threaded)
         {
             FansiImplementations.Load();

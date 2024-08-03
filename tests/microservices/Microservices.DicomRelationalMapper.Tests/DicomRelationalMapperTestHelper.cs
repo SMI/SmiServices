@@ -59,9 +59,9 @@ namespace Microservices.Tests.RDMPTests
                     t.Drop();
 
             // delete any remnants
-            foreach(var p in catalogueRepository.GetAllObjects<Pipeline>())
+            foreach (var p in catalogueRepository.GetAllObjects<Pipeline>())
             {
-                if(p.Name.Contains("(Image Loading Pipe)"))
+                if (p.Name.Contains("(Image Loading Pipe)"))
                 {
                     p.DeleteInDatabase();
                 }

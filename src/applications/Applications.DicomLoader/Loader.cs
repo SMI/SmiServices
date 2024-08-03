@@ -25,14 +25,14 @@ namespace Applications.DicomLoader;
 
 public class Loader
 {
-    private long _dicomCount,_fileCount;
+    private long _dicomCount, _fileCount;
     private readonly Stopwatch _timer;
     private readonly IMongoCollection<BsonDocument> _imageStore;
     private readonly IMongoCollection<SeriesMessage> _seriesStore;
-    private List<ValueTuple<DicomFileMessage,DicomDataset>> _imageQueue;
+    private List<ValueTuple<DicomFileMessage, DicomDataset>> _imageQueue;
     private static readonly RecyclableMemoryStreamManager _streamManager;
     private volatile bool _backlogged, _flushing;
-    private readonly object _statsLock,_imageQueueLock;
+    private readonly object _statsLock, _imageQueueLock;
 
     // Yes, we lock the series list. Read-only while accessing, write while flushing.
     private readonly ReaderWriterLockSlim _seriesListLock;
@@ -59,7 +59,7 @@ public class Loader
     private SeriesMessage LoadSm(string id, string directoryName, DicomDataset ds, string studyId)
     {
         // Try loading from Mongo in case we were interrupted previously
-        var b=_seriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
+        var b = _seriesStore.Find(new BsonDocument("SeriesInstanceUID", id)).FirstOrDefault();
         return b ?? new SeriesMessage
         {
             DirectoryPath = directoryName,
@@ -70,9 +70,9 @@ public class Loader
         };
     }
 
-    private static SeriesMessage IncSm(string _,SeriesMessage sm)
+    private static SeriesMessage IncSm(string _, SeriesMessage sm)
     {
-        lock(sm)
+        lock (sm)
             sm.ImagesInSeries++;
         return sm;
     }
@@ -89,10 +89,10 @@ public class Loader
             _imageQueue = new List<(DicomFileMessage, DicomDataset)>(imageBatch.Length);
         }
 
-        using var mf=MongoFlush(new ArraySegment<(DicomFileMessage, DicomDataset)>(imageBatch));
+        using var mf = MongoFlush(new ArraySegment<(DicomFileMessage, DicomDataset)>(imageBatch));
         try
         {
-            if (_parallelDleHost != null && _lmd != null) FlushRelational(_parallelDleHost,_lmd, imageBatch);
+            if (_parallelDleHost != null && _lmd != null) FlushRelational(_parallelDleHost, _lmd, imageBatch);
         }
         finally
         {
@@ -101,7 +101,7 @@ public class Loader
         }
     }
 
-    public static void FlushRelational(ParallelDLEHost host,LoadMetadata lmd,IEnumerable<(DicomFileMessage,DicomDataset)> imageBatch)
+    public static void FlushRelational(ParallelDLEHost host, LoadMetadata lmd, IEnumerable<(DicomFileMessage, DicomDataset)> imageBatch)
     {
         int count;
         var lockTimer = Stopwatch.StartNew();
@@ -110,7 +110,7 @@ public class Loader
         {
             lockWait = lockTimer.ElapsedMilliseconds;
             var workList = imageBatch.Select(static i =>
-                new QueuedImage(new MessageHeader(),0,i.Item1,i.Item2)).ToList();
+                new QueuedImage(new MessageHeader(), 0, i.Item1, i.Item2)).ToList();
             try
             {
                 var result = host.RunDLE(lmd, new DicomFileMessageToDatasetListWorklist(workList));
@@ -141,7 +141,7 @@ public class Loader
         await MongoImageFlush(imageBatch);
     }
 
-    private static readonly InsertManyOptions _insertManyOptions = new () { IsOrdered = false };
+    private static readonly InsertManyOptions _insertManyOptions = new() { IsOrdered = false };
     private async Task MongoImageFlush(ArraySegment<(DicomFileMessage, DicomDataset)> imageBatch)
     {
         // Delete pre-existing entries, if applicable, then insert our queue:
@@ -191,7 +191,7 @@ public class Loader
             _seriesListLock.EnterWriteLock();
             lockTime = mongoStopwatch.ElapsedMilliseconds;
             tmp = _seriesList;
-            _seriesList = new ConcurrentDictionary<string, SeriesMessage>(Environment.ProcessorCount,_seriesList.TryGetNonEnumeratedCount(out var size)?size:1000);
+            _seriesList = new ConcurrentDictionary<string, SeriesMessage>(Environment.ProcessorCount, _seriesList.TryGetNonEnumeratedCount(out var size) ? size : 1000);
             waiting = _seriesListLock.WaitingReadCount;
         }
         finally
@@ -221,10 +221,10 @@ public class Loader
 
 
         await Console.Error.WriteLineAsync(
-            $"Flushed {seriesCount} Series objects to Mongo in {mongoStopwatch.ElapsedMilliseconds}ms. Waited {lockTime-lockStart}ms for write lock, had {waiting} threads waiting after swap, took {deleteTime-lockTime}ms to delete and {mongoStopwatch.ElapsedMilliseconds-deleteTime}ms to write.");
+            $"Flushed {seriesCount} Series objects to Mongo in {mongoStopwatch.ElapsedMilliseconds}ms. Waited {lockTime - lockStart}ms for write lock, had {waiting} threads waiting after swap, took {deleteTime - lockTime}ms to delete and {mongoStopwatch.ElapsedMilliseconds - deleteTime}ms to write.");
     }
 
-    public void Report(CancellationToken? cancellationToken=null)
+    public void Report(CancellationToken? cancellationToken = null)
     {
         if (_timer.ElapsedMilliseconds == 0) return;
         cancellationToken?.ThrowIfCancellationRequested();
@@ -242,7 +242,7 @@ public class Loader
             }
         }
 
-        Console.WriteLine($"Processed {_dicomCount} DICOM objects from {_fileCount} files in {_timer.ElapsedMilliseconds/1000}s ({1000 * _dicomCount / _timer.ElapsedMilliseconds} per second) using {used/(1024*1024)}MiB{(shouldFlush?" and about to flush":"")}");
+        Console.WriteLine($"Processed {_dicomCount} DICOM objects from {_fileCount} files in {_timer.ElapsedMilliseconds / 1000}s ({1000 * _dicomCount / _timer.ElapsedMilliseconds} per second) using {used / (1024 * 1024)}MiB{(shouldFlush ? " and about to flush" : "")}");
         if (!shouldFlush) return;
         try
         {
@@ -260,12 +260,12 @@ public class Loader
     private readonly LoadMetadata? _lmd;
 
     public Loader(IMongoDatabase database, string imageCollection, string seriesCollection,
-        DicomLoaderOptions loadOptions, ParallelDLEHost? parallelDleHost,LoadMetadata? lmd)
+        DicomLoaderOptions loadOptions, ParallelDLEHost? parallelDleHost, LoadMetadata? lmd)
     {
         _imageQueueLock = new object();
         _seriesListLock = new ReaderWriterLockSlim();
         _loadOptions = loadOptions;
-        lock(_imageQueueLock)
+        lock (_imageQueueLock)
             _imageQueue = new List<(DicomFileMessage, DicomDataset)>();
 
         try
@@ -295,7 +295,7 @@ public class Loader
     {
         ct.ThrowIfCancellationRequested();
         var dName = fi.DirectoryName ?? throw new ApplicationException($"No parent directory for '{fi.FullName}'");
-        var bBuffer=new byte[132];
+        var bBuffer = new byte[132];
         var buffer = new Span<byte>(bBuffer);
         using (var fileStream = File.OpenRead(fi.FullName))
         {
@@ -307,14 +307,14 @@ public class Loader
                 ds.Remove(DicomTag.PixelData);
                 ds = new DicomDataset(ds.Where(i => i is not DicomOtherByteFragment).ToArray());
                 Interlocked.Increment(ref _fileCount);
-                Process(ds, fi.FullName,dName, fi.Length, ct);
+                Process(ds, fi.FullName, dName, fi.Length, ct);
                 return;
             }
         }
         // Not DICOM? OK, try it as an archive:
         try
         {
-            using var archive = new LibArchiveReader(fi.FullName,64* (1 << 20));
+            using var archive = new LibArchiveReader(fi.FullName, 64 * (1 << 20));
             Interlocked.Increment(ref _fileCount);
             foreach (var entry in archive.Entries())
             {
@@ -408,7 +408,7 @@ public class Loader
         {
             _seriesListLock.ExitReadLock();
         }
-        lock(_imageQueueLock)
+        lock (_imageQueueLock)
             _imageQueue.Add((message, ds));
     }
 
@@ -452,11 +452,11 @@ public class Loader
         return ValueTask.CompletedTask;
     }
 
-    public static (DicomFileMessage,DicomDataset) ParseBson(BsonDocument arg)
+    public static (DicomFileMessage, DicomDataset) ParseBson(BsonDocument arg)
     {
         // TODO: Recover file header and dataset from Bson
         var ds = DicomTypeTranslaterWriter.BuildDicomDataset(arg);
-        var header=arg.GetElement("header").Value as BsonDocument ?? throw new Exception($"No header in {arg}");
+        var header = arg.GetElement("header").Value as BsonDocument ?? throw new Exception($"No header in {arg}");
         var msg = new DicomFileMessage
         {
             StudyInstanceUID = arg.GetElement("StudyInstanceUID").Value.AsString,

@@ -40,7 +40,7 @@ namespace Microservices.IsIdentifiable.Service
             if (statusMessage.Status != ExtractedFileStatus.Anonymised)
                 throw new ApplicationException($"Received an {statusMessage.GetType().Name} message with Status '{statusMessage.Status}' and StatusMessage '{statusMessage.StatusMessage}'");
 
-            if(statusMessage.OutputFilePath == null)
+            if (statusMessage.OutputFilePath == null)
                 throw new ApplicationException($"Received an {statusMessage.GetType().Name} message with a null OutputPath");
 
             IFileInfo toProcess = _fileSystem.FileInfo.New(

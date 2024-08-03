@@ -1,4 +1,4 @@
-﻿using Microservices.UpdateValues.Execution;
+using Microservices.UpdateValues.Execution;
 using Microservices.UpdateValues.Options;
 using Smi.Common.Execution;
 using Smi.Common.Options;

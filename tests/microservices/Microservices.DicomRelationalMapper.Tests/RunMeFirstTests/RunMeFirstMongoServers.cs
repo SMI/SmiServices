@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Smi.Common.Messaging;
 using Smi.Common.Options;
 using Smi.Common.Tests;
@@ -22,7 +22,7 @@ namespace Microservices.DicomRelationalMapper.Tests.RunMeFirstTests
             var options = new GlobalOptionsFactory().Load(nameof(RabbitAvailable));
             var rabbitOptions = options.RabbitOptions!;
 
-            Assert.DoesNotThrow(()=> _=new RabbitMQBroker(rabbitOptions,nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
+            Assert.DoesNotThrow(() => _ = new RabbitMQBroker(rabbitOptions, nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
         }
     }
 }

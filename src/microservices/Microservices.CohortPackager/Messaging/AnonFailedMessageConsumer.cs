@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Smi.Common.Messages;
 using Smi.Common.Messages.Extraction;

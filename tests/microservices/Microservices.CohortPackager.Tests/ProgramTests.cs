@@ -140,7 +140,7 @@ internal class ProgramTests
 
         // Assert
 
-        Assert.That(rc,Is.EqualTo(0));
+        Assert.That(rc, Is.EqualTo(0));
     }
 
     [Test]
@@ -156,7 +156,7 @@ internal class ProgramTests
 
         // Assert
 
-        Assert.That(rc,Is.EqualTo(1));
+        Assert.That(rc, Is.EqualTo(1));
     }
 
     [Test]
@@ -179,7 +179,7 @@ LoggingOptions:
 
         // Assert
 
-        Assert.That(rc,Is.EqualTo(1));
+        Assert.That(rc, Is.EqualTo(1));
     }
 
     [Test]
@@ -205,7 +205,7 @@ MongoDatabases:
 
         // Assert
 
-        Assert.That(rc,Is.EqualTo(1));
+        Assert.That(rc, Is.EqualTo(1));
     }
 
     [Test]
@@ -227,7 +227,7 @@ LoggingOptions:
 
         // Assert
 
-        Assert.That(rc,Is.EqualTo(-1));
+        Assert.That(rc, Is.EqualTo(-1));
     }
 
     #endregion

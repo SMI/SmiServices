@@ -58,8 +58,8 @@ namespace Microservices.Tests.RDMPTests
 
                 Assert.Multiple(() =>
                 {
-                    Assert.That(host.Consumer?.DatabaseNamer.GetType(),Is.EqualTo(expectedType));
-                    Assert.That(host,Is.Not.Null);
+                    Assert.That(host.Consumer?.DatabaseNamer.GetType(), Is.EqualTo(expectedType));
+                    Assert.That(host, Is.Not.Null);
                 });
 
                 host.Stop("Test finished");
@@ -79,12 +79,12 @@ namespace Microservices.Tests.RDMPTests
             var raw = namer.GetDatabaseName("test", LoadBubble.Raw);
             Console.WriteLine(raw);
 
-            Assert.That(raw,Does.Contain("6ff"));
+            Assert.That(raw, Does.Contain("6ff"));
 
             var staging = namer.GetDatabaseName("test", LoadBubble.Staging);
             Console.WriteLine(staging);
 
-            Assert.That(staging,Does.Contain("6ff"));
+            Assert.That(staging, Does.Contain("6ff"));
         }
 
     }

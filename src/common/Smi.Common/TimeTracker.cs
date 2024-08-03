@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 
 namespace Smi.Common
@@ -6,7 +6,7 @@ namespace Smi.Common
     /// <summary>
     /// Runs a <see cref="Stopwatch"/> for the duration of the using statement (this class is <see cref="IDisposable"/>)
     /// </summary>
-    public class TimeTracker:IDisposable
+    public class TimeTracker : IDisposable
     {
         private readonly Stopwatch _sw;
 

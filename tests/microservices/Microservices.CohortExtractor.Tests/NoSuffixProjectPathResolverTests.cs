@@ -10,7 +10,7 @@ namespace Microservices.CohortExtractor.Tests
 {
     public class NoSuffixProjectPathResolverTests : UnitTests
     {
-        
+
         [TestCase("study", "series")]
         [TestCase("study", null)]
         [TestCase(null, "series")]
@@ -26,7 +26,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()),Is.EqualTo(Path.Combine(
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()), Is.EqualTo(Path.Combine(
                     study ?? "unknown",
                     series ?? "unknown",
                     "foo.dcm")));
@@ -47,7 +47,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()),Is.EqualTo(Path.Combine(
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()), Is.EqualTo(Path.Combine(
                     "study",
                     "series",
                     expectedOutput)));
@@ -65,7 +65,7 @@ namespace Microservices.CohortExtractor.Tests
                 null);
 
             Assert.That(
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()),Is.EqualTo(Path.Combine(
+                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()), Is.EqualTo(Path.Combine(
                     "study",
                     "unknown",
                     "file.dcm")));
@@ -74,8 +74,8 @@ namespace Microservices.CohortExtractor.Tests
         [Test]
         public void TestCreatingByReflection()
         {
-            var instance = new MicroserviceObjectFactory().CreateInstance<IProjectPathResolver>("Microservices.CohortExtractor.Execution.ProjectPathResolvers.NoSuffixProjectPathResolver", typeof(IProjectPathResolver).Assembly,RepositoryLocator);
-            Assert.That(instance,Is.InstanceOf<NoSuffixProjectPathResolver>());
+            var instance = new MicroserviceObjectFactory().CreateInstance<IProjectPathResolver>("Microservices.CohortExtractor.Execution.ProjectPathResolvers.NoSuffixProjectPathResolver", typeof(IProjectPathResolver).Assembly, RepositoryLocator);
+            Assert.That(instance, Is.InstanceOf<NoSuffixProjectPathResolver>());
         }
     }
 }

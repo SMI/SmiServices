@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using NUnit.Framework;
@@ -81,7 +81,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 isNoFilterExtraction: true
                 );
 
-            Assert.That(extractJobInfo,Is.EqualTo(expected));
+            Assert.That(extractJobInfo, Is.EqualTo(expected));
         }
 
         #endregion

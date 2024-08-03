@@ -13,7 +13,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     /// A swapper that wraps <see cref="TableLookupWithGuidFallbackSwapper"/> and uses a Redis database (on localhost)
     /// to store cached values
     /// </summary>
-    public class RedisSwapper : SwapIdentifiers,IDisposable
+    public class RedisSwapper : SwapIdentifiers, IDisposable
     {
         private readonly ConnectionMultiplexer _redis;
         private ISwapIdentifiers _hostedSwapper;
@@ -69,7 +69,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                             Interlocked.Increment(ref CacheMiss);
 
                             //Go to the hosted swapper
-                            lock(_hostedSwapper)
+                            lock (_hostedSwapper)
                             {
                                 result = _hostedSwapper.GetSubstitutionFor(toSwap, out reason);
                             }
@@ -80,7 +80,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
                         _cache.Set(toSwap, result ?? NullString, new MemoryCacheEntryOptions
                         {
-                            Size=1
+                            Size = 1
                         });
                     }
                 }
@@ -126,10 +126,10 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         public override void LogProgress(ILogger logger, LogLevel level)
         {
             //output the Redis stats
-            base.LogProgress(logger,level);
+            base.LogProgress(logger, level);
 
             //output the hosted mapper stats
-            _hostedSwapper.LogProgress(logger,level);
+            _hostedSwapper.LogProgress(logger, level);
         }
 
         public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)

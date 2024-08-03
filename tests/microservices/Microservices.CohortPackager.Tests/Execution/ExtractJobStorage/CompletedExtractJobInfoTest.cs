@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using NUnit.Framework;
 using Smi.Common.Tests;
 using System;
@@ -65,7 +65,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.That(info2,Is.EqualTo(info1));
+            Assert.That(info2, Is.EqualTo(info1));
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage
                 isNoFilterExtraction: true
                 );
 
-            Assert.That(info2.GetHashCode(),Is.EqualTo(info1.GetHashCode()));
+            Assert.That(info2.GetHashCode(), Is.EqualTo(info1.GetHashCode()));
         }
 
         #endregion

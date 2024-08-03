@@ -80,9 +80,9 @@ namespace Microservices.DicomTagReader.Tests.Execution
         [Test]
         public void TestTagReader_SingleFileMode()
         {
-            var dirRoot = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory,"TestTagReader_SingleFileMode"));
-            
-            if(dirRoot.Exists)
+            var dirRoot = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestTagReader_SingleFileMode"));
+
+            if (dirRoot.Exists)
                 dirRoot.Delete(true);
 
             dirRoot.Create();
@@ -95,27 +95,27 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var host = new DicomTagReaderHost(_helper.Options);
 
             var r = new Random(5);
-            var generator = new DicomDataGenerator(r,julyFolder.FullName,"CT");
-            var files = generator.GenerateImageFiles(10,r).ToArray();
+            var generator = new DicomDataGenerator(r, julyFolder.FullName, "CT");
+            var files = generator.GenerateImageFiles(10, r).ToArray();
 
             host.AccessionDirectoryMessageConsumer.RunSingleFile(files[2]);
 
             Assert.Multiple(() =>
             {
-                Assert.That(_helper.ImageCount,Is.EqualTo(1));
-                Assert.That(_helper.SeriesCount,Is.EqualTo(1));
+                Assert.That(_helper.ImageCount, Is.EqualTo(1));
+                Assert.That(_helper.SeriesCount, Is.EqualTo(1));
             });
 
-            var julyZip = Path.Combine(dirRoot.FullName,"july.zip");
+            var julyZip = Path.Combine(dirRoot.FullName, "july.zip");
 
-            ZipFile.CreateFromDirectory(julyFolder.FullName,julyZip);
+            ZipFile.CreateFromDirectory(julyFolder.FullName, julyZip);
 
             host.AccessionDirectoryMessageConsumer.RunSingleFile(new FileInfo(julyZip));
 
             Assert.Multiple(() =>
             {
-                Assert.That(_helper.ImageCount,Is.EqualTo(11));
-                Assert.That(_helper.SeriesCount,Is.GreaterThanOrEqualTo(1));
+                Assert.That(_helper.ImageCount, Is.EqualTo(11));
+                Assert.That(_helper.SeriesCount, Is.GreaterThanOrEqualTo(1));
             });
         }
     }

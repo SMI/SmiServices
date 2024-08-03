@@ -3,9 +3,6 @@
     <AssemblyName>IdentifierMapper</AssemblyName>
     <OutputType>Library</OutputType>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <None Include="IdentifierMapper.cd" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />

@@ -1,4 +1,4 @@
-﻿
+
 using FellowOakDicom;
 using DicomTypeTranslation;
 using Microservices.MongoDBPopulator.Execution;
@@ -44,28 +44,28 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         {
             Assert.Multiple(() =>
             {
-                Assert.That(message,Is.Not.Null);
-                Assert.That(document,Is.Not.Null);
+                Assert.That(message, Is.Not.Null);
+                Assert.That(document, Is.Not.Null);
             });
 
-            Assert.That(document.TryGetElement("header", out var element),Is.True);
+            Assert.That(document.TryGetElement("header", out var element), Is.True);
 
             var docHeader = (BsonDocument)element.Value;
             Assert.Multiple(() =>
             {
-                Assert.That(docHeader.ElementCount,Is.EqualTo(_seriesMessageProps.Count - 3));
-                Assert.That(docHeader["DirectoryPath"].AsString,Is.EqualTo(message.DirectoryPath));
-                Assert.That(docHeader["ImagesInSeries"].AsInt32,Is.EqualTo(message.ImagesInSeries));
+                Assert.That(docHeader.ElementCount, Is.EqualTo(_seriesMessageProps.Count - 3));
+                Assert.That(docHeader["DirectoryPath"].AsString, Is.EqualTo(message.DirectoryPath));
+                Assert.That(docHeader["ImagesInSeries"].AsInt32, Is.EqualTo(message.ImagesInSeries));
             });
 
             DicomDataset dataset = DicomTypeTranslater.DeserializeJsonToDataset(message.DicomDataset);
-            Assert.That(dataset,Is.Not.Null);
+            Assert.That(dataset, Is.Not.Null);
 
             BsonDocument datasetDocument = DicomTypeTranslaterReader.BuildBsonDocument(dataset);
             document.Remove("_id");
             document.Remove("header");
 
-            Assert.That(document,Is.EqualTo(datasetDocument));
+            Assert.That(document, Is.EqualTo(datasetDocument));
         }
 
         [Test]
@@ -108,13 +108,13 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
 
             Assert.Multiple(() =>
             {
-                Assert.That(callbackUsed,Is.False);
-                Assert.That(processor.AckCount,Is.EqualTo(1));
+                Assert.That(callbackUsed, Is.False);
+                Assert.That(processor.AckCount, Is.EqualTo(1));
             });
 
             IMongoCollection<BsonDocument> collection = _helper.TestDatabase.GetCollection<BsonDocument>(collectionName);
 
-            Assert.That(collection.CountDocuments(new BsonDocument()),Is.EqualTo(1));
+            Assert.That(collection.CountDocuments(new BsonDocument()), Is.EqualTo(1));
 
             BsonDocument document = collection.Find(_ => true).ToList()[0];
 

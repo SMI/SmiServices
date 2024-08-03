@@ -1,4 +1,4 @@
-﻿using FAnsi.Discovery;
+using FAnsi.Discovery;
 using System.Diagnostics;
 using System.Threading;
 
@@ -21,7 +21,7 @@ namespace Microservices.UpdateValues.Execution
         /// <summary>
         /// The total length of time spent running queries on this <see cref="Table"/>
         /// </summary>
-        public Stopwatch Stopwatch {get;} = new Stopwatch();
+        public Stopwatch Stopwatch { get; } = new Stopwatch();
 
         /// <summary>
         /// The number of queries currently executing
@@ -48,18 +48,18 @@ namespace Microservices.UpdateValues.Execution
         {
             Interlocked.Increment(ref ExecutingQueries);
             Interlocked.Increment(ref Queries);
-            
+
             Stopwatch.Start();
         }
 
         public void EndOne(int affectedRows)
         {
-            Interlocked.Add(ref AffectedRows,affectedRows);
+            Interlocked.Add(ref AffectedRows, affectedRows);
             Interlocked.Decrement(ref ExecutingQueries);
-            
-            lock(lockWatch)
+
+            lock (lockWatch)
             {
-                if(ExecutingQueries == 0)
+                if (ExecutingQueries == 0)
                 {
                     Stopwatch.Stop();
                 }

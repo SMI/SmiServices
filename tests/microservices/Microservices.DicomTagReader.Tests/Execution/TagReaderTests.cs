@@ -58,7 +58,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var fi = new FileInfo(Path.Combine(_helper.TestDir.FullName, "InvalidFile.dcm"));
             File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
 
-            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(),Is.EqualTo(2));
+            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(), Is.EqualTo(2));
 
             _helper.Options.DicomTagReaderOptions!.NackIfAnyFileErrors = nackIfAnyFileErrors;
             _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
@@ -78,12 +78,12 @@ namespace Microservices.DicomTagReader.Tests.Execution
             if (nackIfAnyFileErrors)
             {
                 Assert.Throws<ApplicationException>(() => tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage));
-                Assert.That(messagesSent,Is.EqualTo(0));
+                Assert.That(messagesSent, Is.EqualTo(0));
             }
             else
             {
                 tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
-                Assert.That(messagesSent,Is.EqualTo(1));
+                Assert.That(messagesSent, Is.EqualTo(1));
             }
         }
 
@@ -110,7 +110,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             foreach (FileInfo file in _helper.TestDir.EnumerateFiles("*.dcm"))
                 file.Delete();
 
-            Assert.That(!_helper.TestDir.EnumerateFiles("*.dcm").Any(),Is.True);
+            Assert.That(!_helper.TestDir.EnumerateFiles("*.dcm").Any(), Is.True);
 
             _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
@@ -130,7 +130,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
             File.Copy($"{_helper.TestDir.FullName}/MyTestFile.dcm", $"{_helper.TestDir.FullName}/MyTestFile2.dcm");
-            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(),Is.EqualTo(2));
+            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(), Is.EqualTo(2));
 
             IMessage? message = null;
 
@@ -146,11 +146,11 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
             tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
 
-            Assert.That(message,Is.Not.EqualTo(null));
+            Assert.That(message, Is.Not.EqualTo(null));
 
             var seriesMessage = message as SeriesMessage;
-            Assert.That(seriesMessage,Is.Not.EqualTo(null));
-            Assert.That(seriesMessage!.ImagesInSeries,Is.EqualTo(2));
+            Assert.That(seriesMessage, Is.Not.EqualTo(null));
+            Assert.That(seriesMessage!.ImagesInSeries, Is.EqualTo(2));
         }
 
         /// <summary>
@@ -163,25 +163,25 @@ namespace Microservices.DicomTagReader.Tests.Execution
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
             File.Copy($"{_helper.TestDir.FullName}/MyTestFile.dcm", $"{_helper.TestDir.FullName}/MyTestFile2.dcm");
-            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(),Is.EqualTo(2));
+            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(), Is.EqualTo(2));
 
             // Where we want to put it
-            var zipFilePath = Path.Combine(_helper.TestDir.FullName,"my.zip");
+            var zipFilePath = Path.Combine(_helper.TestDir.FullName, "my.zip");
 
             //create the zip file in a temporary directory outside of the working directory to avoid file access errors
             var tempDir = _helper.TestDir.Parent!.CreateSubdirectory("temppp");
-            var tempPath = Path.Combine(tempDir.FullName,"my.zip");
-                        
+            var tempPath = Path.Combine(tempDir.FullName, "my.zip");
+
             //zip everything in the working dir to the temp path zip file
-            ZipFile.CreateFromDirectory(_helper.TestDir.FullName,tempPath);
+            ZipFile.CreateFromDirectory(_helper.TestDir.FullName, tempPath);
 
             //then move the zip file where we actually want it (in the working path)
-            File.Move(tempPath,zipFilePath);
+            File.Move(tempPath, zipFilePath);
 
             Assert.Multiple(() =>
             {
-                Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(),Is.EqualTo(2));
-                Assert.That(_helper.TestDir.EnumerateFiles("*.zip").Count(),Is.EqualTo(1));
+                Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(), Is.EqualTo(2));
+                Assert.That(_helper.TestDir.EnumerateFiles("*.zip").Count(), Is.EqualTo(1));
             });
 
             IMessage? message = null;
@@ -200,22 +200,22 @@ namespace Microservices.DicomTagReader.Tests.Execution
             var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
             tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
 
-            Assert.That(message,Is.Not.EqualTo(null));
+            Assert.That(message, Is.Not.EqualTo(null));
 
             var seriesMessage = message as SeriesMessage;
-            Assert.That(seriesMessage,Is.Not.EqualTo(null));
+            Assert.That(seriesMessage, Is.Not.EqualTo(null));
 
             Assert.Multiple(() =>
             {
-                Assert.That(seriesMessage!.ImagesInSeries,Is.EqualTo(4),"Expected 4, 2 in the zip archive and 2 in the root");
+                Assert.That(seriesMessage!.ImagesInSeries, Is.EqualTo(4), "Expected 4, 2 in the zip archive and 2 in the root");
 
-                Assert.That(fileImages,Has.Count.EqualTo(4),"Expected 4 file messages to be sent and recorded by TestImageModel Callback");
+                Assert.That(fileImages, Has.Count.EqualTo(4), "Expected 4 file messages to be sent and recorded by TestImageModel Callback");
             });
 
-            Assert.That(fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray(),Does.Contain("MyTestFile.dcm"));
-            Assert.That(fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray(),Does.Contain("MyTestFile2.dcm"));
-            Assert.That(fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray(),Does.Contain("my.zip!MyTestFile.dcm"));
-            Assert.That(fileImages.Select(m=>((DicomFileMessage)m).DicomFilePath).ToArray(),Does.Contain("my.zip!MyTestFile2.dcm"));
+            Assert.That(fileImages.Select(m => ((DicomFileMessage)m).DicomFilePath).ToArray(), Does.Contain("MyTestFile.dcm"));
+            Assert.That(fileImages.Select(m => ((DicomFileMessage)m).DicomFilePath).ToArray(), Does.Contain("MyTestFile2.dcm"));
+            Assert.That(fileImages.Select(m => ((DicomFileMessage)m).DicomFilePath).ToArray(), Does.Contain("my.zip!MyTestFile.dcm"));
+            Assert.That(fileImages.Select(m => ((DicomFileMessage)m).DicomFilePath).ToArray(), Does.Contain("my.zip!MyTestFile2.dcm"));
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace Microservices.DicomTagReader.Tests.Execution
             File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
 
             // One valid, one invalid
-            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(),Is.EqualTo(2));
+            Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(), Is.EqualTo(2));
 
             var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
 

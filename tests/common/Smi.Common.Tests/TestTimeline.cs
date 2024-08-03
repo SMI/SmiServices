@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages;
 using Smi.Common.Options;
 using System;
@@ -27,7 +27,7 @@ namespace Smi.Common.Tests
 
         public TestTimeline Wait(int milliseconds)
         {
-            Operations.Enqueue(() =>Task.Delay(milliseconds, cts.Token));
+            Operations.Enqueue(() => Task.Delay(milliseconds, cts.Token));
             return this;
         }
 
@@ -46,7 +46,7 @@ namespace Smi.Common.Tests
                 foreach (Action a in Operations)
                     if (cts.IsCancellationRequested)
                         break;
-                    else    
+                    else
                         a();
             }).Start();
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
 using NUnit.Framework;
 using Smi.Common.Tests;
@@ -37,7 +37,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Notifying
         public void GetNotifier_ConstructsLoggingNotifier()
         {
             IJobCompleteNotifier notifier = JobCompleteNotifierFactory.GetNotifier(notifierTypeStr: "LoggingNotifier");
-            Assert.That(notifier is LoggingNotifier,Is.True);
+            Assert.That(notifier is LoggingNotifier, Is.True);
         }
 
         [Test]

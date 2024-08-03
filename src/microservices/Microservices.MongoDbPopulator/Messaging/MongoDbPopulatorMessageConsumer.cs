@@ -1,4 +1,4 @@
-﻿using Microservices.MongoDBPopulator.Execution;
+using Microservices.MongoDBPopulator.Execution;
 using Microservices.MongoDBPopulator.Execution.Processing;
 using Smi.Common.Messages;
 using Smi.Common.Messaging;

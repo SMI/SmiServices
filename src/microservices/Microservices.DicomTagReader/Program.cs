@@ -1,4 +1,4 @@
-﻿using Microservices.DicomTagReader.Execution;
+using Microservices.DicomTagReader.Execution;
 using NLog;
 using Smi.Common.Execution;
 using Smi.Common.Options;

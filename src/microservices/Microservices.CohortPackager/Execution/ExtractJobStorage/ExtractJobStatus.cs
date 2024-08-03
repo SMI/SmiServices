@@ -1,4 +1,4 @@
-﻿
+
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage
 {
     /// <summary>

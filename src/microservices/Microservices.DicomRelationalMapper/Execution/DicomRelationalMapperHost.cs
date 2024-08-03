@@ -46,7 +46,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
             var lmd = repositoryLocator.CatalogueRepository.GetObjectByID<LoadMetadata>(Globals.DicomRelationalMapperOptions!.LoadMetadataId);
 
-            var databaseNamerType = MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType)??throw new Exception($"Could not find Type '{Globals.DicomRelationalMapperOptions.DatabaseNamerType}'");
+            var databaseNamerType = MEF.GetType(Globals.DicomRelationalMapperOptions.DatabaseNamerType) ?? throw new Exception($"Could not find Type '{Globals.DicomRelationalMapperOptions.DatabaseNamerType}'");
 
             var liveDatabaseName = lmd.GetDistinctLiveDatabaseServer().GetCurrentDatabase()?.GetRuntimeName() ?? throw new Exception("Unable to find database name");
 
@@ -66,7 +66,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
         private void Startup_DatabaseFound(object sender, PlatformDatabaseFoundEventArgs e)
         {
-            
+
             var msg = "RDMPPlatformDatabaseStatus is " + e.Status + " for tier " + e.Patcher.Tier +
                       (e.Exception == null
                           ? "No exception"
@@ -85,7 +85,7 @@ namespace Microservices.DicomRelationalMapper.Execution
 
         public void Dispose()
         {
-            if(Consumer != null)
+            if (Consumer != null)
                 Consumer.Dispose();
         }
     }

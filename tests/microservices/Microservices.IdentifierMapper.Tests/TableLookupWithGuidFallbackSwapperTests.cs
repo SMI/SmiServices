@@ -23,14 +23,14 @@ namespace Microservices.IdentifierMapper.Tests
             var db = GetCleanedServer(dbType);
 
             DiscoveredTable map;
-            
+
             using (var dt = new DataTable())
             {
                 dt.Columns.Add("CHI");
                 dt.Columns.Add("ECHI");
 
                 dt.Rows.Add("0101010101", "0A0A0A0A0A");
-                map = db.CreateTable("Map",dt);
+                map = db.CreateTable("Map", dt);
             }
 
             var options = new IdentifierMapperOptions
@@ -46,54 +46,54 @@ namespace Microservices.IdentifierMapper.Tests
             swapper.Setup(options);
 
             //cache hit
-            var answer = swapper.GetSubstitutionFor("0101010101",out var reason);
+            var answer = swapper.GetSubstitutionFor("0101010101", out var reason);
             Assert.Multiple(() =>
             {
-                Assert.That(answer,Is.EqualTo("0A0A0A0A0A"));
-                Assert.That(reason,Is.Null);
+                Assert.That(answer, Is.EqualTo("0A0A0A0A0A"));
+                Assert.That(reason, Is.Null);
             });
 
             var guidTable = swapper.GetGuidTableIfAny(options);
 
             Assert.Multiple(() =>
             {
-                Assert.That(guidTable!.GetRuntimeName(),Is.EqualTo("Map_guid"));
+                Assert.That(guidTable!.GetRuntimeName(), Is.EqualTo("Map_guid"));
 
                 //The key column should match the SwapColumnName
-                Assert.That(guidTable.DiscoverColumn("CHI"),Is.Not.Null);
+                Assert.That(guidTable.DiscoverColumn("CHI"), Is.Not.Null);
 
                 //but the swap column should always be called guid
-                Assert.That(guidTable.DiscoverColumn("guid"),Is.Not.Null);
+                Assert.That(guidTable.DiscoverColumn("guid"), Is.Not.Null);
             });
 
-            var answer2 = swapper.GetSubstitutionFor("0202020202",out reason);
+            var answer2 = swapper.GetSubstitutionFor("0202020202", out reason);
 
             //should be a guid e.g. like "bc70d07d-4c77-4086-be1c-2971fd66ccf2"
-            Assert.That(answer2,Is.Not.Null);
+            Assert.That(answer2, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(answer2!.Count(c => c=='-'),Is.EqualTo(4),$"Answer '{answer2}' did not look like a guid");
-                Assert.That(reason,Is.Null);
+                Assert.That(answer2!.Count(c => c == '-'), Is.EqualTo(4), $"Answer '{answer2}' did not look like a guid");
+                Assert.That(reason, Is.Null);
 
                 //make sure the guid mapping table has the correct row persisted for repeated calls
-                Assert.That(guidTable,Is.Not.Null);
-                Assert.That(guidTable?.Exists(),Is.True);
-                Assert.That(guidTable?.GetRowCount(),Is.EqualTo(1));
-                Assert.That(guidTable?.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
-                Assert.That(guidTable?.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
+                Assert.That(guidTable, Is.Not.Null);
+                Assert.That(guidTable?.Exists(), Is.True);
+                Assert.That(guidTable?.GetRowCount(), Is.EqualTo(1));
+                Assert.That(guidTable?.GetDataTable().Rows[0]["CHI"], Is.EqualTo("0202020202"));
+                Assert.That(guidTable?.GetDataTable().Rows[0]["guid"], Is.EqualTo(answer2));
 
 
                 //repeated misses should not result in more rows and should return the same guid (obviously)
-                Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
+                Assert.That(swapper.GetSubstitutionFor("0202020202", out reason), Is.EqualTo(answer2));
             });
-            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
+            Assert.That(swapper.GetSubstitutionFor("0202020202", out reason), Is.EqualTo(answer2));
             Assert.Multiple(() =>
             {
-                Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo(answer2));
+                Assert.That(swapper.GetSubstitutionFor("0202020202", out reason), Is.EqualTo(answer2));
 
-                Assert.That(guidTable.GetRowCount(),Is.EqualTo(1));
-                Assert.That(guidTable.GetDataTable().Rows[0]["CHI"],Is.EqualTo("0202020202"));
-                Assert.That(guidTable.GetDataTable().Rows[0]["guid"],Is.EqualTo(answer2));
+                Assert.That(guidTable.GetRowCount(), Is.EqualTo(1));
+                Assert.That(guidTable.GetDataTable().Rows[0]["CHI"], Is.EqualTo("0202020202"));
+                Assert.That(guidTable.GetDataTable().Rows[0]["guid"], Is.EqualTo(answer2));
             });
 
 
@@ -104,29 +104,29 @@ namespace Microservices.IdentifierMapper.Tests
             //note that the below line could fail if we ever implement miss caching (i.e. cache that we looked up the value and failed in the lookup swapper in which case this test would need to clearcache)
 
             //now that we have a cache hit we can lookup the good value
-            Assert.That(swapper.GetSubstitutionFor("0202020202",out reason),Is.EqualTo("0B0B0B0B0B"));
+            Assert.That(swapper.GetSubstitutionFor("0202020202", out reason), Is.EqualTo("0B0B0B0B0B"));
 
         }
 
-        [TestCase(DatabaseType.MySql,true)]
-        [TestCase(DatabaseType.MySql,false)]
-        [TestCase(DatabaseType.MicrosoftSQLServer,true)]
-        [TestCase(DatabaseType.MicrosoftSQLServer,false)]
+        [TestCase(DatabaseType.MySql, true)]
+        [TestCase(DatabaseType.MySql, false)]
+        [TestCase(DatabaseType.MicrosoftSQLServer, true)]
+        [TestCase(DatabaseType.MicrosoftSQLServer, false)]
         public void Test_SwapValueTooLong(DatabaseType dbType, bool createGuidTableUpFront)
         {
             var db = GetCleanedServer(dbType);
 
             DiscoveredTable map;
-            
+
             using (var dt = new DataTable())
             {
                 dt.Columns.Add("CHI");
                 dt.Columns.Add("ECHI");
 
                 dt.Rows.Add("0101010101", "0A0A0A0A0A");
-                map = db.CreateTable("Map",dt);
+                map = db.CreateTable("Map", dt);
             }
-            
+
             using (var dt = new DataTable())
             {
                 dt.Columns.Add("CHI");
@@ -134,11 +134,11 @@ namespace Microservices.IdentifierMapper.Tests
 
             }
 
-            if(createGuidTableUpFront)
-                db.CreateTable("Map_guid",new DatabaseColumnRequest[]
+            if (createGuidTableUpFront)
+                db.CreateTable("Map_guid", new DatabaseColumnRequest[]
                 {
-                    new DatabaseColumnRequest("CHI",new DatabaseTypeRequest(typeof(string),30,null)), 
-                    new DatabaseColumnRequest("Guid",new DatabaseTypeRequest(typeof(string),36,null)), 
+                    new DatabaseColumnRequest("CHI",new DatabaseTypeRequest(typeof(string),30,null)),
+                    new DatabaseColumnRequest("Guid",new DatabaseTypeRequest(typeof(string),36,null)),
                 });
 
 
@@ -155,13 +155,13 @@ namespace Microservices.IdentifierMapper.Tests
             swapper.Setup(options);
 
             //cache hit
-            var answer = swapper.GetSubstitutionFor("010101010031002300020320402054240204022433040301",out var reason);
+            var answer = swapper.GetSubstitutionFor("010101010031002300020320402054240204022433040301", out var reason);
             Assert.Multiple(() =>
             {
-                Assert.That(answer,Is.Null);
+                Assert.That(answer, Is.Null);
 
                 Assert.That(
-    reason,Is.EqualTo($"Supplied value was too long (48) - max allowed is ({(createGuidTableUpFront ? 30 : 10)})").IgnoreCase);
+    reason, Is.EqualTo($"Supplied value was too long (48) - max allowed is ({(createGuidTableUpFront ? 30 : 10)})").IgnoreCase);
             });
         }
     }

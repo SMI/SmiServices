@@ -1,4 +1,4 @@
-﻿using Smi.Common.Messages.Updating;
+using Smi.Common.Messages.Updating;
 
 namespace Microservices.UpdateValues.Execution
 {

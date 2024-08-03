@@ -35,7 +35,7 @@ namespace Setup
         /// </summary>
         internal static string YamlFile
         {
-            get => AppSettings?.GetValueOrDefault("YamlFile", "") ?? throw new InvalidOperationException("AppSettings not yet initialised") ;
+            get => AppSettings?.GetValueOrDefault("YamlFile", "") ?? throw new InvalidOperationException("AppSettings not yet initialised");
             set => AppSettings.AddOrUpdateValue("YamlFile", value);
         }
 

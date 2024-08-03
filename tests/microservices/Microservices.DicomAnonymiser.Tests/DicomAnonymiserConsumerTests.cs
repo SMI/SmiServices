@@ -1,4 +1,4 @@
-﻿using Microservices.DicomAnonymiser.Anonymisers;
+using Microservices.DicomAnonymiser.Anonymisers;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
@@ -67,10 +67,10 @@ namespace Microservices.DicomAnonymiser.Tests
             dicomFile.FileMetaInfo.MediaStorageSOPInstanceUID = DicomUIDGenerator.GenerateDerivedFromUUID();
             dicomFile.FileMetaInfo.ImplementationClassUID = DicomUIDGenerator.GenerateDerivedFromUUID();
             dicomFile.FileMetaInfo.TransferSyntax = DicomTransferSyntax.ExplicitVRLittleEndian;
-            
+
             using var stream = new MemoryStream();
             dicomFile.Save(stream);
-            
+
             var dicomBytes = stream.ToArray();
             _mockFs.AddFile(_sourceDcmPathAbs, new MockFileData(dicomBytes));
 
@@ -200,10 +200,10 @@ namespace Microservices.DicomAnonymiser.Tests
             TestTimelineAwaiter.Await(() => fatalArgs != null, "Expected Fatal to be called");
             Assert.Multiple(() =>
             {
-                Assert.That(fatalArgs?.Message,Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
-                Assert.That(fatalArgs!.Exception!.Message,Is.EqualTo("DicomAnonymiserConsumer should not handle identifiable extraction messages"));
-                Assert.That(consumer.AckCount,Is.EqualTo(0));
-                Assert.That(consumer.NackCount,Is.EqualTo(0));
+                Assert.That(fatalArgs?.Message, Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
+                Assert.That(fatalArgs!.Exception!.Message, Is.EqualTo("DicomAnonymiserConsumer should not handle identifiable extraction messages"));
+                Assert.That(consumer.AckCount, Is.EqualTo(0));
+                Assert.That(consumer.NackCount, Is.EqualTo(0));
             });
         }
 
@@ -297,10 +297,10 @@ namespace Microservices.DicomAnonymiser.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(fatalArgs?.Message,Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
-                Assert.That(fatalArgs!.Exception!.Message,Is.EqualTo($"Expected extraction directory to exist: '{_extractDir}'"));
-                Assert.That(consumer.AckCount,Is.EqualTo(0));
-                Assert.That(consumer.NackCount,Is.EqualTo(0));
+                Assert.That(fatalArgs?.Message, Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
+                Assert.That(fatalArgs!.Exception!.Message, Is.EqualTo($"Expected extraction directory to exist: '{_extractDir}'"));
+                Assert.That(consumer.AckCount, Is.EqualTo(0));
+                Assert.That(consumer.NackCount, Is.EqualTo(0));
             });
         }
 

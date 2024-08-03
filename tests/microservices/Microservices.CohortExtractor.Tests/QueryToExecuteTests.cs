@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microservices.CohortExtractor.Execution.RequestFulfillers;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
@@ -13,8 +13,8 @@ namespace Microservices.CohortExtractor.Tests
         {
             var cata = WhenIHaveA<Catalogue>();
 
-            var ex = Assert.Throws<ArgumentNullException>(()=>new QueryToExecuteColumnSet(cata, null,null,null,null));
-            Assert.That(ex!.Message,Does.Match(@"Parameter.+filePathColumn"));
+            var ex = Assert.Throws<ArgumentNullException>(() => new QueryToExecuteColumnSet(cata, null, null, null, null));
+            Assert.That(ex!.Message, Does.Match(@"Parameter.+filePathColumn"));
         }
     }
 }

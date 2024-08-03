@@ -16,10 +16,10 @@ namespace Smi.Common.Tests
             GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(GlobalOptions_Test));
             Assert.Multiple(() =>
             {
-                Assert.That(string.IsNullOrWhiteSpace(globals.RabbitOptions!.RabbitMqHostName),Is.False);
-                Assert.That(string.IsNullOrWhiteSpace(globals.FileSystemOptions!.FileSystemRoot),Is.False);
-                Assert.That(string.IsNullOrWhiteSpace(globals.RDMPOptions!.CatalogueConnectionString),Is.False);
-                Assert.That(string.IsNullOrWhiteSpace(globals.RDMPOptions.DataExportConnectionString),Is.False);
+                Assert.That(string.IsNullOrWhiteSpace(globals.RabbitOptions!.RabbitMqHostName), Is.False);
+                Assert.That(string.IsNullOrWhiteSpace(globals.FileSystemOptions!.FileSystemRoot), Is.False);
+                Assert.That(string.IsNullOrWhiteSpace(globals.RDMPOptions!.CatalogueConnectionString), Is.False);
+                Assert.That(string.IsNullOrWhiteSpace(globals.RDMPOptions.DataExportConnectionString), Is.False);
             });
         }
 
@@ -28,20 +28,20 @@ namespace Smi.Common.Tests
         {
             var producerOptions = new ProducerOptions();
 
-            Assert.That(producerOptions.VerifyPopulated(),Is.False);
+            Assert.That(producerOptions.VerifyPopulated(), Is.False);
 
             producerOptions.ExchangeName = "";
-            Assert.That(producerOptions.VerifyPopulated(),Is.False);
+            Assert.That(producerOptions.VerifyPopulated(), Is.False);
 
             producerOptions.ExchangeName = "Test.ExchangeName";
-            Assert.That(producerOptions.VerifyPopulated(),Is.True);
+            Assert.That(producerOptions.VerifyPopulated(), Is.True);
 
             var consumerOptions = new ConsumerOptions();
 
-            Assert.That(consumerOptions.VerifyPopulated(),Is.False);
+            Assert.That(consumerOptions.VerifyPopulated(), Is.False);
 
             consumerOptions.QueueName = "Test.QueueName";
-            Assert.That(consumerOptions.VerifyPopulated(),Is.True);
+            Assert.That(consumerOptions.VerifyPopulated(), Is.True);
         }
 
         [Test]
@@ -49,9 +49,9 @@ namespace Smi.Common.Tests
         {
             GlobalOptions g = new GlobalOptionsFactory().Load(nameof(Test_GlobalOptionsUseTestValues_Nulls));
 
-            Assert.That(g.RabbitOptions!.RabbitMqHostName,Is.Not.Null);
+            Assert.That(g.RabbitOptions!.RabbitMqHostName, Is.Not.Null);
             g.UseTestValues(null, null, null, null, null);
-            Assert.That(g.RabbitOptions.RabbitMqHostName,Is.Null);
+            Assert.That(g.RabbitOptions.RabbitMqHostName, Is.Null);
         }
 
         [Test]
@@ -80,8 +80,8 @@ namespace Smi.Common.Tests
             var g = factory.Load(nameof(TestDecorators));
             Assert.Multiple(() =>
             {
-                Assert.That(g.MongoDatabases!.DicomStoreOptions!.DatabaseName,Is.EqualTo("FFFFF"));
-                Assert.That(g.MongoDatabases.ExtractionStoreOptions!.DatabaseName,Is.EqualTo("FFFFF"));
+                Assert.That(g.MongoDatabases!.DicomStoreOptions!.DatabaseName, Is.EqualTo("FFFFF"));
+                Assert.That(g.MongoDatabases.ExtractionStoreOptions!.DatabaseName, Is.EqualTo("FFFFF"));
             });
         }
     }

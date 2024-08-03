@@ -1,4 +1,4 @@
-﻿using FAnsi.Discovery;
+using FAnsi.Discovery;
 using NLog;
 using Smi.Common.Options;
 
@@ -17,7 +17,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
         /// the name of the lookup table + this suffix
         /// </summary>
         public const string GuidTableSuffix = "_guid";
-        
+
         /// <summary>
         /// The name to give/expect for the <see cref="IMappingTableOptions.ReplacementColumnName"/> in the guid swap table
         /// (that stores lookup misses)
@@ -64,9 +64,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
             var mappingTable = options.Discover();
             var guidTableName = mappingTable.GetRuntimeName() + GuidTableSuffix;
 
-            return mappingTable.Database.ExpectTable(guidTableName,mappingTable.Schema,TableType.Table);
+            return mappingTable.Database.ExpectTable(guidTableName, mappingTable.Schema, TableType.Table);
         }
-         
+
         /// <summary>
         /// Returns a substitution from the wrapped <see cref="TableLookupSwapper"/>.  If no match is found then a guid is allocated
         /// and stored using a wrapped <see cref="ForGuidIdentifierSwapper"/>.

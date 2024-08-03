@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -84,8 +84,8 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Assert.Multiple(() =>
             {
                 // NOTE(rkm 2020-08-28) This works by chance since the missing bool will default to false, so we don't require MongoCompletedExtractJobDoc to implement ISupportInitialize
-                Assert.That(mongoExtractJobDoc.IsIdentifiableExtraction,Is.False);
-                Assert.That(mongoExtractJobDoc.IsNoFilterExtraction,Is.False);
+                Assert.That(mongoExtractJobDoc.IsIdentifiableExtraction, Is.False);
+                Assert.That(mongoExtractJobDoc.IsNoFilterExtraction, Is.False);
             });
         }
 
@@ -93,7 +93,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         public void TestMongoCompletedExtractJobDoc_SettersAvailable()
         {
             foreach (PropertyInfo p in typeof(MongoCompletedExtractJobDoc).GetProperties())
-                Assert.That(p.CanWrite,Is.True, $"Property '{p.Name}' is not writeable");
+                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         {
             var doc = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
 
-            Assert.That(doc.JobStatus,Is.EqualTo(ExtractJobStatus.Completed));
+            Assert.That(doc.JobStatus, Is.EqualTo(ExtractJobStatus.Completed));
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         {
             var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
-            Assert.That(doc2,Is.EqualTo(doc1));
+            Assert.That(doc2, Is.EqualTo(doc1));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         {
             var doc1 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
             var doc2 = new MongoCompletedExtractJobDoc(_testExtractJobDoc, _dateTimeProvider.UtcNow());
-            Assert.That(doc2.GetHashCode(),Is.EqualTo(doc1.GetHashCode()));
+            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
         }
 
         #endregion

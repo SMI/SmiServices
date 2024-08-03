@@ -72,7 +72,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             msg.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
 
             Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(msg, new MessageHeader(), ulong.MaxValue));
-            Assert.That(processor.AckCount,Is.EqualTo(5));
+            Assert.That(processor.AckCount, Is.EqualTo(5));
         }
     }
 
@@ -80,10 +80,10 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
     {
         public WriteResult WriteMany(IList<BsonDocument> toWrite, string? collectionNamePostfix = null)
         {
-            Assert.That(toWrite,Is.Not.Empty);
+            Assert.That(toWrite, Is.Not.Empty);
 
             BsonDocument doc = toWrite.First();
-            Assert.That(toWrite.All(x => x["Modality"] == doc["Modality"]),Is.True);
+            Assert.That(toWrite.All(x => x["Modality"] == doc["Modality"]), Is.True);
 
             // Fails for "CT" modalities
             switch (doc["Modality"].AsString)

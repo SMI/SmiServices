@@ -315,10 +315,10 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             RunTest(dir, 1);
 
-            Assert.That(_helper.ImageTable!.GetRowCount(),Is.EqualTo(1));
+            Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(1));
 
             var isoTable = server.ExpectTable($"{_helper.ImageTable.GetRuntimeName()}_Isolation");
-            Assert.That(isoTable.GetRowCount(),Is.EqualTo(2));
+            Assert.That(isoTable.GetRowCount(), Is.EqualTo(2));
         }
 
         [TestCase(DatabaseType.MicrosoftSQLServer, true)]
@@ -381,8 +381,8 @@ namespace Microservices.DicomRelationalMapper.Tests
             RunTest(dir, 1);
 
             var tbl = _helper.ImageTable.GetDataTable();
-            Assert.That(tbl.Rows,Has.Count.EqualTo(1));
-            Assert.That(tbl.Rows[0]["d_DerivationCodeMeaning"],Is.EqualTo("Full fidelity image, uncompressed or lossless compressed"));
+            Assert.That(tbl.Rows, Has.Count.EqualTo(1));
+            Assert.That(tbl.Rows[0]["d_DerivationCodeMeaning"], Is.EqualTo("Full fidelity image, uncompressed or lossless compressed"));
 
             _helper.ImageTable.DropColumn(_helper.ImageTable.DiscoverColumn("d_DerivationCodeMeaning"));
 
@@ -496,7 +496,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 relationalMapperHost.Start();
                 tester.StopOnDispose.Add(relationalMapperHost);
 
-                Assert.That(mongoDbPopulatorHost.Consumers,Has.Count.EqualTo(2));
+                Assert.That(mongoDbPopulatorHost.Consumers, Has.Count.EqualTo(2));
                 TestTimelineAwaiter.Await(() => mongoDbPopulatorHost.Consumers[0].Processor.AckCount >= 1);
                 TestTimelineAwaiter.Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
                 logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
@@ -506,10 +506,10 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 Assert.Multiple(() =>
                 {
-                    Assert.That(dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount,Is.EqualTo(0));
-                    Assert.That(identifierMapperHost.Consumer.NackCount,Is.EqualTo(0));
-                    Assert.That(((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount,Is.EqualTo(0));
-                    Assert.That(((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount,Is.EqualTo(0));
+                    Assert.That(dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount, Is.EqualTo(0));
+                    Assert.That(identifierMapperHost.Consumer.NackCount, Is.EqualTo(0));
+                    Assert.That(((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount, Is.EqualTo(0));
+                    Assert.That(((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount, Is.EqualTo(0));
                 });
 
 
@@ -533,16 +533,16 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                 Assert.Multiple(() =>
                 {
-                    Assert.That(_helper.ImageTable!.GetRowCount(),Is.EqualTo(numberOfExpectedRows),"All images should appear in the image table");
-                    Assert.That(_helper.SeriesTable!.GetRowCount(),Is.LessThanOrEqualTo(numberOfExpectedRows),"Only unique series data should appear in series table, there should be less unique series than images (or equal)");
-                    Assert.That(_helper.StudyTable!.GetRowCount(),Is.LessThanOrEqualTo(numberOfExpectedRows),"Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
-                    Assert.That(_helper.StudyTable.GetRowCount(),Is.LessThanOrEqualTo(_helper.SeriesTable.GetRowCount()),"There should be less studies than series (or equal)");
+                    Assert.That(_helper.ImageTable!.GetRowCount(), Is.EqualTo(numberOfExpectedRows), "All images should appear in the image table");
+                    Assert.That(_helper.SeriesTable!.GetRowCount(), Is.LessThanOrEqualTo(numberOfExpectedRows), "Only unique series data should appear in series table, there should be less unique series than images (or equal)");
+                    Assert.That(_helper.StudyTable!.GetRowCount(), Is.LessThanOrEqualTo(numberOfExpectedRows), "Only unique study data should appear in study table, there should be less unique studies than images (or equal)");
+                    Assert.That(_helper.StudyTable.GetRowCount(), Is.LessThanOrEqualTo(_helper.SeriesTable.GetRowCount()), "There should be less studies than series (or equal)");
 
                     //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
-                    Assert.That(_helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"],Is.EqualTo("FISHFISH"));
+                    Assert.That(_helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"], Is.EqualTo("FISHFISH"));
 
                     //The file size in the final table should be more than 0
-                    Assert.That((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"],Is.GreaterThan(0));
+                    Assert.That((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"], Is.GreaterThan(0));
                 });
 
                 dicomTagReaderHost.Stop("TestIsFinished");

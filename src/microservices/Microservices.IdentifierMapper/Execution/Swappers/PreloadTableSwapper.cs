@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;

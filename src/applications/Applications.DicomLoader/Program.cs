@@ -57,7 +57,7 @@ public static class Program
 
         ParallelDLEHost? host = null;
         LoadMetadata? lmd = null;
-        var mongo = MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader),false,true)
+        var mongo = MongoClientHelpers.GetMongoClient(go.MongoDatabases.DicomStoreOptions, nameof(DicomLoader), false, true)
             .GetDatabase(go.MongoDatabases.DicomStoreOptions.DatabaseName);
         if (dicomLoaderOptions.LoadSql || dicomLoaderOptions.MatchMode != null)
         {

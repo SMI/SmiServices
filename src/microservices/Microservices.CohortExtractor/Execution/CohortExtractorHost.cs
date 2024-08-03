@@ -127,23 +127,23 @@ namespace Microservices.CohortExtractor.Execution
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
 
-            if(!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
+            if (!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
                 _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
 
-            if(!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
-                _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType,typeof(IRejector).Assembly)!);
+            if (!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
+                _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType, typeof(IRejector).Assembly)!);
 
-            foreach(var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? Array.Empty<ModalitySpecificRejectorOptions>())
+            foreach (var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? Array.Empty<ModalitySpecificRejectorOptions>())
             {
                 var r = ObjectFactory.CreateInstance<IRejector>(modalitySpecific.RejectorType!, typeof(IRejector).Assembly)!;
                 _fulfiller.ModalitySpecificRejectors.Add(modalitySpecific, r);
             }
 
-            if(_consumerOptions.RejectColumnInfos != null)
-                foreach(var id in _consumerOptions.RejectColumnInfos)
+            if (_consumerOptions.RejectColumnInfos != null)
+                foreach (var id in _consumerOptions.RejectColumnInfos)
                     _fulfiller.Rejectors.Add(new ColumnInfoValuesRejector(repositoryLocator.CatalogueRepository.GetObjectByID<ColumnInfo>(id)));
 
-            if(_consumerOptions.Blacklists != null)
+            if (_consumerOptions.Blacklists != null)
                 foreach (var id in _consumerOptions.Blacklists)
                 {
                     var cata = repositoryLocator.CatalogueRepository.GetObjectByID<Catalogue>(id);

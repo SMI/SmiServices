@@ -1,4 +1,4 @@
-﻿using Microservices.CohortPackager.Execution.ExtractJobStorage;
+using Microservices.CohortPackager.Execution.ExtractJobStorage;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Notifying

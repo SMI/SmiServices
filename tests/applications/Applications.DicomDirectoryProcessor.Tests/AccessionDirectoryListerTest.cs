@@ -81,7 +81,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
 
             accessionLister.SearchForDicomDirectories(accessionList);
 
-            Assert.That(totalSent,Is.EqualTo(3));
+            Assert.That(totalSent, Is.EqualTo(3));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 using Smi.Common.Messages;
 
 namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders

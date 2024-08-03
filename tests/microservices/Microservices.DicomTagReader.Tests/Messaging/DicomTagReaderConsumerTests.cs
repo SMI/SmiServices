@@ -63,9 +63,9 @@ namespace Microservices.DicomTagReader.Tests.Messaging
 
             Assert.Multiple(() =>
             {
-                Assert.That(consumer.AckCount,Is.EqualTo(desiredAckCount));
-                Assert.That(consumer.NackCount,Is.EqualTo(desiredNackCount));
-                Assert.That(fatalCalled,Is.False);
+                Assert.That(consumer.AckCount, Is.EqualTo(desiredAckCount));
+                Assert.That(consumer.NackCount, Is.EqualTo(desiredNackCount));
+                Assert.That(fatalCalled, Is.False);
             });
         }
 

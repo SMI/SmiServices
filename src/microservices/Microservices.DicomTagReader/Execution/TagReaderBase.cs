@@ -40,11 +40,11 @@ namespace Microservices.DicomTagReader.Execution
 
         public bool IsExiting;
         public readonly object TagReaderProcessLock = new();
-        
+
         /// <summary>
         /// Optional function for last minute filtering of which files in an <see cref="AccessionDirectoryMessage"/> folder get processed
         /// </summary>
-        public Func<string,bool>? IncludeFile {get;set;}
+        public Func<string, bool>? IncludeFile { get; set; }
 
         /// <summary>
         /// Interrogates directory tree for dicom files and produces series info and individual file info
@@ -93,7 +93,7 @@ namespace Microservices.DicomTagReader.Execution
                                                _filesystemRoot + ")");
             long beginEnumerate = _stopwatch.ElapsedTicks;
             string[] dicomFilePaths = _fs.Directory.EnumerateFiles(dirPath, _searchPattern).Where(Include).ToArray();
-            string[] zipFilePaths =  _fs.Directory.EnumerateFiles(dirPath).Where(ZipHelper.IsZip).Where(Include).ToArray();
+            string[] zipFilePaths = _fs.Directory.EnumerateFiles(dirPath).Where(ZipHelper.IsZip).Where(Include).ToArray();
 
             _swTotals[0] += _stopwatch.ElapsedTicks - beginEnumerate;
             Logger.Debug("TagReader: Found " + dicomFilePaths.Length + " dicom files to process");
@@ -108,8 +108,8 @@ namespace Microservices.DicomTagReader.Execution
 
             long beginRead = _stopwatch.ElapsedTicks;
 
-            List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(p=>new FileInfo(p)), message);
-            fileMessages.AddRange(ReadZipFilesImpl(zipFilePaths.Select(p=>new FileInfo(p)), message));
+            List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(p => new FileInfo(p)), message);
+            fileMessages.AddRange(ReadZipFilesImpl(zipFilePaths.Select(p => new FileInfo(p)), message));
 
             _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / toProcess;
 
@@ -192,22 +192,22 @@ namespace Microservices.DicomTagReader.Execution
         /// <param name="zipFilePaths">All the zip files that must be explored for dcm files</param>
         /// <param name="accMessage">The upstream message that suggested we look for dicom files in a given directory</param>
         /// <returns></returns>
-        protected virtual IEnumerable<DicomFileMessage> ReadZipFilesImpl(IEnumerable<FileInfo> zipFilePaths,AccessionDirectoryMessage accMessage)
+        protected virtual IEnumerable<DicomFileMessage> ReadZipFilesImpl(IEnumerable<FileInfo> zipFilePaths, AccessionDirectoryMessage accMessage)
         {
-            foreach(FileInfo zipFilePath in zipFilePaths)
+            foreach (FileInfo zipFilePath in zipFilePaths)
             {
-                using var archive = ZipFile.Open(zipFilePath.FullName,ZipArchiveMode.Read);
-                foreach(var entry in archive.Entries)
+                using var archive = ZipFile.Open(zipFilePath.FullName, ZipArchiveMode.Read);
+                foreach (var entry in archive.Entries)
                 {
                     if (!entry.FullName.EndsWith(".dcm", StringComparison.CurrentCultureIgnoreCase)) continue;
                     byte[]? buffer = null;
-                    
+
                     buffer = ReadFully(entry.Open());
 
                     using var memoryStream = new MemoryStream(buffer);
                     var dicom = DicomFile.Open(memoryStream);
 
-                    yield return DicomFileToMessage(dicom.Dataset, $"{zipFilePath.FullName}!{entry.FullName}",null);
+                    yield return DicomFileToMessage(dicom.Dataset, $"{zipFilePath.FullName}!{entry.FullName}", null);
                 }
             }
         }
@@ -261,7 +261,7 @@ namespace Microservices.DicomTagReader.Execution
                 DicomDataset = serializedDataset,
                 DicomFileSize = fileSize ?? -1
             };
-            
+
         }
 
         private byte[] ReadFully(Stream stream)
@@ -297,7 +297,7 @@ namespace Microservices.DicomTagReader.Execution
         {
             try
             {
-                return DicomFileToMessage(DicomFile.Open(dicomFilePath.FullName, _fileReadOption).Dataset,dicomFilePath.FullName,dicomFilePath.Length);
+                return DicomFileToMessage(DicomFile.Open(dicomFilePath.FullName, _fileReadOption).Dataset, dicomFilePath.FullName, dicomFilePath.Length);
             }
             catch (DicomFileException dfe)
             {

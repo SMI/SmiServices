@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using RabbitMQ.Client;
 using Smi.Common.Messaging;
 using Smi.Common.Options;

@@ -55,7 +55,7 @@ namespace Applications.SmiRunner
                         return service switch
                         {
                             // Applications
-                            DicomLoaderVerb _   => Applications.DicomLoader.Program.Main(rest),
+                            DicomLoaderVerb _ => Applications.DicomLoader.Program.Main(rest),
                             DynamicRulesTesterVerb _ => Applications.DynamicRulesTester.Program.Main(rest),
                             TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.Program.Main(rest),
@@ -87,12 +87,12 @@ namespace Applications.SmiRunner
                 return rc;
             }
 
-            if(args.Any(a=>a.Equals("--help")))
+            if (args.Any(a => a.Equals("--help")))
             {
                 Console.WriteLine("Read more at:");
                 Console.WriteLine("https://github.com/SMI/SmiServices/tree/main/");
             }
-               
+
             return res;
         }
     }

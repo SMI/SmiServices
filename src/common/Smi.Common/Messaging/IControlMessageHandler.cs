@@ -1,4 +1,4 @@
-﻿namespace Smi.Common.Messaging
+namespace Smi.Common.Messaging
 {
     public interface IControlMessageHandler
     {

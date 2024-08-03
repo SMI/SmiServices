@@ -7,10 +7,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Options\RabbitMqConfigOptions.md" />
-    <None Include="Messages\Extraction\ExtractMessagesDiagram.cd" />
-    <None Include="Messages\Messages.cd" />
-    <None Include="MicroservicesLogging.cd" />
-    <None Include="RabbitMQAdapter.cd" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>

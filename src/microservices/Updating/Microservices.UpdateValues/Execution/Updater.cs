@@ -18,14 +18,14 @@ namespace Microservices.UpdateValues.Execution
         /// <summary>
         /// Number of seconds the updater will wait when running a single value UPDATE on the live table e.g. ECHI A needs to be replaced with ECHI B
         /// </summary>
-        public int UpdateTimeout {get;set;} = 1000000;
+        public int UpdateTimeout { get; set; } = 1000000;
 
         /// <summary>
         /// List of IDs of <see cref="TableInfo"/> that should be examined for update potential.  If blank/empty then all tables will be considered.
         /// </summary>
         public int[] TableInfosToUpdate { get; internal set; } = Array.Empty<int>();
 
-        ConcurrentDictionary<DiscoveredTable,UpdateTableAudit> _audits { get;} = new ConcurrentDictionary<DiscoveredTable, UpdateTableAudit>();
+        ConcurrentDictionary<DiscoveredTable, UpdateTableAudit> _audits { get; } = new ConcurrentDictionary<DiscoveredTable, UpdateTableAudit>();
 
         public Updater(ICatalogueRepository repository)
         {
@@ -39,20 +39,20 @@ namespace Microservices.UpdateValues.Execution
             TableInfo[] tables;
             var affectedRows = 0;
 
-            if(message.ExplicitTableInfo.Length != 0)
+            if (message.ExplicitTableInfo.Length != 0)
             {
                 tables = _repository.GetAllObjectsInIDList<TableInfo>(message.ExplicitTableInfo).ToArray();
 
-                if(tables.Length != message.ExplicitTableInfo.Length)
+                if (tables.Length != message.ExplicitTableInfo.Length)
                 {
-                    throw new Exception($"Could not find all TableInfos IDs={string.Join(",",message.ExplicitTableInfo)}.  Found {tables.Length}:{string.Join(",",tables.Select(t=>t.ID))}");
+                    throw new Exception($"Could not find all TableInfos IDs={string.Join(",", message.ExplicitTableInfo)}.  Found {tables.Length}:{string.Join(",", tables.Select(t => t.ID))}");
                 }
             }
             else
             {
                 tables = GetAllTables(message.WhereFields.Union(message.WriteIntoFields).ToArray()).ToArray();
 
-                if(tables.Length == 0)
+                if (tables.Length == 0)
                     throw new Exception($"Could not find any tables to update that matched the field set {message}");
             }
 
@@ -60,10 +60,10 @@ namespace Microservices.UpdateValues.Execution
             foreach (var tbl in tables.Where(static t => !t.IsView).Select(static t =>
                          t.Discover(Rdmp.Core.ReusableLibraryCode.DataAccess.DataAccessContext.DataLoad)))
             {
-                if(!tbl.Exists())
+                if (!tbl.Exists())
                     throw new Exception($"Table {tbl} did not exist");
 
-                affectedRows += UpdateTable(tbl,message);
+                affectedRows += UpdateTable(tbl, message);
             }
 
             return affectedRows;
@@ -76,7 +76,7 @@ namespace Microservices.UpdateValues.Execution
         /// <param name="message"></param>
         protected virtual int UpdateTable(DiscoveredTable t, UpdateValuesMessage message)
         {
-            var audit = _audits.GetOrAdd(t, static k=>new UpdateTableAudit(k));
+            var audit = _audits.GetOrAdd(t, static k => new UpdateTableAudit(k));
 
             var builder = new StringBuilder($"UPDATE {t.GetFullyQualifiedName()} SET ");
             builder.AppendJoin(',',
@@ -100,16 +100,16 @@ namespace Microservices.UpdateValues.Execution
                 using var con = t.Database.Server.GetConnection();
                 con.Open();
 
-                using var cmd = t.Database.Server.GetCommand(sql,con);
+                using var cmd = t.Database.Server.GetCommand(sql, con);
                 cmd.CommandTimeout = UpdateTimeout;
 
                 try
                 {
                     return affectedRows = cmd.ExecuteNonQuery();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    throw new Exception($"Failed to execute query {sql} " ,ex);
+                    throw new Exception($"Failed to execute query {sql} ", ex);
                 }
             }
             finally
@@ -131,7 +131,7 @@ namespace Microservices.UpdateValues.Execution
 
             builder.Append(col.GetFullyQualifiedName());
             builder.Append(' ');
-            builder.Append(op??"=");
+            builder.Append(op ?? "=");
             builder.Append(' ');
 
             builder.Append(string.IsNullOrWhiteSpace(value) ? "null" : value);
@@ -148,20 +148,20 @@ namespace Microservices.UpdateValues.Execution
         {
             //the tables we should consider
             var tables = TableInfosToUpdate.Any() ?
-                            _repository.GetAllObjectsInIDList<TableInfo>(TableInfosToUpdate):
+                            _repository.GetAllObjectsInIDList<TableInfo>(TableInfosToUpdate) :
                             _repository.GetAllObjects<TableInfo>();
 
             // get only those that have all the WHERE/SET columns in them
-            return tables.Where(t=>fields.All(f=>t.ColumnInfos.Select(static c=>c.GetRuntimeName()).Contains(f)));
+            return tables.Where(t => fields.All(f => t.ColumnInfos.Select(static c => c.GetRuntimeName()).Contains(f)));
         }
 
 
         internal void LogProgress(ILogger logger, LogLevel level)
         {
             // ToArray prevents modification during enumeration possibility
-            foreach(var audit in _audits.Values.ToArray())
+            foreach (var audit in _audits.Values.ToArray())
             {
-                logger.Log(level,audit.ToString());
+                logger.Log(level, audit.ToString());
             }
         }
     }

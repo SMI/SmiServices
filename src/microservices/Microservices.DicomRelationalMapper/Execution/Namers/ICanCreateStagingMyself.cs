@@ -1,4 +1,4 @@
-﻿using FAnsi.Discovery;
+using FAnsi.Discovery;
 using Rdmp.Core.Curation.Data.EntityNaming;
 
 namespace Microservices.DicomRelationalMapper.Execution.Namers

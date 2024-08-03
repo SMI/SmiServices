@@ -24,7 +24,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
 
         public DiscoveredServer? Server { get; set; }
         private string? _sql;
-        
+
         /// <summary>
         /// Lock to ensure we don't build multiple <see cref="GetQueryBuilder"/> at once if someone decides to multi
         /// thread the <see cref="Execute"/> method
@@ -50,15 +50,15 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         protected virtual QueryBuilder GetQueryBuilder()
         {
             var qb = new QueryBuilder("distinct", null);
-            
-            foreach (var col in Columns.AllColumns) 
+
+            foreach (var col in Columns.AllColumns)
                 qb.AddColumn(col);
 
             qb.RootFilterContainer = GetWhereLogic();
 
             return qb;
         }
-        
+
         /// <summary>
         /// Generates the WHERE logic for the query.  Adds a single root container with AND operation and then adds
         /// all filters in <see cref="GetFilters"/>.  It is better to override <see cref="GetFilters"/> unless you want
@@ -69,11 +69,11 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             //make a root WHERE container in memory
             var memory = new MemoryCatalogueRepository();
-            var container = new SpontaneouslyInventedFilterContainer(memory,null, null, FilterContainerOperation.AND);
-            
+            var container = new SpontaneouslyInventedFilterContainer(memory, null, null, FilterContainerOperation.AND);
+
             //Get all filters that we are to add and add them to the root
-            foreach (IFilter filter in GetFilters(memory,container))
-                container.AddChild(new SpontaneouslyInventedFilter(memory, container,filter.WhereSQL,filter.Name,filter.Description,filter.GetAllParameters()));
+            foreach (IFilter filter in GetFilters(memory, container))
+                container.AddChild(new SpontaneouslyInventedFilter(memory, container, filter.WhereSQL, filter.Name, filter.Description, filter.GetAllParameters()));
 
             return container;
         }
@@ -85,12 +85,12 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <param name="memoryRepo"></param>
         /// <param name="rootContainer"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<IFilter> GetFilters(MemoryCatalogueRepository memoryRepo,IContainer rootContainer)
+        protected virtual IEnumerable<IFilter> GetFilters(MemoryCatalogueRepository memoryRepo, IContainer rootContainer)
         {
             yield return new SpontaneouslyInventedFilter(memoryRepo, rootContainer, _keyTag + "= '{0}'",
                 "Filter Series", "Filters by series UID", null);
 
-            foreach(var filter in Columns.Catalogue.GetAllMandatoryFilters())
+            foreach (var filter in Columns.Catalogue.GetAllMandatoryFilters())
                 yield return filter;
         }
 
@@ -98,7 +98,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         {
             return string.Format(_sql!, value);
         }
-        
+
         /// <summary>
         /// Returns the SeriesInstanceUID and a set of any file paths matching the query
         /// </summary>
@@ -107,16 +107,16 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
         /// <returns></returns>
         public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup, List<IRejector> rejectors)
         {
-            if(_sql == null)
+            if (_sql == null)
                 lock (_oLockExecute)
                 {
                     if (_sql == null)
                     {
                         var qb = GetQueryBuilder();
                         _sql = qb.SQL;
-                    }        
+                    }
                 }
-            
+
             var path = Columns.FilePathColumn!.GetRuntimeName();
             var study = Columns.StudyTagColumn?.GetRuntimeName();
             var series = Columns.SeriesTagColumn?.GetRuntimeName();

@@ -1,4 +1,4 @@
-﻿
+
 using System;
 
 namespace Smi.Common.Execution
@@ -25,7 +25,7 @@ namespace Smi.Common.Execution
             Console.WriteLine("Bootstrapper -> Main called, constructing host");
 
             // Set up a periodic forced GC to avoid wasting RAM on multi-service hosts:
-            new System.Timers.Timer {Interval = 3600000, AutoReset = true, Enabled = true}.Elapsed += // lgtm[cs/local-not-disposed]
+            new System.Timers.Timer { Interval = 3600000, AutoReset = true, Enabled = true }.Elapsed += // lgtm[cs/local-not-disposed]
                 (o, args) =>
                 {
                     System.Runtime.GCSettings.LargeObjectHeapCompactionMode = System.Runtime.GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -66,7 +66,7 @@ namespace Smi.Common.Execution
                 host.Fatal("Failed to start host", e);
                 return -2;
             }
-            
+
             // Wait until Rabbit tasks are finished:
 
             host.Wait();

@@ -18,7 +18,7 @@ namespace Smi.Common.Tests
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 KeyValue = "f",
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string> {{new MessageHeader(), "dave"}},
+                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string> { { new MessageHeader(), "dave" } },
                 ExtractionDirectory = "C:\\fish",
                 ProjectNumber = "1234-5678",
             };
@@ -28,8 +28,8 @@ namespace Smi.Common.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(msg2!.ExtractFileMessagesDispatched,Has.Count.EqualTo(1));
-                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
+                Assert.That(msg2!.ExtractFileMessagesDispatched, Has.Count.EqualTo(1));
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader, Is.True);
             });
         }
 
@@ -56,13 +56,13 @@ namespace Smi.Common.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(msg2!.ExtractFileMessagesDispatched,Has.Count.EqualTo(1));
-                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader,Is.True);
+                Assert.That(msg2!.ExtractFileMessagesDispatched, Has.Count.EqualTo(1));
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader, Is.True);
 
-                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid,Is.EqualTo(child.MessageGuid));
-                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().Parents,Does.Contain(parent.MessageGuid));
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid, Is.EqualTo(child.MessageGuid));
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().Parents, Does.Contain(parent.MessageGuid));
             });
-            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().Parents,Does.Contain(grandparent.MessageGuid));
+            Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().Parents, Does.Contain(grandparent.MessageGuid));
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace Smi.Common.Tests
                 "fish1",
                 "fish2",
                 "fish3",
-                "fish4" 
+                "fish4"
             };
 
             var message = new ExtractionRequestMessage
@@ -86,10 +86,10 @@ namespace Smi.Common.Tests
             };
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
-            Assert.That(json,Is.Not.Null);
+            Assert.That(json, Is.Not.Null);
 
             var reconstructed = JsonConvert.DeserializeObject<ExtractionRequestMessage>(json);
-            Assert.That(reconstructed,Is.EqualTo(message));
+            Assert.That(reconstructed, Is.EqualTo(message));
         }
     }
 }
