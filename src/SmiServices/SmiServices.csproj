@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <!-- TODO -->
-        <!--<AssemblyName>smi</AssemblyName>-->
+        <AssemblyName>smi</AssemblyName>
         <IsPublishable>true</IsPublishable>
         <OutputType>Exe</OutputType>
         <StartupObject>SmiServices.Program</StartupObject>
