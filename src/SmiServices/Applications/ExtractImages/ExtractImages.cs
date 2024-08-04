@@ -7,14 +7,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace SmiServices.Applications.ExtractImages
 {
     [ExcludeFromCodeCoverage]
-    public static class Program
+    public static class ExtractImages
     {
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit
                 .ParseAndRun<ExtractImagesCliOptions>(
                     args,
-                    typeof(Program),
+                    typeof(ExtractImages),
                     OnParse
                 );
             return ret;

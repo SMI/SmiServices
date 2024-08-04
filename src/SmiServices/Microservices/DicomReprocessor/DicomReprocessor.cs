@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace SmiServices.Microservices.DicomReprocessor
 {
-    public static class Program
+    public static class DicomReprocessor
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, typeof(Program), OnParse);
+            int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, typeof(DicomReprocessor), OnParse);
             return ret;
         }
 

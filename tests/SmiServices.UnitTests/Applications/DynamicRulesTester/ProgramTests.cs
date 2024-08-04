@@ -76,7 +76,7 @@ public class ProgramTests
         });
 
         // Act
-        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(0));
@@ -103,7 +103,7 @@ public class ProgramTests
         });
 
         // Act
-        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(1));
@@ -124,7 +124,7 @@ public class ProgramTests
         });
 
         // Act
-        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(2));
@@ -146,7 +146,7 @@ public class ProgramTests
         WriteTestRowFile(new List<string> { });
 
         // Act
-        var rc = SmiServices.Applications.DynamicRulesTester.Program.Main(_args, _fileSystem);
+        var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);
 
         // Assert
         Assert.That(rc, Is.EqualTo(1));

@@ -136,7 +136,7 @@ internal class ProgramTests
 
         // Act
 
-        var rc = Program.Main(args);
+        var rc = SmiServices.Microservices.CohortPackager.CohortPackager.Main(args);
 
         // Assert
 
@@ -152,7 +152,7 @@ internal class ProgramTests
 
         // Act
 
-        var rc = Program.Main(args);
+        var rc = SmiServices.Microservices.CohortPackager.CohortPackager.Main(args);
 
         // Assert
 
@@ -175,7 +175,7 @@ LoggingOptions:
 
         // Act
 
-        var rc = Program.Main(args);
+        var rc = SmiServices.Microservices.CohortPackager.CohortPackager.Main(args);
 
         // Assert
 
@@ -201,7 +201,7 @@ MongoDatabases:
 
         // Act
 
-        var rc = Program.Main(args);
+        var rc = SmiServices.Microservices.CohortPackager.CohortPackager.Main(args);
 
         // Assert
 
@@ -223,7 +223,7 @@ LoggingOptions:
 
         // Act
 
-        var rc = Program.Main(args);
+        var rc = SmiServices.Microservices.CohortPackager.CohortPackager.Main(args);
 
         // Assert
 

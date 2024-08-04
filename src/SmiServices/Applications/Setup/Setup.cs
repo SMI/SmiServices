@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Terminal.Gui;
 
 namespace SmiServices.Applications.Setup;
-public class Program
+public class Setup
 {
     class SetupOptions
     {

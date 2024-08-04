@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SmiServices.Microservices.FileCopier
 {
-    public static class Program
+    public static class FileCopier
     {
         /// <summary>
         /// Program entry point when run from the command line
@@ -12,7 +12,7 @@ namespace SmiServices.Microservices.FileCopier
         /// <param name="args"></param>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(Program), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(FileCopier), OnParse);
             return ret;
         }
 

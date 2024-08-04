@@ -6,14 +6,14 @@ using System.Collections.Generic;
 
 namespace SmiServices.Applications.TriggerUpdates
 {
-    public static class Program
+    public static class TriggerUpdates
     {
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit
                 .ParseAndRun(
                     args,
-                    typeof(Program),
+                    typeof(TriggerUpdates),
                     new[]
                     {
                         typeof(TriggerUpdatesFromMapperOptions),

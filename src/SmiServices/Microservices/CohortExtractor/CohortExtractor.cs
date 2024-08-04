@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace SmiServices.Microservices.CohortExtractor
 {
-    public static class Program
+    public static class CohortExtractor
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(Program), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(CohortExtractor), OnParse);
             return ret;
         }
 

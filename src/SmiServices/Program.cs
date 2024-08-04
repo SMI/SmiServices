@@ -55,25 +55,25 @@ namespace SmiServices
                         return service switch
                         {
                             // Applications
-                            DicomLoaderVerb _ => Applications.DicomLoader.Program.Main(rest),
-                            DynamicRulesTesterVerb _ => Applications.DynamicRulesTester.Program.Main(rest),
-                            TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
+                            DicomLoaderVerb _ => Applications.DicomLoader.DicomLoader.Main(rest),
+                            DynamicRulesTesterVerb _ => Applications.DynamicRulesTester.DynamicRulesTester.Main(rest),
+                            TriggerUpdatesVerb _ => Applications.TriggerUpdates.TriggerUpdates.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.DicomDirectoryProcessor.Main(rest),
-                            ExtractImagesVerb _ => Applications.ExtractImages.Program.Main(rest),
-                            SetupVerb _ => Applications.Setup.Program.Main(rest),
+                            ExtractImagesVerb _ => Applications.ExtractImages.ExtractImages.Main(rest),
+                            SetupVerb _ => Applications.Setup.Setup.Main(rest),
 
                             // Microservices
-                            CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
-                            CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),
-                            DicomAnonymiserVerb _ => Microservices.DicomAnonymiser.Program.Main(rest),
-                            DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.Program.Main(rest),
-                            DicomReprocessorVerb _ => Microservices.DicomReprocessor.Program.Main(rest),
-                            DicomTagReaderVerb _ => Microservices.DicomTagReader.Program.Main(rest),
-                            FileCopierVerb _ => Microservices.FileCopier.Program.Main(rest),
-                            IdentifierMapperVerb _ => Microservices.IdentifierMapper.Program.Main(rest),
-                            IsIdentifiableVerb _ => Microservices.IsIdentifiable.Program.Main(rest),
-                            MongoDbPopulatorVerb _ => Microservices.MongoDBPopulator.Program.Main(rest),
-                            UpdateValuesVerb _ => Microservices.UpdateValues.Program.Main(rest),
+                            CohortExtractorVerb _ => Microservices.CohortExtractor.CohortExtractor.Main(rest),
+                            CohortPackagerVerb _ => Microservices.CohortPackager.CohortPackager.Main(rest),
+                            DicomAnonymiserVerb _ => Microservices.DicomAnonymiser.DicomAnonymiser.Main(rest),
+                            DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.DicomRelationalMapper.Main(rest),
+                            DicomReprocessorVerb _ => Microservices.DicomReprocessor.DicomReprocessor.Main(rest),
+                            DicomTagReaderVerb _ => Microservices.DicomTagReader.DicomTagReader.Main(rest),
+                            FileCopierVerb _ => Microservices.FileCopier.FileCopier.Main(rest),
+                            IdentifierMapperVerb _ => Microservices.IdentifierMapper.IdentifierMapper.Main(rest),
+                            IsIdentifiableVerb _ => Microservices.IsIdentifiable.IsIdentifiable.Main(rest),
+                            MongoDbPopulatorVerb _ => Microservices.MongoDBPopulator.MongoDBPopulator.Main(rest),
+                            UpdateValuesVerb _ => Microservices.UpdateValues.UpdateValues.Main(rest),
                             _ => throw new ArgumentException($"No case for {nameof(service)}")
                         };
                     }

@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace SmiServices.Microservices.IdentifierMapper
 {
-    public static class Program
+    public static class IdentifierMapper
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(Program), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(IdentifierMapper), OnParse);
             return ret;
         }
 

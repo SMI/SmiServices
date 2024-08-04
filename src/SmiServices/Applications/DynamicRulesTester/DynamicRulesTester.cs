@@ -11,7 +11,7 @@ using System.IO.Abstractions;
 
 namespace SmiServices.Applications.DynamicRulesTester;
 
-public static class Program
+public static class DynamicRulesTester
 {
     private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
     private static IFileSystem _fileSystem = null!;
@@ -22,7 +22,7 @@ public static class Program
 
         try
         {
-            return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, typeof(Program), OnParse);
+            return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, typeof(DynamicRulesTester), OnParse);
         }
         catch (Exception e)
         {

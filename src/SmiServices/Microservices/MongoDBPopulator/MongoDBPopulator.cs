@@ -4,14 +4,14 @@ using System.Collections.Generic;
 
 namespace SmiServices.Microservices.MongoDBPopulator
 {
-    public static class Program
+    public static class MongoDBPopulator
     {
         /// <summary>
         /// Program entry point when run from command line
         /// </summary>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(Program), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(MongoDBPopulator), OnParse);
             return ret;
         }
 

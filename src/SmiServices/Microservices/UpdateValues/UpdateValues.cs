@@ -5,14 +5,14 @@ using System.Collections.Generic;
 
 namespace SmiServices.Microservices.UpdateValues
 {
-    public static class Program
+    public static class UpdateValues
     {
         public static int Main(IEnumerable<string> args)
         {
             return SmiCliInit
                 .ParseAndRun<UpdateValuesCliOptions>(
                     args,
-                    typeof(Program),
+                    typeof(UpdateValues),
                     OnParse
                 );
         }

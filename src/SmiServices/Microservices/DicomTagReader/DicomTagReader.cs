@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SmiServices.Microservices.DicomTagReader
 {
-    public static class Program
+    public static class DicomTagReader
     {
         /// <summary>
         /// Program entry point when run from the command line
@@ -15,7 +15,7 @@ namespace SmiServices.Microservices.DicomTagReader
         /// <param name="args"></param>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, typeof(Program), OnParse);
+            int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, typeof(DicomTagReader), OnParse);
             return ret;
         }
 

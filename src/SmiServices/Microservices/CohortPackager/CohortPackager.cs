@@ -13,11 +13,11 @@ using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.CohortPackager
 {
-    public static class Program
+    public static class CohortPackager
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, typeof(Program), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, typeof(CohortPackager), OnParse);
             return ret;
         }
 
