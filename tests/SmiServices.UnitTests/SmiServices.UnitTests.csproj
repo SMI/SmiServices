@@ -1,30 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-    </PropertyGroup>
-    <ItemGroup>
-      <None Remove="Common\Mongo.yaml" />
-      <None Remove="Common\Rabbit.yaml" />
-      <None Remove="Common\RelationalDatabases.yaml" />
-      <None Remove="Common\TestDatabases.txt" />
-      <None Remove="Microservices\DicomRelationalMapper\DLEBenchmarkingTests\CT.it" />
-    </ItemGroup>
-    <ItemGroup>
-      <Content Include="Common\Mongo.yaml">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Common\Rabbit.yaml">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Common\RelationalDatabases.yaml">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Common\TestDatabases.txt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Microservices\DicomRelationalMapper\DLEBenchmarkingTests\CT.it">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
     <ItemGroup>
         <PackageReference Include="HIC.BadMedicine.Dicom" />
         <PackageReference Include="HIC.RDMP.Plugin.Test" />
@@ -34,22 +8,43 @@
         <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <None Update="Common\TestData\burned-in-text-test.dcm">
+      <None Update="default.yaml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Common\TestData\FileWithLotsOfTags.dcm">
+      <None Update="DynamicRules.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Common\TestData\IM-0001-0013.dcm">
+      <None Update="Mongo.yaml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Common\TestData\IM-0001-0019.dcm">
+      <None Include="Rabbit.yaml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Common\TestData\IM-0001-0024.dcm">
+      <None Include="RelationalDatabases.yaml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Common\TestData\NotADicomFile.txt">
+      <None Include="TestDatabases.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Include="Microservices\DicomRelationalMapper\DLEBenchmarkingTests\CT.it">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\burned-in-text-test.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\FileWithLotsOfTags.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\IM-0001-0013.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\IM-0001-0019.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\IM-0001-0024.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\NotADicomFile.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
