@@ -8,7 +8,6 @@
 - [Rules of Microservice Club](#rules-of-microservice-club)
   - [The First Rule](#the-first-rule)
   - [The Second Rule](#the-second-rule)
-- [Class Diagram](#class-diagram)
 
 ## Implementing a Host
 
@@ -198,8 +197,7 @@ protected override void ProcessMessageImpl(IMessageHeader? header, IModel model,
 }
 ```
 
-Logging through a header means that the Guid of the message (and the Guid all previous messages in the chain) will appear in the log e.g.
-![Class Diagram](Images/MessageGuidLogs.png)
+Logging through a header means that the Guid of the message (and the Guid all previous messages in the chain) will appear in the log.
 
 Logging through the header is recommended whenever the audited fact relates specifically to the content of the message (e.g. couldn't open a file referenced in a `DicomFileMessage`). Logging through the header automatically happens when sending and acknowledging messages, this results in a view of every message the system sent and the relationship tree of knock on messages (see image above).
 
@@ -238,7 +236,3 @@ protected override void ProcessMessageImpl(IMessageHeader? header, IModel model,
     ErrorAndNack(header,model,basicDeliverEventArgs,"Something went wrong", new Exception("What went wrong"));
 }
 ```
-
-## Class Diagram
-
-![Class Diagram](Images/ClassDiagram.png)

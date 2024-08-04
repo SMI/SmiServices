@@ -735,7 +735,7 @@ testdicoms/1987/12/6/2.25.176347174691273338913144606255096043339.dcm
 [dbms]: https://github.com/HicServices/RDMP/blob/develop/Documentation/CodeTutorials/Glossary.md#dbms
 [dicom template builder]: https://github.com/SMI/DicomTemplateBuilder
 [dicomreprocessor]: #dicomreprocessor
-[forguididentifierswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/ForGuidIdentifierSwapper.cs
+[forguididentifierswapper]: /src/SmiServices/Microservices/IdentifierMapper/Swappers/ForGuidIdentifierSwapper.cs
 [mongodb]: #mongodb
 [mongodbpopulator]: #mongodbpopulator
 [patientid]: https://dicom.innolitics.com/ciods/rt-plan/patient/00100020
@@ -745,4 +745,4 @@ testdicoms/1987/12/6/2.25.176347174691273338913144606255096043339.dcm
 [relationaldb]: #relationaldb
 [smi.nlog.config]: /data/logging/Smi.NLog.config
 [strategy pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
-[tablelookupswapper]: /src/microservices/Microservices.IdentifierMapper/Execution/Swappers/TableLookupSwapper.cs
+[tablelookupswapper]: /src/SmiServices/Microservices/IdentifierMapper/Swappers/TableLookupSwapper.cs
