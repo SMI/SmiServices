@@ -335,7 +335,7 @@ namespace SmiServices.Common.Options
         public string AuditorType
         {
             get => string.IsNullOrWhiteSpace(_auditorType)
-                ? "Microservices.CohortExtractor.Audit.NullAuditExtractions"
+                ? "SmiServices.Microservices.CohortExtractor.Audit.NullAuditExtractions"
                 : _auditorType;
             set => _auditorType = value;
         }
