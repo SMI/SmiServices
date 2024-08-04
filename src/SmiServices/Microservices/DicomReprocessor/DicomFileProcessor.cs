@@ -1,15 +1,15 @@
 
 using FellowOakDicom;
 using DicomTypeTranslation;
-using MongoDB.Bson;
 using NLog;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.MongoDB;
+using MongoDB.Bson;
 
 namespace SmiServices.Microservices.DicomReprocessor
 {

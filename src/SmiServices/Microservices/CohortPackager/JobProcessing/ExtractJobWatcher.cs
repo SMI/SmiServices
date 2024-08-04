@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NLog;
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Notifying;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Reporting;

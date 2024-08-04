@@ -1,13 +1,12 @@
-
-using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using Smi.Common;
 using System.Diagnostics.CodeAnalysis;
+using SmiServices.Common.Options;
+using SmiServices.Common;
 
 namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {

@@ -1,9 +1,4 @@
-using Moq;
 using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Options;
-using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +8,11 @@ using System.Threading;
 using FellowOakDicom;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using SmiServices.Microservices.DicomAnonymiser;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.UnitTests.Common;
+using Moq;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 {

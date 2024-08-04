@@ -1,13 +1,12 @@
-
-using Smi.Common.Execution;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
 using System;
 using NLog;
 using RabbitMQ.Client.Exceptions;
-using Smi.Common;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using StackExchange.Redis;
+using SmiServices.Common;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Execution;
 
 
 namespace SmiServices.Microservices.IdentifierMapper

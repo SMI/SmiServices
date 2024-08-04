@@ -1,8 +1,8 @@
 
 using System;
 using NLog;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 
 
 namespace SmiServices.Microservices.DicomReprocessor

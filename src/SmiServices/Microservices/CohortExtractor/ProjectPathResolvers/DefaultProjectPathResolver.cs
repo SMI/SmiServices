@@ -1,4 +1,4 @@
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
 using System.IO;

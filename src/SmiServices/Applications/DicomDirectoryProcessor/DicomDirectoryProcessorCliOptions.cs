@@ -1,6 +1,6 @@
 using CommandLine;
 using CommandLine.Text;
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;

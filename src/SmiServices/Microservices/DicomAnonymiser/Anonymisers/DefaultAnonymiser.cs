@@ -1,12 +1,10 @@
 using System;
-using System.IO;
 using System.IO.Abstractions;
 using System.Diagnostics;
 using System.Collections.Generic;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Options;
-using Newtonsoft.Json;
 using NLog;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers
 {

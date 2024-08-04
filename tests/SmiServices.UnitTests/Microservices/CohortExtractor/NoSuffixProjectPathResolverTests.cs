@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using Smi.Common.Helpers;
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System.IO;

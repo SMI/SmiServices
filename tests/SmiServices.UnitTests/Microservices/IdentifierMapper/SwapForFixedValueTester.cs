@@ -1,8 +1,8 @@
 
 using System.Threading;
 using FAnsi.Discovery;
-using Smi.Common;
-using Smi.Common.Options;
+using SmiServices.Common;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 
 

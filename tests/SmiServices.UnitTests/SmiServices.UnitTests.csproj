@@ -2,11 +2,55 @@
     <PropertyGroup>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
-        <ProjectReference Include="..\common\Smi.Common.MongoDb.Tests\Smi.Common.MongoDb.Tests.csproj" />
-        <ProjectReference Include="..\common\Smi.Common.Tests\Smi.Common.Tests.csproj" />
-        <ProjectReference Include="..\microservices\Microservices.DicomRelationalMapper.Tests\Microservices.DicomRelationalMapper.Tests.csproj" />
-        <PackageReference Include="HIC.RDMP.Plugin.Test" />
+      <None Remove="Common\Mongo.yaml" />
+      <None Remove="Common\Rabbit.yaml" />
+      <None Remove="Common\RelationalDatabases.yaml" />
+      <None Remove="Common\TestDatabases.txt" />
+      <None Remove="Microservices\DicomRelationalMapper\DLEBenchmarkingTests\CT.it" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="Common\Mongo.yaml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Common\Rabbit.yaml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Common\RelationalDatabases.yaml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Common\TestDatabases.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Microservices\DicomRelationalMapper\DLEBenchmarkingTests\CT.it">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="HIC.BadMedicine.Dicom" />
+        <PackageReference Include="HIC.RDMP.Plugin.Test" />
+        <PackageReference Include="Moq" />
+        <PackageReference Include="NunitXml.TestLogger" />
+        <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+        <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="Common\TestData\burned-in-text-test.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Common\TestData\FileWithLotsOfTags.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Common\TestData\IM-0001-0013.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Common\TestData\IM-0001-0019.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Common\TestData\IM-0001-0024.dcm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Common\TestData\NotADicomFile.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 </Project>

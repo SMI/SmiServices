@@ -1,5 +1,5 @@
-using Smi.Common.Execution;
-using Smi.Common.Options;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Options;
 using System.Collections.Generic;
 
 namespace SmiServices.Microservices.DicomAnonymiser

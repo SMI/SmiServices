@@ -1,11 +1,11 @@
 using Moq;
 using NLog;
 using RabbitMQ.Client;
-using Smi.Common.Execution;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
-using Smi.Common.Tests;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
+using SmiServices.UnitTests.Common;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 

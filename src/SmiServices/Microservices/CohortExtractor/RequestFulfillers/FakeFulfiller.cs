@@ -1,10 +1,9 @@
-using Smi.Common.Messages.Extraction;
 using NLog;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Smi.Common.Options;
-using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.Audit;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 {

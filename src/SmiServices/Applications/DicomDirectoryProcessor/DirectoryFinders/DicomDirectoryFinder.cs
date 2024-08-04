@@ -1,6 +1,6 @@
 using NLog;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

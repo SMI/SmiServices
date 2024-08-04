@@ -1,8 +1,8 @@
 using NUnit.Framework;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Tests;
+using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using SmiServices.UnitTests.Common;
 using System.IO;
 
 

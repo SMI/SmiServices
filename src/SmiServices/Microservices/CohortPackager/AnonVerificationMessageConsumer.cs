@@ -1,8 +1,8 @@
 using IsIdentifiable.Failures;
 using Newtonsoft.Json;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Messaging;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messaging;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using System;
 using System.Collections.Generic;

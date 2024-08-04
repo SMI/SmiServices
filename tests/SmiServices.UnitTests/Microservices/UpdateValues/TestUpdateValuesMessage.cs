@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using Smi.Common.Messages.Updating;
+using SmiServices.Common.Messages.Updating;
 using System;
 
 namespace SmiServices.UnitTests.Microservices.UpdateValues

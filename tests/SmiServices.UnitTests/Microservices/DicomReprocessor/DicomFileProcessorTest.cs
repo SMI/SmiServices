@@ -2,12 +2,12 @@ using FellowOakDicom;
 using DicomTypeTranslation;
 using MongoDB.Bson;
 using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
-using Moq;
-using Smi.Common.Messaging;
 using SmiServices.Microservices.DicomReprocessor;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using Moq;
 
 namespace SmiServices.UnitTests.Microservices.DicomReprocessor
 {

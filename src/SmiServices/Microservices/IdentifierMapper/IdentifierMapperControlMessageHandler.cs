@@ -1,5 +1,5 @@
 using NLog;
-using Smi.Common.Messaging;
+using SmiServices.Common.Messaging;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 
 namespace SmiServices.Microservices.IdentifierMapper

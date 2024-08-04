@@ -1,11 +1,11 @@
 using MongoDB.Bson;
 using Moq;
 using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.Options;
-using Smi.Common.Tests;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Threading;
 

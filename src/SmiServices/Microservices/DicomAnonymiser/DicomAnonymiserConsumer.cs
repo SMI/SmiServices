@@ -1,13 +1,13 @@
 using NLog;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
 using System;
 using System.IO;
 using System.IO.Abstractions;
 using FellowOakDicom;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.Microservices.DicomAnonymiser
 {

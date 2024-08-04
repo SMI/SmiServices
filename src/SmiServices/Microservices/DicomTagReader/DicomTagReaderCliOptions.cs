@@ -1,5 +1,5 @@
 using CommandLine;
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 using System.IO;
 
 namespace SmiServices.Microservices.DicomTagReader

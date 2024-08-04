@@ -1,7 +1,7 @@
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;

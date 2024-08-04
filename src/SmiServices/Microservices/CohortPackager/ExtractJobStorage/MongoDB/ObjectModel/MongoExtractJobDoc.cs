@@ -1,9 +1,9 @@
 using Equ;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Smi.Common.Helpers;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
 using System;
 
 

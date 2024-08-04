@@ -1,4 +1,4 @@
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 
 namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers

@@ -1,7 +1,7 @@
 using System;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Messaging;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messaging;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 
 

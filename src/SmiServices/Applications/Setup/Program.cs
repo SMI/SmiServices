@@ -1,6 +1,5 @@
 using CommandLine;
 using NLog;
-using Smi.Common;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
 using Terminal.Gui;
 using Setup;
+using SmiServices.Common;
 
 namespace SmiServices.Applications.Setup;
 public class Program

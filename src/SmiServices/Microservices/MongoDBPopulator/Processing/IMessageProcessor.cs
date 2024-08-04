@@ -1,5 +1,5 @@
 using RabbitMQ.Client;
-using Smi.Common.Messages;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Microservices.MongoDBPopulator.Processing
 {

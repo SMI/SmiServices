@@ -1,6 +1,6 @@
 using NLog;
-using Smi.Common.Execution;
-using Smi.Common.Options;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using System;
 using System.Collections.Generic;

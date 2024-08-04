@@ -5,9 +5,9 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 
 
 namespace SmiServices.Microservices.DicomTagReader.Execution

@@ -7,10 +7,10 @@ using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
 using NLog;
 using Rdmp.Core.DataLoad.Triggers;
-using Smi.Common;
-using Smi.Common.Helpers;
-using Smi.Common.Messages.Updating;
-using Smi.Common.Options;
+using SmiServices.Common;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages.Updating;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 
 

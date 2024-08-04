@@ -1,9 +1,9 @@
 using FAnsi;
 using FAnsi.Discovery;
 using NUnit.Framework;
-using Smi.Common.Messages.Updating;
-using Smi.Common.Tests;
+using SmiServices.Common.Messages.Updating;
 using SmiServices.Microservices.UpdateValues;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Data;
 using System.Linq;

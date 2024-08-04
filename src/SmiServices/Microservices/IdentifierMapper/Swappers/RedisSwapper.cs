@@ -4,7 +4,7 @@ using System.Threading;
 using FAnsi.Discovery;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 using StackExchange.Redis;
 
 namespace SmiServices.Microservices.IdentifierMapper.Swappers

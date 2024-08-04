@@ -5,7 +5,6 @@ using System.IO.Abstractions;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
-using IsIdentifiable.Reporting;
 using IsIdentifiable.Runners;
 
 namespace SmiServices.Microservices.IsIdentifiable

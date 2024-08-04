@@ -1,7 +1,7 @@
 using Rdmp.Core.Repositories;
-using Smi.Common;
-using Smi.Common.Execution;
-using Smi.Common.Options;
+using SmiServices.Common;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Options;
 
 namespace SmiServices.Microservices.UpdateValues
 {

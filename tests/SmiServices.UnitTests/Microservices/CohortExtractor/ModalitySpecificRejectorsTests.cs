@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 using System;
 using System.IO;
 

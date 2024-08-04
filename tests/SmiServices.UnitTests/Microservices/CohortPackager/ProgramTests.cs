@@ -1,16 +1,16 @@
 using MongoDB.Driver;
 using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.MessageSerialization;
-using Smi.Common.Options;
-using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using SmiServices.Microservices.CohortPackager;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.UnitTests.Common;
+using SmiServices.Common.MessageSerialization;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager;
 

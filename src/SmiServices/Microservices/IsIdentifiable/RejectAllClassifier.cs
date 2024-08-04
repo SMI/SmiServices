@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Abstractions;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
 
 namespace SmiServices.Microservices.IsIdentifiable
 {

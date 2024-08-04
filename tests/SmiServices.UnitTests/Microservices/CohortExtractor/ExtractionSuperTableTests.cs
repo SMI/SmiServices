@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
-using BadMedicine;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using FAnsi.Discovery;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Options;
-using Smi.Common.Tests;
 using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
@@ -21,6 +17,9 @@ using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
+using SmiServices.Common.Options;
+using SmiServices.UnitTests.Common;
+using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {

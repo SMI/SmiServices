@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using Smi.Common.Tests;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;

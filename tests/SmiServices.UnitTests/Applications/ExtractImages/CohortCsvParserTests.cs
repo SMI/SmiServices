@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using NUnit.Framework;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Tests;
 using SmiServices.Applications.ExtractImages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.UnitTests.Common;
 
 
 namespace SmiServices.UnitTests.Applications.ExtractImages

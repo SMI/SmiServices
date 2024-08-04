@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Microservices.DicomRelationalMapper.Execution;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -16,10 +15,11 @@ using Rdmp.Core.ReusableLibraryCode.Annotations;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
-using Smi.Common;
-using Smi.Common.Helpers;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
+using SmiServices.Common;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomRelationalMapper;
 
 namespace SmiServices.Applications.DicomLoader;
 

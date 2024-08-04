@@ -1,7 +1,5 @@
 using FellowOakDicom;
 using DicomTypeTranslation;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,6 +8,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Microservices.IdentifierMapper
 {

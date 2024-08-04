@@ -4,8 +4,6 @@ using FAnsi.Extensions;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
-using Smi.Common.Options;
-using Smi.Common.Tests;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,6 +14,8 @@ using Tests.Common;
 using SmiServices.Applications.TriggerUpdates;
 using SmiServices.Microservices.UpdateValues;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
+using SmiServices.UnitTests.Common;
+using SmiServices.Common.Options;
 
 
 namespace SmiServices.UnitTests.Applications.TriggerUpdates

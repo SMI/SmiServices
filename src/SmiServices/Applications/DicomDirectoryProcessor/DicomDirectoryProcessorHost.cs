@@ -1,6 +1,6 @@
-using Smi.Common.Execution;
-using Smi.Common.Options;
 using SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Options;
 using System;
 using System.Globalization;
 using System.IO;

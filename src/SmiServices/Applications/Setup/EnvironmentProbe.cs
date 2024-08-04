@@ -1,9 +1,5 @@
-using Microservices.DicomRelationalMapper.Execution;
 using Rdmp.Core.Startup;
 using Rdmp.Core.Startup.Events;
-using Smi.Common.Execution;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +8,6 @@ using System.Text;
 using Rdmp.Core.ReusableLibraryCode;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Core.ReusableLibraryCode.Progress;
-using Smi.Common.Messaging;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.Microservices.IdentifierMapper;
 using SmiServices.Microservices.MongoDBPopulator;
@@ -21,6 +16,12 @@ using SmiServices.Microservices.DicomAnonymiser;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortPackager;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB;
+using SmiServices.Microservices.DicomRelationalMapper;
+using SmiServices.Common.Options;
+using SmiServices.Common.Execution;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Helpers;
 
 namespace SmiServices.Applications.Setup
 {
@@ -252,7 +253,7 @@ DicomTagReader {
 
                 _ = new MongoExtractJobStore(
                     MongoClientHelpers.GetMongoClient(mongoDbOptions, "Setup"),
-                    mongoDbOptions.DatabaseName ?? throw new InvalidOperationException(), new Smi.Common.Helpers.DateTimeProvider()
+                    mongoDbOptions.DatabaseName ?? throw new InvalidOperationException(), new DateTimeProvider()
                 );
 
                 return new CheckEventArgs("MongoDb Checking Succeeded", CheckResult.Success);

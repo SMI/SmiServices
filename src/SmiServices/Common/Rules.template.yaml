@@ -1,0 +1,18 @@
+﻿BasicRules:
+  # Ignore any values in the column Modality
+  - Action: Ignore
+    IfColumn: Modality
+
+  # Ignore the value CT in the column Modality
+  - Action: Ignore
+    IfColumn: Modality
+    IfPattern: ^CT$
+
+  # Report as an error any values which contain 2 digits
+  - IfPattern: "[0-9][0-9]"
+    Action: Report
+    As: PrivateIdentifier
+
+SocketRules:
+  - Host: 127.0.123.123
+    Port: 8080

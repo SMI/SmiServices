@@ -1,8 +1,8 @@
-using Smi.Common;
-using Smi.Common.Execution;
-using Smi.Common.Helpers;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
+using SmiServices.Common;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB;
 using SmiServices.Microservices.CohortPackager.JobProcessing;

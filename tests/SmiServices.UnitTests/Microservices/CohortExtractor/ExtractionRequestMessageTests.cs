@@ -1,6 +1,6 @@
 using FellowOakDicom;
 using NUnit.Framework;
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {

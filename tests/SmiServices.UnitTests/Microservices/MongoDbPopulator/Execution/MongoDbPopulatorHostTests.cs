@@ -3,13 +3,13 @@ using FellowOakDicom;
 using DicomTypeTranslation;
 using MongoDB.Bson;
 using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.Options;
-using Smi.Common.Tests;
 using System;
 using System.Diagnostics;
 using System.Threading;
 using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using SmiServices.UnitTests.Common;
 
 
 namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution

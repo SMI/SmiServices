@@ -1,7 +1,6 @@
-
-using Smi.Common.Execution;
-using Smi.Common.Messages;
-using Smi.Common.Options;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;

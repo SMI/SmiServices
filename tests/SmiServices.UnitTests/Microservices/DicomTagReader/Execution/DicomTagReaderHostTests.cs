@@ -1,8 +1,8 @@
 using BadMedicine.Dicom;
 using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.Tests;
+using SmiServices.Common.Messages;
 using SmiServices.Microservices.DicomTagReader.Execution;
+using SmiServices.UnitTests.Common;
 using System;
 using System.IO;
 using System.IO.Compression;

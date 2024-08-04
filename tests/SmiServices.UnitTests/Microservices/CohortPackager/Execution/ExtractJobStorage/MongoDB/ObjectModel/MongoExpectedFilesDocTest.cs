@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using Moq;
 using NUnit.Framework;
-using Smi.Common.Helpers;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.MessageSerialization;
-using Smi.Common.Tests;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.MessageSerialization;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.ObjectModel;
+using SmiServices.UnitTests.Common;
 
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel

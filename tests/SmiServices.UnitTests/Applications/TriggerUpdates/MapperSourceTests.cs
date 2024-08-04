@@ -3,16 +3,16 @@ using FAnsi.Discovery;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using Rdmp.Core.DataLoad.Triggers.Implementations;
-using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Tests.Common;
-using Smi.Common.Tests;
 using SmiServices.Applications.TriggerUpdates;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
+using SmiServices.Common.Options;
+using SmiServices.UnitTests.Common;
 
 namespace SmiServices.UnitTests.Applications.TriggerUpdates
 {

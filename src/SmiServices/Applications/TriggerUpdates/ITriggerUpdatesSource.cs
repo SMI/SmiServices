@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Smi.Common.Messages.Updating;
+using SmiServices.Common.Messages.Updating;
 
 
 namespace SmiServices.Applications.TriggerUpdates

@@ -10,16 +10,15 @@ using System.Threading.Tasks;
 using DicomTypeTranslation;
 using FellowOakDicom;
 using LibArchive.Net;
-using Microservices.DicomRelationalMapper.Execution;
-using Microservices.DicomRelationalMapper.Messaging;
 using Microsoft.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.DataLoad;
-using Smi.Common.Messages;
-using Smi.Common.MongoDB;
+using SmiServices.Common.Messages;
+using SmiServices.Common.MongoDB;
+using SmiServices.Microservices.DicomRelationalMapper;
 
 namespace SmiServices.Applications.DicomLoader;
 

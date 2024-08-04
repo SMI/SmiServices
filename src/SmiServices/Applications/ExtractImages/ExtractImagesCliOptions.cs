@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using CommandLine;
 using CommandLine.Text;
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 
 
 namespace SmiServices.Applications.ExtractImages

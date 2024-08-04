@@ -1,8 +1,8 @@
 using MongoDB.Driver;
 using NLog;
-using Smi.Common.Execution;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
+using SmiServices.Common.Execution;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Reporting;
 using System;

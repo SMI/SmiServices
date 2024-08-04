@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Smi.Common.Messages;
-using Smi.Common.Tests;
+using SmiServices.Common.Messages;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.ObjectModel;
+using SmiServices.UnitTests.Common;
 
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel

@@ -1,6 +1,6 @@
-using Smi.Common.Execution;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 using System.IO.Abstractions;
 
 

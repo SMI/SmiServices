@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Options;
 
 
 namespace SmiServices.Microservices.DicomReprocessor

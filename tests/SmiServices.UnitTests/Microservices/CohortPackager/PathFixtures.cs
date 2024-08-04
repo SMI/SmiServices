@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
-using Smi.Common.Tests;
+using SmiServices.UnitTests.Common;
 using System;
 using System.IO;
 

@@ -1,14 +1,14 @@
 using FAnsi;
 using FAnsi.Discovery;
-using Moq;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
 using System.Collections.Generic;
 using System.Data.Common;
 using Tests.Common;
-using Smi.Common.Tests;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using SmiServices.UnitTests.Common;
+using Moq;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {

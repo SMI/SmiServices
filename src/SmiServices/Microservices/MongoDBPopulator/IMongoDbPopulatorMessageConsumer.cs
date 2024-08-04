@@ -1,5 +1,5 @@
-using Smi.Common.Messaging;
-using Smi.Common.Options;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
 
 namespace SmiServices.Microservices.MongoDBPopulator

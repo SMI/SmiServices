@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using Smi.Common.Options;
 using SmiServices.Applications.TriggerUpdates;
+using SmiServices.Common.Options;
 using System;
 
 

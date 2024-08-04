@@ -1,11 +1,11 @@
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Tests;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortPackager;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
+using SmiServices.UnitTests.Common;
 using System;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Messaging;

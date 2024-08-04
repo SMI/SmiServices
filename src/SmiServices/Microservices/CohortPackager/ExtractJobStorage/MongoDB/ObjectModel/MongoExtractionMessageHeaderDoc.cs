@@ -1,8 +1,8 @@
 using Equ;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Smi.Common.Helpers;
-using Smi.Common.Messages;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages;
 using System;
 
 

@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
-using Smi.Common.Helpers;
-using Smi.Common.Options;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;

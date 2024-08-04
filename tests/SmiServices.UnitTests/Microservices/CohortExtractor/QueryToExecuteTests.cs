@@ -2,7 +2,6 @@ using System;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using Tests.Common;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {

@@ -1,7 +1,7 @@
 using Equ;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

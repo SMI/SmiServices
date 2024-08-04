@@ -2,7 +2,7 @@ using FAnsi.Discovery;
 using NLog;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
-using Smi.Common.Messages.Updating;
+using SmiServices.Common.Messages.Updating;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

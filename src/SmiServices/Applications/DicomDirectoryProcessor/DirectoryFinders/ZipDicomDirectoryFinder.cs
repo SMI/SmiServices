@@ -1,5 +1,5 @@
-using Smi.Common;
-using Smi.Common.Messaging;
+using SmiServices.Common;
+using SmiServices.Common.Messaging;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using CommandLine;
 using NUnit.Framework;
-using Smi.Common.Options;
-using Smi.Common.Tests;
 using SmiServices.Applications.ExtractImages;
+using SmiServices.Common.Options;
+using SmiServices.UnitTests.Common;
 
 
 namespace SmiServices.UnitTests.Applications.ExtractImages

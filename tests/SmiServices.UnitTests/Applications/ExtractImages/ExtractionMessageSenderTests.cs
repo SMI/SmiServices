@@ -6,13 +6,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using Moq;
 using NUnit.Framework;
-using Smi.Common.Helpers;
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
-using Smi.Common.Tests;
 using SmiServices.Applications.ExtractImages;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
+using SmiServices.UnitTests.Common;
 
 
 namespace SmiServices.UnitTests.Applications.ExtractImages

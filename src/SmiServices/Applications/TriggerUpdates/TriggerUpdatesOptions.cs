@@ -1,4 +1,4 @@
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 
 
 namespace SmiServices.Applications.TriggerUpdates

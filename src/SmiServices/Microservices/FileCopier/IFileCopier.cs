@@ -1,5 +1,5 @@
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
 
 
 namespace SmiServices.Microservices.FileCopier

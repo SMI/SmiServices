@@ -3,12 +3,12 @@ using FellowOakDicom;
 using DicomTypeTranslation;
 using MongoDB.Bson;
 using NLog;
-using Smi.Common.Messages;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using SmiServices.Common.MongoDB;
 
 namespace SmiServices.Microservices.MongoDBPopulator.Processing
 {

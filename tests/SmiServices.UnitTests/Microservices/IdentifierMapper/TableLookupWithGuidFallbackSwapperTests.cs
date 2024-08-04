@@ -4,9 +4,9 @@ using System.Linq;
 using FAnsi;
 using FAnsi.Discovery;
 using NUnit.Framework;
-using Smi.Common.Options;
-using Smi.Common.Tests;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
+using SmiServices.UnitTests.Common;
 using Tests.Common;
 using TypeGuesser;
 

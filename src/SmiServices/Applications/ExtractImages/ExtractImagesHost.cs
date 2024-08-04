@@ -1,9 +1,9 @@
-using Smi.Common;
-using Smi.Common.Execution;
-using Smi.Common.Helpers;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
+using SmiServices.Common;
+using SmiServices.Common.Execution;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;

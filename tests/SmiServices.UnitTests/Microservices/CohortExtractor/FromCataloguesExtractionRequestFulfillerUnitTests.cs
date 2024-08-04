@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Options;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
 using System.Linq;

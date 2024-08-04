@@ -1,9 +1,8 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
-using Smi.Common.Tests;
 using SmiServices.Microservices.MongoDBPopulator;
-using SmiServices.UnitTests.Microservices.MongoDbPopulator;
+using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 
 namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution

@@ -1,8 +1,8 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
-using Smi.Common.MongoDB;
-using Smi.Common.Options;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;

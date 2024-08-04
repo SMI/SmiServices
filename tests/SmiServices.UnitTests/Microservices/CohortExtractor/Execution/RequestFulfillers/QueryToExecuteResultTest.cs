@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using Smi.Common.Tests;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using SmiServices.UnitTests.Common;
 using System;
 
 

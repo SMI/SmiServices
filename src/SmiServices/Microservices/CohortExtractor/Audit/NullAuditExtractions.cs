@@ -1,6 +1,5 @@
-using Smi.Common.Messages.Extraction;
 using Rdmp.Core.Curation.Data;
-using SmiServices.Microservices.CohortExtractor;
+using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.Microservices.CohortExtractor.Audit
 {

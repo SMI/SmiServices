@@ -1,5 +1,5 @@
-using Smi.Common.Messages;
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

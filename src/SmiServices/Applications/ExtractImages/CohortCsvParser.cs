@@ -6,7 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Smi.Common.Messages.Extraction;
+using SmiServices.Common.Messages.Extraction;
 
 
 namespace SmiServices.Applications.ExtractImages

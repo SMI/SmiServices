@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using FAnsi.Discovery;
 using NLog;
-using Smi.Common.Options;
+using SmiServices.Common.Options;
 
 namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {

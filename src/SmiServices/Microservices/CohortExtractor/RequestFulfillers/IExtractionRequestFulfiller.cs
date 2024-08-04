@@ -1,6 +1,5 @@
-using Smi.Common.Messages.Extraction;
-using Smi.Common.Options;
-using SmiServices.Microservices.CohortExtractor;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;

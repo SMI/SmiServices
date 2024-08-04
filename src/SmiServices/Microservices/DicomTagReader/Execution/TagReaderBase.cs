@@ -8,12 +8,12 @@ using System.Linq;
 using System.Text;
 using FellowOakDicom;
 using DicomTypeTranslation;
-using Smi.Common.Messages;
-using Smi.Common.Messaging;
-using Smi.Common.Options;
 using NLog;
 using System.IO.Compression;
-using Smi.Common;
+using SmiServices.Common;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using SmiServices.Common.Messaging;
 
 namespace SmiServices.Microservices.DicomTagReader.Execution
 {

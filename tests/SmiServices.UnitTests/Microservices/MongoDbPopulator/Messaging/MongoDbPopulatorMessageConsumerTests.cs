@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Smi.Common.Messages;
-using Smi.Common.Tests;
+using SmiServices.Common.Messages;
 using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.UnitTests.Common;
 using System.Text;
 
 

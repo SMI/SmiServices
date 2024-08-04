@@ -4,13 +4,12 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Moq;
-using Smi.Common.Messages;
-using Smi.Common.Tests;
 using System.IO.Compression;
 using System.Collections.Generic;
-using SmiServices.UnitTests.Microservices.DicomTagReader;
 using SmiServices.Microservices.DicomTagReader.Execution;
+using SmiServices.Common.Messages;
+using SmiServices.UnitTests.Common;
+using Moq;
 
 namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
 {

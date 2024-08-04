@@ -1,8 +1,8 @@
 using Moq;
 using NUnit.Framework;
-using Smi.Common.Tests;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Reporting;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

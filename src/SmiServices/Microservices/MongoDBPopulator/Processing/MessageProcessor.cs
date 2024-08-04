@@ -1,8 +1,8 @@
 using MongoDB.Bson;
 using NLog;
 using RabbitMQ.Client;
-using Smi.Common.Messages;
-using Smi.Common.Options;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using SysTimers = System.Timers;
