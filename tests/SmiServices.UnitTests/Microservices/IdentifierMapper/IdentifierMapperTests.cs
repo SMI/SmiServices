@@ -507,7 +507,7 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
             Assert.Multiple(() =>
             {
                 Assert.That(consumer.SwapIdentifier(msg, out var reason), Is.False);
-                Assert.That(reason, Is.EqualTo("Swapper Microservices.IdentifierMapper.Tests.SwapForFixedValueTester returned null"));
+                Assert.That(reason, Is.EqualTo("Swapper SmiServices.UnitTests.Microservices.IdentifierMapper.SwapForFixedValueTester returned null"));
             });
         }
 
