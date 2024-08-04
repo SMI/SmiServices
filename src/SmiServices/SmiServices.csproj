@@ -14,6 +14,7 @@
         <PackageReference Include="HIC.RDMP.Dicom" />
         <PackageReference Include="HIC.RDMP.Plugin" />
         <PackageReference Include="IsIdentifiable" />
+        <PackageReference Include="LibArchive.Net" />
         <PackageReference Include="LineReader" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
