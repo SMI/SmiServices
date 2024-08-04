@@ -12,28 +12,27 @@ namespace SmiServices
     {
         public static readonly Type[] AllApplications =
         {
-            // TODO
             typeof(DicomLoaderVerb),
             typeof(DicomDirectoryProcessorVerb),
-            //typeof(ExtractImagesVerb),
-            //typeof(TriggerUpdatesVerb),
-            //typeof(SetupVerb),
-            //typeof(DynamicRulesTesterVerb),
+            typeof(ExtractImagesVerb),
+            typeof(TriggerUpdatesVerb),
+            typeof(SetupVerb),
+            typeof(DynamicRulesTesterVerb),
         };
 
         public static readonly Type[] AllServices =
         {
-            //typeof(CohortExtractorVerb),
-            //typeof(DicomAnonymiserVerb),
-            //typeof(CohortPackagerVerb),
-            //typeof(DicomRelationalMapperVerb),
-            //typeof(DicomReprocessorVerb),
-            //typeof(DicomTagReaderVerb),
-            //typeof(FileCopierVerb),
-            //typeof(IdentifierMapperVerb),
-            //typeof(IsIdentifiableVerb),
-            //typeof(MongoDbPopulatorVerb),
-            //typeof(UpdateValuesVerb),
+            typeof(CohortExtractorVerb),
+            typeof(DicomAnonymiserVerb),
+            typeof(CohortPackagerVerb),
+            typeof(DicomRelationalMapperVerb),
+            typeof(DicomReprocessorVerb),
+            typeof(DicomTagReaderVerb),
+            typeof(FileCopierVerb),
+            typeof(IdentifierMapperVerb),
+            typeof(IsIdentifiableVerb),
+            typeof(MongoDbPopulatorVerb),
+            typeof(UpdateValuesVerb),
         };
 
         public static int Main(string[] args)
@@ -56,25 +55,25 @@ namespace SmiServices
                         return service switch
                         {
                             // Applications
-                            //DicomLoaderVerb _ => Applications.DicomLoader.Program.Main(rest),
-                            //DynamicRulesTesterVerb _ => Applications.DynamicRulesTester.Program.Main(rest),
-                            //TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
+                            DicomLoaderVerb _ => Applications.DicomLoader.Program.Main(rest),
+                            DynamicRulesTesterVerb _ => Applications.DynamicRulesTester.Program.Main(rest),
+                            TriggerUpdatesVerb _ => Applications.TriggerUpdates.Program.Main(rest),
                             DicomDirectoryProcessorVerb _ => Applications.DicomDirectoryProcessor.DicomDirectoryProcessor.Main(rest),
-                            //ExtractImagesVerb _ => ExtractImages.Program.Main(rest),
-                            //SetupVerb _ => Setup.Program.Main(rest),
+                            ExtractImagesVerb _ => Applications.ExtractImages.Program.Main(rest),
+                            SetupVerb _ => Applications.Setup.Program.Main(rest),
 
                             // Microservices
-                            //CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
-                            //CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),
-                            //DicomAnonymiserVerb _ => Microservices.DicomAnonymiser.Program.Main(rest),
-                            //DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.Program.Main(rest),
-                            //DicomReprocessorVerb _ => Microservices.DicomReprocessor.Program.Main(rest),
-                            //DicomTagReaderVerb _ => Microservices.DicomTagReader.Program.Main(rest),
-                            //FileCopierVerb _ => Microservices.FileCopier.Program.Main(rest),
-                            //IdentifierMapperVerb _ => Microservices.IdentifierMapper.Program.Main(rest),
-                            //IsIdentifiableVerb _ => Microservices.IsIdentifiable.Program.Main(rest),
-                            //MongoDbPopulatorVerb _ => Microservices.MongoDBPopulator.Program.Main(rest),
-                            //UpdateValuesVerb _ => Microservices.UpdateValues.Program.Main(rest),
+                            CohortExtractorVerb _ => Microservices.CohortExtractor.Program.Main(rest),
+                            CohortPackagerVerb _ => Microservices.CohortPackager.Program.Main(rest),
+                            DicomAnonymiserVerb _ => Microservices.DicomAnonymiser.Program.Main(rest),
+                            DicomRelationalMapperVerb _ => Microservices.DicomRelationalMapper.Program.Main(rest),
+                            DicomReprocessorVerb _ => Microservices.DicomReprocessor.Program.Main(rest),
+                            DicomTagReaderVerb _ => Microservices.DicomTagReader.Program.Main(rest),
+                            FileCopierVerb _ => Microservices.FileCopier.Program.Main(rest),
+                            IdentifierMapperVerb _ => Microservices.IdentifierMapper.Program.Main(rest),
+                            IsIdentifiableVerb _ => Microservices.IsIdentifiable.Program.Main(rest),
+                            MongoDbPopulatorVerb _ => Microservices.MongoDBPopulator.Program.Main(rest),
+                            UpdateValuesVerb _ => Microservices.UpdateValues.Program.Main(rest),
                             _ => throw new ArgumentException($"No case for {nameof(service)}")
                         };
                     }
