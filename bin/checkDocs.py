@@ -9,7 +9,7 @@ import sys
 import common as C
 
 
-_VERB_CS_PATH = f"{C.PROJ_ROOT}/src/applications/Applications.SmiRunner/ServiceVerbs.cs"
+_VERB_CS_PATH = f"{C.PROJ_ROOT}/src/SmiServices/ServiceVerbs.cs"
 _VERB_RE = re.compile(r'\[Verb\(("\S*?")')
 
 
