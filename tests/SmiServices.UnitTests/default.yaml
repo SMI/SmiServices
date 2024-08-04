@@ -146,7 +146,7 @@ IdentifierMapperOptions:
   TimeoutInSeconds: 600
   SwapColumnName: "CHI"
   ReplacementColumnName: "ECHI"
-  SwapperType: "Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper"
+  SwapperType: "SmiServices.Microservices.IdentifierMapper.Swappers.ForGuidIdentifierSwapper"
   AllowRegexMatching: false
   RedisConnectionString: ""
 

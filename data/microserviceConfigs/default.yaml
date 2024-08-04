@@ -75,9 +75,9 @@ CohortExtractorOptions:
   # ID(s) of ColumnInfo that contains a list of values which should not have data extracted for them.  e.g. opt out.  The name of the column referenced must match a column in the extraction table
   #RejectColumnInfos: [105,110]
 
-  AuditorType: "Microservices.CohortExtractor.Audit.NullAuditExtractions"
-  RequestFulfillerType: "Microservices.CohortExtractor.Execution.RequestFulfillers.FromCataloguesExtractionRequestFulfiller"
-  ProjectPathResolverType: "Microservices.CohortExtractor.Execution.ProjectPathResolvers.DefaultProjectPathResolver"
+  AuditorType: "SmiServices.Microservices.CohortExtractor.Audit.NullAuditExtractions"
+  RequestFulfillerType: "SmiServices.Microservices.CohortExtractor.RequestFulfillers.FromCataloguesExtractionRequestFulfiller"
+  ProjectPathResolverType: "SmiServices.Microservices.CohortExtractor.ProjectPathResolvers.DefaultProjectPathResolver"
   ExtractAnonRoutingKey: anon
   ExtractIdentRoutingKey: ident
   # Writes (Producer) to this exchange
@@ -146,7 +146,7 @@ IdentifierMapperOptions:
   TimeoutInSeconds: 600
   SwapColumnName: "CHI"
   ReplacementColumnName: "ECHI"
-  SwapperType: "Microservices.IdentifierMapper.Execution.Swappers.ForGuidIdentifierSwapper"
+  SwapperType: "SmiServices.Microservices.IdentifierMapper.Swappers.ForGuidIdentifierSwapper"
   AllowRegexMatching: false
   RedisConnectionString: ""
 
@@ -222,7 +222,7 @@ IsIdentifiableServiceOptions:
   IsIdentifiableProducerOptions:
     ExchangeName: "TEST.ExtractedFileVerifiedExchange"
     MaxConfirmAttempts: 1
-  ClassifierType: "Microservices.IsIdentifiable.Service.TesseractStanfordDicomFileClassifier"
+  ClassifierType: "SmiServices.Microservices.IsIdentifiable.TesseractStanfordDicomFileClassifier"
   DataDirectory: ""
 
 IsIdentifiableOptions:
