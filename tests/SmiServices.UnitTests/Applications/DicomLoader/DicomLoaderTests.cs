@@ -95,7 +95,7 @@ public class DicomLoaderTests : DatabaseTests
         var fileNames = di.GetFiles("*", new EnumerationOptions { RecurseSubdirectories = true }).Select(x => x.FullName);
         var files = string.Join('\0', fileNames);
         using var fileList = new MemoryStream(Encoding.UTF8.GetBytes(files));
-        typeof(Program).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static,
+        typeof(SmiServices.Applications.DicomLoader.Program).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static,
                 new[] { typeof(GlobalOptions), typeof(DicomLoaderOptions), typeof(Stream) })!
             .Invoke(null, new object[] { _gOptions, new DicomLoaderOptions() { LoadSql = true }, fileList });
         Assert.Multiple(() =>
