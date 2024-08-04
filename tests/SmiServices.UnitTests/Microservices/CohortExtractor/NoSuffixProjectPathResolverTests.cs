@@ -73,7 +73,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         [Test]
         public void TestCreatingByReflection()
         {
-            var instance = new MicroserviceObjectFactory().CreateInstance<IProjectPathResolver>("Microservices.CohortExtractor.Execution.ProjectPathResolvers.NoSuffixProjectPathResolver", typeof(IProjectPathResolver).Assembly, RepositoryLocator);
+            var instance = new MicroserviceObjectFactory().CreateInstance<IProjectPathResolver>("SmiServices.Microservices.CohortExtractor.ProjectPathResolvers.NoSuffixProjectPathResolver", typeof(IProjectPathResolver).Assembly, RepositoryLocator);
             Assert.That(instance, Is.InstanceOf<NoSuffixProjectPathResolver>());
         }
     }
