@@ -26,8 +26,8 @@
       <None Include="TestDatabases.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Include="Microservices\DicomRelationalMapper\DLEBenchmarkingTests\CT.it">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <None Include="CT.it">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="TestData\burned-in-text-test.dcm">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
