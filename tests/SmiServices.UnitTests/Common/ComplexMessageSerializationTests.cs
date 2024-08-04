@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.MessageSerialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SmiServices.UnitTests.Common
 {

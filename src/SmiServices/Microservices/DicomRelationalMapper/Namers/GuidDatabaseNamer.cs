@@ -1,7 +1,7 @@
-using System;
 using FAnsi.Discovery;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.EntityNaming;
+using System;
 
 namespace SmiServices.Microservices.DicomRelationalMapper.Namers
 {

@@ -1,7 +1,9 @@
 
-using FellowOakDicom;
+using BadMedicine.Dicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
+using FellowOakDicom;
+using Moq;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
@@ -12,26 +14,24 @@ using Rdmp.Core.DataFlowPipeline;
 using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
 using Rdmp.Core.DataLoad.Engine.Job;
 using Rdmp.Core.Logging;
+using Rdmp.Core.ReusableLibraryCode.DataAccess;
+using Rdmp.Core.ReusableLibraryCode.Progress;
 using Rdmp.Dicom.Attachers.Routing;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomRelationalMapper;
+using SmiServices.Microservices.DicomRelationalMapper.Namers;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using BadMedicine.Dicom;
-using Rdmp.Core.ReusableLibraryCode.DataAccess;
-using Rdmp.Core.ReusableLibraryCode.Progress;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
-using SmiServices.Microservices.DicomRelationalMapper.Namers;
-using SmiServices.Microservices.DicomRelationalMapper;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
-using SmiServices.UnitTests.Common;
-using Moq;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmarkingTests
 {

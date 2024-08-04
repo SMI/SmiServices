@@ -1,14 +1,14 @@
 
-using System;
+using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using System.IO.Abstractions;
-using SmiServices.Microservices.DicomTagReader.Execution;
-using SmiServices.Microservices.DicomTagReader.Messaging;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomTagReader.Execution;
+using SmiServices.Microservices.DicomTagReader.Messaging;
 using SmiServices.UnitTests.Common;
-using Moq;
+using System;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace SmiServices.UnitTests.Microservices.DicomTagReader.Messaging

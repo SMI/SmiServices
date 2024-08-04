@@ -1,13 +1,13 @@
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
 using MongoDB.Bson;
+using Moq;
 using NUnit.Framework;
-using SmiServices.Microservices.DicomReprocessor;
+using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.MongoDB;
-using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
-using Moq;
+using SmiServices.Microservices.DicomReprocessor;
 
 namespace SmiServices.UnitTests.Microservices.DicomReprocessor
 {

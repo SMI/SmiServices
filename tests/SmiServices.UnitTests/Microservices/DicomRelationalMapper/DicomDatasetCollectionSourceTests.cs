@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using FellowOakDicom;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
+using FellowOakDicom;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
@@ -15,6 +9,12 @@ using Rdmp.Core.Repositories;
 using Rdmp.Core.ReusableLibraryCode.Progress;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 {

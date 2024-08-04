@@ -1,25 +1,25 @@
+using BadMedicine.Dicom;
+using FAnsi.Discovery;
+using FellowOakDicom;
+using NUnit.Framework;
+using Rdmp.Core.DataLoad.Triggers;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.CohortExtractor;
+using SmiServices.Microservices.CohortExtractor.Audit;
+using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
+using SmiServices.UnitTests.Common;
+using SynthEHR;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
-using BadMedicine.Dicom;
-using FellowOakDicom;
-using FAnsi.Discovery;
-using NUnit.Framework;
-using Rdmp.Core.DataLoad.Triggers;
 using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
-using System.Diagnostics.CodeAnalysis;
-using SynthEHR;
-using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using SmiServices.Microservices.CohortExtractor.Audit;
-using SmiServices.Microservices.CohortExtractor;
-using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
-using SmiServices.Common.Options;
-using SmiServices.UnitTests.Common;
-using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {

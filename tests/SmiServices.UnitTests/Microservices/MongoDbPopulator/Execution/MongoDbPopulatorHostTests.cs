@@ -1,15 +1,15 @@
 
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
 using MongoDB.Bson;
 using NUnit.Framework;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Diagnostics;
 using System.Threading;
-using SmiServices.Microservices.MongoDBPopulator;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
-using SmiServices.UnitTests.Common;
 
 
 namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution

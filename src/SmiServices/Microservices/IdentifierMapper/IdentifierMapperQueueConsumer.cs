@@ -1,15 +1,15 @@
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Diagnostics.CodeAnalysis;
-using SmiServices.Microservices.IdentifierMapper.Swappers;
-using SmiServices.Common.Messaging;
-using SmiServices.Common.Messages;
 
 namespace SmiServices.Microservices.IdentifierMapper
 {

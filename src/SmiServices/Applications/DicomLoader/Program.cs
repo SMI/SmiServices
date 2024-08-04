@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
@@ -20,6 +14,12 @@ using SmiServices.Common.Helpers;
 using SmiServices.Common.MongoDB;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomRelationalMapper;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SmiServices.Applications.DicomLoader;
 

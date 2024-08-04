@@ -1,22 +1,22 @@
 
-using System.Text.RegularExpressions;
 using FAnsi.Discovery;
-using System.Collections.Generic;
-using Rdmp.Core.Repositories;
-using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
-using Rdmp.Core.Curation.Data.EntityNaming;
-using Rdmp.Core.DataLoad;
-using Rdmp.Core.Curation.Data.DataLoad;
-using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
-using Rdmp.Core.DataLoad.Engine.LoadExecution;
-using Rdmp.Core.DataLoad.Engine.LoadProcess;
 using Rdmp.Core.Curation.Data;
+using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.Defaults;
-using Rdmp.Core.DataLoad.Engine.LoadExecution.Components;
+using Rdmp.Core.Curation.Data.EntityNaming;
 using Rdmp.Core.DataFlowPipeline;
+using Rdmp.Core.DataLoad;
+using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
+using Rdmp.Core.DataLoad.Engine.LoadExecution;
+using Rdmp.Core.DataLoad.Engine.LoadExecution.Components;
 using Rdmp.Core.DataLoad.Engine.LoadExecution.Components.Standard;
+using Rdmp.Core.DataLoad.Engine.LoadProcess;
+using Rdmp.Core.Repositories;
 using Rdmp.Core.ReusableLibraryCode.Progress;
+using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 using SmiServices.Microservices.DicomRelationalMapper.Namers;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace SmiServices.Microservices.DicomRelationalMapper
 {

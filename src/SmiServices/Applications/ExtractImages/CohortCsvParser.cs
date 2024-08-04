@@ -1,12 +1,12 @@
+using CsvHelper;
+using CsvHelper.Configuration;
+using SmiServices.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using CsvHelper;
-using CsvHelper.Configuration;
-using SmiServices.Common.Messages.Extraction;
 
 
 namespace SmiServices.Applications.ExtractImages

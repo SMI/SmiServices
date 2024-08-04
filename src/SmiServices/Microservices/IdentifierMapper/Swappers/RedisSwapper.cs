@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
 using FAnsi.Discovery;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using SmiServices.Common.Options;
 using StackExchange.Redis;
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace SmiServices.Microservices.IdentifierMapper.Swappers
 {

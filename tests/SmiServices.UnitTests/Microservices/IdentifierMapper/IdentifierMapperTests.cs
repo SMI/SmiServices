@@ -1,24 +1,24 @@
 
-using FellowOakDicom;
+using BadMedicine.Dicom;
 using DicomTypeTranslation;
 using FAnsi.Discovery;
+using FellowOakDicom;
+using Moq;
 using NUnit.Framework;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.IdentifierMapper;
+using SmiServices.Microservices.IdentifierMapper.Swappers;
+using SmiServices.UnitTests.Common;
+using SynthEHR;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using BadMedicine.Dicom;
-using SynthEHR;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
-using SmiServices.Microservices.IdentifierMapper;
-using SmiServices.Microservices.IdentifierMapper.Swappers;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
-using SmiServices.Common.Messaging;
-using SmiServices.UnitTests.Common;
-using Moq;
 
 namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 {

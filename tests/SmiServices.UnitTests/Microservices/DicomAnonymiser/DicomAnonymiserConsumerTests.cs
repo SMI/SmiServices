@@ -1,20 +1,20 @@
+using FellowOakDicom;
+using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
+using SmiServices.Common.Events;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomAnonymiser;
+using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
+using SmiServices.UnitTests.Common;
 using System;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq.Expressions;
-using FellowOakDicom;
-using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
-using SmiServices.Microservices.DicomAnonymiser;
-using SmiServices.Common.Options;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Messaging;
-using SmiServices.Common.Messages.Extraction;
-using SmiServices.Common.Events;
-using SmiServices.UnitTests.Common;
-using Moq;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq.Expressions;
 
 namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 {

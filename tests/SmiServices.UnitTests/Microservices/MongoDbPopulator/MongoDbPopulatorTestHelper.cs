@@ -1,11 +1,11 @@
 
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
 using MongoDB.Driver;
-using System;
 using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
 using SmiServices.Common.MongoDB;
+using SmiServices.Common.Options;
+using System;
 
 
 namespace SmiServices.UnitTests.Microservices.MongoDbPopulator

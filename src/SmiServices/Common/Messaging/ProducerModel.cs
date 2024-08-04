@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json;
 using NLog;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using SmiServices.Common.Messages;
 using SmiServices.Common.Events;
+using SmiServices.Common.Messages;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace SmiServices.Common.Messaging
 {

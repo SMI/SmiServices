@@ -1,18 +1,18 @@
+using FellowOakDicom;
+using Moq;
 using NUnit.Framework;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomAnonymiser;
+using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
-using FellowOakDicom;
-using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
-using SmiServices.Microservices.DicomAnonymiser;
-using SmiServices.Common.Options;
-using SmiServices.Common.Messages.Extraction;
-using SmiServices.UnitTests.Common;
-using Moq;
-using SmiServices.Common.Messages;
 
 namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 {

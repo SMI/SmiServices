@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
 using NLog;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Notifying;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Reporting;
+using System;
+using System.Collections.Generic;
 using SysTimers = System.Timers;
 
 namespace SmiServices.Microservices.CohortPackager.JobProcessing

@@ -1,5 +1,5 @@
-using System;
 using CommandLine;
+using System;
 
 
 namespace SmiServices.Applications.TriggerUpdates

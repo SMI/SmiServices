@@ -1,13 +1,13 @@
 
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
 using MongoDB.Bson;
+using SmiServices.Common.Messages;
+using SmiServices.Common.MongoDB;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
-using SmiServices.Common.MongoDB;
 
 
 namespace SmiServices.Microservices.MongoDBPopulator.Processing

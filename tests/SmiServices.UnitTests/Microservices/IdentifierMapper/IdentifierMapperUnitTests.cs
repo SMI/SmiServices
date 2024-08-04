@@ -1,7 +1,7 @@
-using System.Linq;
 using NLog;
 using NLog.Targets;
 using NUnit.Framework;
+using System.Linq;
 
 namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 {

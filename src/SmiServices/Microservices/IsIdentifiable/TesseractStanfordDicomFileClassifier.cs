@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.IsIdentifiable
 {

@@ -1,9 +1,9 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using SmiServices.Common.Execution;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace SmiServices.Microservices.DicomReprocessor
 {

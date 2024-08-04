@@ -2,15 +2,15 @@ using NLog;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.EntityNaming;
 using Rdmp.Core.Logging.Listeners.Extensions;
-using Rdmp.Core.Startup;
-using Rdmp.Core.Startup.Events;
+using Rdmp.Core.Repositories;
 using Rdmp.Core.ReusableLibraryCode;
 using Rdmp.Core.ReusableLibraryCode.Checks;
-using System;
-using Rdmp.Core.Repositories;
+using Rdmp.Core.Startup;
+using Rdmp.Core.Startup.Events;
 using SmiServices.Common;
-using SmiServices.Common.Options;
 using SmiServices.Common.Execution;
+using SmiServices.Common.Options;
+using System;
 
 
 namespace SmiServices.Microservices.DicomRelationalMapper

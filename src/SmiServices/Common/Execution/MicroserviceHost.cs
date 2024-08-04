@@ -1,13 +1,13 @@
 using DicomTypeTranslation;
-using NLog;
-using System;
-using System.Diagnostics;
 using FellowOakDicom;
+using NLog;
+using SmiServices.Common.Events;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.Common.Helpers;
-using SmiServices.Common.Events;
-using SmiServices.Common.Messages;
+using System;
+using System.Diagnostics;
 
 namespace SmiServices.Common.Execution
 {

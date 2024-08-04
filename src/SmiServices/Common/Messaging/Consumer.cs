@@ -1,16 +1,16 @@
 
+using NLog;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using SmiServices.Common.Events;
+using SmiServices.Common.Messages;
+using SmiServices.Common.MessageSerialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NLog;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using SmiServices.Common.Messages;
-using SmiServices.Common.MessageSerialization;
-using SmiServices.Common.Events;
 
 namespace SmiServices.Common.Messaging
 {

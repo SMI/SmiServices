@@ -1,9 +1,9 @@
 
-using System.Threading;
 using FAnsi.Discovery;
 using SmiServices.Common;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
+using System.Threading;
 
 
 namespace SmiServices.UnitTests.Microservices.IdentifierMapper

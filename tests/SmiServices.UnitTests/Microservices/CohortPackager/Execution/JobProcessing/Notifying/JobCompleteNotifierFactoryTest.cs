@@ -1,7 +1,7 @@
-using System;
 using NUnit.Framework;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Notifying;
 using SmiServices.UnitTests.Common;
+using System;
 
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.JobProcessing.Notifying

@@ -1,13 +1,13 @@
-using System;
-using System.Data;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using FAnsi.Discovery;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
 using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.ReusableLibraryCode.DataAccess;
+using System;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 {

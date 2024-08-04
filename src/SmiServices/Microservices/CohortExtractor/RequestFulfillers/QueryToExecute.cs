@@ -4,10 +4,10 @@ using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.Spontaneous;
 using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.Repositories;
+using Rdmp.Core.ReusableLibraryCode.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Rdmp.Core.ReusableLibraryCode.DataAccess;
 
 namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 {

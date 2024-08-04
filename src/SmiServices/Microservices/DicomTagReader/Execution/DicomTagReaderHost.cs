@@ -1,11 +1,11 @@
 
-using System;
-using System.IO;
-using System.IO.Abstractions;
 using SmiServices.Common.Execution;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomTagReader.Messaging;
+using System;
+using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.DicomTagReader.Execution
 {

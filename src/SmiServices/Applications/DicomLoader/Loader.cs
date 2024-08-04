@@ -1,12 +1,3 @@
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using DicomTypeTranslation;
 using FellowOakDicom;
 using LibArchive.Net;
@@ -19,6 +10,15 @@ using Rdmp.Core.DataLoad;
 using SmiServices.Common.Messages;
 using SmiServices.Common.MongoDB;
 using SmiServices.Microservices.DicomRelationalMapper;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SmiServices.Applications.DicomLoader;
 

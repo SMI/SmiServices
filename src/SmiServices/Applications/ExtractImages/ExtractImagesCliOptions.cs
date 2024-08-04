@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using CommandLine;
 using CommandLine.Text;
 using SmiServices.Common.Options;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 
 namespace SmiServices.Applications.ExtractImages

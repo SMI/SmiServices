@@ -1,3 +1,4 @@
+using CsvHelper;
 using CsvHelper.Configuration;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
@@ -5,6 +6,7 @@ using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using Newtonsoft.Json;
 using NLog;
+using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,8 +14,6 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using CsvHelper;
-using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 
 namespace SmiServices.Microservices.CohortPackager.JobProcessing.Reporting
 {

@@ -1,5 +1,5 @@
-using System.IO;
 using NUnit.Framework;
+using System.IO;
 
 namespace SmiServices.UnitTests.Common
 {

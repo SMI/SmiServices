@@ -1,12 +1,12 @@
 
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
 using NUnit.Framework;
 using Rdmp.Core.DataFlowPipeline;
-using Rdmp.Dicom.PipelineComponents.DicomSources;
-using System.IO;
 using Rdmp.Core.ReusableLibraryCode.Progress;
+using Rdmp.Dicom.PipelineComponents.DicomSources;
 using SmiServices.Microservices.DicomRelationalMapper;
+using System.IO;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 {

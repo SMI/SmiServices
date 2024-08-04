@@ -1,12 +1,12 @@
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using FAnsi;
 using FAnsi.Discovery;
 using NUnit.Framework;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using SmiServices.UnitTests.Common;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using Tests.Common;
 using TypeGuesser;
 

@@ -1,8 +1,8 @@
+using NLog;
 using NLog.Config;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
-using NLog;
 
 namespace SmiServices.UnitTests.Common
 {

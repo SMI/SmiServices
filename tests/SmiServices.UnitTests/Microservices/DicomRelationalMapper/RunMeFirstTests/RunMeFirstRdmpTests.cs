@@ -1,9 +1,9 @@
 using FAnsi;
 using NUnit.Framework;
-using System.IO;
 using Rdmp.Core.MapsDirectlyToDatabaseTable;
-using Tests.Common;
 using SmiServices.UnitTests.Common;
+using System.IO;
+using Tests.Common;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.RunMeFirstTests
 {

@@ -1,18 +1,18 @@
 
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
 using MongoDB.Bson;
+using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.Microservices.MongoDBPopulator.Processing;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmiServices.Microservices.MongoDBPopulator.Processing;
-using SmiServices.Microservices.MongoDBPopulator;
-using SmiServices.Common.Options;
-using SmiServices.UnitTests.Common;
-using Moq;
-using SmiServices.Common.Messages;
 
 
 namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Processing

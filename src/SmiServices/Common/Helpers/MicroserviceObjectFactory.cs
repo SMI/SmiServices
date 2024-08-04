@@ -1,8 +1,8 @@
-using System;
-using System.Reflection;
 using NLog;
 using Rdmp.Core.Repositories.Construction;
 using SmiServices.Common.Events;
+using System;
+using System.Reflection;
 
 namespace SmiServices.Common.Helpers
 {

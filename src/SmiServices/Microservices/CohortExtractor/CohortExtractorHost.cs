@@ -1,7 +1,4 @@
 
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using NLog;
 using RabbitMQ.Client.Exceptions;
 using Rdmp.Core.Curation.Data;
@@ -17,6 +14,9 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SmiServices.Microservices.CohortExtractor
 {

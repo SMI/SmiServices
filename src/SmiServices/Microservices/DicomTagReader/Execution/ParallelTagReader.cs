@@ -1,13 +1,13 @@
 
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Messaging;
-using SmiServices.Common.Options;
 
 
 namespace SmiServices.Microservices.DicomTagReader.Execution

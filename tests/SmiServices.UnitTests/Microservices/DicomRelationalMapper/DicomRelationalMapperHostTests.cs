@@ -2,14 +2,14 @@ using FAnsi;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomRelationalMapper;
+using SmiServices.Microservices.DicomRelationalMapper.Namers;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Data;
-using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Tests.Common;
-using SmiServices.Microservices.DicomRelationalMapper.Namers;
-using SmiServices.Microservices.DicomRelationalMapper;
-using SmiServices.UnitTests.Common;
-using SmiServices.Common.Options;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 {

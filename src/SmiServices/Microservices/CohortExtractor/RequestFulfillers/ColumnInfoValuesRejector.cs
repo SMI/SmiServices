@@ -1,6 +1,6 @@
-using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using NLog;
 using Rdmp.Core.Curation.Data;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Rdmp.Core.QueryBuilding;
 using Rdmp.Core.ReusableLibraryCode.DataAccess;
 using System;

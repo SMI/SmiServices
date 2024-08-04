@@ -1,7 +1,7 @@
+using Rdmp.Dicom.Extraction.FoDicomBased;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 using System;
 using System.IO;
-using Rdmp.Dicom.Extraction.FoDicomBased;
 
 namespace SmiServices.Microservices.DicomRelationalMapper
 {

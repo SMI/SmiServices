@@ -1,10 +1,10 @@
-using System;
-using System.IO;
 using NUnit.Framework;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.IsIdentifiable;
 using SmiServices.UnitTests.Common;
+using System;
+using System.IO;
 
 namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 {

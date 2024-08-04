@@ -1,10 +1,10 @@
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using CommandLine;
 using CommandLine.Text;
 using SmiServices.Common.Options;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace SmiServices.Microservices.DicomReprocessor
 {

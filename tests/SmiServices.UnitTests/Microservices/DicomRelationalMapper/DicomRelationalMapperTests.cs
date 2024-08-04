@@ -1,21 +1,21 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using BadMedicine.Dicom;
-using FellowOakDicom;
 using DicomTypeTranslation;
 using FAnsi.Implementations.MicrosoftSQL;
+using FellowOakDicom;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.TagPromotionSchema;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomRelationalMapper;
+using SmiServices.UnitTests.Common;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
-using SmiServices.Microservices.DicomRelationalMapper;
-using SmiServices.Common.Options;
-using SmiServices.UnitTests.Common;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 {

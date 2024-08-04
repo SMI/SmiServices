@@ -1,7 +1,7 @@
-using System;
 using RabbitMQ.Client;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
+using System;
 
 namespace SmiServices.Common
 {

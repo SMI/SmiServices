@@ -1,8 +1,8 @@
 
 using NLog;
-using System;
-using SmiServices.Microservices.CohortPackager.JobProcessing;
 using SmiServices.Common.Messaging;
+using SmiServices.Microservices.CohortPackager.JobProcessing;
+using System;
 
 namespace SmiServices.Microservices.CohortPackager
 {

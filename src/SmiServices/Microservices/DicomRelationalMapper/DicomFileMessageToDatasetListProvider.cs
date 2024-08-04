@@ -1,7 +1,7 @@
-using System.Linq;
 using FellowOakDicom;
-using System.Collections.Generic;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SmiServices.Microservices.DicomRelationalMapper
 {

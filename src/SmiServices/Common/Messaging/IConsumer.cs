@@ -1,7 +1,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using SmiServices.Common.Options;
 using SmiServices.Common.Events;
+using SmiServices.Common.Options;
 
 namespace SmiServices.Common.Messaging
 {

@@ -1,10 +1,10 @@
 
-using System;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NLog;
 using SmiServices.Common.Options;
+using System;
+using System.Linq;
 
 namespace SmiServices.Common.MongoDB
 {

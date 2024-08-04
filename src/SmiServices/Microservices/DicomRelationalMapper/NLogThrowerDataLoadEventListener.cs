@@ -1,6 +1,6 @@
-using System;
 using NLog;
 using Rdmp.Core.ReusableLibraryCode.Progress;
+using System;
 
 namespace SmiServices.Microservices.DicomRelationalMapper
 {

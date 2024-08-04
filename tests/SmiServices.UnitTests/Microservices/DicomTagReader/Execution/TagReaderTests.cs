@@ -1,15 +1,15 @@
 
+using Moq;
 using NUnit.Framework;
+using SmiServices.Common.Messages;
+using SmiServices.Microservices.DicomTagReader.Execution;
+using SmiServices.UnitTests.Common;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 using System.IO.Compression;
-using System.Collections.Generic;
-using SmiServices.Microservices.DicomTagReader.Execution;
-using SmiServices.Common.Messages;
-using SmiServices.UnitTests.Common;
-using Moq;
+using System.Linq;
 
 namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
 {

@@ -1,10 +1,10 @@
-using System;
-using System.IO.Abstractions;
-using System.Diagnostics;
-using System.Collections.Generic;
 using NLog;
-using SmiServices.Common.Options;
 using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Options;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers
 {

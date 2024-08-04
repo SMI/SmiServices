@@ -1,15 +1,15 @@
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
+using System;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
 {

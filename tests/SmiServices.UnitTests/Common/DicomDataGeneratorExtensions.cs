@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using BadMedicine.Dicom;
 using FellowOakDicom;
 using NUnit.Framework;
 using SynthEHR;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace SmiServices.UnitTests.Common
 {

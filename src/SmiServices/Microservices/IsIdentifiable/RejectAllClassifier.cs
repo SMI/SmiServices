@@ -1,8 +1,8 @@
+using IsIdentifiable.Failures;
+using IsIdentifiable.Options;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using IsIdentifiable.Failures;
-using IsIdentifiable.Options;
 
 namespace SmiServices.Microservices.IsIdentifiable
 {

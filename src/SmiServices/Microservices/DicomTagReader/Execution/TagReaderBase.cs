@@ -1,19 +1,19 @@
 
+using DicomTypeTranslation;
+using FellowOakDicom;
+using NLog;
+using SmiServices.Common;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using FellowOakDicom;
-using DicomTypeTranslation;
-using NLog;
-using System.IO.Compression;
-using SmiServices.Common;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
-using SmiServices.Common.Messaging;
 
 namespace SmiServices.Microservices.DicomTagReader.Execution
 {

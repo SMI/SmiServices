@@ -1,9 +1,9 @@
-using System.Data;
 using FAnsi;
 using NUnit.Framework;
-using Tests.Common;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.UnitTests.Common;
+using System.Data;
+using Tests.Common;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {

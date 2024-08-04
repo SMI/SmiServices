@@ -1,8 +1,8 @@
-using System;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
+using System;
 
 
 namespace SmiServices.Microservices.CohortPackager

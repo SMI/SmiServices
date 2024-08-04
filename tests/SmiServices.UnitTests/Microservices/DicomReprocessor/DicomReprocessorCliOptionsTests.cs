@@ -1,7 +1,7 @@
 
-using System;
 using NUnit.Framework;
 using SmiServices.Microservices.DicomReprocessor;
+using System;
 
 namespace SmiServices.UnitTests.Microservices.DicomReprocessor
 {

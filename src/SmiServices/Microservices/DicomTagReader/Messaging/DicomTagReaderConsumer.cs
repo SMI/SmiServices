@@ -1,10 +1,10 @@
 
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomTagReader.Execution;
 using System;
 using System.IO;
-using SmiServices.Microservices.DicomTagReader.Execution;
-using SmiServices.Common.Messaging;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
 
 namespace SmiServices.Microservices.DicomTagReader.Messaging
 {

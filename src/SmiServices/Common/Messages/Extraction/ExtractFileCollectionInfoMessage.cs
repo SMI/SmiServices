@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
+using SmiServices.Common.MessageSerialization;
 using System;
 using System.Collections.Generic;
-using SmiServices.Common.MessageSerialization;
 
 namespace SmiServices.Common.Messages.Extraction
 {

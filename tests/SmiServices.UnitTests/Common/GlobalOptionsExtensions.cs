@@ -1,8 +1,8 @@
-using System.Data.Common;
 using FAnsi;
 using MongoDB.Driver;
 using RabbitMQ.Client;
 using SmiServices.Common.Options;
+using System.Data.Common;
 
 namespace SmiServices.UnitTests.Common
 {

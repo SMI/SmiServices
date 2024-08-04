@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SmiServices.Microservices.CohortExtractor
 {

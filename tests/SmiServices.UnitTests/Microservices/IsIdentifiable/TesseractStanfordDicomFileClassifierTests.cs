@@ -1,7 +1,7 @@
-using System.IO;
 using IsIdentifiable.Options;
 using NUnit.Framework;
 using SmiServices.Microservices.IsIdentifiable;
+using System.IO;
 
 namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 {

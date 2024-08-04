@@ -1,9 +1,9 @@
-using System;
-using System.IO;
 using SmiServices.Common.Execution;
 using SmiServices.Common.Helpers;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
+using System;
+using System.IO;
 
 namespace SmiServices.Microservices.IsIdentifiable
 {

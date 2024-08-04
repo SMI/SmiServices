@@ -1,5 +1,5 @@
-using FellowOakDicom;
 using DicomTypeTranslation;
+using FellowOakDicom;
 using NLog;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.EntityNaming;
@@ -7,17 +7,17 @@ using Rdmp.Core.DataLoad;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.DataLoad.Engine.DatabaseManagement.EntityNaming;
 using Rdmp.Core.Repositories;
+using Rdmp.Core.ReusableLibraryCode.Checks;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.DicomRelationalMapper.Namers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Rdmp.Core.ReusableLibraryCode.Checks;
-using SmiServices.Microservices.DicomRelationalMapper.Namers;
-using SmiServices.Common.Messaging;
-using SmiServices.Common.Messages;
-using SmiServices.Common.Options;
 
 namespace SmiServices.Microservices.DicomRelationalMapper
 {

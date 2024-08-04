@@ -1,23 +1,23 @@
 
-using FellowOakDicom;
 using DicomTypeTranslation;
 using DicomTypeTranslation.TableCreation;
 using FAnsi.Discovery;
+using FellowOakDicom;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.Curation.Data.Pipelines;
+using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Rdmp.Core.Repositories;
+using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.CommandExecution;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
-using System;
-using System.IO;
-using System.Linq;
-using Rdmp.Core.MapsDirectlyToDatabaseTable;
-using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.TagPromotionSchema;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 {

@@ -1,13 +1,13 @@
+using NLog;
+using SmiServices.Common.Helpers;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messaging;
+using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
-using NLog;
-using SmiServices.Common.Options;
-using SmiServices.Common.Messages.Extraction;
-using SmiServices.Common.Messaging;
-using SmiServices.Common.Helpers;
 
 namespace SmiServices.Applications.ExtractImages
 {

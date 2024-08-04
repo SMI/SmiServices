@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using SmiServices.Common.Messages.Extraction;
+using System.Collections.Generic;
 
 
 namespace SmiServices.Applications.ExtractImages

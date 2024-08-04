@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Linq.Expressions;
 using Moq;
 using NUnit.Framework;
 using SmiServices.Applications.ExtractImages;
@@ -13,6 +7,12 @@ using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.UnitTests.Common;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Linq.Expressions;
 
 
 namespace SmiServices.UnitTests.Applications.ExtractImages

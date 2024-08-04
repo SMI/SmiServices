@@ -1,7 +1,7 @@
+using Rdmp.Core.Curation.Data;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Rdmp.Core.Curation.Data;
 
 namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 {

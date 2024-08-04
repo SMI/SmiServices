@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
-using System.Threading;
 using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
 using NLog;
@@ -12,6 +7,11 @@ using SmiServices.Common.Helpers;
 using SmiServices.Common.Messages.Updating;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Text;
+using System.Threading;
 
 
 namespace SmiServices.Applications.TriggerUpdates
