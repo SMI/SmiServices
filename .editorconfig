@@ -16,5 +16,3 @@ indent_size = 2
 
 [*.cs]
 indent_size = 4
-
-csharp_style_prefer_primary_constructors = false
