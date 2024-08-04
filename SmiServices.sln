@@ -26,44 +26,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{2D0D9CEF-7AF1-
 		bin\smi\writeDatabaseStrings.py = bin\smi\writeDatabaseStrings.py
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices", "src\SmiServices\SmiServices.csproj", "{13273550-5120-4374-8D48-8F07C75B8EE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices", "src\SmiServices\SmiServices.csproj", "{52AE5293-96DE-44E6-B029-C3F308160696}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices.UnitTests", "tests\SmiServices.UnitTests\SmiServices.UnitTests.csproj", "{E8517EA9-C3ED-41E1-B66F-57086C44923B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices.UnitTests", "tests\SmiServices.UnitTests\SmiServices.UnitTests.csproj", "{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|arm64 = Debug|arm64
-		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
-		Release|arm64 = Release|arm64
-		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Debug|arm64.ActiveCfg = Debug|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Debug|arm64.Build.0 = Debug|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Debug|x64.Build.0 = Debug|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Release|arm64.ActiveCfg = Release|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Release|arm64.Build.0 = Release|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Release|x64.ActiveCfg = Release|Any CPU
-		{13273550-5120-4374-8D48-8F07C75B8EE3}.Release|x64.Build.0 = Release|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Debug|arm64.ActiveCfg = Debug|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Debug|arm64.Build.0 = Debug|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Debug|x64.Build.0 = Debug|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Release|arm64.ActiveCfg = Release|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Release|arm64.Build.0 = Release|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Release|x64.ActiveCfg = Release|Any CPU
-		{E8517EA9-C3ED-41E1-B66F-57086C44923B}.Release|x64.Build.0 = Release|Any CPU
+		{52AE5293-96DE-44E6-B029-C3F308160696}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52AE5293-96DE-44E6-B029-C3F308160696}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52AE5293-96DE-44E6-B029-C3F308160696}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52AE5293-96DE-44E6-B029-C3F308160696}.Release|Any CPU.Build.0 = Release|Any CPU
+		{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
