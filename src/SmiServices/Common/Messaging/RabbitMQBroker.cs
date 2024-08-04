@@ -315,11 +315,11 @@ namespace SmiServices.Common.Messaging
             var split = version.Split('.');
 
             if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||
-                int.Parse(split[0]) == MinRabbitServerVersionMajor &&
-                 int.Parse(split[1]) < MinRabbitServerVersionMinor ||
-                int.Parse(split[0]) == MinRabbitServerVersionMajor &&
+                (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
+                 int.Parse(split[1]) < MinRabbitServerVersionMinor) ||
+                (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
                  int.Parse(split[1]) == MinRabbitServerVersionMinor &&
-                 int.Parse(split[2]) < MinRabbitServerVersionPatch)
+                 int.Parse(split[2]) < MinRabbitServerVersionPatch))
             {
                 throw new ApplicationException(
                     $"Connected to RabbitMQ server version {version}, but minimum required is {MinRabbitServerVersionMajor}.{MinRabbitServerVersionMinor}.{MinRabbitServerVersionPatch}");
@@ -381,7 +381,7 @@ namespace SmiServices.Common.Messaging
             internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model) : base(model)
             {
                 this.ebc = ebc;
-                QueueName = q;
+                this.QueueName = q;
             }
         }
 

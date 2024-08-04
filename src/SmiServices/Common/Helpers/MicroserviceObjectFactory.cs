@@ -11,7 +11,7 @@ namespace SmiServices.Common.Helpers
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Method called when <see cref="CreateInstance{T}(Type,object[])"/> fails.  If not set then the Exception is simply
+        /// Method called when <see cref="CreateInstance{T}(System.Type,object[])"/> fails.  If not set then the Exception is simply
         /// thrown.
         /// </summary>
         public HostFatalHandler? FatalHandler;

@@ -195,7 +195,7 @@ namespace SmiServices.Common.Options
 
         public IMappingTableOptions Clone()
         {
-            return (IMappingTableOptions)MemberwiseClone();
+            return (IMappingTableOptions)this.MemberwiseClone();
         }
     }
 

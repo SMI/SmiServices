@@ -95,7 +95,7 @@ namespace SmiServices.Common.Messaging
 
                 if (timedOut)
                 {
-                    keepTrying = ++numAttempts < _maxRetryAttempts;
+                    keepTrying = (++numAttempts < _maxRetryAttempts);
                     _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}");
 
                     continue;

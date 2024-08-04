@@ -34,7 +34,7 @@ namespace SmiServices.Common.Options
         /// <returns></returns>
         public bool VerifyPopulated()
         {
-            return !string.IsNullOrWhiteSpace(QueueName) && QoSPrefetchCount != 0;
+            return !string.IsNullOrWhiteSpace(QueueName) && (QoSPrefetchCount != 0);
         }
 
         public override string ToString()

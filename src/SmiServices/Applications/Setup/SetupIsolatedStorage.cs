@@ -53,16 +53,16 @@ namespace SmiServices.Applications.Setup
             }
 
 
-            if (type == typeof(string) ||
-                type == typeof(decimal) ||
-                type == typeof(double) ||
-                type == typeof(float) ||
-                type == typeof(DateTime) ||
-                type == typeof(Guid) ||
-                type == typeof(bool) ||
-                type == typeof(int) ||
-                type == typeof(long) ||
-                type == typeof(byte))
+            if ((type == typeof(string)) ||
+                (type == typeof(decimal)) ||
+                (type == typeof(double)) ||
+                (type == typeof(float)) ||
+                (type == typeof(DateTime)) ||
+                (type == typeof(Guid)) ||
+                (type == typeof(bool)) ||
+                (type == typeof(int)) ||
+                (type == typeof(long)) ||
+                (type == typeof(byte)))
             {
                 lock (locker)
                 {
@@ -76,7 +76,7 @@ namespace SmiServices.Applications.Setup
                     else if (value is DateTime)
                     {
                         return AddOrUpdateValue(key,
-                            Convert.ToString(-Convert.ToDateTime(value).ToUniversalTime().Ticks,
+                            Convert.ToString(-(Convert.ToDateTime(value)).ToUniversalTime().Ticks,
                                 System.Globalization.CultureInfo.InvariantCulture));
                     }
                     else
@@ -118,7 +118,7 @@ namespace SmiServices.Applications.Setup
         /// <param name="defaultValue"></param>
         /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns></returns>
-        private T? GetValueOrDefaultInternal<T>(string key, T? defaultValue = default, string? fileName = null)
+        private T? GetValueOrDefaultInternal<T>(string key, T? defaultValue = default(T), string? fileName = null)
         {
             object? value = null;
             lock (locker)
@@ -169,7 +169,7 @@ namespace SmiServices.Applications.Setup
                         value = Convert.ToDouble(str, System.Globalization.CultureInfo.InvariantCulture);
                     }
 
-                    else if (type == typeof(float))
+                    else if (type == typeof(Single))
                     {
                         value = Convert.ToSingle(str, System.Globalization.CultureInfo.InvariantCulture);
                     }
@@ -205,12 +205,12 @@ namespace SmiServices.Applications.Setup
                         value = Convert.ToBoolean(str, System.Globalization.CultureInfo.InvariantCulture);
                     }
 
-                    else if (type == typeof(int))
+                    else if (type == typeof(Int32))
                     {
                         value = Convert.ToInt32(str, System.Globalization.CultureInfo.InvariantCulture);
                     }
 
-                    else if (type == typeof(long))
+                    else if (type == typeof(Int64))
                     {
                         value = Convert.ToInt64(str, System.Globalization.CultureInfo.InvariantCulture);
                     }

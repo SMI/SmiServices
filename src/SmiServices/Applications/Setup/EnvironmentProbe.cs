@@ -37,7 +37,7 @@ namespace SmiServices.Applications.Setup
         public Probeable(string name, Func<CheckEventArgs?> run, string category)
         {
             Name = name;
-            Run = run;
+            this.Run = run;
             Category = category;
         }
     }
@@ -183,8 +183,8 @@ DicomTagReader {
                 if (Options.RDMPOptions == null ||
 
                     // Must specify either SqlServer or file system backend for RDMP platform metadata
-                    string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString) &&
-                    string.IsNullOrWhiteSpace(Options.RDMPOptions.YamlDir))
+                    (string.IsNullOrEmpty(Options.RDMPOptions.CatalogueConnectionString) &&
+                    string.IsNullOrWhiteSpace(Options.RDMPOptions.YamlDir)))
                 {
                     throw new Exception("No RDMP connection settings specified");
                 }
