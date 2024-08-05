@@ -43,6 +43,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--configuration", args.configuration,
         "--verbosity", "quiet",
         "--nologo",
+        "src/applications/Applications.SmiRunner",
     )
     C.run(cmd)
 
