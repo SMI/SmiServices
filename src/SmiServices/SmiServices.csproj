@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>smi</AssemblyName>
+        <IsPublishable>true</IsPublishable>
+        <OutputType>Exe</OutputType>
+        <StartupObject>SmiServices.Program</StartupObject>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="CommandLineParser" />
+        <PackageReference Include="CsvHelper" />
+        <PackageReference Include="Equ" />
+        <PackageReference Include="HIC.DicomTypeTranslation" />
+        <PackageReference Include="HIC.FAnsiSql" />
+        <PackageReference Include="HIC.RDMP.Dicom" />
+        <PackageReference Include="HIC.RDMP.Plugin" />
+        <PackageReference Include="IsIdentifiable" />
+        <PackageReference Include="LibArchive.Net" />
+        <PackageReference Include="LineReader" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+        <PackageReference Include="MongoDB.Bson" />
+        <PackageReference Include="MongoDB.Driver" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="NLog" />
+        <PackageReference Include="RabbitMQ.Client" />
+        <PackageReference Include="StackExchange.Redis" />
+        <PackageReference Include="System.IO.Abstractions" />
+        <PackageReference Include="YamlDotNet" />
+    </ItemGroup>
+</Project>

@@ -20,7 +20,6 @@ import dotnetCommon as DC
 import downloadTessdata
 
 
-_PLAT = "arm64" if platform.processor() == "arm" else "x64"
 _COV_DIR = C.PROJ_ROOT / "coverage"
 
 
@@ -47,7 +46,6 @@ def _run_csproj_tests(
         "dotnet",
         "test",
         "--configuration", configuration,
-        f"-p:Platform={_PLAT}",
         "--settings", (C.PROJ_ROOT / "data/nunit.runsettings").resolve(),
         "--no-build" if no_build else "",
         csproj,

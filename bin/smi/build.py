@@ -13,8 +13,6 @@ import common as C
 import dotnetCommon as DC
 
 
-_PLAT = "arm64" if platform.processor() == "arm" else "x64"
-
 def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = argparse.ArgumentParser()
@@ -39,7 +37,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "dotnet",
         "build",
         "--use-current-runtime",
-        f"-p:Platform={_PLAT}",
         "--configuration", args.configuration,
         "--verbosity", "quiet",
         "--nologo",

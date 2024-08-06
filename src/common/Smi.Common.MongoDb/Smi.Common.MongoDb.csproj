@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <IsPublishable>false</IsPublishable>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Smi.Common\Smi.Common.csproj" />
-  </ItemGroup>
-</Project>

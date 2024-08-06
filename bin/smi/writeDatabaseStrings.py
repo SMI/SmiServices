@@ -7,10 +7,10 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import common as C
 
-_RELATIONAL_YAML = (C.PROJ_ROOT / "tests/common/Smi.Common.Tests/RelationalDatabases.yaml").resolve()
+_RELATIONAL_YAML = (C.PROJ_ROOT / "tests/SmiServices.UnitTests/RelationalDatabases.yaml").resolve()
 assert _RELATIONAL_YAML.is_file()
 
-_TEST_DBS_TXT = (C.PROJ_ROOT / "tests/common/Smi.Common.Tests/TestDatabases.txt").resolve()
+_TEST_DBS_TXT = (C.PROJ_ROOT / "tests/SmiServices.UnitTests/TestDatabases.txt").resolve()
 assert _TEST_DBS_TXT.is_file()
 
 
