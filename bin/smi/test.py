@@ -48,7 +48,6 @@ def _run_csproj_tests(
         "--configuration", configuration,
         "--settings", (C.PROJ_ROOT / "data/nunit.runsettings").resolve(),
         "--no-build" if no_build else "",
-        "--filter", "MessageEqualityTests",
         csproj,
         *cov_params,
         *args,
