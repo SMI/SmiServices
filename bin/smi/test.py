@@ -39,7 +39,7 @@ def _run_csproj_tests(
             "/p:CollectCoverage=true",
             f'/p:CoverletOutput="{_COV_DIR.resolve()}/"',
             # f'/p:MergeWith="{cov_json.resolve()}"',
-            '/p:Exclude="[*.Tests]*"',
+            # '/p:Exclude="[*.Tests]*"',
         )
 
     cmd = (
