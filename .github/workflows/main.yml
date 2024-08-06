@@ -113,6 +113,7 @@ jobs:
           path: dist/${{ needs.init.outputs.build_ref }}/*
           if-no-files-found: error
       - name: upload coverage as artifact
+        if: ${{ matrix.os == 'linux' }}
         uses: actions/upload-artifact@v4
         with:
           name: SmiServices-${{ needs.init.outputs.build_ref }}-smi-${{ matrix.os }}-coverage
