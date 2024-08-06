@@ -38,7 +38,7 @@ def _run_csproj_tests(
         cov_params = (
             "/p:CollectCoverage=true",
             f'/p:CoverletOutput="{_COV_DIR.resolve()}/"',
-            f'/p:MergeWith="{cov_json.resolve()}"',
+            # f'/p:MergeWith="{cov_json.resolve()}"',
             '/p:Exclude="[*.Tests]*"',
         )
 
