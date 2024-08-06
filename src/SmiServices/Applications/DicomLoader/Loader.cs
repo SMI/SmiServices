@@ -162,7 +162,7 @@ public class Loader
             await _imageStore.InsertManyAsync(imageBatch
                 .AsParallel()
                 .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                .Select(i =>
+                .Select(static i =>
                     new BsonDocument("header", MongoDocumentHeaders.ImageDocumentHeader(i.Item1, new MessageHeader()))
                         .AddRange(DicomTypeTranslaterReader.BuildBsonDocument(i.Item2))), _insertManyOptions);
         }
