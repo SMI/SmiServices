@@ -80,7 +80,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     C.run(cmd)
 
     f = ("--filter", args.test[0]) if args.test else ()
-    unit_only = ("--filter", "FullyQualifiedName\!~SmiServices.IntegrationTests") if args.unit_only else ()
+    unit_only = ("--filter", "FullyQualifiedName!~SmiServices.IntegrationTests") if args.unit_only else ()
     cmd = (
         "dotnet", "dotnet-coverage", "collect",
         "--settings", "coverage.settings",
