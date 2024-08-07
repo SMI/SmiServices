@@ -6,5 +6,9 @@
         <PackageReference Include="NunitXml.TestLogger" />
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
         <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
+        <ProjectReference Include="..\SmiServices.UnitTests\SmiServices.UnitTests.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Microservices\DicomReprocessor\" />
     </ItemGroup>
 </Project>

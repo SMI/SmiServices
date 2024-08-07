@@ -5,6 +5,8 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
@@ -141,6 +143,24 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             NoAuditor,
             NoFulfiller,
         }
+
+
     }
 
+    public class TestRejector : IRejector
+    {
+        public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
+        {
+            //if the image is not extractable
+            if (!Convert.ToBoolean(row["IsExtractableToDisk"]))
+            {
+                //tell them why and reject it
+                reason = (row["IsExtractableToDisk_Reason"] as string)!;
+                return true;
+            }
+
+            reason = null;
+            return false;
+        }
+    }
 }
