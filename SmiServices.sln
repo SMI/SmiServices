@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices", "src\SmiServi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices.UnitTests", "tests\SmiServices.UnitTests\SmiServices.UnitTests.csproj", "{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmiServices.IntegrationTests", "tests\SmiServices.IntegrationTests\SmiServices.IntegrationTests.csproj", "{F9A6BC3B-A7D4-4FAF-B0C7-D270C545023B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{080A433F-9AD6-40CD-BEB1-562ACB7A61EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9A6BC3B-A7D4-4FAF-B0C7-D270C545023B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9A6BC3B-A7D4-4FAF-B0C7-D270C545023B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9A6BC3B-A7D4-4FAF-B0C7-D270C545023B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9A6BC3B-A7D4-4FAF-B0C7-D270C545023B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

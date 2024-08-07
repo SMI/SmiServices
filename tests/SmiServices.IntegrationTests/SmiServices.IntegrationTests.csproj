@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="HIC.BadMedicine.Dicom" />
+        <PackageReference Include="HIC.RDMP.Plugin.Test" />
+        <PackageReference Include="Moq" />
+        <PackageReference Include="NunitXml.TestLogger" />
+        <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+        <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
+    </ItemGroup>
+</Project>
