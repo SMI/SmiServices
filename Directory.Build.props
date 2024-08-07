@@ -9,6 +9,7 @@
     <IsPublishable>false</IsPublishable>
     <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
+    <RunSettingsFilePath>$(MSBuildThisFileDirectory)\data\nunit.runsettings</RunSettingsFilePath>
     <RuntimeIdentifiers>linux-x64;win-x64;osx-arm64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <TargetFramework>net8.0</TargetFramework>
