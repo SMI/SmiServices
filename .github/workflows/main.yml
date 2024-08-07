@@ -104,7 +104,7 @@ jobs:
         uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage.cobertura.xml
+          directory: coverage/
           fail_ci_if_error: true
       - name: upload dist as artifact
         uses: actions/upload-artifact@v4
