@@ -20,41 +20,6 @@ import dotnetCommon as DC
 import downloadTessdata
 
 
-_COV_DIR = C.PROJ_ROOT / "coverage"
-
-
-def _run_csproj_tests(
-    csproj: Path,
-    configuration: str,
-    no_build: bool,
-    coverage: bool,
-    *args: str
-) -> None:
-
-    cov_json = _COV_DIR / "coverage.json"
-
-    cov_params = ()
-    if coverage:
-        cov_params = (
-            "/p:CollectCoverage=true",
-            f'/p:CoverletOutput="{_COV_DIR.resolve()}/"',
-            f'/p:MergeWith="{cov_json.resolve()}"',
-            '/p:Exclude="[*.Tests]*"',
-        )
-
-    cmd = (
-        "dotnet",
-        "test",
-        "--configuration", configuration,
-        "--settings", (C.PROJ_ROOT / "data/nunit.runsettings").resolve(),
-        "--no-build" if no_build else "",
-        csproj,
-        *cov_params,
-        *args,
-    )
-    C.run(cmd)
-
-
 def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = argparse.ArgumentParser()
@@ -100,44 +65,25 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         except FileExistsError:
             pass
 
+    cov_dir = C.PROJ_ROOT / "coverage"
     if not args.no_coverage:
-        if _COV_DIR.is_dir():
-            shutil.rmtree(_COV_DIR)
-        _COV_DIR.mkdir()
+        if cov_dir.is_dir():
+            shutil.rmtree(cov_dir)
 
-    test_csprojs = [
-        Path(x).resolve() for x in
-        glob.glob(f"{C.PROJ_ROOT}/tests/**/*.csproj", recursive=True)
-    ]
+    cmd = ("dotnet", "tool", "restore")
+    C.run(cmd)
 
-    test_cmd = ("--filter", args.test[0]) if args.test else ()
-
-    have_failures = False
-    for csproj in test_csprojs[:-1]:
-        try:
-            _run_csproj_tests(
-                csproj,
-                args.configuration,
-                args.no_build,
-                not args.no_coverage,
-                *test_cmd
-            )
-        except subprocess.CalledProcessError:
-            have_failures = True
-
-    # NOTE(rkm 2021-06-01) Run last test with additional option to generate merged opencover file
-    _run_csproj_tests(
-        test_csprojs[-1],
-        args.configuration,
-        args.no_build,
-        not args.no_coverage,
-        '/p:CoverletOutputFormat="cobertura"' if not args.no_coverage else "",
-        *test_cmd,
+    f = ("--filter", args.test[0]) if args.test else ""
+    cmd = (
+        "dotnet", "dotnet-coverage", "collect",
+        "--settings", "coverage.settings",
+        "--",
+        "dotnet", "test",
+        "--configuration", args.configuration,
+        "--no-build" if args.no_build else "",
+        *f,
     )
-
-    if have_failures:
-        print("Error: At least one test suite failed", file=sys.stderr)
-        return 1
+    C.run(cmd)
 
     return 0
 
