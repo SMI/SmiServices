@@ -32,10 +32,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--no-coverage",
         action="store_true",
     )
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         "--test",
         nargs=1,
         help="Run a specific test class",
+    )
+    group.add_argument(
+        "--unit-only",
+        action="store_true",
+        help="Run unit tests only"
     )
     args, _ = parser.parse_known_args(argv)
 
@@ -73,7 +79,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     cmd = ("dotnet", "tool", "restore")
     C.run(cmd)
 
-    f = ("--filter", args.test[0]) if args.test else ""
+    f = ("--filter", args.test[0]) if args.test else ()
+    unit_only = ("--filter", "FullyQualifiedName\!~SmiServices.IntegrationTests") if args.unit_only else ()
     cmd = (
         "dotnet", "dotnet-coverage", "collect",
         "--settings", "coverage.settings",
@@ -81,6 +88,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "dotnet", "test",
         "--configuration", args.configuration,
         "--no-build" if args.no_build else "",
+        *unit_only,
         *f,
     )
     C.run(cmd)
