@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 {
-    internal class SwapForFixedValueTester : SwapIdentifiers
+    public class SwapForFixedValueTester : SwapIdentifiers
     {
         private readonly string? _swapForString;
 

@@ -8,7 +8,7 @@ using System.IO;
 namespace SmiServices.UnitTests.Microservices.CohortPackager
 {
     // TODO(rkm 2020-12-17) Test if the old form of this is fixed in NUnit 3.13 (see https://github.com/nunit/nunit/issues/2574)
-    internal class PathFixtures : IDisposable
+    public class PathFixtures : IDisposable
     {
         public readonly string ExtractName;
         public readonly string TestDirAbsolute;
