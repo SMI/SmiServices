@@ -37,20 +37,16 @@ namespace SmiServices.Microservices.DicomReprocessor
 
         private readonly ILogger _logger;
 
-        private readonly DicomReprocessorOptions _options;
-
         private readonly IProducerModel _producerModel;
         private readonly string _reprocessingRoutingKey;
 
-        private List<Tuple<DicomFileMessage, IMessageHeader>> _messageBuffer = new();
+        private readonly List<Tuple<DicomFileMessage, IMessageHeader>> _messageBuffer = [];
         private readonly object _oBufferLock = new();
 
 
-        public DicomFileProcessor(DicomReprocessorOptions options, IProducerModel producerModel, string reprocessingRoutingKey)
+        public DicomFileProcessor(IProducerModel producerModel, string reprocessingRoutingKey)
         {
             _logger = LogManager.GetLogger(GetType().Name);
-
-            _options = options;
 
             _producerModel = producerModel;
             _reprocessingRoutingKey = reprocessingRoutingKey;

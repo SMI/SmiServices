@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SmiServices.Common.Options;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
-using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -136,11 +135,11 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
             }
 
             if (createGuidTableUpFront)
-                db.CreateTable("Map_guid", new DatabaseColumnRequest[]
-                {
-                    new DatabaseColumnRequest("CHI",new DatabaseTypeRequest(typeof(string),30,null)),
-                    new DatabaseColumnRequest("Guid",new DatabaseTypeRequest(typeof(string),36,null)),
-                });
+                db.CreateTable("Map_guid",
+                [
+                    new("CHI",new DatabaseTypeRequest(typeof(string),30,null)),
+                    new("Guid",new DatabaseTypeRequest(typeof(string),36,null)),
+                ]);
 
 
             var options = new IdentifierMapperOptions

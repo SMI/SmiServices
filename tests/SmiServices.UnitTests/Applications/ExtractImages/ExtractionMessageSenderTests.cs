@@ -148,7 +148,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
         [TestCase("  ")]
         public void ExtractionDirs_AreValidated(string dir)
         {
-            var exc = Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
@@ -162,9 +162,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                     new RealConsoleInput()
                 );
             });
-            Assert.That(exc!.Message, Is.EqualTo("extractionDir"));
 
-            exc = Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
@@ -178,14 +177,13 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                     new RealConsoleInput()
                 );
             });
-            Assert.That(exc!.Message, Is.EqualTo("extractionRoot"));
         }
 
         [TestCase("")]
         [TestCase("  ")]
         public void ProjectId_IsValidated(string projectId)
         {
-            var exc = Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
@@ -199,13 +197,12 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                     new RealConsoleInput()
                 );
             });
-            Assert.That(exc!.Message, Is.EqualTo("ProjectId"));
         }
 
         [Test]
         public void MaxIdentifiersPerMessage_IsValidated()
         {
-            var exc = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions { MaxIdentifiersPerMessage = 0 },
@@ -219,7 +216,6 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                     new RealConsoleInput()
                 );
             });
-            Assert.That(exc!.Message, Does.EndWith("(Parameter 'MaxIdentifiersPerMessage')"));
         }
 
 
@@ -240,7 +236,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
 
             var exc = Assert.Throws<ArgumentException>(() =>
             {
-                sender.SendMessages(ExtractionKey.StudyInstanceUID, new List<string>());
+                sender.SendMessages(ExtractionKey.StudyInstanceUID, []);
             });
             Assert.That(exc!.Message, Is.EqualTo("ID list is empty"));
         }

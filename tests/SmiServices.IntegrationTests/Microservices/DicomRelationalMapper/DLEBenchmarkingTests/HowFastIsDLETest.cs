@@ -43,7 +43,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmark
         private DicomRelationalMapperTestHelper _helper = null!;
         private IDataLoadInfo _dli = null!;
 
-        string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"CT.it"));
+        readonly string _templateXml = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, @"CT.it"));
 
         [OneTimeSetUp]
         public void SetupLogging()
@@ -56,7 +56,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmark
         [Test]
         public void Test_NullRoot()
         {
-            var s = new DicomDatasetCollectionSource
+            var _ = new DicomDatasetCollectionSource
             {
                 ArchiveRoot = null
             };
@@ -131,7 +131,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmark
 
             DicomDatasetCollectionSource source = new();
             source.PreInitialize(
-                new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm",
+                new ExplicitListDicomDatasetWorklist([.. allImages], "amagad.dcm",
                     new Dictionary<string, string> { { "MessageGuid", "0x123" } }),
                 ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "gggg";
@@ -183,7 +183,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmark
 
             DicomDatasetCollectionSource source = new();
             source.PreInitialize(
-                new ExplicitListDicomDatasetWorklist(allImages.ToArray(), "amagad.dcm",
+                new ExplicitListDicomDatasetWorklist([.. allImages], "amagad.dcm",
                     new Dictionary<string, string> { { "MessageGuid", "0x123" } }),
                 ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "gggg";
@@ -206,8 +206,10 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmark
                 j.DataLoadInfo == _dli &&
                 j.Configuration == config);
 
-            var attacher = new AutoRoutingAttacher();
-            attacher.Job = job;
+            var attacher = new AutoRoutingAttacher
+            {
+                Job = job
+            };
 
             //Drop Primary Keys
             using (var con = db.Server.GetConnection())
@@ -254,11 +256,13 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmark
             var root = TestContext.CurrentContext.TestDirectory;
 
             var f = Path.GetRandomFileName();
-            var msg = new DicomFileMessage(root, Path.Combine(root, $"{f}.dcm"));
-            msg.SeriesInstanceUID = dicomDataset.GetString(DicomTag.SeriesInstanceUID);
-            msg.StudyInstanceUID = dicomDataset.GetString(DicomTag.StudyInstanceUID);
-            msg.SOPInstanceUID = dicomDataset.GetString(DicomTag.SOPInstanceUID);
-            msg.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(dicomDataset);
+            var msg = new DicomFileMessage(root, Path.Combine(root, $"{f}.dcm"))
+            {
+                SeriesInstanceUID = dicomDataset.GetString(DicomTag.SeriesInstanceUID),
+                StudyInstanceUID = dicomDataset.GetString(DicomTag.StudyInstanceUID),
+                SOPInstanceUID = dicomDataset.GetString(DicomTag.SOPInstanceUID),
+                DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(dicomDataset)
+            };
             return msg;
         }
     }

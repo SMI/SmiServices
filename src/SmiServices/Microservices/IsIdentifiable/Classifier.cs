@@ -29,11 +29,7 @@ namespace SmiServices.Microservices.IsIdentifiable
         /// <returns></returns>
         protected DirectoryInfo GetSubdirectory(string toFind)
         {
-            var stanfordNerDir = DataDirectory!.GetDirectories(toFind).SingleOrDefault();
-
-            if (stanfordNerDir == null)
-                throw new DirectoryNotFoundException($"Expected sub-directory called '{toFind}' to exist in '{DataDirectory}'");
-
+            var stanfordNerDir = DataDirectory!.GetDirectories(toFind).SingleOrDefault() ?? throw new DirectoryNotFoundException($"Expected sub-directory called '{toFind}' to exist in '{DataDirectory}'");
             return stanfordNerDir;
         }
 
@@ -45,7 +41,7 @@ namespace SmiServices.Microservices.IsIdentifiable
         /// <param name="searchPattern"></param>
         /// <param name="directory"></param>
         /// <returns></returns>
-        protected FileInfo FindOneFile(string searchPattern, DirectoryInfo directory)
+        protected static FileInfo FindOneFile(string searchPattern, DirectoryInfo directory)
         {
             var files = directory.GetFiles(searchPattern, SearchOption.AllDirectories).ToArray();
 

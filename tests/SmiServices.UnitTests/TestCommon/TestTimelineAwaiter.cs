@@ -40,7 +40,7 @@ namespace SmiServices.UnitTests.Common
 
                 var exceptions = throwIfAnyFunc?.Invoke()?.ToArray();
 
-                if (exceptions == null || !exceptions.Any()) continue;
+                if (exceptions == null || exceptions.Length == 0) continue;
                 var logger = LogManager.GetCurrentClassLogger();
 
                 foreach (var ex in exceptions)

@@ -37,10 +37,7 @@ namespace SmiServices.Applications.ExtractImages
             threaded
         )
         {
-            ExtractImagesOptions? options = Globals.ExtractImagesOptions;
-            if (options == null)
-                throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
-
+            ExtractImagesOptions? options = Globals.ExtractImagesOptions ?? throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
             _fileSystem = fileSystem ?? new FileSystem();
 
             string extractRoot = Globals.FileSystemOptions?.ExtractRoot ?? throw new ArgumentException("Some part of Globals.FileSystemOptions.ExtractRoot was null");
@@ -49,7 +46,7 @@ namespace SmiServices.Applications.ExtractImages
 
             _csvFilePath = cliOptions.CohortCsvFile;
             if (string.IsNullOrWhiteSpace(_csvFilePath))
-                throw new ArgumentNullException(nameof(cliOptions.CohortCsvFile));
+                throw new ArgumentNullException(nameof(cliOptions));
             if (!_fileSystem.File.Exists(_csvFilePath))
                 throw new FileNotFoundException($"Could not find the cohort CSV file '{_csvFilePath}'");
 

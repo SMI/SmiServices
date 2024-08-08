@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SmiServices.Common.Messages.Updating;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.UpdateValues;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Data;
 using System.Linq;
@@ -50,19 +49,19 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
                 //update PatientID that does not exist
                 Assert.That(updater.HandleUpdate(new UpdateValuesMessage
                 {
-                    WhereFields = new[] { "PatientID" },
-                    HaveValues = new[] { "5345" },
-                    WriteIntoFields = new[] { "PatientID" },
-                    Values = new[] { "999" }
+                    WhereFields = ["PatientID"],
+                    HaveValues = ["5345"],
+                    WriteIntoFields = ["PatientID"],
+                    Values = ["999"]
                 }), Is.EqualTo(0), "Should not have been any updates because there is no patient number 5345");
 
                 //update PatientID that DOES exist
                 Assert.That(updater.HandleUpdate(new UpdateValuesMessage
                 {
-                    WhereFields = new[] { "PatientID" },
-                    HaveValues = new[] { "111" },
-                    WriteIntoFields = new[] { "PatientID" },
-                    Values = new[] { "222" }
+                    WhereFields = ["PatientID"],
+                    HaveValues = ["111"],
+                    WriteIntoFields = ["PatientID"],
+                    Values = ["222"]
                 }), Is.EqualTo(2), "Should have been 2 rows updated");
 
                 Assert.That(tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r => (int)r["PatientID"] == 222), Is.EqualTo(2));
@@ -82,10 +81,10 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
                 //update PatientID that DOES exist, there are 2 patient 111s but only one has the Age 3
                 Assert.That(updater.HandleUpdate(new UpdateValuesMessage
                 {
-                    WhereFields = new[] { "PatientID", "Age" },
-                    HaveValues = new[] { "111", "3" },
-                    WriteIntoFields = new[] { "PatientID" },
-                    Values = new[] { "222" }
+                    WhereFields = ["PatientID", "Age"],
+                    HaveValues = ["111", "3"],
+                    WriteIntoFields = ["PatientID"],
+                    Values = ["222"]
                 }), Is.EqualTo(1));
 
                 Assert.That(tblToUpdate.GetDataTable().Rows.Cast<DataRow>().Count(r => (int)r["PatientID"] == 222), Is.EqualTo(1));
@@ -105,11 +104,11 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
                 //update PatientID that DOES exist, there are 2 patient 111s both are under 6
                 Assert.That(updater.HandleUpdate(new UpdateValuesMessage
                 {
-                    WhereFields = new[] { "PatientID", "Age" },
-                    HaveValues = new[] { "111", "6" },
-                    Operators = new[] { "=", "<=" },
-                    WriteIntoFields = new[] { "PatientID" },
-                    Values = new[] { "222" },
+                    WhereFields = ["PatientID", "Age"],
+                    HaveValues = ["111", "6"],
+                    Operators = ["=", "<="],
+                    WriteIntoFields = ["PatientID"],
+                    Values = ["222"],
 
                 }), Is.EqualTo(2));
 
@@ -124,11 +123,11 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
             var ex = Assert.Throws<Exception>(() =>
             updater.HandleUpdate(new UpdateValuesMessage
             {
-                WhereFields = new[] { "PatientID", "Age" },
-                HaveValues = new[] { "111", "3" },
-                WriteIntoFields = new[] { "PatientID" },
-                Values = new[] { "222" },
-                ExplicitTableInfo = new int[] { 999999999 }
+                WhereFields = ["PatientID", "Age"],
+                HaveValues = ["111", "3"],
+                WriteIntoFields = ["PatientID"],
+                Values = ["222"],
+                ExplicitTableInfo = [999999999]
             }));
 
             Assert.That(ex!.Message, Is.EqualTo("Could not find all TableInfos IDs=999999999.  Found 0:"));
@@ -144,10 +143,10 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
             var ex = Assert.Throws<Exception>(() =>
             updater.HandleUpdate(new UpdateValuesMessage
             {
-                WhereFields = new[] { "Blarg" },
-                HaveValues = new[] { "111" },
-                WriteIntoFields = new[] { "PatientID" },
-                Values = new[] { "222" }
+                WhereFields = ["Blarg"],
+                HaveValues = ["111"],
+                WriteIntoFields = ["PatientID"],
+                Values = ["222"]
             }));
 
             TestContext.WriteLine(ex!.Message);
@@ -165,10 +164,10 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
             var ex = Assert.Throws<Exception>(() =>
             updater.HandleUpdate(new UpdateValuesMessage
             {
-                WhereFields = new[] { "PatientID" },
-                HaveValues = new[] { "111" },
-                WriteIntoFields = new[] { "Blarg" },
-                Values = new[] { "222" }
+                WhereFields = ["PatientID"],
+                HaveValues = ["111"],
+                WriteIntoFields = ["Blarg"],
+                Values = ["222"]
             }));
 
             TestContext.WriteLine(ex!.Message);

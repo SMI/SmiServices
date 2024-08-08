@@ -19,7 +19,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         private const string FileSystemRoot = "PACS";
         private const string ExtractRoot = "extract";
         private string _relativeSrc = null!;
-        private readonly byte[] _expectedContents = { 0b00, 0b01, 0b10, 0b11 };
+        private readonly byte[] _expectedContents = [0b00, 0b01, 0b10, 0b11];
         private ExtractFileMessage _requestMessage = null!;
 
         #region Fixture Methods 
@@ -164,7 +164,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             var requestHeader = new MessageHeader();
             string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
             _mockFileSystem.Directory.GetParent(expectedDest)!.Create();
-            _mockFileSystem.File.WriteAllBytes(expectedDest, new byte[] { 0b0 });
+            _mockFileSystem.File.WriteAllBytes(expectedDest, [0b0]);
 
             var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);

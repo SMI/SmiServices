@@ -18,7 +18,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
         private readonly MessageHeader _messageHeader = new()
         {
-            Parents = new[] { Guid.NewGuid(), },
+            Parents = [Guid.NewGuid(),],
         };
 
         #region Fixture Methods 

@@ -10,12 +10,10 @@ using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
-using SmiServices.UnitTests.Common;
 using SynthEHR;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Tests.Common;
@@ -29,11 +27,10 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
     class ExtractionSuperTableTests : DatabaseTests
     {
 
-        private DiscoveredTable BuildExampleExtractionTable(DiscoveredDatabase db, string modality, int recordCount, bool useDcmFileExtension)
+        private static DiscoveredTable BuildExampleExtractionTable(DiscoveredDatabase db, string modality, int recordCount, bool useDcmFileExtension)
         {
             var tbl = db.CreateTable(modality + "_IsExtractable",
-                new[]
-                {
+                [
                     new DatabaseColumnRequest("StudyInstanceUID", new DatabaseTypeRequest(typeof(string), 64), false),
                     new DatabaseColumnRequest("SeriesInstanceUID", new DatabaseTypeRequest(typeof(string), 64), false),
                     new DatabaseColumnRequest("SOPInstanceUID", new DatabaseTypeRequest(typeof(string), 64), false){IsPrimaryKey = true},
@@ -44,20 +41,21 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                     new DatabaseColumnRequest("IsPrimary", new DatabaseTypeRequest(typeof(bool)), false),
                     new DatabaseColumnRequest(SpecialFieldNames.DataLoadRunID, new DatabaseTypeRequest(typeof(int))),
                     new DatabaseColumnRequest(SpecialFieldNames.ValidFrom, new DatabaseTypeRequest(typeof(DateTime))),
-                });
+                ]);
 
             if (recordCount > 0)
             {
                 var r = new Random(500);
 
-                DicomDataGenerator g = new(r, null);
-                g.MaximumImages = recordCount;
+                DicomDataGenerator g = new(r, null)
+                {
+                    MaximumImages = recordCount
+                };
 
                 var persons = new PersonCollection();
                 persons.GeneratePeople(500, r);
-
                 while (recordCount > 0)
-                    foreach (var image in g.GenerateStudyImages(persons.People[r.Next(persons.People.Length)], out var study))
+                    foreach (var image in g.GenerateStudyImages(persons.People[r.Next(persons.People.Length)], out _))
                     {
                         tbl.Insert(new Dictionary<string, object>
                         {
@@ -112,19 +110,21 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             Assert.That(studies, Has.Count.GreaterThanOrEqualTo(2), "Expected at least 2 studies to be randomly generated in database");
 
             //Create message to extract all the studies by StudyInstanceUID
-            var msgIn = new ExtractionRequestMessage();
-            msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
-            msgIn.ExtractionIdentifiers = studies;
+            var msgIn = new ExtractionRequestMessage
+            {
+                KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword,
+                ExtractionIdentifiers = studies
+            };
 
             int matches = 0;
 
             //The strategy pattern implementation that goes to the database but also considers reason
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { cata });
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([cata]);
             fulfiller.Rejectors.Add(useDynamic ? (IRejector)new DynamicRejector(null) : new TestRejector());
 
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
-                matches += msgOut.Accepted.Count();
+                matches += msgOut.Accepted.Count;
                 Assert.That(msgOut.Rejected, Is.Empty);
             }
 
@@ -139,10 +139,8 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                 string sql = GetUpdateTopXSql(tbl, 10, "Set IsExtractableToDisk=0, IsExtractableToDisk_Reason = 'We decided NO!'");
 
                 //make the top 10 not extractable
-                using (var cmd = tbl.Database.Server.GetCommand(sql, con))
-                {
-                    cmd.ExecuteNonQuery();
-                }
+                using var cmd = tbl.Database.Server.GetCommand(sql, con);
+                cmd.ExecuteNonQuery();
             }
 
             matches = 0;
@@ -178,7 +176,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             var cataCT = Import(tblCT);
             var cataMR = Import(tblMR);
 
-            List<string> studies = new();
+            List<string> studies = [];
 
             //fetch all unique studies from the database
             using (var dt = tblCT.GetDataTable())
@@ -187,26 +185,28 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                 studies.AddRange(dt.Rows.Cast<DataRow>().Select(r => r["StudyInstanceUID"]).Cast<string>().Distinct());
 
             //Create message to extract all the series by StudyInstanceUID
-            var msgIn = new ExtractionRequestMessage();
-            msgIn.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
+            var msgIn = new ExtractionRequestMessage
+            {
+                KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword,
 
-            //extract only MR (this is what we are actually testing).
-            msgIn.Modalities = "MR";
-            msgIn.ExtractionIdentifiers = studies;
+                //extract only MR (this is what we are actually testing).
+                Modalities = "MR",
+                ExtractionIdentifiers = studies
+            };
 
             int matches = 0;
 
             //The strategy pattern implementation that goes to the database but also considers reason
 
 
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { cataCT, cataMR })
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([cataCT, cataMR])
             {
                 ModalityRoutingRegex = new Regex(CohortExtractorOptions.DefaultModalityRoutingRegex)
             };
 
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
-                matches += msgOut.Accepted.Count();
+                matches += msgOut.Accepted.Count;
                 Assert.That(msgOut.Rejected, Is.Empty);
             }
 
@@ -247,20 +247,14 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         /// <param name="topXRows">Number of rows to change</param>
         /// <param name="setSql">Set SQL e.g. "Set Col1='fish'"</param>
         /// <returns></returns>
-        private string GetUpdateTopXSql(DiscoveredTable tbl, int topXRows, string setSql)
+        private static string GetUpdateTopXSql(DiscoveredTable tbl, int topXRows, string setSql)
         {
-            switch (tbl.Database.Server.DatabaseType)
+            return tbl.Database.Server.DatabaseType switch
             {
-                case DatabaseType.MicrosoftSQLServer:
-                    return
-                        $"UPDATE TOP ({topXRows}) {tbl.GetFullyQualifiedName()} {setSql}";
-                case DatabaseType.MySql:
-                    return
-                        $"UPDATE {tbl.GetFullyQualifiedName()} {setSql} LIMIT {topXRows}";
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
+                DatabaseType.MicrosoftSQLServer => $"UPDATE TOP ({topXRows}) {tbl.GetFullyQualifiedName()} {setSql}",
+                DatabaseType.MySql => $"UPDATE {tbl.GetFullyQualifiedName()} {setSql} LIMIT {topXRows}",
+                _ => throw new ArgumentOutOfRangeException(nameof(tbl)),
+            };
         }
     }
 }

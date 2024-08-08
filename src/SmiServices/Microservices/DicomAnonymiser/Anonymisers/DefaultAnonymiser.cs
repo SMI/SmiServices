@@ -12,27 +12,23 @@ namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DicomAnonymiserOptions _options;
-        private readonly LoggingOptions _loggingOptions;
         private const string _bash = "/bin/bash";
 
         public DefaultAnonymiser(GlobalOptions globalOptions)
         {
             if (globalOptions.DicomAnonymiserOptions == null)
-                throw new ArgumentNullException(nameof(globalOptions.DicomAnonymiserOptions));
+                throw new ArgumentNullException(nameof(globalOptions));
 
             if (globalOptions.LoggingOptions == null)
-                throw new ArgumentNullException(nameof(globalOptions.LoggingOptions));
+                throw new ArgumentNullException(nameof(globalOptions));
 
             _options = globalOptions.DicomAnonymiserOptions;
-
-            // TODO (da 2024-02-23) Review if LoggingOptions is needed
-            _loggingOptions = globalOptions.LoggingOptions;
         }
 
         /// <summary>
         /// Creates a process with the given parameters
         /// </summary>
-        private Process CreateProcess(string fileName, string arguments, string? workingDirectory = null, Dictionary<string, string>? environmentVariables = null)
+        private static Process CreateProcess(string fileName, string arguments, string? workingDirectory = null, Dictionary<string, string>? environmentVariables = null)
         {
             var process = new Process
             {
@@ -77,7 +73,7 @@ namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers
         private Process CreateSRAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
         {
             string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr";
-            var environmentVariables = new Dictionary<string, string> { { "SMI_ROOT", $"{_options.SmiServicesPath}" } };
+            _ = new Dictionary<string, string> { { "SMI_ROOT", $"{_options.SmiServicesPath}" } };
 
             return CreateProcess(_bash, arguments);
         }

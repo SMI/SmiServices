@@ -24,7 +24,7 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
             TestLogger.Setup();
         }
 
-        private string GetListContent()
+        private static string GetListContent()
         {
             StringBuilder accessionList = new();
 

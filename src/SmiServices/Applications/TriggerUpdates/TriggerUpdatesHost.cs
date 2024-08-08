@@ -8,8 +8,8 @@ namespace SmiServices.Applications.TriggerUpdates
 {
     public class TriggerUpdatesHost : MicroserviceHost
     {
-        private ITriggerUpdatesSource _source;
-        private IProducerModel _producer;
+        private readonly ITriggerUpdatesSource _source;
+        private readonly IProducerModel _producer;
 
         public TriggerUpdatesHost(GlobalOptions options, ITriggerUpdatesSource source, IMessageBroker? messageBroker = null)
             : base(options, messageBroker)

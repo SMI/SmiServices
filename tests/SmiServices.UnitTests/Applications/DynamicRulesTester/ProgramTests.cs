@@ -41,11 +41,11 @@ public class ProgramTests
         _dynamicRulesFileName = _fileSystem.Path.GetFullPath("DynamicRules.txt");
         _testRowFileName = _fileSystem.Path.GetFullPath("TestRow.json");
 
-        _args = new List<string>
-        {
+        _args =
+        [
             "-d", _dynamicRulesFileName,
             "-r", _testRowFileName,
-        };
+        ];
     }
 
     [TearDown]
@@ -60,20 +60,20 @@ public class ProgramTests
     {
         // Arrange
 
-        WriteDynamicRulesFile(new List<string>
-        {
+        WriteDynamicRulesFile(
+        [
             "if (!(row[\"ImageType\"].ToString().Contains(\"ORIGINAL\")))",
             "{",
             "    return \"ImageType is not ORIGINAL\";\n",
             "}",
-        });
+        ]);
 
-        WriteTestRowFile(new List<string>
-        {
+        WriteTestRowFile(
+        [
             "{",
             "    \"ImageType\": \"ORIGINAL\"",
             "}",
-        });
+        ]);
 
         // Act
         var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);
@@ -87,20 +87,20 @@ public class ProgramTests
     {
         // Arrange
 
-        WriteDynamicRulesFile(new List<string>
-        {
+        WriteDynamicRulesFile(
+        [
             "if (!(row[\"ImageType\"].ToString().Contains(\"ORIGINAL\")))",
             "{",
             "    return \"ImageType is not ORIGINAL\";\n",
             "}",
-        });
+        ]);
 
-        WriteTestRowFile(new List<string>
-        {
+        WriteTestRowFile(
+        [
             "{",
             "    \"ImageType\": \"SECONDARY\"",
             "}",
-        });
+        ]);
 
         // Act
         var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);
@@ -114,14 +114,14 @@ public class ProgramTests
     {
         // Arrange
 
-        WriteDynamicRulesFile(new List<string> { });
+        WriteDynamicRulesFile([]);
 
-        WriteTestRowFile(new List<string>
-        {
+        WriteTestRowFile(
+        [
             "{",
             "    \"ImageType\": \"ORIGINAL\"",
             "}",
-        });
+        ]);
 
         // Act
         var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);
@@ -135,15 +135,15 @@ public class ProgramTests
     {
         // Arrange
 
-        WriteDynamicRulesFile(new List<string>
-        {
+        WriteDynamicRulesFile(
+        [
             "if (!(row[\"ImageType\"].ToString().Contains(\"ORIGINAL\")))",
             "{",
             "    return \"ImageType is not ORIGINAL\";\n",
             "}",
-        });
+        ]);
 
-        WriteTestRowFile(new List<string> { });
+        WriteTestRowFile([]);
 
         // Act
         var rc = SmiServices.Applications.DynamicRulesTester.DynamicRulesTester.Main(_args, _fileSystem);

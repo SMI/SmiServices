@@ -225,7 +225,7 @@ namespace SmiServices.UnitTests.Common.Messaging
             var consumer = (IConsumer?)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
-            using var tester = new MicroserviceTester(o.RabbitOptions!, new[] { _testConsumerOptions }) { CleanUpAfterTest = false };
+            using var tester = new MicroserviceTester(o.RabbitOptions!, [_testConsumerOptions]) { CleanUpAfterTest = false };
             tester.Broker.StartConsumer(_testConsumerOptions, consumer!, true);
 
             //send a message to trigger consumer behaviour
@@ -259,7 +259,7 @@ namespace SmiServices.UnitTests.Common.Messaging
             };
             var consumer = new ThrowingConsumer();
 
-            using var tester = new MicroserviceTester(_testOptions.RabbitOptions!, new[] { consumerOptions });
+            using var tester = new MicroserviceTester(_testOptions.RabbitOptions!, [consumerOptions]);
             tester.Broker.StartConsumer(consumerOptions, consumer!, true);
 
             tester.SendMessage(consumerOptions, new TestMessage());

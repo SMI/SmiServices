@@ -56,7 +56,7 @@ namespace SmiServices.Applications.ExtractImages
                     allIds.Add(id);
             }
 
-            if (!allIds.Any())
+            if (allIds.Count == 0)
                 throw new ApplicationException(message: "No records in the cohort CSV");
 
             return new Tuple<ExtractionKey, List<string>>(extractionKey, allIds);

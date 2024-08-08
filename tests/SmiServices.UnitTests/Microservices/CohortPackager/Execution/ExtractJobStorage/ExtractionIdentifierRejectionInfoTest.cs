@@ -41,7 +41,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo("  ", new Dictionary<string, int> { { "bar", 1 } }); });
 
             // Check rejectionItems arg
-            Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo("foo", new Dictionary<string, int>()); });
+            Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo("foo", []); });
 
             // Check empty dict key
             Assert.Throws<ArgumentException>(() => { var _ = new ExtractionIdentifierRejectionInfo("foo", new Dictionary<string, int> { { "  ", 1 } }); });

@@ -14,7 +14,7 @@ namespace SmiServices.Applications.Setup
     internal class SetupIsolatedStorage
     {
         private readonly IsolatedStorageFile store;
-        private readonly object locker = new object();
+        private readonly object locker = new();
 
         public SetupIsolatedStorage()
         {
@@ -34,9 +34,8 @@ namespace SmiServices.Applications.Setup
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns></returns>
-        private bool AddOrUpdateValueInternal<T>(string key, T value, string? fileName = null)
+        private bool AddOrUpdateValueInternal<T>(string key, T value)
         {
             if (value == null)
             {
@@ -86,21 +85,15 @@ namespace SmiServices.Applications.Setup
 
                     if (store.FileExists(key))
                     {
-                        using (var stream = store.OpenFile(key, FileMode.Open))
-                        {
-                            using (var sr = new StreamReader(stream))
-                            {
-                                oldValue = sr.ReadToEnd();
-                            }
-                        }
+                        using var stream = store.OpenFile(key, FileMode.Open);
+                        using var sr = new StreamReader(stream);
+                        oldValue = sr.ReadToEnd();
                     }
 
                     using (var stream = store.OpenFile(key, FileMode.Create, FileAccess.Write))
                     {
-                        using (var sw = new StreamWriter(stream))
-                        {
-                            sw.Write(str);
-                        }
+                        using var sw = new StreamWriter(stream);
+                        sw.Write(str);
                     }
 
                     return oldValue != str;
@@ -116,9 +109,8 @@ namespace SmiServices.Applications.Setup
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns></returns>
-        private T? GetValueOrDefaultInternal<T>(string key, T? defaultValue = default(T), string? fileName = null)
+        private T? GetValueOrDefaultInternal<T>(string key, T? defaultValue = default)
         {
             object? value = null;
             lock (locker)
@@ -130,13 +122,9 @@ namespace SmiServices.Applications.Setup
                     // If the key exists, retrieve the value.
                     if (store.FileExists(key))
                     {
-                        using (var stream = store.OpenFile(key, FileMode.Open))
-                        {
-                            using (var sr = new StreamReader(stream))
-                            {
-                                str = sr.ReadToEnd();
-                            }
-                        }
+                        using var stream = store.OpenFile(key, FileMode.Open);
+                        using var sr = new StreamReader(stream);
+                        str = sr.ReadToEnd();
                     }
 
                     if (str == null)
@@ -195,8 +183,7 @@ namespace SmiServices.Applications.Setup
 
                     else if (type == typeof(Guid))
                     {
-                        Guid guid;
-                        if (Guid.TryParse(str, out guid))
+                        if (Guid.TryParse(str, out Guid guid))
                             value = guid;
                     }
 
@@ -239,8 +226,7 @@ namespace SmiServices.Applications.Setup
         /// Remove key
         /// </summary>
         /// <param name="key">Key to remove</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
-        public void Remove(string key, string? fileName = null)
+        public void Remove(string key)
         {
             if (store.FileExists(key))
                 store.DeleteFile(key);
@@ -249,8 +235,7 @@ namespace SmiServices.Applications.Setup
         /// <summary>
         /// Clear all keys from settings
         /// </summary>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
-        public void Clear(string? fileName = null)
+        public void Clear()
         {
             try
             {
@@ -269,9 +254,8 @@ namespace SmiServices.Applications.Setup
         /// Checks to see if the key has been added.
         /// </summary>
         /// <param name="key">Key to check</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True if contains key, else false</returns>
-        public bool Contains(string key, string? fileName = null)
+        public bool Contains(string key)
         {
             return store.FileExists(key);
         }
@@ -283,12 +267,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public decimal GetValueOrDefault(string key, decimal defaultValue, string? fileName = null)
+        public decimal GetValueOrDefault(string key, decimal defaultValue)
         {
             return
-            GetValueOrDefaultInternal(key, defaultValue, fileName);
+            GetValueOrDefaultInternal(key, defaultValue);
         }
 
         /// <summary>
@@ -296,12 +279,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public bool GetValueOrDefault(string key, bool defaultValue, string? fileName = null)
+        public bool GetValueOrDefault(string key, bool defaultValue)
         {
             return
-        GetValueOrDefaultInternal(key, defaultValue, fileName);
+        GetValueOrDefaultInternal(key, defaultValue);
         }
 
         /// <summary>
@@ -309,12 +291,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public long GetValueOrDefault(string key, long defaultValue, string? fileName = null)
+        public long GetValueOrDefault(string key, long defaultValue)
         {
             return
-        GetValueOrDefaultInternal(key, defaultValue, fileName);
+        GetValueOrDefaultInternal(key, defaultValue);
         }
 
         /// <summary>
@@ -322,25 +303,10 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public string? GetValueOrDefault(string key, string? defaultValue, string? fileName = null)
+        public string? GetValueOrDefault(string key, string? defaultValue)
         {
-            return GetValueOrDefaultInternal(key, defaultValue, fileName);
-
-        }
-
-        /// <summary>
-        /// Gets the current value or the default that you specify.
-        /// </summary>
-        /// <param name="key">Key for settings</param>
-        /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
-        /// <returns>Value or default</returns>
-        public int GetValueOrDefault(string key, int defaultValue, string? fileName = null)
-        {
-            return
-        GetValueOrDefaultInternal(key, defaultValue, fileName);
+            return GetValueOrDefaultInternal(key, defaultValue);
 
         }
 
@@ -349,12 +315,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public float GetValueOrDefault(string key, float defaultValue, string? fileName = null)
+        public int GetValueOrDefault(string key, int defaultValue)
         {
             return
-        GetValueOrDefaultInternal(key, defaultValue, fileName);
+        GetValueOrDefaultInternal(key, defaultValue);
 
         }
 
@@ -363,12 +328,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public DateTime GetValueOrDefault(string key, DateTime defaultValue, string? fileName = null)
+        public float GetValueOrDefault(string key, float defaultValue)
         {
             return
-        GetValueOrDefaultInternal(key, defaultValue, fileName);
+        GetValueOrDefaultInternal(key, defaultValue);
 
         }
 
@@ -377,12 +341,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public Guid GetValueOrDefault(string key, Guid defaultValue, string? fileName = null)
+        public DateTime GetValueOrDefault(string key, DateTime defaultValue)
         {
             return
-        GetValueOrDefaultInternal(key, defaultValue, fileName);
+        GetValueOrDefaultInternal(key, defaultValue);
 
         }
 
@@ -391,12 +354,24 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for settings</param>
         /// <param name="defaultValue">default value if not set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>Value or default</returns>
-        public double GetValueOrDefault(string key, double defaultValue, string? fileName = null)
+        public Guid GetValueOrDefault(string key, Guid defaultValue)
         {
             return
-        GetValueOrDefaultInternal(key, defaultValue, fileName);
+        GetValueOrDefaultInternal(key, defaultValue);
+
+        }
+
+        /// <summary>
+        /// Gets the current value or the default that you specify.
+        /// </summary>
+        /// <param name="key">Key for settings</param>
+        /// <param name="defaultValue">default value if not set</param>
+        /// <returns>Value or default</returns>
+        public double GetValueOrDefault(string key, double defaultValue)
+        {
+            return
+        GetValueOrDefaultInternal(key, defaultValue);
         }
 
         #endregion
@@ -408,12 +383,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, decimal value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, decimal value)
         {
             return
-        AddOrUpdateValueInternal(key, value, fileName);
+        AddOrUpdateValueInternal(key, value);
 
         }
 
@@ -422,12 +396,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, bool value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, bool value)
         {
             return
-        AddOrUpdateValueInternal(key, value, fileName);
+        AddOrUpdateValueInternal(key, value);
 
         }
 
@@ -436,11 +409,10 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, long value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, long value)
         {
-            return AddOrUpdateValueInternal(key, value, fileName);
+            return AddOrUpdateValueInternal(key, value);
         }
 
         /// <summary>
@@ -448,12 +420,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, string value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, string value)
         {
             return
-        AddOrUpdateValueInternal(key, value, fileName);
+        AddOrUpdateValueInternal(key, value);
 
         }
 
@@ -462,11 +433,10 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, int value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, int value)
         {
-            return AddOrUpdateValueInternal(key, value, fileName);
+            return AddOrUpdateValueInternal(key, value);
         }
 
         /// <summary>
@@ -474,11 +444,10 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, float value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, float value)
         {
-            return AddOrUpdateValueInternal(key, value, fileName);
+            return AddOrUpdateValueInternal(key, value);
         }
 
         /// <summary>
@@ -486,11 +455,11 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
+        /// 
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, DateTime value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, DateTime value)
         {
-            return AddOrUpdateValueInternal(key, value, fileName);
+            return AddOrUpdateValueInternal(key, value);
         }
 
         /// <summary>
@@ -498,11 +467,10 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, Guid value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, Guid value)
         {
-            return AddOrUpdateValueInternal(key, value, fileName);
+            return AddOrUpdateValueInternal(key, value);
         }
 
         /// <summary>
@@ -510,11 +478,10 @@ namespace SmiServices.Applications.Setup
         /// </summary>
         /// <param name="key">Key for setting</param>
         /// <param name="value">Value to set</param>
-        /// <param name="fileName">Name of file for settings to be stored and retrieved </param>
         /// <returns>True of was added or updated and you need to save it.</returns>
-        public bool AddOrUpdateValue(string key, double value, string? fileName = null)
+        public bool AddOrUpdateValue(string key, double value)
         {
-            return AddOrUpdateValueInternal(key, value, fileName);
+            return AddOrUpdateValueInternal(key, value);
         }
 
         #endregion
@@ -523,7 +490,7 @@ namespace SmiServices.Applications.Setup
         /// Attempts to open the app settings page.
         /// </summary>
         /// <returns>true if success, else false and not supported</returns>
-        public bool OpenAppSettings()
+        public static bool OpenAppSettings()
         {
             return false;
         }

@@ -6,11 +6,11 @@ namespace SmiServices.Common
 {
     public class ZipHelper
     {
-        readonly static List<string> SupportedExtensions = new()
-        {
+        readonly static List<string> SupportedExtensions =
+        [
             ".zip",
             ".tar"
-        };
+        ];
 
         /// <summary>
         /// Returns true if <paramref name="f"/> looks like a compressed archive compatible with smi e.g. zip, tar etc

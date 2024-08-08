@@ -94,7 +94,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
                 ExtractionDirectory = "1234/foo",
                 IsIdentifiableExtraction = isIdentifiableExtraction,
                 KeyTag = "foo",
-                ExtractionIdentifiers = new List<string> { "foo" },
+                ExtractionIdentifiers = ["foo"],
                 Modalities = null,
             };
 

@@ -57,7 +57,7 @@ namespace SmiServices.Common.Messages
             if (!file.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
                 throw new Exception("File '" + file + "' did not share a common root with the root '" + root + "'");
 
-            DicomFilePath = file.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar);
+            DicomFilePath = file[root.Length..].TrimStart(Path.DirectorySeparatorChar);
         }
 
         public string GetAbsolutePath(string rootPath)

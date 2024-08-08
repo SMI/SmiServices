@@ -41,7 +41,7 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
 
             Assert.That(audit.ExecutingQueries, Is.EqualTo(0));
 
-            List<Task> tasks = new();
+            List<Task> tasks = [];
 
             for (int i = 0; i < 50; i++)
             {
@@ -53,7 +53,7 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
                 }));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            Task.WaitAll([.. tasks]);
 
             Assert.Multiple(() =>
             {

@@ -6,7 +6,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper.Namers
     public class MyFixedStagingDatabaseNamer : FixedStagingDatabaseNamer
     {
         //all injectable constructors must match
-        public MyFixedStagingDatabaseNamer(string databaseName, Guid someGuid) : base(databaseName)
+        public MyFixedStagingDatabaseNamer(string databaseName, Guid _) : base(databaseName)
         {
         }
     }

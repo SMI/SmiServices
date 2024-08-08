@@ -33,7 +33,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
         /// </summary>
         public IReadOnlyCollection<Exception> DleErrors => new ReadOnlyCollection<Exception>(_dleExceptions);
 
-        private List<Exception> _dleExceptions = new();
+        private readonly List<Exception> _dleExceptions = [];
 
         private readonly LoadMetadata _lmd;
         private readonly IRDMPPlatformRepositoryServiceLocator _repositoryLocator;
@@ -189,10 +189,10 @@ namespace SmiServices.Microservices.DicomRelationalMapper
             }
 
             //All messages were rejected
-            if (!toProcess.Any())
+            if (toProcess.Count == 0)
                 return;
 
-            if (duplicates.Any())
+            if (duplicates.Count != 0)
             {
                 Logger.Log(LogLevel.Warn, "Acking " + duplicates.Count + " duplicate Datasets");
                 duplicates.ForEach(x => Ack(x.Header, x.Tag));
@@ -237,9 +237,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
                         //where there is resource contention that results in simultaneous failures.
                         var r = new Random();
 
-#pragma warning disable SCS0005 // Weak random number generator
                         var wait = r.Next(_retryDelayInSeconds * 2);
-#pragma warning restore SCS0005
 
                         Logger.Info("Sleeping " + wait + "s after failure");
                         Task.Delay(new TimeSpan(0, 0, 0, wait)).Wait();
@@ -251,7 +249,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
                         }
                     }
 
-                    firstException = firstException ?? e;
+                    firstException ??= e;
                 }
             }
             while (remainingRetries-- > 0 && (exitCode == ExitCodeType.Error || exitCode == ExitCodeType.Abort));
@@ -308,6 +306,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
             //make sure we stop the consume loop if it hasn't already stopped
             if (_stopTokenSource != null && !_stopTokenSource.IsCancellationRequested)
                 _stopTokenSource.Cancel();
+            GC.SuppressFinalize(this);
         }
     }
 }

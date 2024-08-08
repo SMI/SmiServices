@@ -28,8 +28,8 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { Path.GetFullPath("/PACS/2019/01/01/foo/01/a.dcm"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
-                { Path.GetFullPath("/PACS/2019/01/02/foo/02/a.dcm"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
+                { Path.GetFullPath("/PACS/2019/01/01/foo/01/a.dcm"), new MockFileData([0x12, 0x34, 0x56, 0xd2] ) },
+                { Path.GetFullPath("/PACS/2019/01/02/foo/02/a.dcm"), new MockFileData([0x12, 0x34, 0x56, 0xd2] ) },
             });
 
             var m1 = new AccessionDirectoryMessage

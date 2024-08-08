@@ -31,7 +31,7 @@ namespace SmiServices.Microservices.UpdateValues
         /// <summary>
         /// Lock for <see cref="Stopwatch"/>
         /// </summary>
-        private object lockWatch = new();
+        private readonly object lockWatch = new();
 
         /// <summary>
         /// The table that is being updated

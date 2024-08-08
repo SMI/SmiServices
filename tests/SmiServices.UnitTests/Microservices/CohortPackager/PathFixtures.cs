@@ -42,6 +42,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager
                 return;
 
             Directory.Delete(TestDirAbsolute, recursive: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

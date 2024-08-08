@@ -33,13 +33,13 @@ namespace SmiServices.Common.Messages.Extraction
         [JsonConstructor]
         public ExtractFileCollectionInfoMessage()
         {
-            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
+            ExtractFileMessagesDispatched = [];
         }
 
         public ExtractFileCollectionInfoMessage(ExtractionRequestMessage request)
             : base(request)
         {
-            ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>();
+            ExtractFileMessagesDispatched = [];
         }
 
         public override string ToString()

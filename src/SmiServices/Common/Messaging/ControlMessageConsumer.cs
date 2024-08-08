@@ -40,8 +40,7 @@ namespace SmiServices.Common.Messaging
             string controlExchangeName,
             Action<string> stopEvent)
         {
-            if (processName == null)
-                throw new ArgumentNullException(nameof(processName));
+            ArgumentNullException.ThrowIfNull(processName);
             _processName = processName.ToLower();
             _processId = processId.ToString();
 
@@ -56,12 +55,10 @@ namespace SmiServices.Common.Messaging
                 Password = rabbitOptions.RabbitMqPassword
             };
 
-            if (controlExchangeName == null)
-                throw new ArgumentNullException(nameof(controlExchangeName));
+            ArgumentNullException.ThrowIfNull(controlExchangeName);
             SetupControlQueueForHost(controlExchangeName);
 
-            if (stopEvent == null)
-                throw new ArgumentNullException(nameof(stopEvent));
+            ArgumentNullException.ThrowIfNull(stopEvent);
             StopHost += () => stopEvent("Control message stop");
         }
 
@@ -90,7 +87,7 @@ namespace SmiServices.Common.Messaging
 
                 // Who, what
                 string actor = string.Join(".", split.Skip(2).Take(split.Length - 3));
-                string action = split[split.Length - 1];
+                string action = split[^1];
 
                 // If action contains a numeric and it's not our PID, then ignore
                 if (action.Any(char.IsDigit) && !action.EndsWith(_processId))

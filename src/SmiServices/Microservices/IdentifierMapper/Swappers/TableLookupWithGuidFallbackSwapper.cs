@@ -48,7 +48,7 @@ namespace SmiServices.Microservices.IdentifierMapper.Swappers
         /// Returns the main lookup table, for the temporary guid allocations use <see cref="GetGuidTableIfAny(IMappingTableOptions)"/>
         /// </summary>
         /// <returns></returns>
-        public DiscoveredTable GetMappingTable(IMappingTableOptions options)
+        public static DiscoveredTable GetMappingTable(IMappingTableOptions options)
         {
             return options.Discover();
         }

@@ -16,16 +16,16 @@ namespace SmiServices.Microservices.IdentifierMapper.Swappers
     public class RedisSwapper : SwapIdentifiers, IDisposable
     {
         private readonly ConnectionMultiplexer _redis;
-        private ISwapIdentifiers _hostedSwapper;
+        private readonly ISwapIdentifiers _hostedSwapper;
 
         private const string NullString = "NO MATCH";
 
-        private MemoryCache _cache = new(new MemoryCacheOptions
+        private readonly MemoryCache _cache = new(new MemoryCacheOptions
         {
             SizeLimit = 1024
         });
 
-        private ConcurrentDictionary<object, SemaphoreSlim> _locks = new();
+        private readonly ConcurrentDictionary<object, SemaphoreSlim> _locks = new();
 
         private readonly ILogger _logger;
 
@@ -120,6 +120,7 @@ namespace SmiServices.Microservices.IdentifierMapper.Swappers
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _redis?.Dispose();
         }
 

@@ -154,12 +154,11 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution
             VerifyReports(
                 globals,
                 pf,
-                new[]
-                {
+                [
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!, testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage),
-                },
+                ],
                 isIdentifiableExtraction: false
             );
         }
@@ -215,7 +214,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution
                     { new MessageHeader(), "series-2-anon-1.dcm" },
                     { new MessageHeader(), "series-2-anon-2.dcm" },
                 },
-                RejectionReasons = new Dictionary<string, int>(),
+                RejectionReasons = [],
                 KeyValue = "series-2",
             };
             var testExtractFileStatusMessage = new ExtractedFileStatusMessage
@@ -267,15 +266,14 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution
             VerifyReports(
                 globals,
                 pf,
-                new[]
-                {
+                [
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!, testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,testExtractFileCollectionInfoMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,  testExtractFileCollectionInfoMessage2),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.VerificationStatusOptions!, testIsIdentifiableMessage2),
-                },
+                ],
                 isIdentifiableExtraction: false
             );
         }
@@ -346,13 +344,12 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution
             VerifyReports(
                 globals,
                 pf,
-                new[]
-                {
+                [
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions!.ExtractRequestInfoOptions!,  testExtractionRequestInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.FileCollectionInfoOptions!,testExtractFileCollectionInfoMessage),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,testExtractFileStatusMessage1),
                     new Tuple<ConsumerOptions, IMessage>(globals.CohortPackagerOptions.NoVerifyStatusOptions!,  testExtractFileStatusMessage2),
-                },
+                ],
                 isIdentifiableExtraction: true
             );
         }
@@ -389,7 +386,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
-            Assert.That(exc!.Message, Is.EqualTo("Specified argument was out of the range of valid values. (Parameter 'ExtractRoot')"));
+            Assert.That(exc!.Message, Is.EqualTo("Specified argument was out of the range of valid values. (Parameter 'globals')"));
         }
 
         #endregion

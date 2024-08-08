@@ -68,8 +68,8 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
             Guid extractFileMessageGuid,
             string anonymisedFilePath)
         {
-            ExtractFileMessageGuid = extractFileMessageGuid != default ? extractFileMessageGuid : throw new ArgumentException(nameof(extractFileMessageGuid));
-            AnonymisedFilePath = !string.IsNullOrWhiteSpace(anonymisedFilePath) ? anonymisedFilePath : throw new ArgumentException(nameof(anonymisedFilePath));
+            ExtractFileMessageGuid = extractFileMessageGuid != default ? extractFileMessageGuid : throw new ArgumentException(null, nameof(extractFileMessageGuid));
+            AnonymisedFilePath = !string.IsNullOrWhiteSpace(anonymisedFilePath) ? anonymisedFilePath : throw new ArgumentException(null, nameof(anonymisedFilePath));
         }
     }
 

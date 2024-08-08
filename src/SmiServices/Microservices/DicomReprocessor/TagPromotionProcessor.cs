@@ -12,29 +12,12 @@ namespace SmiServices.Microservices.DicomReprocessor
     public class TagPromotionProcessor : IDocumentProcessor
     {
         public long TotalProcessed { get; private set; }
-
         public long TotalFailed { get; private set; }
 
-
-        private readonly ILogger _logger;
-
-        private readonly DicomReprocessorOptions _options;
-
-        private readonly IProducerModel _producerModel;
-        private readonly string _reprocessingRoutingKey;
-
-
-        public TagPromotionProcessor(DicomReprocessorOptions options, IProducerModel producerModel, string reprocessingRoutingKey)
+        public TagPromotionProcessor(IProducerModel producerModel)
         {
-            _logger = LogManager.GetLogger(GetType().Name);
-
-            _options = options;
-
-            if (producerModel is not BatchProducerModel asBatchProducer)
+            if (producerModel is not BatchProducerModel)
                 throw new ArgumentException("producerModel must be a batch producer");
-
-            _producerModel = asBatchProducer;
-            _reprocessingRoutingKey = reprocessingRoutingKey;
         }
 
 

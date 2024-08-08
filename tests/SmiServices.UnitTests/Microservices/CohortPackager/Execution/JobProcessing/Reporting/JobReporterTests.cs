@@ -68,10 +68,10 @@ internal class JobReporterTests
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
         mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(new List<string>());
-        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns([]);
 
         var reportsDir = _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1");
         var readmePath = _mockFileSystem.Path.Combine(reportsDir, "README.md");
@@ -247,8 +247,8 @@ internal class JobReporterTests
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
         mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(new List<string>());
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns([]);
 
         var reportsDir = _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1");
         var readmePath = _mockFileSystem.Path.Combine(reportsDir, "README.md");
@@ -392,10 +392,10 @@ internal class JobReporterTests
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
         mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(new List<string>());
-        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns([]);
 
         var reportsDir = _mockFileSystem.Path.Combine("extraction-root", "1234-5678", "extractions", "reports", "test-1");
         var readmePath = _mockFileSystem.Path.Combine(reportsDir, "README.md");
@@ -571,10 +571,10 @@ internal class JobReporterTests
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
         mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(new List<string>());
-        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(new List<FileVerificationFailureInfo>());
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns([]);
 
         var reporter = new JobReporter(mockJobStore.Object, _mockFileSystem, _extractionRoot, null);
 
@@ -683,9 +683,9 @@ internal class JobReporterTests
 
         var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
         mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(jobInfo);
-        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns(new List<ExtractionIdentifierRejectionInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns(new List<FileAnonFailureInfo>());
-        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns(new List<string>());
+        mockJobStore.Setup(x => x.GetCompletedJobRejections(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobAnonymisationFailures(It.IsAny<Guid>())).Returns([]);
+        mockJobStore.Setup(x => x.GetCompletedJobMissingFileList(It.IsAny<Guid>())).Returns([]);
         mockJobStore.Setup(x => x.GetCompletedJobVerificationFailures(It.IsAny<Guid>())).Returns(verificationFailures);
 
         var reporter = new JobReporter(mockJobStore.Object, _mockFileSystem, _extractionRoot, _newLine);

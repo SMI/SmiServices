@@ -59,8 +59,10 @@ namespace SmiServices.Microservices.DicomRelationalMapper
             var catalogueRepository = lmd.CatalogueRepository;
 
             //ensures that RAW/STAGING always have unique names
-            _configuration = new HICDatabaseConfiguration(lmd, _namer);
-            _configuration.UpdateButDoNotDiff = new Regex("^MessageGuid");
+            _configuration = new HICDatabaseConfiguration(lmd, _namer)
+            {
+                UpdateButDoNotDiff = new Regex("^MessageGuid")
+            };
 
             var logManager = catalogueRepository.GetDefaultLogManager();
 
@@ -104,7 +106,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
             return exitCode;
         }
 
-        private void SwapMigrateRAWToStagingComponent(IList<IDataLoadComponent> components)
+        private static void SwapMigrateRAWToStagingComponent(IList<IDataLoadComponent> components)
         {
             for (var i = 0; i < components.Count; i++)
             {

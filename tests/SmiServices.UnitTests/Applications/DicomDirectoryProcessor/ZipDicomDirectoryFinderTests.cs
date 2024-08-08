@@ -28,9 +28,9 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { Path.GetFullPath("/PACS/FFF/DDD/a.dcm"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
-                { Path.GetFullPath("/PACS/FFF/b.dcm"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
-                { Path.GetFullPath("/PACS/CCC/c.zip"), new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0xd2 } ) },
+                { Path.GetFullPath("/PACS/FFF/DDD/a.dcm"), new MockFileData([0x12, 0x34, 0x56, 0xd2] ) },
+                { Path.GetFullPath("/PACS/FFF/b.dcm"), new MockFileData([0x12, 0x34, 0x56, 0xd2] ) },
+                { Path.GetFullPath("/PACS/CCC/c.zip"), new MockFileData([0x12, 0x34, 0x56, 0xd2] ) },
             });
 
             var m1 = new AccessionDirectoryMessage

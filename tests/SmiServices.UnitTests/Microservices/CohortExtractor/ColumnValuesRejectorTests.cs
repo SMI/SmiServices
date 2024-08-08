@@ -14,7 +14,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         [Test]
         public void Test_ColumnValuesRejector_MissingColumn_Throws()
         {
-            var rejector = new ColumnValuesRejector("fff", new HashSet<string> { "dave", "frank" });
+            var rejector = new ColumnValuesRejector("fff", ["dave", "frank"]);
 
             var moqDave = new Mock<DbDataReader>();
             moqDave
@@ -28,7 +28,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         [Test]
         public void Test_ColumnValuesRejectorTests()
         {
-            var rejector = new ColumnValuesRejector(PatColName, new HashSet<string>(new[] { "Frank", "Peter", "David" }, StringComparer.CurrentCultureIgnoreCase));
+            var rejector = new ColumnValuesRejector(PatColName, new HashSet<string>(["Frank", "Peter", "David"], StringComparer.CurrentCultureIgnoreCase));
 
             var moqDave = new Mock<DbDataReader>();
             moqDave.Setup(x => x[PatColName])

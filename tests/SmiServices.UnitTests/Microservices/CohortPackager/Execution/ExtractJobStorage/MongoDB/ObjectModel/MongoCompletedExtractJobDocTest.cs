@@ -18,7 +18,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
         private readonly MongoExtractJobDoc _testExtractJobDoc = new(
             Guid.NewGuid(),
-            MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader { Parents = new[] { Guid.NewGuid() } }, _dateTimeProvider),
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader { Parents = [Guid.NewGuid()] }, _dateTimeProvider),
             "1234",
             ExtractJobStatus.ReadyForChecks,
             "test",

@@ -7,7 +7,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
-using System.Diagnostics;
 
 namespace SmiServices.Common.Execution
 {
@@ -58,7 +57,7 @@ namespace SmiServices.Common.Execution
             Logger = LogManager.GetLogger(GetType().Name);
             Logger.Info("Host logger created");
 
-            HostProcessID = Process.GetCurrentProcess().Id;
+            HostProcessID = Environment.ProcessId;
             Logger.Info($"Starting {HostProcessName} (Host={Environment.MachineName} PID={HostProcessID} User={Environment.UserName})");
 
             // log centrally
@@ -83,14 +82,15 @@ namespace SmiServices.Common.Execution
             if (messageBroker == null)
             {
                 messageBroker = new RabbitMQBroker(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
-                var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName
-                    ?? throw new ArgumentNullException(nameof(globals.RabbitOptions.RabbitMqControlExchangeName));
+                var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName ?? throw new ArgumentNullException(nameof(globals));
                 _controlMessageConsumer = new ControlMessageConsumer(globals.RabbitOptions, HostProcessName, HostProcessID, controlExchangeName, Stop);
             }
             MessageBroker = messageBroker;
 
-            ObjectFactory = new MicroserviceObjectFactory();
-            ObjectFactory.FatalHandler = (s, e) => Fatal(e.Message, e.Exception);
+            ObjectFactory = new MicroserviceObjectFactory
+            {
+                FatalHandler = (s, e) => Fatal(e.Message, e.Exception)
+            };
         }
 
         /// <summary>

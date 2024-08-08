@@ -54,7 +54,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
 
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("testCase");
+                    throw new ArgumentOutOfRangeException(nameof(testCase));
             }
 
             //if user has not provided the full name 
@@ -87,9 +87,11 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         [TestCase(false)]
         public void UnitTest_Reflection_RejectorTypeNames(bool supplyRejectorName)
         {
-            CohortExtractorOptions opts = new();
-            opts.RequestFulfillerType = typeof(FromCataloguesExtractionRequestFulfiller).FullName;
-            opts.RejectorType = supplyRejectorName ? typeof(TestRejector).FullName : null;
+            CohortExtractorOptions opts = new()
+            {
+                RequestFulfillerType = typeof(FromCataloguesExtractionRequestFulfiller).FullName,
+                RejectorType = supplyRejectorName ? typeof(TestRejector).FullName : null
+            };
             opts.Validate();
 
             var fulfiller = CreateRequestFulfiller(opts);
@@ -111,8 +113,10 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                 QueryToExecuteColumnSet.DefaultInstanceIdColumnName,
             })
             {
-                var ei = new ExtractionInformation(repo, new CatalogueItem(repo, c, "a"), new ColumnInfo(repo, requiredColumn, "varchar(10)", (TableInfo)t), requiredColumn);
-                ei.ExtractionCategory = ExtractionCategory.Core;
+                var ei = new ExtractionInformation(repo, new CatalogueItem(repo, c, "a"), new ColumnInfo(repo, requiredColumn, "varchar(10)", (TableInfo)t), requiredColumn)
+                {
+                    ExtractionCategory = ExtractionCategory.Core
+                };
                 ei.SaveToDatabase();
             }
 
@@ -123,15 +127,14 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             var f = new MicroserviceObjectFactory();
             var fulfiller = f.CreateInstance<IExtractionRequestFulfiller>(opts.RequestFulfillerType!,
                 typeof(IExtractionRequestFulfiller).Assembly,
-                new object[] { new[] { c } });
+                [new[] { c }]);
 
-            if (fulfiller != null)
-                fulfiller.Rejectors.Add(f.CreateInstance<IRejector>(opts.RejectorType!, typeof(TestRejector).Assembly) ?? new RejectNone());
+            fulfiller?.Rejectors.Add(f.CreateInstance<IRejector>(opts.RejectorType!, typeof(TestRejector).Assembly) ?? new RejectNone());
 
             return fulfiller;
         }
 
-        private IAuditExtractions? CreateAuditor(CohortExtractorOptions opts)
+        private static IAuditExtractions? CreateAuditor(CohortExtractorOptions opts)
         {
             var f = new MicroserviceObjectFactory();
             return f.CreateInstance<IAuditExtractions>(opts.AuditorType, typeof(IAuditExtractions).Assembly);

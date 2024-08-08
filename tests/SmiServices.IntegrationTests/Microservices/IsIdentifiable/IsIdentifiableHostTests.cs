@@ -50,7 +50,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_ValidClassifier));
 
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
-            TestData.Create(testDcm);
+            new TestData().Create(testDcm);
 
             using var tester = new MicroserviceTester(options.RabbitOptions!, options.IsIdentifiableServiceOptions!);
             tester.CreateExchange(options.IsIdentifiableServiceOptions!.IsIdentifiableProducerOptions!.ExchangeName!, null);
@@ -99,7 +99,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier), "f1.dcm"));
 
             Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
-            TestData.Create(testDcm);
+            new TestData().Create(testDcm);
 
             using var tester = new MicroserviceTester(options.RabbitOptions!, options.IsIdentifiableServiceOptions);
             options.IsIdentifiableServiceOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;

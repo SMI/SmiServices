@@ -49,16 +49,16 @@ namespace SmiServices.Applications.ExtractImages
             _extractionRequestInfoProducer = extractionRequestInfoProducer;
 
             _fileSystem = fileSystem;
-            _extractionRoot = (!string.IsNullOrWhiteSpace(extractionRoot)) ? extractionRoot : throw new ArgumentException(nameof(extractionRoot));
-            _extractionDir = (!string.IsNullOrWhiteSpace(extractionDir)) ? extractionDir : throw new ArgumentException(nameof(extractionDir));
+            _extractionRoot = (!string.IsNullOrWhiteSpace(extractionRoot)) ? extractionRoot : throw new ArgumentOutOfRangeException(nameof(extractionRoot));
+            _extractionDir = (!string.IsNullOrWhiteSpace(extractionDir)) ? extractionDir : throw new ArgumentOutOfRangeException(nameof(extractionDir));
             _dateTimeProvider = dateTimeProvider;
             _consoleInput = consoleInput;
 
             _maxIdentifiersPerMessage = options.MaxIdentifiersPerMessage;
             if (_maxIdentifiersPerMessage <= 0)
-                throw new ArgumentOutOfRangeException(nameof(options.MaxIdentifiersPerMessage));
+                throw new ArgumentOutOfRangeException(nameof(options));
 
-            _projectId = (!string.IsNullOrWhiteSpace(cliOptions.ProjectId)) ? cliOptions.ProjectId : throw new ArgumentException(nameof(cliOptions.ProjectId));
+            _projectId = (!string.IsNullOrWhiteSpace(cliOptions.ProjectId)) ? cliOptions.ProjectId : throw new ArgumentOutOfRangeException(nameof(cliOptions));
             _modalities = cliOptions.Modalities?.ToUpper().Split(',', StringSplitOptions.RemoveEmptyEntries);
             _isIdentifiableExtraction = cliOptions.IsIdentifiableExtraction;
             _isNoFiltersExtraction = cliOptions.IsNoFiltersExtraction;
@@ -101,7 +101,7 @@ namespace SmiServices.Applications.ExtractImages
                 .Select(x =>
                     new ExtractionRequestMessage(erm)
                     {
-                        ExtractionIdentifiers = x.ToList()
+                        ExtractionIdentifiers = [.. x]
                     }
             ).ToList();
 

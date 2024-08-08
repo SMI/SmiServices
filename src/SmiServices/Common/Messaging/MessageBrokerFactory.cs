@@ -19,7 +19,7 @@ public static class MessageBrokerFactory
                     return new RabbitMQBroker(globals.RabbitOptions, connectionIdentifier);
                 }
             case MessageBrokerType.None:
-                throw new ArgumentOutOfRangeException(nameof(globals.MessageBrokerType), $"A valid {nameof(MessageBrokerType)} must be chosen");
+                throw new ArgumentOutOfRangeException(nameof(globals), $"A valid {nameof(MessageBrokerType)} must be chosen");
             default:
                 throw new NotImplementedException($"No case for {globals.MessageBrokerType}");
         }

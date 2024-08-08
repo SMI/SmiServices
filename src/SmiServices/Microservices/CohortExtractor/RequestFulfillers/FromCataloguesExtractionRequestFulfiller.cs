@@ -15,9 +15,9 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         protected readonly QueryToExecuteColumnSet[] Catalogues;
         protected readonly Logger Logger;
 
-        public List<IRejector> Rejectors { get; set; } = new List<IRejector>();
+        public List<IRejector> Rejectors { get; set; } = [];
         public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
-            = new Dictionary<ModalitySpecificRejectorOptions, IRejector>();
+            = [];
         public Regex? ModalityRoutingRegex { get; set; }
 
         public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
@@ -30,12 +30,12 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 
             Logger.Debug("Found " + Catalogues.Length + " Catalogues matching filter criteria");
 
-            if (!Catalogues.Any())
+            if (Catalogues.Length == 0)
                 throw new Exception("There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns)");
         }
 
 
-        protected QueryToExecuteColumnSet[] FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
+        protected static QueryToExecuteColumnSet[] FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
         {
             return cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray()!;
         }
@@ -70,10 +70,10 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                     foreach (QueryToExecuteResult result in query.Execute(valueToLookup, GetRejectorsFor(message, query).ToList()))
                     {
                         var seriesTagValue = result.SeriesTagValue
-                            ?? throw new ArgumentNullException(nameof(result.SeriesTagValue));
+                            ?? throw new Exception(nameof(result.SeriesTagValue));
 
                         if (!results.ContainsKey(seriesTagValue))
-                            results.Add(seriesTagValue, new HashSet<QueryToExecuteResult>());
+                            results.Add(seriesTagValue, []);
 
                         results[seriesTagValue].Add(result);
                     }
@@ -87,10 +87,10 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         {
             if (message.IsNoFilterExtraction)
             {
-                return Enumerable.Empty<IRejector>();
+                return [];
             }
 
-            if (ModalitySpecificRejectors.Any() && string.IsNullOrWhiteSpace(query.Modality))
+            if (ModalitySpecificRejectors.Count != 0 && string.IsNullOrWhiteSpace(query.Modality))
                 throw new Exception("Could not evaluate ModalitySpecificRejectors because query Modality was null");
 
             var applicableRejectors =

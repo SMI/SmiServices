@@ -46,7 +46,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             protected override IEnumerable<ExtractionIdentifierRejectionInfo> GetCompletedJobRejectionsImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<FileAnonFailureInfo> GetCompletedJobAnonymisationFailuresImpl(Guid jobId) => throw new NotImplementedException();
             protected override IEnumerable<FileVerificationFailureInfo> GetCompletedJobVerificationFailuresImpl(Guid jobId) => throw new NotImplementedException();
-            protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId) => new[] { "missing" };
+            protected override IEnumerable<string> GetCompletedJobMissingFileListImpl(Guid jobId) => ["missing"];
             protected override void AddToWriteQueueImpl(ExtractedFileVerificationMessage message, IMessageHeader header, ulong tag) => throw new NotImplementedException();
             public override void ProcessVerificationMessageQueue() => throw new NotImplementedException();
         }
@@ -80,31 +80,39 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             var header = new MessageHeader();
 
             // Must have AnonymisedFileName
-            var message = new ExtractedFileVerificationMessage();
-            message.OutputFilePath = "";
+            var message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = ""
+            };
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
             // Report shouldn't be an empty string or null
-            message = new ExtractedFileVerificationMessage();
-            message.OutputFilePath = "anon.dcm";
-            message.Report = "";
+            message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = "anon.dcm",
+                Report = ""
+            };
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
 
             // Report needs to contain content if marked as IsIdentifiable
-            message = new ExtractedFileVerificationMessage();
-            message.OutputFilePath = "anon.dcm";
-            message.Status = VerifiedFileStatus.IsIdentifiable;
-            message.Report = "[]";
+            message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = "anon.dcm",
+                Status = VerifiedFileStatus.IsIdentifiable,
+                Report = "[]"
+            };
             Assert.Throws<ApplicationException>(() => testExtractJobStore.PersistMessageToStore(message, header));
             // NOTE(rkm 2020-07-23) The actual report content is verified to be valid the message consumer, so don't need to re-check here
             message.Report = "['foo': 'bar']";
             testExtractJobStore.PersistMessageToStore(message, header);
 
             // Report can be empty if not marked as IsIdentifiable
-            message = new ExtractedFileVerificationMessage();
-            message.OutputFilePath = "anon.dcm";
-            message.Status = VerifiedFileStatus.NotIdentifiable;
-            message.Report = "[]";
+            message = new ExtractedFileVerificationMessage
+            {
+                OutputFilePath = "anon.dcm",
+                Status = VerifiedFileStatus.NotIdentifiable,
+                Report = "[]"
+            };
             testExtractJobStore.PersistMessageToStore(message, header);
         }
 

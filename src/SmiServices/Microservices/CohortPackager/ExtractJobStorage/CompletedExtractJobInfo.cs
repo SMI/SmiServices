@@ -38,7 +38,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage
                 isNoFilterExtraction
             )
         {
-            JobCompletedAt = completedAt != default ? completedAt : throw new ArgumentException(nameof(completedAt));
+            JobCompletedAt = completedAt != default ? completedAt : throw new ArgumentException(null, nameof(completedAt));
         }
     }
 }

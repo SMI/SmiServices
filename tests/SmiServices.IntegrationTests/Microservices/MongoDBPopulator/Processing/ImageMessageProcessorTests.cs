@@ -109,7 +109,7 @@ namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Process
             var testAdapter = new MongoDbAdapter("TestImageDocumentFormat", options.MongoDatabases!.DicomStoreOptions!, collectionName);
 
             var callbackUsed = false;
-            Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
+            void exceptionCallback(Exception exception) { callbackUsed = true; }
 
             var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback)
             {
@@ -165,11 +165,11 @@ namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Process
 
             Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(largeMessage, new MessageHeader(), 1));
 
-            dataset = new DicomDataset
-            { 
+            dataset =
+            [ 
                 // Should be ok, getting close to the threshold
                 new DicomUnlimitedText(DicomTag.SelectorUTValue,new string('x', 15*1024*1024 + 512))
-            };
+            ];
 
             json = DicomTypeTranslater.SerializeDatasetToJson(dataset);
             largeMessage.DicomDataset = json;

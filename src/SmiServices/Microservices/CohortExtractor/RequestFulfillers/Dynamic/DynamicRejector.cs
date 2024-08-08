@@ -26,7 +26,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic
             var dynamicRules = fileSystem.File.ReadAllText(dynamicRulesPath);
 
             if (string.IsNullOrWhiteSpace(dynamicRules))
-                throw new ArgumentOutOfRangeException("Rules file is empty");
+                throw new ArgumentOutOfRangeException(nameof(dynamicRulesPath), "Rules file is empty");
 
             _script = CSharpScript.Create<string>(
                 dynamicRules,
@@ -42,8 +42,9 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic
                 row = dbDataReader;
             }
 
-            // ReSharper disable once InconsistentNaming (use this name because it should look like a local in the script).
+#pragma warning disable IDE1006 // Naming Styles
             public IDataRecord? row { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         }
 
         /// <inheritdoc/>

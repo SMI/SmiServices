@@ -89,8 +89,6 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
 
             _helper.Options.FileSystemOptions!.FileSystemRoot = dirRoot.FullName;
 
-            new MicroserviceTester(_helper.Options.RabbitOptions!, _helper.AccessionConsumerOptions);
-
             var host = new DicomTagReaderHost(_helper.Options);
 
             var r = new Random(5);

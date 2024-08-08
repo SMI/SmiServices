@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomTagReader.Execution;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -57,7 +56,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
             var messagesSent = 0;
 
             var fi = new FileInfo(Path.Combine(_helper.TestDir.FullName, "InvalidFile.dcm"));
-            File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
+            File.WriteAllBytes(fi.FullName, [0x12, 0x34, 0x56, 0x78]);
 
             Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(), Is.EqualTo(2));
 
@@ -186,7 +185,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
             });
 
             IMessage? message = null;
-            List<IMessage> fileImages = new();
+            List<IMessage> fileImages = [];
 
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
@@ -230,7 +229,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
 
             var fi = new FileInfo(Path.Combine(_helper.TestDir.FullName, "InvalidFile.dcm"));
-            File.WriteAllBytes(fi.FullName, new byte[] { 0x12, 0x34, 0x56, 0x78 });
+            File.WriteAllBytes(fi.FullName, [0x12, 0x34, 0x56, 0x78]);
 
             // One valid, one invalid
             Assert.That(_helper.TestDir.EnumerateFiles("*.dcm").Count(), Is.EqualTo(2));

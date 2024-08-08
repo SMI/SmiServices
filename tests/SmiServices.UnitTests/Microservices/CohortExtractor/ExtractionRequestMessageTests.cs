@@ -9,8 +9,10 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         [Test]
         public void Test_ConstructMessage()
         {
-            var msg = new ExtractionRequestMessage();
-            msg.KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword;
+            var msg = new ExtractionRequestMessage
+            {
+                KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword
+            };
             msg.ExtractionIdentifiers.Add("1.2.3");
 
             Assert.Multiple(() =>

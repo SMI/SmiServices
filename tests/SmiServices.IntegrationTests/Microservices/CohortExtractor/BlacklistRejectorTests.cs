@@ -2,7 +2,6 @@ using FAnsi;
 using NUnit.Framework;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using SmiServices.UnitTests.Common;
 using System.Data;
 using Tests.Common;
 

@@ -24,7 +24,7 @@ namespace SmiServices.Common.Messages
             if (!directory.FullName.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
                 throw new Exception("Directory '" + directory + "' did not share a common root with the root '" + root + "'");
 
-            DirectoryPath = directory.FullName.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar);
+            DirectoryPath = directory.FullName[root.Length..].TrimStart(Path.DirectorySeparatorChar);
         }
 
         public string GetAbsolutePath(string rootPath) => Path.Combine(rootPath, DirectoryPath);

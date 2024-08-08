@@ -19,14 +19,14 @@ namespace SmiServices.Common.MessageSerialization
         [JsonProperty]
         public TK[] SerializeableKeys
         {
-            get { return Keys.ToArray(); }
+            get { return [.. Keys]; }
             set { Hydrate(value); }
         }
 
         [JsonProperty]
         public TV[] SerializeableValues
         {
-            get { return Values.ToArray(); }
+            get { return [.. Values]; }
             set { Hydrate(value); }
         }
 

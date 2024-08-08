@@ -76,7 +76,7 @@ namespace SmiServices.UnitTests.Common
         [Test]
         public void TestDecorators()
         {
-            var factory = new GlobalOptionsFactory(new List<IOptionsDecorator> { new TestDecorator() });
+            var factory = new GlobalOptionsFactory([new TestDecorator()]);
             var g = factory.Load(nameof(TestDecorators));
             Assert.Multiple(() =>
             {

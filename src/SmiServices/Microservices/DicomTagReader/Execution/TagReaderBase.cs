@@ -58,9 +58,9 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         {
             Logger = LogManager.GetLogger(GetType().Name);
 
-            _filesystemRoot = fileSystemOptions.FileSystemRoot ?? throw new ArgumentNullException(nameof(fileSystemOptions.FileSystemRoot));
+            _filesystemRoot = fileSystemOptions.FileSystemRoot ?? throw new ArgumentNullException(nameof(fileSystemOptions));
             NackIfAnyFileErrors = options.NackIfAnyFileErrors;
-            _searchPattern = fileSystemOptions.DicomSearchPattern ?? throw new ArgumentNullException(nameof(fileSystemOptions.DicomSearchPattern));
+            _searchPattern = fileSystemOptions.DicomSearchPattern ?? throw new ArgumentNullException(nameof(fileSystemOptions));
 
             _fileReadOption = options.GetReadOption();
 
@@ -120,9 +120,9 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
                 string seriesUID = fileMessage.SeriesInstanceUID;
 
                 // If we've already seen this seriesUID, just update the image count
-                if (seriesMessages.ContainsKey(seriesUID))
+                if (seriesMessages.TryGetValue(seriesUID, out SeriesMessage? value))
                 {
-                    seriesMessages[seriesUID].ImagesInSeries++;
+                    value.ImagesInSeries++;
                     continue;
                 }
 
@@ -146,10 +146,10 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
 
             // Only send if have processed all files in the directory ok
 
-            if (!fileMessages.Any())
+            if (fileMessages.Count == 0)
                 throw new ApplicationException("No DicomFileMessage(s) to send after processing the directory");
 
-            if (!seriesMessages.Any())
+            if (seriesMessages.Count == 0)
                 throw new ApplicationException("No SeriesMessage(s) to send but we have file messages");
 
             Logger.Info($"Sending {fileMessages.Count} DicomFileMessage(s)");
@@ -264,7 +264,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
 
         }
 
-        private byte[] ReadFully(Stream stream)
+        private static byte[] ReadFully(Stream stream)
         {
             var buffer = new byte[32768];
             int len;

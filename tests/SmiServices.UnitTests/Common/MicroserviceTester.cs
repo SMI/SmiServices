@@ -16,10 +16,10 @@ namespace SmiServices.UnitTests.Common
     {
         public readonly RabbitMQBroker Broker;
 
-        private readonly Dictionary<ConsumerOptions, IProducerModel> _sendToConsumers = new();
+        private readonly Dictionary<ConsumerOptions, IProducerModel> _sendToConsumers = [];
 
-        private readonly List<string> _declaredExchanges = new();
-        private readonly List<string> _declaredQueues = new();
+        private readonly List<string> _declaredExchanges = [];
+        private readonly List<string> _declaredQueues = [];
 
         /// <summary>
         /// When true, will delete any created queues/exchanges when Dispose is called. Can set to false to inspect
@@ -34,7 +34,7 @@ namespace SmiServices.UnitTests.Common
         /// Hosts to call Stop on in the Dispose step.  This ensures that all hosts are correctly shutdown even if Exceptions
         /// are thrown in test (provided the MicroserviceTester is in a using statement).
         /// </summary>
-        public HashSet<MicroserviceHost> StopOnDispose = new();
+        public HashSet<MicroserviceHost> StopOnDispose = [];
 
         public MicroserviceTester(RabbitOptions rabbitOptions, params ConsumerOptions[] peopleYouWantToSendMessagesTo)
         {
@@ -193,6 +193,7 @@ namespace SmiServices.UnitTests.Common
             }
 
             Broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
+            GC.SuppressFinalize(this);
         }
     }
 }

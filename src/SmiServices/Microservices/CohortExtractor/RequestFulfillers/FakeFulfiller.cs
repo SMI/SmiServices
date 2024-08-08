@@ -15,11 +15,11 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
     {
         protected readonly Logger Logger;
 
-        public List<IRejector> Rejectors { get; set; } = new List<IRejector>();
+        public List<IRejector> Rejectors { get; set; } = [];
 
         public Regex? ModalityRoutingRegex { get; set; }
         public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
-            = new Dictionary<ModalitySpecificRejectorOptions, IRejector>();
+            = [];
 
         public FakeFulfiller()
         {
@@ -40,7 +40,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                 var rejectionReason = "";
                 var result = new QueryToExecuteResult(valueToLookup, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
                 if (!results.ContainsKey(result.SeriesTagValue!))
-                    results.Add(result.SeriesTagValue!, new HashSet<QueryToExecuteResult>());
+                    results.Add(result.SeriesTagValue!, []);
                 results[result.SeriesTagValue!].Add(result);
 
                 yield return results;

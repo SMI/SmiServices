@@ -101,6 +101,7 @@ namespace SmiServices.Microservices.IsIdentifiable
         {
             if (_classifier is IDisposable d)
                 d.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -33,13 +33,13 @@ namespace SmiServices.Common.Messages
         /// </summary>
         static RabbitMqXDeathHeaders()
         {
-            _requiredKeys = new List<string>
-            {
+            _requiredKeys =
+            [
                 XDeathKey,
                 XFirstDeathExchangeKey,
                 XFirstDeathQueueKey,
                 XFristDeathReasonKey
-            };
+            ];
         }
 
         public RabbitMqXDeathHeaders() { }
@@ -54,7 +54,7 @@ namespace SmiServices.Common.Messages
             if (!(encodedHeaders.Any() && _requiredKeys.All(encodedHeaders.ContainsKey)))
                 throw new ArgumentException("xDeathEntry");
 
-            XDeaths = new List<RabbitMqXDeath>();
+            XDeaths = [];
 
             foreach (object xDeathEntry in (List<object>)encodedHeaders[XDeathKey])
                 XDeaths.Add(new RabbitMqXDeath((Dictionary<string, object>)xDeathEntry, enc));
@@ -92,10 +92,10 @@ namespace SmiServices.Common.Messages
             // Ensure that /from/ contains all the required headers, and /to/ contains none of them
 
             if (from == null || !(from.Any() && _requiredKeys.All(from.ContainsKey)))
-                throw new ArgumentException("from");
+                throw new ArgumentException(null, nameof(from));
 
             if (to == null || _requiredKeys.Any(to.ContainsKey))
-                throw new ArgumentException("to");
+                throw new ArgumentException(null, nameof(to));
 
             foreach (string key in _requiredKeys)
                 to.Add(key, from[key]);
@@ -137,15 +137,15 @@ namespace SmiServices.Common.Messages
 
         static RabbitMqXDeath()
         {
-            _requiredKeys = new List<string>
-            {
+            _requiredKeys =
+            [
                 CountKey,
                 ExchangeKey,
                 QueueKey,
                 ReasonKey,
                 RoutingKeysKey,
                 TimeKey,
-            };
+            ];
         }
 
         public RabbitMqXDeath() { }
@@ -154,7 +154,7 @@ namespace SmiServices.Common.Messages
         {
             if (xDeathEntry == null ||
                 !(xDeathEntry.Any() && xDeathEntry.All(k => _requiredKeys.Contains(k.Key))))
-                throw new ArgumentException("xDeathEntry");
+                throw new ArgumentException(null, nameof(xDeathEntry));
 
             Count = (long)xDeathEntry[CountKey];
             Exchange = enc.GetString((byte[])xDeathEntry[ExchangeKey]);

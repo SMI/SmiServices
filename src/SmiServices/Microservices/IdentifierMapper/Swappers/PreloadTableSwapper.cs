@@ -56,7 +56,7 @@ namespace SmiServices.Microservices.IdentifierMapper.Swappers
 
                     DbDataReader dataReader = cmd.ExecuteReader();
 
-                    _mapping = new Dictionary<string, string>();
+                    _mapping = [];
 
                     _logger.Debug("Populating dictionary from mapping table...");
                     Stopwatch sw = Stopwatch.StartNew();

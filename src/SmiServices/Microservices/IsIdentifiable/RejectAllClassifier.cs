@@ -14,7 +14,7 @@ namespace SmiServices.Microservices.IsIdentifiable
 
         public override IEnumerable<Failure> Classify(IFileInfo dcm)
         {
-            yield return new Failure(new[] { new FailurePart("Reject All classifier rejected all content", FailureClassification.Person) });
+            yield return new Failure([new FailurePart("Reject All classifier rejected all content", FailureClassification.Person)]);
         }
     }
 }

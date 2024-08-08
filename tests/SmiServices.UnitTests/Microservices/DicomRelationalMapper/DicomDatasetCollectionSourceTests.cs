@@ -34,10 +34,12 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
         {
             var source = new DicomDatasetCollectionSource();
 
-            var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "123Y");
+            var ds = new DicomDataset
+            {
+                { DicomTag.PatientAge, "123Y" }
+            };
 
-            var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm");
+            var worklist = new ExplicitListDicomDatasetWorklist([ds], "fish.dcm");
 
             source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
@@ -57,10 +59,11 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
         [TestCase(DataTooWideHandling.ConvertToNullAndWarn)]
         public void TestStringTooLong(DataTooWideHandling strategy)
         {
-            var ds = new DicomDataset();
-
+            var ds = new DicomDataset
+            {
 #pragma warning disable CS0618 // Obsolete
-            ds.AutoValidate = false;
+                AutoValidate = false
+            };
 #pragma warning restore CS0618
 
             ds.AddOrUpdate(DicomTag.AccessionNumber, "1342340123129473279427572495349757459347839479375974");
@@ -68,7 +71,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             var source = new DicomDatasetCollectionSource();
 
-            var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm", new Dictionary<string, string>());
+            var worklist = new ExplicitListDicomDatasetWorklist([ds], "fish.dcm", []);
             source.DataTooLongHandlingStrategy = strategy;
             source.FilenameField = "abc";
             source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
@@ -94,7 +97,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                     Assert.That(worklist.CorruptMessages, Is.Empty);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("strategy");
+                    throw new ArgumentOutOfRangeException(nameof(strategy));
             }
         }
 
@@ -110,11 +113,13 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                 InvalidDataHandlingStrategy = dataHandlingStrategy
             };
 
-            var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "123Y");
-            ds.Add(DicomTag.WedgeAngleFloat, "3.40282347e+038");
+            var ds = new DicomDataset
+            {
+                { DicomTag.PatientAge, "123Y" },
+                { DicomTag.WedgeAngleFloat, "3.40282347e+038" }
+            };
 
-            var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm", new Dictionary<string, string> { { "MessageGuid", "123x321" } });
+            var worklist = new ExplicitListDicomDatasetWorklist([ds], "fish.dcm", new Dictionary<string, string> { { "MessageGuid", "123x321" } });
 
             source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
@@ -165,8 +170,10 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             };
 
             //when we have a dicom file with an invalid Float number
-            var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "123Y");
+            var ds = new DicomDataset
+            {
+                { DicomTag.PatientAge, "123Y" }
+            };
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset
@@ -176,7 +183,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             ds.Add(sequence);
 
-            var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm");
+            var worklist = new ExplicitListDicomDatasetWorklist([ds], "fish.dcm");
 
             source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
@@ -208,7 +215,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                     return;
 
                 default:
-                    throw new ArgumentOutOfRangeException("dataHandlingStrategy");
+                    throw new ArgumentOutOfRangeException(nameof(dataHandlingStrategy));
             }
 
         }
@@ -239,16 +246,20 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 </TagElevationRequestCollection>");
 
             //setup the source reader
-            var source = new DicomDatasetCollectionSource();
-            source.InvalidDataHandlingStrategy = dataHandlingStrategy;
-            source.TagElevationConfigurationFile = elevationRules;
+            var source = new DicomDatasetCollectionSource
+            {
+                InvalidDataHandlingStrategy = dataHandlingStrategy,
+                TagElevationConfigurationFile = elevationRules,
 
-            //don't load the sequence, just the elevation
-            source.TagBlacklist = new Regex("AcquisitionContextSequence");
+                //don't load the sequence, just the elevation
+                TagBlacklist = new Regex("AcquisitionContextSequence")
+            };
 
             //The dataset we are trying to load
-            var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "123Y");
+            var ds = new DicomDataset
+            {
+                { DicomTag.PatientAge, "123Y" }
+            };
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset
@@ -258,7 +269,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             ds.Add(sequence);
 
-            var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm", new Dictionary<string, string> { { "MessageGuid", "123x321" } });
+            var worklist = new ExplicitListDicomDatasetWorklist([ds], "fish.dcm", new Dictionary<string, string> { { "MessageGuid", "123x321" } });
 
             source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
@@ -286,7 +297,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException("dataHandlingStrategy");
+                    throw new ArgumentOutOfRangeException(nameof(dataHandlingStrategy));
             }
 
             Assert.Multiple(() =>
@@ -302,14 +313,18 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             var repo = new MemoryCatalogueRepository();
 
             var ti = new TableInfo(repo, "MyTable");
-            new ColumnInfo(repo, "PatientAge", "varchar(100)", ti);
-            new ColumnInfo(repo, "RelFileName", "varchar(100)", ti);
+            _ = new ColumnInfo(repo, "PatientAge", "varchar(100)", ti);
+            _ = new ColumnInfo(repo, "RelFileName", "varchar(100)", ti);
 
-            var source = new DicomDatasetCollectionSource();
-            source.InvalidDataHandlingStrategy = InvalidDataHandling.ThrowException;
+            var source = new DicomDatasetCollectionSource
+            {
+                InvalidDataHandlingStrategy = InvalidDataHandling.ThrowException
+            };
 
-            var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "123Y");
+            var ds = new DicomDataset
+            {
+                { DicomTag.PatientAge, "123Y" }
+            };
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset
@@ -319,7 +334,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             ds.Add(sequence);
 
-            var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm");
+            var worklist = new ExplicitListDicomDatasetWorklist([ds], "fish.dcm");
 
             source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";
@@ -359,11 +374,15 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             lmd.LinkToCatalogue(cata2);
             cata2.SaveToDatabase();
 
-            var source = new DicomDatasetCollectionSource();
-            source.InvalidDataHandlingStrategy = InvalidDataHandling.ThrowException;
+            var source = new DicomDatasetCollectionSource
+            {
+                InvalidDataHandlingStrategy = InvalidDataHandling.ThrowException
+            };
 
-            var ds = new DicomDataset();
-            ds.Add(DicomTag.PatientAge, "123Y");
+            var ds = new DicomDataset
+            {
+                { DicomTag.PatientAge, "123Y" }
+            };
 
             var sequence = new DicomSequence(DicomTag.AcquisitionContextSequence,
                 new DicomDataset
@@ -373,7 +392,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             ds.Add(sequence);
 
-            var worklist = new ExplicitListDicomDatasetWorklist(new[] { ds }, "fish.dcm");
+            var worklist = new ExplicitListDicomDatasetWorklist([ds], "fish.dcm");
 
             source.PreInitialize(worklist, ThrowImmediatelyDataLoadEventListener.Quiet);
             source.FilenameField = "RelFileName";

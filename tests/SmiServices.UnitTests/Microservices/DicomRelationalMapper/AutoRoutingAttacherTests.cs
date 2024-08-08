@@ -18,10 +18,12 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
         {
             string filename = Path.Combine(TestContext.CurrentContext.TestDirectory, "test.dcm");
 
-            var dataset = new DicomDataset();
-            dataset.Add(DicomTag.SOPInstanceUID, "123.123.123");
-            dataset.Add(DicomTag.SOPClassUID, "123.123.123");
-            dataset.Add(new DicomAgeString(DicomTag.PatientAge, "009Y"));
+            var dataset = new DicomDataset
+            {
+                { DicomTag.SOPInstanceUID, "123.123.123" },
+                { DicomTag.SOPClassUID, "123.123.123" },
+                new DicomAgeString(DicomTag.PatientAge, "009Y")
+            };
 
             var cSharpValue = DicomTypeTranslaterReader.GetCSharpValue(dataset, DicomTag.PatientAge);
 
@@ -32,9 +34,11 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             file.Save(filename);
 
 
-            var source = new DicomFileCollectionSource();
-            source.FilenameField = "Path";
-            source.PreInitialize(new ExplicitListDicomFileWorklist(new[] { filename }), ThrowImmediatelyDataLoadEventListener.Quiet);
+            var source = new DicomFileCollectionSource
+            {
+                FilenameField = "Path"
+            };
+            source.PreInitialize(new ExplicitListDicomFileWorklist([filename]), ThrowImmediatelyDataLoadEventListener.Quiet);
 
 
             var chunk = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());

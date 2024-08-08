@@ -53,7 +53,7 @@ namespace SmiServices.Applications.Setup
         public const string Infrastructure = "Infrastructure";
         public const string Microservices = "Microservices";
 
-        public Dictionary<string, Probeable> Probes = new();
+        public Dictionary<string, Probeable> Probes = [];
 
         internal int GetExitCode()
         {
@@ -79,7 +79,7 @@ namespace SmiServices.Applications.Setup
 
         public EnvironmentProbe(string? yamlFile)
         {
-            Probes = new();
+            Probes = [];
             Add(Infrastructure, "RabbitMq", ProbeRabbitMq);
             Add(Infrastructure, "MongoDb", ProbeMongoDb);
             Add(Infrastructure, "Rdmp", ProbeRdmp);

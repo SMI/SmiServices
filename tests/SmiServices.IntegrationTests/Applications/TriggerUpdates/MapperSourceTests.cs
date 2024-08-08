@@ -8,7 +8,6 @@ using SmiServices.Applications.TriggerUpdates;
 using SmiServices.Common.Options;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,7 +39,7 @@ namespace SmiServices.UnitTests.Applications.TriggerUpdates
                 dt.Columns.Add("CHI");
                 dt.Columns.Add("ECHI");
 
-                dt.PrimaryKey = new[] { dt.Columns["CHI"]! };
+                dt.PrimaryKey = [dt.Columns["CHI"]!];
 
                 dt.Rows.Add("0101010101", "0A0A0A0A0A");
                 map = db.CreateTable("Map", dt);
@@ -62,6 +61,7 @@ namespace SmiServices.UnitTests.Applications.TriggerUpdates
                 swapper.Setup(mapperOptions);
 
                 guidTable = swapper.GetGuidTableIfAny(mapperOptions);
+#pragma warning disable NUnit2045 // Use Assert.Multiple
                 Assert.That(guidTable?.GetRowCount(), Is.EqualTo(0), "No temporary guids should exist yet");
                 Assert.That(map.GetRowCount(), Is.EqualTo(1), "We should have a mapping table with 1 entry");
 
@@ -70,6 +70,7 @@ namespace SmiServices.UnitTests.Applications.TriggerUpdates
 
                 Assert.That(map.GetRowCount(), Is.EqualTo(1), "We should have a mapping table with 1 entry");
                 Assert.That(guidTable?.GetRowCount(), Is.EqualTo(1), "We should have a temporary guid for 0202020202");
+#pragma warning restore NUnit2045 // Use Assert.Multiple
             }
             else
                 guidTable = null;

@@ -14,10 +14,9 @@ namespace SmiServices.Applications.TriggerUpdates
                 .ParseAndRun(
                     args,
                     typeof(TriggerUpdates),
-                    new[]
-                    {
+                    [
                         typeof(TriggerUpdatesFromMapperOptions),
-                    },
+                    ],
                     OnParse
                 );
             return ret;

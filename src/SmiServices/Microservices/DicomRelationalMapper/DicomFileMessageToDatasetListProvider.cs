@@ -10,7 +10,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
         private readonly List<QueuedImage> _messages;
         private int _progress;
 
-        public HashSet<QueuedImage> CorruptMessages = new();
+        public HashSet<QueuedImage> CorruptMessages = [];
 
         public DicomFileMessageToDatasetListWorklist(List<QueuedImage> messages)
         {
@@ -28,7 +28,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
 
         public DicomDataset? GetNextDatasetToProcess(out string? filename, out Dictionary<string, string> otherValuesToStoreInRow)
         {
-            otherValuesToStoreInRow = new Dictionary<string, string>();
+            otherValuesToStoreInRow = [];
 
             if (_progress >= _messages.Count)
             {

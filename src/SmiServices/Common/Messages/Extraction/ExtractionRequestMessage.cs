@@ -30,7 +30,7 @@ namespace SmiServices.Common.Messages.Extraction
         [JsonConstructor]
         public ExtractionRequestMessage()
         {
-            ExtractionIdentifiers = new List<string>();
+            ExtractionIdentifiers = [];
         }
 
         /// <summary>

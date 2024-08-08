@@ -20,7 +20,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
         private readonly MessageHeader _testHeader = new()
         {
-            Parents = new[] { Guid.NewGuid(), },
+            Parents = [Guid.NewGuid(),],
         };
 
         #region Fixture Methods 
@@ -76,11 +76,10 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             var expected = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, _testHeader, _dateTimeProvider),
                 "TestKey",
-                new HashSet<MongoExpectedFileInfoDoc>
-                {
+                [
                     new MongoExpectedFileInfoDoc(header1.MessageGuid,"AnonFile1.dcm"),
                     new MongoExpectedFileInfoDoc(header2.MessageGuid,"AnonFile2.dcm"),
-                },
+                ],
                 MongoRejectedKeyInfoDoc.FromMessage(mockMessage.Object, _testHeader, _dateTimeProvider));
 
             Assert.That(doc, Is.EqualTo(expected));
@@ -91,8 +90,8 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         {
             var expectedFiles = new HashSet<MongoExpectedFileInfoDoc>
             {
-                new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon1.dcm"),
-                new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon2.dcm"),
+                new(Guid.NewGuid(), "anon1.dcm"),
+                new(Guid.NewGuid(), "anon2.dcm"),
             };
             Guid jobId = Guid.NewGuid();
             var rejectedKeys = new MongoRejectedKeyInfoDoc(
@@ -122,8 +121,8 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         {
             var expectedFiles = new HashSet<MongoExpectedFileInfoDoc>
             {
-                new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon1.dcm"),
-                new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon2.dcm"),
+                new(Guid.NewGuid(), "anon1.dcm"),
+                new(Guid.NewGuid(), "anon2.dcm"),
             };
             Guid jobId = Guid.NewGuid();
             var rejectedKeys = new MongoRejectedKeyInfoDoc(

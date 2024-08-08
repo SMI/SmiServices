@@ -23,8 +23,8 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage
             string reason
         )
         {
-            DicomFilePath = string.IsNullOrWhiteSpace(dicomFilePath) ? throw new ArgumentException(nameof(dicomFilePath)) : dicomFilePath;
-            Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException(nameof(reason)) : reason;
+            DicomFilePath = string.IsNullOrWhiteSpace(dicomFilePath) ? throw new ArgumentException(null, nameof(dicomFilePath)) : dicomFilePath;
+            Reason = string.IsNullOrWhiteSpace(reason) ? throw new ArgumentException(null, nameof(reason)) : reason;
         }
     }
 }

@@ -53,7 +53,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 MessageGuid = guid,
                 ProducerExecutableName = "TestFromMessageHeader",
                 ProducerProcessID = 1234,
-                Parents = new[] { p1, p2 },
+                Parents = [p1, p2],
                 OriginalPublishTimestamp = unixTimeNow,
             };
 
