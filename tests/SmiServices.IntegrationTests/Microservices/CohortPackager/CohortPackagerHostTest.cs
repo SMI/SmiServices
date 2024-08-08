@@ -386,7 +386,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution
             // Assert
 
             var exc = Assert.Throws<ArgumentOutOfRangeException>(() => constructor());
-            Assert.That(exc!.Message, Is.EqualTo("Specified argument was out of the range of valid values. (Parameter 'ExtractRoot')"));
+            Assert.That(exc!.Message, Is.EqualTo("Specified argument was out of the range of valid values. (Parameter 'globals')"));
         }
 
         #endregion
