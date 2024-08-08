@@ -9,17 +9,19 @@ namespace SmiServices.Microservices.UpdateValues
 {
     public class UpdateValuesQueueConsumer : Consumer<UpdateValuesMessage>
     {
-        private Updater _updater;
+        private readonly Updater _updater;
 
         public UpdateValuesQueueConsumer(UpdateValuesOptions opts, ICatalogueRepository repo)
         {
-            _updater = new Updater(repo);
-            _updater.UpdateTimeout = opts.UpdateTimeout;
-            _updater.TableInfosToUpdate = opts.TableInfosToUpdate;
+            _updater = new Updater(repo)
+            {
+                UpdateTimeout = opts.UpdateTimeout,
+                TableInfosToUpdate = opts.TableInfosToUpdate
+            };
         }
 
         DateTime lastPerformanceAudit = new(2001, 1, 1);
-        TimeSpan auditEvery = TimeSpan.FromSeconds(60);
+        readonly TimeSpan auditEvery = TimeSpan.FromSeconds(60);
 
         protected override void ProcessMessageImpl(IMessageHeader header, UpdateValuesMessage message, ulong tag)
         {

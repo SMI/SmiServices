@@ -12,7 +12,7 @@ namespace SmiServices.Common.MessageSerialization
     /// </summary>
     public static class JsonConvert
     {
-        private static List<string> _errors = new();
+        private static List<string> _errors = [];
 
         private static readonly JsonSerializerSettings _serializerSettings = new()
         {
@@ -33,7 +33,7 @@ namespace SmiServices.Common.MessageSerialization
         /// <returns></returns>
         public static T DeserializeObject<T>(string message) where T : IMessage
         {
-            _errors = new List<string>();
+            _errors = [];
 
             var messageObj = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(message, _serializerSettings)
                 ?? throw new JsonSerializationException("Deserialized message object is null, message was empty.");

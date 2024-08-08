@@ -27,7 +27,7 @@ namespace SmiServices.Microservices.CohortExtractor
         private IReadOnlyCollection<QueryToExecuteResult> GetWhereRejected(bool isRejected)
         {
 
-            HashSet<QueryToExecuteResult> result = new();
+            HashSet<QueryToExecuteResult> result = [];
 
             foreach (HashSet<QueryToExecuteResult> v in Values)
             {

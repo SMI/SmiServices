@@ -79,7 +79,7 @@ namespace SmiServices.Common.Options
 
             foreach (PropertyInfo prop in o.GetType().GetProperties())
             {
-                if (!prop.Name.ToLower().Contains("password"))
+                if (!prop.Name.Contains("password", StringComparison.CurrentCultureIgnoreCase))
                     sb.Append(string.Format("{0}: {1}, ", prop.Name, prop.GetValue(o)));
             }
 
@@ -180,13 +180,13 @@ namespace SmiServices.Common.Options
                 throw new ArgumentException($"MappingTableName must be set");
 
             var idx = MappingTableName.LastIndexOf('.');
-            var tableNameUnqualified = MappingTableName.Substring(idx + 1);
+            var tableNameUnqualified = MappingTableName[(idx + 1)..];
 
             idx = MappingTableName.IndexOf('.');
             if (idx == -1)
                 throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
 
-            var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName.Substring(0, idx));
+            var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName[..idx]);
             if (string.IsNullOrWhiteSpace(databaseName))
                 throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
 
@@ -395,7 +395,7 @@ namespace SmiServices.Common.Options
 
         public void Validate()
         {
-            if (ModalitySpecificRejectors != null && ModalitySpecificRejectors.Any() && string.IsNullOrWhiteSpace(ModalityRoutingRegex))
+            if (ModalitySpecificRejectors != null && ModalitySpecificRejectors.Length != 0 && string.IsNullOrWhiteSpace(ModalityRoutingRegex))
             {
                 throw new Exception("ModalitySpecificRejectors requires providing a ModalityRoutingRegex");
             }
@@ -416,7 +416,7 @@ namespace SmiServices.Common.Options
         /// <summary>
         /// IDs of TableInfos that should be updated
         /// </summary>
-        public int[] TableInfosToUpdate { get; set; } = Array.Empty<int>();
+        public int[] TableInfosToUpdate { get; set; } = [];
 
     }
 

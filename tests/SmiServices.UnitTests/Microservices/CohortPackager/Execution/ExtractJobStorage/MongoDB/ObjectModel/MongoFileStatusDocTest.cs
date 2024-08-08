@@ -18,7 +18,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
         private readonly MessageHeader _messageHeader = new()
         {
-            Parents = new[] { Guid.NewGuid(), },
+            Parents = [Guid.NewGuid(),],
         };
 
         #region Fixture Methods 
@@ -38,7 +38,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [TearDown]
         public void TearDown() { }
 
-        private void AssertDocsEqualExceptHeader(MongoFileStatusDoc expected, MongoFileStatusDoc actual)
+        private static void AssertDocsEqualExceptHeader(MongoFileStatusDoc expected, MongoFileStatusDoc actual)
         {
             actual.ExtraElements = null;
 

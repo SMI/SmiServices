@@ -27,7 +27,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage
             Dictionary<string, int> rejectionItems
         )
         {
-            ExtractionIdentifier = string.IsNullOrWhiteSpace(keyValue) ? throw new ArgumentException(nameof(keyValue)) : keyValue;
+            ExtractionIdentifier = string.IsNullOrWhiteSpace(keyValue) ? throw new ArgumentException(null, nameof(keyValue)) : keyValue;
 
             CheckRejectionDict(rejectionItems);
             RejectionItems = rejectionItems;

@@ -104,8 +104,8 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage
         /// <returns></returns>
         public string ProjectExtractionDir()
         {
-            int idx = ExtractionDirectory.LastIndexOfAny(new[] { '/', '\\' });
-            return ExtractionDirectory.Substring(0, idx);
+            int idx = ExtractionDirectory.LastIndexOfAny(['/', '\\']);
+            return ExtractionDirectory[..idx];
         }
 
         [ExcludeFromCodeCoverage]

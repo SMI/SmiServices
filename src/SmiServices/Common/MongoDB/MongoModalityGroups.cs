@@ -13,7 +13,7 @@ namespace SmiServices.Common.MongoDB
         /// Modalities which are grouped into their own collections in MongoDB
         /// </summary>
         public static readonly string[] MajorModalities =
-        {
+        [
             "CR",
             "CT",
             "DX",
@@ -27,7 +27,7 @@ namespace SmiServices.Common.MongoDB
             "SR",
             "US",
             "XA",
-        };
+        ];
 
         /// <summary>
         /// Splits a collection of Dicom Bson documents into groups determined by their Modality.
@@ -44,7 +44,7 @@ namespace SmiServices.Common.MongoDB
 
             foreach (IGrouping<string, BsonDocument> grouping in areInvalid[false].GroupBy(x => x["Modality"].AsString))
             {
-                List<BsonDocument> groupDocs = grouping.ToList();
+                List<BsonDocument> groupDocs = [.. grouping];
 
                 if (MajorModalities.Contains(grouping.Key))
                     yield return new Tuple<string, List<BsonDocument>>(grouping.Key, groupDocs);

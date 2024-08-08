@@ -97,7 +97,7 @@ namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Process
             var testAdapter = new MongoDbAdapter("TestSeriesDocumentFormat", options.MongoDatabases!.DicomStoreOptions!, collectionName);
 
             var callbackUsed = false;
-            Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
+            void exceptionCallback(Exception exception) { callbackUsed = true; }
 
             var processor = new SeriesMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback)
             {

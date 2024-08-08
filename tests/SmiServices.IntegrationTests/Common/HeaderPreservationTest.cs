@@ -30,7 +30,7 @@ namespace SmiServices.UnitTests.Common
             var header = new MessageHeader
             {
                 MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76"),
-                Parents = new[] { Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76") },
+                Parents = [Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76")],
             };
 
             tester.SendMessage(consumerOptions, header, new TestMessage { Message = "hi" });

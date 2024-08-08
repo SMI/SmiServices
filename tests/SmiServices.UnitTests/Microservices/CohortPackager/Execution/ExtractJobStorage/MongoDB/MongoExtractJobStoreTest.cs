@@ -52,7 +52,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             {
                 if (name == ExtractionDatabaseName)
                     return ExtractionDatabase;
-                throw new ArgumentException(nameof(name));
+                throw new ArgumentException(null, nameof(name));
             }
 
             // NOTE(rkm 2020-03-10) We don't actually implement transaction rollback as we only need to be able to start with a fresh collection for each test
@@ -66,8 +66,8 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         {
             public readonly MockExtractCollection<Guid, MongoExtractJobDoc> InProgressCollection = new();
             public readonly MockExtractCollection<Guid, MongoCompletedExtractJobDoc> CompletedJobCollection = new();
-            public readonly Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>> ExpectedFilesCollections = new();
-            public readonly Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>> StatusCollections = new();
+            public readonly Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>> ExpectedFilesCollections = [];
+            public readonly Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>> StatusCollections = [];
 
             public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings? settings = null)
             {
@@ -118,7 +118,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         /// <typeparam name="TVal"></typeparam>
         private sealed class MockExtractCollection<TKey, TVal> : StubMongoCollection<TKey, TVal> where TKey : struct
         {
-            public readonly Dictionary<TKey, TVal> Documents = new();
+            public readonly Dictionary<TKey, TVal> Documents = [];
 
             public bool RejectChanges { get; set; }
 
@@ -134,9 +134,11 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
                 if (filter == FilterDefinition<TVal>.Empty)
                 {
+#pragma warning disable IDE0305 // Simplify collection initialization
                     mockCursor
                         .Setup(x => x.Current)
                         .Returns((IEnumerable<TProjection>)Documents.Values.ToList());
+#pragma warning restore IDE0305 // Simplify collection initialization
                     return mockCursor.Object;
                 }
 
@@ -144,11 +146,13 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
                 TKey key = GetKey(rendered["_id"]);
 
-                if (Documents.ContainsKey(key))
+                if (Documents.TryGetValue(key, out TVal? value))
                 {
+#pragma warning disable IDE0028 // Simplify collection initialization
                     mockCursor
                         .Setup(x => x.Current)
                         .Returns((IEnumerable<TProjection>)new List<TVal> { Documents[key] });
+#pragma warning restore IDE0028 // Simplify collection initialization
                     return mockCursor.Object;
                 }
 
@@ -242,7 +246,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             {
                 MessageGuid = Guid.NewGuid(),
                 OriginalPublishTimestamp = MessageHeader.UnixTime(_dateTimeProvider.UtcNow()),
-                Parents = new[] { Guid.NewGuid(), },
+                Parents = [Guid.NewGuid(),],
                 ProducerExecutableName = "MongoExtractStoreTests",
                 ProducerProcessID = 1234,
             };
@@ -316,7 +320,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
             // Act
 
-            var call = () => store.PersistMessageToStore(testExtractionRequestInfoMessage, new MessageHeader());
+            void call() => store.PersistMessageToStore(testExtractionRequestInfoMessage, new MessageHeader());
 
             // Assert
 
@@ -352,7 +356,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             {
                 MessageGuid = Guid.NewGuid(),
                 OriginalPublishTimestamp = MessageHeader.UnixTimeNow(),
-                Parents = new[] { Guid.NewGuid(), },
+                Parents = [Guid.NewGuid(),],
                 ProducerExecutableName = "MongoExtractStoreTests",
                 ProducerProcessID = 1234,
             };
@@ -369,11 +373,10 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             var expected = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
                 "series-1",
-                new HashSet<MongoExpectedFileInfoDoc>
-                {
+                [
                     new MongoExpectedFileInfoDoc(header1.MessageGuid, "file1"),
                     new MongoExpectedFileInfoDoc(header2.MessageGuid, "file2"),
-                },
+                ],
                 new MongoRejectedKeyInfoDoc(
                     MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, header, _dateTimeProvider),
                     new Dictionary<string, int>
@@ -400,14 +403,14 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 },
                 JobSubmittedAt = DateTime.UtcNow,
                 ExtractionDirectory = "1234-5678/testExtract",
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(), // No files were extractable for this key
+                ExtractFileMessagesDispatched = [], // No files were extractable for this key
                 KeyValue = "series-1",
             };
             var header = new MessageHeader
             {
                 MessageGuid = Guid.NewGuid(),
                 OriginalPublishTimestamp = MessageHeader.UnixTimeNow(),
-                Parents = new[] { Guid.NewGuid(), },
+                Parents = [Guid.NewGuid(),],
                 ProducerExecutableName = "MongoExtractStoreTests",
                 ProducerProcessID = 1234,
             };
@@ -490,7 +493,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
             // Act
 
-            var call = () => store.PersistMessageToStore(extractedFileStatusMessage, new MessageHeader());
+            void call() => store.PersistMessageToStore(extractedFileStatusMessage, new MessageHeader());
 
             // Assert
 
@@ -557,13 +560,12 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
                 "1.2.3.4",
-                new HashSet<MongoExpectedFileInfoDoc>
-                {
+                [
                     new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon1.dcm"),
-                },
+                ],
                 new MongoRejectedKeyInfoDoc(
                     MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
-                    new Dictionary<string, int>())
+                    [])
             );
             var testMongoFileStatusDoc = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -642,13 +644,12 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
                 "1.2.3.4",
-                new HashSet<MongoExpectedFileInfoDoc>
-                {
+                [
                     new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon1.dcm"),
-                },
+                ],
                 new MongoRejectedKeyInfoDoc(
                     MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
-                    new Dictionary<string, int>())
+                    [])
                 );
             var testMongoFileStatusDoc = new MongoFileStatusDoc(
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),

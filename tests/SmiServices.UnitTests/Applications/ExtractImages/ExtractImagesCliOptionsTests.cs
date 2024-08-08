@@ -57,8 +57,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                     .WithNotParsed(errors => Assert.Fail(string.Join(',', errors)));
             }
 
-            Verify(new[] { "-p", "1234-5678", "-c", "foo.csv" }, null, false, false);
-            Verify(new[] { "-p", "1234-5678", "-c", "foo.csv", "-m", "CT", "-i", "-f" }, "CT", true, true);
+            Verify(["-p", "1234-5678", "-c", "foo.csv"], null, false, false);
+            Verify(["-p", "1234-5678", "-c", "foo.csv", "-m", "CT", "-i", "-f"], "CT", true, true);
         }
 
         #endregion

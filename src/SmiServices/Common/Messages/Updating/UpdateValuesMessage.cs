@@ -16,27 +16,27 @@ namespace SmiServices.Common.Messages.Updating
         /// <summary>
         /// The field(s) to search the database for (this should be the human readable name without qualifiers as it may match multiple tables e.g. ECHI)
         /// </summary>
-        public string?[] WhereFields { get; set; } = Array.Empty<string>();
+        public string?[] WhereFields { get; set; } = [];
 
         /// <summary>
         /// The values to search for when deciding which records to update
         /// </summary>
-        public string?[] HaveValues { get; set; } = Array.Empty<string>();
+        public string?[] HaveValues { get; set; } = [];
 
         /// <summary>
         /// The field(s) which should be updated, may be the same as the <see cref="WhereFields"/>
         /// </summary>
-        public string[] WriteIntoFields { get; set; } = Array.Empty<string>();
+        public string[] WriteIntoFields { get; set; } = [];
 
         /// <summary>
         /// The values to write into matching records (see <see cref="WriteIntoFields"/>).  Null elements in this array should be treated as <see cref="DBNull.Value"/>
         /// </summary>
-        public string[] Values { get; set; } = Array.Empty<string>();
+        public string[] Values { get; set; } = [];
 
         /// <summary>
         /// Optional.  Where present indicates the tables which should be updated.  If empty then all tables matching the fields should be updated
         /// </summary>
-        public int[] ExplicitTableInfo { get; set; } = Array.Empty<int>();
+        public int[] ExplicitTableInfo { get; set; } = [];
 
         public void Validate()
         {

@@ -57,7 +57,7 @@ namespace SmiServices.Common
         private static void VerifyCanWrite(string logsRoot)
         {
             string[] tmpFileParts = Path.GetTempFileName().Split(Path.DirectorySeparatorChar);
-            string tmpFileInLogsRoot = Path.Combine(logsRoot, tmpFileParts[tmpFileParts.Length - 1]);
+            string tmpFileInLogsRoot = Path.Combine(logsRoot, tmpFileParts[^1]);
             try
             {
                 File.WriteAllText(tmpFileInLogsRoot, "");

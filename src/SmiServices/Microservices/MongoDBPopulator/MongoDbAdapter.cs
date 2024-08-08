@@ -31,7 +31,7 @@ namespace SmiServices.Microservices.MongoDBPopulator
         public MongoDbAdapter(string applicationName, MongoDbOptions mongoDbOptions, string defaultCollectionName)
         {
             if (string.IsNullOrWhiteSpace(defaultCollectionName))
-                throw new ArgumentException("defaultCollectionName");
+                throw new ArgumentException(null, nameof(defaultCollectionName));
 
             _logger.Debug("MongoDbAdapter: Creating connection to MongoDb on " + mongoDbOptions.HostName + ":" + mongoDbOptions.Port);
 

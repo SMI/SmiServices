@@ -15,7 +15,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.MongoDB;
 using SmiServices.Common.Options;
 using SmiServices.IntegrationTests;
-using SmiServices.UnitTests.Common;
 using SmiServices.UnitTests.Microservices.DicomRelationalMapper;
 using SynthEHR;
 using System;
@@ -97,8 +96,8 @@ public class DicomLoaderTests : DatabaseTests
         var files = string.Join('\0', fileNames);
         using var fileList = new MemoryStream(Encoding.UTF8.GetBytes(files));
         typeof(SmiServices.Applications.DicomLoader.DicomLoader).GetMethod("OnParse", BindingFlags.NonPublic | BindingFlags.Static,
-                new[] { typeof(GlobalOptions), typeof(DicomLoaderOptions), typeof(Stream) })!
-            .Invoke(null, new object[] { _gOptions, new DicomLoaderOptions() { LoadSql = true }, fileList });
+                [typeof(GlobalOptions), typeof(DicomLoaderOptions), typeof(Stream)])!
+            .Invoke(null, [_gOptions, new DicomLoaderOptions() { LoadSql = true }, fileList]);
         Assert.Multiple(() =>
         {
             //Program.OnParse(_gOptions,_dOptions,fileList);

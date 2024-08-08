@@ -15,7 +15,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
         ) : base(extractJobDoc)
         {
             JobStatus = ExtractJobStatus.Completed;
-            CompletedAt = completedAt != default ? completedAt : throw new ArgumentException(nameof(completedAt));
+            CompletedAt = completedAt != default ? completedAt : throw new ArgumentException(null, nameof(completedAt));
         }
     }
 }

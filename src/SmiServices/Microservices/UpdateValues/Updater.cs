@@ -23,9 +23,9 @@ namespace SmiServices.Microservices.UpdateValues
         /// <summary>
         /// List of IDs of <see cref="TableInfo"/> that should be examined for update potential.  If blank/empty then all tables will be considered.
         /// </summary>
-        public int[] TableInfosToUpdate { get; internal set; } = Array.Empty<int>();
+        public int[] TableInfosToUpdate { get; internal set; } = [];
 
-        ConcurrentDictionary<DiscoveredTable, UpdateTableAudit> _audits { get; } = new ConcurrentDictionary<DiscoveredTable, UpdateTableAudit>();
+        private readonly ConcurrentDictionary<DiscoveredTable, UpdateTableAudit> _audits = new();
 
         public Updater(ICatalogueRepository repository)
         {
@@ -125,7 +125,7 @@ namespace SmiServices.Microservices.UpdateValues
         /// <param name="value">RHS argument, if null then string literal "null" is used</param>
         /// <param name="op">The SQL operator to use, if null "=" is used</param>
         /// <returns></returns>
-        protected string GetFieldEqualsValueExpression(DiscoveredColumn col, string value, string? op)
+        protected static string GetFieldEqualsValueExpression(DiscoveredColumn col, string value, string? op)
         {
             StringBuilder builder = new();
 
@@ -147,7 +147,7 @@ namespace SmiServices.Microservices.UpdateValues
         protected virtual IEnumerable<TableInfo> GetAllTables(string?[] fields)
         {
             //the tables we should consider
-            var tables = TableInfosToUpdate.Any() ?
+            var tables = TableInfosToUpdate.Length != 0 ?
                             _repository.GetAllObjectsInIDList<TableInfo>(TableInfosToUpdate) :
                             _repository.GetAllObjects<TableInfo>();
 

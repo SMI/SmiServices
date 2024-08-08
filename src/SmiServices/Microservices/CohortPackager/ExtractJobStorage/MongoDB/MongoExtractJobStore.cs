@@ -32,7 +32,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB
         private readonly DateTimeProvider _dateTimeProvider;
 
         private readonly object _writeQueueLock = new();
-        private readonly Dictionary<string, List<VerificationMessageProcessItem>> _verificationStatusWriteQueue = new();
+        private readonly Dictionary<string, List<VerificationMessageProcessItem>> _verificationStatusWriteQueue = [];
         private readonly ConcurrentQueue<Tuple<IMessageHeader, ulong>> _processedVerificationMessages = new();
         public override ConcurrentQueue<Tuple<IMessageHeader, ulong>> ProcessedVerificationMessages => _processedVerificationMessages;
 
@@ -62,7 +62,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB
             {
                 foreach (var (collectionName, processItemList) in _verificationStatusWriteQueue)
                 {
-                    if (!processItemList.Any())
+                    if (processItemList.Count == 0)
                         continue;
 
                     Logger.Debug($"InsertMany for {collectionName} with {processItemList.Count} item(s)");
@@ -322,11 +322,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB
             MongoCompletedExtractJobDoc jobDoc =
                 _completedJobCollection
                 .FindSync(Builders<MongoCompletedExtractJobDoc>.Filter.Eq(x => x.ExtractionJobIdentifier, jobId))
-                .SingleOrDefault();
-
-            if (jobDoc == null)
-                throw new ApplicationException($"No completed document for job {jobId}");
-
+                .SingleOrDefault() ?? throw new ApplicationException($"No completed document for job {jobId}");
             return jobDoc.ToExtractJobInfo();
         }
 
@@ -393,7 +389,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB
             lock (_writeQueueLock)
             {
                 if (!_verificationStatusWriteQueue.ContainsKey(statusCollName))
-                    _verificationStatusWriteQueue.Add(statusCollName, new());
+                    _verificationStatusWriteQueue.Add(statusCollName, []);
 
                 _verificationStatusWriteQueue[statusCollName].Add(new(statusDoc, header, tag));
             }

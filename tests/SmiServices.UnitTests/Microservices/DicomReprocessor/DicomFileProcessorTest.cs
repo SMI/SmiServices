@@ -38,7 +38,7 @@ namespace SmiServices.UnitTests.Microservices.DicomReprocessor
         [Test]
         public void ProcessDocument_NationalPacsAccessionNumber_IsIgnored()
         {
-            var processor = new DicomFileProcessor(new DicomReprocessorOptions(), Mock.Of<IProducerModel>(), "");
+            var processor = new DicomFileProcessor(Mock.Of<IProducerModel>(), "");
 
             var msg = new DicomFileMessage
             {
@@ -47,7 +47,7 @@ namespace SmiServices.UnitTests.Microservices.DicomReprocessor
             };
             BsonDocument bsonHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, new MessageHeader());
             bsonHeader.Add("NationalPACSAccessionNumber", "foo");
-            BsonDocument datasetDoc = DicomTypeTranslaterReader.BuildBsonDocument(new DicomDataset());
+            BsonDocument datasetDoc = DicomTypeTranslaterReader.BuildBsonDocument([]);
 
             BsonDocument document = new BsonDocument()
                 .Add("_id", "foo")

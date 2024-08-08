@@ -11,17 +11,17 @@ namespace SmiServices
     public static class Program
     {
         public static readonly Type[] AllApplications =
-        {
+        [
             typeof(DicomLoaderVerb),
             typeof(DicomDirectoryProcessorVerb),
             typeof(ExtractImagesVerb),
             typeof(TriggerUpdatesVerb),
             typeof(SetupVerb),
             typeof(DynamicRulesTesterVerb),
-        };
+        ];
 
         public static readonly Type[] AllServices =
-        {
+        [
             typeof(CohortExtractorVerb),
             typeof(DicomAnonymiserVerb),
             typeof(CohortPackagerVerb),
@@ -33,7 +33,7 @@ namespace SmiServices
             typeof(IsIdentifiableVerb),
             typeof(MongoDbPopulatorVerb),
             typeof(UpdateValuesVerb),
-        };
+        ];
 
         public static int Main(string[] args)
         {
@@ -48,7 +48,7 @@ namespace SmiServices
             {
                 res = SmiCliInit.ParseServiceVerbAndRun(
                     args.Take(1),
-                    allTypes.ToArray(),
+                    [.. allTypes],
                     service =>
                     {
                         // TODO(rkm 2021-02-26) Probably want to test that every case is covered here

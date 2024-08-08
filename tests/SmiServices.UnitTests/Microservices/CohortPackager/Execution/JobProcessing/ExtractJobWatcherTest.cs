@@ -86,27 +86,27 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.JobProces
             var watcher = new ExtractJobWatcher(opts, mockJobStore.Object, mockCallback, testNotifier, testReporter);
 
             // Check that we can call ProcessJobs with no Guid to process all jobs
-            mockJobStore.Setup(x => x.GetReadyJobs(default(Guid))).Returns(new List<ExtractJobInfo>());
+            mockJobStore.Setup(x => x.GetReadyJobs(default)).Returns([]);
             watcher.ProcessJobs();
             mockJobStore.Verify();
 
             // Check that we MarkJobFailed for known exceptions
             mockJobStore.Reset();
-            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
+            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns([testJobInfo]);
             mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new ApplicationException("aah"));
             watcher.ProcessJobs(jobId);
             mockJobStore.Verify(x => x.MarkJobFailed(jobId, It.IsAny<ApplicationException>()), Times.Once);
 
             // Check that we call the exception callback for unhandled exceptions
             mockJobStore.Reset();
-            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
+            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns([testJobInfo]);
             mockJobStore.Setup(x => x.MarkJobCompleted(It.IsAny<Guid>())).Throws(new Exception("aah"));
             watcher.ProcessJobs(jobId);
             Assert.That(callbackUsed, Is.True);
 
             // Check happy path
             mockJobStore.Reset();
-            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns(new List<ExtractJobInfo> { testJobInfo });
+            mockJobStore.Setup(x => x.GetReadyJobs(It.IsAny<Guid>())).Returns([testJobInfo]);
             testNotifier.Notified = false;
             watcher.ProcessJobs(jobId);
             Assert.Multiple(() =>

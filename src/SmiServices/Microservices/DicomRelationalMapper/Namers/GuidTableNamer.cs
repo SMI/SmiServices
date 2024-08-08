@@ -24,7 +24,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper.Namers
             _guid = explicitGuid == Guid.Empty ? Guid.NewGuid().ToString("N") : explicitGuid.ToString();
 
             //MySql can't handle long table names
-            _guid = _guid.Substring(0, 8);
+            _guid = _guid[..8];
         }
 
         public override string GetName(string tableName, LoadBubble convention)

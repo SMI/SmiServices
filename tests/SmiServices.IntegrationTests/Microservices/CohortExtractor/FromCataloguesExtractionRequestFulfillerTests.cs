@@ -55,18 +55,18 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             var tbl = db.CreateTable("FromCataloguesExtractionRequestFulfillerTests", dt);
             var catalogue = Import(tbl);
 
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
 
             var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
-                ExtractionIdentifiers = new List<string>(new string[] { "123" }),
+                ExtractionIdentifiers = new List<string>(["123"]),
             }, new NullAuditExtractions()).ToArray();
 
             Assert.That(matching, Has.Length.EqualTo(1));
             Assert.Multiple(() =>
             {
-                Assert.That(matching[0].Accepted.Count(), Is.EqualTo(2));
+                Assert.That(matching[0].Accepted, Has.Count.EqualTo(2));
                 Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/1.dcm")), Is.EqualTo(1));
                 Assert.That(matching[0].Accepted.Count(f => f.FilePathValue.Equals("/images/2.dcm")), Is.EqualTo(1));
             });
@@ -94,16 +94,18 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             var catalogue = Import(tbl);
 
             var ei = catalogue.GetAllExtractionInformation(ExtractionCategory.Any).First();
-            var filter = new ExtractionFilter(CatalogueRepository, "Extractable only", ei);
-            filter.IsMandatory = true;
-            filter.WhereSQL = "Extractable = 1";
+            var filter = new ExtractionFilter(CatalogueRepository, "Extractable only", ei)
+            {
+                IsMandatory = true,
+                WhereSQL = "Extractable = 1"
+            };
             filter.SaveToDatabase();
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
 
             var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
-                ExtractionIdentifiers = new List<string>(new string[] { "123" }),
+                ExtractionIdentifiers = new List<string>(["123"]),
             }, new NullAuditExtractions()).ToArray();
 
             Assert.That(matching, Has.Length.EqualTo(1));
@@ -135,12 +137,12 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             var tbl = db.CreateTable("FromCataloguesExtractionRequestFulfillerTests", dt);
             var catalogue = Import(tbl);
 
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
 
             var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
-                ExtractionIdentifiers = new List<string>(new string[] { "123.1" }),
+                ExtractionIdentifiers = new List<string>(["123.1"]),
             }, new NullAuditExtractions()).ToArray();
 
             Assert.That(matching, Has.Length.EqualTo(1));
@@ -176,16 +178,18 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             var catalogue = Import(tbl);
 
             var ei = catalogue.GetAllExtractionInformation(ExtractionCategory.Any).First();
-            var filter = new ExtractionFilter(CatalogueRepository, "Extractable only", ei);
-            filter.IsMandatory = true;
-            filter.WhereSQL = "Extractable = 1";
+            var filter = new ExtractionFilter(CatalogueRepository, "Extractable only", ei)
+            {
+                IsMandatory = true,
+                WhereSQL = "Extractable = 1"
+            };
             filter.SaveToDatabase();
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
 
             var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
-                ExtractionIdentifiers = new List<string>(new string[] { "123.1" }),
+                ExtractionIdentifiers = new List<string>(["123.1"]),
             }, new NullAuditExtractions()).ToArray();
 
             Assert.That(matching, Has.Length.EqualTo(1));
@@ -218,13 +222,13 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                 WhereSQL = "Extractable = 1"
             };
             filter.SaveToDatabase();
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller(new[] { catalogue });
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
             fulfiller.Rejectors.Add(new RejectAll());
 
             var message = new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
-                ExtractionIdentifiers = new List<string>(new[] { "123.1" }),
+                ExtractionIdentifiers = new List<string>(["123.1"]),
                 IsNoFilterExtraction = isNoFiltersExtraction,
             };
 

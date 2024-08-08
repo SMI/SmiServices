@@ -41,7 +41,7 @@ namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Process
             var mockAdapter = Mock.Of<IMongoDbAdapter>();
 
             var callbackUsed = false;
-            Action<Exception> exceptionCallback = (exception) => { callbackUsed = true; };
+            void exceptionCallback(Exception exception) { callbackUsed = true; }
 
             _helper.Globals.MongoDbPopulatorOptions!.MongoDbFlushTime = 1;
 

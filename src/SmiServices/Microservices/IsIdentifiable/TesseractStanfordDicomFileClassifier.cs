@@ -11,7 +11,7 @@ namespace SmiServices.Microservices.IsIdentifiable
 {
     public class TesseractStanfordDicomFileClassifier : Classifier, IDisposable
     {
-        private DicomFileRunner _runner;
+        private readonly DicomFileRunner _runner;
 
         //public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
         public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions fileOptions) : base(dataDirectory)
@@ -43,6 +43,7 @@ namespace SmiServices.Microservices.IsIdentifiable
         public void Dispose()
         {
             _runner?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

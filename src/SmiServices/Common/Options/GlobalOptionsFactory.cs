@@ -7,7 +7,7 @@ namespace SmiServices.Common.Options
 {
     public class GlobalOptionsFactory
     {
-        private readonly List<IOptionsDecorator> _decorators = new();
+        private readonly List<IOptionsDecorator> _decorators = [];
 
         /// <summary>
         /// Create a GlobalOptionsFactory with the given set of <see cref="IOptionsDecorator"/>s. Adds a single <see cref="EnvironmentVariableDecorator"/> by default if passed a null value.
@@ -84,7 +84,7 @@ namespace SmiServices.Common.Options
             var opts = arg == typeof(GlobalOptions) ?
                 new GlobalOptions() :
                 Activator.CreateInstance(arg);
-            return opts ?? throw new ArgumentException(nameof(arg));
+            return opts ?? throw new ArgumentException(null, nameof(arg));
         }
     }
 }

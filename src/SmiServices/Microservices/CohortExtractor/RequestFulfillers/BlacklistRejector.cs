@@ -40,10 +40,11 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             var memory = new MemoryCatalogueRepository();
 
             //builds SQL we will run in lookup stage
-            _queryBuilder = new QueryBuilder(null, null);
-
-            //all we care about is if the uid appears if it does then we are rejecting it
-            _queryBuilder.TopX = 1;
+            _queryBuilder = new QueryBuilder(null, null)
+            {
+                //all we care about is if the uid appears if it does then we are rejecting it
+                TopX = 1
+            };
 
             //Filter is OR i.e. StudyInstanceUID = @StudyInstanceUID OR SeriesInstanceUID = @SeriesInstanceUID
             var container = _queryBuilder.RootFilterContainer = new SpontaneouslyInventedFilterContainer(memory, null, null, FilterContainerOperation.OR);
@@ -84,7 +85,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             }
 
             // Make sure the query builder looks valid
-            if (!_queryBuilder.SelectColumns.Any())
+            if (_queryBuilder.SelectColumns.Count == 0)
                 throw new NotSupportedException($"Blacklist Catalogue {_catalogue} (ID={_catalogue.ID}) did not have any Core ExtractionInformation columns corresponding to any of the image UID tags (e.g. StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID).");
 
             try

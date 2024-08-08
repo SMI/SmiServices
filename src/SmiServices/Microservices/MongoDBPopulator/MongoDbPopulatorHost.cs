@@ -12,7 +12,7 @@ namespace SmiServices.Microservices.MongoDBPopulator
     /// </summary>
     public class MongoDbPopulatorHost : MicroserviceHost
     {
-        public readonly List<IMongoDbPopulatorMessageConsumer> Consumers = new();
+        public readonly List<IMongoDbPopulatorMessageConsumer> Consumers = [];
 
 
         public MongoDbPopulatorHost(GlobalOptions options)
@@ -21,7 +21,7 @@ namespace SmiServices.Microservices.MongoDBPopulator
             Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases!.DicomStoreOptions!, options.MongoDbPopulatorOptions!, options.MongoDbPopulatorOptions!.SeriesQueueConsumerOptions!));
             Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions!, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions!));
 
-            if (!Consumers.Any())
+            if (Consumers.Count == 0)
                 throw new ArgumentException("No consumers created from the given options");
         }
 

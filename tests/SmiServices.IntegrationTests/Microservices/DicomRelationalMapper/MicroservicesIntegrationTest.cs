@@ -122,7 +122,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
+            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             RunTest(dir, 1);
         }
@@ -159,7 +159,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
+            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
 
             try
             {
@@ -206,7 +206,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
+            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
 
             try
             {
@@ -267,12 +267,12 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             arg3.SaveToDatabase();
 
             //build the joins
-            new JoinInfo(CatalogueRepository,
+            _ = new JoinInfo(CatalogueRepository,
                 _helper.ImageTableInfo!.ColumnInfos.Single(c => c.GetRuntimeName().Equals("SeriesInstanceUID")),
                 _helper.SeriesTableInfo!.ColumnInfos.Single(c => c.GetRuntimeName().Equals("SeriesInstanceUID")),
                 ExtractionJoinType.Right, null);
 
-            new JoinInfo(CatalogueRepository,
+            _ = new JoinInfo(CatalogueRepository,
                 _helper.SeriesTableInfo.ColumnInfos.Single(c => c.GetRuntimeName().Equals("StudyInstanceUID")),
                 _helper.StudyTableInfo!.ColumnInfos.Single(c => c.GetRuntimeName().Equals("StudyInstanceUID")),
                 ExtractionJoinType.Right, null);
@@ -285,27 +285,31 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
+            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
-            var ds1 = new DicomDataset();
-            ds1.Add(DicomTag.StudyInstanceUID, "1.2.3");
-            ds1.Add(DicomTag.SeriesInstanceUID, "1.2.2");
-            ds1.Add(DicomTag.SOPInstanceUID, "1.2.3");
-            ds1.Add(DicomTag.PatientAge, "030Y");
-            ds1.Add(DicomTag.PatientID, "123");
-            ds1.Add(DicomTag.SOPClassUID, "1");
-            ds1.Add(DicomTag.Modality, "MR");
+            var ds1 = new DicomDataset
+            {
+                { DicomTag.StudyInstanceUID, "1.2.3" },
+                { DicomTag.SeriesInstanceUID, "1.2.2" },
+                { DicomTag.SOPInstanceUID, "1.2.3" },
+                { DicomTag.PatientAge, "030Y" },
+                { DicomTag.PatientID, "123" },
+                { DicomTag.SOPClassUID, "1" },
+                { DicomTag.Modality, "MR" }
+            };
 
             new DicomFile(ds1).Save(Path.Combine(dir.FullName, "abc.dcm"));
 
-            var ds2 = new DicomDataset();
-            ds2.Add(DicomTag.StudyInstanceUID, "1.2.3");
-            ds2.Add(DicomTag.SeriesInstanceUID, "1.2.4");
-            ds2.Add(DicomTag.SOPInstanceUID, "1.2.7");
-            ds2.Add(DicomTag.PatientAge, "040Y"); //age is replicated but should be unique at study level so gets isolated
-            ds2.Add(DicomTag.PatientID, "123");
-            ds2.Add(DicomTag.SOPClassUID, "1");
-            ds2.Add(DicomTag.Modality, "MR");
+            var ds2 = new DicomDataset
+            {
+                { DicomTag.StudyInstanceUID, "1.2.3" },
+                { DicomTag.SeriesInstanceUID, "1.2.4" },
+                { DicomTag.SOPInstanceUID, "1.2.7" },
+                { DicomTag.PatientAge, "040Y" }, //age is replicated but should be unique at study level so gets isolated
+                { DicomTag.PatientID, "123" },
+                { DicomTag.SOPClassUID, "1" },
+                { DicomTag.Modality, "MR" }
+            };
 
             new DicomFile(ds2).Save(Path.Combine(dir.FullName, "def.dcm"));
 
@@ -375,7 +379,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            TestData.Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
+            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             RunTest(dir, 1);
 
@@ -567,7 +571,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                 KeyTag = "SeriesInstanceUID",
             };
 
-            foreach (var row in _helper.ImageTable?.GetDataTable().Rows.Cast<DataRow>() ?? Array.Empty<DataRow>())
+            foreach (var row in _helper.ImageTable?.GetDataTable().Rows.Cast<DataRow>() ?? [])
             {
                 var seriesId = (string)row["SeriesInstanceUID"];
 
@@ -588,7 +592,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             #endregion
         }
 
-        private void DropMongoTestDb(string mongoDbHostName, int mongoDbHostPort)
+        private static void DropMongoTestDb(string mongoDbHostName, int mongoDbHostPort)
         {
             new MongoClient(new MongoClientSettings { Server = new MongoServerAddress(mongoDbHostName, mongoDbHostPort) }).DropDatabase(MongoTestDbName);
         }

@@ -43,7 +43,7 @@ namespace SmiServices.IntegrationTests
                 string msg = $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
 
                 // NOTE(rkm 2021-01-30) Don't fail for Windows CI builds
-                bool shouldFail = FailIfUnavailable && !Environment.OSVersion.ToString().ToLower().Contains("windows");
+                bool shouldFail = FailIfUnavailable && !Environment.OSVersion.ToString().Contains("windows", StringComparison.CurrentCultureIgnoreCase);
 
                 if (shouldFail)
                     Assert.Fail(msg);

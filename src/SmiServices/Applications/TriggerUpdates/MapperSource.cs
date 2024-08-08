@@ -18,9 +18,9 @@ namespace SmiServices.Applications.TriggerUpdates
 {
     public class MapperSource : ITriggerUpdatesSource
     {
-        private ISwapIdentifiers _swapper;
-        private TriggerUpdatesFromMapperOptions _cliOptions;
-        private GlobalOptions _globalOptions;
+        private readonly ISwapIdentifiers _swapper;
+        private readonly TriggerUpdatesFromMapperOptions _cliOptions;
+        private readonly GlobalOptions _globalOptions;
 
         protected readonly CancellationTokenSource TokenSource = new();
         protected readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -126,11 +126,11 @@ namespace SmiServices.Applications.TriggerUpdates
                             // table swap value (e.g. ECHI) is updated to the new one in the live table
                             yield return new UpdateValuesMessage
                             {
-                                WhereFields = new[] { liveDatabaseFieldName ?? forCol },
-                                HaveValues = new[] { Qualify(oldForColValue) },
+                                WhereFields = [liveDatabaseFieldName ?? forCol],
+                                HaveValues = [Qualify(oldForColValue)],
 
-                                WriteIntoFields = new[] { liveDatabaseFieldName ?? forCol },
-                                Values = new[] { Qualify(currentForColValue) }
+                                WriteIntoFields = [liveDatabaseFieldName ?? forCol],
+                                Values = [Qualify(currentForColValue)]
                             };
                         }
                     }
@@ -160,11 +160,11 @@ namespace SmiServices.Applications.TriggerUpdates
                         {
                             yield return new UpdateValuesMessage
                             {
-                                WhereFields = new[] { liveDatabaseFieldName ?? forCol },
-                                HaveValues = new[] { Qualify(oldTemporaryMapping) },
+                                WhereFields = [liveDatabaseFieldName ?? forCol],
+                                HaveValues = [Qualify(oldTemporaryMapping)],
 
-                                WriteIntoFields = new[] { liveDatabaseFieldName ?? forCol },
-                                Values = new[] { Qualify(currentForColValue) }
+                                WriteIntoFields = [liveDatabaseFieldName ?? forCol],
+                                Values = [Qualify(currentForColValue)]
                             };
                         }
                     }
@@ -199,7 +199,7 @@ namespace SmiServices.Applications.TriggerUpdates
         /// <param name="swapCol">The private identifier column name e.g. CHI</param>
         /// <param name="forCol">The public release identifier column name e.g. ECHI</param>
         /// <returns>SQL for fetching the latest release identifier value (e.g. ECHI value) from the archive</returns>
-        private string GetArchiveFetchSql(DiscoveredTable archiveTable, string swapCol, string forCol)
+        private static string GetArchiveFetchSql(DiscoveredTable archiveTable, string swapCol, string forCol)
         {
             // Work out how to get the latest entry in the _Archive table that corresponds to a given private identifier (e.g. CHI)
             var syntax = archiveTable.Database.Server.GetQuerySyntaxHelper();
@@ -236,11 +236,9 @@ namespace SmiServices.Applications.TriggerUpdates
         {
             TokenSource.Cancel();
 
-            if (_currentCommandMainTable != null)
-                _currentCommandMainTable.Cancel();
+            _currentCommandMainTable?.Cancel();
 
-            if (_currentCommandOtherTables != null)
-                _currentCommandOtherTables.Cancel();
+            _currentCommandOtherTables?.Cancel();
 
             // give application 10 seconds to exit
             var timeout = 10_000;

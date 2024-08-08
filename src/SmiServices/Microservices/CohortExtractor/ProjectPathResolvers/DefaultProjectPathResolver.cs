@@ -10,7 +10,7 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
         public string AnonExt { get; protected set; } = "-an.dcm";
         public string IdentExt { get; protected set; } = ".dcm";
 
-        private static readonly string[] _replaceableExtensions = { ".dcm", ".dicom" };
+        private static readonly string[] _replaceableExtensions = [".dcm", ".dicom"];
 
         /// <summary>
         /// Returns the output path for the anonymised file, relative to the ExtractionDirectory
@@ -25,7 +25,7 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
             // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output file name to have the required extension
             string fileName = Path.GetFileName(result.FilePathValue);
             if (string.IsNullOrWhiteSpace(fileName))
-                throw new ArgumentNullException(nameof(fileName));
+                throw new ArgumentNullException(nameof(result));
 
             var replaced = false;
             foreach (string ext in _replaceableExtensions)

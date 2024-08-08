@@ -18,8 +18,10 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
         [Test]
         public void TestNoWhereValue()
         {
-            var msg = new UpdateValuesMessage();
-            msg.WhereFields = new string[] { "ff" };
+            var msg = new UpdateValuesMessage
+            {
+                WhereFields = ["ff"]
+            };
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
@@ -28,9 +30,11 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
         [Test]
         public void TestNoSet()
         {
-            var msg = new UpdateValuesMessage();
-            msg.WhereFields = new string[] { "ff" };
-            msg.HaveValues = new string?[] { null }; //where column ff has a null value
+            var msg = new UpdateValuesMessage
+            {
+                WhereFields = ["ff"],
+                HaveValues = [null] //where column ff has a null value
+            };
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
@@ -40,10 +44,12 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
         [Test]
         public void TestNoSetValue()
         {
-            var msg = new UpdateValuesMessage();
-            msg.WhereFields = new string[] { "ff" };
-            msg.HaveValues = new string?[] { null }; //where column ff has a null value
-            msg.WriteIntoFields = new string[] { "ff" };
+            var msg = new UpdateValuesMessage
+            {
+                WhereFields = ["ff"],
+                HaveValues = [null], //where column ff has a null value
+                WriteIntoFields = ["ff"]
+            };
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
@@ -53,12 +59,14 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
         [Test]
         public void TestTwoValuesOneOperator()
         {
-            var msg = new UpdateValuesMessage();
-            msg.WhereFields = new string[] { "ff", "mm" };
-            msg.HaveValues = new string[] { "111", "123" };
-            msg.Operators = new string[] { "=" };
-            msg.WriteIntoFields = new string[] { "ff" };
-            msg.Values = new string[] { "ff" };
+            var msg = new UpdateValuesMessage
+            {
+                WhereFields = ["ff", "mm"],
+                HaveValues = ["111", "123"],
+                Operators = ["="],
+                WriteIntoFields = ["ff"],
+                Values = ["ff"]
+            };
 
             var ex = Assert.Throws<Exception>(msg.Validate);
 
@@ -67,11 +75,13 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
         [Test]
         public void Test_GoodMessage()
         {
-            var msg = new UpdateValuesMessage();
-            msg.WhereFields = new string[] { "ff" };
-            msg.HaveValues = new string?[] { null }; //where column ff has a null value
-            msg.WriteIntoFields = new string[] { "ff" };
-            msg.Values = new string[] { "ddd" }; //write the value ddd
+            var msg = new UpdateValuesMessage
+            {
+                WhereFields = ["ff"],
+                HaveValues = [null], //where column ff has a null value
+                WriteIntoFields = ["ff"],
+                Values = ["ddd"] //write the value ddd
+            };
 
             msg.Validate();
 
@@ -86,17 +96,17 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
             Assert.That(m2, Is.EqualTo(m1));
             Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
 
-            m1.WhereFields = new[] { "fff" };
+            m1.WhereFields = ["fff"];
 
             Assert.That(m2, Is.Not.EqualTo(m1));
 
-            m2.WhereFields = new[] { "fff" };
+            m2.WhereFields = ["fff"];
 
             Assert.That(m2, Is.EqualTo(m1));
             Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));
 
-            m1.WhereFields = new string[] { };
-            m2.WhereFields = new string[] { };
+            m1.WhereFields = [];
+            m2.WhereFields = [];
 
             Assert.That(m2, Is.EqualTo(m1));
             Assert.That(m2.GetHashCode(), Is.EqualTo(m1.GetHashCode()));

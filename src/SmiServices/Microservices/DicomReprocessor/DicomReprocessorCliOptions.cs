@@ -22,8 +22,8 @@ namespace SmiServices.Microservices.DicomReprocessor
             get => _sourceCollection;
             set
             {
-                if (value.Contains("."))
-                    throw new ArgumentException(nameof(value));
+                if (value.Contains('.'))
+                    throw new ArgumentException(null, nameof(value));
                 _sourceCollection = value;
             }
         }

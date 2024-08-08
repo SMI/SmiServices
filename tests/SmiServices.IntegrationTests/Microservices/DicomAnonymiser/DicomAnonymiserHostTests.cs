@@ -144,7 +144,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
             var successQueue = globals.IsIdentifiableServiceOptions!.QueueName!;
             var failureQueue = globals.CohortPackagerOptions!.NoVerifyStatusOptions!.QueueName!;
 
-            List<ExtractedFileStatusMessage> statusMessages = new();
+            List<ExtractedFileStatusMessage> statusMessages = [];
 
             using (
                 var tester = new MicroserviceTester(

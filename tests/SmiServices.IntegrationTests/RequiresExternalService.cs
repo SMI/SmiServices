@@ -14,7 +14,7 @@ namespace SmiServices.IntegrationTests
         public RequiresExternalService()
         {
             string? ci = Environment.GetEnvironmentVariable("CI");
-            if (!string.IsNullOrWhiteSpace(ci) && (ci == "1" || ci.ToUpper() == "TRUE"))
+            if (!string.IsNullOrWhiteSpace(ci) && (ci == "1" || ci.Equals("TRUE", StringComparison.CurrentCultureIgnoreCase)))
                 FailIfUnavailable = true;
 
             if (

@@ -84,8 +84,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         /// <param name="requireFilePath"></param>
         public static QueryToExecuteColumnSet? Create(ICatalogue catalogue, bool requireFilePath)
         {
-            if (catalogue == null)
-                throw new ArgumentNullException(nameof(catalogue));
+            ArgumentNullException.ThrowIfNull(catalogue);
 
             var eis = catalogue.GetAllExtractionInformation(ExtractionCategory.Any);
 

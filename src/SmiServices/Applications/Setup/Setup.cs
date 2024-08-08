@@ -100,7 +100,7 @@ public class Setup
 
     private static void AddResult(Table table, CheckEventArgs? result, string taskName)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         if (result != null)
         {
@@ -135,9 +135,9 @@ public class Setup
 
     private static void SetProgress(ProgressTask consoleTask, ToMemoryDataLoadEventListener listener, string taskName)
     {
-        if (listener.LastProgressRecieivedByTaskName.ContainsKey(taskName))
+        if (listener.LastProgressRecieivedByTaskName.TryGetValue(taskName, out ProgressEventArgs? value))
         {
-            var progress = listener.LastProgressRecieivedByTaskName[taskName];
+            var progress = value;
 
             consoleTask.Value = progress.Progress.Value;
             consoleTask.MaxValue = progress.Progress.KnownTargetValue;
