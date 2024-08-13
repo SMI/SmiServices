@@ -150,7 +150,7 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
                 Values = new[] { "222" }
             }));
 
-            TestContext.WriteLine(ex!.Message);
+            TestContext.Out.WriteLine(ex?.Message);
 
             Assert.That(ex.Message, Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=Blarg WriteIntoFields=PatientID"));
         }
@@ -171,7 +171,7 @@ namespace SmiServices.UnitTests.Microservices.UpdateValues
                 Values = new[] { "222" }
             }));
 
-            TestContext.WriteLine(ex!.Message);
+            TestContext.Out.WriteLine(ex?.Message);
 
             Assert.That(ex.Message, Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=PatientID WriteIntoFields=Blarg"));
         }
