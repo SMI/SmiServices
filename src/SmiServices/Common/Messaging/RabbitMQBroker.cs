@@ -43,7 +43,7 @@ namespace SmiServices.Common.Messaging
         private readonly HostFatalHandler? _hostFatalHandler;
 
         private readonly IConnection _connection;
-        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = new();
+        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = [];
         private readonly object _oResourceLock = new();
         private readonly object _exitLock = new();
 
@@ -106,8 +106,7 @@ namespace SmiServices.Common.Messaging
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
-            if (consumerOptions == null)
-                throw new ArgumentNullException(nameof(consumerOptions));
+            ArgumentNullException.ThrowIfNull(consumerOptions);
 
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
@@ -140,7 +139,7 @@ namespace SmiServices.Common.Messaging
             {
                 consumer.ProcessMessage(a);
             };
-            EventHandler<ShutdownEventArgs> shutdown = (o, a) =>
+            void shutdown(object? o, ShutdownEventArgs a)
             {
                 var reason = "cancellation was requested";
                 if (ebc.Model.IsClosed)
@@ -148,7 +147,7 @@ namespace SmiServices.Common.Messaging
                 if (ShutdownCalled)
                     reason = "shutdown was called";
                 _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
-            };
+            }
             model.ModelShutdown += shutdown;
             ebc.Shutdown += shutdown;
 
@@ -186,9 +185,9 @@ namespace SmiServices.Common.Messaging
 
             lock (_oResourceLock)
             {
-                if (!_rabbitResources.ContainsKey(taskId))
+                if (!_rabbitResources.TryGetValue(taskId, out RabbitResources? value))
                     throw new ApplicationException("Guid was not found in the task register");
-                _rabbitResources[taskId].Dispose();
+                value.Dispose();
                 _rabbitResources.Remove(taskId);
             }
         }
@@ -308,10 +307,10 @@ namespace SmiServices.Common.Messaging
         /// </summary>
         private void CheckValidServerSettings()
         {
-            if (!_connection.ServerProperties.ContainsKey("version"))
+            if (!_connection.ServerProperties.TryGetValue("version", out object? value))
                 throw new ApplicationException("Could not get RabbitMQ server version");
 
-            var version = Encoding.UTF8.GetString((byte[])_connection.ServerProperties["version"]);
+            var version = Encoding.UTF8.GetString((byte[])value);
             var split = version.Split('.');
 
             if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||

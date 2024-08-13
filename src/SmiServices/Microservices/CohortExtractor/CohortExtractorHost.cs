@@ -121,7 +121,7 @@ namespace SmiServices.Microservices.CohortExtractor
                 catalogues = catalogues.Where(c => _consumerOptions.OnlyCatalogues.Contains(c.ID)).ToArray();
 
             _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType!,
-                typeof(IExtractionRequestFulfiller).Assembly, new object[] { catalogues });
+                typeof(IExtractionRequestFulfiller).Assembly, [catalogues]);
 
             if (_fulfiller == null)
                 throw new Exception("No IExtractionRequestFulfiller set");
@@ -132,7 +132,7 @@ namespace SmiServices.Microservices.CohortExtractor
             if (!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
                 _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType, typeof(IRejector).Assembly)!);
 
-            foreach (var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? Array.Empty<ModalitySpecificRejectorOptions>())
+            foreach (var modalitySpecific in _consumerOptions.ModalitySpecificRejectors ?? [])
             {
                 var r = ObjectFactory.CreateInstance<IRejector>(modalitySpecific.RejectorType!, typeof(IRejector).Assembly)!;
                 _fulfiller.ModalitySpecificRejectors.Add(modalitySpecific, r);

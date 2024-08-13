@@ -22,7 +22,7 @@ namespace SmiServices.Microservices.IdentifierMapper.Swappers
 
         private DiscoveredTable? _table;
 
-        private readonly Dictionary<string, string> _cachedAnswers = new();
+        private readonly Dictionary<string, string> _cachedAnswers = [];
         private readonly object _oCacheLock = new();
 
         private int _swapColumnLength;
@@ -60,11 +60,11 @@ namespace SmiServices.Microservices.IdentifierMapper.Swappers
             string insertSql;
             lock (_oCacheLock)
             {
-                if (_cachedAnswers.ContainsKey(toSwap))
+                if (_cachedAnswers.TryGetValue(toSwap, out string? value))
                 {
                     CacheHit++;
                     Success++;
-                    return _cachedAnswers[toSwap];
+                    return value;
                 }
 
 
@@ -146,10 +146,9 @@ namespace SmiServices.Microservices.IdentifierMapper.Swappers
                     _logger.Info("Guid mapping table does not exist, creating it now");
 
                     _table.Database.CreateTable(_table.GetRuntimeName(),
-                        new[]
-                        {
+                        [
                             new DatabaseColumnRequest(_options.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
-                            new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)}
+                            new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)]
                         );
                 }
 

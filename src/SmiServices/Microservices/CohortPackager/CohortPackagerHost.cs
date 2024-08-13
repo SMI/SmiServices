@@ -73,7 +73,7 @@ namespace SmiServices.Microservices.CohortPackager
                 // Globals.FileSystemOptions checked in base constructor
                 var extractRoot = Globals.FileSystemOptions!.ExtractRoot;
                 if (string.IsNullOrWhiteSpace(extractRoot))
-                    throw new ArgumentOutOfRangeException(nameof(Globals.FileSystemOptions.ExtractRoot));
+                    throw new ArgumentOutOfRangeException(nameof(globals));
 
                 reporter = new JobReporter(
                     jobStore,

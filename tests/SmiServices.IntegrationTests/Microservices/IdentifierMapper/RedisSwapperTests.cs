@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SmiServices.Common.Options;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
-using SmiServices.UnitTests.Common;
 using StackExchange.Redis;
 using System;
 using System.Data;
@@ -155,7 +154,7 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
             });
         }
 
-        private void ClearRedisServer()
+        private static void ClearRedisServer()
         {
             using var admin = ConnectionMultiplexer.Connect($"{TestRedisServer},allowAdmin=true");
             foreach (var server in admin.GetEndPoints().Select(e => admin.GetServer(e)))

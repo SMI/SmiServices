@@ -9,18 +9,17 @@ namespace SmiServices.Microservices.IsIdentifiable
 {
     public class IsIdentifiableHost : MicroserviceHost
     {
-        private ConsumerOptions _consumerOptions;
+        private readonly ConsumerOptions _consumerOptions;
         public IsIdentifiableQueueConsumer Consumer { get; }
 
-        private IProducerModel _producerModel;
+        private readonly IProducerModel _producerModel;
 
         public IsIdentifiableHost(
             GlobalOptions globals
         )
             : base(globals)
         {
-            _consumerOptions = globals.IsIdentifiableServiceOptions
-                ?? throw new ArgumentNullException(nameof(globals.IsIdentifiableServiceOptions));
+            _consumerOptions = globals.IsIdentifiableServiceOptions ?? throw new ArgumentNullException(nameof(globals));
 
             string? classifierTypename = globals.IsIdentifiableServiceOptions.ClassifierType;
             string? dataDirectory = globals.IsIdentifiableServiceOptions.DataDirectory;

@@ -22,8 +22,8 @@ namespace SmiServices.Microservices.IdentifierMapper
 
         private readonly Regex _patientIdRegex = new("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
 
-        private readonly BlockingCollection<Tuple<DicomFileMessage, IMessageHeader, ulong>> msgq = new();
-        private Thread acker;
+        private readonly BlockingCollection<Tuple<DicomFileMessage, IMessageHeader, ulong>> msgq = [];
+        private readonly Thread acker;
 
         public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
         {
@@ -35,7 +35,7 @@ namespace SmiServices.Microservices.IdentifierMapper
                   {
                       while (true)
                       {
-                          List<Tuple<IMessageHeader, ulong>> done = new();
+                          List<Tuple<IMessageHeader, ulong>> done = [];
                           Tuple<DicomFileMessage, IMessageHeader, ulong> t;
                           t = msgq.Take();
 
@@ -211,7 +211,7 @@ namespace SmiServices.Microservices.IdentifierMapper
             return true;
         }
 
-        private string? GetPatientID(DicomDataset ds)
+        private static string? GetPatientID(DicomDataset ds)
         {
             var val = DicomTypeTranslaterReader.GetCSharpValue(ds, DicomTag.PatientID);
 

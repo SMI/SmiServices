@@ -85,11 +85,9 @@ namespace SmiServices.Microservices.CohortExtractor
                 foreach (QueryToExecuteResult rejectedResults in matchedFiles.Rejected)
                 {
                     var rejectReason = rejectedResults.RejectReason
-                        ?? throw new ArgumentNullException(nameof(rejectedResults.RejectReason));
+                        ?? throw new InvalidOperationException(nameof(rejectedResults.RejectReason));
 
-                    if (!infoMessage.RejectionReasons.ContainsKey(rejectReason))
-                        infoMessage.RejectionReasons.Add(rejectReason, 0);
-
+                    infoMessage.RejectionReasons.TryAdd(rejectReason, 0);
                     infoMessage.RejectionReasons[rejectReason]++;
                 }
 

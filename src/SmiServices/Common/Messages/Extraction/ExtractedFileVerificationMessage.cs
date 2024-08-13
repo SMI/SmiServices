@@ -30,7 +30,7 @@ namespace SmiServices.Common.Messages.Extraction
             : base(request)
         {
             DicomFilePath = request.DicomFilePath;
-            OutputFilePath = request.OutputFilePath ?? throw new ArgumentNullException(nameof(request.OutputFilePath));
+            OutputFilePath = request.OutputFilePath ?? throw new ArgumentNullException(nameof(request));
         }
     }
 }

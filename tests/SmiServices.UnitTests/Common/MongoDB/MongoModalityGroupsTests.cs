@@ -32,19 +32,19 @@ namespace SmiServices.UnitTests.Common.MongoDB
             var docs = new List<BsonDocument>
             {
                 // MR group
-                new BsonDocument {{"tag", "value"}, {"Modality", "MR"}},
-                new BsonDocument {{"tag", "value"}, {"Modality", "MR"}},
+                new() {{"tag", "value"}, {"Modality", "MR"}},
+                new() {{"tag", "value"}, {"Modality", "MR"}},
 
                 // CT group
-                new BsonDocument {{"tag", "value"}, {"Modality", "CT"}},
-                new BsonDocument {{"tag", "value"}, {"Modality", "CT"}},
-                new BsonDocument {{"tag", "value"}, {"Modality", "CT"}},
+                new() {{"tag", "value"}, {"Modality", "CT"}},
+                new() {{"tag", "value"}, {"Modality", "CT"}},
+                new() {{"tag", "value"}, {"Modality", "CT"}},
 
                 // Other group
-                new BsonDocument {{"tag", "value"}, {"Modality", BsonNull.Value}},
-                new BsonDocument {{"tag", "value"}, {"Modality", "*"}},
-                new BsonDocument {{"tag", "value"}, {"Modality", "OTHER"}},
-                new BsonDocument {{"tag", "value"}}
+                new() {{"tag", "value"}, {"Modality", BsonNull.Value}},
+                new() {{"tag", "value"}, {"Modality", "*"}},
+                new() {{"tag", "value"}, {"Modality", "OTHER"}},
+                new() {{"tag", "value"}}
             };
 
             List<Tuple<string, List<BsonDocument>>> grouped = MongoModalityGroups.GetModalityChunks(docs).ToList();

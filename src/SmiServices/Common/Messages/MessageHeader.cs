@@ -31,7 +31,7 @@ namespace SmiServices.Common.Messages
         static MessageHeader()
         {
             _producerExecutableName = Assembly.GetEntryAssembly()?.GetName().Name ?? "dotnet";
-            _producerProcessID = Process.GetCurrentProcess().Id;
+            _producerProcessID = Environment.ProcessId;
         }
 
         [JsonConstructor]
@@ -50,13 +50,13 @@ namespace SmiServices.Common.Messages
 
             if (parent == null)
             {
-                Parents = Array.Empty<Guid>();
+                Parents = [];
                 OriginalPublishTimestamp = UnixTimeNow();
             }
             else
             {
                 var p = new List<Guid>(parent.Parents) { parent.MessageGuid };
-                Parents = p.ToArray();
+                Parents = [.. p];
                 OriginalPublishTimestamp = parent.OriginalPublishTimestamp;
             }
         }

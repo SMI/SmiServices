@@ -3,7 +3,6 @@ using MongoDB.Driver;
 using NUnit.Framework;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.MongoDBPopulator;
-using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 
 namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution
@@ -41,7 +40,7 @@ namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution
                 {"hello", "world"}
             };
 
-            WriteResult result = adapter.WriteMany(new List<BsonDocument> { testDoc });
+            WriteResult result = adapter.WriteMany([testDoc]);
 
             Assert.Multiple(() =>
             {

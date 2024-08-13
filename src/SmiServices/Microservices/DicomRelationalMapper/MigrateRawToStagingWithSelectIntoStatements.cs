@@ -51,7 +51,7 @@ namespace SmiServices.Microservices.DicomRelationalMapper
 
             var sw = Stopwatch.StartNew();
 
-            foreach (TableInfo table in job.RegularTablesToLoad)
+            foreach (TableInfo table in job.RegularTablesToLoad.Cast<TableInfo>())
             {
                 var fromDb = table.GetDatabaseRuntimeName(LoadStage.AdjustRaw, namer);
                 var toDb = table.GetDatabaseRuntimeName(LoadStage.AdjustStaging, namer);

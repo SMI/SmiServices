@@ -20,4 +20,7 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <!---->
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs"/>
+  </ItemGroup>
 </Project>

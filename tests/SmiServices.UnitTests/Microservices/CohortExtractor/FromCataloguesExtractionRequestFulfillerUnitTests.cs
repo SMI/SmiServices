@@ -16,7 +16,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
+            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
 
             var result = f.GetRejectorsFor(
                 new ExtractionRequestMessage(),
@@ -31,7 +31,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
+            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
             f.Rejectors.Add(new TestRejector());
 
             // when we ask for ct to be extracted
@@ -59,7 +59,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
+            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
 
             // basic rejector
             f.Rejectors.Add(new TestRejector());
@@ -89,7 +89,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
+            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
             IRejector rej1;
             IRejector rej2;
 
@@ -124,7 +124,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
+            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
             IRejector rej1;
             IRejector rej2;
 
@@ -158,12 +158,11 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
-            IRejector rej1;
+            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
             IRejector rej2;
 
             // basic rejector
-            f.Rejectors.Add(rej1 = new TestRejector());
+            f.Rejectors.Add(_ = new TestRejector());
             f.ModalitySpecificRejectors.Add(
                 new ModalitySpecificRejectorOptions { Modalities = "MR,CT", Overrides = true }, rej2 = new RejectAll());
 
@@ -191,7 +190,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         {
             CreateCTMR(out ICatalogue ct, out ICatalogue mr);
 
-            var f = new FromCataloguesExtractionRequestFulfiller(new[] { ct, mr });
+            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
             IRejector rej1;
             IRejector rej2;
 
@@ -222,10 +221,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             Assert.That(ex!.Message, Is.EqualTo("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'"));
         }
 
-
-
-
-        private void CreateCTMR(out ICatalogue ct, out ICatalogue mr)
+        private static void CreateCTMR(out ICatalogue ct, out ICatalogue mr)
         {
             var mem = new MemoryCatalogueRepository();
 
@@ -243,14 +239,16 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
 
         }
 
-        private void Add(ICatalogue c, string col)
+        private static void Add(ICatalogue c, string col)
         {
             var repo = c.CatalogueRepository;
             var ci = new CatalogueItem(repo, c, col);
-            var ti = new TableInfo(repo, "ff");
-            ti.Server = "ff";
-            ti.Database = "db";
-            var ei = new ExtractionInformation(repo, ci, new ColumnInfo(repo, col, "varchar(10)", ti), col);
+            var ti = new TableInfo(repo, "ff")
+            {
+                Server = "ff",
+                Database = "db"
+            };
+            _ = new ExtractionInformation(repo, ci, new ColumnInfo(repo, col, "varchar(10)", ti), col);
         }
     }
 }

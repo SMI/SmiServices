@@ -47,7 +47,7 @@ namespace SmiServices.UnitTests
         {
             foreach (Type t in _allVerbs)
             {
-                string nameWithoutVerb = t.Name.Substring(0, t.Name.LastIndexOf("Verb"));
+                string nameWithoutVerb = t.Name[..t.Name.LastIndexOf("Verb")];
                 string[] splitWords = Regex.Split(nameWithoutVerb, @"(?<!^)(?=[A-Z])");
                 string expectedVerbName = string.Join('-', splitWords).ToLower();
 

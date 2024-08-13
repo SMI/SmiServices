@@ -39,9 +39,9 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
             }
             else
             {
-                Times = new List<List<long>>();
+                Times = [];
                 for (var i = 0; i < 6; ++i)
-                    Times.Add(new List<long>());
+                    Times.Add([]);
 
                 var dirStack = new Stack<string>();
                 dirStack.Push(rootDir);

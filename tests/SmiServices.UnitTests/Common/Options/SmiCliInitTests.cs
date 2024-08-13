@@ -100,7 +100,7 @@ namespace SmiServices.UnitTests.Common.Options
                 "-f", "bar"
             };
 
-            int ret = SmiCliInit.ParseAndRun(args, typeof(SmiCliInitTests), new[] { typeof(FakeCliVerbOpts) }, OnParse);
+            int ret = SmiCliInit.ParseAndRun(args, typeof(SmiCliInitTests), [typeof(FakeCliVerbOpts)], OnParse);
             Assert.That(ret, Is.EqualTo(123));
         }
 
@@ -113,7 +113,7 @@ namespace SmiServices.UnitTests.Common.Options
                 "--help"
             };
 
-            int ret = SmiCliInit.ParseAndRun(args, typeof(SmiCliInitTests), new[] { typeof(FakeCliVerbOpts) }, (_, __) => -1);
+            int ret = SmiCliInit.ParseAndRun(args, typeof(SmiCliInitTests), [typeof(FakeCliVerbOpts)], (_, __) => -1);
             Assert.That(ret, Is.EqualTo(0));
         }
 

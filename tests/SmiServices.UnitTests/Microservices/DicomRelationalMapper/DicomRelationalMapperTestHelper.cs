@@ -105,7 +105,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             adder.Execute();
         }
 
-        private ImageTableTemplateCollection GetDefaultTemplate(FAnsi.DatabaseType databaseType)
+        private static ImageTableTemplateCollection GetDefaultTemplate(FAnsi.DatabaseType databaseType)
         {
             var collection = ImageTableTemplateCollection.LoadFrom(DefaultTemplateYaml);
             collection.DatabaseType = databaseType;
@@ -119,7 +119,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                     t.Truncate();
         }
 
-        public DicomFileMessage GetDicomFileMessage(string fileSystemRoot, FileInfo fi)
+        public static DicomFileMessage GetDicomFileMessage(string fileSystemRoot, FileInfo fi)
         {
             var toReturn = new DicomFileMessage(fileSystemRoot, fi)
             {
@@ -136,7 +136,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             return toReturn;
         }
-        public DicomFileMessage GetDicomFileMessage(DicomDataset ds, string fileSystemRoot, string file)
+        public static DicomFileMessage GetDicomFileMessage(DicomDataset ds, string fileSystemRoot, string file)
         {
             var toReturn = new DicomFileMessage(fileSystemRoot, file)
             {

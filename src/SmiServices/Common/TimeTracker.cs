@@ -25,6 +25,7 @@ namespace SmiServices.Common
         /// </summary>
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _sw.Stop();
         }
     }

@@ -68,7 +68,7 @@ public static class DicomLoader
             {
                 SkipPatching = true
             };
-            List<Exception> errors = new();
+            List<Exception> errors = [];
             startup.DatabaseFound += (_, args) =>
             {
                 if (args.Status == RDMPPlatformDatabaseStatus.Healthy && args.Exception is null)
@@ -78,7 +78,7 @@ public static class DicomLoader
             };
             startup.DoStartup(ThrowImmediatelyCheckNotifier.Quiet);
             if (!errors.IsNullOrEmpty())
-                throw new AggregateException(errors.ToArray());
+                throw new AggregateException([.. errors]);
 
             var databaseNamerType = MEF.GetType(go.DicomRelationalMapperOptions?.DatabaseNamerType) ??
                                     throw new Exception($"Could not find Type '{go.DicomRelationalMapperOptions?.DatabaseNamerType}'");

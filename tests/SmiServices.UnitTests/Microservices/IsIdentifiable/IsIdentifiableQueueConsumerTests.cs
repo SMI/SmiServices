@@ -140,7 +140,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             // Arrange
 
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
-            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(new List<Failure>());
+            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns([]);
 
             var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object, mockClassifier.Object);
 
@@ -169,7 +169,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             // Arrange
 
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
-            var failure = new Failure(new List<FailurePart> { new FailurePart("foo", FailureClassification.Person, 123) });
+            var failure = new Failure([new("foo", FailureClassification.Person, 123)]);
             var failures = new List<Failure> { failure };
             mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(failures);
 

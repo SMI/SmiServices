@@ -2,7 +2,6 @@ using NUnit.Framework;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.IntegrationTests;
-using SmiServices.UnitTests.Common;
 using System;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.RunMeFirstTests

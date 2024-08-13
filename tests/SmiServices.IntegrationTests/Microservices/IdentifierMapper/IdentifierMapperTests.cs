@@ -44,13 +44,15 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 
             var db = GetCleanedServer(type);
 
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName();
-            options.SwapColumnName = "priv";
-            options.ReplacementColumnName = "pub";
-            options.MappingDatabaseType = type;
-            options.TimeoutInSeconds = 500;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName(),
+                SwapColumnName = "priv",
+                ReplacementColumnName = "pub",
+                MappingDatabaseType = type,
+                TimeoutInSeconds = 500
+            };
 
             var swapper = new PreloadTableSwapper();
             swapper.Setup(options);
@@ -59,7 +61,7 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 
             var msg = GetTestDicomFileMessage();
 
-            consumer.SwapIdentifier(msg, out var reason);
+            consumer.SwapIdentifier(msg, out var _);
 
             AssertDicomFileMessageHasPatientID(msg, "020202");
         }
@@ -78,23 +80,26 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 
             var db = GetCleanedServer(type);
 
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName();
-            options.SwapColumnName = "priv";
-            options.ReplacementColumnName = "pub";
-            options.MappingDatabaseType = type;
-            options.TimeoutInSeconds = 500;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName(),
+                SwapColumnName = "priv",
+                ReplacementColumnName = "pub",
+                MappingDatabaseType = type,
+                TimeoutInSeconds = 500
+            };
 
             var swapper = new TableLookupSwapper();
             swapper.Setup(options);
 
-            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
-            consumer.AllowRegexMatching = true;
+            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper)
+            {
+                AllowRegexMatching = true
+            };
 
             var msg = GetTestDicomFileMessage(test);
-
-            consumer.SwapIdentifier(msg, out var reason);
+            consumer.SwapIdentifier(msg, out _);
 
             switch (test)
             {
@@ -110,10 +115,9 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
             }
         }
 
-        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 25), RequiresRabbit]
-        [TestCase(DatabaseType.MicrosoftSQLServer, 8, 0), RequiresRabbit]
-        [TestCase(DatabaseType.MySql, 8, 0), RequiresRabbit]
-        public void TestIdentifierSwap_RegexVsDeserialize(DatabaseType type, int batchSize, int numberOfRandomTagsPerDicom)
+        [TestCase(DatabaseType.MicrosoftSQLServer, 8), RequiresRabbit]
+        [TestCase(DatabaseType.MySql, 8), RequiresRabbit]
+        public void TestIdentifierSwap_RegexVsDeserialize(DatabaseType type, int batchSize)
         {
 
             var options = new GlobalOptionsFactory().Load(nameof(TestIdentifierSwap_RegexVsDeserialize));
@@ -143,15 +147,15 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 
             Console.WriteLine("Generating Test data...");
 
-            List<Task> tasks = new();
+            List<Task> tasks = [];
             object oTaskLock = new();
 
             for (int i = 0; i < batchSize; i++)
             {
                 var t = new Task(() =>
                 {
-                    var a = GetTestDicomFileMessage(Test.ProperlyFormatedChi, numberOfRandomTagsPerDicom);
-                    var b = GetTestDicomFileMessage(Test.ProperlyFormatedChi, numberOfRandomTagsPerDicom);
+                    var a = GetTestDicomFileMessage(Test.ProperlyFormatedChi);
+                    var b = GetTestDicomFileMessage(Test.ProperlyFormatedChi);
                     lock (oTaskLock)
                     {
                         goodChis.Add(a);
@@ -165,7 +169,7 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 
                 if (i % Environment.ProcessorCount == 0)
                 {
-                    Task.WaitAll(tasks.ToArray());
+                    Task.WaitAll([.. tasks]);
                     tasks.Clear();
                 }
 
@@ -173,7 +177,7 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
                     Console.WriteLine(i + " pairs done");
             }
 
-            Task.WaitAll(tasks.ToArray());
+            Task.WaitAll([.. tasks]);
 
             options.IdentifierMapperOptions.AllowRegexMatching = true;
 
@@ -238,12 +242,14 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
 
             DiscoveredTable tbl;
 
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
-            options.MappingTableName = (tbl = db.CreateTable("IdMap", mappingDataTable)).GetFullyQualifiedName();
-            options.SwapColumnName = "priv";
-            options.ReplacementColumnName = "pub";
-            options.MappingDatabaseType = type;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString,
+                MappingTableName = (tbl = db.CreateTable("IdMap", mappingDataTable)).GetFullyQualifiedName(),
+                SwapColumnName = "priv",
+                ReplacementColumnName = "pub",
+                MappingDatabaseType = type
+            };
 
             Stopwatch sw = new();
             sw.Start();
@@ -275,7 +281,7 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
             sw.Reset();
 
             sw.Start();
-            var answer = swapper.GetSubstitutionFor("12325", out var reason);
+            var answer = swapper.GetSubstitutionFor("12325", out _);
             sw.Stop();
             Console.WriteLine("Lookup Key:" + sw.ElapsedMilliseconds);
             sw.Reset();
@@ -465,8 +471,10 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
             var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
 
             //the declaration of what the guid namer table should be
-            var options = new IdentifierMapperOptions();
-            options.MappingConnectionString = db.Server.Builder.ConnectionString;
+            var options = new IdentifierMapperOptions
+            {
+                MappingConnectionString = db.Server.Builder.ConnectionString
+            };
 
             var swapper = new SwapForFixedValueTester("meeee");
             swapper.Setup(options);
@@ -512,13 +520,13 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
             });
         }
 
-        private void AssertDicomFileMessageHasPatientID(DicomFileMessage msg, string patientId)
+        private static void AssertDicomFileMessageHasPatientID(DicomFileMessage msg, string patientId)
         {
             var newDs = DicomTypeTranslater.DeserializeJsonToDataset(msg.DicomDataset);
             Assert.That(patientId, Is.EqualTo(newDs.GetValue<string>(DicomTag.PatientID, 0)));
         }
 
-        private DicomFileMessage GetTestDicomFileMessage(Test testCase = Test.Normal, int numberOfRandomTagsPerDicom = 0)
+        private static DicomFileMessage GetTestDicomFileMessage(Test testCase = Test.Normal)
         {
             var msg = new DicomFileMessage
             {

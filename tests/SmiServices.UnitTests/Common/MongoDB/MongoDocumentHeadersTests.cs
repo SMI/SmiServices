@@ -19,7 +19,7 @@ namespace SmiServices.UnitTests.Common.MongoDB
                 DicomFilePath = "path/to/file.dcm",
             };
 
-            string parents = $"{Guid.NewGuid().ToString()}->{Guid.NewGuid().ToString()}";
+            string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
             var headers = new Dictionary<string, object>
             {
                 { "MessageGuid", Guid.NewGuid().ToString() },
@@ -77,7 +77,7 @@ namespace SmiServices.UnitTests.Common.MongoDB
                 DicomFilePath = "path/to/file.dcm",
             };
 
-            string parents = $"{Guid.NewGuid().ToString()}->{Guid.NewGuid().ToString()}";
+            string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
             var headers = new Dictionary<string, object>
             {
                 { "MessageGuid", Guid.NewGuid().ToString() },

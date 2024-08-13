@@ -52,7 +52,7 @@ namespace SmiServices.UnitTests.Applications.TriggerUpdates
                 dtMap.Columns.Add("CHI");
                 dtMap.Columns.Add("ECHI");
 
-                dtMap.PrimaryKey = new[] { dtMap.Columns["CHI"]! };
+                dtMap.PrimaryKey = [dtMap.Columns["CHI"]!];
 
                 dtMap.Rows.Add("0101010101", "0A0A0A0A0A");
                 map = db.CreateTable("Map", dtMap);

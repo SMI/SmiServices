@@ -7,7 +7,6 @@ using SmiServices.Common.Options;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.Microservices.DicomTagReader.Messaging;
-using SmiServices.UnitTests.Common;
 using System;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -96,7 +95,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Messaging
         [Test]
         public void TestInvalidMessageNack()
         {
-            _helper.MockFileSystem.AddFile(@"C:\Temp\invalidDicomFile.dcm", new MockFileData(new byte[] { 0x12, 0x34, 0x56, 0x78 }));
+            _helper.MockFileSystem.AddFile(@"C:\Temp\invalidDicomFile.dcm", new MockFileData([0x12, 0x34, 0x56, 0x78]));
 
             _helper.TestImageModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))

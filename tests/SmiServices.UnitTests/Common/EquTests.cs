@@ -55,7 +55,7 @@ namespace SmiServices.UnitTests.Common
             var m2 = new FooMessage
             {
                 FooString = "study",
-                FooDict = new Dictionary<string, int> { }
+                FooDict = []
             };
 
             Assert.That(m2, Is.Not.EqualTo(m1));
@@ -72,7 +72,7 @@ namespace SmiServices.UnitTests.Common
             var m1 = new FooMessage
             {
                 FooString = "study",
-                FooList = new List<string> { "foo", "bar" }
+                FooList = ["foo", "bar"]
             };
 
             var m2 = new FooMessage
@@ -82,10 +82,10 @@ namespace SmiServices.UnitTests.Common
 
             Assert.That(m2, Is.Not.EqualTo(m1));
 
-            m2.FooList = new List<string> { "bar", "foo" };
+            m2.FooList = ["bar", "foo"];
             Assert.That(m2, Is.Not.EqualTo(m1));
 
-            m2.FooList = new List<string> { "foo", "bar" };
+            m2.FooList = ["foo", "bar"];
             Assert.That(m2, Is.EqualTo(m1));
         }
 

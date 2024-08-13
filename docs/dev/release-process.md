@@ -42,7 +42,7 @@ The release workflow is to checkout a new `release/` branch from main, update th
 
 - Update any other files referencing the version. To see an example, check the previous release PR. At time of writing, these are:
 
-  - `src/SharedAssemblyInfo.cs`: Bump the versions in each property
+  - `SharedAssemblyInfo.cs`: Bump the versions in each property
 
 - Commit these changes and push the new branch
 

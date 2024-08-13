@@ -6,7 +6,6 @@ using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.Data.Common;
 using Tests.Common;
@@ -25,7 +24,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         public void Test_ColumnInfoValuesRejectorTests(DatabaseType type)
         {
             DiscoveredDatabase server = GetCleanedServer(type);
-            DiscoveredTable tbl = server.CreateTable("BadPatients", new[] { new DatabaseColumnRequest(PatColName, "varchar(100)") });
+            DiscoveredTable tbl = server.CreateTable("BadPatients", [new DatabaseColumnRequest(PatColName, "varchar(100)")]);
 
             tbl.Insert(new Dictionary<string, object> { { PatColName, "Frank" } });
             tbl.Insert(new Dictionary<string, object> { { PatColName, "Peter" } });

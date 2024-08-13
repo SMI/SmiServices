@@ -15,17 +15,13 @@ namespace SmiServices.Applications.Setup
     /// </summary>
     public static class SetupSettings
     {
-        static readonly Lazy<SetupIsolatedStorage> _implementation = new Lazy<SetupIsolatedStorage>(static () => CreateSettings(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        static readonly Lazy<SetupIsolatedStorage> _implementation = new(static () => CreateSettings(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
         private static SetupIsolatedStorage AppSettings
         {
             get
             {
-                SetupIsolatedStorage ret = _implementation.Value;
-                if (ret == null)
-                {
-                    throw new NotImplementedException("Isolated Storage does not work in this environment...");
-                }
+                SetupIsolatedStorage ret = _implementation.Value ?? throw new NotImplementedException("Isolated Storage does not work in this environment...");
                 return ret;
             }
         }

@@ -6,7 +6,6 @@ using RabbitMQ.Client.Events;
 using SmiServices.Common.Messages;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.MongoDBPopulator;
-using SmiServices.UnitTests.Common;
 using System.Text;
 
 

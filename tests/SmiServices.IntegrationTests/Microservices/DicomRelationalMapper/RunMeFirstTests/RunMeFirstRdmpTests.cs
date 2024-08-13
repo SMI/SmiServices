@@ -2,7 +2,6 @@ using FAnsi;
 using NUnit.Framework;
 using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using SmiServices.IntegrationTests;
-using SmiServices.UnitTests.Common;
 using System.IO;
 using Tests.Common;
 

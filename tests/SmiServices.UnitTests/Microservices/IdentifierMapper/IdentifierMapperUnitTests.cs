@@ -10,8 +10,10 @@ namespace SmiServices.UnitTests.Microservices.IdentifierMapper
         [Test]
         public void Test_IdentifierMapper_LoggingCounts()
         {
-            MemoryTarget target = new();
-            target.Layout = "${message}";
+            MemoryTarget target = new()
+            {
+                Layout = "${message}"
+            };
 
             var mapper = new SwapForFixedValueTester("fish");
             Assert.Multiple(() =>

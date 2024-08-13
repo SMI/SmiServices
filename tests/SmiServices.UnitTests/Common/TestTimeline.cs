@@ -10,7 +10,7 @@ namespace SmiServices.UnitTests.Common
     public class TestTimeline : IDisposable
     {
         private readonly MicroserviceTester _tester;
-        Queue<Action> Operations = new();
+        readonly Queue<Action> Operations = new();
 
         public CancellationTokenSource cts = new();
 
@@ -55,6 +55,7 @@ namespace SmiServices.UnitTests.Common
             _tester?.Dispose();
             cts.Cancel();
             cts.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

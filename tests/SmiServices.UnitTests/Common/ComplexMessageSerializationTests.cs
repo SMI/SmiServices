@@ -28,7 +28,7 @@ namespace SmiServices.UnitTests.Common
             Assert.Multiple(() =>
             {
                 Assert.That(msg2!.ExtractFileMessagesDispatched, Has.Count.EqualTo(1));
-                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader, Is.True);
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single(), Is.Not.EqualTo(null));
             });
         }
 
@@ -39,7 +39,7 @@ namespace SmiServices.UnitTests.Common
             {
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 KeyValue = "f",
-                ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>(),
+                ExtractFileMessagesDispatched = [],
                 ExtractionDirectory = "C:\\fish",
                 ProjectNumber = "123",
                 JobSubmittedAt = DateTime.UtcNow,
@@ -56,7 +56,7 @@ namespace SmiServices.UnitTests.Common
             Assert.Multiple(() =>
             {
                 Assert.That(msg2!.ExtractFileMessagesDispatched, Has.Count.EqualTo(1));
-                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single() is MessageHeader, Is.True);
+                Assert.That(msg2.ExtractFileMessagesDispatched.Keys.Single(), Is.Not.Null);
 
                 Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().MessageGuid, Is.EqualTo(child.MessageGuid));
                 Assert.That(msg2.ExtractFileMessagesDispatched.Keys.First().Parents, Does.Contain(parent.MessageGuid));

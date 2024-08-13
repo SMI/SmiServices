@@ -25,8 +25,8 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage
             string failureData
         )
         {
-            AnonFilePath = string.IsNullOrWhiteSpace(anonFilePath) ? throw new ArgumentException(nameof(anonFilePath)) : anonFilePath;
-            Data = string.IsNullOrWhiteSpace(failureData) ? throw new ArgumentException(nameof(failureData)) : failureData;
+            AnonFilePath = string.IsNullOrWhiteSpace(anonFilePath) ? throw new ArgumentException(null, nameof(anonFilePath)) : anonFilePath;
+            Data = string.IsNullOrWhiteSpace(failureData) ? throw new ArgumentException(null, nameof(failureData)) : failureData;
         }
     }
 }

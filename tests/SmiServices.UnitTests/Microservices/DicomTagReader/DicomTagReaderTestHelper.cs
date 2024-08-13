@@ -85,11 +85,6 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader
 
             AccessionConsumerOptions = Options.DicomTagReaderOptions!;
 
-            new ProducerOptions
-            {
-                ExchangeName = Options.RabbitOptions!.FatalLoggingExchange
-            };
-
             TestAccessionDirectoryMessage = new AccessionDirectoryMessage
             {
                 DirectoryPath = @"C:\Temp\",
@@ -107,7 +102,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader
             foreach (FileInfo f in TestDir.GetFiles())
                 f.Delete();
 
-            TestData.Create(new FileInfo(Path.Combine(TestDir.FullName, "MyTestFile.dcm")));
+            new TestData().Create(new FileInfo(Path.Combine(TestDir.FullName, "MyTestFile.dcm")));
         }
 
         public bool CheckQueues(int nInSeriesQueue, int nInImageQueue)

@@ -84,7 +84,7 @@ public class Loader
         (DicomFileMessage, DicomDataset)[] imageBatch;
         lock (_imageQueueLock)
         {
-            imageBatch = _imageQueue.ToArray();
+            imageBatch = [.. _imageQueue];
             _imageQueue = new List<(DicomFileMessage, DicomDataset)>(imageBatch.Length);
         }
 
@@ -265,7 +265,7 @@ public class Loader
         _seriesListLock = new ReaderWriterLockSlim();
         _loadOptions = loadOptions;
         lock (_imageQueueLock)
-            _imageQueue = new List<(DicomFileMessage, DicomDataset)>();
+            _imageQueue = [];
 
         try
         {

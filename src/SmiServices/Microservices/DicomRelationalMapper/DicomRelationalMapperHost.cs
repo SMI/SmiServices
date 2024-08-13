@@ -76,16 +76,15 @@ namespace SmiServices.Microservices.DicomRelationalMapper
 
         public override void Stop(string reason)
         {
-            if (Consumer != null)
-                Consumer.Stop(reason);
+            Consumer?.Stop(reason);
 
             base.Stop(reason);
         }
 
         public void Dispose()
         {
-            if (Consumer != null)
-                Consumer.Dispose();
+            Consumer?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
