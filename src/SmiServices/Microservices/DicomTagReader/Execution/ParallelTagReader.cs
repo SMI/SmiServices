@@ -28,7 +28,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
             Logger.Info($"Using MaxDegreeOfParallelism={_parallelOptions.MaxDegreeOfParallelism} for parallel IO operations");
         }
 
-        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
+        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<IFileInfo> dicomFilePaths,
             AccessionDirectoryMessage accMessage)
         {
             var fileMessages = new List<DicomFileMessage>();

@@ -3,7 +3,7 @@ using SmiServices.Common.Helpers;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.IsIdentifiable
 {
@@ -15,9 +15,10 @@ namespace SmiServices.Microservices.IsIdentifiable
         private readonly IProducerModel _producerModel;
 
         public IsIdentifiableHost(
-            GlobalOptions globals
+            GlobalOptions globals,
+            IFileSystem? fileSystem = null
         )
-            : base(globals)
+            : base(globals, fileSystem ?? new FileSystem())
         {
             _consumerOptions = globals.IsIdentifiableServiceOptions ?? throw new ArgumentNullException(nameof(globals));
 
@@ -30,7 +31,7 @@ namespace SmiServices.Microservices.IsIdentifiable
                 throw new ArgumentException("A DataDirectory must be set", nameof(globals));
 
             var objectFactory = new MicroserviceObjectFactory();
-            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions!)
+            var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, FileSystem.DirectoryInfo.New(dataDirectory), globals.IsIdentifiableOptions!)
                 ?? throw new TypeLoadException($"Could not find IClassifier Type {classifierTypename}");
             _producerModel = MessageBroker.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions!, isBatch: false);
 

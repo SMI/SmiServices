@@ -22,7 +22,7 @@ public static class DynamicRulesTester
 
         try
         {
-            return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, typeof(DynamicRulesTester), OnParse);
+            return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, typeof(DynamicRulesTester), OnParse, _fileSystem);
         }
         catch (Exception e)
         {
@@ -31,7 +31,7 @@ public static class DynamicRulesTester
         }
     }
 
-    private static int OnParse(GlobalOptions _, DynamicRulesTesterCliOptions cliOptions)
+    private static int OnParse(GlobalOptions _, IFileSystem fileSystem, DynamicRulesTesterCliOptions cliOptions)
     {
         var dynamicRejector = new DynamicRejector(cliOptions.DynamicRulesFile, _fileSystem);
 

@@ -16,11 +16,11 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
             IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
             : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs) { }
 
-        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths, AccessionDirectoryMessage accMessage)
+        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<IFileInfo> dicomFilePaths, AccessionDirectoryMessage accMessage)
         {
             var fileMessages = new List<DicomFileMessage>();
 
-            foreach (FileInfo dicomFilePath in dicomFilePaths)
+            foreach (var dicomFilePath in dicomFilePaths)
             {
                 Logger.Trace("TagReader: Processing " + dicomFilePath);
 

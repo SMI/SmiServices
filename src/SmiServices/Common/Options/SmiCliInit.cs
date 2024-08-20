@@ -4,6 +4,7 @@ using NLog.Config;
 using NLog.Targets;
 using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 
 
@@ -48,8 +49,9 @@ namespace SmiServices.Common.Options
         /// <param name="args">Arguments passed to Main</param>
         /// <param name="programType"></param>
         /// <param name="onParse">The function to call on a successful parse</param>
+        /// <param name="fileSystem"></param>
         /// <returns>The return code from the onParse function</returns>
-        public static int ParseAndRun<T>(IEnumerable<string> args, Type programType, Func<GlobalOptions, T, int> onParse) where T : CliOptions
+        public static int ParseAndRun<T>(IEnumerable<string> args, Type programType, Func<GlobalOptions, IFileSystem, T, int> onParse, IFileSystem fileSystem) where T : CliOptions
         {
             int ret = _parser
                 .ParseArguments<T>(args)
@@ -58,7 +60,7 @@ namespace SmiServices.Common.Options
                     {
                         string hostProcessName = GetHostProcessName(programType);
 
-                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, parsed);
+                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, parsed, fileSystem);
 
                         if (InitSmiLogging)
                         {
@@ -66,7 +68,7 @@ namespace SmiServices.Common.Options
                             SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
                         }
 
-                        return onParse(globals, parsed);
+                        return onParse(globals, fileSystem, parsed);
                     },
                     OnErrors
                 );
@@ -80,8 +82,9 @@ namespace SmiServices.Common.Options
         /// <param name="programType"></param>
         /// <param name="targetVerbTypes">The list of possible target verb types to construct from the args</param>
         /// <param name="onParse">The function to call on a successful parse</param>
+        /// <param name="fileSystem"></param>
         /// <returns>The return code from the onParse function</returns>
-        public static int ParseAndRun(IEnumerable<string> args, Type programType, Type[] targetVerbTypes, Func<GlobalOptions, object, int> onParse)
+        public static int ParseAndRun(IEnumerable<string> args, Type programType, Type[] targetVerbTypes, Func<GlobalOptions, IFileSystem, object, int> onParse, IFileSystem fileSystem)
         {
             int ret = _parser
                 .ParseArguments(
@@ -94,7 +97,7 @@ namespace SmiServices.Common.Options
                         string hostProcessName = GetHostProcessName(programType);
 
                         var cliOptions = Verify<CliOptions>(parsed);
-                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, cliOptions);
+                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, cliOptions, fileSystem);
 
                         if (InitSmiLogging)
                         {
@@ -102,7 +105,7 @@ namespace SmiServices.Common.Options
                             SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
                         }
 
-                        return onParse(globals, parsed);
+                        return onParse(globals, fileSystem, parsed);
                     },
                     OnErrors
                 );

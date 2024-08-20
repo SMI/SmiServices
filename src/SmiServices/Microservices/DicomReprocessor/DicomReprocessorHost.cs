@@ -2,7 +2,7 @@ using SmiServices.Common.Execution;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
-using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 
 namespace SmiServices.Microservices.DicomReprocessor
@@ -15,8 +15,8 @@ namespace SmiServices.Microservices.DicomReprocessor
 
         private readonly string? _queryString;
 
-        public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
-            : base(options)
+        public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions, IFileSystem? fileSystem = null)
+            : base(options, fileSystem ?? new FileSystem())
         {
             string? key = cliOptions.ReprocessingRoutingKey;
 
@@ -33,7 +33,7 @@ namespace SmiServices.Microservices.DicomReprocessor
                         options.RabbitOptions!.RabbitMqVirtualHost + " with routing key \"" + key + "\"");
 
             if (!string.IsNullOrWhiteSpace(cliOptions.QueryFile))
-                _queryString = File.ReadAllText(cliOptions.QueryFile);
+                _queryString = FileSystem.File.ReadAllText(cliOptions.QueryFile);
 
             //TODO Make this into a CreateInstance<> call
             _processor = options.DicomReprocessorOptions.ProcessingMode switch

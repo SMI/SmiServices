@@ -18,6 +18,7 @@ namespace Setup
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.IO.Abstractions;
     using Terminal.Gui;
     using Attribute = Terminal.Gui.Attribute;
 
@@ -26,6 +27,8 @@ namespace Setup
 
         private readonly ColorScheme _goodScheme;
         private readonly ColorScheme _badScheme;
+
+        private readonly IFileSystem _fileSystem = new FileSystem();
 
         /// <summary>
         /// The currently selected yaml file
@@ -114,9 +117,9 @@ namespace Setup
         private void ReloadYaml()
         {
             var f = tbDefaultYaml.Text.ToString();
-            if(File.Exists(f))
+            if(_fileSystem.File.Exists(f))
             {
-                var newYaml = File.ReadAllText(f);
+                var newYaml = _fileSystem.File.ReadAllText(f);
                 
                 // no need to generate a new probe because the yaml has not changed
                 if (string.Equals(newYaml, _lastYaml))

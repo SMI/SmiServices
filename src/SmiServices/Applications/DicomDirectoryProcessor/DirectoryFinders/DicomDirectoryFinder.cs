@@ -96,7 +96,7 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
         {
             Logger.Debug("DicomDirectoryFinder: Found " + dir);
 
-            string dirPath = Path.GetFullPath(dir).TrimEnd(Path.DirectorySeparatorChar);
+            string dirPath = FileSystem.Path.GetFullPath(dir).TrimEnd(FileSystem.Path.DirectorySeparatorChar);
 
             if (dirPath.StartsWith(FileSystemRoot))
                 dirPath = dirPath.Remove(0, FileSystemRoot.Length);

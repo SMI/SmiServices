@@ -13,10 +13,10 @@ namespace SmiServices.Microservices.DicomAnonymiser
 
         public DicomAnonymiserHost(
             GlobalOptions options,
-            IDicomAnonymiser? anonymiser = null,
-            IFileSystem? fileSystem = null
+            IFileSystem? fileSystem = null,
+            IDicomAnonymiser? anonymiser = null
         )
-            : base(options)
+            : base(options, fileSystem ?? new FileSystem())
         {
             _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(options!);
 
@@ -28,7 +28,7 @@ namespace SmiServices.Microservices.DicomAnonymiser
                 Globals.FileSystemOptions.ExtractRoot!,
                 _anonymiser,
                 producerModel,
-                fileSystem
+                FileSystem
             );
         }
 

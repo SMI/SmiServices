@@ -11,6 +11,7 @@ using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -557,7 +558,9 @@ namespace SmiServices.Common.Options
             // if using file system backend for RDMP create that repo instead
             if (!string.IsNullOrWhiteSpace(YamlDir))
             {
-                return new RepositoryProvider(new YamlRepository(new System.IO.DirectoryInfo(YamlDir)));
+#pragma warning disable IO0007 // Replace DirectoryInfo class with IFileSystem.DirectoryInfo for improved testability
+                return new RepositoryProvider(new YamlRepository(new DirectoryInfo(YamlDir)));
+#pragma warning restore IO0007 // Replace DirectoryInfo class with IFileSystem.DirectoryInfo for improved testability
             }
 
             // We are using database backend for RDMP (i.e. Sql Server)

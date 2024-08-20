@@ -2,6 +2,7 @@ using NLog;
 using SmiServices.Common.Options;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 
 namespace SmiServices.Common
@@ -12,18 +13,20 @@ namespace SmiServices.Common
 
         private static bool _initialised;
 
-        public static void Setup(LoggingOptions loggingOptions, string hostProcessName)
+        public static void Setup(LoggingOptions loggingOptions, string hostProcessName, IFileSystem? fileSystem = null)
         {
             if (_initialised)
                 throw new Exception("SmiLogging already initialised");
             _initialised = true;
 
-            string localConfig = Path.Combine(Directory.GetCurrentDirectory(), DefaultLogConfigName);
+            fileSystem ??= new FileSystem();
+
+            string localConfig = fileSystem.Path.Combine(fileSystem.Directory.GetCurrentDirectory(), DefaultLogConfigName);
             string configFilePathToLoad = !string.IsNullOrWhiteSpace(loggingOptions.LogConfigFile)
                 ? loggingOptions.LogConfigFile
                 : localConfig;
 
-            if (!File.Exists(configFilePathToLoad))
+            if (!fileSystem.File.Exists(configFilePathToLoad))
                 throw new FileNotFoundException($"Could not find the specified logging configuration '{configFilePathToLoad})'");
 
             LogManager.ThrowConfigExceptions = true;
@@ -31,10 +34,10 @@ namespace SmiServices.Common
 
             if (!string.IsNullOrWhiteSpace(loggingOptions.LogsRoot))
             {
-                if (!Directory.Exists(loggingOptions.LogsRoot))
+                if (!fileSystem.Directory.Exists(loggingOptions.LogsRoot))
                     throw new ApplicationException($"Invalid log root '{loggingOptions.LogsRoot}'");
 
-                VerifyCanWrite(loggingOptions.LogsRoot);
+                VerifyCanWrite(loggingOptions.LogsRoot, fileSystem);
 
                 LogManager.Configuration.Variables["baseFileName"] =
                     $"{loggingOptions.LogsRoot}/" +
@@ -42,7 +45,7 @@ namespace SmiServices.Common
                     $"${{cached:cached=true:clearCache=None:inner=${{date:format=yyyy-MM-dd-HH-mm-ss}}}}-${{processid}}";
             }
             else
-                VerifyCanWrite(Directory.GetCurrentDirectory());
+                VerifyCanWrite(fileSystem.Directory.GetCurrentDirectory(), fileSystem);
 
             Logger logger = LogManager.GetLogger(nameof(SmiLogging));
             LogManager.GlobalThreshold = LogLevel.Trace;
@@ -54,13 +57,13 @@ namespace SmiServices.Common
             logger.Info($"Logging config loaded from {configFilePathToLoad}");
         }
 
-        private static void VerifyCanWrite(string logsRoot)
+        private static void VerifyCanWrite(string logsRoot, IFileSystem fileSystem)
         {
-            string[] tmpFileParts = Path.GetTempFileName().Split(Path.DirectorySeparatorChar);
-            string tmpFileInLogsRoot = Path.Combine(logsRoot, tmpFileParts[^1]);
+            string[] tmpFileParts = fileSystem.Path.GetTempFileName().Split(fileSystem.Path.DirectorySeparatorChar);
+            string tmpFileInLogsRoot = fileSystem.Path.Combine(logsRoot, tmpFileParts[^1]);
             try
             {
-                File.WriteAllText(tmpFileInLogsRoot, "");
+                fileSystem.File.WriteAllText(tmpFileInLogsRoot, "");
             }
             catch (UnauthorizedAccessException e)
             {
@@ -68,7 +71,7 @@ namespace SmiServices.Common
             }
             finally
             {
-                File.Delete(tmpFileInLogsRoot);
+                fileSystem.File.Delete(tmpFileInLogsRoot);
             }
         }
     }

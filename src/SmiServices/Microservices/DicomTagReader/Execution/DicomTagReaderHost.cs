@@ -15,10 +15,10 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         private readonly TagReaderBase _tagReader;
 
 
-        public DicomTagReaderHost(GlobalOptions options)
-            : base(options)
+        public DicomTagReaderHost(GlobalOptions options, IFileSystem? fileSystem = null)
+            : base(options, fileSystem ?? new FileSystem())
         {
-            if (!Directory.Exists(options.FileSystemOptions!.FileSystemRoot))
+            if (!FileSystem.Directory.Exists(options.FileSystemOptions!.FileSystemRoot))
                 throw new ArgumentException(
                     $"Cannot find the FileSystemRoot specified in the given MicroservicesOptions ({options.FileSystemOptions.FileSystemRoot})");
 

@@ -16,17 +16,6 @@ namespace SmiServices.Applications.DicomDirectoryProcessor
         public string? DirectoryFormat { get; set; }
 
 
-        public DirectoryInfo? ToProcessDir
-        {
-            get
-            {
-                return ToProcess == null
-                    ? null
-                    : new DirectoryInfo(ToProcess);
-            }
-            set => ToProcess = value?.FullName ?? throw new ArgumentNullException(nameof(value));
-        }
-
         [Usage]
         public static IEnumerable<Example> Examples
         {

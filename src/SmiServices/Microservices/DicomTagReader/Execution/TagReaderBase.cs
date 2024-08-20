@@ -20,7 +20,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
     public abstract class TagReaderBase
     {
         private readonly string _filesystemRoot;
-        private readonly IFileSystem _fs;
+        private readonly IFileSystem _fileSystem;
 
         private readonly IProducerModel _seriesMessageProducerModel;
         private readonly IProducerModel _fileMessageProducerModel;
@@ -68,7 +68,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
 
             _seriesMessageProducerModel = seriesMessageProducerModel;
             _fileMessageProducerModel = fileMessageProducerModel;
-            _fs = fs;
+            _fileSystem = fs;
 
             Logger.Info($"Stopwatch implementation - IsHighResolution: {Stopwatch.IsHighResolution}. Frequency: {Stopwatch.Frequency} ticks/s");
         }
@@ -82,18 +82,18 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         {
             _stopwatch.Restart();
 
-            string dirPath = message.GetAbsolutePath(_filesystemRoot);
+            string dirPath = _fileSystem.Path.Combine(_filesystemRoot, message.DirectoryPath);
             Logger.Debug("TagReader: About to process files in " + dirPath);
 
-            if (!_fs.Directory.Exists(dirPath))
+            if (!_fileSystem.Directory.Exists(dirPath))
                 throw new ApplicationException("Directory not found: " + dirPath);
 
             if (!dirPath.StartsWith(_filesystemRoot, StringComparison.CurrentCultureIgnoreCase))
                 throw new ApplicationException("Directory " + dirPath + " is not below the given FileSystemRoot (" +
                                                _filesystemRoot + ")");
             long beginEnumerate = _stopwatch.ElapsedTicks;
-            string[] dicomFilePaths = _fs.Directory.EnumerateFiles(dirPath, _searchPattern).Where(Include).ToArray();
-            string[] zipFilePaths = _fs.Directory.EnumerateFiles(dirPath).Where(ZipHelper.IsZip).Where(Include).ToArray();
+            string[] dicomFilePaths = _fileSystem.Directory.EnumerateFiles(dirPath, _searchPattern).Where(Include).ToArray();
+            string[] zipFilePaths = _fileSystem.Directory.EnumerateFiles(dirPath).Where(x => ZipHelper.IsZip(_fileSystem.FileInfo.New(x))).Where(Include).ToArray();
 
             _swTotals[0] += _stopwatch.ElapsedTicks - beginEnumerate;
             Logger.Debug("TagReader: Found " + dicomFilePaths.Length + " dicom files to process");
@@ -108,8 +108,8 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
 
             long beginRead = _stopwatch.ElapsedTicks;
 
-            List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(p => new FileInfo(p)), message);
-            fileMessages.AddRange(ReadZipFilesImpl(zipFilePaths.Select(p => new FileInfo(p)), message));
+            List<DicomFileMessage> fileMessages = ReadTagsImpl(dicomFilePaths.Select(_fileSystem.FileInfo.New), message);
+            fileMessages.AddRange(ReadZipFilesImpl(zipFilePaths.Select(_fileSystem.FileInfo.New), message));
 
             _swTotals[1] += (_stopwatch.ElapsedTicks - beginRead) / toProcess;
 
@@ -192,9 +192,9 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         /// <param name="zipFilePaths">All the zip files that must be explored for dcm files</param>
         /// <param name="accMessage">The upstream message that suggested we look for dicom files in a given directory</param>
         /// <returns></returns>
-        protected virtual IEnumerable<DicomFileMessage> ReadZipFilesImpl(IEnumerable<FileInfo> zipFilePaths, AccessionDirectoryMessage accMessage)
+        protected virtual IEnumerable<DicomFileMessage> ReadZipFilesImpl(IEnumerable<IFileInfo> zipFilePaths, AccessionDirectoryMessage accMessage)
         {
-            foreach (FileInfo zipFilePath in zipFilePaths)
+            foreach (var zipFilePath in zipFilePaths)
             {
                 using var archive = ZipFile.Open(zipFilePath.FullName, ZipArchiveMode.Read);
                 foreach (var entry in archive.Entries)
@@ -285,7 +285,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
                 ms.Write(buffer, 0, read);
             }
         }
-        protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
+        protected abstract List<DicomFileMessage> ReadTagsImpl(IEnumerable<IFileInfo> dicomFilePaths,
             AccessionDirectoryMessage accMessage);
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         /// </summary>
         /// <param name="dicomFilePath"></param>
         /// <returns></returns>
-        protected DicomFileMessage ReadTagsFromFile(FileInfo dicomFilePath)
+        protected DicomFileMessage ReadTagsFromFile(IFileInfo dicomFilePath)
         {
             try
             {

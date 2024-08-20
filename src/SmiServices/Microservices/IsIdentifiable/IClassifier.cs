@@ -1,6 +1,5 @@
 using IsIdentifiable.Failures;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.IsIdentifiable
@@ -10,7 +9,7 @@ namespace SmiServices.Microservices.IsIdentifiable
         /// <summary>
         /// The location in which you can get your required data files
         /// </summary>
-        DirectoryInfo? DataDirectory { get; set; }
+        IDirectoryInfo? DataDirectory { get; set; }
 
         IEnumerable<Failure> Classify(IFileInfo dcm);
     }

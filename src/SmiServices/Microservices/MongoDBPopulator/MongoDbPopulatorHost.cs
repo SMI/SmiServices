@@ -3,6 +3,7 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace SmiServices.Microservices.MongoDBPopulator
@@ -15,8 +16,8 @@ namespace SmiServices.Microservices.MongoDBPopulator
         public readonly List<IMongoDbPopulatorMessageConsumer> Consumers = [];
 
 
-        public MongoDbPopulatorHost(GlobalOptions options)
-            : base(options)
+        public MongoDbPopulatorHost(GlobalOptions options, IFileSystem? fileSystem = null)
+            : base(options, fileSystem ?? new FileSystem())
         {
             Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases!.DicomStoreOptions!, options.MongoDbPopulatorOptions!, options.MongoDbPopulatorOptions!.SeriesQueueConsumerOptions!));
             Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions!, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions!));

@@ -20,6 +20,7 @@ using SmiServices.Microservices.MongoDBPopulator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 
@@ -118,7 +119,7 @@ DicomTagReader {
                 if (string.IsNullOrWhiteSpace(yamlFile))
                     throw new Exception("You have not yet entered a path for yaml file");
 
-                Options = new GlobalOptionsFactory().Load("Setup", yamlFile);
+                Options = new GlobalOptionsFactory().Load("Setup", new FileSystem(), yamlFile);
                 DeserializeYaml = new CheckEventArgs("Deserialized Yaml File", CheckResult.Success);
             }
             catch (Exception ex)

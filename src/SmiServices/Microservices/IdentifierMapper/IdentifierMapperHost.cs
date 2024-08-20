@@ -7,6 +7,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using StackExchange.Redis;
 using System;
+using System.IO.Abstractions;
 
 
 namespace SmiServices.Microservices.IdentifierMapper
@@ -24,8 +25,8 @@ namespace SmiServices.Microservices.IdentifierMapper
 
 
 
-        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers? swapper = null)
-            : base(options)
+        public IdentifierMapperHost(GlobalOptions options, ISwapIdentifiers? swapper = null, IFileSystem? fileSystem = null)
+            : base(options, fileSystem ?? new FileSystem())
         {
             _consumerOptions = options.IdentifierMapperOptions!;
 

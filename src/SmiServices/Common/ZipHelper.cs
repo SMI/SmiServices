@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 
 namespace SmiServices.Common
@@ -21,16 +20,5 @@ namespace SmiServices.Common
         {
             return SupportedExtensions.Contains(f.Extension);
         }
-
-        /// <summary>
-        /// Returns true if <paramref name="path"/> looks like a compressed archive compatible with smi e.g. zip, tar etc
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static bool IsZip(string path)
-        {
-            return SupportedExtensions.Contains(Path.GetExtension(path));
-        }
-
     }
 }
