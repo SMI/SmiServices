@@ -25,6 +25,7 @@
         <PackageReference Include="RabbitMQ.Client" />
         <PackageReference Include="StackExchange.Redis" />
         <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" />
+        <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" />
         <PackageReference Include="YamlDotNet" />
     </ItemGroup>
 </Project>
