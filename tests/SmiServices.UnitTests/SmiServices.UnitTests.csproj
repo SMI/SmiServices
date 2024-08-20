@@ -5,7 +5,7 @@
         <PackageReference Include="Moq" />
         <PackageReference Include="NLog" />
         <PackageReference Include="NunitXml.TestLogger" />
-        <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+        <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" />
         <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
     </ItemGroup>
     <ItemGroup>
