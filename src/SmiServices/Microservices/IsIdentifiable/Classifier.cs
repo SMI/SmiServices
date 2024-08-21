@@ -9,10 +9,10 @@ namespace SmiServices.Microservices.IsIdentifiable
 {
     public abstract class Classifier : IClassifier
     {
-        public DirectoryInfo? DataDirectory { get; set; }
+        public IDirectoryInfo? DataDirectory { get; set; }
 
 
-        protected Classifier(DirectoryInfo dataDirectory)
+        protected Classifier(IDirectoryInfo dataDirectory)
         {
             DataDirectory = dataDirectory;
 
@@ -27,7 +27,7 @@ namespace SmiServices.Microservices.IsIdentifiable
         /// </summary>
         /// <param name="toFind"></param>
         /// <returns></returns>
-        protected DirectoryInfo GetSubdirectory(string toFind)
+        protected IDirectoryInfo GetSubdirectory(string toFind)
         {
             var stanfordNerDir = DataDirectory!.GetDirectories(toFind).SingleOrDefault() ?? throw new DirectoryNotFoundException($"Expected sub-directory called '{toFind}' to exist in '{DataDirectory}'");
             return stanfordNerDir;

@@ -2,6 +2,7 @@ using SmiServices.Common;
 using SmiServices.Common.Execution;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
+using System.IO.Abstractions;
 
 
 namespace SmiServices.Applications.TriggerUpdates
@@ -11,8 +12,8 @@ namespace SmiServices.Applications.TriggerUpdates
         private readonly ITriggerUpdatesSource _source;
         private readonly IProducerModel _producer;
 
-        public TriggerUpdatesHost(GlobalOptions options, ITriggerUpdatesSource source, IMessageBroker? messageBroker = null)
-            : base(options, messageBroker)
+        public TriggerUpdatesHost(GlobalOptions options, ITriggerUpdatesSource source, IMessageBroker? messageBroker = null, IFileSystem? fileSystem = null)
+            : base(options, fileSystem ?? new FileSystem(), messageBroker)
         {
             _source = source;
             _producer = MessageBroker.SetupProducer(options.TriggerUpdatesOptions!, isBatch: false);

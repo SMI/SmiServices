@@ -5,6 +5,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.DicomTagReader.Messaging
 {
@@ -61,10 +62,10 @@ namespace SmiServices.Microservices.DicomTagReader.Messaging
         /// Runs a single file (dicom or zip) through tag reading process
         /// </summary>
         /// <param name="file"></param>
-        public void RunSingleFile(FileInfo file)
+        public void RunSingleFile(IFileInfo file)
         {
             // tell reader only to consider our specific file
-            _reader.IncludeFile = f => new FileInfo(f).FullName.Equals(file.FullName, StringComparison.CurrentCultureIgnoreCase);
+            _reader.IncludeFile = f => file.FileSystem.FileInfo.New(f).FullName.Equals(file.FullName, StringComparison.CurrentCultureIgnoreCase);
             _reader.ReadTags(null, new AccessionDirectoryMessage(_opts.FileSystemOptions!.FileSystemRoot!, file.Directory!));
 
             // good practice to clear this afterwards

@@ -4,6 +4,7 @@ using SmiServices.Common.Options;
 using System;
 using System.Globalization;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Applications.DicomDirectoryProcessor
 {
@@ -19,32 +20,35 @@ namespace SmiServices.Applications.DicomDirectoryProcessor
         /// Constructor
         /// </summary>
         /// <param name="cliOptions">Common microservices options.  Must contain details for an message exchange labelled as "accessionDirectories"</param>
+        /// <param name="fileSystem"></param>
         /// <param name="globals">Configuration settings for the program</param>
-        public DicomDirectoryProcessorHost(GlobalOptions globals, DicomDirectoryProcessorCliOptions cliOptions)
-            : base(globals)
+        public DicomDirectoryProcessorHost(GlobalOptions globals, DicomDirectoryProcessorCliOptions cliOptions, IFileSystem? fileSystem = null)
+            : base(globals, fileSystem ?? new FileSystem())
         {
             _cliOptions = cliOptions;
+
+            IDirectoryInfo toProcessDir = FileSystem.DirectoryInfo.New(cliOptions.ToProcess);
 
             if (!cliOptions.DirectoryFormat!.ToLower().Equals("list"))
             {
                 // TODO(rkm 2020-02-12) I think we want to check this regardless of the mode
                 // (bp 2020-02-13) By not doing this check on list means that the list of paths is not required to be in PACS and can be imported from anywhere
-                if (!Directory.Exists(globals.FileSystemOptions!.FileSystemRoot))
-                    throw new ArgumentException("Cannot find the FileSystemRoot specified in the given MicroservicesOptions (" + globals.FileSystemOptions.FileSystemRoot + ")");
+                if (!FileSystem.Directory.Exists(globals.FileSystemOptions!.FileSystemRoot))
+                    throw new ArgumentException($"Cannot find the FileSystemRoot specified in the given MicroservicesOptions ({globals.FileSystemOptions.FileSystemRoot})");
 
-                if (!cliOptions.ToProcessDir!.Exists)
-                    throw new ArgumentException("Could not find directory " + cliOptions.ToProcessDir.FullName);
+                if (!toProcessDir.Exists)
+                    throw new ArgumentException($"Could not find directory {toProcessDir.FullName}");
 
-                if (!cliOptions.ToProcessDir.FullName.StartsWith(globals.FileSystemOptions.FileSystemRoot, true, CultureInfo.CurrentCulture))
-                    throw new ArgumentException("Directory parameter (" + cliOptions.ToProcessDir.FullName + ") must be below the FileSystemRoot (" + globals.FileSystemOptions.FileSystemRoot + ")");
+                if (!toProcessDir.FullName.StartsWith(globals.FileSystemOptions.FileSystemRoot, true, CultureInfo.CurrentCulture))
+                    throw new ArgumentException($"Directory parameter ({toProcessDir.FullName}) must be below the FileSystemRoot ({globals.FileSystemOptions.FileSystemRoot})");
             }
             else
             {
-                if (!File.Exists(cliOptions.ToProcessDir!.FullName))
-                    throw new ArgumentException("Could not find accession directory list file (" + cliOptions.ToProcessDir.FullName + ")");
+                if (!FileSystem.File.Exists(toProcessDir.FullName))
+                    throw new ArgumentException($"Could not find accession directory list file ({toProcessDir.FullName})");
 
-                if (!Path.GetExtension(cliOptions.ToProcessDir.FullName).Equals(".csv"))
-                    throw new ArgumentException("When in 'list' mode, path to accession directory file of format .csv expected (" + cliOptions.ToProcessDir.FullName + ")");
+                if (!FileSystem.Path.GetExtension(toProcessDir.FullName).Equals(".csv"))
+                    throw new ArgumentException($"When in 'list' mode, path to accession directory file of format .csv expected ({toProcessDir.FullName})");
             }
 
             switch (cliOptions.DirectoryFormat.ToLower())
@@ -84,9 +88,11 @@ namespace SmiServices.Applications.DicomDirectoryProcessor
         /// </summary>
         public override void Start()
         {
+            IDirectoryInfo toProcessDir = FileSystem.DirectoryInfo.New(_cliOptions.ToProcess);
+
             try
             {
-                _ddf.SearchForDicomDirectories(_cliOptions.ToProcessDir!.FullName);
+                _ddf.SearchForDicomDirectories(toProcessDir.FullName);
             }
             catch (Exception e)
             {

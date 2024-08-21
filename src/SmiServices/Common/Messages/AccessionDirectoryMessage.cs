@@ -3,6 +3,7 @@ using Equ;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Common.Messages
 {
@@ -19,15 +20,13 @@ namespace SmiServices.Common.Messages
 
         public AccessionDirectoryMessage() { }
 
-        public AccessionDirectoryMessage(string root, DirectoryInfo directory)
+        public AccessionDirectoryMessage(string root, IDirectoryInfo directory)
         {
             if (!directory.FullName.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
                 throw new Exception("Directory '" + directory + "' did not share a common root with the root '" + root + "'");
 
             DirectoryPath = directory.FullName[root.Length..].TrimStart(Path.DirectorySeparatorChar);
         }
-
-        public string GetAbsolutePath(string rootPath) => Path.Combine(rootPath, DirectoryPath);
 
         public override string ToString() => $"AccessionDirectoryMessage[DirectoryPath={DirectoryPath}]";
     }

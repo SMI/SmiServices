@@ -1,14 +1,13 @@
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.IsIdentifiable
 {
     public class RejectAllClassifier : Classifier
     {
-        public RejectAllClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions _) : base(dataDirectory)
+        public RejectAllClassifier(IDirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions _) : base(dataDirectory)
         {
         }
 

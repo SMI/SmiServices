@@ -15,7 +15,8 @@ namespace SmiServices.Microservices.FileCopier
             IFileSystem? fileSystem = null
         )
         : base(
-            options
+            options,
+            fileSystem ?? new FileSystem()
         )
         {
             Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions!.FileSystemRoot);
@@ -27,7 +28,7 @@ namespace SmiServices.Microservices.FileCopier
                 copyStatusProducerModel,
                 Globals.FileSystemOptions.FileSystemRoot!,
                 Globals.FileSystemOptions.ExtractRoot!,
-                fileSystem
+                FileSystem
             );
             _consumer = new FileCopyQueueConsumer(fileCopier);
         }

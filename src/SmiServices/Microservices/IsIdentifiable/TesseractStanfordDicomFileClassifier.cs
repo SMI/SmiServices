@@ -4,7 +4,6 @@ using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.IsIdentifiable
@@ -14,15 +13,15 @@ namespace SmiServices.Microservices.IsIdentifiable
         private readonly DicomFileRunner _runner;
 
         //public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
-        public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions fileOptions) : base(dataDirectory)
+        public TesseractStanfordDicomFileClassifier(IDirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions fileOptions) : base(dataDirectory)
         {
             //need to pass this so that the runner doesn't get unhappy about there being no reports (even though we clear it below)
             fileOptions.ColumnReport = true;
             fileOptions.TessDirectory = dataDirectory.FullName;
 
             // The Rules directory is always called "IsIdentifiableRules"
-            DirectoryInfo[] subDirs = dataDirectory.GetDirectories("IsIdentifiableRules");
-            foreach (DirectoryInfo subDir in subDirs)
+            var subDirs = dataDirectory.GetDirectories("IsIdentifiableRules");
+            foreach (var subDir in subDirs)
                 fileOptions.RulesDirectory = subDir.FullName;
 
             _runner = new DicomFileRunner(fileOptions, new FileSystem());

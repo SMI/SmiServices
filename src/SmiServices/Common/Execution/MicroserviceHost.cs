@@ -7,6 +7,7 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
+using System.IO.Abstractions;
 
 namespace SmiServices.Common.Execution
 {
@@ -19,6 +20,7 @@ namespace SmiServices.Common.Execution
 
         protected readonly GlobalOptions Globals;
         protected readonly ILogger Logger;
+        protected readonly IFileSystem FileSystem;
 
         protected readonly IMessageBroker MessageBroker;
 
@@ -39,15 +41,20 @@ namespace SmiServices.Common.Execution
         /// Loads logging, sets up fatal behaviour, subscribes rabbit etc.
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
+        /// <param name="fileSystem"></param>
         /// <param name="messageBroker"></param>
         /// <param name="threaded"></param>
         protected MicroserviceHost(
             GlobalOptions globals,
+            IFileSystem fileSystem,
             IMessageBroker? messageBroker = null,
-            bool threaded = false)
+            bool threaded = false
+        )
         {
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)
                 throw new ArgumentException("All or part of the global options are null");
+
+            FileSystem = fileSystem;
 
             // Disable fo-dicom's DICOM validation globally from here
             new DicomSetupBuilder().SkipValidation();

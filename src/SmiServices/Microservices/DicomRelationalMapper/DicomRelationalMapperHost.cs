@@ -11,6 +11,7 @@ using SmiServices.Common;
 using SmiServices.Common.Execution;
 using SmiServices.Common.Options;
 using System;
+using System.IO.Abstractions;
 
 
 namespace SmiServices.Microservices.DicomRelationalMapper
@@ -19,8 +20,8 @@ namespace SmiServices.Microservices.DicomRelationalMapper
     {
         public DicomRelationalMapperQueueConsumer? Consumer { get; private set; }
 
-        public DicomRelationalMapperHost(GlobalOptions globals)
-            : base(globals)
+        public DicomRelationalMapperHost(GlobalOptions globals, IFileSystem? fileSystem = null)
+            : base(globals, fileSystem ?? new FileSystem())
         {
             FansiImplementations.Load();
         }

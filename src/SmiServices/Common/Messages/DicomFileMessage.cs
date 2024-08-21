@@ -60,32 +60,6 @@ namespace SmiServices.Common.Messages
             DicomFilePath = file[root.Length..].TrimStart(Path.DirectorySeparatorChar);
         }
 
-        public string GetAbsolutePath(string rootPath)
-        {
-            return Path.Combine(rootPath, DicomFilePath);
-        }
-
-        public bool Validate(string fileSystemRoot)
-        {
-            var absolutePath = GetAbsolutePath(fileSystemRoot);
-
-            if (string.IsNullOrWhiteSpace(absolutePath))
-                return false;
-
-            try
-            {
-                var dir = new FileInfo(absolutePath);
-
-                //There file referenced must exist 
-                return dir.Exists;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-        }
-
         public bool VerifyPopulated()
         {
             return !string.IsNullOrWhiteSpace(DicomFilePath) &&

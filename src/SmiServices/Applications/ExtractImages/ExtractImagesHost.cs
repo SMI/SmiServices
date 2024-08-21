@@ -14,8 +14,6 @@ namespace SmiServices.Applications.ExtractImages
 {
     public class ExtractImagesHost : MicroserviceHost
     {
-        private readonly IFileSystem _fileSystem;
-
         private readonly string _csvFilePath;
 
         private readonly IExtractionMessageSender _extractionMessageSender;
@@ -26,37 +24,37 @@ namespace SmiServices.Applications.ExtractImages
         public ExtractImagesHost(
             GlobalOptions globals,
             ExtractImagesCliOptions cliOptions,
+            IFileSystem? fileSystem = null,
             IExtractionMessageSender? extractionMessageSender = null,
             IMessageBroker? messageBroker = null,
-            IFileSystem? fileSystem = null,
             bool threaded = false
         )
         : base(
             globals,
+            fileSystem ?? new FileSystem(),
             messageBroker,
             threaded
         )
         {
             ExtractImagesOptions? options = Globals.ExtractImagesOptions ?? throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
-            _fileSystem = fileSystem ?? new FileSystem();
 
             string extractRoot = Globals.FileSystemOptions?.ExtractRoot ?? throw new ArgumentException("Some part of Globals.FileSystemOptions.ExtractRoot was null");
-            if (!_fileSystem.Directory.Exists(extractRoot))
+            if (!FileSystem.Directory.Exists(extractRoot))
                 throw new DirectoryNotFoundException($"Could not find the extraction root '{extractRoot}'");
 
             _csvFilePath = cliOptions.CohortCsvFile;
             if (string.IsNullOrWhiteSpace(_csvFilePath))
                 throw new ArgumentNullException(nameof(cliOptions));
-            if (!_fileSystem.File.Exists(_csvFilePath))
+            if (!FileSystem.File.Exists(_csvFilePath))
                 throw new FileNotFoundException($"Could not find the cohort CSV file '{_csvFilePath}'");
 
             // TODO(rkm 2021-04-01) Now that all the extraction path code is in C#, we would benefit from refactoring it all out
             //                      to a helper class to support having multiple configurations (and probably prevent some bugs)
-            string extractionName = _fileSystem.Path.GetFileNameWithoutExtension(_csvFilePath);
-            string extractionDir = _fileSystem.Path.Join(cliOptions.ProjectId, "extractions", extractionName);
-            _absoluteExtractionDir = _fileSystem.Path.Join(extractRoot, extractionDir);
+            string extractionName = FileSystem.Path.GetFileNameWithoutExtension(_csvFilePath);
+            string extractionDir = FileSystem.Path.Join(cliOptions.ProjectId, "extractions", extractionName);
+            _absoluteExtractionDir = FileSystem.Path.Join(extractRoot, extractionDir);
 
-            if (_fileSystem.Directory.Exists(_absoluteExtractionDir))
+            if (FileSystem.Directory.Exists(_absoluteExtractionDir))
                 throw new DirectoryNotFoundException($"Extraction directory already exists '{_absoluteExtractionDir}'");
 
             if (extractionMessageSender == null)
@@ -69,7 +67,7 @@ namespace SmiServices.Applications.ExtractImages
                     cliOptions,
                     extractionRequestProducer,
                     extractionRequestInfoProducer,
-                    _fileSystem,
+                    FileSystem,
                     extractRoot,
                     extractionDir,
                     new DateTimeProvider(),
@@ -85,7 +83,7 @@ namespace SmiServices.Applications.ExtractImages
 
         public override void Start()
         {
-            var parser = new CohortCsvParser(_fileSystem);
+            var parser = new CohortCsvParser(FileSystem);
             (ExtractionKey extractionKey, List<string> idList) = parser.Parse(_csvFilePath);
 
             _extractionMessageSender.SendMessages(extractionKey, idList);

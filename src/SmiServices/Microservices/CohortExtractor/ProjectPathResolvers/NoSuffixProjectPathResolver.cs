@@ -1,3 +1,5 @@
+using System.IO.Abstractions;
+
 namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
 {
     /// <summary>
@@ -5,7 +7,8 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
     /// </summary>
     public class NoSuffixProjectPathResolver : DefaultProjectPathResolver
     {
-        public NoSuffixProjectPathResolver()
+        public NoSuffixProjectPathResolver(IFileSystem fileSystem)
+            : base(fileSystem)
         {
             AnonExt = ".dcm";
         }

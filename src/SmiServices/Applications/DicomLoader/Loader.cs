@@ -15,6 +15,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -257,9 +258,10 @@ public class Loader
     private readonly DicomLoaderOptions _loadOptions;
     private readonly ParallelDLEHost? _parallelDleHost;
     private readonly LoadMetadata? _lmd;
+    private readonly IFileSystem _fileSystem;
 
     public Loader(IMongoDatabase database, string imageCollection, string seriesCollection,
-        DicomLoaderOptions loadOptions, ParallelDLEHost? parallelDleHost, LoadMetadata? lmd)
+        DicomLoaderOptions loadOptions, ParallelDLEHost? parallelDleHost, LoadMetadata? lmd, IFileSystem? fileSystem = null)
     {
         _imageQueueLock = new object();
         _seriesListLock = new ReaderWriterLockSlim();
@@ -282,6 +284,7 @@ public class Loader
         _statsLock = new object();
         _imageStore = database.GetCollection<BsonDocument>(imageCollection);
         _seriesStore = database.GetCollection<SeriesMessage>(seriesCollection);
+        _fileSystem = fileSystem ?? new FileSystem();
     }
 
     /// <summary>
@@ -290,13 +293,13 @@ public class Loader
     /// <param name="fi">DICOM file or archive of DICOM files to load</param>
     /// <param name="ct">Cancellation token</param>
     /// <exception cref="ApplicationException"></exception>
-    private void Process(FileInfo fi, CancellationToken ct)
+    private void Process(IFileInfo fi, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         var dName = fi.DirectoryName ?? throw new ApplicationException($"No parent directory for '{fi.FullName}'");
         var bBuffer = new byte[132];
         var buffer = new Span<byte>(bBuffer);
-        using (var fileStream = File.OpenRead(fi.FullName))
+        using (var fileStream = fi.OpenRead())
         {
             if (fileStream.Read(buffer) == 132 && buffer[128..].SequenceEqual(_dicomMagic))
             {
@@ -429,7 +432,7 @@ public class Loader
     /// <returns></returns>
     public ValueTask Load(string filename, CancellationToken ct)
     {
-        if (!File.Exists(filename))
+        if (!_fileSystem.File.Exists(filename))
         {
             Console.WriteLine($@"{filename} does not exist, skipping");
             return ValueTask.CompletedTask;
@@ -442,7 +445,7 @@ public class Loader
 
         try
         {
-            Process(new FileInfo(filename), ct);
+            Process(_fileSystem.FileInfo.New(filename), ct);
         }
         catch (Exception e)
         {

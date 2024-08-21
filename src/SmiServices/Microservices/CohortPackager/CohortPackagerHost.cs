@@ -42,14 +42,14 @@ namespace SmiServices.Microservices.CohortPackager
         /// <param name="dateTimeProvider"></param>
         public CohortPackagerHost(
             GlobalOptions globals,
-            IExtractJobStore? jobStore = null,
             IFileSystem? fileSystem = null,
+            IExtractJobStore? jobStore = null,
             IJobReporter? reporter = null,
             IJobCompleteNotifier? notifier = null,
             IMessageBroker? messageBroker = null,
             DateTimeProvider? dateTimeProvider = null
         )
-            : base(globals, messageBroker)
+            : base(globals, fileSystem ?? new FileSystem(), messageBroker)
         {
             var cohortPackagerOptions = globals.CohortPackagerOptions ??
                 throw new ArgumentNullException(nameof(globals), "CohortPackagerOptions cannot be null");
@@ -77,7 +77,7 @@ namespace SmiServices.Microservices.CohortPackager
 
                 reporter = new JobReporter(
                     jobStore,
-                    fileSystem ?? new FileSystem(),
+                    FileSystem,
                     extractRoot,
                     cohortPackagerOptions.ReportNewLine
                 );

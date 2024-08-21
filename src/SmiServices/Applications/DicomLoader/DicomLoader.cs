@@ -17,6 +17,7 @@ using SmiServices.Microservices.DicomRelationalMapper;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,14 +27,14 @@ namespace SmiServices.Applications.DicomLoader;
 public static class DicomLoader
 {
     private static CancellationTokenSource? _cts;
-    public static int Main(IEnumerable<string> args)
+    public static int Main(IEnumerable<string> args, IFileSystem? fileSystem = null)
     {
-        return SmiCliInit.ParseAndRun<DicomLoaderOptions>(args, typeof(DicomLoader), OnParse);
+        return SmiCliInit.ParseAndRun<DicomLoaderOptions>(args, typeof(DicomLoader), OnParse, fileSystem ?? new FileSystem());
     }
 
-    private static int OnParse(GlobalOptions g, DicomLoaderOptions cliOptions)
+    private static int OnParse(GlobalOptions g, IFileSystem fileSystem, DicomLoaderOptions cliOptions)
     {
-        return OnParse(g, cliOptions, null);
+        return OnParse(g, fileSystem, cliOptions, null);
     }
 
     private static void CancelHandler(object? _, ConsoleCancelEventArgs a)
@@ -42,7 +43,7 @@ public static class DicomLoader
         a.Cancel = true;
     }
 
-    private static int OnParse(GlobalOptions go, DicomLoaderOptions dicomLoaderOptions, Stream? fileList)
+    private static int OnParse(GlobalOptions go, IFileSystem fileSystem, DicomLoaderOptions dicomLoaderOptions, Stream? fileList)
     {
         if (go.MongoDatabases?.DicomStoreOptions is null)
             throw new InvalidOperationException("MongoDatabases or DICOM store options not set");

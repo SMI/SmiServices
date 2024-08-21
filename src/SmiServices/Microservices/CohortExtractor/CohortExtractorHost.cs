@@ -15,6 +15,7 @@ using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -45,10 +46,11 @@ namespace SmiServices.Microservices.CohortExtractor
         /// Creates a new instance of the host with the given 
         /// </summary>
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
+        /// <param name="fileSystem"></param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller)
-            : base(options)
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller, IFileSystem? fileSystem = null)
+            : base(options, fileSystem ?? new FileSystem())
         {
             _consumerOptions = options.CohortExtractorOptions!;
             _consumerOptions.Validate();
@@ -151,7 +153,7 @@ namespace SmiServices.Microservices.CohortExtractor
                 }
 
             _pathResolver = string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType)
-                ? new DefaultProjectPathResolver()
+                ? new DefaultProjectPathResolver(FileSystem)
                 : ObjectFactory.CreateInstance<IProjectPathResolver>(
                     _consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly, repositoryLocator);
         }
