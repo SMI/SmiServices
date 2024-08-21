@@ -39,13 +39,13 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Execution.RequestF
         [Test]
         public void Test_QueryToExecuteResult_RejectReasonNullOrEmpty_ThrowsException()
         {
-            Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<ArgumentException>(static () =>
             {
-                var _ = new QueryToExecuteResult("foo", "bar", "baz", "whee", rejection: true, rejectionReason: null);
+                var _ = new QueryToExecuteResult("foo", "bar", "baz", "whee", true, null);
             });
-            Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<ArgumentException>(static () =>
             {
-                var _ = new QueryToExecuteResult("foo", "bar", "baz", "whee", rejection: true, rejectionReason: "  ");
+                var _ = new QueryToExecuteResult("foo", "bar", "baz", "whee", true, "  ");
             });
         }
 
