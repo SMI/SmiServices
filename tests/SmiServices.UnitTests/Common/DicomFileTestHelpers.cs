@@ -19,6 +19,7 @@ namespace SmiServices.UnitTests.Common
                 { DicomTag.StudyInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID() },
                 { DicomTag.SeriesInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID() },
                 { DicomTag.SOPInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID() },
+                { DicomTag.PatientID, "PatientID" },
             };
             using var stream = fileInfo.OpenWrite();
             new DicomFile(ds).Save(stream);
