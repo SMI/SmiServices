@@ -1,4 +1,3 @@
-using Equ;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using SmiServices.Common.Helpers;
@@ -11,7 +10,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
     /// <summary>
     /// Class which represents a document created from an extraction message header
     /// </summary>
-    public class MongoExtractionMessageHeaderDoc : MemberwiseEquatable<MongoExtractionMessageHeaderDoc>
+    public sealed record MongoExtractionMessageHeaderDoc
     {
         [BsonElement("extractionJobIdentifier")]
         [BsonRepresentation(BsonType.String)]

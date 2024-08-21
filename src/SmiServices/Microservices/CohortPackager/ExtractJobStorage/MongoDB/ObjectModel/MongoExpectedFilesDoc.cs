@@ -1,4 +1,3 @@
-using Equ;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using SmiServices.Common.Helpers;
@@ -15,7 +14,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
     /// MongoDB document model representing a set of files which are expected to be extracted
     /// </summary>
     [BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
-    public class MongoExpectedFilesDoc : MemberwiseEquatable<MongoExpectedFilesDoc>
+    public sealed record MongoExpectedFilesDoc
     {
         [BsonElement("header")]
         public MongoExtractionMessageHeaderDoc Header { get; set; }
@@ -55,7 +54,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
         }
     }
 
-    public class MongoExpectedFileInfoDoc : MemberwiseEquatable<MongoExpectedFileInfoDoc>
+    public sealed record MongoExpectedFileInfoDoc
     {
         [BsonElement("extractFileMessageGuid")]
         [BsonRepresentation(BsonType.String)]
@@ -76,7 +75,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
     /// <summary>
     /// MongoDB document model representing the rejection reasons for a specific key
     /// </summary>
-    public class MongoRejectedKeyInfoDoc : MemberwiseEquatable<MongoRejectedKeyInfoDoc>
+    public sealed record MongoRejectedKeyInfoDoc
     {
         [BsonElement("header")]
         public MongoExtractionMessageHeaderDoc Header { get; set; }

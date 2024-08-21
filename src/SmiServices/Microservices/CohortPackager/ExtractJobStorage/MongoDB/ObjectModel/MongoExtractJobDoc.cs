@@ -1,4 +1,3 @@
-using Equ;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using SmiServices.Common.Helpers;
@@ -9,7 +8,7 @@ using System;
 
 namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.ObjectModel
 {
-    public class MongoExtractJobDoc : MemberwiseEquatable<MongoExtractJobDoc>
+    public sealed record MongoExtractJobDoc
     {
         [BsonId]
         [BsonRepresentation(BsonType.String)]
@@ -127,7 +126,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
         }
     }
 
-    public class MongoFailedJobInfoDoc : MemberwiseEquatable<MongoFailedJobInfoDoc?>, IEquatable<MongoFailedJobInfoDoc>
+    public sealed record MongoFailedJobInfoDoc
     {
         [BsonElement("failedAt")]
         public DateTime FailedAt { get; set; }

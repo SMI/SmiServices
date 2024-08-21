@@ -1,4 +1,3 @@
-using Equ;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using SmiServices.Common.Messages.Extraction;
@@ -10,7 +9,7 @@ using System.ComponentModel;
 namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.ObjectModel
 {
     [BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
-    public class MongoFileStatusDoc : MemberwiseEquatable<MongoFileStatusDoc>, ISupportInitialize
+    public sealed record MongoFileStatusDoc : ISupportInitialize
     {
         [BsonElement("header")]
         public MongoExtractionMessageHeaderDoc Header { get; set; }
@@ -72,7 +71,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
                 return;
 
             // NOTE(rkm 2022-07-28) Removed after v1.11.1
-            if (ExtraElements.TryGetValue("anonymisedFileName", out object? anonFileNameValue))
+            if (ExtraElements.TryGetValue("anonymisedFileName", out var anonFileNameValue))
             {
                 OutputFileName = (string)anonFileNameValue;
                 DicomFilePath = "<unknown>";
@@ -80,7 +79,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
             }
 
             // NOTE(rkm 2022-07-28) Removed after v5.1.3
-            if (ExtraElements.TryGetValue("isIdentifiable", out object? isIdentifiableValue))
+            if (ExtraElements.TryGetValue("isIdentifiable", out var isIdentifiableValue))
             {
                 if (OutputFileName == null)
                     VerifiedFileStatus = VerifiedFileStatus.NotVerified;

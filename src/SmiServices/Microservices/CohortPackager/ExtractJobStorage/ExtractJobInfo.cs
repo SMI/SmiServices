@@ -1,4 +1,3 @@
-using Equ;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -8,7 +7,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage
     /// <summary>
     /// Class to wrap up all information about an extract job. Built by the <see cref="IExtractJobStore"/> when loading job information.
     /// </summary>
-    public class ExtractJobInfo : MemberwiseEquatable<ExtractJobInfo>
+    public record ExtractJobInfo
     {
         /// <summary>
         /// Unique identifier for this extract job. In the Mongo store implementation, this is also the _id of the document
