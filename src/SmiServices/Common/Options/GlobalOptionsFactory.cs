@@ -47,9 +47,6 @@ namespace SmiServices.Common.Options
             var globals = deserializer.Deserialize<GlobalOptions?>(yamlContents)
                 ?? throw new Exception("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?");
 
-            if (globals.LoggingOptions == null)
-                throw new Exception($"Loaded YAML did not contain a {nameof(globals.LoggingOptions)} key. Did you provide a valid config file?");
-
             globals.HostProcessName = hostProcessName;
 
             return Decorate(globals);
