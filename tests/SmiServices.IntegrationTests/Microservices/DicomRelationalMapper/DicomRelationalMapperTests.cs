@@ -50,6 +50,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             var fileSystem = new FileSystem();
             var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(d.FullName, "MyTestFile.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
             var fi2 = fileSystem.FileInfo.New(fileSystem.Path.Combine(d.FullName, "MyTestFile2.dcm"));
 
             DicomFile dcm;
