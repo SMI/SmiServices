@@ -5,6 +5,7 @@ using SynthEHR;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace SmiServices.UnitTests.Common
@@ -27,7 +28,7 @@ namespace SmiServices.UnitTests.Common
             return toReturn;
         }
 
-        public static IEnumerable<FileInfo> GenerateImageFiles(this DicomDataGenerator g, int numberOfImages, Random r)
+        public static IEnumerable<IFileInfo> GenerateImageFiles(this DicomDataGenerator g, int numberOfImages, Random r)
         {
             var p = new PersonCollection();
             p.GeneratePeople(5000, r);
@@ -40,7 +41,10 @@ namespace SmiServices.UnitTests.Common
             g.MaximumImages = numberOfImages;
             g.GenerateTestDataFile(p, inventory, numberOfImages);
 
-            return g.OutputDir?.GetFiles("*.dcm", SearchOption.AllDirectories) ?? Enumerable.Empty<FileInfo>();
+            // TODO(rkm 2024-08-21) Make DicomDataGenerator support FileSystem abstractions
+            var fileSystem = new FileSystem();
+
+            return g.OutputDir?.GetFiles("*.dcm", SearchOption.AllDirectories).Select(x => fileSystem.FileInfo.New(x.FullName)) ?? Enumerable.Empty<IFileInfo>();
         }
     }
 }

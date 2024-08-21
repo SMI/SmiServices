@@ -51,6 +51,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_ValidClassifier));
 
             var fileSystem = new FileSystem();
+            fileSystem.Directory.CreateDirectory(fileSystem.Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier)));
             var testDcm = fileSystem.FileInfo.New(fileSystem.Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm"));
             DicomFileTestHelpers.WriteSampleDicomFile(testDcm);
 
