@@ -43,13 +43,9 @@ namespace SmiServices.Common.Options
             if (!fileSystem.File.Exists(configFilePath))
                 throw new ArgumentException($"Could not find config file '{configFilePath}'");
 
-            string yamlContents = fileSystem.File.ReadAllText(configFilePath);
-
-            using var sr = new StringReader(yamlContents);
-            var globals = deserializer.Deserialize<GlobalOptions?>(sr);
-
-            if (globals == null)
-                throw new Exception($"Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?");
+            var yamlContents = fileSystem.File.ReadAllText(configFilePath);
+            var globals = deserializer.Deserialize<GlobalOptions?>(yamlContents)
+                ?? throw new Exception("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?");
 
             if (globals.LoggingOptions == null)
                 throw new Exception($"Loaded YAML did not contain a {nameof(globals.LoggingOptions)} key. Did you provide a valid config file?");
