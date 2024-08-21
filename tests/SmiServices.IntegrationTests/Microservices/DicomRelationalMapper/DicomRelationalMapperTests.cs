@@ -47,9 +47,8 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             DirectoryInfo d = new(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(Test_DodgyTagNames)));
             d.Create();
 
-            var td = new TestData();
-            var fi = td.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
-            var fi2 = td.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile2.dcm")));
+            var fi = new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm"));
+            var fi2 = new FileInfo(Path.Combine(d.FullName, "MyTestFile2.dcm"));
 
             DicomFile dcm;
 
@@ -113,7 +112,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             DirectoryInfo d = new(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_SingleFileMessage)));
             d.Create();
 
-            var fi = new TestData().Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
+            var fi = new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm"));
 
             if (mixInATextFile)
             {

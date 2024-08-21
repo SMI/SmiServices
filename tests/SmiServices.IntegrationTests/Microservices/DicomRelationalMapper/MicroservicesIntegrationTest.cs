@@ -33,6 +33,7 @@ using SmiServices.UnitTests.Common;
 using System;
 using System.Data;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -122,7 +123,9 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
+            var fileSystem = new FileSystem();
+            var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "MyTestFile.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
 
             RunTest(dir, 1);
         }
@@ -159,7 +162,9 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
+            var fileSystem = new FileSystem();
+            var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "Mr.010101"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
 
             try
             {
@@ -206,7 +211,9 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "Mr.010101"))); //this is legit a dicom file
+            var fileSystem = new FileSystem();
+            var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "Mr.010101"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
 
             try
             {
@@ -285,33 +292,35 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
+            var fileSystem = new FileSystem();
 
-            var ds1 = new DicomDataset
-            {
-                { DicomTag.StudyInstanceUID, "1.2.3" },
-                { DicomTag.SeriesInstanceUID, "1.2.2" },
-                { DicomTag.SOPInstanceUID, "1.2.3" },
-                { DicomTag.PatientAge, "030Y" },
-                { DicomTag.PatientID, "123" },
-                { DicomTag.SOPClassUID, "1" },
-                { DicomTag.Modality, "MR" }
-            };
+            DicomFileTestHelpers.WriteSampleDicomFile(
+                fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "abc.dcm")),
+                new DicomDataset
+                {
+                    { DicomTag.StudyInstanceUID, "1.2.3" },
+                    { DicomTag.SeriesInstanceUID, "1.2.2" },
+                    { DicomTag.SOPInstanceUID, "1.2.3" },
+                    { DicomTag.PatientAge, "030Y" },
+                    { DicomTag.PatientID, "123" },
+                    { DicomTag.SOPClassUID, "1" },
+                    { DicomTag.Modality, "MR" }
+                }
+            );
 
-            new DicomFile(ds1).Save(Path.Combine(dir.FullName, "abc.dcm"));
-
-            var ds2 = new DicomDataset
-            {
-                { DicomTag.StudyInstanceUID, "1.2.3" },
-                { DicomTag.SeriesInstanceUID, "1.2.4" },
-                { DicomTag.SOPInstanceUID, "1.2.7" },
-                { DicomTag.PatientAge, "040Y" }, //age is replicated but should be unique at study level so gets isolated
-                { DicomTag.PatientID, "123" },
-                { DicomTag.SOPClassUID, "1" },
-                { DicomTag.Modality, "MR" }
-            };
-
-            new DicomFile(ds2).Save(Path.Combine(dir.FullName, "def.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(
+                fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "def.dcm")),
+                new DicomDataset
+                {
+                    { DicomTag.StudyInstanceUID, "1.2.3" },
+                    { DicomTag.SeriesInstanceUID, "1.2.4" },
+                    { DicomTag.SOPInstanceUID, "1.2.7" },
+                    { DicomTag.PatientAge, "040Y" }, //age is replicated but should be unique at study level so gets isolated
+                    { DicomTag.PatientID, "123" },
+                    { DicomTag.SOPClassUID, "1" },
+                    { DicomTag.Modality, "MR" }
+                }
+            );
 
             var checks = new ProcessTaskChecks(_helper.LoadMetadata);
             checks.Check(new AcceptAllCheckNotifier());
@@ -379,7 +388,9 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
-            new TestData().Create(new FileInfo(Path.Combine(dir.FullName, "MyTestFile.dcm")));
+            var fileSystem = new FileSystem();
+            var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "MyTestFile.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
 
             RunTest(dir, 1);
 
