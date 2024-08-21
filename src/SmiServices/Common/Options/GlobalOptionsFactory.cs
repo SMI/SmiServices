@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using YamlDotNet.Serialization;
 
 namespace SmiServices.Common.Options
@@ -28,24 +29,23 @@ namespace SmiServices.Common.Options
         /// </summary>
         /// <param name="hostProcessName"></param>
         /// <param name="configFilePath"></param>
+        /// <param name="fileSystem"></param>
         /// <returns></returns>
-        public GlobalOptions Load(string hostProcessName, string configFilePath = "default.yaml")
+        public GlobalOptions Load(string hostProcessName, string configFilePath = "default.yaml", IFileSystem? fileSystem = null)
         {
+            fileSystem ??= new FileSystem();
+
             IDeserializer deserializer = new DeserializerBuilder()
                                     .WithObjectFactory(GetGlobalOption)
                                     .IgnoreUnmatchedProperties()
                                     .Build();
 
-            if (!File.Exists(configFilePath))
+            if (!fileSystem.File.Exists(configFilePath))
                 throw new ArgumentException($"Could not find config file '{configFilePath}'");
 
-            string yamlContents = File.ReadAllText(configFilePath);
-
-            using var sr = new StringReader(yamlContents);
-            var globals = deserializer.Deserialize<GlobalOptions>(sr);
-
-            if (globals.LoggingOptions == null)
-                throw new Exception($"Loaded YAML did not contain a {nameof(globals.LoggingOptions)} key. Did you provide a valid config file?");
+            var yamlContents = fileSystem.File.ReadAllText(configFilePath);
+            var globals = deserializer.Deserialize<GlobalOptions?>(yamlContents)
+                ?? throw new Exception("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?");
 
             globals.HostProcessName = hostProcessName;
 
@@ -70,10 +70,11 @@ namespace SmiServices.Common.Options
         /// </summary>
         /// <param name="hostProcessName"></param>
         /// <param name="cliOptions"></param>
+        /// <param name="fileSystem"></param>
         /// <returns></returns>
-        public GlobalOptions Load(string hostProcessName, CliOptions cliOptions)
+        public GlobalOptions Load(string hostProcessName, CliOptions cliOptions, IFileSystem? fileSystem = null)
         {
-            GlobalOptions globalOptions = Load(hostProcessName, cliOptions.YamlFile);
+            GlobalOptions globalOptions = Load(hostProcessName, cliOptions.YamlFile, fileSystem);
 
             // The above Load call does the decoration - don't do it here.
             return globalOptions;

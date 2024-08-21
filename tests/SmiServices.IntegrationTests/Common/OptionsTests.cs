@@ -1,8 +1,7 @@
-
 using NUnit.Framework;
 using SmiServices.Common.Options;
 using System;
-using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace SmiServices.UnitTests.Common
 {
@@ -83,6 +82,27 @@ namespace SmiServices.UnitTests.Common
                 Assert.That(g.MongoDatabases!.DicomStoreOptions!.DatabaseName, Is.EqualTo("FFFFF"));
                 Assert.That(g.MongoDatabases.ExtractionStoreOptions!.DatabaseName, Is.EqualTo("FFFFF"));
             });
+        }
+
+        [Test]
+        public void GlobalOptionsFactory_Load_EmptyFile_ThrowsWithUsefulMessage()
+        {
+            var fileSystem = new MockFileSystem();
+            fileSystem.File.Create("foo.yaml");
+            var globalOptionsFactory = new GlobalOptionsFactory();
+
+            var exc = Assert.Throws<Exception>(() => globalOptionsFactory.Load(nameof(GlobalOptionsFactory_Load_EmptyFile_ThrowsWithUsefulMessage), "foo.yaml", fileSystem));
+            Assert.That(exc.Message, Is.EqualTo("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?"));
+        }
+
+        [Test]
+        public void GlobalOptionsFactory_Load_MissingFile_ThrowsWithUsefulMessage()
+        {
+            var fileSystem = new MockFileSystem();
+            var globalOptionsFactory = new GlobalOptionsFactory();
+
+            var exc = Assert.Throws<ArgumentException>(() => globalOptionsFactory.Load(nameof(GlobalOptionsFactory_Load_EmptyFile_ThrowsWithUsefulMessage), "foo.yaml", fileSystem));
+            Assert.That(exc.Message, Is.EqualTo("Could not find config file 'foo.yaml'"));
         }
     }
 }
