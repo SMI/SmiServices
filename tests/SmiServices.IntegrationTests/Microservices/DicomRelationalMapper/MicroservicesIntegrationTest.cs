@@ -388,15 +388,24 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             foreach (var f in dir.GetFiles())
                 f.Delete();
 
+            var ds = DicomFileTestHelpers.DefaultDicomDataset();
+            var sequenceDs = new DicomDataset()
+            {
+                {DicomTag.CodeValue, "CodeValue" },
+                {DicomTag.CodingSchemeDesignator, "CodingSchemeDesignator" },
+                {DicomTag.CodeMeaning, "CodeMeaning" },
+            };
+            ds.Add(new DicomSequence(DicomTag.DerivationCodeSequence, sequenceDs));
+
             var fileSystem = new FileSystem();
             var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "MyTestFile.dcm"));
-            DicomFileTestHelpers.WriteSampleDicomFile(fi);
+            DicomFileTestHelpers.WriteSampleDicomFile(fi, ds);
 
             RunTest(dir, 1);
 
             var tbl = _helper.ImageTable.GetDataTable();
             Assert.That(tbl.Rows, Has.Count.EqualTo(1));
-            Assert.That(tbl.Rows[0]["d_DerivationCodeMeaning"], Is.EqualTo("Full fidelity image, uncompressed or lossless compressed"));
+            Assert.That(tbl.Rows[0]["d_DerivationCodeMeaning"], Is.EqualTo("CodeMeaning"));
 
             _helper.ImageTable.DropColumn(_helper.ImageTable.DiscoverColumn("d_DerivationCodeMeaning"));
 
