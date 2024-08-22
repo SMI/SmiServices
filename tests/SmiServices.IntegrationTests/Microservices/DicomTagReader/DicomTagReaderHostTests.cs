@@ -5,6 +5,7 @@ using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.UnitTests.Common;
 using System;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
@@ -79,7 +80,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
         [Test]
         public void TestTagReader_SingleFileMode()
         {
-            var fileSystem = new MockFileSystem();
+            var fileSystem = new FileSystem();
 
             var dirRoot = fileSystem.DirectoryInfo.New(fileSystem.Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestTagReader_SingleFileMode"));
 
