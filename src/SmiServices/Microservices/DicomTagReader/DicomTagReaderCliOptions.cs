@@ -1,8 +1,10 @@
 using CommandLine;
 using SmiServices.Common.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Microservices.DicomTagReader
 {
+    [ExcludeFromCodeCoverage]
     public class DicomTagReaderCliOptions : CliOptions
     {
         /// <summary>
