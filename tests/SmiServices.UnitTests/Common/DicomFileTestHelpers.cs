@@ -15,10 +15,11 @@ namespace SmiServices.UnitTests.Common
         {
             ds ??= new DicomDataset
             {
-                { DicomTag.SOPClassUID, DicomUID.CTImageStorage },
+                { DicomTag.SOPClassUID, DicomUID.MRImageStorage },
                 { DicomTag.StudyInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID() },
                 { DicomTag.SeriesInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID() },
                 { DicomTag.SOPInstanceUID, DicomUIDGenerator.GenerateDerivedFromUUID() },
+                { DicomTag.Modality, "MR" },
                 { DicomTag.PatientID, "PatientID" },
             };
             using var stream = fileInfo.OpenWrite();
