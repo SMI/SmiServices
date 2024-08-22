@@ -293,6 +293,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                 f.Delete();
 
             var fileSystem = new FileSystem();
+            DicomFileTestHelpers.WriteSampleDicomFile(fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "MyTestFile.dcm")));
 
             DicomFileTestHelpers.WriteSampleDicomFile(
                 fileSystem.FileInfo.New(fileSystem.Path.Combine(dir.FullName, "abc.dcm")),
