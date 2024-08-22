@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using SmiServices.Common.Options;
-using System.IO.Abstractions;
 
 namespace SmiServices.IntegrationTests.Microservices.DicomTagReader
 {
@@ -12,19 +11,11 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader
         {
             // Arrange
 
-            var fileSystem = new FileSystem();
-            fileSystem.File.WriteAllLines(
-                "foo.yaml",
-                [
-                    "LoggingOptions:"
-                ]
-            );
-
             SmiCliInit.InitSmiLogging = false;
 
             // Act
 
-            var rc = SmiServices.Microservices.DicomTagReader.DicomTagReader.Main(["-y", "foo.yaml", "-f", "some.dcm"]);
+            var rc = SmiServices.Microservices.DicomTagReader.DicomTagReader.Main(["-f", "some.dcm"]);
 
             // Assert
 
