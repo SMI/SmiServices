@@ -46,5 +46,14 @@ public class DynamicRejectorTests
         _ = new DynamicRejector();
     }
 
+    [Test]
+    public void Constructor_UsesStaticRulesPath()
+    {
+        DynamicRejector.DefaultDynamicRulesPath = "someFile.txt";
+
+        var exc = Assert.Throws<FileNotFoundException>(() => new DynamicRejector());
+        Assert.That(exc.Message, Is.EqualTo("Could not find rules file 'someFile.txt'"));
+    }
+
     #endregion
 }

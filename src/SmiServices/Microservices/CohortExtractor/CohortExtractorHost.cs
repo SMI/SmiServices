@@ -14,6 +14,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
+using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -128,6 +129,10 @@ namespace SmiServices.Microservices.CohortExtractor
 
             if (!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
                 _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
+
+            // Bit of a hack until we remove the ObjectFactory calls
+            if (!string.IsNullOrWhiteSpace(_consumerOptions.DynamicRulesPath))
+                DynamicRejector.DefaultDynamicRulesPath = _consumerOptions.DynamicRulesPath;
 
             if (!string.IsNullOrWhiteSpace(_consumerOptions.RejectorType))
                 _fulfiller.Rejectors.Add(ObjectFactory.CreateInstance<IRejector>(_consumerOptions.RejectorType, typeof(IRejector).Assembly)!);
