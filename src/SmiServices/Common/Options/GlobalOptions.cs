@@ -9,6 +9,7 @@ using Rdmp.Core.Startup;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
+using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -368,6 +369,11 @@ namespace SmiServices.Common.Options
         /// Modality specific rejection rules that can either override the <see cref="RejectorType"/> for specific Modalities or be applied in addition
         /// </summary>
         public ModalitySpecificRejectorOptions[]? ModalitySpecificRejectors { get; set; }
+
+        /// <summary>
+        /// Path to the rules file to use for the <see cref="DynamicRejector"/>
+        /// </summary>
+        public string? DynamicRulesPath { get; set; } = "DynamicRules.txt";
 
         public bool AllCatalogues { get; private set; }
         public List<int> OnlyCatalogues { get; private set; } = null!;

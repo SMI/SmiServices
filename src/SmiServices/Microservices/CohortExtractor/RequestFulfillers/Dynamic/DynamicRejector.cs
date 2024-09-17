@@ -10,7 +10,10 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic
     public class DynamicRejector : IRejector
     {
         private readonly Script<string> _script;
-        private const string DefaultDynamicRulesPath = "./DynamicRules.txt";
+
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+        public static string DefaultDynamicRulesPath = "./DynamicRules.txt";
+#pragma warning restore CA2211
 
         public DynamicRejector()
             : this(null) { }
