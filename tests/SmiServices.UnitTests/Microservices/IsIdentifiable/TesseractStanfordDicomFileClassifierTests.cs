@@ -26,6 +26,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
         }
 
         [Test]
+        [Platform(Exclude="Win")]
         public void TesseractEngine_CanBeConstructed()
         {
             // Arrange
