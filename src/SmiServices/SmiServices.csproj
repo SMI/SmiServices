@@ -27,4 +27,11 @@
         <PackageReference Include="System.IO.Abstractions" />
         <PackageReference Include="YamlDotNet" />
     </ItemGroup>
+    <ItemGroup>
+        <NativeLibs Include="$(MSBuildThisFileDirectory)runtimes\**\*.so" />
+        <None Include="@(NativeLibs)">
+            <Link>runtimes\%(RecursiveDir)%(FileName)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>
