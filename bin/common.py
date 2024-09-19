@@ -114,6 +114,7 @@ def start_containers(
         "compose",
         "-f", compose_file,
         "up",
+        "--quiet-pull",
         "--detach",
         "--force-recreate",
     )
