@@ -33,7 +33,7 @@ def main() -> int:
             "rabbitmq rabbitmq-diagnostics -q ping",
             f"mariadb mysqladmin -uroot -p{args.db_password} status",
             "redis /usr/local/bin/redis-cli PING",
-            f"mssql /opt/mssql-tools18/bin/sqlcmd -U sa -P {args.db_password} -l 1 -Q 'SELECT @@VERSION'",
+            f"mssql /opt/mssql-tools18/bin/sqlcmd -U sa -P {args.db_password} -No -l 1 -Q 'SELECT @@VERSION'",
             "mongodb /usr/bin/mongo --quiet --eval 'db.stats().ok'",
         ),
     )
