@@ -15,8 +15,8 @@
 			},
 			{
 				"name": "mcr.microsoft.com/mssql/server",
-				"tag": "2017-latest",
-				"digest": "c9832ca564c8410bf13a7d6276a0bf6f5d83d0f6a15c6a5004ba07a04bf93920",
+				"tag": "2022-latest",
+				"digest": "8ca3956bcb1f3373e5b04f946a527abb24c07655c2044bd5c9c8852d02fbec7c",
 				"service": "mssql"
 			},
 			{
