@@ -23,7 +23,7 @@ services:
       - 6379:6379
   mssql:
     container_name: mssql
-    image: mcr.microsoft.com/mssql/server:2017-latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=${DB_PASSWORD:-YourStrongPassw0rd}
