@@ -133,7 +133,8 @@ def start_containers(
         except subprocess.CalledProcessError:
             # NOTE(rkm 2022-03-01) Print container logs when a check fails
             cmd = (
-                f"{docker}-compose",
+                f"{docker}",
+                "compose",
                 "-f", compose_file,
                 "logs"
             )
