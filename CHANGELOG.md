@@ -11,6 +11,32 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.8.0] 2024-09-19
+
+### Feature
+
+- [#1938](https://github.com/SMI/SmiServices/pull/1938) by rkm. Allow specifying path to DynamicRules file
+
+### Bugfix
+
+- [#1892](https://github.com/SMI/SmiServices/pull/1892) by rkm. `docker-compose` replaced by `docker compse`
+- [#1917](https://github.com/SMI/SmiServices/pull/1917) by rkm. Fix handling of GlobalOptions deserializing to null
+- [#1939](https://github.com/SMI/SmiServices/pull/1939) by rkm. Fix loading of TesseractEngine on Linux
+- [#1940](https://github.com/SMI/SmiServices/pull/1940) by rkm. Bump sqlserver to 2022 in CI to fix startup crash
+
+### Change
+
+- [#1879](https://github.com/SMI/SmiServices/pull/1879) by jas88. Remove Oracle remnants, fill in some gaps in Postgresql support instead
+- [#1894](https://github.com/SMI/SmiServices/pull/1894) by rkm. Condense all code into 2 csprojs
+- [#1901](https://github.com/SMI/SmiServices/pull/1901) by rkm. Switch coverage collection from coverlet.msbuild to Microsoft.CodeCoverage and dotnet-coverage
+- [#1902](https://github.com/SMI/SmiServices/pull/1902) by rkm. Separate unit and integration tests into separate projects
+- [#1903](https://github.com/SMI/SmiServices/pull/1903) by rkm. Run automated Visual Studio code cleanup & apply fixes
+- [#1906](https://github.com/SMI/SmiServices/pull/1906) by jas88. Exclude test code from test coverage calculations since testing tests makes no sense
+
+### Meta
+
+- [#1891](https://github.com/SMI/SmiServices/pull/1891) by rkm. Tidy & auto-format codebase
+
 ## [5.7.2] 2024-07-29
 
 ### Feature
@@ -1388,4 +1414,5 @@ First stable release after importing the repository from the private
 [5.7.0]: https://github.com/SMI/SmiServices/compare/v5.6.1...v5.7.0
 [5.7.1]: https://github.com/SMI/SmiServices/compare/v5.7.0...v5.7.1
 [5.7.2]: https://github.com/SMI/SmiServices/compare/v5.7.1...v5.7.2
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.7.2...main
+[5.8.0]: https://github.com/SMI/SmiServices/compare/v5.7.2...v5.8.0
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.8.0...main
