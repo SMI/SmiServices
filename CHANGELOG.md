@@ -19,7 +19,7 @@ A raw git diff can be seen [here][unreleased].
 
 ### Bugfix
 
-- [#1892](https://github.com/SMI/SmiServices/pull/1892) by rkm. `docker-compose` replaced by `docker compse`
+- [#1892](https://github.com/SMI/SmiServices/pull/1892) by rkm. `docker-compose` replaced by `docker compose`
 - [#1917](https://github.com/SMI/SmiServices/pull/1917) by rkm. Fix handling of GlobalOptions deserializing to null
 - [#1939](https://github.com/SMI/SmiServices/pull/1939) by rkm. Fix loading of TesseractEngine on Linux
 - [#1940](https://github.com/SMI/SmiServices/pull/1940) by rkm. Bump sqlserver to 2022 in CI to fix startup crash
