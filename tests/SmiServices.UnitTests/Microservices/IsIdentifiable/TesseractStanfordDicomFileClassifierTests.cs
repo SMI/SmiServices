@@ -1,7 +1,9 @@
+using IsIdentifiable;
 using IsIdentifiable.Options;
 using NUnit.Framework;
 using SmiServices.Microservices.IsIdentifiable;
 using System.IO;
+using Tesseract;
 
 namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 {
@@ -21,6 +23,20 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             var d = new DirectoryInfo(path);
             d.Create();
             Assert.Throws<FileNotFoundException>(() => new TesseractStanfordDicomFileClassifier(d, new IsIdentifiableDicomFileOptions()));
+        }
+
+        [Test]
+        public void TesseractEngine_CanBeConstructed()
+        {
+            // Arrange
+            const string tessdataDirectory = @"../../../../../data/tessdata";
+            var d = new DirectoryInfo(tessdataDirectory);
+
+            TesseractLinuxLoaderFix.Patch();
+
+            // Act
+            // Assert
+            Assert.DoesNotThrow(() => new TesseractEngine(d.FullName, "eng", EngineMode.Default));
         }
     }
 }
