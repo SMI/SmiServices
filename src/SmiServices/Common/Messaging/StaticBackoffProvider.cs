@@ -4,14 +4,14 @@ namespace SmiServices.Common.Messaging
 {
     public class StaticBackoffProvider : IBackoffProvider
     {
-        private readonly TimeSpan _backoff;
+        private readonly TimeSpan _initialBackoff;
 
-        public StaticBackoffProvider(TimeSpan? backoff = null)
+        public StaticBackoffProvider(TimeSpan? initialBackoff = null)
         {
-            _backoff = backoff ?? new TimeSpan(hours: 0, minutes: 1, seconds: 0);
+            _initialBackoff = initialBackoff ?? new TimeSpan(hours: 0, minutes: 1, seconds: 0);
         }
 
-        public TimeSpan GetNextBackoff() => _backoff;
+        public TimeSpan GetNextBackoff() => _initialBackoff;
 
         public void Reset() { }
     }
