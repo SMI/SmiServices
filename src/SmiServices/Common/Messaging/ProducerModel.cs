@@ -31,7 +31,7 @@ namespace SmiServices.Common.Messaging
         // Used to stop messages being produced if we are in the process of crashing out
         private readonly object _oSendLock = new();
 
-        private readonly IBackoffProvider _backoffProvider;
+        private readonly IBackoffProvider? _backoffProvider;
 
         /// <summary>
         /// 
@@ -67,7 +67,7 @@ namespace SmiServices.Common.Messaging
             // Handle RabbitMQ putting the queue into flow control mode
             _model.FlowControl += (s, a) => _logger.Warn("FlowControl for " + exchangeName);
 
-            _backoffProvider = backoffProvider ?? new StaticBackoffProvider();
+            _backoffProvider = backoffProvider;
         }
 
 
@@ -98,17 +98,21 @@ namespace SmiServices.Common.Messaging
             {
                 if (_model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out var timedOut))
                 {
-                    _backoffProvider.Reset();
+                    _backoffProvider?.Reset();
                     return;
                 }
 
                 if (timedOut)
                 {
                     keepTrying = (++numAttempts < _maxRetryAttempts);
-                    var backoff = _backoffProvider.GetNextBackoff();
+                    _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}");
 
-                    _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}. Backing off for {backoff}");
-                    Thread.Sleep(backoff);
+                    TimeSpan? backoff = _backoffProvider?.GetNextBackoff();
+                    if (backoff.HasValue)
+                    {
+                        _logger.Warn($"Backing off for {backoff}");
+                        Thread.Sleep(backoff.Value);
+                    }
 
                     continue;
                 }
