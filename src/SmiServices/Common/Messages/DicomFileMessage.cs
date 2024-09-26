@@ -3,6 +3,7 @@ using Equ;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Text;
 
 namespace SmiServices.Common.Messages
@@ -49,7 +50,7 @@ namespace SmiServices.Common.Messages
 
         public DicomFileMessage() { }
 
-        public DicomFileMessage(string root, FileInfo file)
+        public DicomFileMessage(string root, IFileInfo file)
             : this(root, file.FullName) { }
 
         public DicomFileMessage(string root, string file)

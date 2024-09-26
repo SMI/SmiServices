@@ -5,7 +5,8 @@ using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.UnitTests.Common;
 using System;
-using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
@@ -79,7 +80,9 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
         [Test]
         public void TestTagReader_SingleFileMode()
         {
-            var dirRoot = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestTagReader_SingleFileMode"));
+            var fileSystem = new FileSystem();
+
+            var dirRoot = fileSystem.DirectoryInfo.New(fileSystem.Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestTagReader_SingleFileMode"));
 
             if (dirRoot.Exists)
                 dirRoot.Delete(true);
@@ -103,11 +106,11 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
                 Assert.That(_helper.SeriesCount, Is.EqualTo(1));
             });
 
-            var julyZip = Path.Combine(dirRoot.FullName, "july.zip");
+            var julyZip = fileSystem.Path.Combine(dirRoot.FullName, "july.zip");
 
             ZipFile.CreateFromDirectory(julyFolder.FullName, julyZip);
 
-            host.AccessionDirectoryMessageConsumer.RunSingleFile(new FileInfo(julyZip));
+            host.AccessionDirectoryMessageConsumer.RunSingleFile(fileSystem.FileInfo.New(julyZip));
 
             Assert.Multiple(() =>
             {

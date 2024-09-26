@@ -4,6 +4,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.DicomTagReader
 {
@@ -21,12 +22,14 @@ namespace SmiServices.Microservices.DicomTagReader
 
         private static int OnParse(GlobalOptions globals, DicomTagReaderCliOptions opts)
         {
+            var fileSystem = new FileSystem();
+
             if (opts.File != null)
             {
                 try
                 {
                     var host = new DicomTagReaderHost(globals);
-                    host.AccessionDirectoryMessageConsumer.RunSingleFile(opts.File);
+                    host.AccessionDirectoryMessageConsumer.RunSingleFile(fileSystem.FileInfo.New(opts.File));
                     return 0;
                 }
                 catch (Exception ex)

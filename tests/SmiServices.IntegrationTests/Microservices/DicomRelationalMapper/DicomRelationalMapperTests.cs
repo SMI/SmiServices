@@ -13,6 +13,7 @@ using SmiServices.Microservices.DicomRelationalMapper;
 using SmiServices.UnitTests.Common;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using Tests.Common;
@@ -47,9 +48,10 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             DirectoryInfo d = new(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(Test_DodgyTagNames)));
             d.Create();
 
-            var td = new TestData();
-            var fi = td.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
-            var fi2 = td.Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile2.dcm")));
+            var fileSystem = new FileSystem();
+            var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(d.FullName, "MyTestFile.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
+            var fi2 = fileSystem.FileInfo.New(fileSystem.Path.Combine(d.FullName, "MyTestFile2.dcm"));
 
             DicomFile dcm;
 
@@ -113,7 +115,9 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             DirectoryInfo d = new(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestLoadingOneImage_SingleFileMessage)));
             d.Create();
 
-            var fi = new TestData().Create(new FileInfo(Path.Combine(d.FullName, "MyTestFile.dcm")));
+            var fileSystem = new FileSystem();
+            var fi = fileSystem.FileInfo.New(fileSystem.Path.Combine(d.FullName, "MyTestFile.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
 
             if (mixInATextFile)
             {
@@ -167,7 +171,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
             d.Create();
 
             var r = new Random(5000);
-            FileInfo[] files;
+            IFileInfo[] files;
 
             using (var g = new DicomDataGenerator(r, d.FullName, "CT"))
                 files = g.GenerateImageFiles(1, r).ToArray();

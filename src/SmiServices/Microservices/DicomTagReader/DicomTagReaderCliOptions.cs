@@ -1,9 +1,10 @@
 using CommandLine;
 using SmiServices.Common.Options;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Microservices.DicomTagReader
 {
+    [ExcludeFromCodeCoverage]
     public class DicomTagReaderCliOptions : CliOptions
     {
         /// <summary>
@@ -15,6 +16,6 @@ namespace SmiServices.Microservices.DicomTagReader
             Required = false,
             HelpText = "[Optional] Name of a specific dicom or zip file to process instead of subscribing to rabbit"
         )]
-        public FileInfo? File { get; set; }
+        public string? File { get; set; }
     }
 }

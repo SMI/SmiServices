@@ -17,6 +17,7 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
@@ -119,7 +120,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
                     t.Truncate();
         }
 
-        public static DicomFileMessage GetDicomFileMessage(string fileSystemRoot, FileInfo fi)
+        public static DicomFileMessage GetDicomFileMessage(string fileSystemRoot, IFileInfo fi)
         {
             var toReturn = new DicomFileMessage(fileSystemRoot, fi)
             {

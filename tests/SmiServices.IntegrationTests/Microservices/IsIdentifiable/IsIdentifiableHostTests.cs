@@ -6,6 +6,7 @@ using SmiServices.Microservices.IsIdentifiable;
 using SmiServices.UnitTests.Common;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 {
@@ -49,8 +50,10 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
         {
             var options = new GlobalOptionsFactory().Load(nameof(TestClassifierName_ValidClassifier));
 
-            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm")); Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
-            new TestData().Create(testDcm);
+            var fileSystem = new FileSystem();
+            fileSystem.Directory.CreateDirectory(fileSystem.Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier)));
+            var testDcm = fileSystem.FileInfo.New(fileSystem.Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(testDcm);
 
             using var tester = new MicroserviceTester(options.RabbitOptions!, options.IsIdentifiableServiceOptions!);
             tester.CreateExchange(options.IsIdentifiableServiceOptions!.IsIdentifiableProducerOptions!.ExchangeName!, null);
@@ -96,10 +99,9 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             if (!File.Exists(dest))
                 File.Copy(Path.Combine(DataDirectory, "tessdata", "eng.traineddata"), dest);
 
-            var testDcm = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier), "f1.dcm"));
-
-            Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestClassifierName_ValidClassifier), "f1.dcm");
-            new TestData().Create(testDcm);
+            var fileSystem = new FileSystem();
+            var testDcm = fileSystem.FileInfo.New(fileSystem.Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(TestIsIdentifiable_TesseractStanfordDicomFileClassifier), "f1.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(testDcm);
 
             using var tester = new MicroserviceTester(options.RabbitOptions!, options.IsIdentifiableServiceOptions);
             options.IsIdentifiableServiceOptions.ClassifierType = typeof(TesseractStanfordDicomFileClassifier).FullName;

@@ -7,6 +7,7 @@ using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.UnitTests.Common;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
 
@@ -102,7 +103,8 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader
             foreach (FileInfo f in TestDir.GetFiles())
                 f.Delete();
 
-            new TestData().Create(new FileInfo(Path.Combine(TestDir.FullName, "MyTestFile.dcm")));
+            var fi = new FileSystem().FileInfo.New(Path.Combine(TestDir.FullName, "MyTestFile.dcm"));
+            DicomFileTestHelpers.WriteSampleDicomFile(fi);
         }
 
         public bool CheckQueues(int nInSeriesQueue, int nInImageQueue)
