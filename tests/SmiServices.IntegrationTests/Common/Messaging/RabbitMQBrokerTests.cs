@@ -272,6 +272,70 @@ namespace SmiServices.UnitTests.Common.Messaging
             });
         }
 
+        [Test]
+        public void SetupProducer_NullBackoffProvider_DoesNotThrow()
+        {
+            // Arrange
+
+            var exchangeName = $"TEST.{nameof(SetupProducer_NullBackoffProvider_DoesNotThrow)}Exchange";
+            _tester.CreateExchange(exchangeName);
+
+            var producerOptions = new ProducerOptions
+            {
+                ExchangeName = exchangeName,
+                BackoffProviderType = null,
+            };
+
+            var broker = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+
+            // Act
+            // Assert
+            Assert.DoesNotThrow(() => broker.SetupProducer(producerOptions));
+        }
+
+        [Test]
+        public void SetupProducer_InvalidBackoffProvider_Throws()
+        {
+            // Arrange
+
+            var exchangeName = $"TEST.{nameof(SetupProducer_InvalidBackoffProvider_Throws)}Exchange";
+            _tester.CreateExchange(exchangeName);
+
+            var producerOptions = new ProducerOptions
+            {
+                ExchangeName = exchangeName,
+                BackoffProviderType = "Foo",
+            };
+
+            var broker = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+
+            // Act
+            // Assert
+            var exc = Assert.Throws<ArgumentException>(() => broker.SetupProducer(producerOptions));
+            Assert.That(exc.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
+        }
+
+        [Test]
+        public void SetupProducer_ValidBackoffProvider()
+        {
+            // Arrange
+
+            var exchangeName = $"TEST.{nameof(SetupProducer_InvalidBackoffProvider_Throws)}Exchange";
+            _tester.CreateExchange(exchangeName);
+
+            var producerOptions = new ProducerOptions
+            {
+                ExchangeName = exchangeName,
+                BackoffProviderType = "StaticBackoffProvider",
+            };
+
+            var broker = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+
+            // Act
+            // Assert
+            Assert.DoesNotThrow(() => broker.SetupProducer(producerOptions));
+        }
+
         private class ThrowingConsumer : Consumer<TestMessage>
         {
             public int HeldMessages { get => _heldMessages; }
