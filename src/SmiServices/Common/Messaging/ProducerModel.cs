@@ -7,6 +7,7 @@ using SmiServices.Common.Messages;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace SmiServices.Common.Messaging
 {
@@ -30,6 +31,7 @@ namespace SmiServices.Common.Messaging
         // Used to stop messages being produced if we are in the process of crashing out
         private readonly object _oSendLock = new();
 
+        private readonly IBackoffProvider _backoffProvider;
 
         /// <summary>
         /// 
@@ -38,7 +40,8 @@ namespace SmiServices.Common.Messaging
         /// <param name="model"></param>
         /// <param name="properties"></param>
         /// <param name="maxRetryAttempts">Max number of times to retry message confirmations</param>
-        public ProducerModel(string exchangeName, IModel model, IBasicProperties properties, int maxRetryAttempts = 1)
+        /// <param name="backoffProvider"></param>
+        public ProducerModel(string exchangeName, IModel model, IBasicProperties properties, int maxRetryAttempts = 1, IBackoffProvider? backoffProvider = null)
         {
             if (string.IsNullOrWhiteSpace(exchangeName))
                 throw new ArgumentException("exchangeName parameter is invalid: \"" + exchangeName + "\"");
@@ -63,6 +66,8 @@ namespace SmiServices.Common.Messaging
 
             // Handle RabbitMQ putting the queue into flow control mode
             _model.FlowControl += (s, a) => _logger.Warn("FlowControl for " + exchangeName);
+
+            _backoffProvider = backoffProvider ?? new StaticBackoffProvider();
         }
 
 
@@ -92,12 +97,18 @@ namespace SmiServices.Common.Messaging
             while (keepTrying)
             {
                 if (_model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out var timedOut))
+                {
+                    _backoffProvider.Reset();
                     return;
+                }
 
                 if (timedOut)
                 {
                     keepTrying = (++numAttempts < _maxRetryAttempts);
-                    _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}");
+                    var backoff = _backoffProvider.GetNextBackoff();
+
+                    _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}. Backing off for {backoff}");
+                    Thread.Sleep(backoff);
 
                     continue;
                 }
