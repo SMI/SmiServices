@@ -91,7 +91,8 @@ namespace SmiServices.Common.Messaging
 
             while (keepTrying)
             {
-                bool ok = _model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out var timedOut);
+                if (_model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out var timedOut))
+                    return;
 
                 if (timedOut)
                 {
@@ -100,10 +101,6 @@ namespace SmiServices.Common.Messaging
 
                     continue;
                 }
-
-                // All good
-                if (ok)
-                    return;
 
                 throw new ApplicationException("RabbitMQ got a Nack");
             }
