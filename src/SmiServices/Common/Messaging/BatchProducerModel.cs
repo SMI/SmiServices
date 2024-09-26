@@ -10,8 +10,8 @@ namespace SmiServices.Common.Messaging
     /// </summary>
     public class BatchProducerModel : ProducerModel
     {
-        public BatchProducerModel(string exchangeName, IModel model, IBasicProperties properties, int maxPublishAttempts = 1)
-            : base(exchangeName, model, properties, maxPublishAttempts) { }
+        public BatchProducerModel(string exchangeName, IModel model, IBasicProperties properties, int maxPublishAttempts = 1, IBackoffProvider? backoffProvider = null)
+            : base(exchangeName, model, properties, maxPublishAttempts, backoffProvider) { }
 
 
         /// <summary>

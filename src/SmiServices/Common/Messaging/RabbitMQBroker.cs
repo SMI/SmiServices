@@ -226,13 +226,26 @@ namespace SmiServices.Common.Messaging
             props.ContentType = "application/json";
             props.Persistent = true;
 
-            IProducerModel producerModel;
+            IBackoffProvider? backoffProvider = null;
+            if (producerOptions.BackoffProviderType != null)
+            {
+                try
+                {
+                    backoffProvider = BackoffProviderFactory.Create(producerOptions.BackoffProviderType);
+                }
+                catch (Exception)
+                {
+                    model.Close(200, "SetupProducer - Couldn't create BackoffProvider");
+                    throw;
+                }
+            }
 
+            IProducerModel producerModel;
             try
             {
                 producerModel = isBatch ?
-                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts) :
-                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts);
+                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider) :
+                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider);
             }
             catch (Exception)
             {
