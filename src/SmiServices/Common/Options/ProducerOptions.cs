@@ -1,4 +1,5 @@
 using Equ;
+using SmiServices.Common.Messaging;
 
 namespace SmiServices.Common.Options
 {
@@ -18,6 +19,11 @@ namespace SmiServices.Common.Options
         public int MaxConfirmAttempts { get; set; } = 1;
 
         /// <summary>
+        /// Specify the <see cref="IBackoffProvider"/> to use when handling publish failures
+        /// </summary>
+        public string? BackoffProviderType { get; set; }
+
+        /// <summary>
         /// Verifies that the individual options have been populated
         /// </summary>
         /// <returns></returns>
@@ -26,9 +32,6 @@ namespace SmiServices.Common.Options
             return !string.IsNullOrWhiteSpace(ExchangeName);
         }
 
-        public override string ToString()
-        {
-            return "ExchangeName: " + ExchangeName + ", MaxConfirmAttempts: " + MaxConfirmAttempts;
-        }
+        public override string ToString() => $"ExchangeName={ExchangeName}, MaxConfirmAttempts={MaxConfirmAttempts}, BackoffProviderType={BackoffProviderType}";
     }
 }
