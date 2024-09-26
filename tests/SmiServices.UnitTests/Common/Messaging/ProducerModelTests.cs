@@ -30,12 +30,18 @@ internal class ProducerModelTests
         var mockBasicProperties = new Mock<IBasicProperties>();
         mockBasicProperties.Setup(x => x.Headers).Returns(new Dictionary<string, object>());
 
-        var producerModel = new ProducerModel("Exchange", mockModel.Object, mockBasicProperties.Object);
+        var mockBackoffProvider = new Mock<IBackoffProvider>(MockBehavior.Strict);
+        mockBackoffProvider.Setup(x => x.GetNextBackoff()).Returns(TimeSpan.Zero);
+        mockBackoffProvider.Setup(x => x.Reset()).Verifiable();
+
+        var maxRetryAttempts = 1;
+        var producerModel = new ProducerModel("Exchange", mockModel.Object, mockBasicProperties.Object, maxRetryAttempts, mockBackoffProvider.Object);
         var message = new TestMessage();
 
         // Act
         // Assert
         Assert.DoesNotThrow(() => producerModel.SendMessage(message, inResponseTo: null, routingKey: null));
+        mockBackoffProvider.Verify();
     }
 
     [Test]
@@ -50,8 +56,11 @@ internal class ProducerModelTests
         var mockBasicProperties = new Mock<IBasicProperties>();
         mockBasicProperties.Setup(x => x.Headers).Returns(new Dictionary<string, object>());
 
+        var mockBackoffProvider = new Mock<IBackoffProvider>(MockBehavior.Strict);
+        mockBackoffProvider.Setup(x => x.GetNextBackoff()).Returns(TimeSpan.Zero);
+
         var maxRetryAttempts = 1;
-        var producerModel = new ProducerModel("Exchange", mockModel.Object, mockBasicProperties.Object, maxRetryAttempts);
+        var producerModel = new ProducerModel("Exchange", mockModel.Object, mockBasicProperties.Object, maxRetryAttempts, mockBackoffProvider.Object);
         var message = new TestMessage();
 
         // Act
