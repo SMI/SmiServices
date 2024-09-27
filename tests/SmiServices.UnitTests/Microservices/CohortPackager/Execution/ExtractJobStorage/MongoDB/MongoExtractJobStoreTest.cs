@@ -142,15 +142,14 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                     return mockCursor.Object;
                 }
 
-                BsonDocument rendered = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry);
+                var rendered = filter.Render(new RenderArgs<TVal>(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry));
+                var key = GetKey(rendered["_id"]);
 
-                TKey key = GetKey(rendered["_id"]);
-
-                if (Documents.TryGetValue(key, out TVal? value))
+                if (Documents.TryGetValue(key, out var value))
                 {
 #pragma warning disable IDE0028 // Simplify collection initialization
                     mockCursor
-                        .Setup(x => x.Current)
+                        .Setup(static x => x.Current)
                         .Returns((IEnumerable<TProjection>)new List<TVal> { Documents[key] });
 #pragma warning restore IDE0028 // Simplify collection initialization
                     return mockCursor.Object;
@@ -201,7 +200,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 if (RejectChanges)
                     return DeleteResult.Unacknowledged.Instance;
 
-                BsonDocument filterDoc = filter.Render(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry);
+                var filterDoc = filter.Render(new RenderArgs<TVal>(BsonSerializer.SerializerRegistry.GetSerializer<TVal>(), BsonSerializer.SerializerRegistry));
                 if (!filterDoc.Contains("_id") || filterDoc.Count() > 1)
                     throw new NotImplementedException("No support for deleting multiple docs");
 
