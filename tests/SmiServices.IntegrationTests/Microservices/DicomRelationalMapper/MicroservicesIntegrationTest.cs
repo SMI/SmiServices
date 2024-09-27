@@ -36,6 +36,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Rdmp.Core.CommandExecution;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -313,7 +314,7 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
 
             new DicomFile(ds2).Save(Path.Combine(dir.FullName, "def.dcm"));
 
-            var checks = new ProcessTaskChecks(_helper.LoadMetadata);
+            var checks = new ProcessTaskChecks(_helper.LoadMetadata, new ThrowImmediatelyActivator(RepositoryLocator));
             checks.Check(new AcceptAllCheckNotifier());
 
             RunTest(dir, 1);
