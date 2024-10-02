@@ -163,7 +163,7 @@ namespace SmiServices.UnitTests.Common
                 BasicGetResult message = model.BasicGet(queueName, autoAck: true);
                 if (message == null)
                     break;
-                var header = new MessageHeader(message.BasicProperties.Headers, Encoding.UTF8);
+                var header = MessageHeader.FromDict(message.BasicProperties.Headers, Encoding.UTF8);
                 var iMessage = JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(message.Body.Span));
                 yield return new Tuple<IMessageHeader, T>(header, iMessage);
             }

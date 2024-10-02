@@ -5,12 +5,19 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.MongoDB;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace SmiServices.UnitTests.Common.MongoDB
 {
     [TestFixture]
     public class MongoDocumentHeadersTests
     {
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            MessageHeader.CurrentProgramName = nameof(MongoDocumentHeadersTests);
+        }
+
         [Test]
         public void ImageDocumentHeader_HasCorrectHeaders()
         {
@@ -22,14 +29,14 @@ namespace SmiServices.UnitTests.Common.MongoDB
             string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
             var headers = new Dictionary<string, object>
             {
-                { "MessageGuid", Guid.NewGuid().ToString() },
+                { "MessageGuid", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) },
                 { "ProducerProcessID", 1234 },
-                { "ProducerExecutableName", "MongoDocumentHeadersTests" },
-                { "Parents", parents },
+                { "ProducerExecutableName", Encoding.UTF8.GetBytes("MongoDocumentHeadersTests") },
+                { "Parents", Encoding.UTF8.GetBytes(parents) },
                 { "OriginalPublishTimestamp", MessageHeader.UnixTimeNow() }
             };
 
-            var header = new MessageHeader(headers);
+            var header = MessageHeader.FromDict(headers, Encoding.UTF8);
             BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
 
             var expected = new BsonDocument
@@ -80,14 +87,14 @@ namespace SmiServices.UnitTests.Common.MongoDB
             string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
             var headers = new Dictionary<string, object>
             {
-                { "MessageGuid", Guid.NewGuid().ToString() },
+                { "MessageGuid", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) },
                 { "ProducerProcessID", 1234 },
-                { "ProducerExecutableName", "MongoDocumentHeadersTests" },
-                { "Parents", parents },
+                { "ProducerExecutableName", Encoding.UTF8.GetBytes("MongoDocumentHeadersTests") },
+                { "Parents", Encoding.UTF8.GetBytes(parents) },
                 { "OriginalPublishTimestamp", MessageHeader.UnixTimeNow() }
             };
 
-            var header = new MessageHeader(headers);
+            var header = MessageHeader.FromDict(headers, Encoding.UTF8);
             BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
             IMessageHeader rebuiltHeader = MongoDocumentHeaders.RebuildMessageHeader(bsonImageHeader["MessageHeader"].AsBsonDocument);
 

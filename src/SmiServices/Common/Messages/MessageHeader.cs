@@ -4,9 +4,7 @@ using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace SmiServices.Common.Messages
@@ -25,12 +23,22 @@ namespace SmiServices.Common.Messages
         public const string Splitter = "->";
 
         private static readonly int _producerProcessID;
-        private static readonly string _producerExecutableName;
+
+        private static string? _currentProgramName;
+        public static string CurrentProgramName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_currentProgramName))
+                    throw new Exception("Value must be set before use");
+                return _currentProgramName;
+            }
+            set => _currentProgramName = value;
+        }
 
 
         static MessageHeader()
         {
-            _producerExecutableName = Assembly.GetEntryAssembly()?.GetName().Name ?? "dotnet";
             _producerProcessID = Environment.ProcessId;
         }
 
@@ -45,7 +53,7 @@ namespace SmiServices.Common.Messages
         public MessageHeader(IMessageHeader? parent = null)
         {
             ProducerProcessID = _producerProcessID;
-            ProducerExecutableName = _producerExecutableName;
+            ProducerExecutableName = CurrentProgramName;
             MessageGuid = Guid.NewGuid();
 
             if (parent == null)
@@ -66,28 +74,15 @@ namespace SmiServices.Common.Messages
         /// </summary>
         /// <param name="encodedHeaders"></param>
         /// <param name="enc"></param>
-        public MessageHeader(IDictionary<string, object> encodedHeaders, Encoding enc)
-        {
-            MessageGuid = GetGuidArrayFromEncodedHeader(encodedHeaders["MessageGuid"], enc).Single();
-            ProducerProcessID = (int)encodedHeaders["ProducerProcessID"];
-            ProducerExecutableName = enc.GetString((byte[])encodedHeaders["ProducerExecutableName"]);
-            Parents = GetGuidArrayFromEncodedHeader(encodedHeaders["Parents"], enc);
-            OriginalPublishTimestamp = Convert.ToInt64(encodedHeaders["OriginalPublishTimestamp"]); // XXX error casting from Int32 to Int64 using (long)
-        }
-
-        /// <summary>
-        /// Creates a <see cref="MessageHeader"/> out of a header field that has been serialized
-        /// </summary>
-        /// <param name="headers"></param>
-        public MessageHeader(IDictionary<string, object> headers)
-        {
-            MessageGuid = Guid.Parse((string)headers["MessageGuid"]);
-            ProducerProcessID = (int)headers["ProducerProcessID"];
-            ProducerExecutableName = (string)headers["ProducerExecutableName"];
-            OriginalPublishTimestamp = (long)headers["OriginalPublishTimestamp"];
-            Parents = GetGuidArray((string)headers["Parents"]);
-        }
-
+        public static MessageHeader FromDict(IDictionary<string, object> encodedHeaders, Encoding enc)
+            => new()
+            {
+                MessageGuid = GetGuidArrayFromEncodedHeader(encodedHeaders["MessageGuid"], enc).Single(),
+                ProducerProcessID = (int)encodedHeaders["ProducerProcessID"],
+                ProducerExecutableName = enc.GetString((byte[])encodedHeaders["ProducerExecutableName"]),
+                Parents = GetGuidArrayFromEncodedHeader(encodedHeaders["Parents"], enc),
+                OriginalPublishTimestamp = Convert.ToInt64(encodedHeaders["OriginalPublishTimestamp"]),
+            };
 
         /// <summary>
         /// Populates RabbitMQ header properties with the current MessageHeader
