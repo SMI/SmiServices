@@ -8,7 +8,7 @@ namespace SmiServices.Microservices.CohortExtractor
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(CohortExtractor), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, nameof(CohortExtractor), OnParse);
             return ret;
         }
 

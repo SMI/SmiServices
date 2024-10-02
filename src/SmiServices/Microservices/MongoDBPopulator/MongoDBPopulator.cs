@@ -11,7 +11,7 @@ namespace SmiServices.Microservices.MongoDBPopulator
         /// </summary>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(MongoDBPopulator), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, nameof(MongoDBPopulator), OnParse);
             return ret;
         }
 

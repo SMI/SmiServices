@@ -15,7 +15,7 @@ namespace SmiServices.Microservices.DicomTagReader
         /// <param name="args"></param>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, typeof(DicomTagReader), OnParse);
+            int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, nameof(DicomTagReader), OnParse);
             return ret;
         }
 

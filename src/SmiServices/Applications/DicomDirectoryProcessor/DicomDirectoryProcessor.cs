@@ -23,7 +23,7 @@ namespace SmiServices.Applications.DicomDirectoryProcessor
             int ret = SmiCliInit
                 .ParseAndRun<DicomDirectoryProcessorCliOptions>(
                     args,
-                    typeof(DicomDirectoryProcessor),
+                    nameof(DicomDirectoryProcessor),
                     OnParse
                 );
             return ret;

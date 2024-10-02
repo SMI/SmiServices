@@ -2,6 +2,7 @@ using CommandLine;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
+using SmiServices.Common.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,25 +47,25 @@ namespace SmiServices.Common.Options
         /// Parse CLI arguments to the specified type, and runs the provided function if parsing is successful
         /// </summary>
         /// <param name="args">Arguments passed to Main</param>
-        /// <param name="programType"></param>
+        /// <param name="programName"></param>
         /// <param name="onParse">The function to call on a successful parse</param>
         /// <returns>The return code from the onParse function</returns>
-        public static int ParseAndRun<T>(IEnumerable<string> args, Type programType, Func<GlobalOptions, T, int> onParse) where T : CliOptions
+        public static int ParseAndRun<T>(IEnumerable<string> args, string programName, Func<GlobalOptions, T, int> onParse) where T : CliOptions
         {
             int ret = _parser
                 .ParseArguments<T>(args)
                 .MapResult(
                     parsed =>
                     {
-                        string hostProcessName = GetHostProcessName(programType);
-
-                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, parsed);
+                        GlobalOptions globals = new GlobalOptionsFactory().Load(programName, parsed);
 
                         if (InitSmiLogging)
                         {
                             ArgumentNullException.ThrowIfNull(globals.LoggingOptions);
-                            SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
+                            SmiLogging.Setup(globals.LoggingOptions, programName);
                         }
+
+                        MessageHeader.CurrentProgramName = programName;
 
                         return onParse(globals, parsed);
                     },
@@ -77,11 +78,11 @@ namespace SmiServices.Common.Options
         /// Parse CLI arguments to one of the specified types, and runs the provided function if parsing is successful
         /// </summary>
         /// <param name="args">Arguments passed to Main</param>
-        /// <param name="programType"></param>
+        /// <param name="programName"></param>
         /// <param name="targetVerbTypes">The list of possible target verb types to construct from the args</param>
         /// <param name="onParse">The function to call on a successful parse</param>
         /// <returns>The return code from the onParse function</returns>
-        public static int ParseAndRun(IEnumerable<string> args, Type programType, Type[] targetVerbTypes, Func<GlobalOptions, object, int> onParse)
+        public static int ParseAndRun(IEnumerable<string> args, string programName, Type[] targetVerbTypes, Func<GlobalOptions, object, int> onParse)
         {
             int ret = _parser
                 .ParseArguments(
@@ -91,15 +92,13 @@ namespace SmiServices.Common.Options
                 .MapResult(
                     parsed =>
                     {
-                        string hostProcessName = GetHostProcessName(programType);
-
                         var cliOptions = Verify<CliOptions>(parsed);
-                        GlobalOptions globals = new GlobalOptionsFactory().Load(hostProcessName, cliOptions);
+                        GlobalOptions globals = new GlobalOptionsFactory().Load(programName, cliOptions);
 
                         if (InitSmiLogging)
                         {
                             ArgumentNullException.ThrowIfNull(globals.LoggingOptions);
-                            SmiLogging.Setup(globals.LoggingOptions, hostProcessName);
+                            SmiLogging.Setup(globals.LoggingOptions, programName);
                         }
 
                         return onParse(globals, parsed);
@@ -134,16 +133,6 @@ namespace SmiServices.Common.Options
             if (parsedOptions is not T asExpected)
                 throw new NotImplementedException($"Did not construct expected type '{typeof(T).Name}'");
             return asExpected;
-        }
-
-        private static string GetHostProcessName(Type t)
-        {
-            string hostProcessName = t.Namespace?.Split('.')[1]!;
-
-            if (string.IsNullOrWhiteSpace(hostProcessName))
-                throw new ArgumentException(nameof(hostProcessName));
-
-            return hostProcessName;
         }
 
         private static int OnErrors(IEnumerable<Error> errors)

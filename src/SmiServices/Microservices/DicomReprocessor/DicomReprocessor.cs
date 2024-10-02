@@ -8,7 +8,7 @@ namespace SmiServices.Microservices.DicomReprocessor
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, typeof(DicomReprocessor), OnParse);
+            int ret = SmiCliInit.ParseAndRun<DicomReprocessorCliOptions>(args, nameof(DicomReprocessor), OnParse);
             return ret;
         }
 
