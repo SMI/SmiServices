@@ -17,7 +17,7 @@ namespace SmiServices.Microservices.CohortPackager
     {
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, typeof(CohortPackager), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, nameof(CohortPackager), OnParse);
             return ret;
         }
 

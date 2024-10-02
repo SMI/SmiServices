@@ -14,7 +14,7 @@ namespace SmiServices.Applications.ExtractImages
             int ret = SmiCliInit
                 .ParseAndRun<ExtractImagesCliOptions>(
                     args,
-                    typeof(ExtractImages),
+                    nameof(ExtractImages),
                     OnParse
                 );
             return ret;

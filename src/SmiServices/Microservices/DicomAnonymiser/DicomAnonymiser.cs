@@ -12,7 +12,7 @@ namespace SmiServices.Microservices.DicomAnonymiser
         /// <param name="args"></param>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(DicomAnonymiser), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, nameof(DicomAnonymiser), OnParse);
             return ret;
         }
 

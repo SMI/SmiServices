@@ -12,7 +12,7 @@ namespace SmiServices.Microservices.UpdateValues
             return SmiCliInit
                 .ParseAndRun<UpdateValuesCliOptions>(
                     args,
-                    typeof(UpdateValues),
+                    nameof(UpdateValues),
                     OnParse
                 );
         }

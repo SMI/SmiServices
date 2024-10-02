@@ -22,7 +22,7 @@ public static class DynamicRulesTester
 
         try
         {
-            return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, typeof(DynamicRulesTester), OnParse);
+            return SmiCliInit.ParseAndRun<DynamicRulesTesterCliOptions>(args, nameof(DynamicRulesTester), OnParse);
         }
         catch (Exception e)
         {

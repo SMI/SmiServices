@@ -13,7 +13,7 @@ namespace SmiServices.Applications.TriggerUpdates
             int ret = SmiCliInit
                 .ParseAndRun(
                     args,
-                    typeof(TriggerUpdates),
+                    nameof(TriggerUpdates),
                     [
                         typeof(TriggerUpdatesFromMapperOptions),
                     ],

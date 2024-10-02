@@ -12,7 +12,7 @@ namespace SmiServices.Microservices.FileCopier
         /// <param name="args"></param>
         public static int Main(IEnumerable<string> args)
         {
-            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, typeof(FileCopier), OnParse);
+            int ret = SmiCliInit.ParseAndRun<CliOptions>(args, nameof(FileCopier), OnParse);
             return ret;
         }
 

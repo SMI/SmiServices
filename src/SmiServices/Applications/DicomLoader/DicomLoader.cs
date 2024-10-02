@@ -28,7 +28,7 @@ public static class DicomLoader
     private static CancellationTokenSource? _cts;
     public static int Main(IEnumerable<string> args)
     {
-        return SmiCliInit.ParseAndRun<DicomLoaderOptions>(args, typeof(DicomLoader), OnParse);
+        return SmiCliInit.ParseAndRun<DicomLoaderOptions>(args, nameof(DicomLoader), OnParse);
     }
 
     private static int OnParse(GlobalOptions g, DicomLoaderOptions cliOptions)
