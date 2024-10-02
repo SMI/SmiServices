@@ -244,8 +244,8 @@ namespace SmiServices.Common.Messaging
             try
             {
                 producerModel = isBatch ?
-                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider) :
-                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider);
+                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout) :
+                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout);
             }
             catch (Exception)
             {

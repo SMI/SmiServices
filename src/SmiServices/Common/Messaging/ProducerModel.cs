@@ -41,7 +41,7 @@ namespace SmiServices.Common.Messaging
         // Start at the limit so an initial check is performed
         private int _probeMessageCounter = _probeCounterLimit;
         private readonly string? _probeQueueName;
-        private readonly int? _probeQueueLimit;
+        private readonly int _probeQueueLimit;
 
         /// <summary>
         /// 
