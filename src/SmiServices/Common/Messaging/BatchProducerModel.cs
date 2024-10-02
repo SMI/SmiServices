@@ -1,5 +1,6 @@
 using RabbitMQ.Client;
 using SmiServices.Common.Messages;
+using System;
 
 namespace SmiServices.Common.Messaging
 {
@@ -10,8 +11,18 @@ namespace SmiServices.Common.Messaging
     /// </summary>
     public class BatchProducerModel : ProducerModel
     {
-        public BatchProducerModel(string exchangeName, IModel model, IBasicProperties properties, int maxPublishAttempts = 1, IBackoffProvider? backoffProvider = null)
-            : base(exchangeName, model, properties, maxPublishAttempts, backoffProvider) { }
+        public BatchProducerModel(
+            string exchangeName,
+            IModel model,
+            IBasicProperties properties,
+            int maxPublishAttempts = 1,
+            IBackoffProvider? backoffProvider = null,
+            string? probeQueueName = null,
+            int probeQueueLimit = 0,
+            TimeSpan? probeTimeout = null
+        )
+            : base(exchangeName, model, properties, maxPublishAttempts, backoffProvider, probeQueueName, probeQueueLimit, probeTimeout)
+        { }
 
 
         /// <summary>
