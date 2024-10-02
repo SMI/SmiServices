@@ -33,6 +33,16 @@ namespace SmiServices.Common.Messaging
 
         private readonly IBackoffProvider? _backoffProvider;
 
+        // TODO(rkm 2024-10-02) Make this configurable
+        private const int _probeCounterLimit = 1_000;
+
+        private readonly TimeSpan _probeTimeout = TimeSpan.FromMinutes(1);
+
+        // Start at the limit so an initial check is performed
+        private int _probeMessageCounter = _probeCounterLimit;
+        private readonly string? _probeQueueName;
+        private readonly int? _probeQueueLimit;
+
         /// <summary>
         /// 
         /// </summary> 
@@ -41,7 +51,18 @@ namespace SmiServices.Common.Messaging
         /// <param name="properties"></param>
         /// <param name="maxRetryAttempts">Max number of times to retry message confirmations</param>
         /// <param name="backoffProvider"></param>
-        public ProducerModel(string exchangeName, IModel model, IBasicProperties properties, int maxRetryAttempts = 1, IBackoffProvider? backoffProvider = null)
+        /// <param name="probeQueueName"></param>
+        /// <param name="probeQueueLimit"></param>
+        /// <param name="probeTimeout"></param>
+        public ProducerModel(
+            string exchangeName, IModel model,
+            IBasicProperties properties,
+            int maxRetryAttempts = 1,
+            IBackoffProvider? backoffProvider = null,
+            string? probeQueueName = null,
+            int probeQueueLimit = 0,
+            TimeSpan? probeTimeout = null
+        )
         {
             if (string.IsNullOrWhiteSpace(exchangeName))
                 throw new ArgumentException("exchangeName parameter is invalid: \"" + exchangeName + "\"");
@@ -68,6 +89,17 @@ namespace SmiServices.Common.Messaging
             _model.FlowControl += (s, a) => _logger.Warn("FlowControl for " + exchangeName);
 
             _backoffProvider = backoffProvider;
+
+            _probeQueueName = probeQueueName;
+            _probeQueueLimit = probeQueueLimit;
+            if (probeTimeout != null)
+                _probeTimeout = probeTimeout.Value;
+
+            if (_probeQueueName != null)
+            {
+                var messageCount = model.MessageCount(_probeQueueName);
+                _logger.Debug($"Probe queue has {messageCount} message(s)");
+            }
         }
 
 
@@ -142,7 +174,18 @@ namespace SmiServices.Common.Messaging
                 IMessageHeader header = inResponseTo != null ? new MessageHeader(inResponseTo) : new MessageHeader();
                 header.Populate(_messageBasicProperties.Headers);
 
+                if (_probeQueueName != null && _probeMessageCounter >= _probeCounterLimit)
+                {
+                    while (_model.MessageCount(_probeQueueName) >= _probeQueueLimit)
+                    {
+                        _logger.Warn($"Probe queue ({_probeQueueName}) over message limit ({_probeCounterLimit}). Sleeping for {_probeTimeout}");
+                        Thread.Sleep(_probeTimeout);
+                    }
+                    _probeMessageCounter = 0;
+                }
+
                 _model.BasicPublish(_exchangeName, routingKey ?? "", true, _messageBasicProperties, body);
+                ++_probeMessageCounter;
 
                 return header;
             }
