@@ -106,7 +106,7 @@ namespace SmiServices.Common.Messaging
                 var headers = deliverArgs.BasicProperties?.Headers
                     ?? throw new ArgumentNullException(nameof(deliverArgs), "A part of deliverArgs.BasicProperties.Headers was null");
 
-                header = new MessageHeader(headers, enc);
+                header = MessageHeader.FromDict(headers, enc);
                 header.Log(Logger, LogLevel.Trace, "Received");
             }
             catch (Exception e)

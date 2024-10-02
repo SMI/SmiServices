@@ -2,6 +2,7 @@ using NUnit.Framework;
 using SmiServices.Common.Messages;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace SmiServices.UnitTests.Common.Messages
 {
@@ -10,11 +11,11 @@ namespace SmiServices.UnitTests.Common.Messages
     {
         private readonly Dictionary<string, object> _testProps = new()
         {
-            {"MessageGuid", Guid.NewGuid().ToString()},
+            {"MessageGuid", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())},
             {"ProducerProcessID", 123},
-            {"ProducerExecutableName", "Testeroni"},
+            {"ProducerExecutableName", Encoding.UTF8.GetBytes("SomeOtherService")},
             {"OriginalPublishTimestamp", (long)456},
-            {"Parents", $"{Guid.NewGuid()}{MessageHeader.Splitter}{Guid.NewGuid()}"},
+            {"Parents", Encoding.UTF8.GetBytes($"{Guid.NewGuid()}{MessageHeader.Splitter}{Guid.NewGuid()}")},
         };
 
         #region Fixture Methods 
@@ -23,6 +24,8 @@ namespace SmiServices.UnitTests.Common.Messages
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
+
+            MessageHeader.CurrentProgramName = nameof(MessageHeaderTest);
         }
 
         [OneTimeTearDown]
@@ -47,8 +50,8 @@ namespace SmiServices.UnitTests.Common.Messages
         [Test]
         public void TestMessageHeader_Equality()
         {
-            var h1 = new MessageHeader(_testProps);
-            var h2 = new MessageHeader(_testProps);
+            var h1 = MessageHeader.FromDict(_testProps, Encoding.UTF8);
+            var h2 = MessageHeader.FromDict(_testProps, Encoding.UTF8);
             var h3 = new MessageHeader();
 
             Assert.Multiple(() =>
@@ -66,8 +69,8 @@ namespace SmiServices.UnitTests.Common.Messages
         [Test]
         public void TestMessageHeader_GetHashCode()
         {
-            var h1 = new MessageHeader(_testProps);
-            var h2 = new MessageHeader(_testProps);
+            var h1 = MessageHeader.FromDict(_testProps, Encoding.UTF8);
+            var h2 = MessageHeader.FromDict(_testProps, Encoding.UTF8);
             // "A hash function must have the following properties: - If two objects compare as equal, the GetHashCode() method for each object must return the same value"
             Assert.That(h2, Is.EqualTo(h1));
             Assert.That(h2.GetHashCode(), Is.EqualTo(h1.GetHashCode()));

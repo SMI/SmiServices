@@ -101,6 +101,8 @@ namespace SmiServices.Common.Options
                             SmiLogging.Setup(globals.LoggingOptions, programName);
                         }
 
+                        MessageHeader.CurrentProgramName = programName;
+
                         return onParse(globals, parsed);
                     },
                     OnErrors
