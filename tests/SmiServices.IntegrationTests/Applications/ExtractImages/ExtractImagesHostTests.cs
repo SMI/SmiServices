@@ -25,6 +25,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
+            MessageHeader.CurrentProgramName = nameof(ExtractImagesHostTests);
         }
 
         [OneTimeTearDown]

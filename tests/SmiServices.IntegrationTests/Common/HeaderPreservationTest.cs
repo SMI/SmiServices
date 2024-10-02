@@ -11,6 +11,13 @@ namespace SmiServices.UnitTests.Common
     [RequiresRabbit]
     public class HeaderPreservationTest
     {
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            TestLogger.Setup();
+            MessageHeader.CurrentProgramName = nameof(HeaderPreservationTest);
+        }
+
         [Test]
         public void SendHeader()
         {

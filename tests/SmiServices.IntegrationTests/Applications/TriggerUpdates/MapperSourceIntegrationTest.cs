@@ -7,6 +7,7 @@ using Rdmp.Core.DataLoad.Triggers.Implementations;
 using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using SmiServices.Applications.TriggerUpdates;
+using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
@@ -29,6 +30,8 @@ namespace SmiServices.UnitTests.Applications.TriggerUpdates
         [TestCase(DatabaseType.MySql)]
         public void MapperSource_IntegrationTest(DatabaseType dbType)
         {
+            MessageHeader.CurrentProgramName = nameof(MapperSourceIntegrationTest);
+
             var db = GetCleanedServer(dbType);
 
             DataTable dt = new();

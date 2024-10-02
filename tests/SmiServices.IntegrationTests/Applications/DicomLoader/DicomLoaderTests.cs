@@ -45,6 +45,8 @@ public class DicomLoaderTests : DatabaseTests
         helper.SetupSuite(db, RepositoryLocator, _gOptions, typeof(DicomDatasetCollectionSource));
         Debug.Assert(helper.LoadMetadata != null, "helper.LoadMetadata != null");
         _gOptions.DicomRelationalMapperOptions!.LoadMetadataId = helper.LoadMetadata?.ID ?? throw new Exception("No LoadMetadataId");
+
+        MessageHeader.CurrentProgramName = nameof(DicomLoaderTests);
     }
 
     [Test]
