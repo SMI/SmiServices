@@ -1,5 +1,6 @@
 using Equ;
 using SmiServices.Common.Messaging;
+using System;
 
 namespace SmiServices.Common.Options
 {
@@ -22,6 +23,21 @@ namespace SmiServices.Common.Options
         /// Specify the <see cref="IBackoffProvider"/> to use when handling publish failures
         /// </summary>
         public string? BackoffProviderType { get; set; }
+
+        /// <summary>
+        /// Downstream queue to monitor
+        /// </summary>
+        public string? ProbeQueueName { get; set; }
+
+        /// <summary>
+        /// Message limit of the downstream queue
+        /// </summary>
+        public int ProbeQueueLimit { get; set; } = 0;
+
+        /// <summary>
+        /// Sleep time between each check of the probe queue when it is over the message limit
+        /// </summary>
+        public TimeSpan? ProbeTimeout { get; set; }
 
         /// <summary>
         /// Verifies that the individual options have been populated
