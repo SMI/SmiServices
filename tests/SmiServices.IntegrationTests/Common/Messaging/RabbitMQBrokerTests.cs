@@ -48,8 +48,9 @@ namespace SmiServices.UnitTests.Common.Messaging
 
             _mockConsumer = Mock.Of<Consumer<IMessage>>();
             _tester = new MicroserviceTester(_testOptions.RabbitOptions!, _testConsumerOptions);
-        }
 
+            MessageHeader.CurrentProgramName = nameof(RabbitMQBrokerTests);
+        }
 
         [OneTimeTearDown]
         public void TearDown()
