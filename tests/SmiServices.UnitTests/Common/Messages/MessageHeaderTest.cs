@@ -75,5 +75,14 @@ namespace SmiServices.UnitTests.Common.Messages
             Assert.That(h2, Is.EqualTo(h1));
             Assert.That(h2.GetHashCode(), Is.EqualTo(h1.GetHashCode()));
         }
+
+        [Test]
+        public void CurrentProgramName_Unset_ThrowsException()
+        {
+            MessageHeader.CurrentProgramName = null!;
+
+            var exc = Assert.Throws<Exception>(() => new MessageHeader());
+            Assert.That(exc.Message, Is.EqualTo("Value must be set before use"));
+        }
     }
 }
