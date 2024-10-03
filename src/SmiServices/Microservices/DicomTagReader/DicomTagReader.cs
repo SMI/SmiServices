@@ -4,6 +4,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Microservices.DicomTagReader
 {
@@ -13,6 +14,7 @@ namespace SmiServices.Microservices.DicomTagReader
         /// Program entry point when run from the command line
         /// </summary>
         /// <param name="args"></param>
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<DicomTagReaderCliOptions>(args, nameof(DicomTagReader), OnParse);

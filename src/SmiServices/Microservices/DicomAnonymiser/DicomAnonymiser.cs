@@ -1,6 +1,7 @@
 using SmiServices.Common.Execution;
 using SmiServices.Common.Options;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Microservices.DicomAnonymiser
 {
@@ -10,6 +11,7 @@ namespace SmiServices.Microservices.DicomAnonymiser
         /// Program entry point when run from the command line
         /// </summary>
         /// <param name="args"></param>
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<CliOptions>(args, nameof(DicomAnonymiser), OnParse);

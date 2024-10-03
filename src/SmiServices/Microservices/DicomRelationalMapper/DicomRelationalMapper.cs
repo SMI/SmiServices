@@ -1,11 +1,13 @@
 using SmiServices.Common.Execution;
 using SmiServices.Common.Options;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Microservices.DicomRelationalMapper
 {
     public static class DicomRelationalMapper
     {
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<CliOptions>(args, nameof(DicomRelationalMapper), OnParse);

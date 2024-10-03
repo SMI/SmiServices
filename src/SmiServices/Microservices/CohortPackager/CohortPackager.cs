@@ -9,12 +9,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace SmiServices.Microservices.CohortPackager
 {
     public static class CohortPackager
     {
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<CohortPackagerCliOptions>(args, nameof(CohortPackager), OnParse);

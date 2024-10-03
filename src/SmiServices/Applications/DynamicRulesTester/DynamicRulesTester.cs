@@ -16,6 +16,7 @@ public static class DynamicRulesTester
     private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
     private static IFileSystem _fileSystem = null!;
 
+    [ExcludeFromCodeCoverage]
     public static int Main(IEnumerable<string> args, IFileSystem? fileSystem = null)
     {
         _fileSystem = fileSystem ?? new FileSystem();
