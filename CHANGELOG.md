@@ -11,6 +11,21 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.9.0] 2024-10-03
+
+### Feature
+
+- [#1945](https://github.com/SMI/SmiServices/pull/1945) by rkm. Add a publish timeout backoff mechanism to ProducerModel, allowing control over message publishing timeout behaviour. This can be enabled by setting `BackoffProviderType` in any `ProducerOptions` config. Currently implemented types are:
+
+  - StaticBackoffProvider (1 minute flat timeout)
+  - ExponentialBackoffProvider (1 minute initial, doubling after each timeout)
+
+- [#1952](https://github.com/SMI/SmiServices/pull/1952) by rkm. Enable pausing of message publishing based on monitoring downstream queue message count
+
+### Bugfix
+
+- [#1954](https://github.com/SMI/SmiServices/pull/1954) by rkm. Fix program names in MessageHeader and logging setup
+
 ## [5.8.0] 2024-09-19
 
 ### Feature
@@ -1415,4 +1430,5 @@ First stable release after importing the repository from the private
 [5.7.1]: https://github.com/SMI/SmiServices/compare/v5.7.0...v5.7.1
 [5.7.2]: https://github.com/SMI/SmiServices/compare/v5.7.1...v5.7.2
 [5.8.0]: https://github.com/SMI/SmiServices/compare/v5.7.2...v5.8.0
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.8.0...main
+[5.9.0]: https://github.com/SMI/SmiServices/compare/v5.8.0...v5.9.0
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.9.0...main
