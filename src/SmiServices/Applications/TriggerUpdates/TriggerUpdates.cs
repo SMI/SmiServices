@@ -2,12 +2,14 @@ using SmiServices.Common.Execution;
 using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace SmiServices.Applications.TriggerUpdates
 {
     public static class TriggerUpdates
     {
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit

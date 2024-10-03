@@ -20,12 +20,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Applications.DicomLoader;
 
 public static class DicomLoader
 {
     private static CancellationTokenSource? _cts;
+
+    [ExcludeFromCodeCoverage]
     public static int Main(IEnumerable<string> args)
     {
         return SmiCliInit.ParseAndRun<DicomLoaderOptions>(args, nameof(DicomLoader), OnParse);

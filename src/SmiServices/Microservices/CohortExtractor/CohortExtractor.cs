@@ -1,11 +1,13 @@
 using SmiServices.Common.Execution;
 using SmiServices.Common.Options;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Microservices.CohortExtractor
 {
     public static class CohortExtractor
     {
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit.ParseAndRun<CliOptions>(args, nameof(CohortExtractor), OnParse);

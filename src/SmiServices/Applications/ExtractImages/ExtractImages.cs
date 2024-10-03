@@ -6,9 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Applications.ExtractImages
 {
-    [ExcludeFromCodeCoverage]
     public static class ExtractImages
     {
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit

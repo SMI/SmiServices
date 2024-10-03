@@ -1,12 +1,14 @@
 using SmiServices.Common.Execution;
 using SmiServices.Common.Options;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace SmiServices.Microservices.UpdateValues
 {
     public static class UpdateValues
     {
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             return SmiCliInit

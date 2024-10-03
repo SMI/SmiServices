@@ -1,6 +1,7 @@
 using SmiServices.Common.Execution;
 using SmiServices.Common.Options;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.Applications.DicomDirectoryProcessor
 {
@@ -18,6 +19,7 @@ namespace SmiServices.Applications.DicomDirectoryProcessor
         /// Arguments.  There should be exactly one argument that specified the
         /// path to the top level directory that is be searched.
         /// </param>
+        [ExcludeFromCodeCoverage]
         public static int Main(IEnumerable<string> args)
         {
             int ret = SmiCliInit
