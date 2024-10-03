@@ -24,8 +24,6 @@ namespace SmiServices.UnitTests.Common.Messages
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-
-            MessageHeader.CurrentProgramName = nameof(MessageHeaderTest);
         }
 
         [OneTimeTearDown]
@@ -36,7 +34,10 @@ namespace SmiServices.UnitTests.Common.Messages
         #region Test Methods
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            MessageHeader.CurrentProgramName = nameof(MessageHeaderTest);
+        }
 
         [TearDown]
         public void TearDown() { }
