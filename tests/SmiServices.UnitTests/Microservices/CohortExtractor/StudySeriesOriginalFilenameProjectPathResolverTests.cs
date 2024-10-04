@@ -8,7 +8,7 @@ using System.IO;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {
-    public class DefaultProjectPathResolverTest
+    public class StudySeriesOriginalFilenameProjectPathResolverTests
     {
         #region Fixture Methods
 
