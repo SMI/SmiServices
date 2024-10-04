@@ -5,7 +5,7 @@ using System.IO;
 
 namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
 {
-    public class DefaultProjectPathResolver : IProjectPathResolver
+    public class StudySeriesOriginalFilenameProjectPathResolver : IProjectPathResolver
     {
         public string AnonExt { get; protected set; } = "-an.dcm";
         public string IdentExt { get; protected set; } = ".dcm";
