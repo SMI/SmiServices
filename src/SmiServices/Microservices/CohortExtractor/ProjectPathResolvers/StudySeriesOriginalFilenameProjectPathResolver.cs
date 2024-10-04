@@ -1,16 +1,20 @@
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
 {
     public class StudySeriesOriginalFilenameProjectPathResolver : IProjectPathResolver
     {
-        public string AnonExt { get; protected set; } = "-an.dcm";
-        public string IdentExt { get; protected set; } = ".dcm";
-
         private static readonly string[] _replaceableExtensions = [".dcm", ".dicom"];
+
+        private readonly IFileSystem _fileSystem;
+
+        public StudySeriesOriginalFilenameProjectPathResolver(IFileSystem fileSystem)
+        {
+            _fileSystem = fileSystem;
+        }
 
         /// <summary>
         /// Returns the output path for the anonymised file, relative to the ExtractionDirectory
@@ -20,10 +24,10 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
         /// <returns></returns>
         public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage message)
         {
-            string extToUse = message.IsIdentifiableExtraction ? IdentExt : AnonExt;
+            string extToUse = message.IsIdentifiableExtraction ? ProjectPathResolverConstants.IDENT_EXT : ProjectPathResolverConstants.ANON_EXT;
 
             // The extension of the input DICOM file can be anything (or nothing), but here we try to standardise the output file name to have the required extension
-            string fileName = Path.GetFileName(result.FilePathValue);
+            string fileName = _fileSystem.Path.GetFileName(result.FilePathValue);
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException(nameof(result));
 
@@ -39,7 +43,7 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
             if (!replaced)
                 fileName += extToUse;
 
-            return Path.Combine(
+            return _fileSystem.Path.Combine(
                 result.StudyTagValue ?? "unknown",
                 result.SeriesTagValue ?? "unknown",
                 fileName);
