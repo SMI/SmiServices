@@ -3,77 +3,81 @@ using SmiServices.Common.Helpers;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using System.IO;
+using SmiServices.UnitTests.Common;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {
-    public class NoSuffixProjectPathResolverTests : Tests.Common.UnitTests
+    public class NoSuffixProjectPathResolverTests
     {
+        private IFileSystem _fileSystem;
 
-        [TestCase("study", "series")]
-        [TestCase("study", null)]
-        [TestCase(null, "series")]
-        [TestCase(null, null)]
-        public void TestDefaultProjectPathResolver_IdParts(string? study, string? series)
+        [SetUp]
+        public void SetUp()
         {
+            TestLogger.Setup();
+            _fileSystem = new MockFileSystem();
+        }
+
+        [Test]
+        public void GetOutputPath_Basic()
+        {
+            // Arrange
+
+            var expectedPath = _fileSystem.Path.Combine("study", "series", "foo.dcm");
+            var resolver = new NoSuffixProjectPathResolver(_fileSystem);
             var result = new QueryToExecuteResult(
                 "foo.dcm",
-                study,
-                series,
+                "study",
+                "series",
                 "sop",
-                false,
-                null);
+                rejection: false,
+                rejectionReason: null
+            );
+            var message = new ExtractionRequestMessage();
 
-            Assert.That(
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()), Is.EqualTo(Path.Combine(
-                    study ?? "unknown",
-                    series ?? "unknown",
-                    "foo.dcm")));
+            // Act
+
+            var actualPath = resolver.GetOutputPath(result, message);
+
+            // Assert
+            Assert.That(actualPath, Is.EqualTo(expectedPath));
         }
 
         [TestCase("file.dcm", "file.dcm")]
         [TestCase("file.dcm", "file.dicom")]
         [TestCase("file.dcm", "file")]
         [TestCase("file.foo.dcm", "file.foo")]
-        public void TestDefaultProjectPathResolver_Extensions(string expectedOutput, string inputFile)
+        public void GetOutputPath_Extensions(string expectedOutput, string inputFile)
         {
+            // Arrange
+
+            var expectedPath = _fileSystem.Path.Combine("study", "series", expectedOutput);
+            var resolver = new NoSuffixProjectPathResolver(_fileSystem);
             var result = new QueryToExecuteResult(
-                Path.Combine("foo", inputFile),
+                inputFile,
                 "study",
                 "series",
                 "sop",
-                false,
-                null);
+                rejection: false,
+                rejectionReason: null
+            );
+            var message = new ExtractionRequestMessage();
 
-            Assert.That(
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()), Is.EqualTo(Path.Combine(
-                    "study",
-                    "series",
-                    expectedOutput)));
+            // Act
+
+            var actualPath = resolver.GetOutputPath(result, message);
+
+            // Assert
+
+            Assert.That(actualPath, Is.EqualTo(expectedPath));
         }
 
         [Test]
-        public void TestDefaultProjectPathResolver_Both()
+        public void CanBeConstructedByReflection()
         {
-            var result = new QueryToExecuteResult(
-                Path.Combine("foo", "file"),
-                "study",
-                null,
-                "sop",
-                false,
-                null);
-
-            Assert.That(
-                new NoSuffixProjectPathResolver().GetOutputPath(result, new ExtractionRequestMessage()), Is.EqualTo(Path.Combine(
-                    "study",
-                    "unknown",
-                    "file.dcm")));
-        }
-
-        [Test]
-        public void TestCreatingByReflection()
-        {
-            var instance = new MicroserviceObjectFactory().CreateInstance<IProjectPathResolver>("SmiServices.Microservices.CohortExtractor.ProjectPathResolvers.NoSuffixProjectPathResolver", typeof(IProjectPathResolver).Assembly, RepositoryLocator);
+            var instance = new MicroserviceObjectFactory().CreateInstance<IProjectPathResolver>("SmiServices.Microservices.CohortExtractor.ProjectPathResolvers.NoSuffixProjectPathResolver", typeof(IProjectPathResolver).Assembly, _fileSystem);
             Assert.That(instance, Is.InstanceOf<NoSuffixProjectPathResolver>());
         }
     }

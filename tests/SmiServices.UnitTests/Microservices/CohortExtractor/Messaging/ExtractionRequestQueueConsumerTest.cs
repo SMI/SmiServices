@@ -12,7 +12,8 @@ using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.UnitTests.Common;
 using System;
-using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Threading;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
@@ -21,10 +22,13 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
     {
         #region Fixture Methods 
 
+        private IFileSystem _fileSystem;
+
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
+            MessageHeader.CurrentProgramName = nameof(ExtractionRequestQueueConsumerTest);
         }
 
         [OneTimeTearDown]
@@ -35,7 +39,10 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
         #region Test Methods
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _fileSystem = new MockFileSystem();
+        }
 
         [TearDown]
         public void TearDown() { }
@@ -68,7 +75,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
         /// <param name="globals"></param>
         /// <param name="isIdentifiableExtraction"></param>
         /// <param name="expectedRoutingKey"></param>
-        private static void AssertMessagePublishedWithSpecifiedKey(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
+        private void AssertMessagePublishedWithSpecifiedKey(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
         {
             var fakeFulfiller = new FakeFulfiller();
 
@@ -101,7 +108,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
             var consumer = new ExtractionRequestQueueConsumer(
                 globals.CohortExtractorOptions!,
                 fakeFulfiller,
-                new NullAuditExtractions(), new DefaultProjectPathResolver(),
+                new NullAuditExtractions(), new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem),
                 mockFileMessageProducerModel.Object,
                 mockFileInfoMessageProducerModel.Object);
 

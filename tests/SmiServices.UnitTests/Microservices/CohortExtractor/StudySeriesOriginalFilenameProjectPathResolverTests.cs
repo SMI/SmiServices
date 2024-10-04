@@ -3,7 +3,8 @@ using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.UnitTests.Common;
-using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
@@ -13,6 +14,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         #region Fixture Methods
 
         private ExtractionRequestMessage _requestMessage = null!;
+        private IFileSystem _fileSystem;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -33,7 +35,10 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         #region Test Methods
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _fileSystem = new MockFileSystem();
+        }
 
         [TearDown]
         public void TearDown() { }
@@ -42,87 +47,85 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
 
         #region Tests
 
-        [TestCase("study", "series")]
-        [TestCase("study", null)]
-        [TestCase(null, "series")]
-        [TestCase(null, null)]
-        public void TestDefaultProjectPathResolver_IdParts(string? study, string? series)
+        [Test]
+        public void GetOutputPath_Basic()
         {
+            // Arrange
+
+            var expectedPath = _fileSystem.Path.Combine("study", "series", "foo-an.dcm");
+            var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
             var result = new QueryToExecuteResult(
                 "foo.dcm",
-                study,
-                series,
+                "study",
+                "series",
                 "sop",
-                false,
-                null);
+                rejection: false,
+                rejectionReason: null
+            );
+            var message = new ExtractionRequestMessage();
 
-            Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
-                    study ?? "unknown",
-                    series ?? "unknown",
-                    "foo-an.dcm")));
+            // Act
+
+            var actualPath = resolver.GetOutputPath(result, message);
+
+            // Assert
+            Assert.That(actualPath, Is.EqualTo(expectedPath));
         }
 
         [TestCase("file-an.dcm", "file.dcm")]
         [TestCase("file-an.dcm", "file.dicom")]
         [TestCase("file-an.dcm", "file")]
         [TestCase("file.foo-an.dcm", "file.foo")]
-        public void TestDefaultProjectPathResolver_Extensions(string expectedOutput, string inputFile)
+        public void GetOutputPath_Extensions(string expectedOutput, string inputFile)
         {
+            // Arrange
+
+            var expectedPath = _fileSystem.Path.Combine("study", "series", expectedOutput);
+            var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
             var result = new QueryToExecuteResult(
-                Path.Combine("foo", inputFile),
+                inputFile,
                 "study",
                 "series",
                 "sop",
-                false,
-                null);
+                rejection: false,
+                rejectionReason: null
+            );
+            var message = new ExtractionRequestMessage();
 
-            Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
-                    "study",
-                    "series",
-                    expectedOutput)));
+            // Act
+
+            var actualPath = resolver.GetOutputPath(result, message);
+
+            // Assert
+            Assert.That(actualPath, Is.EqualTo(expectedPath));
         }
 
         [Test]
-        public void TestDefaultProjectPathResolver_Both()
+        public void GetOutputPath_IdentExtraction()
         {
+            // Arrange
+
+            var expectedPath = _fileSystem.Path.Combine("study", "series", "foo.dcm");
+            var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
             var result = new QueryToExecuteResult(
-                Path.Combine("foo", "file"),
+                "foo.dcm",
                 "study",
-                null,
+                "series",
                 "sop",
-                false,
-                null);
-
-            Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
-                    "study",
-                    "unknown",
-                    "file-an.dcm")));
-        }
-
-        [Test]
-        public void Test_DefaultProjectPathResolver_IdentExtraction()
-        {
-            var requestMessage = new ExtractionRequestMessage
+                rejection: false,
+                rejectionReason: null
+            );
+            var message = new ExtractionRequestMessage()
             {
                 IsIdentifiableExtraction = true,
             };
 
-            var result = new QueryToExecuteResult(
-                Path.Combine("foo", "file"),
-                "study",
-                null,
-                "sop",
-                false,
-                null);
+            // Act
 
-            Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, requestMessage), Is.EqualTo(Path.Combine(
-                    "study",
-                    "unknown",
-                    "file.dcm")));
+            var actualPath = resolver.GetOutputPath(result, message);
+
+            // Assert
+            Assert.That(actualPath, Is.EqualTo(expectedPath));
         }
 
         #endregion
