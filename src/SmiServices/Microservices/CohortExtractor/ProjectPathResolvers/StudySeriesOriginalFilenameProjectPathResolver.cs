@@ -44,9 +44,10 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
                 fileName += extToUse;
 
             return _fileSystem.Path.Combine(
-                result.StudyTagValue ?? "unknown",
-                result.SeriesTagValue ?? "unknown",
-                fileName);
+                result.StudyTagValue,
+                result.SeriesTagValue,
+                fileName
+            );
         }
     }
 }
