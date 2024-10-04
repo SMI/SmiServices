@@ -50,6 +50,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     cmd = (
         "dotnet",
         "publish",
+        "-warnaserror",
         "--use-current-runtime",
         "--configuration", args.configuration,
         "--no-build" if args.no_build else "",
