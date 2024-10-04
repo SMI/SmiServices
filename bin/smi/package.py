@@ -58,6 +58,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--output", dist_tag_dir / smi_services_output_dir,
         "--verbosity", "quiet",
         "--nologo",
+        "src/SmiServices",
     )
     C.run(cmd)
 
