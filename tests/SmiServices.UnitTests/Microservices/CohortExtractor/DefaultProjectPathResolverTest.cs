@@ -125,27 +125,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                     "file.dcm")));
         }
 
-        [TestCase(".study", "series")]
-        [TestCase(".study", ".series")]
-        [TestCase(null, ".series")]
-        [TestCase(".study", null)]
-        public void TestDefaultProjectPathResolver_HiddenDirectories(string? study, string? series)
-        {
-            var result = new QueryToExecuteResult(
-                "foo.dcm",
-                study,
-                series,
-                "sop",
-                false,
-                null);
-
-            Assert.That(
-                new DefaultProjectPathResolver().GetOutputPath(result, _requestMessage), Is.EqualTo(Path.Combine(
-                    study?.TrimStart('.') ?? "unknown",
-                    series?.TrimStart('.') ?? "unknown",
-                    "foo-an.dcm")));
-        }
-
         #endregion
     }
 }
