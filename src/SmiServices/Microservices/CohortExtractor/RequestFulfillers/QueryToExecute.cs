@@ -117,10 +117,10 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                     }
                 }
 
-            var path = Columns.FilePathColumn!.GetRuntimeName();
-            var study = Columns.StudyTagColumn?.GetRuntimeName();
-            var series = Columns.SeriesTagColumn?.GetRuntimeName();
-            var instance = Columns.InstanceTagColumn?.GetRuntimeName();
+            string path = Columns.FilePathColumn?.GetRuntimeName() ?? throw new NullReferenceException("No FilePathColumn set");
+            string study = Columns.StudyTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No StudyTagColumn set");
+            string series = Columns.SeriesTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No SeriesTagColumn set");
+            string instance = Columns.InstanceTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No InstanceTagColumn set");
 
             using DbConnection con = Server!.GetConnection();
             con.Open();
@@ -158,13 +158,14 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                     }
                 }
 
-                yield return
-                    new QueryToExecuteResult((string)imagePath,
-                        study == null ? null : (string)reader[study],
-                        series == null ? null : (string)reader[series],
-                        instance == null ? null : (string)reader[instance],
-                        reject,
-                        rejectReason);
+                yield return new QueryToExecuteResult(
+                    (string)imagePath,
+                    (string)reader[study],
+                    (string)reader[series],
+                    (string)reader[instance],
+                    reject,
+                    rejectReason
+                );
             }
         }
     }
