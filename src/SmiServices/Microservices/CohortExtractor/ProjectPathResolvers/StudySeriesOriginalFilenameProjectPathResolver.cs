@@ -39,13 +39,9 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
             if (!replaced)
                 fileName += extToUse;
 
-            // Remove any leading periods from the UIDs
-            string? studyUID = result.StudyTagValue?.TrimStart('.');
-            string? seriesUID = result.SeriesTagValue?.TrimStart('.');
-
             return Path.Combine(
-                studyUID ?? "unknown",
-                seriesUID ?? "unknown",
+                result.StudyTagValue ?? "unknown",
+                result.SeriesTagValue ?? "unknown",
                 fileName);
         }
     }
