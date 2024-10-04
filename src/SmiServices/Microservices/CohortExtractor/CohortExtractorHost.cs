@@ -16,6 +16,7 @@ using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
 using System;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -42,13 +43,16 @@ namespace SmiServices.Microservices.CohortExtractor
         private IProjectPathResolver? _pathResolver;
         private IProducerModel? _fileMessageProducer;
 
+        private readonly IFileSystem _fileSystem;
+
         /// <summary>
         /// Creates a new instance of the host with the given 
         /// </summary>
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller)
+        /// <param name="fileSystem"></param>
+        public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller, IFileSystem? fileSystem = null)
             : base(options)
         {
             _consumerOptions = options.CohortExtractorOptions!;
@@ -56,6 +60,7 @@ namespace SmiServices.Microservices.CohortExtractor
 
             _auditor = auditor;
             _fulfiller = fulfiller;
+            _fileSystem = fileSystem ?? new FileSystem();
         }
 
         /// <summary>
@@ -156,7 +161,7 @@ namespace SmiServices.Microservices.CohortExtractor
                 }
 
             _pathResolver = string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType)
-                ? new DefaultProjectPathResolver()
+                ? new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem)
                 : ObjectFactory.CreateInstance<IProjectPathResolver>(
                     _consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly, repositoryLocator);
         }
