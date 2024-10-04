@@ -22,7 +22,7 @@ namespace SmiServices.Microservices.CohortExtractor.ProjectPathResolvers
         /// <param name="result"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage message)
+        public virtual string GetOutputPath(QueryToExecuteResult result, ExtractionRequestMessage message)
         {
             string extToUse = message.IsIdentifiableExtraction ? ProjectPathResolverConstants.IDENT_EXT : ProjectPathResolverConstants.ANON_EXT;
 
