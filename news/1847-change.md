@@ -1,0 +1,1 @@
+Enable MSBuildTreatWarningsAsErrors and warnaserror
