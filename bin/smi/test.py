@@ -86,6 +86,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--settings", "coverage.settings",
         "--",
         "dotnet", "test",
+        "-warnaserror",
         "--configuration", args.configuration,
         "--no-build" if args.no_build else "",
         *unit_only,

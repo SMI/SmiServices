@@ -36,6 +36,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     cmd = (
         "dotnet",
         "build",
+        "-warnaserror",
         "--use-current-runtime",
         "--configuration", args.configuration,
         "--verbosity", "quiet",
