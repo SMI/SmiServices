@@ -161,7 +161,7 @@ namespace SmiServices.Microservices.CohortExtractor
                 }
 
             _pathResolver = string.IsNullOrWhiteSpace(_consumerOptions.ProjectPathResolverType)
-                ? new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem)
+                ? new StudySeriesSOPProjectPathResolver(_fileSystem)
                 : ObjectFactory.CreateInstance<IProjectPathResolver>(
                     _consumerOptions.ProjectPathResolverType, typeof(IProjectPathResolver).Assembly, repositoryLocator);
         }
