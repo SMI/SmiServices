@@ -77,7 +77,7 @@ CohortExtractorOptions:
 
   AuditorType: "SmiServices.Microservices.CohortExtractor.Audit.NullAuditExtractions"
   RequestFulfillerType: "SmiServices.Microservices.CohortExtractor.RequestFulfillers.FromCataloguesExtractionRequestFulfiller"
-  ProjectPathResolverType: "SmiServices.Microservices.CohortExtractor.ProjectPathResolvers.DefaultProjectPathResolver"
+  ProjectPathResolverType: "SmiServices.Microservices.CohortExtractor.ProjectPathResolvers.StudySeriesSOPProjectPathResolver"
   ExtractAnonRoutingKey: anon
   ExtractIdentRoutingKey: ident
   # Writes (Producer) to this exchange
