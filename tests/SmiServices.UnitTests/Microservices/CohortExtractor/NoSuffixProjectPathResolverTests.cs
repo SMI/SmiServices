@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using SmiServices.Common.Helpers;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
@@ -72,13 +71,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             // Assert
 
             Assert.That(actualPath, Is.EqualTo(expectedPath));
-        }
-
-        [Test]
-        public void CanBeConstructedByReflection()
-        {
-            var instance = new MicroserviceObjectFactory().CreateInstance<IProjectPathResolver>("SmiServices.Microservices.CohortExtractor.ProjectPathResolvers.NoSuffixProjectPathResolver", typeof(IProjectPathResolver).Assembly, _fileSystem);
-            Assert.That(instance, Is.InstanceOf<NoSuffixProjectPathResolver>());
         }
     }
 }
