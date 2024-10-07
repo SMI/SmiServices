@@ -4,12 +4,12 @@ using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using SmiServices.Common.Messages;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System.Text;
 
 
-namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Messaging
+namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Messaging
 {
     [TestFixture, RequiresMongoDb]
     public class MongoDbPopulatorMessageConsumerTests

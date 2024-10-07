@@ -1,11 +1,11 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.MongoDBPopulator;
+using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System.Collections.Generic;
 
-namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution
+namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator
 {
     [TestFixture, RequiresMongoDb]
     public class MongoDbAdapterTests

@@ -3,10 +3,11 @@ using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
+using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.TestCommon;
 using System;
 
-namespace SmiServices.UnitTests.Common
+namespace SmiServices.IntegrationTests.Common
 {
     [RequiresRabbit]
     public class HeaderPreservationTest

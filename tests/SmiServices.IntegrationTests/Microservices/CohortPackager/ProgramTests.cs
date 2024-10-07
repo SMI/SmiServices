@@ -4,16 +4,16 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.MessageSerialization;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortPackager;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.CohortPackager;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace SmiServices.UnitTests.Microservices.CohortPackager;
+namespace SmiServices.IntegrationTests.Microservices.CohortPackager;
 
 [RequiresMongoDb, RequiresRabbit]
 internal class ProgramTests

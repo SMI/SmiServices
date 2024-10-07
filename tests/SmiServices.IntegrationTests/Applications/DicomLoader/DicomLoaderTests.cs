@@ -14,7 +14,6 @@ using SmiServices.Applications.DicomLoader;
 using SmiServices.Common.Messages;
 using SmiServices.Common.MongoDB;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.UnitTests.Microservices.DicomRelationalMapper;
 using SynthEHR;
 using System;
@@ -25,7 +24,7 @@ using System.Reflection;
 using System.Text;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Applications.DicomLoader;
+namespace SmiServices.IntegrationTests.Applications.DicomLoader;
 
 [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
 public class DicomLoaderTests : DatabaseTests

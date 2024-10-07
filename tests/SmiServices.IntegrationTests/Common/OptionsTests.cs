@@ -3,7 +3,7 @@ using SmiServices.Common.Options;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace SmiServices.UnitTests.Common
+namespace SmiServices.IntegrationTests.Common
 {
     //TODO: Rework these tests. We should assert that every option in GlobalOptions has an entry in default.yaml. Non-required options should be present with a comment
     [TestFixture]

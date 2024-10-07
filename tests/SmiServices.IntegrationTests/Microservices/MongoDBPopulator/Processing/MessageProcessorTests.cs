@@ -3,14 +3,14 @@ using Moq;
 using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System;
 using System.Threading;
 
-namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Processing
+namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
 {
     [TestFixture, RequiresMongoDb]
     public class MessageProcessorTests

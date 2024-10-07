@@ -2,8 +2,8 @@
 using Moq;
 using NUnit.Framework;
 using SmiServices.Common.Messages;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomTagReader.Execution;
+using SmiServices.UnitTests.Microservices.DicomTagReader;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +11,7 @@ using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 
-namespace SmiServices.UnitTests.Microservices.DicomTagReader.Execution
+namespace SmiServices.IntegrationTests.Microservices.DicomTagReader
 {
     //TODO Some of these can be tested without RabbitMQ
     [TestFixture, RequiresRabbit]

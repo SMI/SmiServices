@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomAnonymiser;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using SmiServices.UnitTests.Common;
@@ -15,7 +14,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 
-namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
+namespace SmiServices.IntegrationTests.Microservices.DicomAnonymiser
 {
     [RequiresRabbit]
     public class DicomAnonymiserHostTests

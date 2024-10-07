@@ -9,10 +9,11 @@ using Rdmp.Core.ReusableLibraryCode.Checks;
 using SmiServices.Applications.TriggerUpdates;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
+using SmiServices.IntegrationTests.Common;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using SmiServices.Microservices.UpdateValues;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,7 +21,7 @@ using System.Linq;
 using Tests.Common;
 
 
-namespace SmiServices.UnitTests.Applications.TriggerUpdates
+namespace SmiServices.IntegrationTests.Applications.TriggerUpdates
 {
     [RequiresRabbit]
     class MapperSourceIntegrationTest : DatabaseTests

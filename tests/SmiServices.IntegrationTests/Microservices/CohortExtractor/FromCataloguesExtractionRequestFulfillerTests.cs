@@ -5,7 +5,6 @@ using FAnsi.Extensions;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
@@ -15,7 +14,7 @@ using System.Data;
 using System.Linq;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Microservices.CohortExtractor
+namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 {
     /// <summary>
     /// Tests the ability of <see cref="FromCataloguesExtractionRequestFulfiller"/> to connect to a database

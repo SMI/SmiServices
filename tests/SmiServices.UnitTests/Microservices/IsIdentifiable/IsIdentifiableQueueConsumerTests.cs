@@ -9,6 +9,7 @@ using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Microservices.IsIdentifiable;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.Collections.Generic;
 using System.IO;

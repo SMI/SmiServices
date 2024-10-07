@@ -7,7 +7,7 @@ using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
+using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 
-namespace SmiServices.UnitTests.Common.Messaging
+namespace SmiServices.IntegrationTests.Common.Messaging
 {
     [TestFixture, RequiresRabbit]
     public class RabbitMQBrokerTests

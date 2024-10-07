@@ -3,7 +3,6 @@ using NUnit.Framework;
 using Rdmp.Core.Curation.Data.DataLoad;
 using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomRelationalMapper;
 using SmiServices.Microservices.DicomRelationalMapper.Namers;
 using SmiServices.UnitTests.Common;
@@ -11,7 +10,7 @@ using System;
 using System.Data;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
+namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
 {
     [RequiresRabbit, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class DicomRelationalMapperHostTests : DatabaseTests

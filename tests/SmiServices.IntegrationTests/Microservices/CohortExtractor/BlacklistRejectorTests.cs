@@ -1,11 +1,10 @@
 using FAnsi;
 using NUnit.Framework;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System.Data;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Microservices.CohortExtractor
+namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [RequiresRelationalDb(DatabaseType.MySql)]

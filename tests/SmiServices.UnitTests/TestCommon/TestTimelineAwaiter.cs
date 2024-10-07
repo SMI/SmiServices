@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
-namespace SmiServices.UnitTests.Common
+namespace SmiServices.UnitTests.TestCommon
 {
     /// <summary>
     /// helper for asynchronous tests, awaits for certain conditions to be true within a given timeout (or infinite timeout if debugger is attached)
