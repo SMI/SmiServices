@@ -31,8 +31,6 @@ namespace SmiServices.IntegrationTests.Applications.TriggerUpdates
         [TestCase(DatabaseType.MySql)]
         public void MapperSource_IntegrationTest(DatabaseType dbType)
         {
-            MessageHeader.CurrentProgramName = nameof(MapperSourceIntegrationTest);
-
             var db = GetCleanedServer(dbType);
 
             DataTable dt = new();

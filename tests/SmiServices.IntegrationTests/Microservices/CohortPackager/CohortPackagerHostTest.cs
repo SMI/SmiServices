@@ -32,7 +32,6 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-            MessageHeader.CurrentProgramName = nameof(CohortPackagerHostTest);
         }
 
         [OneTimeTearDown]

@@ -15,7 +15,6 @@ namespace SmiServices.UnitTests.Common.MongoDB
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            MessageHeader.CurrentProgramName = nameof(MongoDocumentHeadersTests);
         }
 
         [Test]

@@ -16,7 +16,6 @@ namespace SmiServices.IntegrationTests.Common
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-            MessageHeader.CurrentProgramName = nameof(HeaderPreservationTest);
         }
 
         [Test]
