@@ -1,13 +1,13 @@
 using NUnit.Framework;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IsIdentifiable;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.IO;
 
-namespace SmiServices.UnitTests.Microservices.IsIdentifiable
+namespace SmiServices.IntegrationTests.Microservices.IsIdentifiable
 {
     [TestFixture, RequiresRabbit]
     public class IsIdentifiableHostTests

@@ -8,9 +8,10 @@ using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.TagPromotionSchema;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomRelationalMapper;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.DicomRelationalMapper;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ using System.Threading;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
+namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
 {
     [RequiresRabbit, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class DicomRelationalMapperTests : DatabaseTests

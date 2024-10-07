@@ -2,14 +2,13 @@ using FAnsi;
 using FAnsi.Discovery;
 using NUnit.Framework;
 using SmiServices.Common.Messages.Updating;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.UpdateValues;
 using System;
 using System.Data;
 using System.Linq;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Microservices.UpdateValues
+namespace SmiServices.IntegrationTests.Microservices.UpdateValues
 {
     [RequiresRelationalDb(DatabaseType.MySql)]
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]

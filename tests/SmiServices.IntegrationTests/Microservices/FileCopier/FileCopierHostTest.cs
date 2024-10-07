@@ -4,14 +4,14 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.FileCopier;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
-namespace SmiServices.UnitTests.Microservices.FileCopier
+namespace SmiServices.IntegrationTests.Microservices.FileCopier
 {
     [RequiresRabbit]
     public class FileCopierHostTest

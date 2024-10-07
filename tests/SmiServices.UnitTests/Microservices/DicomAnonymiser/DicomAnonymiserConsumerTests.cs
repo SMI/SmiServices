@@ -10,6 +10,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomAnonymiser;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.IO;
 using System.IO.Abstractions;

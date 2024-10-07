@@ -3,7 +3,7 @@ using Rdmp.Core.Curation.Data;
 using SmiServices.Microservices.DicomRelationalMapper.Namers;
 using System;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
+namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.Namers
 {
     public class GuidDatabaseNamerTests
     {

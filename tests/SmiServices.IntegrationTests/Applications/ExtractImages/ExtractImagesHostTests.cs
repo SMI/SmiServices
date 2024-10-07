@@ -4,7 +4,6 @@ using SmiServices.Applications.ExtractImages;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,7 @@ using System.Linq.Expressions;
 using System.Threading;
 
 
-namespace SmiServices.UnitTests.Applications.ExtractImages
+namespace SmiServices.IntegrationTests.Applications.ExtractImages
 {
     [RequiresRabbit]
     public class ExtractImagesHostTests

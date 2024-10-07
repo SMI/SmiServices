@@ -21,10 +21,11 @@ using Rdmp.Dicom.PipelineComponents.DicomSources;
 using Rdmp.Dicom.PipelineComponents.DicomSources.Worklists;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomRelationalMapper;
 using SmiServices.Microservices.DicomRelationalMapper.Namers;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.DicomRelationalMapper;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -34,7 +35,7 @@ using System.Linq;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.DLEBenchmarkingTests
+namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper.DLEBenchmarkingTests
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class HowFastIsDLETest : DatabaseTests

@@ -2,7 +2,6 @@ using FAnsi;
 using FAnsi.Discovery;
 using NUnit.Framework;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using System.Collections.Generic;
 using System.Data;
@@ -10,7 +9,7 @@ using System.Linq;
 using Tests.Common;
 using TypeGuesser;
 
-namespace SmiServices.UnitTests.Microservices.IdentifierMapper
+namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [RequiresRelationalDb(DatabaseType.MySql)]

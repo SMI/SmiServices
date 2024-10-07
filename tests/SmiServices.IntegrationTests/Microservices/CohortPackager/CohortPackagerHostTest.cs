@@ -8,10 +8,10 @@ using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.MessageSerialization;
 using SmiServices.Common.MongoDB;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortPackager;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.CohortPackager;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +19,7 @@ using System.Linq;
 using System.Threading;
 
 
-namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution
+namespace SmiServices.IntegrationTests.Microservices.CohortPackager
 {
     [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class CohortPackagerHostTest

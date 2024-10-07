@@ -5,11 +5,11 @@ using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
+using SmiServices.UnitTests.Microservices.CohortExtractor;
 using SynthEHR;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
 
-namespace SmiServices.UnitTests.Microservices.CohortExtractor
+namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [RequiresRelationalDb(DatabaseType.MySql)]

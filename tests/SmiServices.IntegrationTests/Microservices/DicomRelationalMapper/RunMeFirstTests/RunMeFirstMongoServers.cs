@@ -1,10 +1,9 @@
 using NUnit.Framework;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using System;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.RunMeFirstTests
+namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper.RunMeFirstTests
 {
     [Category("RunMeFirst")]
     public class RunMeFirstMongoServers

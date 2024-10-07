@@ -4,13 +4,12 @@ using Moq;
 using NUnit.Framework;
 using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System.Collections.Generic;
 using System.Data.Common;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Microservices.CohortExtractor
+namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 {
 
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]

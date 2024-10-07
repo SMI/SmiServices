@@ -20,7 +20,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.DicomRelationalMapper;
@@ -39,8 +38,11 @@ using System.Threading;
 using Rdmp.Core.CommandExecution;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
+using SmiServices.IntegrationTests.Common;
+using SmiServices.UnitTests.Microservices.DicomRelationalMapper;
+using SmiServices.UnitTests.TestCommon;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
+namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
 {
     [RequiresRabbit, RequiresMongoDb, RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     public class MicroservicesIntegrationTest : DatabaseTests

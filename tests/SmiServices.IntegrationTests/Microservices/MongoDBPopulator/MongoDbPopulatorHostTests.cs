@@ -5,15 +5,15 @@ using MongoDB.Bson;
 using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System;
 using System.Diagnostics;
 using System.Threading;
 
 
-namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution
+namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator
 {
     [TestFixture, RequiresMongoDb, RequiresRabbit]
     public class MongoDbPopulatorHostTests

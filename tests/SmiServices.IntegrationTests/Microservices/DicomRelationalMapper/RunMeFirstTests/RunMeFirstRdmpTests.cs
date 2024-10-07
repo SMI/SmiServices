@@ -1,11 +1,10 @@
 using FAnsi;
 using NUnit.Framework;
 using Rdmp.Core.MapsDirectlyToDatabaseTable;
-using SmiServices.IntegrationTests;
 using System.IO;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper.RunMeFirstTests
+namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper.RunMeFirstTests
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [Category("RunMeFirst")]

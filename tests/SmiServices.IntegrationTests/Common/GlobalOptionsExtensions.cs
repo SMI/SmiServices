@@ -2,10 +2,9 @@ using FAnsi;
 using MongoDB.Driver;
 using RabbitMQ.Client;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using System.Data.Common;
 
-namespace SmiServices.UnitTests.Common
+namespace SmiServices.IntegrationTests.Common
 {
     public static class GlobalOptionsExtensions
     {

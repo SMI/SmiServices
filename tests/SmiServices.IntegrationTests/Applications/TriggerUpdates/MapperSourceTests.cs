@@ -6,7 +6,6 @@ using Rdmp.Core.DataLoad.Triggers.Implementations;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using SmiServices.Applications.TriggerUpdates;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,7 @@ using System.Data;
 using System.Linq;
 using Tests.Common;
 
-namespace SmiServices.UnitTests.Applications.TriggerUpdates
+namespace SmiServices.IntegrationTests.Applications.TriggerUpdates
 {
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
     [RequiresRelationalDb(DatabaseType.MySql)]

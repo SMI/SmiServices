@@ -5,10 +5,10 @@ using NLog;
 using NUnit.Framework;
 using SmiServices.Common.MongoDB;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
+using SmiServices.UnitTests.Common;
 using System.Threading.Tasks;
 
-namespace SmiServices.UnitTests.Common.MongoDB
+namespace SmiServices.IntegrationTests.Common.MongoDB
 {
     [TestFixture, RequiresMongoDb]
     public class MongoQueryParserTests

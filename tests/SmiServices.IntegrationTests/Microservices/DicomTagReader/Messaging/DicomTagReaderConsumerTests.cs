@@ -4,14 +4,14 @@ using NUnit.Framework;
 using RabbitMQ.Client;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.Microservices.DicomTagReader.Messaging;
+using SmiServices.UnitTests.Microservices.DicomTagReader;
 using System;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace SmiServices.UnitTests.Microservices.DicomTagReader.Messaging
+namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging
 {
     [TestFixture, RequiresRabbit]
     public class DicomTagReaderConsumerTests

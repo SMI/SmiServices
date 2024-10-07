@@ -8,10 +8,11 @@ using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.IntegrationTests;
 using SmiServices.Microservices.IdentifierMapper;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.IdentifierMapper;
+using SmiServices.UnitTests.TestCommon;
 using SynthEHR;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ using System.Threading.Tasks;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
-namespace SmiServices.UnitTests.Microservices.IdentifierMapper
+namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
 {
     [TestFixture]
     [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
