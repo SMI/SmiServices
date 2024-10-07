@@ -8,9 +8,9 @@ internal class ProjectPathResolverFactory
     {
         return projectPathResolverType switch
         {
-            "StudySeriesSOPProjectPathResolver" => new StudySeriesSOPProjectPathResolver(fileSystem),
-            "NoSuffixProjectPathResolver" => new NoSuffixProjectPathResolver(fileSystem),
-            "StudySeriesOriginalFilenameProjectPathResolver" => new StudySeriesOriginalFilenameProjectPathResolver(fileSystem),
+            nameof(StudySeriesSOPProjectPathResolver) => new StudySeriesSOPProjectPathResolver(fileSystem),
+            nameof(NoSuffixProjectPathResolver) => new NoSuffixProjectPathResolver(fileSystem),
+            nameof(StudySeriesOriginalFilenameProjectPathResolver) => new StudySeriesOriginalFilenameProjectPathResolver(fileSystem),
             _ => throw new NotImplementedException($"No case for IProjectPathResolver type '{projectPathResolverType}'"),
         };
     }
