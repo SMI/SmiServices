@@ -36,7 +36,6 @@ namespace SmiServices.UnitTests.Common.Messages
         [SetUp]
         public void SetUp()
         {
-            MessageHeader.CurrentProgramName = nameof(MessageHeaderTest);
         }
 
         [TearDown]
@@ -80,10 +79,19 @@ namespace SmiServices.UnitTests.Common.Messages
         [Test]
         public void CurrentProgramName_Unset_ThrowsException()
         {
+            var original = MessageHeader.CurrentProgramName;
             MessageHeader.CurrentProgramName = null!;
 
-            var exc = Assert.Throws<Exception>(() => new MessageHeader());
-            Assert.That(exc.Message, Is.EqualTo("Value must be set before use"));
+            try
+            {
+                var exc = Assert.Throws<Exception>(() => new MessageHeader());
+
+                Assert.That(exc.Message, Is.EqualTo("Value must be set before use"));
+            }
+            finally
+            {
+                MessageHeader.CurrentProgramName = original;
+            }
         }
     }
 }
