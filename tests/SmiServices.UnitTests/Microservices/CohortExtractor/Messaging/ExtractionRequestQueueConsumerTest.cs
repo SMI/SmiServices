@@ -28,7 +28,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
         public void OneTimeSetUp()
         {
             TestLogger.Setup();
-            MessageHeader.CurrentProgramName = nameof(ExtractionRequestQueueConsumerTest);
         }
 
         [OneTimeTearDown]
