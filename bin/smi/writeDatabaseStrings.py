@@ -14,13 +14,6 @@ _TEST_DBS_TXT = (C.PROJ_ROOT / "tests/SmiServices.UnitTests/TestDatabases.txt").
 assert _TEST_DBS_TXT.is_file()
 
 
-def _is_ci() -> bool:
-    ci = os.environ.get("CI", None)
-    if ci is None:
-        return False
-    return ci == "1" or ci.lower() == "true"
-
-
 def main() -> int:
 
     parser = argparse.ArgumentParser()
@@ -41,7 +34,7 @@ def main() -> int:
             f.write(f"SqlServer: 'Server={args.mssql_server};User Id=sa;Password={args.db_password};TrustServerCertificate=true;'\n")
 
         # NOTE(rkm 2022-02-27) We don't run MySQL in Windows in GitHub actions
-        if not (os.name == "nt" and _is_ci()):
+        if not (os.name == "nt" and C.is_ci()):
             f.write(f"MySql: 'server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None'\n")
 
     with open(_RELATIONAL_YAML) as f:
@@ -53,7 +46,7 @@ def main() -> int:
         f.write("Prefix: TEST_\n")
         f.write("Username: sa\n")
         f.write(f"Password: {args.db_password}\n")
-        if not (os.name == "nt" and _is_ci()):
+        if not (os.name == "nt" and C.is_ci()):
             f.write(f"MySql: server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None\n")
 
     with open(_TEST_DBS_TXT) as f:

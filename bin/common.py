@@ -141,3 +141,9 @@ def start_containers(
             )
             run(cmd)
             raise
+
+def is_ci() -> bool:
+    ci = os.environ.get("CI", None)
+    if ci is None:
+        return False
+    return ci == "1" or ci.lower() == "true"
