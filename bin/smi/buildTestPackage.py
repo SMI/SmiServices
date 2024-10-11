@@ -50,7 +50,11 @@ def main() -> int:
             return rc
 
     # Package
-    rc = DP.main((*cfg_args, args.tag))
+    rc = DP.main((
+        *cfg_args,
+        "--no-build",
+        args.tag,
+    ))
 
     return rc
 
