@@ -33,12 +33,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         )
         C.run(cmd)
 
+    # NOTE This isn't necessarily needed, but the lockfile processing isn't
+    # otherwise transparent in the build output
+    if C.is_ci():
+        cmd = (
+            "dotnet",
+            "restore",
+            "-warnaserror",
+            "--use-current-runtime",
+            "--nologo",
+            "--locked-mode",
+            "--force",
+        )
+        C.run(cmd)
+
     cmd = (
         "dotnet",
         "build",
         "-warnaserror",
         "--use-current-runtime",
         "--configuration", args.configuration,
+        "--no-restore" if C.is_ci() else "",
         "--verbosity", "quiet",
         "--nologo",
     )
