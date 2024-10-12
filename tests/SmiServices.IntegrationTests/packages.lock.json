@@ -77,9 +77,9 @@
       },
       "NunitXml.TestLogger": {
         "type": "Direct",
-        "requested": "[4.0.254, )",
-        "resolved": "4.0.254",
-        "contentHash": "/i2/2yAI0arYLKWdLVUWihlVU2x9Dd9B/IRIgq36X4F0wt570E05VYph3kjFIoXYzQfMl94Z94lT6wrtg51LFg=="
+        "requested": "[4.1.0, )",
+        "resolved": "4.1.0",
+        "contentHash": "l2zl8JttE12XY2QOf/W/PWcukhzp0Ez2XpD5s1HDk/RoLE3QLVKvQoOlAIbzbchtScNN9Hmuv6Iku6XOtZMrGg=="
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
@@ -974,7 +974,7 @@
           "Moq": "[4.20.72, )",
           "NLog": "[5.3.4, )",
           "NUnit": "[4.2.2, )",
-          "NunitXml.TestLogger": "[4.0.254, )",
+          "NunitXml.TestLogger": "[4.1.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.0.29, )",
           "smi": "[1.0.0, )"
         }
