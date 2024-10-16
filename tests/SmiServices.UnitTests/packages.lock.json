@@ -954,7 +954,7 @@
           "LineReader": "[0.1.0, )",
           "Microsoft.CodeAnalysis.CSharp.Scripting": "[4.11.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.0.1, )",
-          "MongoDB.Bson": "[2.30.0, )",
+          "MongoDB.Bson": "[3.0.0, )",
           "MongoDB.Driver": "[2.30.0, )",
           "NLog": "[5.3.4, )",
           "Newtonsoft.Json": "[13.0.3, )",
@@ -1114,9 +1114,9 @@
       },
       "MongoDB.Bson": {
         "type": "CentralTransitive",
-        "requested": "[2.30.0, )",
-        "resolved": "2.30.0",
-        "contentHash": "Gg0TQUT3IEntcqdug5a9P6d8iwL5CqOpQjVBCq1hxTbkjxdGdY6a2CPv7II44AO9GYUnORYsS6dDME2b7aqYyg==",
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "qnPRJ58HXDh7C4oxTf6YB7BJhlCGJIa6TMXhzImw6zk44lrAomQXTB6AtoQ5lNJbkyrgQcT7+smsKFMnXmLXhw==",
         "dependencies": {
           "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "5.0.0"
