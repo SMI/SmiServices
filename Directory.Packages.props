@@ -9,7 +9,7 @@
     <PackageVersion Include="CsvHelper" Version="33.0.1" />
     <PackageVersion Include="Equ" Version="2.3.0" />
     <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.1.3" />
-    <PackageVersion Include="HIC.FAnsiSql" Version="3.2.6" />
+    <PackageVersion Include="HIC.FAnsiSql" Version="3.2.7" />
     <PackageVersion Include="HIC.RDMP.Dicom" Version="7.1.0" />
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.3.0" />
     <PackageVersion Include="IsIdentifiable" Version="0.4.0" />
