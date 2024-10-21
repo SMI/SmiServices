@@ -50,12 +50,12 @@
       },
       "HIC.Rdmp.Dicom": {
         "type": "Direct",
-        "requested": "[7.1.0, )",
-        "resolved": "7.1.0",
-        "contentHash": "Ss9TXm5+hR/6hT8z8CTaGGr1Ob5uRkAOcoepj2zx8SLW3cngd8fPFtYayDf3iHYZWoqzXrmRTIZ8GGzXufdswQ==",
+        "requested": "[7.1.1, )",
+        "resolved": "7.1.1",
+        "contentHash": "hpN4TTPyMoPU33P0otmqcROHjig+pik40gIAVk41WiRCZEeKv+QegAU2S3zofag/R0Nv7eEb+9j5ENII4hDQDQ==",
         "dependencies": {
           "HIC.DicomTypeTranslation": "4.1.3",
-          "HIC.RDMP.Plugin": "7.1.0",
+          "HIC.RDMP.Plugin": "7.1.1",
           "fo-dicom": "5.1.3"
         }
       },
