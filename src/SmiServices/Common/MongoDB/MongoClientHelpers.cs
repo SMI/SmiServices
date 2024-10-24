@@ -47,7 +47,8 @@ namespace SmiServices.Common.MongoDB
                 ApplicationName = applicationName,
                 Credential = credentials,
                 Server = new MongoServerAddress(options.HostName, options.Port),
-                WriteConcern = new WriteConcern(journal: !skipJournal)
+                WriteConcern = new WriteConcern(journal: !skipJournal),
+                DirectConnection = true
             };
 
             var client = new MongoClient(mongoClientSettings);
