@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using NLog;
 using SmiServices.Common.Options;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace SmiServices.Common.MongoDB
@@ -16,6 +17,8 @@ namespace SmiServices.Common.MongoDB
 
         private static readonly ListCollectionNamesOptions _listOptions = new();
 
+        private static readonly ConcurrentDictionary<(MongoDbOptions, string, bool, bool), MongoClient> _clientCache = new();
+
         /// <summary>
         /// Creates a <see cref="MongoClient"/> from the given options, and checks that the user has the "readWrite" role for the given database
         /// </summary>
@@ -24,8 +27,14 @@ namespace SmiServices.Common.MongoDB
         /// <param name="skipAuthentication"></param>
         /// <param name="skipJournal"></param>
         /// <returns></returns>
-        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName, bool skipAuthentication = false, bool skipJournal = false)
+        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName,
+            bool skipAuthentication = false, bool skipJournal = false) =>
+            _clientCache.GetOrAdd((options, applicationName, skipAuthentication, skipJournal),
+                CreateMongoClient);
+        private static MongoClient CreateMongoClient((MongoDbOptions, string, bool, bool) valueTuple)
         {
+            var (options, applicationName, skipAuthentication, skipJournal) = valueTuple;
+
             if (!options.AreValid(skipAuthentication))
                 throw new ApplicationException($"Invalid MongoDB options: {options}");
 
@@ -34,27 +43,33 @@ namespace SmiServices.Common.MongoDB
                 {
                     ApplicationName = applicationName,
                     Server = new MongoServerAddress(options.HostName, options.Port),
-                    WriteConcern = new WriteConcern(journal: !skipJournal)
+                    WriteConcern = new WriteConcern(journal: !skipJournal),
+                    DirectConnection = true,
+                    MinConnectionPoolSize = 1,
+                    MaxConnecting = 1
                 });
 
             if (string.IsNullOrWhiteSpace(options.Password))
                 throw new ApplicationException($"MongoDB password must be set");
 
-            MongoCredential credentials = MongoCredential.CreateCredential(AuthDatabase, options.UserName, options.Password);
+            var credentials = MongoCredential.CreateCredential(AuthDatabase, options.UserName, options.Password);
 
             var mongoClientSettings = new MongoClientSettings
             {
                 ApplicationName = applicationName,
                 Credential = credentials,
                 Server = new MongoServerAddress(options.HostName, options.Port),
-                WriteConcern = new WriteConcern(journal: !skipJournal)
+                WriteConcern = new WriteConcern(journal: !skipJournal),
+                DirectConnection = true,
+                MinConnectionPoolSize = 1,
+                MaxConnecting = 1
             };
 
             var client = new MongoClient(mongoClientSettings);
 
             try
             {
-                IMongoDatabase db = client.GetDatabase(AuthDatabase);
+                var db = client.GetDatabase(AuthDatabase);
                 var queryResult = db.RunCommand<BsonDocument>(new BsonDocument("usersInfo", options.UserName));
 
                 if (!(queryResult["ok"] == 1))
@@ -63,7 +78,7 @@ namespace SmiServices.Common.MongoDB
                 var roles = (BsonArray)queryResult[0][0]["roles"];
 
                 var hasReadWrite = false;
-                foreach (BsonDocument role in roles.Select(x => x.AsBsonDocument))
+                foreach (var role in roles.Select(x => x.AsBsonDocument))
                     if (role["db"].AsString == options.DatabaseName && role["role"].AsString == "readWrite")
                         hasReadWrite = true;
 

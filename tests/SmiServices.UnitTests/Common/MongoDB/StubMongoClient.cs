@@ -2,6 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +16,23 @@ namespace SmiServices.UnitTests.Common.MongoDB
     {
         public ICluster Cluster { get; } = null!;
         public MongoClientSettings Settings { get; } = null!;
+
+        public ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions? options = null,
+            CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
+        public ClientBulkWriteResult BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models,
+            ClientBulkWriteOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
+        public Task<ClientBulkWriteResult> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions? options = null,
+            CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
+        public Task<ClientBulkWriteResult> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions? options = null,
+            CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
         public virtual void DropDatabase(string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public virtual Task DropDatabaseAsync(string name, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
@@ -45,5 +63,10 @@ namespace SmiServices.UnitTests.Common.MongoDB
         public virtual IMongoClient WithReadConcern(ReadConcern readConcern) => throw new NotImplementedException();
         public virtual IMongoClient WithReadPreference(ReadPreference readPreference) => throw new NotImplementedException();
         public virtual IMongoClient WithWriteConcern(WriteConcern writeConcern) => throw new NotImplementedException();
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 }
