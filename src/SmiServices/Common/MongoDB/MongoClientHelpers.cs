@@ -43,13 +43,14 @@ namespace SmiServices.Common.MongoDB
                 {
                     ApplicationName = applicationName,
                     Server = new MongoServerAddress(options.HostName, options.Port),
-                    WriteConcern = new WriteConcern(journal: !skipJournal)
+                    WriteConcern = new WriteConcern(journal: !skipJournal),
+                    DirectConnection = true
                 });
 
             if (string.IsNullOrWhiteSpace(options.Password))
                 throw new ApplicationException($"MongoDB password must be set");
 
-            MongoCredential credentials = MongoCredential.CreateCredential(AuthDatabase, options.UserName, options.Password);
+            var credentials = MongoCredential.CreateCredential(AuthDatabase, options.UserName, options.Password);
 
             var mongoClientSettings = new MongoClientSettings
             {
@@ -64,7 +65,7 @@ namespace SmiServices.Common.MongoDB
 
             try
             {
-                IMongoDatabase db = client.GetDatabase(AuthDatabase);
+                var db = client.GetDatabase(AuthDatabase);
                 var queryResult = db.RunCommand<BsonDocument>(new BsonDocument("usersInfo", options.UserName));
 
                 if (!(queryResult["ok"] == 1))
@@ -73,7 +74,7 @@ namespace SmiServices.Common.MongoDB
                 var roles = (BsonArray)queryResult[0][0]["roles"];
 
                 var hasReadWrite = false;
-                foreach (BsonDocument role in roles.Select(x => x.AsBsonDocument))
+                foreach (var role in roles.Select(x => x.AsBsonDocument))
                     if (role["db"].AsString == options.DatabaseName && role["role"].AsString == "readWrite")
                         hasReadWrite = true;
 
