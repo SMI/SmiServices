@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using NLog;
 using SmiServices.Common.Options;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace SmiServices.Common.MongoDB
@@ -16,6 +17,8 @@ namespace SmiServices.Common.MongoDB
 
         private static readonly ListCollectionNamesOptions _listOptions = new();
 
+        private static readonly ConcurrentDictionary<(MongoDbOptions, string, bool, bool), MongoClient> _clientCache = new();
+
         /// <summary>
         /// Creates a <see cref="MongoClient"/> from the given options, and checks that the user has the "readWrite" role for the given database
         /// </summary>
@@ -24,8 +27,14 @@ namespace SmiServices.Common.MongoDB
         /// <param name="skipAuthentication"></param>
         /// <param name="skipJournal"></param>
         /// <returns></returns>
-        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName, bool skipAuthentication = false, bool skipJournal = false)
+        public static MongoClient GetMongoClient(MongoDbOptions options, string applicationName,
+            bool skipAuthentication = false, bool skipJournal = false) =>
+            _clientCache.GetOrAdd((options, applicationName, skipAuthentication, skipJournal),
+                CreateMongoClient);
+        private static MongoClient CreateMongoClient((MongoDbOptions, string, bool, bool) valueTuple)
         {
+            var (options, applicationName, skipAuthentication, skipJournal) = valueTuple;
+
             if (!options.AreValid(skipAuthentication))
                 throw new ApplicationException($"Invalid MongoDB options: {options}");
 
