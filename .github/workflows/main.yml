@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v4
       - name: setup .NET
         # NOTE(rkm 2022-02-20) Uses global.json
-        uses: actions/setup-dotnet@v4.0.1
+        uses: actions/setup-dotnet@v4.1.0
       - name: download tessdata
         run: ./bin/smi/downloadTessdata.py
       - name: "[linux] start services"
