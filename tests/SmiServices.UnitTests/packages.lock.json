@@ -962,7 +962,7 @@
           "RabbitMQ.Client": "[6.8.1, )",
           "StackExchange.Redis": "[2.8.16, )",
           "System.IO.Abstractions": "[21.0.29, )",
-          "YamlDotNet": "[16.1.3, )"
+          "YamlDotNet": "[16.2.0, )"
         }
       },
       "CommandLineParser": {
@@ -1205,9 +1205,9 @@
       },
       "YamlDotNet": {
         "type": "CentralTransitive",
-        "requested": "[16.1.3, )",
-        "resolved": "16.1.3",
-        "contentHash": "gtHGiDvU9VTtWte8f0thIM38cL1oowOjStKpeAEKKfA+Rc4AvekJzqFDZiiPcc4kw00ZiwR4OTJS56L16q98DQ=="
+        "requested": "[16.2.0, )",
+        "resolved": "16.2.0",
+        "contentHash": "iKVYog7JNiFOTr4gMHSjCqrGFD2NyABUHgSkRq9XR8A2+fsWepSWTpjHAOnKo1LVAHjy33o6I0u6lo5Ng0NtAw=="
       }
     },
     "net8.0/linux-x64": {
