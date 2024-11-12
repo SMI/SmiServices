@@ -73,4 +73,4 @@ repos:
     rev: "v3.13.6"
     hooks:
       - id: markdown-link-check
-        args: [--quiet, --config, .meta/markdown-link-check.json]
+        args: [--config, .meta/markdown-link-check.json]
