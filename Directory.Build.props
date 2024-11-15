@@ -13,7 +13,9 @@
     <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RunSettingsFilePath>$(MSBuildThisFileDirectory)\nunit.runsettings</RunSettingsFilePath>
-    <RuntimeIdentifiers>linux-x64;win-x64;osx-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifier Condition="$([System.OperatingSystem]::IsLinux())">linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="$([System.OperatingSystem]::IsWindows())">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="$([System.OperatingSystem]::IsMacOS())">osx-arm64</RuntimeIdentifier>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <SelfContained>true</SelfContained>
     <TargetFramework>net8.0</TargetFramework>
