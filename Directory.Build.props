@@ -15,6 +15,7 @@
     <RunSettingsFilePath>$(MSBuildThisFileDirectory)\nunit.runsettings</RunSettingsFilePath>
     <RuntimeIdentifiers>linux-x64;win-x64;osx-arm64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+    <SelfContained>true</SelfContained>
     <TargetFramework>net8.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
