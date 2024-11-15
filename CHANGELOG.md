@@ -11,6 +11,30 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.10.0] 2024-11-15
+
+### Bugfix
+
+- [#1956](https://github.com/SMI/SmiServices/pull/1956) by rkm. Publish SmiServices only to fix NETSDK1194 warning
+- [#1962](https://github.com/SMI/SmiServices/pull/1962) by rkm. Fixup namespaces in test projects
+- [#1963](https://github.com/SMI/SmiServices/pull/1963) by rkm. Set MessageHeader.CurrentProgramName once at the start of each test fixture (project / assembly) instead of individually in each test. Fixes cases where tests would fail if run individually.
+- [#1991](https://github.com/SMI/SmiServices/pull/1991) by rkm. Support postgres in IdentifierMapper server discovery
+
+### Change
+
+- [#1847](https://github.com/SMI/SmiServices/pull/1847) by rkm. Enable MSBuildTreatWarningsAsErrors and warnaserror
+
+- [#1957](https://github.com/SMI/SmiServices/pull/1957) by rkm. Refactor project path resolvers in CohortExtractor:
+
+  - `DefaultProjectPathResolver` is now `StudySeriesOriginalFilenameProjectPathResolver`
+  - Undo handling UIDs with leading dot (#1506) as this was causing difficulties with path lookups elsewhere
+  - Add `StudySeriesSOPProjectPathResolver` which generates filenames using SOPInstanceUID instead of the original file name. This is now the default path resolver
+  - Disallow null Study/Series/SOPInstanceUID values, which should never occur in practice
+
+### Meta
+
+- [#1875](https://github.com/SMI/SmiServices/pull/1875) by rkm. Enable Nuget packages restore with lockfile
+
 ## [5.9.0] 2024-10-03
 
 ### Feature
@@ -1420,6 +1444,7 @@ First stable release after importing the repository from the private
 [5.1.1]: https://github.com/SMI/SmiServices/compare/v5.1.0...v5.1.1
 [5.1.2]: https://github.com/SMI/SmiServices/compare/v5.1.1...v5.1.2
 [5.1.3]: https://github.com/SMI/SmiServices/compare/v5.1.2...v5.1.3
+[5.10.0]: https://github.com/SMI/SmiServices/compare/v5.9.0...v5.10.0
 [5.2.0]: https://github.com/SMI/SmiServices/compare/v5.1.3...v5.2.0
 [5.3.0]: https://github.com/SMI/SmiServices/compare/v5.2.0...v5.3.0
 [5.4.0]: https://github.com/SMI/SmiServices/compare/v5.3.0...v5.4.0
@@ -1431,4 +1456,4 @@ First stable release after importing the repository from the private
 [5.7.2]: https://github.com/SMI/SmiServices/compare/v5.7.1...v5.7.2
 [5.8.0]: https://github.com/SMI/SmiServices/compare/v5.7.2...v5.8.0
 [5.9.0]: https://github.com/SMI/SmiServices/compare/v5.8.0...v5.9.0
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.9.0...main
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.10.0...main
