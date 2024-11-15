@@ -187,6 +187,14 @@ namespace SmiServices.Common.Options
             if (idx == -1)
                 throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
 
+            // TODO This can definitely be simplfied if we refactor code that calls this
+            if (server.DatabaseType == DatabaseType.PostgreSql)
+            {
+                var db = server.GetCurrentDatabase() ?? throw new ArgumentException("Database must be set in cnonection string");
+                var split = MappingTableName.Split('.');
+                return db.ExpectTable(split[1], schema: split[0]);
+            }
+
             var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName[..idx]);
             if (string.IsNullOrWhiteSpace(databaseName))
                 throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
