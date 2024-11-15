@@ -6,7 +6,7 @@ then
   exit
 fi
 
-lasttag=$(git tag -l|tail -n1)
+lasttag=$(git describe --tags --abbrev=0)
 
 for i in `git log --oneline ${lasttag}..|egrep -v "dependabot|Bump|pre-commit-ci|snyk-fix" | grep -Po 'Merge pull request #\d+'|cut -d'#' -f2`
 do
