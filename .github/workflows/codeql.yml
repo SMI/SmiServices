@@ -34,7 +34,7 @@ jobs:
         uses: github/codeql-action/autobuild@v3
       - name: Build .Net
         if: ${{ matrix.language == 'csharp' }}
-        run: dotnet build -c Release
+        run: ./bin/smi/build.py -c Release
       - name: Build java
         if: ${{ matrix.language == 'java' }}
         # NOTE(rkm 2023-03-21) Ensure test code is detected but don't actually run anything
