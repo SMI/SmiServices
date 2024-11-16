@@ -517,7 +517,7 @@ namespace SmiServices.Common.Options
 
     public class MongoDbOptions : IOptions
     {
-        public string? HostName { get; set; } = "localhost";
+        public string? HostName { get; set; } = "127.0.0.1";
         public int Port { get; set; } = 27017;
         /// <summary>
         /// UserName for authentication. If empty, authentication will be skipped.
