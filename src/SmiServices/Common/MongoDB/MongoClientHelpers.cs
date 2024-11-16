@@ -34,7 +34,8 @@ namespace SmiServices.Common.MongoDB
                 {
                     ApplicationName = applicationName,
                     Server = new MongoServerAddress(options.HostName, options.Port),
-                    WriteConcern = new WriteConcern(journal: !skipJournal)
+                    WriteConcern = new WriteConcern(journal: !skipJournal),
+                    SrvMaxHosts = 0
                 });
 
             if (string.IsNullOrWhiteSpace(options.Password))
@@ -47,7 +48,8 @@ namespace SmiServices.Common.MongoDB
                 ApplicationName = applicationName,
                 Credential = credentials,
                 Server = new MongoServerAddress(options.HostName, options.Port),
-                WriteConcern = new WriteConcern(journal: !skipJournal)
+                WriteConcern = new WriteConcern(journal: !skipJournal),
+                SrvMaxHosts = 0
             };
 
             var client = new MongoClient(mongoClientSettings);
