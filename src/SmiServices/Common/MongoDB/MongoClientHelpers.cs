@@ -29,30 +29,23 @@ namespace SmiServices.Common.MongoDB
             if (!options.AreValid(skipAuthentication))
                 throw new ApplicationException($"Invalid MongoDB options: {options}");
 
+            var settings = new MongoClientSettings
+            {
+                ApplicationName = applicationName,
+                Server = new MongoServerAddress(options.HostName, options.Port),
+                WriteConcern = new WriteConcern(journal: !skipJournal),
+                SrvMaxHosts = 0,
+                DirectConnection = true
+            };
+
             if (skipAuthentication || options.UserName == string.Empty)
-                return new MongoClient(new MongoClientSettings
-                {
-                    ApplicationName = applicationName,
-                    Server = new MongoServerAddress(options.HostName, options.Port),
-                    WriteConcern = new WriteConcern(journal: !skipJournal),
-                    SrvMaxHosts = 0
-                });
+                return new MongoClient(settings);
 
             if (string.IsNullOrWhiteSpace(options.Password))
                 throw new ApplicationException($"MongoDB password must be set");
 
-            MongoCredential credentials = MongoCredential.CreateCredential(AuthDatabase, options.UserName, options.Password);
-
-            var mongoClientSettings = new MongoClientSettings
-            {
-                ApplicationName = applicationName,
-                Credential = credentials,
-                Server = new MongoServerAddress(options.HostName, options.Port),
-                WriteConcern = new WriteConcern(journal: !skipJournal),
-                SrvMaxHosts = 0
-            };
-
-            var client = new MongoClient(mongoClientSettings);
+            settings.Credential = MongoCredential.CreateCredential(AuthDatabase, options.UserName, options.Password);
+            var client = new MongoClient(settings);
 
             try
             {
