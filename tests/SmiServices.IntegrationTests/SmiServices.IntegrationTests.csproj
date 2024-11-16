@@ -2,11 +2,18 @@
     <ItemGroup>
         <PackageReference Include="HIC.BadMedicine.Dicom" />
         <PackageReference Include="HIC.RDMP.Plugin.Test" />
+        <PackageReference Include="MongoDB.Analyzer" />
         <PackageReference Include="Moq" />
         <PackageReference Include="NLog" />
         <PackageReference Include="NunitXml.TestLogger" />
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
         <ProjectReference Include="..\..\src\SmiServices\SmiServices.csproj" />
         <ProjectReference Include="..\SmiServices.UnitTests\SmiServices.UnitTests.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Update="NUnit.Analyzers">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 </Project>

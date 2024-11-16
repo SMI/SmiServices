@@ -16,11 +16,11 @@
       },
       "HIC.RDMP.Plugin.Test": {
         "type": "Direct",
-        "requested": "[8.3.0, )",
-        "resolved": "8.3.0",
-        "contentHash": "ja3E1a+r0Hlvt0zCLzekhNses+dydzzwRw+kYW99MPIYgEbcwGVweLoiEfAH5CPo79qSCZcyUDnMzWv+9EOrqw==",
+        "requested": "[8.3.1, )",
+        "resolved": "8.3.1",
+        "contentHash": "LD2av0SSAWEUpmZawMwVjqzRxzk2QE/73dmCsXVr5icW4t+Qb+ccF7XnvfGqDbKW47KWU9BTdzzQUd8J/3mIIg==",
         "dependencies": {
-          "HIC.RDMP.Plugin": "8.3.0",
+          "HIC.RDMP.Plugin": "8.3.1",
           "Microsoft.NET.Test.Sdk": "17.11.1",
           "NSubstitute": "5.1.0",
           "NUnit": "4.2.2"
@@ -41,6 +41,12 @@
           "Microsoft.CodeCoverage": "17.11.1",
           "Microsoft.TestPlatform.TestHost": "17.11.1"
         }
+      },
+      "MongoDB.Analyzer": {
+        "type": "Direct",
+        "requested": "[1.5.0, )",
+        "resolved": "1.5.0",
+        "contentHash": "ujrUe6NeLGW9q8ABseYY/NFx7pc1G/LshtVfLMONV02+fEy0jUDsXLHU7YvuARjJhJI7Mgz88tfvCncccUmerw=="
       },
       "Moq": {
         "type": "Direct",
@@ -65,9 +71,9 @@
       },
       "NUnit.Analyzers": {
         "type": "Direct",
-        "requested": "[4.3.0, )",
-        "resolved": "4.3.0",
-        "contentHash": "Ki4p1XrmnYil64HE9VkJSuo6KBr8vg7Mut43atYvItDp3HwIcRY5hi+n5o8GaX1IBCwYLaJgW5ZfZuBVPYXEkg=="
+        "requested": "[4.4.0, )",
+        "resolved": "4.4.0",
+        "contentHash": "VVl1CuQttXRZh52HRw5SIOut3qXw4pmuiTYk02jTELVWZ9uYRY8IVl2qF9Zs7W0ElPiLDUrAglFBzNLBCPzEcw=="
       },
       "NUnit3TestAdapter": {
         "type": "Direct",
@@ -83,48 +89,48 @@
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
-        "requested": "[21.0.29, )",
-        "resolved": "21.0.29",
-        "contentHash": "FJewjsi4ggl0vFAmeATPaLORfegsVpJA5Jv1x/i0cTCI+puUwe+nygOBSj+pSxy0br7ZnpAHbpgdRidbZJnmnw==",
+        "requested": "[21.1.3, )",
+        "resolved": "21.1.3",
+        "contentHash": "2EcDkDtYXem8IqFrbg/tMIgEiwql7kMeU5ttoE7Au79BIhmpqSUZqEEBJe6B7kJmY9EI6YXOUccx+ce3+wQWMQ==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.0.29"
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.1.3"
         }
       },
       "AWSSDK.Core": {
         "type": "Transitive",
-        "resolved": "3.7.400.22",
-        "contentHash": "v1Pm6lFSkAufm7WtiwE+2laHSj330cVUzTRTXZ50YXNgT0jDu1OryJrTqxPxlbiv6jFEkTutvM9rImuvDSpaeg=="
+        "resolved": "3.7.400.36",
+        "contentHash": "K4iJjzwI8VfkjxvLhjpODiZvVk5frjqHJ69rWIxk6xPWglHBLYAN4DhSZO/GpKJpNWjtHB+VlCvgWGZA8JnEHQ=="
       },
       "AWSSDK.S3": {
         "type": "Transitive",
-        "resolved": "3.7.403.1",
-        "contentHash": "5eVV+I7gHNz38WRvY8w2jEoHbQ+wIdOwSzS5MtD/I072vVJs/IL5lgjylgmA0t044JczLV9FmbPrPehKeEhHtQ==",
+        "resolved": "3.7.405",
+        "contentHash": "QW5lTOMGnPzjoP/3klZS5/ErTRrYcDz6s/smL0bBmpNSLTXJrp1vDC0AZZxDFxyI3GoLoYcgHfxDdDptzYEqVA==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.22, 4.0.0)"
+          "AWSSDK.Core": "[3.7.400.36, 4.0.0)"
         }
       },
       "AWSSDK.SecurityToken": {
         "type": "Transitive",
-        "resolved": "3.7.400.22",
-        "contentHash": "R9laqYSFi3DCvVqSATDB1fTG7r1AApl2DLD97Nv3jO+oCd93whK9B/ZO7UVGfOfl+eMDMYC/0Ik+iaJYZy0Q+Q==",
+        "resolved": "3.7.400.36",
+        "contentHash": "0mEBp3RixKN/QWRpLimIvpHe97RtbD312G/le9ph0Jx8bEUeVkHbQms66VUnllj+yZwTWfm9ZP7xLJQt7QaydQ==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.22, 4.0.0)"
+          "AWSSDK.Core": "[3.7.400.36, 4.0.0)"
         }
       },
       "AWSSDK.SSO": {
         "type": "Transitive",
-        "resolved": "3.7.400.22",
-        "contentHash": "YOMWgiief6tMn54GraNnrpUbjgPjM1a+Iq3M7Pf/zQUxkh4A/fIQedqBTJde4xaS/y/GcBf7t/3HZkNA9Xdxbw==",
+        "resolved": "3.7.400.36",
+        "contentHash": "8RLgfkYavYSonAC7B4k1qbatZHtSxHnB2ToG59uK1iGzjl4GvHgJTVbP6hFJsmI6d3v4wj3GQdNUtXfULfFpGA==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.22, 4.0.0)"
+          "AWSSDK.Core": "[3.7.400.36, 4.0.0)"
         }
       },
       "AWSSDK.SSOOIDC": {
         "type": "Transitive",
-        "resolved": "3.7.400.22",
-        "contentHash": "vVRYOTQPsHarmxFTtAnnxVRNLteRVam1Ko/RyPjTdDAAxtxjqRL00DrLsyH5/EXycDVyRIw0Fp2I6EWUm6IhYw==",
+        "resolved": "3.7.400.36",
+        "contentHash": "BizxNQKLFaHChC4qzEDwTqVdR0sz6R2gEq3ZqmO5zHI/W/xuJypu3+eJ4qJGFuFnW0v/ngnR75flw9QYcvopjg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.22, 4.0.0)"
+          "AWSSDK.Core": "[3.7.400.36, 4.0.0)"
         }
       },
       "Azure.Core": {
@@ -339,10 +345,10 @@
       },
       "Microsoft.Extensions.Caching.Abstractions": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3KuSxeHoNYdxVYfg2IRZCThcrlJ1XJqIXkAWikCsbm5C/bCjv7G0WoKDyuR98Q+T607QT2Zl5GsbGRkENcV2yQ==",
+        "resolved": "9.0.0",
+        "contentHash": "FPWZAa9c0H4dvOj351iR1jkUIs4u9ykL4Bm592yhjDyO5lCoWd+TMAHx2EMbarzUvCvgjWjJIoC6//Q9kH6YhA==",
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "8.0.0"
+          "Microsoft.Extensions.Primitives": "9.0.0"
         }
       },
       "Microsoft.Extensions.DependencyInjection": {
@@ -356,8 +362,8 @@
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "8.0.2",
-        "contentHash": "3iE7UF7MQkCv1cxzCahz+Y/guQbTqieyxyaWKhrRO91itI9cOKO76OHeQDahqG4MmW5umr3CcCvGmK92lWNlbg=="
+        "resolved": "9.0.0",
+        "contentHash": "+6f2qv2a3dLwd5w6JanPIPs47CxRbnk+ZocMJUhv9NxP88VlOcJYZs9jY+MYSjxvady08bUZn6qgiNh7DadGgg=="
       },
       "Microsoft.Extensions.Logging": {
         "type": "Transitive",
@@ -373,25 +379,26 @@
       },
       "Microsoft.Extensions.Logging.Abstractions": {
         "type": "Transitive",
-        "resolved": "8.0.2",
-        "contentHash": "nroMDjS7hNBPtkZqVBbSiQaQjWRDxITI8Y7XnDs97rqG3EbzVTNLZQf7bIeUJcaHOV8bca47s1Uxq94+2oGdxA==",
+        "resolved": "9.0.0",
+        "contentHash": "g0UfujELzlLbHoVG8kPKVBaW470Ewi+jnptGS9KUi6jcb+k2StujtK3m26DFSGGwQ/+bVgZfsWqNzlP6YOejvw==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0",
+          "System.Diagnostics.DiagnosticSource": "9.0.0"
         }
       },
       "Microsoft.Extensions.Options": {
         "type": "Transitive",
-        "resolved": "8.0.2",
-        "contentHash": "dWGKvhFybsaZpGmzkGCbNNwBD1rVlWzrZKANLW/CcbFJpCEceMCGzT7zZwHOGBCbwM0SzBuceMj5HN1LKV1QqA==",
+        "resolved": "9.0.0",
+        "contentHash": "y2146b3jrPI3Q0lokKXdKLpmXqakYbDIPDV6r3M8SqvSf45WwOTzkyfDpxnZXJsJQEpAsAqjUq5Pu8RCJMjubg==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
-          "Microsoft.Extensions.Primitives": "8.0.0"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0",
+          "Microsoft.Extensions.Primitives": "9.0.0"
         }
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "bXJEZrW9ny8vjMF1JV253WeLhpEVzFo1lyaZu1vQ4ZxWUlVvknZ/+ftFgVheLubb4eZPSwwxBeqS1JkCOjxd8g=="
+        "resolved": "9.0.0",
+        "contentHash": "N3qEBzmLMYiASUlKxxFIISP4AiwuPTHF5uCh+2CWSwwzAJiIYx0kBJsS30cp1nvhSySFAVi30jecD307jV+8Kg=="
       },
       "Microsoft.Identity.Client": {
         "type": "Transitive",
@@ -652,11 +659,8 @@
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
-        "resolved": "6.0.1",
-        "contentHash": "KiLYDu2k2J82Q9BJpWiuQqCkFjRBWVq4jDzKKWawVi9KWzyD0XG3cmfX0vqTQlL14Wi9EufJrbL0+KCLTbqWiQ==",
-        "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
-        }
+        "resolved": "9.0.0",
+        "contentHash": "ddppcFpnbohLWdYKr/ZeLZHmmI+DXFgZ3Snq+/E7SwcdW4UnvxmaugkwGywvGVWkHPGCSZjCP+MLzu23AL5SDw=="
       },
       "System.Diagnostics.EventLog": {
         "type": "Transitive",
@@ -887,24 +891,24 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "21.0.29",
-        "contentHash": "3TtSs2i0m0QqpAI4EzR1vZXQuHNw5grBy0rDKqMkWi6ySEZ+yhN9HACgIyEq7gDXPLrtQI18ud/OtI0qVhP8Mg=="
+        "resolved": "21.1.3",
+        "contentHash": "qe/gIjOPCoyiSCToouJx/vCvcTQXVGj/eJVRK/7s2F8yIv0zvEpjByfXZvS3yqmcpg0/S6x6w7DvNyPrLe/RRw=="
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "21.0.29",
-        "contentHash": "mm5ktVlPX4KJoadtQRYeibEnaAsXGyqhkFo4EKhcrVIcqKUmeYi5evZyb7//urUpD6kSAOXGQCGzAP+31FUXvA==",
+        "resolved": "21.1.3",
+        "contentHash": "sMRPFcqvmSeocHtb5JVf7heBqvBsaFGiodEOoysIB0KneV4+3Yg0ka1421kzBLjRW+itU3FVjjqAAa9fqvUmhA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.0.29",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.0.29"
+          "TestableIO.System.IO.Abstractions": "21.1.3",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.1.3"
         }
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "21.0.29",
-        "contentHash": "bm1stQx3rGV2qBW2xAAvl8ODVGNVkiAkqNsE+LsKfhMamBUa07IgsgMc9X/zBHc5yfAJOqJIUArQ56DDgwGyYA==",
+        "resolved": "21.1.3",
+        "contentHash": "5LEVwt5+K5TnL1ekfCbQszlgRnO77plpgQAgkXL7wXKGd0PQWE01eSss0+L7E8GGLGbtD7mzYJVq/bd79ZDBlQ==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.0.29"
+          "TestableIO.System.IO.Abstractions": "21.1.3"
         }
       },
       "ZstdSharp.Port": {
@@ -918,23 +922,24 @@
           "CommandLineParser": "[2.9.1, )",
           "CsvHelper": "[33.0.1, )",
           "Equ": "[2.3.0, )",
-          "HIC.DicomTypeTranslation": "[4.1.3, )",
+          "HIC.DicomTypeTranslation": "[4.1.5, )",
           "HIC.FAnsiSql": "[3.2.7, )",
-          "HIC.RDMP.Dicom": "[7.1.0, )",
-          "HIC.RDMP.Plugin": "[8.3.0, )",
+          "HIC.RDMP.Dicom": "[7.1.2, )",
+          "HIC.RDMP.Plugin": "[8.3.1, )",
           "IsIdentifiable": "[0.4.0, )",
           "LibArchive.Net": "[0.1.5, )",
           "LineReader": "[0.1.0, )",
           "Microsoft.CodeAnalysis.CSharp.Scripting": "[4.11.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.0.1, )",
+          "Microsoft.Extensions.Caching.Memory": "[9.0.0, )",
+          "MongoDB.Analyzer": "[1.5.0, )",
           "MongoDB.Bson": "[3.0.0, )",
           "MongoDB.Driver": "[3.0.0, )",
           "NLog": "[5.3.4, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "RabbitMQ.Client": "[6.8.1, )",
           "StackExchange.Redis": "[2.8.16, )",
-          "System.IO.Abstractions": "[21.0.29, )",
-          "YamlDotNet": "[16.1.3, )"
+          "System.IO.Abstractions": "[21.1.3, )",
+          "YamlDotNet": "[16.2.0, )"
         }
       },
       "CommandLineParser": {
@@ -957,16 +962,16 @@
       },
       "HIC.DicomTypeTranslation": {
         "type": "CentralTransitive",
-        "requested": "[4.1.3, )",
-        "resolved": "4.1.3",
-        "contentHash": "Sbr7iijnajCjeHHXIAlM7nV4z69F6lEA2EGS4ZtvM9h+DYvZSysnLRWNiO3lNOnWqhx7Gl5z3bPGxVBz6J6YBQ==",
+        "requested": "[4.1.5, )",
+        "resolved": "4.1.5",
+        "contentHash": "w6mcvJLkl4l3/FbbyXAATQwttko8BKT2WPsiYHM6KKBjlAlJusjxDBXiEbAcF0ybi0QeDrEt6Y8K6GvipW/XjA==",
         "dependencies": {
-          "HIC.FAnsiSql": "3.2.6",
-          "MongoDB.Driver": "2.28.0",
-          "NLog": "5.3.2",
+          "HIC.FAnsiSql": "3.2.7",
+          "MongoDB.Driver": "3.0.0",
+          "NLog": "5.3.4",
           "Newtonsoft.Json": "13.0.3",
-          "YamlDotNet": "16.0.0",
-          "fo-dicom": "5.1.3"
+          "YamlDotNet": "16.1.3",
+          "fo-dicom": "5.1.4"
         }
       },
       "HIC.FAnsiSql": {
@@ -985,32 +990,32 @@
       },
       "HIC.Rdmp.Dicom": {
         "type": "CentralTransitive",
-        "requested": "[7.1.0, )",
-        "resolved": "7.1.0",
-        "contentHash": "Ss9TXm5+hR/6hT8z8CTaGGr1Ob5uRkAOcoepj2zx8SLW3cngd8fPFtYayDf3iHYZWoqzXrmRTIZ8GGzXufdswQ==",
+        "requested": "[7.1.2, )",
+        "resolved": "7.1.2",
+        "contentHash": "hb5u6vU/meD7SOr+guXS8/6/lawBFQVE4h6gj78NA41WXeJkp2TKktJwco3abXBrrxbcMon34bC/ygy+MJQSKQ==",
         "dependencies": {
-          "HIC.DicomTypeTranslation": "4.1.3",
-          "HIC.RDMP.Plugin": "7.1.0",
-          "fo-dicom": "5.1.3"
+          "HIC.DicomTypeTranslation": "4.1.5",
+          "HIC.RDMP.Plugin": "7.1.2",
+          "fo-dicom": "5.1.4"
         }
       },
       "HIC.RDMP.Plugin": {
         "type": "CentralTransitive",
-        "requested": "[8.3.0, )",
-        "resolved": "8.3.0",
-        "contentHash": "iKM27C/qJoXECOtdyPmXRTxKvAcEx/EgXsg9D4kMRIZi0V4nlRh8a+PxAHTbfn+0BzfBrmKuEzikF4lyN8tmEQ==",
+        "requested": "[8.3.1, )",
+        "resolved": "8.3.1",
+        "contentHash": "o3iFnwBV+vdiAOq9JpQc7FHtzaUNGgWCBZgFIy2OE7HFGqXFUY/B8MD9FgY4VhJSHBe0T/rlSVmyHT/eqHG5uA==",
         "dependencies": {
-          "AWSSDK.S3": "3.7.403.1",
-          "AWSSDK.SSO": "3.7.400.22",
-          "AWSSDK.SSOOIDC": "3.7.400.22",
-          "AWSSDK.SecurityToken": "3.7.400.22",
+          "AWSSDK.S3": "3.7.405",
+          "AWSSDK.SSO": "3.7.400.36",
+          "AWSSDK.SSOOIDC": "3.7.400.36",
+          "AWSSDK.SecurityToken": "3.7.400.36",
           "CommandLineParser": "2.9.1",
           "ExcelNumberFormat": "1.1.0",
           "FluentFTP": "51.1.0",
-          "HIC.FAnsiSql": "3.2.6",
+          "HIC.FAnsiSql": "3.2.7",
           "HIC.SynthEHR": "2.0.1",
           "LibArchive.Net": "0.1.5",
-          "MongoDB.Driver": "2.29.0",
+          "MongoDB.Driver": "3.0.0",
           "NLog": "5.3.4",
           "NPOI": "2.7.1",
           "Newtonsoft.Json": "13.0.3",
@@ -1020,7 +1025,7 @@
           "Spectre.Console": "0.49.1",
           "System.Resources.Extensions": "8.0.0",
           "Terminal.Gui": "1.17.1",
-          "YamlDotNet": "16.1.2"
+          "YamlDotNet": "16.1.3"
         }
       },
       "IsIdentifiable": {
@@ -1074,15 +1079,15 @@
       },
       "Microsoft.Extensions.Caching.Memory": {
         "type": "CentralTransitive",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "HFDnhYLccngrzyGgHkjEDU5FMLn4MpOsr5ElgsBMC4yx6lJh4jeWO7fHS8+TXPq+dgxCmUa/Trl8svObmwW4QA==",
+        "requested": "[9.0.0, )",
+        "resolved": "9.0.0",
+        "contentHash": "zbnPX/JQ0pETRSUG9fNPBvpIq42Aufvs15gGYyNIMhCun9yhmWihz0WgsI7bSDPjxWTKBf8oX/zv6v2uZ3W9OQ==",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Abstractions": "8.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
-          "Microsoft.Extensions.Options": "8.0.2",
-          "Microsoft.Extensions.Primitives": "8.0.0"
+          "Microsoft.Extensions.Caching.Abstractions": "9.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Microsoft.Extensions.Options": "9.0.0",
+          "Microsoft.Extensions.Primitives": "9.0.0"
         }
       },
       "MongoDB.Bson": {
@@ -1144,12 +1149,12 @@
       },
       "System.IO.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[21.0.29, )",
-        "resolved": "21.0.29",
-        "contentHash": "EqqngPcNhqjGHKYVjhfU8D/l3rj/m00VaXxuRrWjal38Kw8kqN3f63sj69b/8Q6OAeJkA/nbWsn/iwPMqCQvfg==",
+        "requested": "[21.1.3, )",
+        "resolved": "21.1.3",
+        "contentHash": "WgLx25YHAepNu5Wym1kBqYLqYMo/lmGakWILFYtpEtuxAVoeWvAj2U6oVfqmikPXVYit19tTGWnfbZhVUNjkrg==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.0.29",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.0.29"
+          "TestableIO.System.IO.Abstractions": "21.1.3",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.1.3"
         }
       },
       "System.IO.FileSystem": {
@@ -1180,9 +1185,9 @@
       },
       "YamlDotNet": {
         "type": "CentralTransitive",
-        "requested": "[16.1.3, )",
-        "resolved": "16.1.3",
-        "contentHash": "gtHGiDvU9VTtWte8f0thIM38cL1oowOjStKpeAEKKfA+Rc4AvekJzqFDZiiPcc4kw00ZiwR4OTJS56L16q98DQ=="
+        "requested": "[16.2.0, )",
+        "resolved": "16.2.0",
+        "contentHash": "iKVYog7JNiFOTr4gMHSjCqrGFD2NyABUHgSkRq9XR8A2+fsWepSWTpjHAOnKo1LVAHjy33o6I0u6lo5Ng0NtAw=="
       }
     },
     "net8.0/linux-x64": {
