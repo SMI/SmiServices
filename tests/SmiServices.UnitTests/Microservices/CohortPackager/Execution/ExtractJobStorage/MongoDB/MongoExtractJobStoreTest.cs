@@ -52,7 +52,11 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             var mongo = new Mock<IMongoClient>();
             mongo.Setup(static x => x.GetDatabase(ExtractionDatabaseName, It.IsAny<MongoDatabaseSettings>()))
                 .Returns(ExtractionDatabase);
-            mongo.Setup(static x => x.StartSession(It.IsAny<ClientSessionOptions>(),It.IsAny<CancellationToken>())).Returns(MockSessionHandle.Object);
+            mongo.Setup(static x => x.StartSession(It.IsAny<ClientSessionOptions>(),It.IsAny<CancellationToken>())).Returns(static () =>
+            {
+                MockSessionHandle.Reset();
+                return MockSessionHandle.Object;
+            });
             return mongo.Object;
         }
 
