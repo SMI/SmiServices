@@ -65,7 +65,10 @@ namespace SmiServices.Applications.TriggerUpdates
                 if (!mappingTable.Exists())
                     throw new Exception($"Mapping table {mappingTable.GetFullyQualifiedName()} did not exist");
 
-                var archiveTable = mappingTable.Database.ExpectTable(mappingTable.GetRuntimeName() + "_Archive");
+                var syntaxHelper = mappingTable.GetQuerySyntaxHelper();
+
+                var archiveTableName = mappingTable.GetRuntimeName() + "_Archive";
+                var archiveTable = mappingTable.Database.ExpectTable(syntaxHelper.EnsureWrapped(archiveTableName), schema: mappingTable.Schema);
 
                 //may be null!
                 var guidTable = _swapper.GetGuidTableIfAny(_globalOptions.IdentifierMapperOptions);
@@ -87,7 +90,7 @@ namespace SmiServices.Applications.TriggerUpdates
                 var dateOfLastUpdate = _cliOptions.DateOfLastUpdate;
 
                 //find all records in the table that are new
-                var cmd = mappingTable.GetCommand($"SELECT {swapCol}, {forCol} FROM {mappingTable.GetFullyQualifiedName()} WHERE {SpecialFieldNames.ValidFrom} >= @dateOfLastUpdate", con);
+                var cmd = mappingTable.GetCommand($"SELECT {syntaxHelper.EnsureWrapped(swapCol)}, {syntaxHelper.EnsureWrapped(forCol)} FROM {mappingTable.GetFullyQualifiedName()} WHERE {syntaxHelper.EnsureWrapped(SpecialFieldNames.ValidFrom)} >= @dateOfLastUpdate", con);
                 cmd.CommandTimeout = _globalOptions.TriggerUpdatesOptions!.CommandTimeoutInSeconds;
 
                 mappingTable.Database.Server.AddParameterWithValueToCommand("@dateOfLastUpdate", cmd, dateOfLastUpdate);
@@ -109,7 +112,6 @@ namespace SmiServices.Applications.TriggerUpdates
                     {
                         con2.Open();
                         var cmd2 = archiveTable.GetCommand(archiveFetchSql, con2);
-
                         cmd2.CommandTimeout = _globalOptions.TriggerUpdatesOptions.CommandTimeoutInSeconds;
                         _currentCommandOtherTables = cmd2;
 
@@ -140,12 +142,11 @@ namespace SmiServices.Applications.TriggerUpdates
                     // We should also look at guid mappings that are filled in now because of brand new records
                     if (guidTable != null)
                     {
-                        string guidFetchSql = $"SELECT {TableLookupWithGuidFallbackSwapper.GuidColumnName} FROM {guidTable.GetFullyQualifiedName()} WHERE {swapCol}=@currentSwapColValue";
+                        string guidFetchSql = $"SELECT {syntaxHelper.EnsureWrapped(TableLookupWithGuidFallbackSwapper.GuidColumnName)} FROM {guidTable.GetFullyQualifiedName()} WHERE {syntaxHelper.EnsureWrapped(swapCol)}=@currentSwapColValue";
 
                         using var con3 = guidTable.Database.Server.GetConnection();
                         con3.Open();
                         var cmd3 = guidTable.GetCommand(guidFetchSql, con3);
-
                         cmd3.CommandTimeout = _globalOptions.TriggerUpdatesOptions.CommandTimeoutInSeconds;
                         _currentCommandOtherTables = cmd3;
 
@@ -212,10 +213,10 @@ namespace SmiServices.Applications.TriggerUpdates
             if (topX.Location == QueryComponent.SELECT)
                 sb.AppendLine(topX.SQL);
 
-            sb.AppendLine(forCol);
+            sb.AppendLine(syntax.EnsureWrapped(forCol));
             sb.AppendLine("FROM " + archiveTable.GetFullyQualifiedName());
             sb.AppendLine("WHERE");
-            sb.AppendLine($"{swapCol} = @currentSwapColValue");
+            sb.AppendLine($"{syntax.EnsureWrapped(swapCol)} = @currentSwapColValue");
 
             if (topX.Location == QueryComponent.WHERE)
             {
@@ -224,7 +225,7 @@ namespace SmiServices.Applications.TriggerUpdates
             }
 
             sb.AppendLine("ORDER BY");
-            sb.AppendLine(SpecialFieldNames.ValidFrom + " desc");
+            sb.AppendLine(syntax.EnsureWrapped(SpecialFieldNames.ValidFrom) + " desc");
 
             if (topX.Location == QueryComponent.Postfix)
                 sb.AppendLine(topX.SQL);
