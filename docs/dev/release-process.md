@@ -4,7 +4,7 @@ The steps to cut a new release of SmiServices are as follows.
 
 All development is done via a simple branching workflow, which are merged into `main` via a reviewed PR. `main` therefore contains all the latest reviewed changes since the previous release, and the CI checks should always be passing. It is not possible to push to `main` directly.
 
-The release workflow is to checkout a new `release/` branch from main, update the `CHANGELOG` etc. as per below, then open a release PR with just those updates. Once this is merged, a tag is pushed to `main`. This triggers a pipeline in Azure DevOps which creates a GitHub release. The other pipelines will then push artefacts to this release when they pass.
+The release workflow is to checkout a new `release/` branch from main, update the `CHANGELOG` etc. as per below, then open a release PR with just those updates. Once this is merged, a tag is pushed to `main`. The `upload-to-release` job is then triggered after the main build which creates a GitHub release with the compiled assets.
 
 ## Creating A Normal Release
 
@@ -63,20 +63,7 @@ The release workflow is to checkout a new `release/` branch from main, update th
 
 - Delete the release branch
 
-- Wait for Azure Pipelines to build the release
-
-- Check that the built binaries are added to the [releases](https://github.com/SMI/SmiServices/releases) page.
-
-- (Internal) Ping the Mattermost ~developers channel to let everyone know there is a release available, and to not start any long-running tasks
-
-## Creating A Hotfix Release
-
-Hotfixes are small patches which are created in response to some show-stopper bug in the previous release.
-
-The process is similar to above, except:
-
-- The branch name should be `hotfix/v...`
-- The PR should be titled `Hotfix <version>`
+- Wait for GitHub Actions to build the release
 
 <!-- Links -->
 
