@@ -35,7 +35,8 @@ namespace SmiServices.Common.MongoDB
                 Server = new MongoServerAddress(options.HostName, options.Port),
                 WriteConcern = new WriteConcern(journal: !skipJournal),
                 SrvMaxHosts = 0,
-                DirectConnection = true
+                DirectConnection = true,
+                IPv6 = false
             };
 
             if (skipAuthentication || options.UserName == string.Empty)
