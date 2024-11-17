@@ -14,6 +14,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RunSettingsFilePath>$(MSBuildThisFileDirectory)\nunit.runsettings</RunSettingsFilePath>
     <RuntimeIdentifiers>linux-x64;win-x64;osx-arm64</RuntimeIdentifiers>
+    <!-- Tell Visual Studio which RID to build for -->
+    <RuntimeIdentifier Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-x64</RuntimeIdentifier>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <SelfContained>true</SelfContained>
     <TargetFramework>net8.0</TargetFramework>
