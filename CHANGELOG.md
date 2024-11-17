@@ -11,6 +11,12 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.10.2] 2024-11-17
+
+### Bugfix
+
+- [#1996](https://github.com/SMI/SmiServices/pull/1996) by rkm. Ensure MapperSource properly quotes values for postgres
+
 ## [5.10.1] 2024-11-15
 
 ### Bugfix
@@ -1452,6 +1458,7 @@ First stable release after importing the repository from the private
 [5.1.3]: https://github.com/SMI/SmiServices/compare/v5.1.2...v5.1.3
 [5.10.0]: https://github.com/SMI/SmiServices/compare/v5.9.0...v5.10.0
 [5.10.1]: https://github.com/SMI/SmiServices/compare/v5.10.0...v5.10.1
+[5.10.2]: https://github.com/SMI/SmiServices/compare/v5.10.1...v5.10.2
 [5.2.0]: https://github.com/SMI/SmiServices/compare/v5.1.3...v5.2.0
 [5.3.0]: https://github.com/SMI/SmiServices/compare/v5.2.0...v5.3.0
 [5.4.0]: https://github.com/SMI/SmiServices/compare/v5.3.0...v5.4.0
@@ -1463,4 +1470,4 @@ First stable release after importing the repository from the private
 [5.7.2]: https://github.com/SMI/SmiServices/compare/v5.7.1...v5.7.2
 [5.8.0]: https://github.com/SMI/SmiServices/compare/v5.7.2...v5.8.0
 [5.9.0]: https://github.com/SMI/SmiServices/compare/v5.8.0...v5.9.0
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.10.1...main
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.10.2...main
