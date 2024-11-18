@@ -68,7 +68,9 @@ jobs:
         run: ./bin/smi/downloadTessdata.py
       - name: "[linux] start services"
         if: ${{ matrix.os == 'linux' }}
-        run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
+        run: |
+          ./bin/smi/startDockerLinux.py ${{ env.db-password }}
+          docker exec mongodb /usr/bin/mongo < bin/smi/mongoInit.js
       - name: "[linux] re-write database strings"
         if: ${{ matrix.os == 'linux' }}
         run: |

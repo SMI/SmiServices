@@ -39,18 +39,8 @@ def main() -> int:
     )
 
     # Start MongoDB replication
-    cmd = (
-        docker, "exec",
-        "mongodb",
-        "/usr/bin/mongo", "--eval", 'rs.initiate()',
-    )
-    C.run(cmd)
-    cmd = (
-        docker, "exec",
-        "mongodb",
-        "/usr/bin/mongo", "--eval", 'rs.status()',
-    )
-    C.run(cmd)
+    # We don't actually use replication anywhere anywhere, but maybe it's
+    # needed for transactions...?
 
     return 0
 

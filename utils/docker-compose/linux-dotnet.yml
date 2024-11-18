@@ -32,6 +32,6 @@ services:
   mongodb:
     container_name: mongodb
     image: mongo:latest
-    command: mongod --replSet rs0
+    command: mongod --replSet rs0 --networkMessageCompressors disabled
     ports:
       - 27017:27017
