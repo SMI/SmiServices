@@ -129,7 +129,7 @@ namespace SmiServices.Microservices.UpdateValues
         {
             StringBuilder builder = new();
 
-            builder.Append(col.GetFullyQualifiedName());
+            builder.Append(col.GetWrappedName());
             builder.Append(' ');
             builder.Append(op ?? "=");
             builder.Append(' ');
