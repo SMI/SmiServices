@@ -42,7 +42,13 @@ def main() -> int:
     cmd = (
         docker, "exec",
         "mongodb",
-        "/usr/bin/mongo", "--eval", "'rs.initiate(_id : \"rs0\",members:[{_id:0,host:\"127.0.0.1:27017\"}])'",
+        "/usr/bin/mongo", "--eval", 'rs.initiate(_id : \"rs0\",members:[{_id:0,host:\"127.0.0.1:27017\"}])',
+    )
+    C.run(cmd)
+    cmd = (
+        docker, "exec",
+        "mongodb",
+        "/usr/bin/mongo", "--eval", 'rs.status()',
     )
     C.run(cmd)
 
