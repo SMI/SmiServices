@@ -70,7 +70,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: |
           ./bin/smi/startDockerLinux.py ${{ env.db-password }}
-          docker exec -it mongodb /usr/bin/mongo < bin/smi/mongoInit.js
+          docker exec -i mongodb /usr/bin/mongo < bin/smi/mongoInit.js
       - name: "[linux] re-write database strings"
         if: ${{ matrix.os == 'linux' }}
         run: |
