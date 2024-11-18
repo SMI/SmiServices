@@ -60,7 +60,7 @@ repos:
           )$
   # Markdown
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.18
+    rev: 0.7.19
     hooks:
     - id: mdformat
       additional_dependencies:
@@ -70,7 +70,7 @@ repos:
               .github/ISSUE_TEMPLATE/.*md|
           )$
   - repo: https://github.com/tcort/markdown-link-check
-    rev: "v3.12.2"
+    rev: "v3.13.6"
     hooks:
       - id: markdown-link-check
         args: [--quiet, --config, .meta/markdown-link-check.json]
