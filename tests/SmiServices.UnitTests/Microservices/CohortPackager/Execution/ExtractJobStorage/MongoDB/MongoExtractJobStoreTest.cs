@@ -38,12 +38,15 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         public void OneTimeTearDown() { }
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            ExtractionDatabase = new TestExtractionDatabase();
+        }
 
         [TearDown]
         public void TearDown() { }
 
-        private static readonly TestExtractionDatabase ExtractionDatabase = new();
+        private static TestExtractionDatabase ExtractionDatabase = new();
         private static readonly Mock<IClientSessionHandle> MockSessionHandle = new();
 
         private static IMongoClient GetTestMongoClient()
@@ -538,7 +541,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [Test]
         public void TestGetReadJobsImpl()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testJob = new MongoExtractJobDoc(
                 jobId,
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
