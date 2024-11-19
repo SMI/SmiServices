@@ -92,7 +92,7 @@ namespace SmiServices.IntegrationTests.Common
             var globalOptionsFactory = new GlobalOptionsFactory();
 
             var exc = Assert.Throws<Exception>(() => globalOptionsFactory.Load(nameof(GlobalOptionsFactory_Load_EmptyFile_ThrowsWithUsefulMessage), "foo.yaml", fileSystem));
-            Assert.That(exc.Message, Is.EqualTo("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?"));
+            Assert.That(exc?.Message, Is.EqualTo("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?"));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace SmiServices.IntegrationTests.Common
             var globalOptionsFactory = new GlobalOptionsFactory();
 
             var exc = Assert.Throws<ArgumentException>(() => globalOptionsFactory.Load(nameof(GlobalOptionsFactory_Load_EmptyFile_ThrowsWithUsefulMessage), "foo.yaml", fileSystem));
-            Assert.That(exc.Message, Is.EqualTo("Could not find config file 'foo.yaml'"));
+            Assert.That(exc?.Message, Is.EqualTo("Could not find config file 'foo.yaml'"));
         }
     }
 }

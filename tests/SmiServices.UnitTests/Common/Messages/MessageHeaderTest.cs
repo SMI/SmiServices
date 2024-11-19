@@ -84,9 +84,9 @@ namespace SmiServices.UnitTests.Common.Messages
 
             try
             {
-                var exc = Assert.Throws<Exception>(() => new MessageHeader());
+                var exc = Assert.Throws<Exception>(static () => _ = new MessageHeader());
 
-                Assert.That(exc.Message, Is.EqualTo("Value must be set before use"));
+                Assert.That(exc?.Message, Is.EqualTo("Value must be set before use"));
             }
             finally
             {

@@ -311,7 +311,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             // Act
             // Assert
             var exc = Assert.Throws<ArgumentException>(() => broker.SetupProducer(producerOptions));
-            Assert.That(exc.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
+            Assert.That(exc?.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
         }
 
         [Test]
