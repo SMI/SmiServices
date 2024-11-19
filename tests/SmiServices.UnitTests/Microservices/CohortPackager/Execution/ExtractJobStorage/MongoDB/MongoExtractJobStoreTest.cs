@@ -41,6 +41,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         public void SetUp()
         {
             ExtractionDatabase = new TestExtractionDatabase();
+            MockSessionHandle.Reset();
         }
 
         [TearDown]
